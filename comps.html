@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Comps & Market Analysis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --text: #0f172a; --text-secondary: #64748b; --border: #e2e8f0; --bg: #f8fafc; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--primary); color: white; position: fixed; height: 100vh; }
+    .nav { padding: 24px 12px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; color: #94a3b8; text-decoration: none; margin-bottom: 4px; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .main { flex: 1; margin-left: 260px; padding: 32px; }
+    .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
+    .comp-form { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 6px; }
+    input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
+    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .comps-table { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: var(--bg); padding: 12px; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); }
+    td { padding: 12px; border-bottom: 1px solid var(--border); }
+    .subject-row { background: #dbeafe; font-weight: 600; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .metric-card { background: white; border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
+    .metric-value { font-size: 1.75rem; font-weight: 700; }
+    .metric-label { font-size: 0.875rem; color: var(--text-secondary); }
+    .chart-container { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="nav">
+      <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; padding: 0 12px;">◆ SyndicatePro</div>
+      <a href="deals.html" class="nav-item"><i class="fas fa-building"></i> Deals</a>
+      <a href="comps.html" class="nav-item active"><i class="fas fa-chart-bar"></i> Comps Analysis</a>
+      <a href="new-deal.html" class="nav-item"><i class="fas fa-plus"></i> New Deal</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <h1 style="margin-bottom: 24px;">Comps & Market Analysis</h1>
+    
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-value" id="avgPrice">$0</div>
+        <div class="metric-label">Avg Price/Unit</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="avgCap">0.0%</div>
+        <div class="metric-label">Avg Cap Rate</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="avgRent">$0</div>
+        <div class="metric-label">Avg Rent/SF</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="priceRange">$0-$0</div>
+        <div class="metric-label">Price Range</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="comp-form">
+        <h3 style="margin-bottom: 16px;">Add Comparable</h3>
+        <div class="form-group">
+          <label>Property Name</label>
+          <input type="text" id="compName" placeholder="e.g., Oakwood Apartments">
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="compAddress" placeholder="Street, City, State">
+        </div>
+        <div class="form-group">
+          <label>Units</label>
+          <input type="number" id="compUnits" placeholder="100">
+        </div>
+        <div class="form-group">
+          <label>Sale Price</label>
+          <input type="number" id="compPrice" placeholder="5000000">
+        </div>
+        <div class="form-group">
+          <label>NOI</label>
+          <input type="number" id="compNoi" placeholder="350000">
+        </div>
+        <div class="form-group">
+          <label>Avg Rent/Unit</label>
+          <input type="number" id="compRent" placeholder="1200">
+        </div>
+        <div class="form-group">
+          <label>Year Built</label>
+          <input type="number" id="compYear" placeholder="2010">
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn btn-success" onclick="addComp()" style="flex: 1;">
+            <i class="fas fa-plus"></i> Add Comp
+          </button>
+          <button class="btn btn-primary" onclick="markAsSubject()" style="flex: 1;">
+            Subject Property
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <div class="comps-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Units</th>
+                <th>Price</th>
+                <th>Price/Unit</th>
+                <th>Cap Rate</th>
+                <th>Rent/Unit</th>
+                <th>Year</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody id="compsBody"></tbody>
+          </table>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="compsChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let comps = JSON.parse(localStorage.getItem('comps') || '[]');
+    let subject = null;
+    let chart = null;
+
+    function addComp() {
+      const comp = {
+        id: Date.now(),
+        name: document.getElementById('compName').value,
+        address: document.getElementById('compAddress').value,
+        units: parseInt(document.getElementById('compUnits').value) || 0,
+        price: parseInt(document.getElementById('compPrice').value) || 0,
+        noi: parseInt(document.getElementById('compNoi').value) || 0,
+        rent: parseInt(document.getElementById('compRent').value) || 0,
+        year: parseInt(document.getElementById('compYear').value) || 0,
+        isSubject: false
+      };
+      
+      comps.push(comp);
+      localStorage.setItem('comps', JSON.stringify(comps));
+      render();
+      clearForm();
+    }
+
+    function markAsSubject() {
+      subject = {
+        id: Date.now(),
+        name: document.getElementById('compName').value || 'Subject Property',
+        address: document.getElementById('compAddress').value,
+        units: parseInt(document.getElementById('compUnits').value) || 0,
+        price: parseInt(document.getElementById('compPrice').value) || 0,
+        noi: parseInt(document.getElementById('compNoi').value) || 0,
+        rent: parseInt(document.getElementById('compRent').value) || 0,
+        year: parseInt(document.getElementById('compYear').value) || 0,
+        isSubject: true
+      };
+      localStorage.setItem('subject
