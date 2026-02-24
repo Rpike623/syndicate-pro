@@ -666,9 +666,20 @@
             </div>
           </div>
           
-          <button class="btn" onclick="calculateWaterfall()" style="width: 100%; margin-top: 1rem;">
-            Calculate Distributions
-          </button>
+          <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+            <button class="btn" onclick="calculateWaterfall()" style="flex: 1;">
+              Calculate
+            </button>
+            <button class="btn btn-secondary" onclick="saveDeal()" style="flex: 1;">
+              💾 Save Deal
+            </button>
+          </div>
+          
+          <div style="margin-top: 1rem;">
+            <select id="loadDealSelect" onchange="loadDeal(this.value)" style="width: 100%;">
+              <option value="">-- Load saved deal --</option>
+            </select>
+          </div>
         </div>
       </div>
       
@@ -733,9 +744,12 @@
     </div>
   </div>
 
+  <script src="js/storage.js"></script>
   <script>
     // State
     let dealState = {
+      id: null,
+      name: '',
       type: 'simple',
       investors: [],
       totalEquity: 0,
@@ -991,8 +1005,100 @@
       });
     }
     
+    // Save deal to storage
+    function saveDeal() {
+      const deal = {
+        id: dealState.id || Date.now().toString(),
+        name: document.getElementById('dealName').value || 'Unnamed Deal',
+        totalCost: parseFloat(document.getElementById('totalCost').value) || 0,
+        loanAmount: parseFloat(document.getElementById('loanAmount').value) || 0,
+        gpEquity: parseFloat(document.getElementById('gpEquity').value) || 0,
+        lpEquity: parseFloat(document.getElementById('lpEquity').value) || 0,
+        prefReturn: parseFloat(document.getElementById('prefReturn').value) || 0,
+        gpPromote: parseFloat(document.getElementById('gpPromote').value) || 0,
+        catchupRate: parseFloat(document.getElementById('catchupRate').value) || 0,
+        holdPeriod: parseFloat(document.getElementById('holdPeriod').value) || 5,
+        waterfallType: dealState.type,
+        investors: dealState.investors,
+        status: 'active'
+      };
+      
+      deal.totalEquity = deal.totalCost - deal.loanAmount;
+      
+      Storage.saveDeal(deal);
+      dealState.id = deal.id;
+      
+      updateDealSelect();
+      alert('Deal saved successfully!');
+    }
+    
+    // Load deal from storage
+    function loadDeal(dealId) {
+      if (!dealId) return;
+      
+      const deal = Storage.getDeal(dealId);
+      if (!deal) return;
+      
+      dealState.id = deal.id;
+      dealState.type = deal.waterfallType || 'simple';
+      dealState.investors = deal.investors || [];
+      
+      document.getElementById('dealName').value = deal.name || '';
+      document.getElementById('totalCost').value = deal.totalCost || '';
+      document.getElementById('loanAmount').value = deal.loanAmount || '';
+      document.getElementById('gpEquity').value = deal.gpEquity || '';
+      document.getElementById('lpEquity').value = deal.lpEquity || '';
+      document.getElementById('prefReturn').value = deal.prefReturn || '';
+      document.getElementById('gpPromote').value = deal.gpPromote || '';
+      document.getElementById('catchupRate').value = deal.catchupRate || '';
+      document.getElementById('holdPeriod').value = deal.holdPeriod || '';
+      
+      // Update waterfall type selection
+      document.querySelectorAll('.waterfall-option').forEach(o => {
+        o.classList.remove('selected');
+        if (o.dataset.type === dealState.type) o.classList.add('selected');
+      });
+      
+      // Update investor list
+      const list = document.getElementById('investorList');
+      list.innerHTML = `
+        <div class="investor-item">
+          <span class="investor-name">GP Entity</span>
+          <span class="investor-amount" id="gpInvestmentAmount">${formatCurrency(deal.totalEquity * (deal.gpEquity / 100))}</span>
+        </div>
+      `;
+      
+      (deal.investors || []).forEach(inv => {
+        const item = document.createElement('div');
+        item.className = 'investor-item';
+        item.innerHTML = `
+          <span class="investor-name">${inv.name}</span>
+          <span class="investor-amount">${formatCurrency(inv.amount)}</span>
+        `;
+        list.appendChild(item);
+      });
+      
+      calculateWaterfall();
+    }
+    
+    // Update the load deal dropdown
+    function updateDealSelect() {
+      const select = document.getElementById('loadDealSelect');
+      const deals = Storage.getDeals();
+      
+      select.innerHTML = '<option value="">-- Load saved deal --</option>';
+      deals.forEach(deal => {
+        const option = document.createElement('option');
+        option.value = deal.id;
+        option.textContent = deal.name;
+        if (deal.id === dealState.id) option.selected = true;
+        select.appendChild(option);
+      });
+    }
+    
     // Initialize
     updateFormVisibility();
+    updateDealSelect();
   </script>
 </body>
 </html>

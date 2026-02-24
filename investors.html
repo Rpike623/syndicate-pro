@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Investors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a1a2e;
+      --secondary: #16213e;
+      --accent: #0f3460;
+      --highlight: #e94560;
+      --success: #00d9a3;
+      --warning: #f39c12;
+      --text: #eaeaea;
+      --text-muted: #a0a0a0;
+      --border: #2a2a4a;
+      --card: #1e1e3a;
+      --input: #252545;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--primary);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    .header {
+      background: var(--secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--highlight);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logo::before { content: "◆"; color: var(--success); }
+    
+    .nav { display: flex; gap: 1.5rem; }
+    .nav a { color: var(--text-muted); text-decoration: none; font-weight: 500; }
+    .nav a:hover, .nav a.active { color: var(--text); }
+    
+    .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+    
+    .page-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .page-subtitle { color: var(--text-muted); margin-bottom: 2rem; }
+    
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+    @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
+    
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .card-title { font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    
+    .form-group { margin-bottom: 1.25rem; }
+    label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); margin-bottom: 0.5rem; }
+    input, select {
+      width: 100%;
+      background: var(--input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      font-size: 1rem;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--highlight); }
+    
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    
+    .btn {
+      background: var(--highlight);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 0.875rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn:hover { background: #d63d56; }
+    .btn-secondary { background: var(--accent); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
+    
+    .investor-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .investor-table th,
+    .investor-table td {
+      padding: 0.875rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .investor-table th {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+    .investor-table tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-accredited { background: rgba(0, 217, 163, 0.2); color: var(--success); }
+    .badge-non-accredited { background: rgba(243, 156, 18, 0.2); color: var(--warning); }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+    .status-active { background: var(--success); }
+    .status-pending { background: var(--warning); }
+    
+    .search-box {
+      background: var(--input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: var(--text);
+      width: 300px;
+    }
+    
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .stat-label { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+    
+    .checkbox-group {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">SyndicatePro</div>
+    <nav class="nav">
+      <a href="index.html">Deal Modeling</a>
+      <a href="documents.html">Documents</a>
+      <a href="investors.html" class="active">Investors</a>
+      <a href="reports.html">Reports</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="page-title">Investor Management</h1>
+    <p class="page-subtitle">Manage your LP relationships and track investments</p>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Investors</div>
+        <div class="stat-value" id="totalInvestors">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Accredited</div>
+        <div class="stat-value" id="accreditedCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total AUM</div>
+        <div class="stat-value" id="totalAUM">$0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active Deals</div>
+        <div class="stat-value" id="activeDeals">0</div>
+      </div>
+    </div>
+    
+    <div class="grid">
+      <div class="left-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">👥 Investor List</div>
+            <div style="display: flex; gap: 0.75rem;">
+              <input type="text" class="search-box" id="searchInput" placeholder="Search investors...">
+              <button class="btn btn-sm" onclick="openModal()">+ Add</button>
+            </div>
+          </div>
+          
+          <table class="investor-table">
+            <thead>
+              <tr>
+                <th>Investor</th>
+                <th>Status</th>
+                <th>Total Invested</th>
+                <th>Deals</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="investorTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="right-panel">
+        <div class="card" id="detailCard" style="display: none;">
+          <div class="card-header">
+            <div class="card-title" id="detailName">Investor Details</div>
+            <button class="btn btn-sm btn-outline" onclick="editCurrent()">Edit</button>
+          </div>
+          
+          <div id="detailContent">
+          </div>
+        </div>
+        
+        <div class="card" id="emptyDetail" style="text-align: center; padding: 4rem 2rem;">
+          <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">👤</div>
+          <h3 style="margin-bottom: 0.5rem;">Select an investor</h3>
+          <p style="color: var(--text-muted);">Click on an investor to view their details</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add New Investor</h2>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      
+      <form id="investorForm" onsubmit="saveInvestor(event)">
+        <input type="hidden" id="investorId">
+        
+        <div class="input-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="firstName" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="lastName" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="email" required>
+        </div>
+        
+        <div class="input-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="phone">
+          </div>
+          <div class="form-group">
+            <label>Entity Name (if applicable)</label>
+            <input type="text" id="entityName" placeholder="e.g., Smith Family Holdings LLC">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="address">
+        </div>
+        
+        <div class="form-group">
+          <label>Accredited Investor Status</label>
+          <select id="accreditedStatus">
+            <option value="verified">Verified Accredited</option>
+            <option value="self">Self-Certified</option>
+            <option value="pending">Pending Verification</option>
+            <option value="non-accredited">Non-Accredited</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Verification Method</label>
+          <select id="verificationMethod">
+            <option value="">Select method...</option>
+            <option value="cpa-letter">CPA Letter</option>
+            <option value="tax-returns">Tax Returns</option>
+            <option value="net-worth">Net Worth Statement</option>
+            <option value="series7">Series 7/65/82 License</option>
+            <option value="knowledgeable">Knowledgeable Employee</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Investment Preferences</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="prefMultifamily">
+              Multifamily
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="prefRetail">
+              Retail
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="prefIndustrial">
+              Industrial
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="prefOffice">
+              Office
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Notes</label>
+          <input type="text" id="notes" placeholder="Any additional notes...">
+        </div>
+        
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="submit" class="btn">Save Investor</button>
+          <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script>
+    let currentInvestor = null;
+    let investors = [];
+    
+    function loadInvestors() {
+      investors = Storage.getInvestors();
+      renderTable();
+      updateStats();
+    }
+    
+    function renderTable() {
+      const tbody = document.getElementById('investorTableBody');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      
+      const filtered = investors.filter(inv => {
+        const name = `${inv.firstName} ${inv.lastName}`.toLowerCase();
+        const email = (inv.email || '').toLowerCase();
+        const entity = (inv.entityName || '').toLowerCase();
+        return name.includes(searchTerm) || email.includes(searchTerm) || entity.includes(searchTerm);
+      });
+      
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+              No investors found. Click "+ Add" to create one.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tbody.innerHTML = filtered.map(inv => {
+        const badgeClass = inv.accreditedStatus === 'verified' ? 'badge-accredited' : 
+                          inv.accreditedStatus === 'non-accredited' ? 'badge-non-accredited' : 'badge-non-accredited';
+        const badgeText = inv.accreditedStatus === 'verified' ? 'Accredited' : 
+                         inv.accreditedStatus === 'non-accredited' ? 'Non-Accredited' : 'Pending';
+        
+        const totalInvested = (inv.investments || []).reduce((sum, inv) => sum + (inv.amount || 0), 0);
+        
+        return `
+          <tr style="cursor: pointer;" onclick="showInvestor('${inv.id}')">
+            <td>
+              <div style="font-weight: 600;">${inv.firstName} ${inv.lastName}</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">${inv.email}</div>
+            </td>
+            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+            <td style="font-family: 'JetBrains Mono', monospace;">${Formatters.currency(totalInvested)}</td>
+            <td>${(inv.dealIds || []).length}</td>
+            <td>
+              <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); editInvestor('${inv.id}')">Edit</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    function updateStats() {
+      document.getElementById('totalInvestors').textContent = investors.length;
+      document.getElementById('accreditedCount').textContent = investors.filter(i => i.accreditedStatus === 'verified').length;
+      
+      const totalAUM = investors.reduce((sum, inv) => {
+        return sum + (inv.investments || []).reduce((s, inv) => s + (inv.amount || 0), 0);
+      }, 0);
+      document.getElementById('totalAUM').textContent = Formatters.currency(totalAUM);
+      
+      const deals = Storage.getDeals();
+      document.getElementById('activeDeals').textContent = deals.filter(d => d.status === 'active').length;
+    }
+    
+    function showInvestor(id) {
+      currentInvestor = investors.find(i => i.id === id);
+      if (!currentInvestor) return;
+      
+      document.getElementById('emptyDetail').style.display = 'none';
+      document.getElementById('detailCard').style.display = 'block';
+      
+      const name = currentInvestor.entityName || `${currentInvestor.firstName} ${currentInvestor.lastName}`;
+      document.getElementById('detailName').textContent = name;
+      
+      const totalInvested = (currentInvestor.investments || []).reduce((sum, inv) => sum + (inv.amount || 0), 0);
+      
+      document.getElementById('detailContent').innerHTML = `
+        <div class="input-row" style="margin-bottom: 1.5rem;">
+          <div>
+            <label style="color: var(--text-muted); font-size: 0.875rem;">Contact</label>
+            <div>${currentInvestor.email}</div>
+            <div style="color: var(--text-muted);">${currentInvestor.phone || 'No phone'}</div>
+          </div>
+          <div>
+            <label style="color: var(--text-muted); font-size: 0.875rem;">Total Invested</label>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--success);">${Formatters.currency(totalInvested)}</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Address</label>
+          <div>${currentInvestor.address || 'Not provided'}</div>
+        </div>
+        
+        <div class="form-group">
+          <label>Accreditation Status</label>
+          <div style="text-transform: capitalize;">${(currentInvestor.accreditedStatus || 'pending').replace('-', ' ')}</div>
+          ${currentInvestor.verificationMethod ? `<div style="font-size: 0.875rem; color: var(--text-muted);">Verified via: ${currentInvestor.verificationMethod}</div>` : ''}
+        </div>
+        
+        <div class="form-group">
+          <label>Investment Preferences</label>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            ${(currentInvestor.preferences || []).map(p => `<span class="badge" style="background: var(--accent);">${p}</span>`).join('') || 'None specified'}
+          </div>
+        </div>
+        
+        ${currentInvestor.notes ? `
+        <div class="form-group">
+          <label>Notes</label>
+          <div style="background: var(--input); padding: 1rem; border-radius: 8px;">${currentInvestor.notes}</div>
+        </div>
+        ` : ''}
+        
+        <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
+          <button class="btn btn-sm" onclick="addInvestment()">+ Add Investment</button>
+          <button class="btn btn-sm btn-outline" onclick="sendDocument()">📧 Send Document</button>
+          <button class="btn btn-sm btn-outline" style="color: var(--highlight);" onclick="deleteInvestor()">🗑️ Delete</button>
+        </div>
+      `;
+    }
+    
+    function openModal() {
+      document.getElementById('modal').classList.add('active');
+      document.getElementById('modalTitle').textContent = 'Add New Investor';
+      document.getElementById('investorForm').reset();
+      document.getElementById('investorId').value = '';
+    }
+    
+    function closeModal() {
+      document.getElementById('modal').classList.remove('active');
+    }
+    
+    function saveInvestor(event) {
+      event.preventDefault();
+      
+      const preferences = [];
+      if (document.getElementById('prefMultifamily').checked) preferences.push('Multifamily');
+      if (document.getElementById('prefRetail').checked) preferences.push('Retail');
+      if (document.getElementById('prefIndustrial').checked) preferences.push('Industrial');
+      if (document.getElementById('prefOffice').checked) preferences.push('Office');
+      
+      const investor = {
+        id: document.getElementById('investorId').value || Date.now().toString(),
+        firstName: document.getElementById('firstName').value,
+        lastName: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        entityName: document.getElementById('entityName').value,
+        address: document.getElementById('address').value,
+        accreditedStatus: document.getElementById('accreditedStatus').value,
+        verificationMethod: document.getElementById('verificationMethod').value,
+        preferences: preferences,
+        notes: document.getElementById('notes').value,
+        investments: currentInvestor?.investments || [],
+        dealIds: currentInvestor?.dealIds || []
+      };
+      
+      Storage.saveInvestor(investor);
+      closeModal();
+      loadInvestors();
+      
+      if (currentInvestor && currentInvestor.id === investor.id) {
+        showInvestor(investor.id);
+      }
+    }
+    
+    function editInvestor(id) {
+      const investor = investors.find(i => i.id === id);
+      if (!investor) return;
+      
+      currentInvestor = investor;
+      document.getElementById('modal').classList.add('active');
+      document.getElementById('modalTitle').textContent = 'Edit Investor';
+      
+      document.getElementById('investorId').value = investor.id;
+      document.getElementById('firstName').value = investor.firstName;
+      document.getElementById('lastName').value = investor.lastName;
+      document.getElementById('email').value = investor.email;
+      document.getElementById('phone').value = investor.phone || '';
+      document.getElementById('entityName').value = investor.entityName || '';
+      document.getElementById('address').value = investor.address || '';
+      document.getElementById('accreditedStatus').value = investor.accreditedStatus || 'pending';
+      document.getElementById('verificationMethod').value = investor.verificationMethod || '';
+      document.getElementById('notes').value = investor.notes || '';
+      
+      document.getElementById('prefMultifamily').checked = (investor.preferences || []).includes('Multifamily');
+      document.getElementById('prefRetail').checked = (investor.preferences || []).includes('Retail');
+      document.getElementById('prefIndustrial').checked = (investor.preferences || []).includes('Industrial');
+      document.getElementById('prefOffice').checked = (investor.preferences || []).includes('Office');
+    }
+    
+    function editCurrent() {
+      if (currentInvestor) editInvestor(currentInvestor.id);
+    }
+    
+    function deleteInvestor() {
+      if (!currentInvestor) return;
+      if (!confirm(`Delete ${currentInvestor.firstName} ${currentInvestor.lastName}?`)) return;
+      
+      const allInvestors = Storage.getInvestors().filter(i => i.id !== currentInvestor.id);
+      localStorage.setItem('syndicateInvestors', JSON.stringify(allInvestors));
+      
+      currentInvestor = null;
+      document.getElementById('detailCard').style.display = 'none';
+      document.getElementById('emptyDetail').style.display = 'block';
+      loadInvestors();
+    }
+    
+    function addInvestment() {
+      alert('Investment tracking coming soon - link to deal investments');
+    }
+    
+    function sendDocument() {
+      alert('Document sending coming soon - integrate with email/doc generator');
+    }
+    
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', renderTable);
+    
+    // Initialize
+    loadInvestors();
+  </script>
+</body>
+</html>
