@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Templates — SyndicatePro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-panel: #13131a;
+      --bg-card: #1a1a24;
+      --bg-hover: #252533;
+      --accent: #8b5cf6;
+      --accent-2: #06b6d4;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-muted: #64748b;
+      --border: rgba(255,255,255,0.06);
+      --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+    .app { display: flex; min-height: 100vh; }
+    
+    .sidebar { width: 260px; background: var(--bg-panel); border-right: 1px solid var(--border); position: fixed; height: 100vh; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-mark { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .logo span { font-family: 'Space Grotesk'; font-weight: 700; font-size: 1.25rem; }
+    .nav { padding: 16px 12px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 10px; font-size: 14px; margin: 2px 0; transition: all 0.15s; }
+    .nav-item:hover { background: var(--bg-hover); color: var(--text); }
+    .nav-item.active { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(6,182,212,0.1)); color: var(--text); border: 1px solid rgba(139,92,246,0.3); }
+    .nav-item i { width: 20px; text-align: center; }
+    
+    .main { flex: 1; margin-left: 260px; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--bg-panel); }
+    .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
+    .btn-ghost { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); }
+    .content { padding: 32px; max-width: 1400px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    
+    /* Template Selector */
+    .template-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    .panel-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; }
+    .template-grid { display: grid; gap: 12px; }
+    .template-card { padding: 16px; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.15s; }
+    .template-card:hover { border-color: var(--accent); }
+    .template-card.active { border-color: var(--accent); background: rgba(139,92,246,0.1); }
+    .template-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .template-icon.outreach { background: rgba(139,92,246,0.15); color: var(--accent); }
+    .template-icon.capital { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .template-icon.update { background: rgba(6,182,212,0.15); color: var(--accent-2); }
+    .template-icon.distribution { background: rgba(34,197,94,0.15); color: var(--success); }
+    .template-name { font-weight: 600; margin-bottom: 4px; }
+    .template-desc { font-size: 13px; color: var(--text-muted); }
+    
+    /* Email Editor */
+    .editor-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; }
+    .form-group textarea { min-height: 200px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    
+    /* Preview Panel */
+    .preview-panel { background: white; border-radius: var(--radius); overflow: hidden; color: #1a1a2e; }
+    .email-header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 32px; }
+    .email-logo { font-family: 'Space Grotesk'; font-size: 1.25rem; font-weight: 700; margin-bottom: 16px; }
+    .email-logo span { color: #a855f7; }
+    .email-subject { font-size: 1.5rem; font-weight: 600; margin-bottom: 8px; }
+    .email-meta { font-size: 14px; opacity: 0.7; }
+    .email-body { padding: 32px; }
+    .email-section { margin-bottom: 24px; }
+    .email-section h3 { font-size: 1rem; margin-bottom: 12px; color: #1a1a2e; }
+    .email-section p { font-size: 14px; line-height: 1.7; color: #475569; margin-bottom: 12px; }
+    .highlight-box { background: #f8fafc; border-left: 4px solid #a855f7; padding: 16px; border-radius: 0 10px 10px 0; margin: 16px 0; }
+    .highlight-box h4 { font-size: 14px; margin-bottom: 8px; }
+    .highlight-box p { font-size: 13px; margin: 0; }
+    .cta-button { display: inline-block; background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: 600; margin: 16px 0; }
+    .email-footer { background: #f8fafc; padding: 24px 32px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-mark"><i class="fas fa-building"></i></div>
+          <span>SyndicatePro</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-section">Portfolio</div>
+        <a href="dashboard-v2.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+        <div class="nav-section">Communications</div>
+        <a href="email-templates-v2.html" class="nav-item active"><i class="fas fa-envelope"></i> Email Templates</a>
+        <a href="teaser-generator.html" class="nav-item"><i class="fas fa-file-alt"></i> Deal Teasers</a>
+      </nav>
+    </aside>
+    
+    <main class="main">
+      <header class="header">
+        <div class="greeting">
+          <h1>Email Templates</h1>
+          <p>Pre-built email sequences for investor communications</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-ghost"><i class="fas fa-history"></i> Sent History</button>
+          <button class="btn btn-primary"><i class="fas fa-plus"></i> Custom Template</button>
+        </div>
+      </header>
+      
+      <div class="content">
+        <!-- Template Selector -->
+        <div class="template-panel">
+          <h2 class="panel-title">Choose Template</h2>
+          <div class="template-grid">
+            <div class="template-card active" onclick="selectTemplate('outreach')">
+              <div class="template-icon outreach"><i class="fas fa-bullhorn"></i></div>
+              <div class="template-name">Deal Outreach</div>
+              <div class="template-desc">Initial email to potential investors about new opportunity</div>
+            </div>
+            <div class="template-card" onclick="selectTemplate('capital')">
+              <div class="template-icon capital"><i class="fas fa-money-bill-wave"></i></div>
+              <div class="template-name">Capital Call</div>
+              <div class="template-desc">Request funds from committed investors with wire instructions</div>
+            </div>
+            <div class="template-card" onclick="selectTemplate('update')">
+              <div class="template-icon update"><i class="fas fa-chart-line"></i></div>
+              <div class="template-name">Quarterly Update</div>
+              <div class="template-desc">Progress report on property performance and operations</div>
+            </div>
+            <div class="template-card" onclick="selectTemplate('distribution')">
+              <div class="template-icon distribution"><i class="fas fa-hand-holding-usd"></i></div>
+              <div class="template-name">Distribution Notice</div>
+              <div class="template-desc">Announce upcoming distribution with per-investor amounts</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Editor -->
+        <div class="editor-panel">
+          <div class="form-row">
+            <div class="form-group">
+              <label>From Name</label>
+              <input type="text" value="Pike Capital Management">
+            </div>
+            <div class="form-group">
+              <label>From Email</label>
+              <input type="text" value="investments@pikecapital.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Subject Line</label>
+            <input type="text" value="New Investment Opportunity: Arlington Heights Multifamily | 18% Target IRR" id="subjectLine">
+          </div>
+          <div class="form-group">
+            <label>Email Body</label>
+            <textarea id="emailBody">Hi {{FirstName}},
+
+I hope this email finds you well. I'm excited to share a new investment opportunity that aligns with our strategy of acquiring well-located multifamily assets with value-add potential.
+
+🏢 Arlington Heights Multifamily
+📍 Dallas, TX (Uptown submarket)
+💰 $2.5M Total Raise | $100K Minimum
+📈 18% Target IRR | 8-10% Cash-on-Cash
+
+Investment Highlights:
+• 84-unit Class B multifamily in prime Dallas location
+• 94% occupied with 12% year-over-year rent growth
+• Value-add opportunity: renovate 40 units, achieve $200/month premiums
+• Below-market acquisition at $95K/door vs $120K comps
+
+The Dallas-Fort Worth market continues to show strong fundamentals with population growth of 1.5% annually and job growth driven by tech and finance relocations.
+
+We're targeting a close date of March 15th. I have attached the full investment summary and would welcome the opportunity to discuss this opportunity with you.
+
+Best regards,
+Robert Pike
+Managing Partner, Pike Capital Management
+
+P.S. This is a 506(b) offering available to accredited investors only.</textarea>
+          </div>
+        </div>
+        
+        <!-- Preview -->
+        <div class="preview-panel">
+          <div class="email-header">
+            <div class="email-logo">Pike<span>Capital</span></div>
+            <div class="email-subject" id="previewSubject">New Investment Opportunity: Arlington Heights Multifamily | 18% Target IRR</div>
+            <div class="email-meta">From: Pike Capital Management &lt;investments@pikecapital.com&gt;</div>
+          </div>
+          <div class="email-body" id="previewBody">
+            <p>Hi {{FirstName}},</p>
+            <p>I hope this email finds you well. I'm excited to share a new investment opportunity that aligns with our strategy of acquiring well-located multifamily assets with value-add potential.</p>
+            <div class="highlight-box">
+              <h4>🏢 Arlington Heights Multifamily</h4>
+              <p>📍 Dallas, TX | 💰 $2.5M Raise | 📈 18% Target IRR</p>
+            </div>
+            <p>Investment Highlights:</p>
+            <ul style="margin-left: 20px; margin-bottom: 16px;">
+              <li>84-unit Class B multifamily in prime Dallas location</li>
+              <li>94% occupied with 12% year-over-year rent growth</li>
+              <li>Value-add opportunity with $200/month rent premiums</li>
+              <li>Below-market acquisition at $95K/door</li>
+            </ul>
+            <a href="#" class="cta-button">View Full Investment Summary →</a>
+            <p style="margin-top: 24px;">Best regards,<br>Robert Pike<br>Managing Partner, Pike Capital Management</p>
+          </div>
+          <div class="email-footer">
+            This email was sent to {{Email}}. If you no longer wish to receive investment opportunities, <a href="#">unsubscribe here</a>.<br>
+            Pike Capital Management | 123 Main St, Dallas, TX 75201
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script>
+    // Live preview updates
+    document.getElementById('subjectLine').addEventListener('input', (e) => {
+      document.getElementById('previewSubject').textContent = e.target.value;
+    });
+    
+    document.getElementById('emailBody').addEventListener('input', (e) => {
+      // Convert newlines to <br> for preview
+      const html = e.target.value.replace(/\n/g, '<br>').replace(/  /g, '&nbsp;&nbsp;');
+      document.getElementById('previewBody').innerHTML = html;
+    });
+    
+    function selectTemplate(type) {
+      document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      
+      const templates = {
+        outreach: {
+          subject: "New Investment Opportunity: Arlington Heights Multifamily | 18% Target IRR",
+          body: `Hi {{FirstName}},
+
+I hope this email finds you well. I'm excited to share a new investment opportunity that aligns with our strategy of acquiring well-located multifamily assets with value-add potential.
+
+🏢 Arlington Heights Multifamily
+📍 Dallas, TX (Uptown submarket)
+💰 $2.5M Total Raise | $100K Minimum
+📈 18% Target IRR | 8-10% Cash-on-Cash
+
+Investment Highlights:
+• 84-unit Class B multifamily in prime Dallas location
+• 94% occupied with 12% year-over-year rent growth
+• Value-add opportunity: renovate 40 units, achieve $200/month premiums
+• Below-market acquisition at $95K/door vs $120K comps
+
+We're targeting a close date of March 15th. I have attached the full investment summary and would welcome the opportunity to discuss this opportunity with you.
+
+Best regards,
+Robert Pike
+Managing Partner, Pike Capital Management`
+        },
+        capital: {
+          subject: "Capital Call Notice: Arlington Heights Multifamily - 2nd Draw",
+          body: `Dear {{FirstName}},
+
+This is your formal notice of a capital call for your investment in Arlington Heights Multifamily.
+
+📋 CAPITAL CALL DETAILS
+Deal: Arlington Heights Multifamily
+Call Number: 2nd Draw
+Your Commitment: {{CommitmentAmount}}
+This Call Amount: {{CallAmount}}
+Percentage of Commitment: 50%
+
+💳 WIRE INSTRUCTIONS
+Bank: JPMorgan Chase
+Account Name: Arlington Heights LP
+Account Number: 1234567890
+Routing Number: 021000021
+Reference: {{InvestorName}} - Arlington Heights
+
+⏰ DEADLINE
+Please wire funds by March 1, 2026.
+
+If you have any questions, please don't hesitate to reach out.
+
+Best regards,
+Robert Pike
+Pike Capital Management`
+        },
+        update: {
+          subject: "Q4 2025 Update: Arlington Heights Multifamily",
+          body: `Dear {{FirstName}},
+
+I'm pleased to share our Q4 2025 update for Arlington Heights Multifamily.
+
+📊 PERFORMANCE HIGHLIGHTS
+Occupancy: 96% (↑ 2% from Q3)
+Average Rent: $1,450 (↑ $75 from Q3)
+NOI: $285,000 (↑ 8% from Q3)
+Cash-on-Cash Return: 9.2%
+
+🔨 VALUE-ADD PROGRESS
+• Completed renovations on 12 units in Q4
+• Achieved $225/month average rent premium on renovated units
+• 95% tenant retention rate post-renovation
+
+💰 DISTRIBUTION
+Q4 distribution of $47,500 per $100K invested will be sent by January 15th.
+
+📈 MARKET UPDATE
+The Dallas Uptown submarket continues to show strong fundamentals with 2.1% job growth and limited new supply.
+
+As always, please reach out with any questions.
+
+Best regards,
+Robert Pike
+Managing Partner, Pike Capital Management`
+        },
+        distribution: {
+          subject: "Distribution Notice: Q4 2025 - ${{DistributionAmount}} per unit",
+          body: `Dear {{FirstName}},
+
+We're pleased to announce your Q4 2025 distribution from Arlington Heights Multifamily.
+
+💰 DISTRIBUTION DETAILS
+Distribution Period: Q4 2025 (Oct 1 - Dec 31)
+Your Investment: {{InvestmentAmount}}
+Distribution Amount: {{DistributionAmount}}
+Payment Method: ACH to account on file
+Expected Deposit Date: January 15, 2026
+
+📊 PERFORMANCE CONTEXT
+This distribution represents a 9.2% annualized cash-on-cash return for Q4.
+
+Year-to-date distributions: {{YTDDistributions}}
+Cumulative return since inception: {{CumulativeReturn}}
+
+📋 TAX INFORMATION
+This distribution will be reported on your 2026 Schedule K-1. Please consult your tax advisor regarding the character of this income.
+
+1099-DIV forms will be mailed by January 31, 2026.
+
+Thank you for your continued partnership. We remain committed to delivering strong risk-adjusted returns.
+
+Best regards,
+Robert Pike
+Managing Partner, Pike Capital Management`
+        }
+      };
+      
+      const t = templates[type];
+      document.getElementById('subjectLine').value = t.subject;
+      document.getElementById('emailBody').value = t.body;
+      document.getElementById('previewSubject').textContent = t.subject;
+      document.getElementById('previewBody').innerHTML = t.body.replace(/\n/g, '<br>');
+    }
+  </script>
+</body>
+</html>
