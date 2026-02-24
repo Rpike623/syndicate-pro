@@ -398,10 +398,12 @@
         <a href="documents.html" class="nav-item active"><i class="fas fa-file-contract"></i><span>Documents</span></a>
         <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
         <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+        
         <div class="nav-section">Tools</div>
-        <a href="#" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
-        <a href="#" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1s</span></a>
-        <a href="#" class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+        <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+        <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+        <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+        <a href="pipeline.html" class="nav-item"><i class="fas fa-layer-group"></i><span>Pipeline</span></a>
       </nav>
       <div class="sidebar-footer">
         <div class="user-info">
@@ -789,7 +791,156 @@
     }
     
     function generateOperatingAgreement(data) {
-      return `<h1>OPERATING AGREEMENT</h1><p style="text-align: center; font-style: italic;">${data.companyName || '[COMPANY NAME]'}</p><p style="text-align: center;">A ${data.state || '[STATE]'} Limited Liability Company</p><div class="section"><p>THIS OPERATING AGREEMENT is entered into as of ${new Date().toLocaleDateString()}, by and among the Members listed on Schedule A.</p></div><h2>ARTICLE I - FORMATION</h2><div class="section"><p><strong>1.1 Formation.</strong> The Members hereby form a limited liability company pursuant to the ${data.state || '[STATE]'} Limited Liability Company Act.</p><p><strong>1.2 Name.</strong> The name of the Company shall be ${data.companyName || '[COMPANY NAME]'}.<p><strong>1.3 Principal Office.</strong> The principal office shall be at ${data.address || '[ADDRESS]'}.<p><strong>1.4 Purpose.</strong> To acquire, own, operate, and dispose of real property located at ${data.propertyAddress || '[PROPERTY ADDRESS]'}.<p></div><h2>ARTICLE II - CAPITAL</h2><p>The total equity capitalization shall be $${parseFloat(data.totalEquity || 0).toLocaleString()}.</p><h2>ARTICLE III - ALLOCATIONS</h2><p>Distributable Cash shall be distributed: (a) First, return of capital; (b) Second, ${data.prefReturn || '8'}% preferred return to LPs; (c) Thereafter, ${data.gpPromote || '20'}% to GP, ${100 - (data.gpPromote || 20)}% to LPs.</p><h2>SIGNATURES</h2><p>IN WITNESS WHEREOF, the Members have executed this Agreement as of ${new Date().toLocaleDateString()}.</p><p>${data.gpRep || '[GP Representative]'}, Managing Member<br>${data.gpName || '[GP ENTITY]'}</p>`;
+      // State-specific provisions
+      const stateProvisions = {
+        'DE': `<h3>Delaware-Specific Provisions</h3>
+        <p><strong>Series LLC.</strong> The Company may establish separate series with distinct assets and liabilities pursuant to Section 18-215 of the Delaware LLC Act.</p>
+        <p><strong>Charging Order.</strong> A member's interest is assignable but subject to charging order as sole remedy under Section 18-703.</p>
+        <p><strong>Authority.</strong> Each member's authority to bind the company is limited as set forth in Section 18-402.</p>`,
+        
+        'TX': `<h3>Texas-Specific Provisions</h3>
+        <p><strong>Tax Treatment.</strong> The Company elects to be taxed as a partnership under Texas Tax Code § 171.0002.</p>
+        <p><strong>Franchise Tax.</strong> The Company acknowledges potential franchise tax obligations under Texas Tax Code Chapter 171.</p>
+        <p><strong>Homestead.</strong> No member interest shall constitute a homestead under Texas Constitution Article XVI.</p>
+        <p><strong>Community Property.</strong> If any member is married, their spouse consents to the terms of this Agreement under Texas Family Code § 3.104.</p>`,
+        
+        'CA': `<h3>California-Specific Provisions</h3>
+        <p><strong>Franchise Tax.</strong> The Company shall pay the annual $800 minimum franchise tax under California Revenue and Taxation Code § 17941.</p>
+        <p><strong>Written Operating Agreement.</strong> This written Operating Agreement satisfies Corporations Code § 17701.02(s) requirements.</p>
+        <p><strong>Registered Agent.</strong> The Company maintains a registered agent in California as required by Corporations Code § 17701.13.</p>
+        <p><strong>Securities.</strong> Interests are offered pursuant to California Corporations Code § 25102(f) exemption.</p>`,
+        
+        'NY': `<h3>New York-Specific Provisions</h3>
+        <p><strong>Publication.</strong> The Company has satisfied NY LLC Law § 206 publication requirements.</p>
+        <p><strong>Member Liability.</strong> Members are not liable for company debts per NY LLC Law § 609.</p>
+        <p><strong>Dissolution.</strong> The Company dissolves upon the happening of events specified in NY LLC Law § 701.</p>
+        <p><strong>Real Property.</strong> The Company is authorized to acquire, hold, and dispose of real property in New York.</p>`,
+        
+        'FL': `<h3>Florida-Specific Provisions</h3>
+        <p><strong>Registered Agent.</strong> The Company maintains a Florida registered agent as required by § 605.0113, Florida Statutes.</p>
+        <p><strong>Foreign LLCs.</strong> If foreign, the Company has qualified to do business in Florida per § 605.0902.</p>
+        <p><strong>Annual Report.</strong> The Company shall file annual reports with the Florida Division of Corporations.</p>
+        <p><strong>Florida Investment.</strong> The Company may invest in Florida real property subject to applicable zoning and land use regulations.</p>`,
+        
+        'NV': `<h3>Nevada-Specific Provisions</h3>
+        <p><strong>Charging Order.</strong> A judgment creditor's exclusive remedy is a charging order per NRS 86.401.</p>
+        <p><strong>Asset Protection.</strong> Nevada law provides strong asset protection for LLC members under NRS Chapter 86.</p>
+        <p><strong>Business License.</strong> The Company shall obtain any required state and local business licenses.</p>
+        <p><strong>Series LLC.</strong> The Company may form protected series under NRS 86.296 if elected by the Managing Member.</p>`,
+        
+        'WY': `<h3>Woming-Specific Provisions</h3>
+        <p><strong>Asset Protection.</strong> Wyoming provides charging order protection as sole remedy per W.S. 17-29-503.</p>
+        <p><strong>Privacy.</strong> Member information is not publicly filed with the Wyoming Secretary of State.</p>
+        <p><strong>Asset Charging.</strong> No judgment creditor may seize LLC assets; only a charging order is permitted.</p>
+        <p><strong>Registered Office.</strong> The Company maintains a registered office in Wyoming as required by W.S. 17-29-108.</p>`
+      };
+      
+      const stateClause = stateProvisions[data.state] || stateProvisions['DE'];
+      
+      return `<h1>OPERATING AGREEMENT</h1>
+      <p style="text-align: center; font-style: italic;">${data.companyName || '[COMPANY NAME]'}</p>
+      <p style="text-align: center;">A ${data.state || '[STATE]'} Limited Liability Company</p>
+      
+      <div class="section">
+        <p>THIS OPERATING AGREEMENT is entered into as of ${new Date().toLocaleDateString()}, by and among the Members listed on Schedule A.</p>
+      </div>
+      
+      <h2>ARTICLE I - FORMATION</h2>
+      <div class="section">
+        <p><strong>1.1 Formation.</strong> The Members hereby form a limited liability company pursuant to the ${data.state || '[STATE]'} Limited Liability Company Act.</p>
+        <p><strong>1.2 Name.</strong> The name of the Company shall be ${data.companyName || '[COMPANY NAME]'}.</p>
+        <p><strong>1.3 Principal Office.</strong> The principal office shall be at ${data.address || '[ADDRESS]'}.</p>
+        <p><strong>1.4 Purpose.</strong> To acquire, own, operate, and dispose of real property located at ${data.propertyAddress || '[PROPERTY ADDRESS]'}. The Company may engage in all activities necessary or incidental thereto.</p>
+        <p><strong>1.5 Duration.</strong> The Company shall have perpetual existence unless dissolved in accordance with Article IX.</p>
+        <p><strong>1.6 Registered Agent.</strong> The registered agent and office are as specified in the Articles of Organization, as may be changed from time to time.</p>
+      </div>
+      
+      <h2>ARTICLE II - CAPITAL CONTRIBUTIONS</h2>
+      <div class="section">
+        <p><strong>2.1 Initial Capital.</strong> The total equity capitalization shall be $${parseFloat(data.totalEquity || 0).toLocaleString()}.</p>
+        <p><strong>2.2 GP Contribution.</strong> The General Partner shall contribute ${data.gpEquity || '10'}% of total equity.</p>
+        <p><strong>2.3 LP Contributions.</strong> Limited Partners shall contribute ${data.lpEquity || '90'}% of total equity.</p>
+        <p><strong>2.4 Additional Capital.</strong> Members may be required to make additional capital contributions as set forth in Section 4.3.</p>
+        <p><strong>2.5 Capital Accounts.</strong> A separate capital account shall be maintained for each Member.</p>
+      </div>
+      
+      <h2>ARTICLE III - ALLOCATIONS AND DISTRIBUTIONS</h2>
+      <div class="section">
+        <p><strong>3.1 Allocations of Profits and Losses.</strong> Profits and losses shall be allocated in accordance with each Member's percentage interest.</p>
+        <p><strong>3.2 Distributions.</strong> Distributable Cash shall be distributed in the following order of priority:</p>
+        <p style="margin-left: 20px;">(a) <strong>First,</strong> to all Members pro-rata until they have received a return of their capital contributions;</p>
+        <p style="margin-left: 20px;">(b) <strong>Second,</strong> to the Limited Partners until they have received the Preferred Return of ${data.prefReturn || '8'}% per annum, non-cumulative;</p>
+        <p style="margin-left: 20px;">(c) <strong>Third,</strong> to the General Partner as a "catch-up" until the GP has received ${data.gpPromote || '20'}% of all distributions under (b) and (c) combined;</p>
+        <p style="margin-left: 20px;">(d) <strong>Thereafter,</strong> ${data.gpPromote || '20'}% to the GP and ${100 - (data.gpPromote || 20)}% to the LPs.</p>
+        <p><strong>3.3 Tax Distributions.</strong> Tax distributions may be made to Members to cover tax liabilities on allocated income.</p>
+        <p><strong>3.4 Reinvestment.</strong> The GP may reinvest cash flow rather than distribute at its discretion.</p>
+      </div>
+      
+      <h2>ARTICLE IV - MANAGEMENT</h2>
+      <div class="section">
+        <p><strong>4.1 General Partner Authority.</strong> ${data.gpName || '[GP NAME]'} shall serve as the Managing Member with full authority to manage the Company's business and affairs.</p>
+        <p><strong>4.2 Limited Partner Rights.</strong> Limited Partners have no right to participate in management and shall have no authority to bind the Company.</p>
+        <p><strong>4.3 Major Decisions.</strong> The following require LP consent: (a) sale of the Property; (b) refinancing; (c) material lease amendments; (d) bankruptcy filing.</p>
+        <p><strong>4.4 GP Removal.</strong> The GP may be removed for cause (fraud, willful misconduct, material breach) by majority-in-interest of LPs.</p>
+        <p><strong>4.5 Fees.</strong> The GP shall receive: (a) Acquisition Fee of ${data.acqFee || '3'}% of purchase price; (b) Asset Management Fee of ${data.assetMgmtFee || '2'}% of gross revenues.</p>
+      </div>
+      
+      <h2>ARTICLE V - MEMBERS</h2>
+      <div class="section">
+        <p><strong>5.1 Admission.</strong> New Members may be admitted only with GP consent and amendment of this Agreement.</p>
+        <p><strong>5.2 Transfers.</strong> No Member may transfer their interest without GP consent and right of first refusal to the Company.</p>
+        <p><strong>5.3 Withdrawal.</strong> No Member has the right to withdraw or demand return of capital prior to liquidation.</p>
+        <p><strong>5.4 Accredited Investors.</strong> All Members represent they are accredited investors under Regulation D.</p>
+      </div>
+      
+      <h2>ARTICLE VI - ACCOUNTING AND REPORTS</h2>
+      <div class="section">
+        <p><strong>6.1 Fiscal Year.</strong> The fiscal year shall be the calendar year.</p>
+        <p><strong>6.2 Books and Records.</strong> The GP shall maintain complete books and records at the principal office.</p>
+        <p><strong>6.3 Financial Statements.</strong> The GP shall provide quarterly reports and annual audited financials to LPs.</p>
+        <p><strong>6.4 Tax Returns.</strong> The Company shall file partnership tax returns and provide K-1s by March 15.</p>
+      </div>
+      
+      <h2>ARTICLE VII - INDEMNIFICATION</h2>
+      <div class="section">
+        <p><strong>7.1 Indemnification.</strong> The Company shall indemnify the GP and its affiliates for actions taken in good faith on behalf of the Company.</p>
+        <p><strong>7.2 Insurance.</strong> The GP may obtain liability insurance for the Company and its officers.</p>
+      </div>
+      
+      <h2>ARTICLE VIII - DISSOLUTION</h2>
+      <div class="section">
+        <p><strong>8.1 Events of Dissolution.</strong> The Company shall dissolve upon: (a) sale of the Property; (b) unanimous consent; (c) judicial dissolution; (d) bankruptcy.</p>
+        <p><strong>8.2 Liquidation.</strong> Upon dissolution, assets shall be liquidated and distributed: (a) to creditors; (b) to Members per Article III.</p>
+      </div>
+      
+      <h2>ARTICLE IX - STATE-SPECIFIC PROVISIONS</h2>
+      <div class="section">
+        ${stateClause}
+      </div>
+      
+      <h2>ARTICLE X - GENERAL PROVISIONS</h2>
+      <div class="section">
+        <p><strong>10.1 Amendments.</strong> This Agreement may be amended by the GP with consent of majority-in-interest of LPs.</p>
+        <p><strong>10.2 Governing Law.</strong> This Agreement shall be governed by the laws of ${data.state || '[STATE]}.</p>
+        <p><strong>10.3 Severability.</strong> If any provision is invalid, the remainder shall continue in full force.</p>
+        <p><strong>10.4 Entire Agreement.</strong> This Agreement constitutes the entire agreement among the Members.</p>
+        <p><strong>10.5 Counterparts.</strong> This Agreement may be executed in counterparts.</p>
+      </div>
+      
+      <h2>SIGNATURES</h2>
+      <p>IN WITNESS WHEREOF, the Members have executed this Agreement as of ${new Date().toLocaleDateString()}.</p>
+      <div style="margin-top: 40px;">
+        <p><strong>GENERAL PARTNER:</strong></p>
+        <p style="margin-top: 30px;">_________________________________</p>
+        <p>${data.gpRep || '[GP REPRESENTATIVE]'}</p>
+        <p>${data.gpName || '[GP ENTITY]'}</p>
+        <p>Managing Member</p>
+      </div>
+      
+      <div style="margin-top: 40px;">
+        <p><strong>LIMITED PARTNERS:</strong></p>
+        <p>(See Schedule A)</p>
+      </div>`;
     }
     
     function generatePPM(data) {

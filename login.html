@@ -148,7 +148,7 @@
       margin-bottom: 8px;
     }
     
-    input {
+    input, select {
       width: 100%;
       padding: 12px 16px;
       border: 1px solid var(--border);
@@ -160,7 +160,7 @@
       transition: all 0.15s;
     }
     
-    input:focus {
+    input:focus, select:focus {
       outline: none;
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-light);
@@ -255,6 +255,24 @@
       width: auto;
     }
     
+    .backend-config {
+      background: var(--bg);
+      padding: 16px;
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      border: 1px dashed var(--border);
+    }
+    
+    .backend-config h3 {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
     @media (max-width: 900px) {
       .auth-container { flex-direction: column; }
       .auth-left { padding: 40px; }
@@ -285,6 +303,18 @@
         <p>Sign in to your account to continue</p>
       </div>
       
+      <div class="backend-config">
+        <h3>Backend Integration <span id="status-dot" style="color:var(--text-muted)">● local</span></h3>
+        <select id="backend-provider" onchange="toggleBackendFields()" style="margin-bottom: 12px; padding: 8px;">
+          <option value="local">Local Only (IndexedDB)</option>
+          <option value="supabase">Supabase (Cloud)</option>
+        </select>
+        <div id="supabase-fields" style="display: none;">
+          <input type="text" id="sb-url" placeholder="Supabase URL (https://xyz.supabase.co)" style="margin-bottom: 8px;">
+          <input type="password" id="sb-key" placeholder="Supabase Anon Key">
+        </div>
+      </div>
+
       <form id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label>Email</label>
@@ -320,28 +350,77 @@
     </div>
   </div>
 
+  <script src="js/storage.js"></script>
+  <script src="js/database.js"></script>
+  <script src="js/backend.js"></script>
   <script>
-    function handleLogin(e) {
+    function toggleBackendFields() {
+        const provider = document.getElementById('backend-provider').value;
+        document.getElementById('supabase-fields').style.display = provider === 'supabase' ? 'block' : 'none';
+        document.getElementById('status-dot').innerHTML = `● ${provider}`;
+        document.getElementById('status-dot').style.color = provider === 'supabase' ? 'var(--accent)' : 'var(--text-muted)';
+    }
+
+    async function handleLogin(e) {
       e.preventDefault();
-      // Demo: Store auth state and redirect
+      
+      const provider = document.getElementById('backend-provider').value;
+      const url = document.getElementById('sb-url').value;
+      const key = document.getElementById('sb-key').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Save config
+      localStorage.setItem('backendConfig', JSON.stringify({ provider, url, key }));
+      
+      // Init backend
+      await Backend.init(provider, url, key);
+      
+      // Perform Auth
+      const { user, error } = await Backend.login(email, password);
+
+      if (error) {
+          alert('Auth Error: ' + error.message);
+          return;
+      }
+
+      console.log('Login successful', user);
+      
+      // If cloud, sync data
+      if (provider !== 'local') {
+          await Backend.fetchFromCloud();
+      }
+
+      // Store auth state
       localStorage.setItem('auth', JSON.stringify({
         isAuthenticated: true,
-        user: { email: document.getElementById('email').value },
+        user: { email },
         tier: 'pro'
       }));
+
       window.location.href = 'index.html';
     }
     
     function googleAuth() {
-      // Placeholder for Google OAuth
       alert('Google OAuth integration coming soon');
     }
     
-    // Check if already logged in
-    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
-    if (auth.isAuthenticated) {
-      window.location.href = 'index.html';
-    }
+    window.onload = () => {
+        const saved = localStorage.getItem('backendConfig');
+        if (saved) {
+            const cfg = JSON.parse(saved);
+            document.getElementById('backend-provider').value = cfg.provider;
+            document.getElementById('sb-url').value = cfg.url || '';
+            document.getElementById('sb-key').value = cfg.key || '';
+            toggleBackendFields();
+        }
+        
+        // Skip login if session persistent
+        const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+        if (auth.isAuthenticated) {
+          // window.location.href = 'index.html'; 
+        }
+    };
   </script>
 </body>
 </html>

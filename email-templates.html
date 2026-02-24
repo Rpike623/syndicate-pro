@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Email Templates</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --secondary: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: #dbeafe;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --radius-sm: 6px;
+      --radius: 8px;
+      --radius-md: 12px;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      color: white;
+      position: fixed;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .nav { padding: 16px 12px; flex: 1; }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      color: #94a3b8;
+      text-decoration: none;
+      border-radius: var(--radius);
+      transition: 0.2s;
+      margin-bottom: 4px;
+    }
+    
+    .nav-item:hover, .nav-item.active {
+      background: rgba(255,255,255,0.05);
+      color: white;
+    }
+    
+    .nav-item i { width: 20px; text-align: center; }
+    
+    /* Main Content */
+    .main {
+      flex: 1;
+      margin-left: 260px;
+      padding: 40px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    
+    .title h1 { font-size: 1.875rem; font-weight: 700; color: var(--primary); }
+    .title p { color: var(--text-secondary); margin-top: 4px; }
+    
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    
+    .template-card {
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      padding: 24px;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .template-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent);
+    }
+    
+    .template-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+    }
+    
+    .template-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 8px; }
+    .template-card p { font-size: 0.9rem; color: var(--text-secondary); }
+    
+    .card {
+      background: white;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    
+    label { font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); }
+    
+    select, input, textarea {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+    
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    
+    textarea { min-height: 100px; resize: vertical; }
+    
+    .btn {
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.2s;
+      border: none;
+      font-size: 0.95rem;
+    }
+    
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: var(--bg); }
+    .btn-success { background: var(--success); color: white; }
+    
+    /* Email Preview */
+    .email-preview {
+      background: #f4f4f4;
+      border-radius: var(--radius);
+      padding: 40px;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .email-header {
+      background: var(--primary);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .email-header h2 { font-size: 1.5rem; margin-bottom: 8px; }
+    .email-body { padding: 40px; line-height: 1.6; color: #333; }
+    .email-footer { 
+      padding: 20px 40px; 
+      background: #f8f9fa; 
+      font-size: 0.8rem; 
+      color: #666;
+      border-top: 1px solid #e9ecef;
+    }
+    
+    .email-data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    
+    .email-data-table td {
+      padding: 10px;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .email-data-table td:first-child { font-weight: 600; width: 40%; }
+    
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+    
+    @media (max-width: 900px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+        <span>SyndicatePro</span>
+      </div>
+    </div>
+    <div class="nav">
+      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i> Calculator</a>
+      <a href="pipeline.html" class="nav-item"><i class="fas fa-layer-group"></i> Deal Pipeline</a>
+      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i> Investors</a>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Distributions</a>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i> Documents</a>
+      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> K-1 Generator</a>
+      <a href="#" class="nav-item active"><i class="fas fa-envelope"></i> Email Templates</a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="header">
+      <div class="title">
+        <h1>Email Templates</h1>
+        <p>Professional communications for your investors</p>
+      </div>
+    </div>
+
+    <!-- Template Selector -->
+    <div class="template-grid">
+      <div class="template-card" onclick="selectTemplate('quarterly')">
+        <div class="template-icon" style="background: var(--accent-light); color: var(--accent);"><i class="fas fa-chart-line"></i></div>
+        <h3>Quarterly Update</h3>
+        <p>Performance summary, occupancy rates, and upcoming milestones</p>
+      </div>
+      
+      <div class="template-card" onclick="selectTemplate('capital')">
+        <div class="template-icon" style="background: var(--warning-light); color: var(--warning);"><i class="fas fa-money-bill-wave"></i></div>
+        <h3>Capital Call Notice</h3>
+        <p>Formal request for additional capital with wire instructions</p>
+      </div>
+      
+      <div class="template-card" onclick="selectTemplate('distribution')">
+        <div class="template-icon" style="background: var(--success-light); color: var(--success);"><i class="fas fa-piggy-bank"></i></div>
+        <h3>Distribution Announcement</h3>
+        <p>Notify investors of upcoming cash distribution</p>
+      </div>
+      
+      <div class="template-card" onclick="selectTemplate('k1')">
+        <div class="template-icon" style="background: #e0e7ff; color: #6366f1;"><i class="fas fa-file-alt"></i></div>
+        <h3>K-1 Availability</h3>
+        <p>Alert investors that tax documents are ready for download</p>
+      </div>
+      
+      <div class="template-card" onclick="selectTemplate('welcome')">
+        <div class="template-icon" style="background: #fce7f3; color: #ec4899;"><i class="fas fa-handshake"></i></div>
+        <h3>New Investor Welcome</h3>
+        <p>Onboarding email for new limited partners</p>
+      </div>
+      
+      <div class="template-card" onclick="selectTemplate('milestone')">
+        <div class="template-icon" style="background: #d1fae5; color: #059669;"><i class="fas fa-flag-checkered"></i></div>
+        <h3>Milestone Achieved</h3>
+        <p>Celebrate major accomplishments (refi, sale, stabilization)</p>
+      </div>
+    </div>
+
+    <!-- Email Builder -->
+    <div class="two-col">
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="fas fa-cog"></i> Email Details</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Template Type</label>
+              <select id="template-type" onchange="updatePreview()">
+                <option value="quarterly">Quarterly Update</option>
+                <option value="capital">Capital Call</option>
+                <option value="distribution">Distribution</option>
+                <option value="k1">K-1 Available</option>
+                <option value="welcome">New Investor Welcome</option>
+                <option value="milestone">Milestone</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Select Deal</label>
+              <select id="deal-select" onchange="updatePreview()">
+                <option value="">-- Choose Deal --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Quarter/Period</label>
+              <select id="period" onchange="updatePreview()">
+                <option value="Q1 2024">Q1 2024</option>
+                <option value="Q2 2024">Q2 2024</option>
+                <option value="Q3 2024">Q3 2024</option>
+                <option value="Q4 2024">Q4 2024</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Send Date</label>
+              <input type="date" id="send-date">
+            </div>
+          </div>
+          
+          <div class="form-group" style="margin-top: 20px;">
+            <label>Additional Notes (optional)</label>
+            <textarea id="custom-notes" placeholder="Add any specific details..." oninput="updatePreview()"></textarea>
+          </div>
+          
+          <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button class="btn btn-primary" onclick="copyToClipboard()"><i class="fas fa-copy"></i> Copy HTML</button>
+            <button class="btn btn-success" onclick="sendTest()"><i class="fas fa-paper-plane"></i> Send Test</button>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <div class="card">
+          <div class="card-title"><i class="fas fa-eye"></i> Preview</div>
+          <div class="email-preview">
+            <div class="email-container">
+              <div class="email-header">
+                <h2 id="preview-subject">Quarterly Update - Q1 2024</h2>
+                <p id="preview-deal-name">Highland Park Apartments</p>
+              </div>
+              <div class="email-body" id="preview-body">
+                <!-- Dynamic content -->
+              </div>
+              <div class="email-footer">
+                <p><strong>SyndicatePro Management</strong><br>
+                This communication is intended for authorized investors only.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/database.js"></script>
+  
+  <script>
+    const templates = {
+      quarterly: {
+        subject: 'Quarterly Update - {{period}}',
+        body: `<p>Dear {{investorName}},</p>
+        <p>We are pleased to provide you with the quarterly update for <strong>{{dealName}}</strong> for {{period}}.</p>
+        
+        <h3 style="color: #0f172a; margin-top: 24px;">Performance Highlights</h3>
+        <table class="email-data-table">
+          <tr><td>Occupancy Rate</td><td>94%</td></tr>
+          <tr><td>Net Operating Income</td><td>$125,000</td></tr>
+          <tr><td>Cash-on-Cash Return</td><td>8.2%</td></tr>
+          <tr><td>Debt Service Coverage</td><td>1.35x</td></tr>
+        </table>
+        
+        <h3 style="color: #0f172a; margin-top: 24px;">Upcoming Milestones</h3>
+        <ul>
+          <li>Renovation of Unit 204 complete - now leasing at premium rates</li>
+          <li>Property tax protest filed, expecting 12% reduction</li>
+          <li>Q2 distribution scheduled for July 15</li>
+        </ul>
+        
+        <p>{{customNotes}}</p>
+        
+        <p>As always, please don't hesitate to reach out with any questions.</p>
+        <p>Best regards,<br><strong>The Management Team</strong></p>`
+      },
+      
+      capital: {
+        subject: 'Capital Call Notice - {{dealName}}',
+        body: `<p>Dear {{investorName}},</p>
+        <p>Pursuant to the Operating Agreement, we are issuing a capital call for <strong>{{dealName}}</strong>.</p>
+        
+        <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0;">
+          <h3 style="margin: 0 0 10px 0; color: #92400e;">Capital Call Details</h3>
+          <table class="email-data-table">
+            <tr><td>Capital Call Amount</td><td>$25,000</td></tr>
+            <tr><td>Due Date</td><td>{{dueDate}}</td></tr>
+            <tr><td>Your Ownership %</td><td>{{ownership}}%</td></tr>
+            <tr><td>Your Capital Contribution</td><td><strong>{{amount}}</strong></td></tr>
+          </table>
+        </div>
+        
+        <h3 style="color: #0f172a; margin-top: 24px;">Wire Instructions</h3>
+        <table class="email-data-table">
+          <tr><td>Bank Name</td><td>First National Bank</td></tr>
+          <tr><td>Account Name</td><td>{{dealName}} LLC</td></tr>
+          <tr><td>Account Number</td><td>XXXX-XXXX-1234</td></tr>
+          <tr><td>Routing Number</td><td>111000025</td></tr>
+          <tr><td>Reference</td><td>{{investorName}} - Capital Call</td></tr>
+        </table>
+        
+        <p>Please confirm receipt of this notice and wire transfer within 10 business days.</p>
+        <p>{{customNotes}}</p>`
+      },
+      
+      distribution: {
+        subject: 'Distribution Announcement - {{dealName}} {{period}}',
+        body: `<p>Dear {{investorName}},</p>
+        <p>We are pleased to announce that a cash distribution has been approved for <strong>{{dealName}}</strong>.</p>
+        
+        <div style="background: #d1fae5; border-left: 4px solid #10b981; padding: 16px; margin: 20px 0;">
+          <h3 style="margin: 0 0 10px 0; color: #065f46;">Distribution Summary</h3>
+          <table class="email-data-table">
+            <tr><td>Distribution Amount</td><td><strong>{{amount}}</strong></td></tr>
+            <tr><td>Distribution Date</td><td>{{sendDate}}</td></tr>
+            <tr><td>Payment Method</td><td>ACH to account on file</td></tr>
+          </table>
+        </div>
+        
+        <p>This distribution represents the following components:</p>
+        <ul>
+          <li>Return of Capital: 60%</li>
+          <li>Preferred Return: 30%</li>
+          <li>Excess Cash Flow: 10%</li>
+        </ul>
+        
+        <p>{{customNotes}}</p>
+        <p>Thank you for your continued investment in this project.</p>`
+      },
+      
+      k1: {
+        subject: 'Your K-1 Tax Document is Available - {{dealName}} {{year}}',
+        body: `<p>Dear {{investorName}},</p>
+        <p>Your Schedule K-1 for <strong>{{dealName}}</strong> (Tax Year {{year}}) is now available for download.</p>
+        
+        <div style="background: #e0e7ff; border-left: 4px solid #6366f1; padding: 16px; margin: 20px 0;">
+          <h3 style="margin: 0 0 10px 0; color: #3730a3;">Document Access</h3>
+          <p style="margin: 0;">Log into your investor portal at <a href="#" style="color: #4f46e5;">investors.syndicatepro.com</a> to download your tax documents.</p>
+        </div>
+        
+        <h3 style="color: #0f172a; margin-top: 24px;">Summary of Your K-1</h3>
+        <table class="email-data-table">
+          <tr><td>Ordinary Business Income</td><td>{{ordinaryIncome}}</td></tr>
+          <tr><td>Section 179 Deduction</td><td>{{depreciation}}</td></tr>
+          <tr><td>Cash Distributions</td><td>{{distributions}}</td></tr>
+        </table>
+        
+        <p><strong>Important:</strong> Please consult with your tax advisor before filing. The K-1 reflects your share of partnership income, deductions, and credits.</p>
+        <p>{{customNotes}}</p>`
+      },
+      
+      welcome: {
+        subject: 'Welcome to {{dealName}} - Next Steps',
+        body: `<p>Dear {{investorName}},</p>
+        <p>Welcome to the <strong>{{dealName}}</strong> investor group! We are thrilled to have you as a limited partner.</p>
+        
+        <h3 style="color: #0f172a; margin-top: 24px;">Your Investment Summary</h3>
+        <table class="email-data-table">
+          <tr><td>Capital Commitment</td><td>{{commitment}}</td></tr>
+          <tr><td>Ownership Percentage</td><td>{{ownership}}%</td></tr>
+          <tr><td>Investment Date</td><td>{{investmentDate}}</td></tr>
+        </table>
+        
+        <h3 style="color: #0f172a; margin-top: 24px;">Next Steps</h3>
+        <ol>
+          <li>Complete your investor profile in the portal</li>
+          <li>Upload your accreditation documentation</li>
+          <li>Review and sign the Operating Agreement</li>
+          <li>Confirm your wire instructions for distributions</li>
+        </ol>
+        
+        <p>{{customNotes}}</p>
+        <p>We look forward to a successful partnership!</p>`
+      },
+      
+      milestone: {
+        subject: 'Milestone Achieved - {{milestoneName}}',
+        body: `<p>Dear {{investorName}},</p>
+        <p>We are excited to announce a major milestone for <strong>{{dealName}}</strong>!</p>
+        
+        <div style="background: #fce7f3; border-left: 4px solid #ec4899; padding: 16px; margin: 20px 0;">
+          <h3 style="margin: 0; color: #9d174d;">🎉 {{milestoneName}}</h3>
+        </div>
+        
+        <p>We have successfully {{milestoneDescription}}. This achievement represents significant progress in our business plan and positions the asset for continued strong performance.</p>
+        
+        <h3 style="color: #0f172a; margin-top: 24px;">Impact on Investment</h3>
+        <ul>
+          <li>Increased property valuation by approximately 15%</li>
+          <li>Reduced interest expense by $4,200/month</li>
+          <li>Projected IRR improvement to 22%</li>
+        </ul>
+        
+        <p>{{customNotes}}</p>
+        <p>Thank you for your trust and partnership.</p>`
+      }
+    };
+
+    async function init() {
+      const deals = await db.getAllDeals();
+      const select = document.getElementById('deal-select');
+      deals.forEach(deal => {
+        const opt = document.createElement('option');
+        opt.value = deal.name;
+        opt.textContent = deal.name || 'Untitled Deal';
+        select.appendChild(opt);
+      });
+      
+      document.getElementById('send-date').valueAsDate = new Date();
+      updatePreview();
+    }
+
+    function selectTemplate(type) {
+      document.getElementById('template-type').value = type;
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const type = document.getElementById('template-type').value;
+      const dealName = document.getElementById('deal-select').value || 'Sample Property';
+      const period = document.getElementById('period').value;
+      const notes = document.getElementById('custom-notes').value;
+      
+      const template = templates[type];
+      
+      let subject = template.subject
+        .replace('{{period}}', period)
+        .replace('{{dealName}}', dealName)
+        .replace('{{year}}', '2024')
+        .replace('{{milestoneName}}', 'Refinancing Complete');
+      
+      let body = template.body
+        .replace(/{{investorName}}/g, 'John Investor')
+        .replace(/{{dealName}}/g, dealName)
+        .replace(/{{period}}/g, period)
+        .replace(/{{customNotes}}/g, notes ? `<p><strong>Note:</strong> ${notes}</p>` : '')
+        .replace(/{{amount}}/g, '$12,500.00')
+        .replace(/{{ownership}}/g, '5.0')
+        .replace(/{{dueDate}}/g, 'March 15, 2024')
+        .replace(/{{sendDate}}/g, document.getElementById('send-date').value)
+        .replace(/{{ordinaryIncome}}/g, '$8,420')
+        .replace(/{{depreciation}}/g, '($2,100)')
+        .replace(/{{distributions}}/g, '$5,000')
+        .replace(/{{commitment}}/g, '$100,000')
+        .replace(/{{investmentDate}}/g, 'February 1, 2024')
+        .replace(/{{milestoneName}}/g, 'Refinancing Complete')
+        .replace(/{{milestoneDescription}}/g, 'refinanced the property at a lower interest rate, reducing our debt service by $50,000 annually')
+        .replace(/{{year}}/g, '2024');
+      
+      document.getElementById('preview-subject').textContent = subject;
+      document.getElementById('preview-body').innerHTML = body;
+      document.getElementById('preview-deal-name').textContent = dealName;
+    }
+
+    function copyToClipboard() {
+      const html = document.querySelector('.email-container').outerHTML;
+      navigator.clipboard.writeText(html);
+      alert('Email HTML copied to clipboard! Paste into your email client.');
+    }
+
+    function sendTest() {
+      alert('Test email would be sent to your admin address. (Integration required)');
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
