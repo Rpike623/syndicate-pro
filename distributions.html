@@ -298,6 +298,13 @@
 
   <script src="js/storage.js"></script>
   <script>
+    // Auth guard
+    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+    if (!auth.isAuthenticated) {
+      window.location.href = 'login.html';
+    }
+  </script>
+  <script>
     let distributions = JSON.parse(localStorage.getItem('distributions') || '[]');
     
     function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num || 0); }

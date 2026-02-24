@@ -712,6 +712,13 @@
 
   <script src="js/storage.js"></script>
   <script>
+    // Auth guard
+    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+    if (!auth.isAuthenticated) {
+      window.location.href = 'login.html';
+    }
+  </script>
+  <script>
     let currentInvestor = null;
     let investors = [];
     

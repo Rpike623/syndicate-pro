@@ -698,6 +698,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="js/storage.js"></script>
   <script>
+    // Auth guard
+    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+    if (!auth.isAuthenticated) {
+      window.location.href = 'login.html';
+    }
+  </script>
+  <script>
     let currentDocType = 'operating-agreement';
     let members = [];
     

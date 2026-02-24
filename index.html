@@ -1231,6 +1231,13 @@
 
   <script src="js/storage.js"></script>
   <script>
+    // Auth guard - redirect to login if not authenticated
+    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+    if (!auth.isAuthenticated) {
+      window.location.href = 'login.html';
+    }
+  </script>
+  <script>
     // State
     let dealState = {
       id: null,
