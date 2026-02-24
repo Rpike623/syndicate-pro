@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Real Estate Syndication Software</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #10b981;
+      --bg: #ffffff;
+      --bg-secondary: #f8fafc;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: var(--primary); line-height: 1.6; }
+    
+    .hero {
+      padding: 160px 48px 100px;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-secondary) 100%);
+      text-align: center;
+    }
+    
+    .hero h1 {
+      font-size: 4rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      color: #64748b;
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+    
+    .btn {
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid #e2e8f0;
+    }
+    
+    .btn-secondary:hover {
+      background: #f1f5f9;
+    }
+    
+    .features {
+      padding: 80px 48px;
+      background: var(--bg);
+    }
+    
+    .features h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 60px;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .feature-card {
+      padding: 32px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      text-align: center;
+    }
+    
+    .feature-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--accent-light);
+      color: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 20px;
+    }
+    
+    .feature-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 12px;
+    }
+    
+    .feature-card p {
+      color: #64748b;
+    }
+    
+    .cta {
+      padding: 100px 48px;
+      background: var(--primary);
+      color: white;
+      text-align: center;
+    }
+    
+    .cta h2 {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+    
+    .cta p {
+      font-size: 1.25rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 40px;
+    }
+    
+    @media (max-width: 900px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>Real Estate Syndication<br>Made Simple</h1>
+    <p>From waterfall calculations to investor distributions, manage your entire syndication workflow in one place.</p>
+    <div class="hero-actions">
+      <a href="signup.html" class="btn btn-primary"><i class="fas fa-rocket"></i> Start Free Trial</a>
+      <a href="index.html" class="btn btn-secondary"><i class="fas fa-play"></i> See Demo</a>
+    </div>
+  </section>
+  
+  <section class="features">
+    <h2>Everything you need</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-calculator"></i></div>
+        <h3>Waterfall Calculator</h3>
+        <p>Model any distribution structure with real-time calculations and visual breakdowns.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-file-contract"></i></div>
+        <h3>Document Generator</h3>
+        <p>Generate Operating Agreements, PPMs, and Subscription docs in minutes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-users"></i></div>
+        <h3>Investor CRM</h3>
+        <p>Track accredited investor status, preferences, and communication history.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-wallet"></i></div>
+        <h3>Distribution Tracking</h3>
+        <p>Record quarterly distributions and track YTD payments to investors.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+        <h3>Pro Forma Builder</h3>
+        <p>Underwrite properties with NOI calculations and cash flow projections.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-hand-holding-usd"></i></div>
+        <h3>Capital Calls</h3>
+        <p>Generate and send capital call notices with wire instructions.</p>
+      </div>
+    </div>
+  </section>
+  
+  <section class="cta">
+    <h2>Ready to streamline your syndications?</h2>
+    <p>Join hundreds of sponsors who trust SyndicatePro</p>
+    <a href="signup.html" class="btn btn-primary btn-lg" style="font-size: 1.125rem; padding: 16px 32px;">Start Your Free Trial</a>
+  </section>
+</body>
+</html>
