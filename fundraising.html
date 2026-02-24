@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Fundraising & Commitments</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #0f172a;
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    
+    .app { display: flex; min-height: 100vh; }
+    
+    .sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      color: white;
+      position: fixed;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .nav {
+      flex: 1;
+      padding: 16px 12px;
+    }
+    
+    .nav-section {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.4);
+      padding: 16px 12px 8px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    
+    .main {
+      flex: 1;
+      margin-left: 260px;
+      min-height: 100vh;
+    }
+    
+    .top-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .content { padding: 32px; max-width: 1400px; }
+    
+    /* Deal Selector */
+    .deal-selector {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .deal-info h2 {
+      font-size: 1.25rem;
+      margin-bottom: 4px;
+    }
+    
+    .deal-info p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+    
+    .select-deal-btn {
+      padding: 10px 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    /* Fundraising Progress */
+    .fundraising-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .fundraising-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .fundraising-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .fundraising-stats {
+      display: flex;
+      gap: 32px;
+    }
+    
+    .fundraising-stat {
+      text-align: center;
+    }
+    
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .stat-number.success { color: var(--success); }
+    .stat-number.warning { color: var(--warning); }
+    
+    .progress-bar-container {
+      margin: 20px 0;
+    }
+    
+    .progress-bar {
+      height: 12px;
+      background: var(--bg);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #60a5fa);
+      border-radius: 6px;
+      transition: width 0.5s;
+    }
+    
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Commitments Table */
+    .commitments-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      font-size: 0.9rem;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border);
+    }
+    
+    td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    
+    .investor-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .investor-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    
+    .investor-info h4 {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .investor-info p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .status-committed { background: var(--accent-light); color: var(--accent); }
+    .status-wired { background: var(--success-light); color: var(--success); }
+    .status-pending { background: var(--warning-light); color: var(--warning); }
+    .status-docs { background: #e0e7ff; color: #6366f1; }
+    
+    .amount {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .action-btn {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+    
+    .action-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+    
+    .modal-overlay.active { display: flex; }
+    
+    .modal {
+      background: white;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow: hidden;
+    }
+    
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+    
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+    
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      color: var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+          <span>SyndicatePro</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-section">Main</div>
+        <a href="deals.html" class="nav-item"><i class="fas fa-building"></i><span>All Deals</span></a>
+        <a href="#" class="nav-item active"><i class="fas fa-hand-holding-usd"></i><span>Fundraising</span></a>
+        <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+        <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Pipeline</span></a>
+        
+        <div class="nav-section">Tools</div>
+        <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+        <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+        <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="top-bar">
+        <div style="font-weight: 600;">Fundraising & Commitments</div>
+        <button class="btn btn-primary" onclick="openAddModal()">
+          <i class="fas fa-plus"></i> Record Commitment
+        </button>
+      </header>
+
+      <div class="content">
+        <!-- Deal Selector -->
+        <div class="deal-selector">
+          <div class="deal-info">
+            <h2 id="dealName">Riverfront Retail Center</h2>
+            <p>$2.8M Target • Dallas, TX • Currently Fundraising</p>
+          </div>
+          <select class="select-deal-btn" id="dealSelect" onchange="loadDeal()">
+            <option value="">Select a deal...</option>
+          </select>
+        </div>
+
+        <!-- Fundraising Progress -->
+        <div class="fundraising-card">
+          <div class="fundraising-header">
+            <div class="fundraising-title">Fundraising Progress</div>
+            <div class="fundraising-stats">
+              <div class="fundraising-stat">
+                <div class="stat-label">Raised</div>
+                <div class="stat-number success" id="raisedAmount">$1,850,000</div>
+              </div>
+              <div class="fundraising-stat">
+                <div class="stat-label">Target</div>
+                <div class="stat-number" id="targetAmount">$2,800,000</div>
+              </div>
+              <div class="fundraising-stat">
+                <div class="stat-label">Remaining</div>
+                <div class="stat-number warning" id="remainingAmount">$950,000</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="progress-bar-container">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressBar" style="width: 66%;"></div>
+            </div>
+            <div class="progress-labels">
+              <span>66% Funded</span>
+              <span id="investorCount">6 Investors Committed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commitments Table -->
+        <div class="commitments-section">
+          <div class="section-header">
+            <div class="section-title">Investor Commitments</div>
+            <div>
+              <button class="btn btn-sm" style="background: var(--bg); border: 1px solid var(--border);">
+                <i class="fas fa-download"></i> Export CSV
+              </button>
+            </div>
+          </div>
+          
+          <table id="commitmentsTable">
+            <thead>
+              <tr>
+                <th>Investor</th>
+                <th>Committed Amount</th>
+                <th>Ownership %</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="commitmentsBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+          
+          <div class="empty-state" id="emptyState" style="display: none;">
+            <i class="fas fa-hand-holding-usd"></i>
+            <h3>No commitments yet</h3>
+            <p>Start recording investor commitments to track your fundraising progress</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Commitment Modal -->
+  <div class="modal-overlay" id="addModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Record New Commitment</h3>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Investor</label>
+          <select id="investorSelect">
+            <option value="">Select investor...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Commitment Amount</label>
+          <input type="number" id="commitAmount" placeholder="50000">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="commitStatus">
+            <option value="committed">Committed (Soft)</option>
+            <option value="docs">Documents Signed</option>
+            <option value="wired">Funds Wired</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <input type="text" id="commitNotes" placeholder="Wire expected by...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" style="background: var(--bg); border: 1px solid var(--border);" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-success" onclick="saveCommitment()">
+          <i class="fas fa-check"></i> Record Commitment
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script>
+    let currentDeal = null;
+    let commitments = [];
+    
+    async function init() {
+      // Load deals
+      const deals = JSON.parse(localStorage.getItem('pipelineDeals') || '[]');
+      const select = document.getElementById('dealSelect');
+      
+      deals.forEach(deal => {
+        if (deal.stage === 'fundraising' || deal.stage === 'loi') {
+          const opt = document.createElement('option');
+          opt.value = deal.id;
+          opt.textContent = deal.name;
+          select.appendChild(opt);
+        }
+      });
+      
+      // Load investors
+      const investorSelect = document.getElementById('investorSelect');
+      const investors = await db.getAllInvestors();
+      investors.forEach(inv => {
+        const opt = document.createElement('option');
+        opt.value = inv.id;
+        opt.textContent = inv.name;
+        investorSelect.appendChild(opt);
+      });
+      
+      // Load initial deal if in URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const dealId = urlParams.get('deal');
+      if (dealId) {
+        select.value = dealId;
+        loadDeal();
+      } else if (deals.length > 0) {
+        select.value = deals[0].id;
+        loadDeal();
+      }
+    }
+    
+    function loadDeal() {
+      const dealId = document.getElementById('dealSelect').value;
+      if (!dealId) return;
+      
+      const deals = JSON.parse(localStorage.getItem('pipelineDeals') || '[]');
+      currentDeal = deals.find(d => d.id === dealId);
+      
+      if (!currentDeal) return;
+      
+      document.getElementById('dealName').textContent = currentDeal.name;
+      document.getElementById('targetAmount').textContent = formatCurrency(currentDeal.equity || 0);
+      
+      // Load commitments for this deal
+      loadCommitments();
+    }
+    
+    function loadCommitments() {
+      const allCommitments = JSON.parse(localStorage.getItem('commitments') || '[]');
+      commitments = allCommitments.filter(c => c.dealId === (currentDeal?.id));
+      
+      renderCommitments();
+      updateFundraisingStats();
+    }
+    
+    function renderCommitments() {
+      const tbody = document.getElementById('commitmentsBody');
+      const emptyState = document.getElementById('emptyState');
+      const table = document.getElementById('commitmentsTable');
+      
+      if (commitments.length === 0) {
+        table.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      table.style.display = 'table';
+      emptyState.style.display = 'none';
+      
+      const targetEquity = currentDeal?.equity || 1;
+      
+      tbody.innerHTML = commitments.map(c => {
+        const ownership = ((c.amount / targetEquity) * 100).toFixed(2);
+        const statusClass = {
+          'committed': 'status-committed',
+          'wired': 'status-wired',
+          'pending': 'status-pending',
+          'docs': 'status-docs'
+        }[c.status] || 'status-committed';
+        
+        const statusText = {
+          'committed': 'Committed',
+          'wired': 'Funds Wired',
+          'pending': 'Pending',
+          'docs': 'Docs Signed'
+        }[c.status] || 'Committed';
+        
+        return `
+          <tr>
+            <td>
+              <div class="investor-cell">
+                <div class="investor-avatar">${c.investorName?.[0] || '?'}</div>
+                <div class="investor-info">
+                  <h4>${c.investorName}</h4>
+                  <p>${c.notes || ''}</p>
+                </div>
+              </div>
+            </td>
+            <td class="amount">${formatCurrency(c.amount)}</td>
+            <td>${ownership}%</td>
+            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td>${new Date(c.date).toLocaleDateString()}</td>
+            <td>
+              <div class="actions">
+                <button class="action-btn" onclick="markWired('${c.id}')" title="Mark as Wired">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="action-btn" onclick="deleteCommitment('${c.id}')" title="Delete">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+    
+    function updateFundraisingStats() {
+      if (!currentDeal) return;
+      
+      const target = currentDeal.equity || 0;
+      const raised = commitments.reduce((sum, c) => sum + c.amount, 0);
+      const remaining = target - raised;
+      const pct = target > 0 ? (raised / target * 100) : 0;
+      
+      document.getElementById('raisedAmount').textContent = formatCurrency(raised);
+      document.getElementById('remainingAmount').textContent = formatCurrency(remaining);
+      document.getElementById('progressBar').style.width = Math.min(pct, 100) + '%';
+      document.getElementById('investorCount').textContent = 
+        `${commitments.length} Investor${commitments.length !== 1 ? 's' : ''} Committed`;
+    }
+    
+    function formatCurrency(num) {
+      if (!num) return '$0';
+      if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return '$' + (num / 1000).toFixed(0) + 'K';
+      return '$' + num.toLocaleString();
+    }
+    
+    function openAddModal() {
+      if (!currentDeal) {
+        alert('Please select a deal first');
+        return;
+      }
+      document.getElementById('addModal').classList.add('active');
+    }
+    
+    function closeModal() {
+      document.getElementById('addModal').classList.remove('active');
+      document.getElementById('investorSelect').value = '';
+      document.getElementById('commitAmount').value = '';
+      document.getElementById('commitStatus').value = 'committed';
+      document.getElementById('commitNotes').value = '';
+    }
+    
+    async function saveCommitment() {
+      const investorId = document.getElementById('investorSelect').value;
+      const amount = parseFloat(document.getElementById('commitAmount').value);
+      const status = document.getElementById('commitStatus').value;
+      const notes = document.getElementById('commitNotes').value;
+      
+      if (!investorId || !amount) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      const investors = await db.getAllInvestors();
+      const investor = investors.find(i => i.id == investorId);
+      
+      const commitment = {
+        id: Date.now().toString(),
+        dealId: currentDeal.id,
+        investorId,
+        investorName: investor?.name || 'Unknown',
+        amount,
+        status,
+        notes,
+        date: new Date().toISOString()
+      };
+      
+      const allCommitments = JSON.parse(localStorage.getItem('commitments') || '[]');
+      allCommitments.push(commitment);
+      localStorage.setItem('commitments', JSON.stringify(allCommitments));
+      
+      closeModal();
+      loadCommitments();
+    }
+    
+    function markWired(id) {
+      const allCommitments = JSON.parse(localStorage.getItem('commitments') || '[]');
+      const c = allCommitments.find(x => x.id === id);
+      if (c) {
+        c.status = 'wired';
+        localStorage.setItem('commitments', JSON.stringify(allCommitments));
+        loadCommitments();
+      }
+    }
+    
+    function deleteCommitment(id) {
+      if (!confirm('Delete this commitment?')) return;
+      
+      let allCommitments = JSON.parse(localStorage.getItem('commitments') || '[]');
+      allCommitments = allCommitments.filter(c => c.id !== id);
+      localStorage.setItem('commitments', JSON.stringify(allCommitments));
+      loadCommitments();
+    }
+    
+    window.onload = init;
+  </script>
+</body>
+</html>

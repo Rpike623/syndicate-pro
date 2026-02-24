@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Closing Checklist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+      --text: #0f172a; --text-secondary: #64748b; --border: #e2e8f0; --bg: #f8fafc; --bg-card: #ffffff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--primary); color: white; position: fixed; height: 100vh; }
+    .nav { padding: 24px 12px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; color: #94a3b8; text-decoration: none; margin-bottom: 4px; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .main { flex: 1; margin-left: 260px; padding: 32px; }
+    .progress-bar { background: #e2e8f0; height: 8px; border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
+    .progress-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.5s; }
+    .checklist-container { max-width: 800px; }
+    .phase { background: white; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .phase-header { background: var(--bg); padding: 16px 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+    .phase-progress { margin-left: auto; font-size: 0.875rem; color: var(--text-secondary); }
+    .task { display: flex; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; }
+    .task:hover { background: var(--bg); }
+    .task:last-child { border-bottom: none; }
+    .task-checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; margin-right: 16px; display: flex; align-items: center; justify-content: center; }
+    .task.completed .task-checkbox { background: var(--success); border-color: var(--success); color: white; }
+    .task.completed .task-text { text-decoration: line-through; color: var(--text-secondary); }
+    .task-meta { margin-left: auto; font-size: 0.8rem; color: var(--text-secondary); }
+    .task-assignee { background: var(--bg); padding: 4px 12px; border-radius: 12px; margin-left: 12px; }
+    .urgent { color: var(--danger); font-weight: 600; }
+    .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: var(--accent); color: white; }
+    .add-task { display: flex; gap: 12px; margin-top: 16px; padding: 0 24px 24px; }
+    .add-task input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="nav">
+      <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; padding: 0 12px;">◆ SyndicatePro</div>
+      <a href="deals.html" class="nav-item"><i class="fas fa-building"></i> Deals</a>
+      <a href="checklist.html" class="nav-item active"><i class="fas fa-tasks"></i> Closing Checklist</a>
+      <a href="fundraising.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Fundraising</a>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i> Documents</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div>
+        <h1>Deal Closing Checklist</h1>
+        <p style="color: var(--text-secondary);">Track every item needed to get to closing</p>
+      </div>
+      <select id="dealSelect" style="padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+        <option>Select a deal...</option>
+      </select>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="overallProgress"></div>
+    </div>
+    <div style="text-align: center; margin-top: -20px; margin-bottom: 32px; font-size: 0.875rem; color: var(--text-secondary);">
+      <span id="progressText">0% Complete</span>
+    </div>
+
+    <div class="checklist-container">
+      <div class="phase">
+        <div class="phase-header">
+          <i class="fas fa-file-signature" style="color: var(--accent);"></i>
+          Due Diligence
+          <span class="phase-progress" id="dd-progress">0/8</span>
+        </div>
+        <div id="dd-tasks"></div>
+        <div class="add-task">
+          <input type="text" id="newDD" placeholder="Add task..." onkeypress="if(event.key==='Enter')addTask('dd')">
+          <button class="btn btn-primary" onclick="addTask('dd')">Add</button>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-header">
+          <i class="fas fa-money-check" style="color: var(--warning);"></i>
+          Financing
+          <span class="phase-progress" id="fin-progress">0/6</span>
+        </div>
+        <div id="fin-tasks"></div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-header">
+          <i class="fas fa-gavel" style="color: var(--danger);"></i>
+          Legal & Compliance
+          <span class="phase-progress" id="legal-progress">0/10</span>
+        </div>
+        <div id="legal-tasks"></div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-header">
+          <i class="fas fa-users" style="color: var(--success);"></i>
+          Investor Readiness
+          <span class="phase-progress" id="inv-progress">0/5</span>
+        </div>
+        <div id="inv-tasks"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const defaultTasks = {
+      dd: [
+        { id: 1, text: 'Property inspection completed', assignee: 'Inspector', due: 'Day 5' },
+        { id: 2, text: 'Phase I Environmental Assessment', assignee: 'Consultant', due: 'Day 10' },
+        { id: 3, text: 'Title commitment received', assignee: 'Title Co', due: 'Day 7' },
+        { id: 4, text: 'Survey ordered and completed', assignee: 'Surveyor', due: 'Day 12' },
+        { id: 5, text: 'Rent roll & lease abstracts', assignee: 'PM', due: 'Day 3' },
+        { id: 6, text: 'Financial statements (T-12)', assignee: 'Seller', due: 'Day 3' },
+        { id: 7, text: 'Zoning compliance verified', assignee: 'Attorney', due: 'Day 15' },
+        { id: 8, text: 'Property tax review', assignee: 'CPA', due: 'Day 10' }
+      ],
+      fin: [
+        { id: 9, text: 'Loan application submitted', assignee: 'Broker', due: 'Day 1' },
+        { id: 10, text: 'Term sheet signed', assignee: 'Lender', due: 'Day 7' },
+        { id: 11, text: 'Appraisal ordered', assignee: 'Lender', due: 'Day 5' },
+        { id: 12, text: 'Insurance quotes obtained', assignee: 'Broker', due: 'Day 10' },
+        { id: 13, text: 'HOI policy bound', assignee: 'Broker', due: 'Day 20' },
+        { id: 14, text: 'Loan docs to lender counsel', assignee: 'Attorney', due: 'Day 25' }
+      ],
+      legal: [
+        { id: 15, text: 'Purchase agreement executed', assignee: 'Attorney', due: 'Day 1' },
+        { id: 16, text: 'Operating agreement drafted', assignee: 'Attorney', due: 'Day 15' },
+        { id: 17, text: 'PPM final review', assignee: 'Securities Counsel', due: 'Day 20' },
+        { id: 18, text: 'Subscription docs prepared', assignee: 'Attorney', due: 'Day 22' },
+        { id: 19, text: 'Form D filing prepared', assignee: 'Securities Counsel', due: 'Day 25' },
+        { id: 20, text: 'Blue sky research completed', assignee: 'Counsel', due: 'Day 20' },
+        { id: 21, text: 'Escrow agreement signed', assignee: 'Title Co', due: 'Day 28' },
+        { id: 22, text: 'Wire instructions verified', assignee: 'Title Co', due: 'Day 29' },
+        { id: 23, text: 'Closing statement reviewed', assignee: 'GP', due: 'Day 29' },
+        { id: 24, text: 'Entity formation docs filed', assignee: 'Attorney', due: 'Day 5' }
+      ],
+      inv: [
+        { id: 25, text: 'Investor CRM updated', assignee: 'GP', due: 'Ongoing' },
+        { id: 26, text: 'Data room prepared', assignee: 'GP', due: 'Day 10' },
+        { id: 27, text: 'Minimum raise secured', assignee: 'GP', due: 'Day 25' },
+        { id: 28, text: 'Accreditation verified', assignee: 'GP', due: 'Day 28' },
+        { id: 29, text: 'Investor wires confirmed', assignee: 'Title Co', due: 'Day 29' }
+      ]
+    };
+
+    let tasks = JSON.parse(localStorage.getItem('closingChecklist') || JSON.stringify(defaultTasks));
+    let completed = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+
+    function render() {
+      let total = 0, done = 0;
+      
+      Object.keys(tasks).forEach(phase => {
+        const el = document.getElementById(phase + '-tasks');
+        const phaseDone = tasks[phase].filter(t => completed.includes(t.id)).length;
+        total += tasks[phase].length;
+        done += phaseDone;
+        
+        document.getElementById(phase + '-progress').textContent = `${phaseDone}/${tasks[phase].length}`;
+        
+        el.innerHTML = tasks[phase].map(t => `
+          <div class="task ${completed.includes(t.id) ? 'completed' : ''}" onclick="toggleTask(${t.id})">
+            <div class="task-checkbox">${completed.includes(t.id) ? '<i class="fas fa-check"></i>' : ''}</div>
+            <div class="task-text">${t.text}</div>
+            <div class="task-meta">
+              <span class="task-assignee">${t.assignee}</span>
+              <span style="${isOverdue(t.due) ? 'color: var(--danger); font-weight: 600;' : ''}">${t.due}</span>
+            </div>
+          </div>
+        `).join('');
+      });
+
+      const pct = Math.round((done / total) * 100);
+      document.getElementById('overallProgress').style.width = pct + '%';
+      document.getElementById('progressText').textContent = `${pct}% Complete (${done}/${total} tasks)`;
+    }
+
+    function isOverdue(due) {
+      if (due === 'Ongoing') return false;
+      // Simple check - in real app would parse date
+      return false;
+    }
+
+    function toggleTask(id) {
+      if (completed.includes(id)) {
+        completed = completed.filter(x => x !== id);
+      } else {
+        completed.push(id);
+      }
+      localStorage.setItem('completedTasks', JSON.stringify(completed));
+      render();
+    }
+
+    function addTask(phase) {
+      const input = document.getElementById('new' + phase.toUpperCase());
+      const text = input.value.trim();
+      if (!text) return;
+      
+      tasks[phase].push({
+        id: Date.now(),
+        text: text,
+        assignee: 'GP',
+        due: 'TBD'
+      });
+      localStorage.setItem('closingChecklist', JSON.stringify(tasks));
+      input.value = '';
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>
