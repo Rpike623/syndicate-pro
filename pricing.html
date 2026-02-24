@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Pricing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: #dbeafe;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --radius: 8px;
+      --radius-md: 12px;
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Header */
+    .header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+    }
+    
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), #60a5fa);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.25rem;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 32px;
+    }
+    
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    
+    .nav-links a:hover { color: var(--text); }
+    
+    .header-actions {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--border-light);
+    }
+    
+    .btn-lg {
+      padding: 14px 28px;
+      font-size: 1rem;
+    }
+    
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 32px 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+    
+    .billing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 60px;
+    }
+    
+    .billing-toggle span {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .billing-toggle span.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+    
+    .toggle-switch {
+      width: 48px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 2px;
+      right: 2px;
+      transition: transform 0.2s;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    .badge-green {
+      background: var(--success);
+      color: white;
+    }
+    
+    /* Pricing Grid */
+    .pricing-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px 80px;
+    }
+    
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    
+    @media (max-width: 1024px) {
+      .pricing-grid { grid-template-columns: 1fr; max-width: 500px; margin: 0 auto; }
+    }
+    
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      position: relative;
+      transition: all 0.15s;
+    }
+    
+    .pricing-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+    
+    .pricing-card.popular {
+      border: 2px solid var(--accent);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .popular-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    
+    .plan-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .plan-description {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+    }
+    
+    .plan-price {
+      margin-bottom: 24px;
+    }
+    
+    .price {
+      font-size: 3rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .price-period {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    
+    .features-list {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    
+    .features-list li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.9rem;
+    }
+    
+    .features-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .features-list i {
+      color: var(--success);
+      width: 20px;
+    }
+    
+    .features-list li.disabled {
+      color: var(--text-muted);
+    }
+    
+    .features-list li.disabled i {
+      color: var(--border);
+    }
+    
+    /* FAQ */
+    .faq-section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 60px 32px;
+    }
+    
+    .faq-section h2 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+    }
+    
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    
+    .faq-question {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+    
+    .faq-answer {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    /* CTA */
+    .cta-section {
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      padding: 80px 32px;
+    }
+    
+    .cta-section h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    
+    .cta-section p {
+      font-size: 1.25rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+    }
+    
+    /* Footer */
+    .footer {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 40px 32px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">◆</div>
+      <span>SyndicatePro</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Features</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="#">Docs</a>
+    </nav>
+    <div class="header-actions">
+      <a href="login.html" class="btn btn-secondary">Sign In</a>
+      <a href="signup.html" class="btn btn-primary">Get Started</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Simple, transparent pricing</h1>
+    <p>Start free, upgrade when you're ready. No hidden fees, cancel anytime.</p>
+    
+    <div class="billing-toggle">
+      <span class="active">Monthly</span>
+      <div class="toggle-switch"></div>
+      <span>Annual <span class="badge badge-green">Save 20%</span></span>
+    </div>
+  </section>
+
+  <section class="pricing-container">
+    <div class="pricing-grid">
+      <!-- Starter Plan -->
+      <div class="pricing-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-description">Perfect for your first syndication</div>
+        <div class="plan-price">
+          <span class="price">$49</span>
+          <span class="price-period">/month</span>
+        </div>
+        <ul class="features-list">
+          <li><i class="fas fa-check"></i> 1 Active Deal</li>
+          <li><i class="fas fa-check"></i> 25 Investors</li>
+          <li><i class="fas fa-check"></i> Waterfall Calculator</li>
+          <li><i class="fas fa-check"></i> Document Generator</li>
+          <li><i class="fas fa-check"></i> Email Support</li>
+          <li class="disabled"><i class="fas fa-times"></i> Distribution Tracking</li>
+          <li class="disabled"><i class="fas fa-times"></i> Pro Forma Builder</li>
+          <li class="disabled"><i class="fas fa-times"></i> White-label Documents</li>
+        </ul>
+        <a href="signup.html?plan=starter" class="btn btn-secondary" style="width: 100%;">Start Free Trial</a>
+      </div>
+
+      <!-- Pro Plan -->
+      <div class="pricing-card popular">
+        <div class="popular-badge">MOST POPULAR</div>
+        <div class="plan-name">Professional</div>
+        <div class="plan-description">For active syndicators</div>
+        <div class="plan-price">
+          <span class="price">$149</span>
+          <span class="price-period">/month</span>
+        </div>
+        <ul class="features-list">
+          <li><i class="fas fa-check"></i> Unlimited Deals</li>
+          <li><i class="fas fa-check"></i> Unlimited Investors</li>
+          <li><i class="fas fa-check"></i> All Waterfall Types</li>
+          <li><i class="fas fa-check"></i> All Documents + PDF Export</li>
+          <li><i class="fas fa-check"></i> Distribution Tracking</li>
+          <li><i class="fas fa-check"></i> Pro Forma Builder</li>
+          <li><i class="fas fa-check"></i> Priority Support</li>
+          <li class="disabled"><i class="fas fa-times"></i> White-label Documents</li>
+        </ul>
+        <a href="signup.html?plan=pro" class="btn btn-primary btn-lg" style="width: 100%;">Start Free Trial</a>
+      </div>
+
+      <!-- Enterprise Plan -->
+      <div class="pricing-card">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-description">For firms with multiple GPs</div>
+        <div class="plan-price">
+          <span class="price">$499</span>
+          <span class="price-period">/month</span>
+        </div>
+        <ul class="features-list">
+          <li><i class="fas fa-check"></i> Everything in Pro</li>
+          <li><i class="fas fa-check"></i> Unlimited Team Members</li>
+          <li><i class="fas fa-check"></i> White-label Documents</li>
+          <li><i class="fas fa-check"></i> Custom Integrations</li>
+          <li><i class="fas fa-check"></i> API Access</li>
+          <li><i class="fas fa-check"></i> Dedicated Account Manager</li>
+          <li><i class="fas fa-check"></i> SLA Guarantee</li>
+          <li><i class="fas fa-check"></i> SSO / SAML</li>
+        </ul>
+        <a href="mailto:sales@syndicatepro.com" class="btn btn-secondary" style="width: 100%;">Contact Sales</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section">
+    <h2>Frequently Asked Questions</h2>
+    
+    <div class="faq-item">
+      <div class="faq-question">Can I try before I buy?</div>
+      <div class="faq-answer">Yes! Every plan comes with a 14-day free trial. No credit card required to start. You'll have full access to all features in your chosen tier during the trial period.</div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">What happens when I upgrade?</div>
+      <div class="faq-answer">When you upgrade, you'll be charged the prorated difference for the remainder of your billing cycle. All your data and settings transfer seamlessly to your new plan.</div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">Is my data secure?</div>
+      <div class="faq-answer">Absolutely. We use bank-level 256-bit encryption for all data in transit and at rest. Our infrastructure is hosted on SOC 2 compliant data centers with regular security audits.</div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">Can I export my data?</div>
+      <div class="faq-answer">Yes, you can export all your deals, investors, and documents at any time in standard formats (JSON, CSV, PDF). We believe your data belongs to you.</div>
+    </div>
+    
+    <div class="faq-item">
+      <div class="faq-question">Do you offer custom contracts?</div>
+      <div class="faq-answer">Enterprise customers can work with our legal team to customize terms, add additional security requirements, or negotiate volume pricing for multi-year commitments.</div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <h2>Ready to streamline your syndications?</h2>
+    <p>Join hundreds of sponsors who trust SyndicatePro</p>
+    <a href="signup.html" class="btn btn-primary btn-lg">Start Your Free Trial</a>
+  </section>
+
+  <footer class="footer">
+    <p>&copy; 2026 SyndicatePro. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Toggle switch interaction
+    document.querySelector('.toggle-switch').addEventListener('click', function() {
+      this.style.background = this.style.background === 'rgb(203, 213, 225)' ? '#3b82f6' : '#cbd5e1';
+    });
+  </script>
+</body>
+</html>

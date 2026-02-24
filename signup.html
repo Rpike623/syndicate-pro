@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Get Started</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: #dbeafe;
+      --success: #10b981;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --radius: 8px;
+      --radius-md: 12px;
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .auth-container {
+      width: 100%;
+      max-width: 520px;
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 48px;
+    }
+    
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+    
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent), #60a5fa);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.25rem;
+    }
+    
+    .auth-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .auth-header p {
+      color: var(--text-secondary);
+    }
+    
+    .plan-selected {
+      background: var(--accent-light);
+      border: 1px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .plan-name {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    .plan-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-family: inherit;
+      background: var(--bg-card);
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+      width: 100%;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 24px 0;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+    
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    
+    .terms {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 16px;
+    }
+    
+    .terms a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .auth-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <div class="logo">
+        <div class="logo-icon">◆</div>
+        <span>SyndicatePro</span>
+      </div>
+      <h1>Start your free trial</h1>
+      <p>No credit card required. 14 days free.</p>
+    </div>
+    
+    <div class="plan-selected" id="planDisplay">
+      <span class="plan-name" id="planName">Professional Plan</span>
+      <span class="plan-price" id="planPrice">$149/mo</span>
+    </div>
+    
+    <form id="signupForm" onsubmit="handleSignup(event)">
+      <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" id="firstName" placeholder="John" required>
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" id="lastName" placeholder="Smith" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="you@company.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Min 8 characters" minlength="8" required>
+      </div>
+      <div class="form-group">
+        <label>Company Name</label>
+        <input type="text" id="company" placeholder="Acme Capital LLC">
+      </div>
+      
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-rocket"></i> Create Account
+      </button>
+    </form>
+    
+    <div class="divider">or</div>
+    
+    <button class="btn btn-outline" onclick="googleAuth()">
+      <i class="fab fa-google"></i> Continue with Google
+    </button>
+    
+    <p class="terms">
+      By signing up, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+    </p>
+    
+    <div class="auth-footer">
+      Already have an account? <a href="login.html">Sign in</a>
+    </div>
+  </div>
+
+  <script>
+    // Parse plan from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const plan = urlParams.get('plan') || 'pro';
+    
+    const plans = {
+      starter: { name: 'Starter Plan', price: '$49/mo' },
+      pro: { name: 'Professional Plan', price: '$149/mo' },
+      enterprise: { name: 'Enterprise Plan', price: '$499/mo' }
+    };
+    
+    const selectedPlan = plans[plan] || plans.pro;
+    document.getElementById('planName').textContent = selectedPlan.name;
+    document.getElementById('planPrice').textContent = selectedPlan.price;
+    
+    function handleSignup(e) {
+      e.preventDefault();
+      
+      // Demo: Create account and redirect
+      localStorage.setItem('auth', JSON.stringify({
+        isAuthenticated: true,
+        user: {
+          email: document.getElementById('email').value,
+          firstName: document.getElementById('firstName').value,
+          lastName: document.getElementById('lastName').value,
+          company: document.getElementById('company').value
+        },
+        tier: plan,
+        trialEnds: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+      }));
+      
+      window.location.href = 'index.html';
+    }
+    
+    function googleAuth() {
+      alert('Google OAuth integration coming soon');
+    }
+  </script>
+</body>
+</html>
