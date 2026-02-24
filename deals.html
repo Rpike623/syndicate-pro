@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - All Deals</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --secondary: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: #dbeafe;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius-sm: 6px;
+      --radius: 8px;
+      --radius-md: 12px;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .app { display: flex; min-height: 100vh; }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+    }
+    
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), #60a5fa);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    
+    .nav {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .nav-section {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.4);
+      padding: 16px 12px 8px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    
+    /* Main Content */
+    .main { flex: 1; margin-left: 260px; min-height: 100vh; }
+    
+    .top-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb-current { color: var(--text); font-weight: 500; }
+    
+    .top-actions { display: flex; gap: 12px; align-items: center; }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #60a5fa);
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px -1px rgba(59, 130, 246, 0.4);
+    }
+    
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .btn-secondary:hover { background: var(--bg); }
+    
+    .content { padding: 32px; max-width: 1600px; }
+    
+    /* Stats Overview */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    
+    .stat-icon.blue { background: var(--accent-light); color: var(--accent); }
+    .stat-icon.green { background: var(--success-light); color: var(--success); }
+    .stat-icon.amber { background: var(--warning-light); color: var(--warning); }
+    .stat-icon.purple { background: #ede9fe; color: #7c3aed; }
+    
+    .stat-label { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 4px; }
+    .stat-value { font-size: 1.875rem; font-weight: 700; color: var(--text); }
+    .stat-change {
+      font-size: 0.8rem;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .stat-change.positive { color: var(--success); }
+    .stat-change.negative { color: var(--danger); }
+    
+    /* Filters & View Toggle */
+    .filters-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .search-box {
+      position: relative;
+    }
+    
+    .search-box input {
+      padding: 10px 16px 10px 40px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      width: 300px;
+      transition: all 0.15s;
+    }
+    
+    .search-box i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    
+    select {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      background: var(--bg-card);
+      cursor: pointer;
+    }
+    
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg);
+      padding: 4px;
+      border-radius: var(--radius);
+    }
+    
+    .view-btn {
+      padding: 8px 12px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+    
+    .view-btn.active {
+      background: var(--bg-card);
+      color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    /* Deals Grid */
+    .deals-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 24px;
+    }
+    
+    .deal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .deal-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+    
+    .deal-image {
+      height: 160px;
+      background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 3rem;
+      position: relative;
+    }
+    
+    .deal-image::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.3));
+    }
+    
+    .deal-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .badge-active { background: var(--success); color: white; }
+    .badge-fundraising { background: var(--accent); color: white; }
+    .badge-closed { background: var(--text-muted); color: white; }
+    .badge-dd { background: var(--warning); color: white; }
+    
+    .deal-content { padding: 20px; }
+    
+    .deal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    
+    .deal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .deal-location {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+    
+    .deal-menu {
+      padding: 8px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    
+    .deal-menu:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+    
+    .deal-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 16px 0;
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+      margin: 16px 0;
+    }
+    
+    .metric {
+      text-align: center;
+    }
+    
+    .metric-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    
+    .deal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .investor-count {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .investor-avatars {
+      display: flex;
+    }
+    
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 2px solid var(--bg-card);
+      margin-left: -8px;
+    }
+    
+    .avatar:first-child { margin-left: 0; }
+    
+    .deal-action {
+      padding: 8px 16px;
+      background: var(--accent-light);
+      color: var(--accent);
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    
+    .deal-card:hover .deal-action {
+      background: var(--accent);
+      color: white;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-secondary);
+    }
+    
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: var(--border);
+    }
+    
+    .empty-state h3 {
+      font-size: 1.25rem;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    
+    /* Drill Down Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+    
+    .modal-overlay.active { display: flex; }
+    
+    .modal-large {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      width: 100%;
+      max-width: 1000px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .modal-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-title h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .modal-title p {
+      color: var(--text-secondary);
+    }
+    
+    .modal-close {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    
+    .modal-close:hover {
+      background: var(--bg);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+    }
+    
+    .deal-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    
+    .deal-tab {
+      padding: 12px 20px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+    
+    .deal-tab:hover { color: var(--text); }
+    .deal-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    
+    .detail-card {
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    
+    .detail-card h4 {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    
+    .detail-row:last-child { border-bottom: none; }
+    
+    .detail-label { color: var(--text-secondary); }
+    .detail-value { font-weight: 600; }
+    
+    /* Quick Actions */
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .quick-actions .btn { flex: 1; justify-content: center; }
+    
+    @media (max-width: 768px) {
+      .deals-grid { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .search-box input { width: 200px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+          <span>SyndicatePro</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-section">Main</div>
+        <a href="index.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+        <a href="deals.html" class="nav-item active"><i class="fas fa-building"></i><span>All Deals</span></a>
+        <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+        <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+        <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+        
+        <div class="nav-section">Tools</div>
+        <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Pipeline</span></a>
+        <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+        <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+        <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">GP</div>
+          <div class="user-details">
+            <div class="user-name">General Partner</div>
+            <div class="user-role">Administrator</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="top-bar">
+        <div class="breadcrumb">
+          <a href="index.html">Home</a>
+          <span>/</span>
+          <span class="breadcrumb-current">All Deals</span>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-primary" onclick="createNewOpportunity()">
+            <i class="fas fa-plus-circle"></i> Create New Opportunity
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Total Deals</div>
+                <div class="stat-value" id="statTotalDeals">0</div>
+              </div>
+              <div class="stat-icon blue"><i class="fas fa-building"></i></div>
+            </div>
+            <div class="stat-change positive">
+              <i class="fas fa-arrow-up"></i> 3 new this quarter
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Total AUM</div>
+                <div class="stat-value" id="statAUM">$0</div>
+              </div>
+              <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+            </div>
+            <div class="stat-change positive">
+              <i class="fas fa-arrow-up"></i> 12.5% growth
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Active Investors</div>
+                <div class="stat-value" id="statInvestors">0</div>
+              </div>
+              <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+            </div>
+            <div class="stat-change positive">
+              <i class="fas fa-arrow-up"></i> 8 new investors
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div>
+                <div class="stat-label">Avg. Cash-on-Cash</div>
+                <div class="stat-value" id="statCOC">0%</div>
+              </div>
+              <div class="stat-icon amber"><i class="fas fa-percentage"></i></div>
+            </div>
+            <div class="stat-change positive">
+              <i class="fas fa-arrow-up"></i> 1.2% vs last year
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+          <div class="filter-group">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" id="searchDeals" placeholder="Search deals..." oninput="filterDeals()">
+            </div>
+            <select id="filterStatus" onchange="filterDeals()">
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="fundraising">Fundraising</option>
+              <option value="dd">Due Diligence</option>
+              <option value="closed">Closed</option>
+            </select>
+            <select id="filterType" onchange="filterDeals()">
+              <option value="">All Types</option>
+              <option value="multifamily">Multifamily</option>
+              <option value="retail">Retail</option>
+              <option value="industrial">Industrial</option>
+              <option value="office">Office</option>
+            </select>
+          </div>
+          <div class="view-toggle">
+            <button class="view-btn active" onclick="setView('grid')" title="Grid View"><i class="fas fa-th-large"></i></button>
+            <button class="view-btn" onclick="setView('list')" title="List View"><i class="fas fa-list"></i></button>
+          </div>
+        </div>
+
+        <!-- Deals Grid -->
+        <div class="deals-grid" id="dealsContainer">
+          <!-- Deals will be rendered here -->
+        </div>
+
+        <!-- Empty State (hidden by default) -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <i class="fas fa-building"></i>
+          <h3>No deals yet</h3>
+          <p>Create your first investment opportunity to get started</p>
+          <button class="btn btn-primary" style="margin-top: 20px;" onclick="createNewOpportunity()">
+            <i class="fas fa-plus"></i> Create Opportunity
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Drill Down Modal -->
+  <div class="modal-overlay" id="dealModal">
+    <div class="modal-large">
+      <div class="modal-header">
+        <div class="modal-title">
+          <h2 id="modalDealName">Deal Name</h2>
+          <p id="modalDealLocation"><i class="fas fa-map-marker-alt"></i> Location</p>
+        </div>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="deal-tabs">
+          <button class="deal-tab active" onclick="switchTab('overview')">Overview</button>
+          <button class="deal-tab" onclick="switchTab('financials')">Financials</button>
+          <button class="deal-tab" onclick="switchTab('investors')">Investors</button>
+          <button class="deal-tab" onclick="switchTab('documents')">Documents</button>
+          <button class="deal-tab" onclick="switchTab('distributions')">Distributions</button>
+        </div>
+        
+        <div class="tab-panel active" id="tab-overview">
+          <div class="detail-grid">
+            <div class="detail-card">
+              <h4>Deal Information</h4>
+              <div class="detail-row">
+                <span class="detail-label">Property Type</span>
+                <span class="detail-value" id="detailType">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Purchase Price</span>
+                <span class="detail-value" id="detailPrice">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Total Equity</span>
+                <span class="detail-value" id="detailEquity">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Close Date</span>
+                <span class="detail-value" id="detailCloseDate">-</span>
+              </div>
+            </div>
+            
+            <div class="detail-card">
+              <h4>Performance Metrics</h4>
+              <div class="detail-row">
+                <span class="detail-label">Cash-on-Cash Return</span>
+                <span class="detail-value" id="detailCOC">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Target IRR</span>
+                <span class="detail-value" id="detailIRR">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Equity Multiple</span>
+                <span class="detail-value" id="detailMultiple">-</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Current Occupancy</span>
+                <span class="detail-value" id="detailOccupancy">-</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="quick-actions">
+            <button class="btn btn-primary" onclick="goToWaterfall()">
+              <i class="fas fa-chart-pie"></i> View Waterfall
+            </button>
+            <button class="btn btn-secondary" onclick="goToDocuments()">
+              <i class="fas fa-file-contract"></i> Generate Documents
+            </button>
+            <button class="btn btn-secondary" onclick="sendUpdate()">
+              <i class="fas fa-envelope"></i> Send Investor Update
+            </button>
+            <button class="btn btn-secondary" onclick="recordDistribution()">
+              <i class="fas fa-hand-holding-usd"></i> Record Distribution
+            </button>
+          </div>
+        </div>
+        
+        <div class="tab-panel" id="tab-financials">
+          <div class="detail-card">
+            <h4>Financial Summary</h4>
+            <p>Detailed financial data would appear here...</p>
+          </div>
+        </div>
+        
+        <div class="tab-panel" id="tab-investors">
+          <div class="detail-card">
+            <h4>Investor List</h4>
+            <p>Investor breakdown would appear here...</p>
+          </div>
+        </div>
+        
+        <div class="tab-panel" id="tab-documents">
+          <div class="detail-card">
+            <h4>Deal Documents</h4>
+            <p>Generated documents would appear here...</p>
+          </div>
+        </div>
+        
+        <div class="tab-panel" id="tab-distributions">
+          <div class="detail-card">
+            <h4>Distribution History</h4>
+            <p>Distribution records would appear here...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/database.js"></script>
+  <script>
+    // Auth guard
+    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+    if (!auth.isAuthenticated) {
+      window.location.href = 'login.html';
+    }
+
+    let deals = [];
+    let currentDeal = null;
+
+    async function loadDeals() {
+      // Load from both pipeline and calculator deals
+      const pipelineDeals = JSON.parse(localStorage.getItem('pipelineDeals') || '[]');
+      const calculatorDeals = await db.getAllDeals();
+      
+      // Merge and format
+      deals = [
+        ...pipelineDeals.map(d => ({
+          ...d,
+          source: 'pipeline',
+          status: d.stage === 'closed' ? 'active' : d.stage === 'fundraising' ? 'fundraising' : 'dd'
+        })),
+        ...calculatorDeals.map(d => ({
+          ...d,
+          source: 'calculator',
+          status: 'active',
+          price: d.purchasePrice || d.totalEquity * 3,
+          equity: d.totalEquity,
+          type: d.propertyType || 'multifamily',
+          address: d.propertyAddress || 'Fort Worth, TX'
+        }))
+      ];
+      
+      // Add sample deals if none exist
+      if (deals.length === 0) {
+        deals = getSampleDeals();
+      }
+      
+      updateStats();
+      renderDeals();
+    }
+
+    function getSampleDeals() {
+      return [
+        {
+          id: '1',
+          name: 'Highland Park Apartments',
+          address: '4500 Highland Ave, Fort Worth, TX 76107',
+          type: 'multifamily',
+          status: 'active',
+          price: 12500000,
+          equity: 4500000,
+          coc: 8.5,
+          irr: 18.2,
+          occupancy: 94,
+          investors: 12,
+          closeDate: '2023-06-15'
+        },
+        {
+          id: '2',
+          name: 'Riverfront Retail Center',
+          address: '1200 Commerce St, Dallas, TX 75202',
+          type: 'retail',
+          status: 'fundraising',
+          price: 8200000,
+          equity: 2800000,
+          raised: 1800000,
+          coc: 7.2,
+          irr: 15.8,
+          occupancy: 89,
+          investors: 8,
+          closeDate: '2024-04-30'
+        },
+        {
+          id: '3',
+          name: 'Metro Office Building',
+          address: '5500 Belt Line Rd, Dallas, TX 75254',
+          type: 'office',
+          status: 'dd',
+          price: 15600000,
+          equity: 5200000,
+          coc: 6.8,
+          irr: 14.5,
+          occupancy: 87,
+          investors: 0,
+          closeDate: '2024-05-15'
+        },
+        {
+          id: '4',
+          name: 'Westside Industrial Park',
+          address: '8900 West Freeway, Fort Worth, TX 76116',
+          type: 'industrial',
+          status: 'active',
+          price: 9800000,
+          equity: 3200000,
+          coc: 9.2,
+          irr: 19.5,
+          occupancy: 100,
+          investors: 15,
+          closeDate: '2022-11-20'
+        }
+      ];
+    }
+
+    function updateStats() {
+      const activeDeals = deals.filter(d => d.status === 'active');
+      const totalAUM = activeDeals.reduce((sum, d) => sum + (d.equity || 0), 0);
+      const totalInvestors = deals.reduce((sum, d) => sum + (d.investors || 0), 0);
+      const avgCOC = activeDeals.length > 0 
+        ? activeDeals.reduce((sum, d) => sum + (d.coc || 0), 0) / activeDeals.length 
+        : 0;
+      
+      document.getElementById('statTotalDeals').textContent = deals.length;
+      document.getElementById('statAUM').textContent = formatCurrency(totalAUM);
+      document.getElementById('statInvestors').textContent = totalInvestors;
+      document.getElementById('statCOC').textContent = avgCOC.toFixed(1) + '%';
+    }
+
+    function formatCurrency(num) {
+      if (!num) return '$0';
+      if (num >= 1000000) return '$' + (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return '$' + (num / 1000).toFixed(0) + 'K';
+      return '$' + num.toLocaleString();
+    }
+
+    function renderDeals() {
+      const container = document.getElementById('dealsContainer');
+      const search = document.getElementById('searchDeals').value.toLowerCase();
+      const statusFilter = document.getElementById('filterStatus').value;
+      const typeFilter = document.getElementById('filterType').value;
+      
+      const filtered = deals.filter(deal => {
+        const matchesSearch = deal.name?.toLowerCase().includes(search) || 
+                             deal.address?.toLowerCase().includes(search);
+        const matchesStatus = !statusFilter || deal.status === statusFilter;
+        const matchesType = !typeFilter || deal.type === typeFilter;
+        return matchesSearch && matchesStatus && matchesType;
+      });
+      
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        document.getElementById('emptyState').style.display = 'block';
+        return;
+      }
+      
+      document.getElementById('emptyState').style.display = 'none';
+      
+      container.innerHTML = filtered.map(deal => `
+        <div class="deal-card" onclick="openDeal('${deal.id}')">
+          <div class="deal-image">
+            <i class="fas fa-building"></i>
+            <span class="deal-badge badge-${deal.status}">${deal.status}</span>
+          </div>
+          <div class="deal-content">
+            <div class="deal-header">
+              <div>
+                <div class="deal-title">${deal.name}</div>
+                <div class="deal-location">
+                  <i class="fas fa-map-marker-alt"></i>
+                  ${deal.address?.split(',')[0] || 'No location'}
+                </div>
+              </div>
+              <div class="deal-menu" onclick="event.stopPropagation();">
+                <i class="fas fa-ellipsis-v"></i>
+              </div>
+            </div>
+            
+            <div class="deal-metrics">
+              <div class="metric">
+                <div class="metric-value">${formatCurrency(deal.price)}</div>
+                <div class="metric-label">Price</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">${deal.coc || 0}%</div>
+                <div class="metric-label">Cash-on-Cash</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">${deal.irr || 0}%</div>
+                <div class="metric-label">Target IRR</div>
+              </div>
+            </div>
+            
+            <div class="deal-footer">
+              <div class="investor-count">
+                <div class="investor-avatars">
+                  ${generateAvatars(deal.investors || 0)}
+                </div>
+                <span>${deal.investors || 0} investors</span>
+              </div>
+              <div class="deal-action">
+                View Details <i class="fas fa-arrow-right"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function generateAvatars(count) {
+      if (count === 0) return '';
+      const displayCount = Math.min(count, 3);
+      let html = '';
+      for (let i = 0; i < displayCount; i++) {
+        html += `<div class="avatar">${String.fromCharCode(65 + i)}</div>`;
+      }
+      if (count > 3) {
+        html += `<div class="avatar" style="background: var(--text-muted);">+${count - 3}</div>`;
+      }
+      return html;
+    }
+
+    function filterDeals() {
+      renderDeals();
+    }
+
+    function setView(view) {
+      document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.view-btn').classList.add('active');
+      // View toggle functionality would go here
+    }
+
+    function openDeal(id) {
+      currentDeal = deals.find(d => d.id === id);
+      if (!currentDeal) return;
+      
+      document.getElementById('modalDealName').textContent = currentDeal.name;
+      document.getElementById('modalDealLocation').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${currentDeal.address || 'No location'}`;
+      
+      // Populate details
+      document.getElementById('detailType').textContent = currentDeal.type?.charAt(0).toUpperCase() + currentDeal.type?.slice(1) || '-';
+      document.getElementById('detailPrice').textContent = formatCurrency(currentDeal.price);
+      document.getElementById('detailEquity').textContent = formatCurrency(currentDeal.equity);
+      document.getElementById('detailCloseDate').textContent = currentDeal.closeDate || '-';
+      document.getElementById('detailCOC').textContent = (currentDeal.coc || 0) + '%';
+      document.getElementById('detailIRR').textContent = (currentDeal.irr || 0) + '%';
+      document.getElementById('detailMultiple').textContent = '1.8x';
+      document.getElementById('detailOccupancy').textContent = (currentDeal.occupancy || 0) + '%';
+      
+      document.getElementById('dealModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('dealModal').classList.remove('active');
+      currentDeal = null;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.deal-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    function createNewOpportunity() {
+      // Could open a modal or navigate to the calculator
+      window.location.href = 'index.html?new=true';
+    }
+
+    function goToWaterfall() {
+      if (currentDeal) {
+        window.location.href = `index.html?deal=${currentDeal.id}`;
+      }
+    }
+
+    function goToDocuments() {
+      window.location.href = 'documents.html';
+    }
+
+    function sendUpdate() {
+      window.location.href = 'email-templates.html';
+    }
+
+    function recordDistribution() {
+      window.location.href = 'distributions.html';
+    }
+
+    // Close modal on outside click
+    document.getElementById('dealModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // Load on startup
+    window.onload = loadDeals;
+  </script>
+</body>
+</html>

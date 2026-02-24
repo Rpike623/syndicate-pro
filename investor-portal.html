@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investor Portal - SyndicatePro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --secondary: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: #dbeafe;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius-sm: 6px;
+      --radius: 8px;
+      --radius-md: 12px;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .app { display: flex; min-height: 100vh; }
+    
+    /* Sidebar - Simplified for Investors */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+    }
+    
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), #60a5fa);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    
+    .nav {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .nav-section {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.4);
+      padding: 16px 12px 8px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    
+    /* Main Content */
+    .main { flex: 1; margin-left: 260px; min-height: 100vh; }
+    
+    .top-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+    .breadcrumb-current { color: var(--text); font-weight: 500; }
+    
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-info {
+      text-align: right;
+    }
+    
+    .user-name { font-weight: 600; font-size: 0.9rem; }
+    .user-role { font-size: 0.8rem; color: var(--text-muted); }
+    
+    .avatar-large {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    
+    .content { padding: 32px; max-width: 1400px; }
+    
+    /* Welcome Banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      color: white;
+      margin-bottom: 32px;
+    }
+    
+    .welcome-banner h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .welcome-banner p {
+      opacity: 0.8;
+      font-size: 1rem;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .stat-change {
+      font-size: 0.8rem;
+      margin-top: 4px;
+    }
+    .stat-change.positive { color: var(--success); }
+    .stat-change.negative { color: var(--danger); }
+    
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .view-all {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    /* Investment Cards */
+    .investments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    
+    .investment-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .investment-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--accent);
+    }
+    
+    .investment-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    
+    .investment-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .investment-location {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .investment-body {
+      padding: 20px;
+    }
+    
+    .investment-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    
+    .metric {
+      text-align: center;
+    }
+    
+    .metric-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .metric-value.positive { color: var(--success); }
+    .metric-value.negative { color: var(--danger); }
+    
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    
+    .investment-footer {
+      padding: 16px 20px;
+      background: var(--bg);
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .investment-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .status-dot.active { background: var(--success); }
+    .status-dot.pending { background: var(--warning); }
+    
+    /* Recent Activity */
+    .activity-list {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+    }
+    
+    .activity-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .activity-icon.distribution { background: var(--success-light); color: var(--success); }
+    .activity-icon.document { background: var(--accent-light); color: var(--accent); }
+    .activity-icon.update { background: var(--warning-light); color: var(--warning); }
+    
+    .activity-content {
+      flex: 1;
+    }
+    
+    .activity-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .activity-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .activity-date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    
+    /* Documents Section */
+    .documents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    
+    .document-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .document-card:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .document-icon {
+      font-size: 2.5rem;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    
+    .document-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .document-date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    
+    /* Drill Down Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+    
+    .modal-overlay.active { display: flex; }
+    
+    .modal-large {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .modal-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .modal-close {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    
+    .modal-close:hover {
+      background: var(--bg);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px;
+    }
+    
+    .investment-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    
+    .investment-tab {
+      padding: 12px 20px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.15s;
+    }
+    
+    .investment-tab:hover { color: var(--text); }
+    .investment-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .investments-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+          <span>SyndicatePro</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-section">My Account</div>
+        <a href="#" class="nav-item active"><i class="fas fa-chart-pie"></i><span>My Investments</span></a>
+        <a href="#" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+        <a href="#" class="nav-item"><i class="fas fa-file-alt"></i><span>Documents</span></a>
+        <a href="#" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>Tax Forms</span></a>
+        
+        <div class="nav-section">Account</div>
+        <a href="#" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
+        <a href="#" class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+        <a href="login.html" class="nav-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="top-bar">
+        <div class="breadcrumb">
+          <span class="breadcrumb-current">Investor Portal</span>
+        </div>
+        <div class="user-menu">
+          <div class="user-info">
+            <div class="user-name">John Investor</div>
+            <div class="user-role">Limited Partner</div>
+          </div>
+          <div class="avatar-large">JI</div>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <h1>Welcome back, John</h1>
+          <p>Your portfolio is performing well. You've received $12,450 in distributions this quarter.</p>
+        </div>
+
+        <!-- Portfolio Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Invested</div>
+            <div class="stat-value">$450,000</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Current Value</div>
+            <div class="stat-value">$512,000</div>
+            <div class="stat-change positive">+13.8% unrealized</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Lifetime Distributions</div>
+            <div class="stat-value">$48,250</div>
+            <div class="stat-change positive">$12,450 this quarter</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Portfolio IRR</div>
+            <div class="stat-value">18.4%</div>
+            <div class="stat-change positive">+2.1% vs target</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Investments</div>
+            <div class="stat-value">4</div>
+            <div class="stat-change">2 in due diligence</div>
+          </div>
+        </div>
+
+        <!-- My Investments -->
+        <div class="section-header">
+          <h2 class="section-title">My Investments</h2>
+          <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="investments-grid">
+          <div class="investment-card" onclick="openInvestment('hpa')">
+            <div class="investment-header">
+              <div class="investment-title">Highland Park Apartments</div>
+              <div class="investment-location"><i class="fas fa-map-marker-alt"></i> Fort Worth, TX</div>
+            </div>
+            <div class="investment-body">
+              <div class="investment-metrics">
+                <div class="metric">
+                  <div class="metric-value">$150K</div>
+                  <div class="metric-label">My Investment</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">3.3%</div>
+                  <div class="metric-label">Ownership</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value positive">8.5%</div>
+                  <div class="metric-label">Cash-on-Cash</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">$12,750</div>
+                  <div class="metric-label">YTD Distributions</div>
+                </div>
+              </div>
+            </div>
+            <div class="investment-footer">
+              <div class="investment-status">
+                <span class="status-dot active"></span>
+                Active
+              </div>
+              <span style="color: var(--accent); font-size: 0.875rem;">View Details <i class="fas fa-arrow-right"></i></span>
+            </div>
+          </div>
+
+          <div class="investment-card" onclick="openInvestment('rrc')">
+            <div class="investment-header">
+              <div class="investment-title">Riverfront Retail Center</div>
+              <div class="investment-location"><i class="fas fa-map-marker-alt"></i> Dallas, TX</div>
+            </div>
+            <div class="investment-body">
+              <div class="investment-metrics">
+                <div class="metric">
+                  <div class="metric-value">$100K</div>
+                  <div class="metric-label">My Investment</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">3.6%</div>
+                  <div class="metric-label">Ownership</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value positive">7.2%</div>
+                  <div class="metric-label">Cash-on-Cash</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">$3,600</div>
+                  <div class="metric-label">YTD Distributions</div>
+                </div>
+              </div>
+            </div>
+            <div class="investment-footer">
+              <div class="investment-status">
+                <span class="status-dot pending"></span>
+                Fundraising
+              </div>
+              <span style="color: var(--accent); font-size: 0.875rem;">View Details <i class="fas fa-arrow-right"></i></span>
+            </div>
+          </div>
+
+          <div class="investment-card" onclick="openInvestment('wip')">
+            <div class="investment-header">
+              <div class="investment-title">Westside Industrial Park</div>
+              <div class="investment-location"><i class="fas fa-map-marker-alt"></i> Fort Worth, TX</div>
+            </div>
+            <div class="investment-body">
+              <div class="investment-metrics">
+                <div class="metric">
+                  <div class="metric-value">$200K</div>
+                  <div class="metric-label">My Investment</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">6.25%</div>
+                  <div class="metric-label">Ownership</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value positive">9.2%</div>
+                  <div class="metric-label">Cash-on-Cash</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">$18,400</div>
+                  <div class="metric-label">YTD Distributions</div>
+                </div>
+              </div>
+            </div>
+            <div class="investment-footer">
+              <div class="investment-status">
+                <span class="status-dot active"></span>
+                Active
+              </div>
+              <span style="color: var(--accent); font-size: 0.875rem;">View Details <i class="fas fa-arrow-right"></i></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="section-header">
+          <h2 class="section-title">Recent Activity</h2>
+        </div>
+
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-icon distribution">
+              <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <div class="activity-content">
+              <div class="activity-title">Q4 Distribution Received</div>
+              <div class="activity-desc">Highland Park Apartments - $3,750 deposited to your account</div>
+            </div>
+            <div class="activity-date">2 days ago</div>
+          </div>
+          
+          <div class="activity-item">
+            <div class="activity-icon document">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="activity-content">
+              <div class="activity-title">K-1 Tax Document Available</div>
+              <div class="activity-desc">Your 2024 Schedule K-1 for Westside Industrial is ready for download</div>
+            </div>
+            <div class="activity-date">1 week ago</div>
+          </div>
+          
+          <div class="activity-item">
+            <div class="activity-icon update">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="activity-content">
+              <div class="activity-title">Quarterly Update Published</div>
+              <div class="activity-desc">Riverfront Retail Center Q4 2024 performance report</div>
+            </div>
+            <div class="activity-date">2 weeks ago</div>
+          </div>
+          
+          <div class="activity-item">
+            <div class="activity-icon distribution">
+              <i class="fas fa-hand-holding-usd"></i>
+            </div>
+            <div class="activity-content">
+              <div class="activity-title">Distribution Received</div>
+              <div class="activity-desc">Westside Industrial Park - $4,600 deposited to your account</div>
+            </div>
+            <div class="activity-date">1 month ago</div>
+          </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="section-header" style="margin-top: 40px;">
+          <h2 class="section-title">My Documents</h2>
+          <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="documents-grid">
+          <div class="document-card">
+            <div class="document-icon"><i class="fas fa-file-contract"></i></div>
+            <div class="document-name">Operating Agreement</div>
+            <div class="document-date">Highland Park Apts</div>
+          </div>
+          <div class="document-card">
+            <div class="document-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="document-name">PPM</div>
+            <div class="document-date">Highland Park Apts</div>
+          </div>
+          <div class="document-card">
+            <div class="document-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div class="document-name">2024 K-1</div>
+            <div class="document-date">Westside Industrial</div>
+          </div>
+          <div class="document-card">
+            <div class="document-icon"><i class="fas fa-chart-bar"></i></div>
+            <div class="document-name">Q4 Report</div>
+            <div class="document-date">All Investments</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Investment Detail Modal -->
+  <div class="modal-overlay" id="investmentModal">
+    <div class="modal-large">
+      <div class="modal-header">
+        <div>
+          <h2 id="modalDealName">Investment Name</h2>
+          <p id="modalDealLocation" style="color: var(--text-secondary); margin-top: 4px;">
+            <i class="fas fa-map-marker-alt"></i> Location
+          </p>
+        </div>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="investment-tabs">
+          <button class="investment-tab active" onclick="switchTab('overview')">Overview</button>
+          <button class="investment-tab" onclick="switchTab('performance')">Performance</button>
+          <button class="investment-tab" onclick="switchTab('distributions')">Distributions</button>
+          <button class="investment-tab" onclick="switchTab('documents')">Documents</button>
+        </div>
+        
+        <div class="tab-panel active" id="tab-overview">
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+            <div class="stat-card">
+              <div class="stat-label">My Investment</div>
+              <div class="stat-value" id="detailInvestment">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Ownership %</div>
+              <div class="stat-value" id="detailOwnership">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Current Value</div>
+              <div class="stat-value" id="detailValue">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Unrealized Gain</div>
+              <div class="stat-value positive" id="detailGain">-</div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 24px; padding: 20px; background: var(--bg); border-radius: var(--radius);">
+            <h4 style="margin-bottom: 16px;">Investment Timeline</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="text-align: center;">
+                <div style="font-weight: 600;">Jun 2023</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Initial Investment</div>
+              </div>
+              <div style="flex: 1; height: 2px; background: var(--border); margin: 0 20px;"></div>
+              <div style="text-align: center;">
+                <div style="font-weight: 600;">Active</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Hold Period</div>
+              </div>
+              <div style="flex: 1; height: 2px; background: var(--border); margin: 0 20px;"></div>
+              <div style="text-align: center;">
+                <div style="font-weight: 600;">Jun 2028</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Target Exit</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tab-panel" id="tab-performance">
+          <p>Detailed performance charts would appear here...</p>
+        </div>
+        
+        <div class="tab-panel" id="tab-distributions">
+          <p>Distribution history would appear here...</p>
+        </div>
+        
+        <div class="tab-panel" id="tab-documents">
+          <p>Investment documents would appear here...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const investments = {
+      hpa: {
+        name: 'Highland Park Apartments',
+        location: 'Fort Worth, TX',
+        investment: '$150,000',
+        ownership: '3.3%',
+        value: '$168,000',
+        gain: '+$18,000 (12%)'
+      },
+      rrc: {
+        name: 'Riverfront Retail Center',
+        location: 'Dallas, TX',
+        investment: '$100,000',
+        ownership: '3.6%',
+        value: '$102,000',
+        gain: '+$2,000 (2%)'
+      },
+      wip: {
+        name: 'Westside Industrial Park',
+        location: 'Fort Worth, TX',
+        investment: '$200,000',
+        ownership: '6.25%',
+        value: '$242,000',
+        gain: '+$42,000 (21%)'
+      }
+    };
+
+    function openInvestment(id) {
+      const inv = investments[id];
+      if (!inv) return;
+      
+      document.getElementById('modalDealName').textContent = inv.name;
+      document.getElementById('modalDealLocation').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${inv.location}`;
+      document.getElementById('detailInvestment').textContent = inv.investment;
+      document.getElementById('detailOwnership').textContent = inv.ownership;
+      document.getElementById('detailValue').textContent = inv.value;
+      document.getElementById('detailGain').textContent = inv.gain;
+      
+      document.getElementById('investmentModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('investmentModal').classList.remove('active');
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.investment-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    // Close modal on outside click
+    document.getElementById('investmentModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+  </script>
+</body>
+</html>
