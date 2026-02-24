@@ -1012,6 +1012,31 @@
                         <div class="name">Catch-Up</div>
                         <div class="desc">Full waterfall tiers</div>
                       </div>
+                      <div class="waterfall-option" data-type="irr">
+                        <div class="icon"><i class="fas fa-percentage"></i></div>
+                        <div class="name">IRR Hurdle</div>
+                        <div class="desc">IRR-based promote</div>
+                      </div>
+                      <div class="waterfall-option" data-type="tiered">
+                        <div class="icon"><i class="fas fa-layer-group"></i></div>
+                        <div class="name">Tiered Promote</div>
+                        <div class="desc">Multiple hurdles</div>
+                      </div>
+                      <div class="waterfall-option" data-type="european">
+                        <div class="icon"><i class="fas fa-globe-europe"></i></div>
+                        <div class="name">European</div>
+                        <div class="desc">Whole-fund waterfall</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label>Quick Presets</label>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                      <button type="button" class="btn btn-sm btn-secondary" onclick="applyPreset('standard')">Standard (8/30)</button>
+                      <button type="button" class="btn btn-sm btn-secondary" onclick="applyPreset('conservative')">Conservative (6/20)</button>
+                      <button type="button" class="btn btn-sm btn-secondary" onclick="applyPreset('aggressive')">Aggressive (10/40)</button>
+                      <button type="button" class="btn btn-sm btn-secondary" onclick="applyPreset('pareto')">Pareto (12/50)</button>
                     </div>
                   </div>
                   
@@ -1583,6 +1608,36 @@
         if (deal.id === dealState.id) option.selected = true;
         select.appendChild(option);
       });
+    }
+
+    // Deal Presets
+    function applyPreset(preset) {
+      const presets = {
+        standard: { prefReturn: 8, gpPromote: 30, gpEquity: 10, catchupRate: 50 },
+        conservative: { prefReturn: 6, gpPromote: 20, gpEquity: 15, catchupRate: 50 },
+        aggressive: { prefReturn: 10, gpPromote: 40, gpEquity: 5, catchupRate: 50 },
+        pareto: { prefReturn: 12, gpPromote: 50, gpEquity: 5, catchupRate: 100 }
+      };
+      
+      const p = presets[preset];
+      if (!p) return;
+      
+      document.getElementById('prefReturn').value = p.prefReturn;
+      document.getElementById('gpPromote').value = p.gpPromote;
+      document.getElementById('lpPromote').value = 100 - p.gpPromote;
+      document.getElementById('gpEquity').value = p.gpEquity;
+      document.getElementById('lpEquity').value = 100 - p.gpEquity;
+      document.getElementById('catchupRate').value = p.catchupRate;
+      
+      // Visual feedback
+      const btns = document.querySelectorAll('.btn-sm');
+      btns.forEach(b => b.style.background = '');
+      event.target.style.background = 'var(--success)';
+      event.target.style.color = 'white';
+      setTimeout(() => {
+        event.target.style.background = '';
+        event.target.style.color = '';
+      }, 1000);
     }
 
     // Initialize
