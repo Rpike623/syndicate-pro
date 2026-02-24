@@ -683,6 +683,126 @@ ${members.map(m => `
       `;
     }
     
+    function generateSubscriptionAgreement(data) {
+      return `
+<h1>SUBSCRIPTION AGREEMENT</h1>
+<p style="text-align: center; font-style: italic;">${data.companyName || '[COMPANY NAME]'}</p>
+<p style="text-align: center;">A ${data.state || '[STATE]'} Limited Liability Company</p>
+
+<div class="section">
+<p style="text-align: center; font-weight: bold;">$${parseFloat(data.minInvestment || 50000).toLocaleString()} Minimum Investment</p>
+<p style="text-align: center;">Limited Liability Company Interests</p>
+</div>
+
+<div class="section">
+<p>This SUBSCRIPTION AGREEMENT (this "Agreement") is entered into as of ${new Date().toLocaleDateString()}, by and between:</p>
+
+<p><strong>${data.companyName || '[COMPANY NAME]'}</strong>, a ${data.state || '[STATE]'} limited liability company (the "Company"),</p>
+
+<p>AND</p>
+
+<p>The undersigned subscriber (the "Subscriber") identified below.</p>
+</div>
+
+<h2>1. SUBSCRIPTION</h2>
+<div class="section">
+<p><strong>1.1 Subscription.</strong> The Subscriber hereby subscribes for Limited Liability Company Interests in the Company (the "Interests") in the amount set forth in Section 2 below.</p>
+
+<p><strong>1.2 Acceptance.</strong> The Company reserves the right to accept or reject this subscription in whole or in part in its sole discretion.</p>
+
+<p><strong>1.3 Minimum Investment.</strong> The minimum investment is $${parseFloat(data.minInvestment || 50000).toLocaleString()}. The Subscriber's investment shall be a multiple of $${parseFloat(data.minInvestment || 50000).toLocaleString()}.</p>
+</div>
+
+<h2>2. SUBSCRIBER INFORMATION</h2>
+<div class="section">
+<table style="width: 100%; border-collapse: collapse;">
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc; width: 40%;"><strong>Full Legal Name:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Entity Name (if applicable):</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>SSN/Tax ID:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Address:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>City, State, Zip:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Email:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Phone:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Subscription Amount:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">$_______________________________</td></tr>
+</table>
+</div>
+
+<h2>3. ACCREDITED INVESTOR STATUS</h2>
+<div class="section">
+<p>The Subscriber represents and warrants that the Subscriber is an "accredited investor" as defined in Rule 501 of Regulation D under the Securities Act of 1933, by virtue of (check one):</p>
+
+<p>☐ Individual net worth exceeding $1,000,000 (excluding primary residence)</p>
+<p>☐ Individual income exceeding $200,000 in each of the two most recent years (or $300,000 joint income) and reasonably expects to reach the same level in the current year</p>
+<p>☐ Entity with total assets exceeding $5,000,000</p>
+<p>☐ Director, executive officer, or general partner of the issuer</p>
+<p>☐ Natural person who is a "knowledgeable employee" of the investment adviser</p>
+<p>☐ Other: _________________________________________</p>
+</div>
+
+<h2>4. INVESTMENT REPRESENTATIONS</h2>
+<div class="section">
+<p>The Subscriber represents and warrants that:</p>
+
+<p>(a) The Subscriber has received and reviewed the Private Placement Memorandum dated _______________ and all attachments thereto;</p>
+
+<p>(b) The Subscriber understands that the Interests have not been registered under the Securities Act and are being offered pursuant to an exemption from registration;</p>
+
+<p>(c) The Subscriber is purchasing the Interests for the Subscriber's own account, for investment purposes only, and not with a view to resale or distribution;</p>
+
+<p>(d) The Subscriber understands that the Interests are subject to substantial restrictions on transfer and that no public market exists for the Interests;</p>
+
+<p>(e) The Subscriber has adequate means of providing for current needs and contingencies and can bear the economic risk of losing the entire investment;</p>
+
+<p>(f) The Subscriber has such knowledge and experience in financial and business matters that the Subscriber is capable of evaluating the merits and risks of this investment.</p>
+</div>
+
+<h2>5. WIRE INSTRUCTIONS</h2>
+<div class="section">
+<p>Upon acceptance of this subscription, the Subscriber shall wire funds to:</p>
+
+<table style="width: 100%; border-collapse: collapse;">
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc; width: 30%;"><strong>Bank Name:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Account Name:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">${data.companyName || '[COMPANY NAME]'} Escrow</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Account Number:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Routing Number:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
+<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Reference:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">[Subscriber Name] - ${data.companyName || '[COMPANY]'} Investment</td></tr>
+</table>
+</div>
+
+<h2>6. MISCELLANEOUS</h2>
+<div class="section">
+<p><strong>6.1 Governing Law.</strong> This Agreement shall be governed by the laws of the State of ${data.state || '[STATE]'}.</p>
+
+<p><strong>6.2 Counterparts.</strong> This Agreement may be executed in counterparts, each of which shall be deemed an original.</p>
+
+<p><strong>6.3 Entire Agreement.</strong> This Agreement constitutes the entire agreement between the parties regarding the subscription.</p>
+</div>
+
+<h2>SIGNATURE</h2>
+<div class="section">
+<p>IN WITNESS WHEREOF, the Subscriber has executed this Agreement as of the date first written above.</p>
+
+<p><strong>SUBSCRIBER:</strong></p>
+
+<p>By: _________________________________________</p>
+<p>Name (print): _________________________________________</p>
+<p>Title (if entity): _________________________________________</p>
+<p>Date: _________________________________________</p>
+
+<br><br>
+
+<p><strong>ACCEPTED BY THE COMPANY:</strong></p>
+
+<p>${data.companyName || '[COMPANY NAME]'}</p>
+
+<p>By: _________________________________________</p>
+<p>Name: ${data.gpRep || '[GP REPRESENTATIVE]'}</p>
+<p>Title: Managing Member</p>
+<p>Date: _________________________________________</p>
+</div>
+      `;
+    }
+
     function generatePPM(data) {
       return `
 <h1>PRIVATE PLACEMENT MEMORANDUM</h1>
@@ -760,6 +880,9 @@ THESE SECURITIES HAVE NOT BEEN REGISTERED UNDER THE SECURITIES ACT OF 1933, AS A
           break;
         case 'ppm':
           content = generatePPM(data);
+          break;
+        case 'subscription':
+          content = generateSubscriptionAgreement(data);
           break;
         default:
           content = '<p>Document template not yet implemented.</p>';
