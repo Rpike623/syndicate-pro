@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - New Deal Wizard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --secondary: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: #dbeafe;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius-sm: 6px;
+      --radius: 8px;
+      --radius-md: 12px;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .app { display: flex; min-height: 100vh; }
+    
+    /* Sidebar - Simplified for Wizard */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+    }
+    
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), #60a5fa);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    
+    .wizard-progress {
+      padding: 24px;
+      flex: 1;
+    }
+    
+    .progress-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 20px;
+    }
+    
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      opacity: 0.5;
+      transition: all 0.3s;
+    }
+    
+    .step-item.active { opacity: 1; }
+    .step-item.completed { opacity: 0.7; }
+    .step-item.completed .step-number {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    
+    .step-item.active .step-number {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    
+    .step-content {
+      flex: 1;
+    }
+    
+    .step-label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+    
+    .step-desc {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+    }
+    
+    /* Main Content */
+    .main {
+      flex: 1;
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .top-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb-current { color: var(--text); font-weight: 600; }
+    
+    .wizard-actions {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled {
+      background: var(--text-muted);
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--bg); }
+    
+    .content {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+    
+    .wizard-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .step-panel {
+      display: none;
+    }
+    .step-panel.active { display: block; }
+    
+    .step-header {
+      margin-bottom: 32px;
+    }
+    
+    .step-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .step-subtitle {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+    
+    /* Form Styles */
+    .form-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+    
+    .required::after {
+      content: ' *';
+      color: var(--danger);
+    }
+    
+    input, select, textarea {
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: var(--bg-card);
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    
+    .input-prefix {
+      position: relative;
+    }
+    
+    .input-prefix input {
+      padding-left: 36px;
+    }
+    
+    .input-prefix .prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    
+    .help-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    
+    /* Waterfall Builder */
+    .waterfall-preview {
+      background: var(--bg);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-top: 24px;
+    }
+    
+    .waterfall-title {
+      font-weight: 600;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    
+    .tier-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      border-left: 4px solid var(--accent);
+    }
+    
+    .tier-row.return { border-left-color: var(--text-muted); }
+    .tier-row.pref { border-left-color: var(--warning); }
+    .tier-row.catchup { border-left-color: var(--accent); }
+    .tier-row.split { border-left-color: var(--success); }
+    
+    .tier-number {
+      width: 24px;
+      height: 24px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 16px;
+    }
+    
+    .tier-content {
+      flex: 1;
+    }
+    
+    .tier-name {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .tier-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .tier-amount {
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    /* Document Selection */
+    .doc-options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    
+    .doc-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 20px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .doc-option:hover {
+      border-color: var(--accent-light);
+    }
+    
+    .doc-option.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    
+    .doc-option input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+    }
+    
+    .doc-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--accent);
+    }
+    
+    .doc-content {
+      flex: 1;
+    }
+    
+    .doc-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .doc-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    /* Summary Review */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    
+    .summary-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 24px;
+    }
+    
+    .summary-card h4 {
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .summary-card h4 button {
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+    
+    .summary-row:last-child { border-bottom: none; }
+    
+    .summary-label { color: var(--text-secondary); }
+    .summary-value { font-weight: 600; }
+    
+    /* Success Panel */
+    .success-panel {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--success-light);
+      color: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 24px;
+    }
+    
+    .success-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .success-desc {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .success-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    
+    /* Live Preview */
+    .preview-sidebar {
+      position: fixed;
+      right: 0;
+      top: 0;
+      width: 360px;
+      height: 100vh;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border);
+      padding: 24px;
+      overflow-y: auto;
+      z-index: 50;
+      transform: translateX(100%);
+      transition: transform 0.3s;
+    }
+    
+    .preview-sidebar.active {
+      transform: translateX(0);
+    }
+    
+    .preview-toggle {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      padding: 16px 24px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+    }
+    
+    @media (max-width: 1200px) {
+      .preview-sidebar { display: none; }
+      .preview-toggle { display: none; }
+    }
+    
+    @media (max-width: 768px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .doc-options { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar with Progress -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon"><i class="fas fa-bolt"></i></div>
+          <span>SyndicatePro</span>
+        </div>
+      </div>
+      
+      <div class="wizard-progress">
+        <div class="progress-title">Deal Setup Progress</div>
+        
+        <div class="step-item active" data-step="1">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <div class="step-label">Deal Basics</div>
+            <div class="step-desc">Property & entity info</div>
+          </div>
+        </div>
+        
+        <div class="step-item" data-step="2">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <div class="step-label">Capital Structure</div>
+            <div class="step-desc">Equity & financing</div>
+          </div>
+        </div>
+        
+        <div class="step-item" data-step="3">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <div class="step-label">Waterfall</div>
+            <div class="step-desc">Returns structure</div>
+          </div>
+        </div>
+        
+        <div class="step-item" data-step="4">
+          <div class="step-number">4</div>
+          <div class="step-content">
+            <div class="step-label">Documents</div>
+            <div class="step-desc">Generate legal docs</div>
+          </div>
+        </div>
+        
+        <div class="step-item" data-step="5">
+          <div class="step-number">5</div>
+          <div class="step-content">
+            <div class="step-label">Review</div>
+            <div class="step-desc">Finalize & save</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Top Bar -->
+      <header class="top-bar">
+        <div class="breadcrumb">
+          <a href="deals.html">All Deals</a>
+          <span>/</span>
+          <span class="breadcrumb-current">New Deal Wizard</span>
+        </div>
+        <div class="wizard-actions">
+          <button class="btn btn-secondary" onclick="saveDraft()">
+            <i class="fas fa-save"></i> Save Draft
+          </button>
+          <button class="btn btn-secondary" onclick="window.location.href='deals.html'">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
+      </header>
+
+      <!-- Wizard Content -->
+      <div class="content">
+        <div class="wizard-container">
+          
+          <!-- Step 1: Deal Basics -->
+          <div class="step-panel active" id="step-1">
+            <div class="step-header">
+              <h2 class="step-title">Deal Basics</h2>
+              <p class="step-subtitle">Let's start with the fundamental information about your investment opportunity.</p>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title"><i class="fas fa-building"></i> Property Information</h3>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="required">Deal Name</label>
+                  <input type="text" id="dealName" placeholder="e.g., Highland Park Apartments" onchange="updatePreview()">
+                  <span class="help-text">This is how the deal will appear to investors</span>
+                </div>
+                
+                <div class="form-group full-width">
+                  <label class="required">Property Address</label>
+                  <input type="text" id="propertyAddress" placeholder="Full street address" onchange="updatePreview()">
+                </div>
+                
+                <div class="form-group">
+                  <label class="required">Property Type</label>
+                  <select id="propertyType" onchange="updatePreview()">
+                    <option value="">Select type...</option>
+                    <option value="multifamily">Multifamily</option>
+                    <option value="office">Office</option>
+                    <option value="retail">Retail</option>
+                    <option value="industrial">Industrial</option>
+                    <option value="self-storage">Self-Storage</option>
+                    <option value="hotel">Hotel</option>
+                    <option value="mixed-use">Mixed-Use</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>Number of Units / SF</label>
+                  <input type="number" id="propertySize" placeholder="e.g., 120" onchange="updatePreview()">
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title"><i class="fas fa-balance-scale"></i> Entity Information</h3>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="required">Company Name</label>
+                  <input type="text" id="companyName" placeholder="e.g., Highland Park Capital, LLC" onchange="updatePreview()">
+                </div>
+                
+                <div class="form-group">
+                  <label class="required">State of Formation</label>
+                  <select id="state" onchange="updatePreview()">
+                    <option value="DE">Delaware</option>
+                    <option value="TX">Texas</option>
+                    <option value="CA">California</option>
+                    <option value="NY">New York</option>
+                    <option value="FL">Florida</option>
+                    <option value="NV">Nevada</option>
+                    <option value="WY">Wyoming</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>Principal Office</label>
+                  <input type="text" id="principalOffice" placeholder="City, State">
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; margin-top: 32px;">
+              <button class="btn btn-primary" onclick="nextStep()">
+                Continue <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Step 2: Capital Structure -->
+          <div class="step-panel" id="step-2">
+            <div class="step-header">
+              <h2 class="step-title">Capital Structure</h2>
+              <p class="step-subtitle">Define the purchase price, financing, and equity requirements.</p>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title"><i class="fas fa-dollar-sign"></i> Acquisition Details</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="required">Purchase Price</label>
+                  <div class="input-prefix">
+                    <span class="prefix">$</span>
+                    <input type="number" id="purchasePrice" placeholder="5,000,000" onchange="calculateCapital()">
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label>Closing Costs</label>
+                  <div class="input-prefix">
+                    <span class="prefix">$</span>
+                    <input type="number" id="closingCosts" placeholder="150,000" onchange="calculateCapital()">
+                  </div>
+                  <span class="help-text">Legal, title, inspection, etc.</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Capex Reserve</label>
+                  <div class="input-prefix">
+                    <span class="prefix">$</span>
+                    <input type="number" id="capexReserve" placeholder="200,000" onchange="calculateCapital()">
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label>Total Capital Required</label>
+                  <div class="input-prefix">
+                    <span class="prefix">$</span>
+                    <input type="text" id="totalCapital" readonly style="background: var(--bg); font-weight: 600;">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title"><i class="fas fa-university"></i> Financing</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Loan Amount</label>
+                  <div class="input-prefix">
+                    <span class="prefix">$</span>
+                    <input type="number" id="loanAmount" placeholder="3,500,000" onchange="calculateCapital()">
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label>Interest Rate</label>
+                  <input type="number" id="interestRate" placeholder="5.5" step="0.1">
+                  <span class="prefix" style="right: 14px; left: auto;">%</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Loan Term</label>
+                  <select id="loanTerm">
+                    <option value="5">5 Years</option>
+                    <option value="7">7 Years</option>
+                    <option value="10" selected>10 Years</option>
+                    <option value="30">30 Years</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>LTV</label>
+                  <input type="text" id="ltv" readonly style="background: var(--bg);">
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title"><i class="fas fa-users"></i> Equity Structure</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="required">Total Equity</label>
+                  <div class="input-prefix">
+                    <span class="prefix">$</span>
+                    <input type="text" id="totalEquity" readonly style="background: var(--bg); font-weight: 600;">
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label class="required">GP Equity %</label>
+                  <input type="number" id="gpEquity" value="10" min="0" max="100" onchange="updateLP()">
+                </div>
+                
+                <div class="form-group">
+                  <label>LP Equity %</label>
+                  <input type="text" id="lpEquity" value="90" readonly style="background: var(--bg);">
+                </div>
+                
+                <div class="form-group">
+                  <label>Minimum Investment</label>
+                  <div class="input-prefix">
+                    <span class="prefix">$</span>
+                    <input type="number" id="minInvestment" placeholder="50,000">
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 32px;">
+              <button class="btn btn-secondary" onclick="prevStep()">
+                <i class="fas fa-arrow-left"></i> Back
+              </button>
+              <button class="btn btn-primary" onclick="nextStep()">
+                Continue <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Step 3: Waterfall -->
+          <div class="step-panel" id="step-3">
+            <div class="step-header">
+              <h2 class="step-title">Waterfall Structure</h2>
+              <p class="step-subtitle">Configure how profits will be distributed between GP and LPs.</p>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title"><i class="fas fa-chart-pie"></i> Returns Structure</h3>
+              
+              <div class="form-grid" style="margin-bottom: 24px;">
+                <div class="form-group">
+                  <label class="required">Waterfall Type</label>
+                  <select id="waterfallType" onchange="updateWaterfallPreview()">
+                    <option value="simple">Simple Split</option>
+                    <option value="pref">Preferred Return</option>
+                    <option value="catchup" selected>Pref + GP Catch-Up</option>
+                    <option value="tiered">Tiered Promote</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>Preferred Return %</label>
+                  <input type="number" id="prefReturn" value="8" step="0.5" onchange="updateWaterfallPreview()">
+                </div>
+                
+                <div class="form-group">
+                  <label>GP Promote %</label>
+                  <input type="number" id="gpPromote" value="30" onchange="updateWaterfallPreview()">
+                </div>
+                
+                <div class="form-group">
+                  <label>Catch-Up Rate</label>
+                  <input type="number" id="catchupRate" value="50" onchange="updateWaterfallPreview()">
+                  <span class="help-text">GP share during catch-up period</span>
+                </div>
+              </div>
+              
+              <div class="waterfall-preview">
+                <div class="waterfall-title">Distribution Waterfall Preview</div>
+                <div id="waterfallTiers">
+                  <!-- Dynamically populated -->
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title"><i class="fas fa-hand-holding-usd"></i> GP Fees</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Acquisition Fee</label>
+                  <input type="number" id="acqFee" value="3" step="0.5">
+                  <span class="prefix" style="right: 14px; left: auto;">%</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Asset Management Fee</label>
+                  <input type="number" id="assetMgmtFee" value="2" step="0.5">
+                  <span class="prefix" style="right: 14px; left: auto;">%</span>
+                  <span class="help-text">Of gross revenue</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Disposition Fee</label>
+                  <input type="number" id="dispFee" value="2" step="0.5">
+                  <span class="prefix" style="right: 14px; left: auto;">%</span>
+                  <span class="help-text">Of sale price</span>
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 32px;">
+              <button class="btn btn-secondary" onclick="prevStep()">
+                <i class="fas fa-arrow-left"></i> Back
+              </button>
+              <button class="btn btn-primary" onclick="nextStep()">
+                Continue <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Step 4: Documents -->
+          <div class="step-panel" id="step-4">
+            <div class="step-header">
+              <h2 class="step-title">Generate Documents</h2>
+              <p class="step-subtitle">Select which legal documents to generate for this deal.</p>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title"><i class="fas fa-file-contract"></i> Select Documents</h3>
+              
+              <div class="doc-options">
+                <label class="doc-option selected">
+                  <input type="checkbox" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
+                  <div class="doc-icon"><i class="fas fa-balance-scale"></i></div>
+                  <div class="doc-content">
+                    <div class="doc-name">Operating Agreement</div>
+                    <div class="doc-desc">LLC operating agreement with waterfall provisions</div>
+                  </div>
+                </label>
+                
+                <label class="doc-option selected">
+                  <input type="checkbox" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
+                  <div class="doc-icon"><i class="fas fa-handshake"></i></div>
+                  <div class="doc-content">
+                    <div class="doc-name">LP Agreement</div>
+                    <div class="doc-desc">Limited partnership agreement for investors</div>
+                  </div>
+                </label>
+                
+                <label class="doc-option selected">
+                  <input type="checkbox" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
+                  <div class="doc-icon"><i class="fas fa-file-alt"></i></div>
+                  <div class="doc-content">
+                    <div class="doc-name">Private Placement Memo</div>
+                    <div class="doc-desc">PPM with risk factors and offering terms</div>
+                  </div>
+                </label>
+                
+                <label class="doc-option selected">
+                  <input type="checkbox" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
+                  <div class="doc-icon"><i class="fas fa-pen-fancy"></i></div>
+                  <div class="doc-content">
+                    <div class="doc-name">Subscription Agreement</div>
+                    <div class="doc-desc">Investor subscription and accreditation docs</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h3 class="section-title"><i class="fas fa-user-tie"></i> General Partner Info</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>GP Entity Name</label>
+                  <input type="text" id="gpName" placeholder="e.g., ABC Capital GP, LLC">
+                </div>
+                
+                <div class="form-group">
+                  <label>Managing Member</label>
+                  <input type="text" id="gpRep" placeholder="Full name">
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 32px;">
+              <button class="btn btn-secondary" onclick="prevStep()">
+                <i class="fas fa-arrow-left"></i> Back
+              </button>
+              <button class="btn btn-primary" onclick="nextStep()">
+                Continue <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Step 5: Review -->
+          <div class="step-panel" id="step-5">
+            <div class="step-header">
+              <h2 class="step-title">Review & Finalize</h2>
+              <p class="step-subtitle">Review your deal details before saving and generating documents.</p>
+            </div>
+            
+            <div class="summary-grid">
+              <div class="summary-card">
+                <h4>Deal Basics <button onclick="goToStep(1)">Edit</button></h4>
+                <div class="summary-row">
+                  <span class="summary-label">Deal Name</span>
+                  <span class="summary-value" id="reviewName">-</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Property</span>
+                  <span class="summary-value" id="reviewProperty">-</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Type</span>
+                  <span class="summary-value" id="reviewType">-</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Entity</span>
+                  <span class="summary-value" id="reviewEntity">-</span>
+                </div>
+              </div>
+              
+              <div class="summary-card">
+                <h4>Capital Structure <button onclick="goToStep(2)">Edit</button></h4>
+                <div class="summary-row">
+                  <span class="summary-label">Purchase Price</span>
+                  <span class="summary-value" id="reviewPrice">-</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Loan Amount</span>
+                  <span class="summary-value" id="reviewLoan">-</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Total Equity</span>
+                  <span class="summary-value" id="reviewEquity">-</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">GP/LP Split</span>
+                  <span class="summary-value" id="reviewSplit">-</span>
+                </div>
+              </div>
+              
+              <div class="summary-card">
+                <h4>Waterfall <button onclick="goToStep(3)">Edit</button></h4>
+                <div class="summary-row">
+                  <span class="summary-label">Structure</span>
+                  <span class="summary-value" id="reviewWaterfall">-</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Preferred Return</span>
+                  <span class="summary-value" id="reviewPref">-</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">GP Promote</span>
+                  <span class="summary-value" id="reviewPromote">-</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Acq Fee</span>
+                  <span class="summary-value" id="reviewAcqFee">-</span>
+                </div>
+              </div>
+              
+              <div class="summary-card">
+                <h4>Documents <button onclick="goToStep(4)">Edit</button></h4>
+                <div class="summary-row">
+                  <span class="summary-label">Operating Agreement</span>
+                  <span class="summary-value"><i class="fas fa-check" style="color: var(--success);"></i></span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">LP Agreement</span>
+                  <span class="summary-value"><i class="fas fa-check" style="color: var(--success);"></i></span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">PPM</span>
+                  <span class="summary-value"><i class="fas fa-check" style="color: var(--success);"></i></span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Subscription</span>
+                  <span class="summary-value"><i class="fas fa-check" style="color: var(--success);"></i></span>
+                </div>
+              </div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 32px;">
+              <button class="btn btn-secondary" onclick="prevStep()">
+                <i class="fas fa-arrow-left"></i> Back
+              </button>
+              <button class="btn btn-primary" onclick="createDeal()" style="padding: 12px 32px;">
+                <i class="fas fa-check-circle"></i> Create Deal & Generate Documents
+              </button>
+            </div>
+          </div>
+          
+          <!-- Success State -->
+          <div class="step-panel" id="step-success">
+            <div class="success-panel">
+              <div class="success-icon">
+                <i class="fas fa-check"></i>
+              </div>
+              <h2 class="success-title">Deal Created Successfully!</h2>
+              <p class="success-desc">
+                Your deal has been saved and all documents have been generated. You can now start raising capital or make adjustments as needed.
+              </p>
+              <div class="success-actions">
+                <button class="btn btn-primary" onclick="viewDeal()">
+                  <i class="fas fa-eye"></i> View Deal
+                </button>
+                <button class="btn btn-secondary" onclick="downloadDocuments()">
+                  <i class="fas fa-download"></i> Download Documents
+                </button>
+                <button class="btn btn-secondary" onclick="window.location.href='deals.html'">
+                  <i class="fas fa-list"></i> All Deals
+                </button>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    let currentStep = 1;
+    const totalSteps = 5;
+    
+    function updateStepIndicators() {
+      document.querySelectorAll('.step-item').forEach((item, index) => {
+        const step = index + 1;
+        item.classList.remove('active', 'completed');
+        
+        if (step === currentStep) {
+          item.classList.add('active');
+        } else if (step < currentStep) {
+          item.classList.add('completed');
+          item.querySelector('.step-number').innerHTML = '<i class="fas fa-check"></i>';
+        } else {
+          item.querySelector('.step-number').textContent = step;
+        }
+      });
+    }
+    
+    function showStep(step) {
+      document.querySelectorAll('.step-panel').forEach(panel => {
+        panel.classList.remove('active');
+      });
+      
+      if (step === 'success') {
+        document.getElementById('step-success').classList.add('active');
+      } else {
+        document.getElementById('step-' + step).classList.add('active');
+      }
+      
+      currentStep = step === 'success' ? totalSteps + 1 : step;
+      updateStepIndicators();
+    }
+    
+    function nextStep() {
+      if (currentStep < totalSteps) {
+        // Validate current step
+        if (!validateStep(currentStep)) return;
+        
+        if (currentStep === 4) {
+          populateReview();
+        }
+        
+        showStep(currentStep + 1);
+      }
+    }
+    
+    function prevStep() {
+      if (currentStep > 1) {
+        showStep(currentStep - 1);
+      }
+    }
+    
+    function goToStep(step) {
+      showStep(step);
+    }
+    
+    function validateStep(step) {
+      let valid = true;
+      
+      if (step === 1) {
+        const required = ['dealName', 'propertyAddress', 'propertyType', 'companyName'];
+        required.forEach(id => {
+          const el = document.getElementById(id);
+          if (!el.value) {
+            el.style.borderColor = 'var(--danger)';
+            valid = false;
+          } else {
+            el.style.borderColor = '';
+          }
+        });
+      }
+      
+      if (step === 2) {
+        if (!document.getElementById('purchasePrice').value) {
+          document.getElementById('purchasePrice').style.borderColor = 'var(--danger)';
+          valid = false;
+        }
+      }
+      
+      return valid;
+    }
+    
+    function calculateCapital() {
+      const price = parseFloat(document.getElementById('purchasePrice').value) || 0;
+      const closing = parseFloat(document.getElementById('closingCosts').value) || 0;
+      const capex = parseFloat(document.getElementById('capexReserve').value) || 0;
+      const loan = parseFloat(document.getElementById('loanAmount').value) || 0;
+      
+      const total = price + closing + capex;
+      const equity = total - loan;
+      const ltv = price > 0 ? (loan / price * 100).toFixed(1) : 0;
+      
+      document.getElementById('totalCapital').value = total.toLocaleString();
+      document.getElementById('totalEquity').value = equity.toLocaleString();
+      document.getElementById('ltv').value = ltv + '%';
+    }
+    
+    function updateLP() {
+      const gp = parseFloat(document.getElementById('gpEquity').value) || 0;
+      document.getElementById('lpEquity').value = (100 - gp);
+    }
+    
+    function updateWaterfallPreview() {
+      const type = document.getElementById('waterfallType').value;
+      const pref = document.getElementById('prefReturn').value;
+      const promote = document.getElementById('gpPromote').value;
+      
+      let tiers = '';
+      
+      if (type === 'simple') {
+        tiers = `
+          <div class="tier-row split">
+            <div class="tier-number">1</div>
+            <div class="tier-content">
+              <div class="tier-name">Pro-Rata Split</div>
+              <div class="tier-desc">All distributions split ${promote}% GP / ${100-promote}% LP</div>
+            </div>
+          </div>
+        `;
+      } else if (type === 'pref') {
+        tiers = `
+          <div class="tier-row return">
+            <div class="tier-number">1</div>
+            <div class="tier-content">
+              <div class="tier-name">Return of Capital</div>
+              <div class="tier-desc">100% to investors until capital returned</div>
+            </div>
+          </div>
+          <div class="tier-row pref">
+            <div class="tier-number">2</div>
+            <div class="tier-content">
+              <div class="tier-name">Preferred Return</div>
+              <div class="tier-desc">${pref}% to LPs</div>
+            </div>
+          </div>
+          <div class="tier-row split">
+            <div class="tier-number">3</div>
+            <div class="tier-content">
+              <div class="tier-name">Residual Split</div>
+              <div class="tier-desc">${promote}% GP / ${100-promote}% LP</div>
+            </div>
+          </div>
+        `;
+      } else if (type === 'catchup') {
+        tiers = `
+          <div class="tier-row return">
+            <div class="tier-number">1</div>
+            <div class="tier-content">
+              <div class="tier-name">Return of Capital</div>
+              <div class="tier-desc">100% to investors until capital returned</div>
+            </div>
+          </div>
+          <div class="tier-row pref">
+            <div class="tier-number">2</div>
+            <div class="tier-content">
+              <div class="tier-name">Preferred Return</div>
+              <div class="tier-desc">${pref}% to LPs</div>
+            </div>
+          </div>
+          <div class="tier-row catchup">
+            <div class="tier-number">3</div>
+            <div class="tier-content">
+              <div class="tier-name">GP Catch-Up</div>
+              <div class="tier-desc">GP receives promote share to catch up</div>
+            </div>
+          </div>
+          <div class="tier-row split">
+            <div class="tier-number">4</div>
+            <div class="tier-content">
+              <div class="tier-name">Residual Split</div>
+              <div class="tier-desc">${promote}% GP / ${100-promote}% LP</div>
+            </div>
+          </div>
+        `;
+      }
+      
+      document.getElementById('waterfallTiers').innerHTML = tiers;
+    }
+    
+    function populateReview() {
+      document.getElementById('reviewName').textContent = document.getElementById('dealName').value || '-';
+      document.getElementById('reviewProperty').textContent = document.getElementById('propertyAddress').value || '-';
+      document.getElementById('reviewType').textContent = document.getElementById('propertyType').value || '-';
+      document.getElementById('reviewEntity').textContent = document.getElementById('companyName').value || '-';
+      
+      const price = parseFloat(document.getElementById('purchasePrice').value) || 0;
+      const loan = parseFloat(document.getElementById('loanAmount').value) || 0;
+      const equity = parseFloat(document.getElementById('totalEquity').value.replace(/,/g, '')) || 0;
+      const gp = document.getElementById('gpEquity').value;
+      const lp = document.getElementById('lpEquity').value;
+      
+      document.getElementById('reviewPrice').textContent = '$' + price.toLocaleString();
+      document.getElementById('reviewLoan').textContent = '$' + loan.toLocaleString();
+      document.getElementById('reviewEquity').textContent = '$' + equity.toLocaleString();
+      document.getElementById('reviewSplit').textContent = gp + '% / ' + lp + '%';
+      
+      const wfTypes = { simple: 'Simple Split', pref: 'Preferred Return', catchup: 'Pref + GP Catch-Up', tiered: 'Tiered Promote' };
+      document.getElementById('reviewWaterfall').textContent = wfTypes[document.getElementById('waterfallType').value];
+      document.getElementById('reviewPref').textContent = document.getElementById('prefReturn').value + '%';
+      document.getElementById('reviewPromote').textContent = document.getElementById('gpPromote').value + '%';
+      document.getElementById('reviewAcqFee').textContent = document.getElementById('acqFee').value + '%';
+    }
+    
+    function createDeal() {
+      const deal = {
+        id: Date.now().toString(),
+        name: document.getElementById('dealName').value,
+        propertyAddress: document.getElementById('propertyAddress').value,
+        propertyType: document.getElementById('propertyType').value,
+        companyName: document.getElementById('companyName').value,
+        state: document.getElementById('state').value,
+        purchasePrice: parseFloat(document.getElementById('purchasePrice').value) || 0,
+        loanAmount: parseFloat(document.getElementById('loanAmount').value) || 0,
+        totalEquity: parseFloat(document.getElementById('totalEquity').value.replace(/,/g, '')) || 0,
+        gpEquity: parseFloat(document.getElementById('gpEquity').value) || 10,
+        lpEquity: parseFloat(document.getElementById('lpEquity').value) || 90,
+        prefReturn: parseFloat(document.getElementById('prefReturn').value) || 8,
+        gpPromote: parseFloat(document.getElementById('gpPromote').value) || 30,
+        waterfallType: document.getElementById('waterfallType').value,
+        acqFee: parseFloat(document.getElementById('acqFee').value) || 3,
+        assetMgmtFee: parseFloat(document.getElementById('assetMgmtFee').value) || 2,
+        createdAt: new Date().toISOString(),
+        status: 'fundraising'
+      };
+      
+      // Save to storage
+      const deals = JSON.parse(localStorage.getItem('syndicateDeals') || '[]');
+      deals.push(deal);
+      localStorage.setItem('syndicateDeals', JSON.stringify(deals));
+      
+      // Also save to pipeline
+      const pipelineDeals = JSON.parse(localStorage.getItem('pipelineDeals') || '[]');
+      pipelineDeals.push({
+        id: deal.id,
+        name: deal.name,
+        address: deal.propertyAddress,
+        type: deal.propertyType,
+        stage: 'fundraising',
+        price: deal.purchasePrice,
+        equity: deal.totalEquity,
+        status: 'fundraising',
+        createdAt: deal.createdAt
+      });
+      localStorage.setItem('pipelineDeals', JSON.stringify(pipelineDeals));
+      
+      // Store current deal for document generation
+      localStorage.setItem('currentDeal', JSON.stringify(deal));
+      
+      showStep('success');
+    }
+    
+    function saveDraft() {
+      alert('Draft saved! You can continue later.');
+    }
+    
+    function viewDeal() {
+      const deal = JSON.parse(localStorage.getItem('currentDeal') || '{}');
+      window.location.href = `deals.html?deal=${deal.id}`;
+    }
+    
+    function downloadDocuments() {
+      window.location.href = 'documents.html';
+    }
+    
+    function updatePreview() {
+      // Live preview updates would go here
+    }
+    
+    // Initialize
+    updateWaterfallPreview();
+  </script>
+</body>
+</html>
