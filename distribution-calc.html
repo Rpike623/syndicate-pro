@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Distribution Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --text: #0f172a; --text-secondary: #64748b; --border: #e2e8f0; --bg: #f8fafc; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--primary); color: white; position: fixed; height: 100vh; }
+    .nav { padding: 24px 12px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; color: #94a3b8; text-decoration: none; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .main { flex: 1; margin-left: 260px; padding: 32px; }
+    .grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; }
+    .input-panel { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
+    .result-panel { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
+    .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+    .btn { padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; }
+    .btn-primary { background: var(--accent); color: white; width: 100%; }
+    .distribution-tier { background: var(--bg); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+    .tier-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .tier-name { font-weight: 600; }
+    .tier-amount { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
+    .tier-recipients { font-size: 0.875rem; color: var(--text-secondary); }
+    .investor-row { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .investor-row:last-child { border-bottom: none; }
+    .grand-total { background: var(--primary); color: white; padding: 20px; border-radius: 12px; margin-top: 24px; }
+    .total-row { display: flex; justify-content: space-between; align-items: center; }
+    .total-amount { font-size: 2rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="nav">
+      <div style="font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; padding: 0 12px;">◆ SyndicatePro</div>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i> Distributions</a>
+      <a href="distribution-calc.html" class="nav-item active"><i class="fas fa-calculator"></i> Calculation Tool</a>
+      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> K-1s</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <h1 style="margin-bottom: 8px;">Distribution Calculator</h1>
+    <p style="color: var(--text-secondary); margin-bottom: 24px;">Model waterfall distributions by quarter</p>
+
+    <div class="grid">
+      <div class="input-panel">
+        <h3 style="margin-bottom: 20px;">Distribution Inputs</h3>
+        
+        <div class="form-group">
+          <label>Select Deal</label>
+          <select id="dealSelect" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+            <option>Choose deal...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Quarter</label>
+          <select id="quarter" style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
+            <option>Q1 2024</option>
+            <option>Q2 2024</option>
+            <option>Q3 2024</option>
+            <option>Q4 2024</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Total Distributable Cash</label>
+          <input type="number" id="totalCash" placeholder="250000" oninput="calculate()">
+        </div>
+
+        <div class="form-group">
+          <label>Outstanding Preferred Return</label>
+          <input type="number" id="prefAccrued" placeholder="45000" oninput="calculate()">
+        </div>
+
+        <div class="form-group">
+          <label>Unreturned Capital</label>
+          <input type="number" id="unreturned" placeholder="800000" oninput="calculate()">
+        </div>
+
+        <button class="btn btn-primary" onclick="recordDistribution()">
+          <i class="fas fa-save"></i> Record Distribution
+        </button>
+      </div>
+
+      <div class="result-panel">
+        <h3 style="margin-bottom: 20px;">Waterfall Distribution</h3>
+        
+        <div class="distribution-tier">
+          <div class="tier-header">
+            <span class="tier-name">1. Return of Capital</span>
+            <span class="tier-amount" id="rocAmount">$0</span>
+          </div>
+          <div class="tier-recipients">Pro-rata to all investors until capital returned</div>
+        </div>
+
+        <div class="distribution-tier">
+          <div class="tier-header">
+            <span class="tier-name">2. Preferred Return (8%)</span>
+            <span class="tier-amount" id="prefAmount">$0</span>
+          </div>
+          <div class="tier-recipients">To LPs until pref return current</div>
+        </div>
+
+        <div class="distribution-tier">
+          <div class="tier-header">
+            <span class="tier-name">3. GP Catch-Up</span>
+            <span class="tier-amount" id="catchupAmount">$0</span>
+          </div>
+          <div class="tier-recipients">To GP until 30% promote achieved</div>
+        </div>
+
+        <div class="distribution-tier">
+          <div class="tier-header">
+            <span class="tier-name">4. Residual Split (30/70)</span>
+            <span class="tier-amount" id="residualAmount">$0</span>
+          </div>
+          <div class="tier-recipients">Remaining balance split promote</div>
+        </div>
+
+        <h4 style="margin-top: 24px; margin-bottom: 16px;">Individual Investor Distributions</h4>
+        <div id="investorBreakdown"></div>
+
+        <div class="grand-total">
+          <div class="total-row">
+            <div>
+              <div style="font-size: 0.875rem; opacity: 0.8;">Total Distribution</div>
+              <div class="total-amount" id="grandTotal">$0</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 0.875rem; opacity: 0.8;">GP Share</div>
+              <div style="font-size: 1.5rem; font-weight: 600;" id="gpShare">$0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function calculate() {
+      const cash = parseFloat(document.getElementById('totalCash').value) || 0;
+      const prefDue = parseFloat(document.getElementById('prefAccrued').value) || 0;
+      const unreturned = parseFloat(document.getElementById('unreturned').value) || 0;
+
+      let remaining = cash;
+      
+      // Tier 1: Return of Capital
+      const roc = Math.min(remaining, unreturned);
+      remaining -= roc;
+      document.getElementById('rocAmount').textContent = '$' + roc.toLocaleString();
+
+      // Tier 2: Preferred Return
+      const prefPaid = Math.min(remaining, prefDue);
+      remaining -= prefPaid;
+      document.getElement
