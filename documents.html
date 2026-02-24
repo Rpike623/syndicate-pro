@@ -4,504 +4,707 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SyndicatePro - Document Generator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --primary: #1a1a2e;
-      --secondary: #16213e;
-      --accent: #0f3460;
-      --highlight: #e94560;
-      --success: #00d9a3;
-      --warning: #f39c12;
-      --text: #eaeaea;
-      --text-muted: #a0a0a0;
-      --border: #2a2a4a;
-      --card: #1e1e3a;
-      --input: #252545;
+      --primary: #0f172a;
+      --primary-light: #1e293b;
+      --secondary: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-light: #dbeafe;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --text: #0f172a;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-sidebar: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --radius-sm: 6px;
+      --radius: 8px;
+      --radius-md: 12px;
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
     
-    .header {
-      background: var(--secondary);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+    .app { display: flex; min-height: 100vh; }
+    
+    .sidebar {
+      width: 260px;
+      background: var(--bg-sidebar);
+      color: white;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+    }
+    
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
     
     .logo {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--highlight);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 12px;
+      font-size: 1.25rem;
+      font-weight: 700;
     }
     
-    .logo::before { content: "◆"; color: var(--success); }
-    
-    .nav { display: flex; gap: 1.5rem; }
-    .nav a { color: var(--text-muted); text-decoration: none; font-weight: 500; }
-    .nav a:hover, .nav a.active { color: var(--text); }
-    
-    .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
-    
-    .page-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-    .page-subtitle { color: var(--text-muted); margin-bottom: 2rem; }
-    
-    .grid { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; }
-    @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } }
-    
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem;
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), #60a5fa);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
     }
     
-    .card-header {
+    .nav {
+      flex: 1;
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .nav-section {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.4);
+      padding: 16px 12px 8px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--success), #34d399);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    .user-details { flex: 1; }
+    .user-name { font-size: 0.9rem; font-weight: 600; }
+    .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+    
+    .main { flex: 1; margin-left: 260px; min-height: 100vh; }
+    
+    .top-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
     
-    .card-title { font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
-    
-    .doc-type-list { display: flex; flex-direction: column; gap: 0.75rem; }
-    
-    .doc-type {
-      background: var(--input);
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
+    .breadcrumb {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 8px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb-separator { color: var(--text-muted); }
+    .breadcrumb-current { color: var(--text); font-weight: 500; }
+    
+    .top-actions { display: flex; gap: 12px; align-items: center; }
+    
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+    
+    .content { padding: 32px; max-width: 1600px; }
+    
+    .page-header { margin-bottom: 32px; }
+    .page-title { font-size: 1.875rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .page-description { color: var(--text-secondary); font-size: 1rem; }
+    
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .card-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .card-subtitle { font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px; }
+    .card-body { padding: 24px; }
+    
+    .content-grid { display: grid; grid-template-columns: 360px 1fr; gap: 24px; }
+    @media (max-width: 1200px) { .content-grid { grid-template-columns: 1fr; } }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    
+    label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: var(--bg-card);
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    
+    input:hover, select:hover, textarea:hover { border-color: var(--text-muted); }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); box-shadow: var(--shadow-md); }
+    .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border-light); border-color: var(--text-muted); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-ghost { background: transparent; color: var(--text-secondary); }
+    .btn-ghost:hover { background: var(--border-light); color: var(--text); }
+    .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+    
+    .doc-type-list { display: flex; flex-direction: column; gap: 12px; }
+    
+    .doc-type {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s;
     }
     
     .doc-type:hover { border-color: var(--accent); }
-    .doc-type.selected { border-color: var(--highlight); background: rgba(233, 69, 96, 0.1); }
-    .doc-type .icon { font-size: 1.5rem; }
-    .doc-type .info { flex: 1; }
-    .doc-type .name { font-weight: 600; }
-    .doc-type .desc { font-size: 0.8rem; color: var(--text-muted); }
+    .doc-type.selected { border-color: var(--accent); background: var(--accent-light); }
     
-    .form-group { margin-bottom: 1.25rem; }
-    label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text-muted); margin-bottom: 0.5rem; }
-    input, select, textarea {
-      width: 100%;
-      background: var(--input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      color: var(--text);
-      font-size: 1rem;
-      font-family: inherit;
-    }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--highlight); }
-    textarea { min-height: 100px; resize: vertical; }
-    
-    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    
-    .btn {
-      background: var(--highlight);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 0.875rem 1.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .btn:hover { background: #d63d56; }
-    .btn-secondary { background: var(--accent); }
-    .btn-secondary:hover { background: #1a4a7a; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn-outline:hover { background: var(--input); }
-    .btn-success { background: var(--success); color: var(--primary); }
-    .btn-success:hover { background: #00c090; }
-    
-    .preview-panel {
-      background: white;
-      color: #333;
-      border-radius: 8px;
-      padding: 2rem;
-      max-height: 600px;
-      overflow-y: auto;
-      font-family: 'Times New Roman', serif;
-      line-height: 1.6;
-    }
-    
-    .preview-panel h1 { font-size: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
-    .preview-panel h2 { font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 0.75rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
-    .preview-panel p { margin-bottom: 0.75rem; text-align: justify; }
-    .preview-panel .section { margin-bottom: 1rem; }
-    .preview-panel .signature-line { border-bottom: 1px solid #333; width: 300px; margin: 2rem 0 0.25rem; }
-    .preview-panel .signature-label { font-size: 0.9rem; color: #666; }
-    
-    .progress-steps {
+    .doc-type .icon {
+      width: 44px;
+      height: 44px;
+      background: var(--border-light);
+      border-radius: var(--radius);
       display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--accent);
     }
-    .step {
-      flex: 1;
-      padding: 0.5rem;
-      text-align: center;
-      background: var(--input);
-      border-radius: 6px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .step.active { background: var(--highlight); color: white; }
-    .step.complete { background: var(--success); color: var(--primary); }
     
-    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-    .tab { padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500; }
-    .tab:hover { background: var(--input); }
-    .tab.active { background: var(--highlight); color: white; }
+    .doc-type.selected .icon { background: var(--accent); color: white; }
+    .doc-type .info { flex: 1; }
+    .doc-type .name { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+    .doc-type .desc { font-size: 0.8rem; color: var(--text-secondary); }
+    
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .tab {
+      padding: 12px 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-    
-    .deal-import { background: var(--input); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
-    .deal-import label { margin-bottom: 0.75rem; }
-    
-    .template-section { margin-bottom: 1.5rem; }
-    .template-section-title { font-weight: 600; margin-bottom: 0.75rem; color: var(--success); }
     
     .variable-tag {
       display: inline-flex;
       align-items: center;
-      background: var(--accent);
-      color: var(--text);
-      padding: 0.25rem 0.5rem;
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 2px 8px;
       border-radius: 4px;
       font-size: 0.75rem;
       font-family: 'JetBrains Mono', monospace;
-      margin-right: 0.5rem;
-      margin-bottom: 0.5rem;
+      font-weight: 500;
+      margin-left: 8px;
     }
+    
+    .preview-panel {
+      background: white;
+      color: #1a1a1a;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      max-height: 600px;
+      overflow-y: auto;
+      font-family: 'Times New Roman', serif;
+      line-height: 1.6;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .preview-panel h1 { font-size: 1.5rem; text-align: center; margin-bottom: 24px; font-weight: 700; }
+    .preview-panel h2 { font-size: 1.1rem; margin-top: 24px; margin-bottom: 12px; border-bottom: 1px solid #ccc; padding-bottom: 8px; font-weight: 600; }
+    .preview-panel p { margin-bottom: 12px; text-align: justify; }
+    .preview-panel table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+    .preview-panel td, .preview-panel th { padding: 8px 12px; border: 1px solid #ccc; }
+    .preview-panel th { background: #f5f5f5; font-weight: 600; }
     
     .empty-state {
       text-align: center;
-      padding: 3rem;
+      padding: 60px 40px;
+      color: var(--text-secondary);
+    }
+    .empty-state .icon {
+      width: 80px;
+      height: 80px;
+      background: var(--border-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 2rem;
       color: var(--text-muted);
     }
-    .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+    
+    .input-group { position: relative; }
+    .input-prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    .input-group input { padding-left: 32px; }
+    
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; }
+      .form-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="logo">SyndicatePro</div>
-    <nav class="nav">
-      <a href="index.html">Deal Modeling</a>
-      <a href="documents.html" class="active">Documents</a>
-      <a href="#">Investors</a>
-      <a href="#">Reports</a>
-    </nav>
-  </header>
-
-  <div class="container">
-    <h1 class="page-title">Document Generator</h1>
-    <p class="page-subtitle">Generate syndication documents from your deal terms</p>
-    
-    <div class="progress-steps">
-      <div class="step active" data-step="1">1. Select Document</div>
-      <div class="step" data-step="2">2. Import Deal Data</div>
-      <div class="step" data-step="3">3. Fill Details</div>
-      <div class="step" data-step="4">4. Generate & Export</div>
-    </div>
-    
-    <div class="grid">
-      <div class="left-panel">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">📄 Document Type</div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">◆</div>
+          <span>SyndicatePro</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-section">Main</div>
+        <a href="index.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+        <a href="documents.html" class="nav-item active"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+        <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+        <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+        <div class="nav-section">Tools</div>
+        <a href="#" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+        <a href="#" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1s</span></a>
+        <a href="#" class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">GP</div>
+          <div class="user-details">
+            <div class="user-name">General Partner</div>
+            <div class="user-role">Administrator</div>
           </div>
-          
-          <div class="doc-type-list">
-            <div class="doc-type selected" data-type="operating-agreement">
-              <div class="icon">⚖️</div>
-              <div class="info">
-                <div class="name">LLC Operating Agreement</div>
-                <div class="desc">Multi-member LLC structure with waterfall provisions</div>
-              </div>
-            </div>
-            <div class="doc-type" data-type="lp-agreement">
-              <div class="icon">📋</div>
-              <div class="info">
-                <div class="name">Limited Partnership Agreement</div>
-                <div class="desc">LP structure with GP/LP split terms</div>
-              </div>
-            </div>
-            <div class="doc-type" data-type="ppm">
-              <div class="icon">📊</div>
-              <div class="info">
-                <div class="name">Private Placement Memorandum</div>
-                <div class="desc">SEC-compliant offering document</div>
-              </div>
-            </div>
-            <div class="doc-type" data-type="subscription">
-              <div class="icon">✍️</div>
-              <div class="info">
-                <div class="name">Subscription Agreement</div>
-                <div class="desc">Investor subscription documents</div>
-              </div>
-            </div>
-          </div>
+        </div>
+      </div>
+    </aside>
+    
+    <main class="main">
+      <header class="top-bar">
+        <div class="breadcrumb">
+          <a href="index.html">Home</a>
+          <span class="breadcrumb-separator">/</span>
+          <span class="breadcrumb-current">Document Generator</span>
+        </div>
+        <div class="top-actions">
+          <button class="btn-icon" title="Help"><i class="fas fa-question-circle"></i></button>
+          <button class="btn-icon" title="Notifications"><i class="fas fa-bell"></i></button>
+        </div>
+      </header>
+      
+      <div class="content">
+        <div class="page-header">
+          <h1 class="page-title">Document Generator</h1>
+          <p class="page-description">Generate syndication documents from your deal terms</p>
         </div>
         
-        <div class="card" style="margin-top: 1rem;">
-          <div class="card-header">
-            <div class="card-title">🔗 Import Deal</div>
-          </div>
-          <div class="deal-import">
-            <label>Select saved deal to populate variables:</label>
-            <select id="dealSelect">
-              <option value="">-- Select a deal --</option>
-            </select>
-          </div>
-          <button class="btn btn-secondary" onclick="importDealData()" style="width: 100%;">
-            Import Deal Variables
-          </button>
-        </div>
-      </div>
-      
-      <div class="right-panel">
-        <div class="card" id="formCard">
-          <div class="card-header">
-            <div class="card-title">✏️ Document Details</div>
-          </div>
-          
-          <div class="tabs">
-            <div class="tab active" data-tab="entity">Entity Info</div>
-            <div class="tab" data-tab="terms">Deal Terms</div>
-            <div class="tab" data-tab="parties">Parties</div>
-            <div class="tab" data-tab="preview">Preview</div>
-          </div>
-          
-          <div class="tab-content active" id="tab-entity">
-            <div class="template-section">
-              <div class="template-section-title">Company Information</div>
-              <div class="input-row">
-                <div class="form-group">
-                  <label>Company Name <span class="variable-tag">{{COMPANY_NAME}}</span></label>
-                  <input type="text" id="companyName" placeholder="ABC Capital, LLC">
+        <div class="content-grid">
+          <div class="left-panel">
+            <div class="card" style="margin-bottom: 24px;">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Document Type</h2>
+                  <p class="card-subtitle">Select template to generate</p>
                 </div>
-                <div class="form-group">
-                  <label>State of Formation <span class="variable-tag">{{STATE}}</span></label>
-                  <select id="state">
-                    <option value="DE">Delaware</option>
-                    <option value="TX">Texas</option>
-                    <option value="CA">California</option>
-                    <option value="NY">New York</option>
-                    <option value="FL">Florida</option>
-                    <option value="NV">Nevada</option>
-                    <option value="WY">Wyoming</option>
+              </div>
+              <div class="card-body">
+                <div class="doc-type-list">
+                  <div class="doc-type selected" data-type="operating-agreement">
+                    <div class="icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="info">
+                      <div class="name">Operating Agreement</div>
+                      <div class="desc">LLC structure with waterfall</div>
+                    </div>
+                  </div>
+                  <div class="doc-type" data-type="lp-agreement">
+                    <div class="icon"><i class="fas fa-handshake"></i></div>
+                    <div class="info">
+                      <div class="name">LP Agreement</div>
+                      <div class="desc">Limited Partnership terms</div>
+                    </div>
+                  </div>
+                  <div class="doc-type" data-type="ppm">
+                    <div class="icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="info">
+                      <div class="name">PPM</div>
+                      <div class="desc">Private Placement Memorandum</div>
+                    </div>
+                  </div>
+                  <div class="doc-type" data-type="subscription">
+                    <div class="icon"><i class="fas fa-pen-fancy"></i></div>
+                    <div class="info">
+                      <div class="name">Subscription</div>
+                      <div class="desc">Investor subscription docs</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Import Deal</h2>
+                  <p class="card-subtitle">Auto-populate from saved deals</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-group" style="margin-bottom: 16px;">
+                  <select id="dealSelect" style="width: 100%;">
+                    <option value="">Select a deal...</option>
                   </select>
                 </div>
-              </div>
-              <div class="form-group">
-                <label>Principal Address <span class="variable-tag">{{ADDRESS}}</span></label>
-                <input type="text" id="address" placeholder="123 Main St, City, State 12345">
-              </div>
-            </div>
-            
-            <div class="template-section">
-              <div class="template-section-title">Property Information</div>
-              <div class="form-group">
-                <label>Property Address <span class="variable-tag">{{PROPERTY_ADDRESS}}</span></label>
-                <input type="text" id="propertyAddress" placeholder="456 Oak Avenue, Austin, TX 78701">
-              </div>
-              <div class="input-row">
-                <div class="form-group">
-                  <label>Property Type</label>
-                  <select id="propertyType">
-                    <option value="multifamily">Multifamily</option>
-                    <option value="office">Office</option>
-                    <option value="retail">Retail</option>
-                    <option value="industrial">Industrial</option>
-                    <option value="self-storage">Self-Storage</option>
-                    <option value="hotel">Hotel</option>
-                    <option value="mixed-use">Mixed-Use</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Number of Units</label>
-                  <input type="number" id="units" placeholder="100">
-                </div>
+                <button class="btn btn-secondary" onclick="importDealData()" style="width: 100%;">
+                  <i class="fas fa-download"></i> Import Deal Variables
+                </button>
               </div>
             </div>
           </div>
           
-          <div class="tab-content" id="tab-terms">
-            <div class="template-section">
-              <div class="template-section-title">Capital Structure <span class="variable-tag">{{TOTAL_EQUITY}}</span></div>
-              <div class="input-row">
-                <div class="form-group">
-                  <label>Total Equity Raise</label>
-                  <input type="number" id="totalEquity" placeholder="5000000">
+          <div class="right-panel">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h2 class="card-title">Document Details</h2>
+                  <p class="card-subtitle">Fill in the variables</p>
                 </div>
-                <div class="form-group">
-                  <label>Minimum Investment</label>
-                  <input type="number" id="minInvestment" placeholder="50000">
+              </div>
+              <div class="card-body">
+                <div class="tabs">
+                  <div class="tab active" data-tab="entity">Entity</div>
+                  <div class="tab" data-tab="terms">Terms</div>
+                  <div class="tab" data-tab="parties">Parties</div>
+                  <div class="tab" data-tab="preview">Preview</div>
+                </div>
+                
+                <div class="tab-content active" id="tab-entity">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Company Name <span class="variable-tag">{{COMPANY_NAME}}</span></label>
+                      <input type="text" id="companyName" placeholder="ABC Capital, LLC">
+                    </div>
+                    <div class="form-group">
+                      <label>State <span class="variable-tag">{{STATE}}</span></label>
+                      <select id="state">
+                        <option value="DE">Delaware</option>
+                        <option value="TX">Texas</option>
+                        <option value="CA">California</option>
+                        <option value="NY">New York</option>
+                        <option value="FL">Florida</option>
+                        <option value="NV">Nevada</option>
+                        <option value="WY">Wyoming</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Principal Address <span class="variable-tag">{{ADDRESS}}</span></label>
+                    <input type="text" id="address" placeholder="123 Main St, City, State 12345">
+                  </div>
+                  <div class="form-group">
+                    <label>Property Address <span class="variable-tag">{{PROPERTY_ADDRESS}}</span></label>
+                    <input type="text" id="propertyAddress" placeholder="456 Oak Avenue, Austin, TX 78701">
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Property Type</label>
+                      <select id="propertyType">
+                        <option value="multifamily">Multifamily</option>
+                        <option value="office">Office</option>
+                        <option value="retail">Retail</option>
+                        <option value="industrial">Industrial</option>
+                        <option value="self-storage">Self-Storage</option>
+                        <option value="hotel">Hotel</option>
+                        <option value="mixed-use">Mixed-Use</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label>Number of Units</label>
+                      <input type="number" id="units" placeholder="100">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="tab-content" id="tab-terms">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Total Equity <span class="variable-tag">{{TOTAL_EQUITY}}</span></label>
+                      <div class="input-group">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="totalEquity" placeholder="5000000">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Minimum Investment</label>
+                      <div class="input-group">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="minInvestment" placeholder="50000">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Preferred Return <span class="variable-tag">{{PREF_RETURN}}</span></label>
+                      <div class="input-group">
+                        <input type="number" id="prefReturn" placeholder="8" step="0.5">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>GP Promote <span class="variable-tag">{{GP_PROMOTE}}</span></label>
+                      <div class="input-group">
+                        <input type="number" id="gpPromote" placeholder="30">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>GP Equity <span class="variable-tag">{{GP_EQUITY}}</span></label>
+                      <div class="input-group">
+                        <input type="number" id="gpEquity" placeholder="10">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>LP Equity <span class="variable-tag">{{LP_EQUITY}}</span></label>
+                      <div class="input-group">
+                        <input type="number" id="lpEquity" placeholder="90" readonly style="background: var(--border-light);">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Acquisition Fee</label>
+                      <div class="input-group">
+                        <input type="number" id="acqFee" placeholder="3" step="0.5">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Asset Mgmt Fee</label>
+                      <div class="input-group">
+                        <input type="number" id="assetMgmtFee" placeholder="2" step="0.5">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="tab-content" id="tab-parties">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>GP Entity <span class="variable-tag">{{GP_NAME}}</span></label>
+                      <input type="text" id="gpName" placeholder="ABC Capital GP, LLC">
+                    </div>
+                    <div class="form-group">
+                      <label>GP Representative</label>
+                      <input type="text" id="gpRep" placeholder="John Smith">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>GP Address</label>
+                    <input type="text" id="gpAddress" placeholder="GP mailing address">
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Asset Manager</label>
+                      <input type="text" id="assetManager" placeholder="Name">
+                    </div>
+                    <div class="form-group">
+                      <label>Property Manager</label>
+                      <input type="text" id="propertyManager" placeholder="Company Name">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes" rows="3" placeholder="Additional notes..."></textarea>
+                  </div>
+                </div>
+                
+                <div class="tab-content" id="tab-preview">
+                  <div class="empty-state" id="previewEmpty">
+                    <div class="icon"><i class="fas fa-eye"></i></div>
+                    <h3>Preview will appear here</h3>
+                    <p>Fill in document details and click Generate Preview</p>
+                  </div>
+                  <div id="previewContent" style="display: none;">
+                    <div class="preview-panel" id="documentPreview"></div>
+                    <div style="margin-top: 16px; display: flex; gap: 12px;">
+                      <button class="btn btn-success" onclick="exportPDF()">
+                        <i class="fas fa-file-pdf"></i> Export PDF
+                      </button>
+                      <button class="btn btn-secondary" onclick="exportWord()">
+                        <i class="fas fa-file-word"></i> Word
+                      </button>
+                      <button class="btn btn-ghost" onclick="exportHTML()">
+                        <i class="fas fa-code"></i> HTML
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                
+                <div style="margin-top: 24px; display: flex; gap: 12px;">
+                  <button class="btn btn-primary" onclick="generatePreview()" id="previewBtn">
+                    <i class="fas fa-eye"></i> Generate Preview
+                  </button>
+                  <button class="btn btn-secondary" onclick="saveDraft()">
+                    <i class="fas fa-save"></i> Save Draft
+                  </button>
                 </div>
               </div>
             </div>
-            
-            <div class="template-section">
-              <div class="template-section-title">Waterfall Terms</div>
-              <div class="input-row">
-                <div class="form-group">
-                  <label>Preferred Return % <span class="variable-tag">{{PREF_RETURN}}</span></label>
-                  <input type="number" id="prefReturn" placeholder="8" step="0.5">
-                </div>
-                <div class="form-group">
-                  <label>GP Promote % <span class="variable-tag">{{GP_PROMOTE}}</span></label>
-                  <input type="number" id="gpPromote" placeholder="30">
-                </div>
-              </div>
-              <div class="input-row">
-                <div class="form-group">
-                  <label>GP Equity % <span class="variable-tag">{{GP_EQUITY}}</span></label>
-                  <input type="number" id="gpEquity" placeholder="10">
-                </div>
-                <div class="form-group">
-                  <label>LP Equity % <span class="variable-tag">{{LP_EQUITY}}</span></label>
-                  <input type="number" id="lpEquity" placeholder="90" readonly>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Catch-Up Provision <span class="variable-tag">{{CATCHUP_RATE}}</span></label>
-                <select id="catchupProvision">
-                  <option value="none">No Catch-Up</option>
-                  <option value="50">50/50 Catch-Up</option>
-                  <option value="100">100% to GP Until Promote Share</option>
-                </select>
-              </div>
-            </div>
-            
-            <div class="template-section">
-              <div class="template-section-title">Fees <span class="variable-tag">{{ACQ_FEE}} {{ASSET_MGMT_FEE}}</span></div>
-              <div class="input-row">
-                <div class="form-group">
-                  <label>Acquisition Fee %</label>
-                  <input type="number" id="acqFee" placeholder="3" step="0.5">
-                </div>
-                <div class="form-group">
-                  <label>Asset Mgmt Fee %</label>
-                  <input type="number" id="assetMgmtFee" placeholder="2" step="0.5">
-                </div>
-              </div>
-              <div class="input-row">
-                <div class="form-group">
-                  <label>Disposition Fee %</label>
-                  <input type="number" id="dispFee" placeholder="2" step="0.5">
-                </div>
-                <div class="form-group">
-                  <label>Refinance Fee %</label>
-                  <input type="number" id="refiFee" placeholder="1" step="0.5">
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="tab-content" id="tab-parties">
-            <div class="template-section">
-              <div class="template-section-title">General Partner / Manager <span class="variable-tag">{{GP_NAME}}</span></div>
-              <div class="input-row">
-                <div class="form-group">
-                  <label>GP Entity Name</label>
-                  <input type="text" id="gpName" placeholder="ABC Capital GP, LLC">
-                </div>
-                <div class="form-group">
-                  <label>GP Representative</label>
-                  <input type="text" id="gpRep" placeholder="John Smith">
-                </div>
-              </div>
-              <div class="form-group">
-                <label>GP Address</label>
-                <input type="text" id="gpAddress" placeholder="GP mailing address">
-              </div>
-            </div>
-            
-            <div class="template-section">
-              <div class="template-section-title">Managing Members</div>
-              <div id="memberList"></div>
-              <button class="btn btn-outline" onclick="addMember()" style="margin-top: 0.5rem;">
-                + Add Managing Member
-              </button>
-            </div>
-            
-            <div class="template-section">
-              <div class="template-section-title">Key Personnel</div>
-              <div class="input-row">
-                <div class="form-group">
-                  <label>Asset Manager</label>
-                  <input type="text" id="assetManager" placeholder="Name">
-                </div>
-                <div class="form-group">
-                  <label>Property Manager</label>
-                  <input type="text" id="propertyManager" placeholder="Company Name">
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="tab-content" id="tab-preview">
-            <div class="empty-state" id="previewEmpty">
-              <div class="icon">👁️</div>
-              <h3>Preview will appear here</h3>
-              <p>Fill in document details and click Generate Preview</p>
-            </div>
-            <div id="previewContent" style="display: none;">
-              <div class="preview-panel" id="documentPreview"></div>
-              <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
-                <button class="btn btn-success" onclick="exportPDF()">📄 Export PDF</button>
-                <button class="btn btn-secondary" onclick="exportWord()">📝 Export Word</button>
-                <button class="btn btn-outline" onclick="exportHTML()">💾 Save HTML</button>
-              </div>
-            </div>
-          </div>
-          
-          <div style="margin-top: 1.5rem; display: flex; gap: 0.75rem;">
-            <button class="btn" onclick="generatePreview()" id="previewBtn">👁️ Generate Preview</button>
-            <button class="btn btn-outline" onclick="saveDraft()">💾 Save Draft</button>
-            <button class="btn btn-secondary" onclick="loadTemplate()">📂 Load Template</button>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/storage.js"></script>
   <script>
     let currentDocType = 'operating-agreement';
     let members = [];
     
-    // Load saved deals
     function loadSavedDeals() {
       const deals = JSON.parse(localStorage.getItem('syndicateDeals') || '[]');
       const select = document.getElementById('dealSelect');
-      select.innerHTML = '<option value="">-- Select a deal --</option>';
+      select.innerHTML = '<option value="">Select a deal...</option>';
       deals.forEach(deal => {
         const option = document.createElement('option');
         option.value = deal.id;
@@ -510,7 +713,6 @@
       });
     }
     
-    // Import deal data
     function importDealData() {
       const dealId = document.getElementById('dealSelect').value;
       if (!dealId) return;
@@ -519,17 +721,24 @@
       const deal = deals.find(d => d.id === dealId);
       if (!deal) return;
       
-      // Populate fields
       document.getElementById('totalEquity').value = deal.totalEquity || '';
       document.getElementById('prefReturn').value = deal.prefReturn || '';
       document.getElementById('gpPromote').value = deal.gpPromote || '';
       document.getElementById('gpEquity').value = deal.gpEquity || '';
       document.getElementById('lpEquity').value = 100 - (deal.gpEquity || 0);
       
-      alert('Deal data imported successfully!');
+      const btn = document.querySelector('.btn-secondary');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> Imported!';
+      btn.style.background = 'var(--success)';
+      btn.style.color = 'white';
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = '';
+        btn.style.color = '';
+      }, 1500);
     }
     
-    // Document type selection
     document.querySelectorAll('.doc-type').forEach(type => {
       type.addEventListener('click', () => {
         document.querySelectorAll('.doc-type').forEach(t => t.classList.remove('selected'));
@@ -538,7 +747,6 @@
       });
     });
     
-    // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -548,35 +756,10 @@
       });
     });
     
-    // Auto-calculate LP equity
     document.getElementById('gpEquity').addEventListener('input', (e) => {
       const gp = parseFloat(e.target.value) || 0;
       document.getElementById('lpEquity').value = Math.max(0, 100 - gp);
     });
-    
-    function addMember() {
-      const name = prompt('Enter member name:');
-      if (!name) return;
-      const contribution = prompt('Initial capital contribution ($):') || '0';
-      
-      members.push({ name, contribution: parseFloat(contribution) });
-      renderMembers();
-    }
-    
-    function renderMembers() {
-      const container = document.getElementById('memberList');
-      container.innerHTML = members.map((m, i) => `
-        <div style="background: var(--input); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
-          <span>${m.name} <span style="color: var(--text-muted);">($${m.contribution.toLocaleString()})</span></span>
-          <span style="cursor: pointer; color: var(--highlight);" onclick="removeMember(${i})">✕</span>
-        </div>
-      `).join('');
-    }
-    
-    function removeMember(index) {
-      members.splice(index, 1);
-      renderMembers();
-    }
     
     function getFormData() {
       return {
@@ -599,272 +782,15 @@
     }
     
     function generateOperatingAgreement(data) {
-      return `
-<h1>OPERATING AGREEMENT</h1>
-<p style="text-align: center; font-style: italic;">${data.companyName || '[COMPANY NAME]'}</p>
-<p style="text-align: center;">A ${data.state || '[STATE]'} Limited Liability Company</p>
-
-<div class="section">
-<p>THIS OPERATING AGREEMENT (this "Agreement") is entered into as of ${new Date().toLocaleDateString()}, by and among the Members listed on Schedule A attached hereto (collectively, the "Members" and each individually, a "Member").</p>
-</div>
-
-<h2>ARTICLE I - FORMATION</h2>
-<div class="section">
-<p><strong>1.1 Formation.</strong> The Members hereby form a limited liability company pursuant to the provisions of the ${data.state || '[STATE]'} Limited Liability Company Act (the "Act").</p>
-
-<p><strong>1.2 Name.</strong> The name of the Company shall be ${data.companyName || '[COMPANY NAME]'}. The business of the Company may be conducted under that name or any other name as determined by the Managing Member.</p>
-
-<p><strong>1.3 Principal Office.</strong> The principal office of the Company shall be located at ${data.address || '[ADDRESS]'} or such other place as the Managing Member may from time to time designate.</p>
-
-<p><strong>1.4 Purpose.</strong> The purpose of the Company is to acquire, own, operate, improve, lease, manage, finance, refinance, and dispose of real property located at ${data.propertyAddress || '[PROPERTY ADDRESS]'} (the "Property"), and to engage in any and all activities necessary or incidental thereto.</p>
-</div>
-
-<h2>ARTICLE II - CAPITAL CONTRIBUTIONS</h2>
-<div class="section">
-<p><strong>2.1 Initial Contributions.</strong> The Members shall make initial capital contributions to the Company as set forth on Schedule A.</p>
-
-<p><strong>2.2 Total Capitalization.</strong> The total equity capitalization of the Company shall be $${parseFloat(data.totalEquity || 0).toLocaleString()}.</p>
-
-<p><strong>2.3 Minimum Investment.</strong> No Member shall contribute less than $${parseFloat(data.minInvestment || 0).toLocaleString()} as an initial capital contribution.</p>
-</div>
-
-<h2>ARTICLE III - ALLOCATIONS AND DISTRIBUTIONS</h2>
-<div class="section">
-<p><strong>3.1 Allocations.</strong> Except as otherwise provided herein, all Profits and Losses of the Company shall be allocated to the Members in proportion to their respective Percentage Interests.</p>
-
-<p><strong>3.2 Distributions - Waterfall.</strong> Distributable Cash shall be distributed to the Members in the following order of priority:</p>
-
-<p>(a) <strong>First,</strong> to all Members in proportion to their Unreturned Capital Contributions until each Member has received distributions equal to their total Capital Contributions;</p>
-
-<p>(b) <strong>Second,</strong> to the Limited Partners until they have received an ${data.prefReturn || '[8]'}% annual preferred return on their Unreturned Capital Contributions, calculated from the date of each Capital Contribution;</p>
-
-<p>(c) <strong>Third,</strong> ${data.gpPromote >= 20 ? 'to the General Partner as a "catch-up" payment until the General Partner has received distributions equal to the Promote Percentage of all prior distributions under (a) and (b) above;' : '[Catch-up provision if applicable]'}</p>
-
-<p>(d) <strong>Thereafter,</strong> ${data.gpPromote || '[20]'}% to the General Partner and ${100 - (data.gpPromote || 20)}% to the Limited Partners.</p>
-</div>
-
-<h2>ARTICLE IV - MANAGEMENT</h2>
-<div class="section">
-<p><strong>4.1 Managing Member.</strong> ${data.gpName || '[GP ENTITY]'} shall be the Managing Member of the Company and shall have full, exclusive, and complete authority to manage and control the business and affairs of the Company.</p>
-
-<p><strong>4.2 Limited Members.</strong> Limited Members shall have no right to participate in the management or control of the Company.</p>
-</div>
-
-<h2>ARTICLE V - FEES</h2>
-<div class="section">
-<p><strong>5.1 Acquisition Fee.</strong> The Managing Member shall be entitled to an acquisition fee equal to ${data.acqFee || '[3]'}% of the purchase price of the Property.</p>
-
-<p><strong>5.2 Asset Management Fee.</strong> The Managing Member shall be entitled to an annual asset management fee equal to ${data.assetMgmtFee || '[2]'}% of the gross revenues of the Property.</p>
-
-<p><strong>5.3 Disposition Fee.</strong> Upon sale or refinancing of the Property, the Managing Member shall be entitled to a disposition fee equal to ${data.dispFee || '[2]'}% of the gross sale price or loan amount.</p>
-</div>
-
-<h2>ARTICLE VI - TRANSFER RESTRICTIONS</h2>
-<div class="section">
-<p><strong>6.1 General Restriction.</strong> No Member may Transfer all or any portion of its Interest in the Company without the prior written consent of the Managing Member.</p>
-</div>
-
-<h2>SIGNATURES</h2>
-<div class="section">
-<p>IN WITNESS WHEREOF, the Members have executed this Agreement as of the date first written above.</p>
-
-${members.map(m => `
-<div class="signature-line"></div>
-<p class="signature-label">${m.name}, Member</p>
-<p class="signature-label">Date: _______________</p>
-<br>
-`).join('')}
-
-<div class="signature-line"></div>
-<p class="signature-label">${data.gpRep || '[GP REPRESENTATIVE]'}, Managing Member</p>
-<p class="signature-label">${data.gpName || '[GP ENTITY]'}</p>
-<p class="signature-label">Date: _______________</p>
-</div>
-      `;
+      return `<h1>OPERATING AGREEMENT</h1><p style="text-align: center; font-style: italic;">${data.companyName || '[COMPANY NAME]'}</p><p style="text-align: center;">A ${data.state || '[STATE]'} Limited Liability Company</p><div class="section"><p>THIS OPERATING AGREEMENT is entered into as of ${new Date().toLocaleDateString()}, by and among the Members listed on Schedule A.</p></div><h2>ARTICLE I - FORMATION</h2><div class="section"><p><strong>1.1 Formation.</strong> The Members hereby form a limited liability company pursuant to the ${data.state || '[STATE]'} Limited Liability Company Act.</p><p><strong>1.2 Name.</strong> The name of the Company shall be ${data.companyName || '[COMPANY NAME]'}.<p><strong>1.3 Principal Office.</strong> The principal office shall be at ${data.address || '[ADDRESS]'}.<p><strong>1.4 Purpose.</strong> To acquire, own, operate, and dispose of real property located at ${data.propertyAddress || '[PROPERTY ADDRESS]'}.<p></div><h2>ARTICLE II - CAPITAL</h2><p>The total equity capitalization shall be $${parseFloat(data.totalEquity || 0).toLocaleString()}.</p><h2>ARTICLE III - ALLOCATIONS</h2><p>Distributable Cash shall be distributed: (a) First, return of capital; (b) Second, ${data.prefReturn || '8'}% preferred return to LPs; (c) Thereafter, ${data.gpPromote || '20'}% to GP, ${100 - (data.gpPromote || 20)}% to LPs.</p><h2>SIGNATURES</h2><p>IN WITNESS WHEREOF, the Members have executed this Agreement as of ${new Date().toLocaleDateString()}.</p><p>${data.gpRep || '[GP Representative]'}, Managing Member<br>${data.gpName || '[GP ENTITY]'}</p>`;
     }
     
-    function generateSubscriptionAgreement(data) {
-      return `
-<h1>SUBSCRIPTION AGREEMENT</h1>
-<p style="text-align: center; font-style: italic;">${data.companyName || '[COMPANY NAME]'}</p>
-<p style="text-align: center;">A ${data.state || '[STATE]'} Limited Liability Company</p>
-
-<div class="section">
-<p style="text-align: center; font-weight: bold;">$${parseFloat(data.minInvestment || 50000).toLocaleString()} Minimum Investment</p>
-<p style="text-align: center;">Limited Liability Company Interests</p>
-</div>
-
-<div class="section">
-<p>This SUBSCRIPTION AGREEMENT (this "Agreement") is entered into as of ${new Date().toLocaleDateString()}, by and between:</p>
-
-<p><strong>${data.companyName || '[COMPANY NAME]'}</strong>, a ${data.state || '[STATE]'} limited liability company (the "Company"),</p>
-
-<p>AND</p>
-
-<p>The undersigned subscriber (the "Subscriber") identified below.</p>
-</div>
-
-<h2>1. SUBSCRIPTION</h2>
-<div class="section">
-<p><strong>1.1 Subscription.</strong> The Subscriber hereby subscribes for Limited Liability Company Interests in the Company (the "Interests") in the amount set forth in Section 2 below.</p>
-
-<p><strong>1.2 Acceptance.</strong> The Company reserves the right to accept or reject this subscription in whole or in part in its sole discretion.</p>
-
-<p><strong>1.3 Minimum Investment.</strong> The minimum investment is $${parseFloat(data.minInvestment || 50000).toLocaleString()}. The Subscriber's investment shall be a multiple of $${parseFloat(data.minInvestment || 50000).toLocaleString()}.</p>
-</div>
-
-<h2>2. SUBSCRIBER INFORMATION</h2>
-<div class="section">
-<table style="width: 100%; border-collapse: collapse;">
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc; width: 40%;"><strong>Full Legal Name:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Entity Name (if applicable):</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>SSN/Tax ID:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Address:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>City, State, Zip:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Email:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Phone:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Subscription Amount:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">$_______________________________</td></tr>
-</table>
-</div>
-
-<h2>3. ACCREDITED INVESTOR STATUS</h2>
-<div class="section">
-<p>The Subscriber represents and warrants that the Subscriber is an "accredited investor" as defined in Rule 501 of Regulation D under the Securities Act of 1933, by virtue of (check one):</p>
-
-<p>☐ Individual net worth exceeding $1,000,000 (excluding primary residence)</p>
-<p>☐ Individual income exceeding $200,000 in each of the two most recent years (or $300,000 joint income) and reasonably expects to reach the same level in the current year</p>
-<p>☐ Entity with total assets exceeding $5,000,000</p>
-<p>☐ Director, executive officer, or general partner of the issuer</p>
-<p>☐ Natural person who is a "knowledgeable employee" of the investment adviser</p>
-<p>☐ Other: _________________________________________</p>
-</div>
-
-<h2>4. INVESTMENT REPRESENTATIONS</h2>
-<div class="section">
-<p>The Subscriber represents and warrants that:</p>
-
-<p>(a) The Subscriber has received and reviewed the Private Placement Memorandum dated _______________ and all attachments thereto;</p>
-
-<p>(b) The Subscriber understands that the Interests have not been registered under the Securities Act and are being offered pursuant to an exemption from registration;</p>
-
-<p>(c) The Subscriber is purchasing the Interests for the Subscriber's own account, for investment purposes only, and not with a view to resale or distribution;</p>
-
-<p>(d) The Subscriber understands that the Interests are subject to substantial restrictions on transfer and that no public market exists for the Interests;</p>
-
-<p>(e) The Subscriber has adequate means of providing for current needs and contingencies and can bear the economic risk of losing the entire investment;</p>
-
-<p>(f) The Subscriber has such knowledge and experience in financial and business matters that the Subscriber is capable of evaluating the merits and risks of this investment.</p>
-</div>
-
-<h2>5. WIRE INSTRUCTIONS</h2>
-<div class="section">
-<p>Upon acceptance of this subscription, the Subscriber shall wire funds to:</p>
-
-<table style="width: 100%; border-collapse: collapse;">
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc; width: 30%;"><strong>Bank Name:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Account Name:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">${data.companyName || '[COMPANY NAME]'} Escrow</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Account Number:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Routing Number:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">_________________________________</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Reference:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">[Subscriber Name] - ${data.companyName || '[COMPANY]'} Investment</td></tr>
-</table>
-</div>
-
-<h2>6. MISCELLANEOUS</h2>
-<div class="section">
-<p><strong>6.1 Governing Law.</strong> This Agreement shall be governed by the laws of the State of ${data.state || '[STATE]'}.</p>
-
-<p><strong>6.2 Counterparts.</strong> This Agreement may be executed in counterparts, each of which shall be deemed an original.</p>
-
-<p><strong>6.3 Entire Agreement.</strong> This Agreement constitutes the entire agreement between the parties regarding the subscription.</p>
-</div>
-
-<h2>SIGNATURE</h2>
-<div class="section">
-<p>IN WITNESS WHEREOF, the Subscriber has executed this Agreement as of the date first written above.</p>
-
-<p><strong>SUBSCRIBER:</strong></p>
-
-<p>By: _________________________________________</p>
-<p>Name (print): _________________________________________</p>
-<p>Title (if entity): _________________________________________</p>
-<p>Date: _________________________________________</p>
-
-<br><br>
-
-<p><strong>ACCEPTED BY THE COMPANY:</strong></p>
-
-<p>${data.companyName || '[COMPANY NAME]'}</p>
-
-<p>By: _________________________________________</p>
-<p>Name: ${data.gpRep || '[GP REPRESENTATIVE]'}</p>
-<p>Title: Managing Member</p>
-<p>Date: _________________________________________</p>
-</div>
-      `;
-    }
-
     function generatePPM(data) {
-      return `
-<h1>PRIVATE PLACEMENT MEMORANDUM</h1>
-<p style="text-align: center; font-size: 1.2rem; font-weight: bold;">${data.companyName || '[COMPANY NAME]'}</p>
-<p style="text-align: center;">$${parseFloat(data.totalEquity || 0).toLocaleString()} Limited Liability Company Interests</p>
-<p style="text-align: center; color: #c00; font-weight: bold;">$${parseFloat(data.minInvestment || 0).toLocaleString()} Minimum Investment</p>
-
-<div class="section">
-<p style="text-align: center; font-weight: bold; border: 2px solid #c00; padding: 1rem; margin: 1rem 0;">
-THESE SECURITIES HAVE NOT BEEN REGISTERED UNDER THE SECURITIES ACT OF 1933, AS AMENDED, OR THE SECURITIES LAWS OF ANY STATE. THESE SECURITIES ARE BEING OFFERED PURSUANT TO AN EXEMPTION FROM REGISTRATION UNDER REGULATION D PROMULGATED UNDER THE SECURITIES ACT.
-</p>
-</div>
-
-<h2>SUMMARY OF THE OFFERING</h2>
-<div class="section">
-<table style="width: 100%; border-collapse: collapse;">
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Issuer:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">${data.companyName || '[COMPANY NAME]'}</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Securities Offered:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">Limited Liability Company Interests</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Offering Amount:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">Up to $${parseFloat(data.totalEquity || 0).toLocaleString()}</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Minimum Investment:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">$${parseFloat(data.minInvestment || 50000).toLocaleString()}</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Preferred Return:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">${data.prefReturn || '8'}% annualized</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>GP Promote:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">${data.gpPromote || '20'}% after preferred return</td></tr>
-<tr><td style="padding: 0.5rem; border: 1px solid #ccc;"><strong>Sponsor:</strong></td><td style="padding: 0.5rem; border: 1px solid #ccc;">${data.gpName || '[GP ENTITY]'}</td></tr>
-</table>
-</div>
-
-<h2>RISK FACTORS</h2>
-<div class="section">
-<p>An investment in the Company involves substantial risks. Prospective investors should carefully consider the following risk factors before investing:</p>
-
-<p><strong>1. No Public Market.</strong> The Interests will not be registered under the Securities Act and will be "restricted securities." There is no public market for the Interests, and none is expected to develop.</p>
-
-<p><strong>2. Illiquidity.</strong> The Interests are highly illiquid. Investors should be prepared to hold their investment for the entire hold period, which is expected to be 5-7 years.</p>
-
-<p><strong>3. Real Estate Risk.</strong> The investment is subject to all risks inherent in real estate investments, including market fluctuations, tenant defaults, and economic downturns.</p>
-
-<p><strong>4. Leverage Risk.</strong> The Company intends to use leverage to finance the acquisition of the Property, which amplifies both potential returns and potential losses.</p>
-
-<p><strong>5. Dependence on Sponsor.</strong> The success of the investment depends heavily on the expertise and continued involvement of the Sponsor, ${data.gpName || '[GP ENTITY]'}.</p>
-</div>
-
-<h2>USE OF PROCEEDS</h2>
-<div class="section">
-<p>The net proceeds from this Offering will be used primarily for:</p>
-<ul>
-<li>Acquisition of the Property located at ${data.propertyAddress || '[PROPERTY ADDRESS]'}</li>
-<li>Closing costs and acquisition expenses</li>
-<li>Capital improvements and reserves</li>
-<li>Working capital and organizational expenses</li>
-</ul>
-</div>
-
-<h2>FEES AND COMPENSATION</h2>
-<div class="section">
-<p>The Managing Member and its affiliates will receive the following fees:</p>
-<ul>
-<li><strong>Acquisition Fee:</strong> ${data.acqFee || '3'}% of purchase price</li>
-<li><strong>Asset Management Fee:</strong> ${data.assetMgmtFee || '2'}% of gross revenues annually</li>
-<li><strong>Disposition Fee:</strong> ${data.dispFee || '2'}% of gross sale price</li>
-</ul>
-</div>
-      `;
+      return `<h1>PRIVATE PLACEMENT MEMORANDUM</h1><p style="text-align: center; font-weight: bold; font-size: 1.2rem;">${data.companyName || '[COMPANY NAME]'}</p><p style="text-align: center;">$${parseFloat(data.totalEquity || 0).toLocaleString()} Limited Liability Company Interests</p><p style="text-align: center; color: #c00; font-weight: bold; border: 2px solid #c00; padding: 1rem; margin: 1rem 0;">THESE SECURITIES HAVE NOT BEEN REGISTERED UNDER THE SECURITIES ACT OF 1933</p><h2>SUMMARY</h2><table><tr><td><strong>Issuer:</strong></td><td>${data.companyName || '[COMPANY NAME]'}</td></tr><tr><td><strong>Offering Amount:</strong></td><td>$${parseFloat(data.totalEquity || 0).toLocaleString()}</td></tr><tr><td><strong>Minimum:</strong></td><td>$${parseFloat(data.minInvestment || 50000).toLocaleString()}</td></tr><tr><td><strong>Preferred Return:</strong></td><td>${data.prefReturn || '8'}%</td></tr><tr><td><strong>GP Promote:</strong></td><td>${data.gpPromote || '20'}%</td></tr></table><h2>RISK FACTORS</h2><p>An investment involves substantial risks including illiquidity, no public market, and complete loss of capital.</p><h2>USE OF PROCEEDS</h2><p>Net proceeds will be used for acquisition of ${data.propertyAddress || 'the Property'}, closing costs, and reserves.</p>`;
+    }
+    
+    function generateSubscription(data) {
+      return `<h1>SUBSCRIPTION AGREEMENT</h1><p style="text-align: center;">${data.companyName || '[COMPANY NAME]'}</p><p style="text-align: center;">$${parseFloat(data.minInvestment || 50000).toLocaleString()} Minimum Investment</p><p>This SUBSCRIPTION AGREEMENT is entered into as of ${new Date().toLocaleDateString()}, between ${data.companyName || '[COMPANY NAME]'} and the undersigned subscriber.</p><h2>1. SUBSCRIPTION</h2><p>The Subscriber hereby subscribes for Interests in the amount of $______________.</p><h2>2. ACCREDITED INVESTOR</h2><p>The Subscriber represents that they are an accredited investor by virtue of:</p><p>☐ Net worth exceeding $1,000,000 (excluding primary residence)</p><p>☐ Income exceeding $200,000 ($300,000 joint) in each of prior two years</p><p>☐ Entity with assets exceeding $5,000,000</p><h2>3. WIRE INSTRUCTIONS</h2><p>Wire to: ${data.companyName || '[COMPANY]'} Escrow Account</p><h2>SIGNATURES</h2><p>Subscriber: _________________________ Date: ___________</p><p>${data.gpRep || '[GP Rep]'}, Managing Member</p>`;
     }
     
     function generatePreview() {
@@ -873,26 +799,21 @@ THESE SECURITIES HAVE NOT BEEN REGISTERED UNDER THE SECURITIES ACT OF 1933, AS A
       
       switch(currentDocType) {
         case 'operating-agreement':
-          content = generateOperatingAgreement(data);
-          break;
         case 'lp-agreement':
-          content = generateOperatingAgreement(data).replace(/Limited Liability Company/g, 'Limited Partnership').replace(/Managing Member/g, 'General Partner').replace(/Members/g, 'Limited Partners');
+          content = generateOperatingAgreement(data);
           break;
         case 'ppm':
           content = generatePPM(data);
           break;
         case 'subscription':
-          content = generateSubscriptionAgreement(data);
+          content = generateSubscription(data);
           break;
-        default:
-          content = '<p>Document template not yet implemented.</p>';
       }
       
       document.getElementById('previewEmpty').style.display = 'none';
       document.getElementById('previewContent').style.display = 'block';
       document.getElementById('documentPreview').innerHTML = content;
       
-      // Switch to preview tab
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelector('[data-tab="preview"]').classList.add('active');
@@ -902,155 +823,19 @@ THESE SECURITIES HAVE NOT BEEN REGISTERED UNDER THE SECURITIES ACT OF 1933, AS A
     function exportPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      
-      const content = document.getElementById('documentPreview');
       const data = getFormData();
-      const filename = `${data.companyName || 'document'}_${currentDocType}_${new Date().toISOString().split('T')[0]}.pdf`;
       
-      // Add header
       doc.setFontSize(10);
-      doc.setTextColor(100);
       doc.text('Generated by SyndicatePro', 10, 10);
-      doc.text(new Date().toLocaleDateString(), 180, 10);
-      
-      // Add title
       doc.setFontSize(18);
-      doc.setTextColor(0);
-      let y = 30;
-      
-      const titleMap = {
-        'operating-agreement': 'OPERATING AGREEMENT',
-        'lp-agreement': 'LIMITED PARTNERSHIP AGREEMENT',
-        'ppm': 'PRIVATE PLACEMENT MEMORANDUM',
-        'subscription': 'SUBSCRIPTION AGREEMENT'
-      };
-      
-      doc.text(titleMap[currentDocType] || 'DOCUMENT', 105, y, { align: 'center' });
-      y += 15;
-      
-      // Add content sections
+      doc.text('OPERATING AGREEMENT', 105, 30, { align: 'center' });
       doc.setFontSize(12);
-      
-      // Entity info
-      doc.setFont(undefined, 'bold');
-      doc.text('ENTITY INFORMATION', 10, y);
-      doc.setFont(undefined, 'normal');
-      y += 10;
-      doc.text(`Company: ${data.companyName || '[Not specified]'}`, 10, y);
-      y += 8;
-      doc.text(`State of Formation: ${data.state || '[Not specified]'}`, 10, y);
-      y += 8;
-      doc.text(`Principal Address: ${data.address || '[Not specified]'}`, 10, y);
-      y += 15;
-      
-      // Deal terms
-      doc.setFont(undefined, 'bold');
-      doc.text('DEAL TERMS', 10, y);
-      doc.setFont(undefined, 'normal');
-      y += 10;
-      doc.text(`Total Equity: $${parseFloat(data.totalEquity || 0).toLocaleString()}`, 10, y);
-      y += 8;
-      doc.text(`GP Equity: ${data.gpEquity}% | LP Equity: ${data.lpEquity}%`, 10, y);
-      y += 8;
-      doc.text(`Preferred Return: ${data.prefReturn}% | GP Promote: ${data.gpPromote}%`, 10, y);
-      y += 15;
-      
-      // Disclaimer
-      if (currentDocType === 'ppm') {
-        doc.setFontSize(10);
-        doc.setTextColor(200, 0, 0);
-        const disclaimer = 'IMPORTANT: This is a template document generated by software. It is not legal advice and should be reviewed by qualified securities counsel before use. Securities laws are complex and vary by jurisdiction.';
-        const splitDisclaimer = doc.splitTextToSize(disclaimer, 190);
-        doc.text(splitDisclaimer, 10, y);
-        doc.setTextColor(0);
-        doc.setFontSize(12);
-        y += 25;
-      }
-      
-      // Waterfall description
-      doc.setFont(undefined, 'bold');
-      doc.text('WATERFALL STRUCTURE', 10, y);
-      doc.setFont(undefined, 'normal');
-      y += 10;
-      
-      const waterfallText = [
-        '1. Return of Capital: Initial investment returned pro-rata to all members',
-        `2. Preferred Return: ${data.prefReturn || 8}% annual hurdle to LPs`,
-        `3. Catch-Up: ${data.catchupProvision !== 'none' ? data.catchupProvision + '% to GP' : 'No catch-up provision'}`,
-        `4. Residual Split: ${data.gpPromote || 20}% to GP, ${100 - (data.gpPromote || 20)}% to LPs`
-      ];
-      
-      waterfallText.forEach(line => {
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.text(line, 15, y);
-        y += 8;
-      });
-      
-      y += 10;
-      
-      // Fees section
-      doc.setFont(undefined, 'bold');
-      doc.text('SPONSOR COMPENSATION', 10, y);
-      doc.setFont(undefined, 'normal');
-      y += 10;
-      doc.text(`Acquisition Fee: ${data.acqFee || 3}%`, 10, y);
-      y += 8;
-      doc.text(`Asset Management Fee: ${data.assetMgmtFee || 2}% of gross revenue`, 10, y);
-      y += 8;
-      doc.text(`Disposition Fee: ${data.dispFee || 2}%`, 10, y);
-      y += 8;
-      doc.text(`Refinance Fee: ${data.refiFee || 1}%`, 10, y);
-      y += 20;
-      
-      // Signature blocks
-      if (y > 220) {
-        doc.addPage();
-        y = 20;
-      }
-      
-      doc.setFont(undefined, 'bold');
-      doc.text('SIGNATURES', 10, y);
-      doc.setFont(undefined, 'normal');
-      y += 15;
-      
-      members.forEach((m, i) => {
-        if (y > 250) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.text(`Member ${i + 1}: ${m.name}`, 10, y);
-        y += 10;
-        doc.line(10, y, 100, y);
-        y += 8;
-        doc.text('Signature', 10, y);
-        doc.text('Date: _______________', 110, y);
-        y += 20;
-      });
-      
-      // GP signature
-      doc.text(`Managing Member: ${data.gpRep || '[GP Representative]'}`, 10, y);
-      y += 10;
-      doc.line(10, y, 100, y);
-      y += 8;
-      doc.text('Signature', 10, y);
-      doc.text(`Entity: ${data.gpName || '[GP Entity]'}`, 110, y);
-      y += 8;
-      doc.text('Date: _______________', 110, y);
-      
-      // Footer on all pages
-      const pageCount = doc.internal.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' });
-        doc.text('Confidential - For Internal Use Only', 105, 295, { align: 'center' });
-      }
-      
-      doc.save(filename);
+      doc.text(data.companyName || '[COMPANY]', 105, 45, { align: 'center' });
+      doc.text(`Total Equity: $${parseFloat(data.totalEquity || 0).toLocaleString()}`, 10, 70);
+      doc.text(`GP Equity: ${data.gpEquity}%`, 10, 80);
+      doc.text(`Preferred Return: ${data.prefReturn}%`, 10, 90);
+      doc.text(`GP Promote: ${data.gpPromote}%`, 10, 100);
+      doc.save(`${data.companyName || 'document'}_${currentDocType}.pdf`);
     }
     
     function exportWord() {
@@ -1082,14 +867,12 @@ THESE SECURITIES HAVE NOT BEEN REGISTERED UNDER THE SECURITIES ACT OF 1933, AS A
       drafts.push(data);
       localStorage.setItem('documentDrafts', JSON.stringify(drafts));
       
-      alert('Draft saved successfully!');
+      const btn = document.querySelector('.btn-secondary');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> Draft Saved!';
+      setTimeout(() => btn.innerHTML = originalText, 1500);
     }
     
-    function loadTemplate() {
-      alert('Template library would show saved document templates here');
-    }
-    
-    // Initialize
     loadSavedDeals();
   </script>
 </body>
