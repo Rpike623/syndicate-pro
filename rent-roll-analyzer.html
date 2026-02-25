@@ -142,4 +142,111 @@
                   <td>104</td>
                   <td>2BR/2BA</td>
                   <td>$1,600</td>
-                  <td>$1,500</
+                  <td>$1,500</                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/sp-core.js"></script>
+  <script>
+    SP.requireGP();
+
+    const DEMO_UNITS = [
+      {unit:'101',type:'1BR/1BA',sqft:650,currentRent:1100,marketRent:1350,status:'occupied'},
+      {unit:'102',type:'1BR/1BA',sqft:650,currentRent:1200,marketRent:1350,status:'occupied'},
+      {unit:'103',type:'2BR/2BA',sqft:950,currentRent:1450,marketRent:1500,status:'occupied'},
+      {unit:'104',type:'2BR/2BA',sqft:950,currentRent:0,marketRent:1500,status:'vacant'},
+      {unit:'105',type:'2BR/2BA',sqft:950,currentRent:1600,marketRent:1500,status:'occupied'},
+      {unit:'106',type:'3BR/2BA',sqft:1200,currentRent:1800,marketRent:2000,status:'occupied'},
+      {unit:'107',type:'1BR/1BA',sqft:650,currentRent:1100,marketRent:1350,status:'occupied'},
+      {unit:'108',type:'2BR/2BA',sqft:950,currentRent:1400,marketRent:1500,status:'occupied'},
+    ];
+
+    let units = DEMO_UNITS.map(u => ({...u}));
+
+    function fmtC(n){return '$'+Number(n||0).toLocaleString();}
+
+    function analyze() {
+      const occupied = units.filter(u=>u.status==='occupied');
+      const vacant = units.filter(u=>u.status==='vacant');
+      const totalUnits = units.length;
+      const occupancy = totalUnits > 0 ? (occupied.length/totalUnits*100).toFixed(1) : 0;
+      const gpr = units.reduce((s,u)=>s+u.marketRent,0) * 12;
+      const egi = occupied.reduce((s,u)=>s+u.currentRent,0) * 12;
+      const vacancyLoss = gpr - egi;
+      const totalCurrentRent = occupied.reduce((s,u)=>s+u.currentRent,0);
+      const totalMarketRent = units.reduce((s,u)=>s+u.marketRent,0);
+      const avgCurrent = occupied.length ? Math.round(totalCurrentRent/occupied.length) : 0;
+      const avgMarket = units.length ? Math.round(totalMarketRent/units.length) : 0;
+      const valueAddPotential = (totalMarketRent - totalCurrentRent) * 12;
+
+      // Update stats if elements exist
+      const stats = {
+        'totalUnits': totalUnits,
+        'occupancy': occupancy+'%',
+        'avgRent': fmtC(avgCurrent),
+        'marketAvg': fmtC(avgMarket),
+        'gpr': fmtC(gpr),
+        'egi': fmtC(egi),
+        'vacancyLoss': fmtC(vacancyLoss),
+        'valueAdd': fmtC(valueAddPotential),
+      };
+      Object.entries(stats).forEach(([id,val])=>{ const el=document.getElementById(id); if(el) el.textContent=val; });
+
+      // Update table
+      const tbody = document.querySelector('.unit-table tbody');
+      if (tbody) {
+        tbody.innerHTML = units.map(u => {
+          const variance = u.currentRent - u.marketRent;
+          const cls = variance < -100 ? 'color:#ef4444' : variance >= 0 ? 'color:#10b981' : 'color:#f59e0b';
+          return `<tr>
+            <td>${u.unit}</td><td>${u.type}</td><td>${u.status==='vacant'?'<em style="color:#94a3b8;">Vacant</em>':fmtC(u.currentRent)}</td>
+            <td>${fmtC(u.marketRent)}</td>
+            <td style="${cls};font-weight:600;">${u.status==='vacant'?'—':fmtC(variance)}</td>
+            <td><span style="padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:600;background:${u.status==='occupied'?'#d1fae5':'#fee2e2'};color:${u.status==='occupied'?'#065f46':'#991b1b'};">${u.status}</span></td>
+          </tr>`;
+        }).join('');
+      }
+    }
+
+    function handleCSVUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const lines = ev.target.result.trim().split('\n');
+        const headers = lines[0].toLowerCase().split(',');
+        units = lines.slice(1).map(line => {
+          const cols = line.split(',');
+          const get = key => cols[headers.indexOf(key)]?.trim().replace(/[$,"]/g,'') || '';
+          return {
+            unit: get('unit')||get('unit #'),
+            type: get('type')||get('unit type')||'Unknown',
+            sqft: parseInt(get('sqft')||get('sq ft')||0),
+            currentRent: parseFloat(get('current rent')||get('rent')||0),
+            marketRent: parseFloat(get('market rent')||get('market')||get('current rent')||get('rent')||0),
+            status: (get('status')||'occupied').toLowerCase().includes('vac') ? 'vacant' : 'occupied',
+          };
+        }).filter(u => u.unit);
+        analyze();
+      };
+      reader.readAsText(file);
+    }
+
+    // Wire CSV upload if button exists
+    const csvBtn = document.querySelector('input[type=file]') || (() => {
+      const inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = '.csv,text/csv'; inp.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:100;padding:10px;background:#3b82f6;color:white;border:none;border-radius:8px;cursor:pointer;';
+      inp.onchange = handleCSVUpload;
+      document.body.appendChild(inp);
+      return inp;
+    })();
+    if (csvBtn) csvBtn.onchange = handleCSVUpload;
+
+    analyze();
+  </script>
+</body>
+</html>

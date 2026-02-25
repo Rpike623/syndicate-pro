@@ -136,3 +136,70 @@
             <div class="comp-metric">6.5%</div>
             <div>$1.48</div>
             <span class="comp-badge sold
+    </div>
+  </div>
+  <script src="js/sp-core.js"></script>
+  <script>
+    SP.requireGP();
+
+    const DEMO_COMPS = [
+      {id:'c1',address:'1234 Oak St, Austin, TX',type:'Multifamily',units:48,price:5200000,pricePerUnit:108333,capRate:5.2,noi:270400,sqft:38400,status:'sold',date:'2025-11-01',notes:'Value-add play, C+ location'},
+      {id:'c2',address:'5678 Elm Ave, Dallas, TX',type:'Multifamily',units:72,price:8100000,pricePerUnit:112500,capRate:5.8,noi:469800,sqft:62000,status:'sold',date:'2025-09-15',notes:'Similar vintage, stabilized'},
+      {id:'c3',address:'910 Pine Rd, Houston, TX',type:'Multifamily',units:96,price:10500000,pricePerUnit:109375,capRate:5.5,noi:577500,sqft:84000,status:'listed',date:'2026-01-10',notes:'Currently listed, competing'},
+    ];
+
+    let comps = JSON.parse(SP.load('marketComps','null') || JSON.stringify(DEMO_COMPS));
+
+    function fmtC(n){if(!n)return'—';if(n>=1e6)return'$'+(n/1e6).toFixed(2)+'M';if(n>=1e3)return'$'+(n/1e3).toFixed(0)+'K';return'$'+n;}
+
+    function renderComps() {
+      const avgPPU = comps.length ? Math.round(comps.reduce((s,c)=>s+(c.pricePerUnit||0),0)/comps.length) : 0;
+      const avgCap = comps.length ? (comps.reduce((s,c)=>s+(c.capRate||0),0)/comps.length).toFixed(2) : 0;
+      const sold = comps.filter(c=>c.status==='sold');
+
+      // Update grid if exists
+      const grid = document.querySelector('.comps-grid, .comp-table');
+      if (grid) {
+        grid.innerHTML = comps.map(c => `
+          <div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div style="font-weight:700;font-size:.95rem;">${c.address}</div>
+              <span style="background:${c.status==='sold'?'#d1fae5':'#dbeafe'};color:${c.status==='sold'?'#065f46':'#1e40af'};padding:2px 10px;border-radius:12px;font-size:.72rem;font-weight:600;">${c.status}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;">
+              <div style="background:#f8fafc;padding:10px;border-radius:6px;text-align:center;"><div style="font-size:.65rem;color:#64748b;text-transform:uppercase;font-weight:700;">Price/Unit</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;">${fmtC(c.pricePerUnit)}</div></div>
+              <div style="background:#f8fafc;padding:10px;border-radius:6px;text-align:center;"><div style="font-size:.65rem;color:#64748b;text-transform:uppercase;font-weight:700;">Cap Rate</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;">${c.capRate}%</div></div>
+              <div style="background:#f8fafc;padding:10px;border-radius:6px;text-align:center;"><div style="font-size:.65rem;color:#64748b;text-transform:uppercase;font-weight:700;">Units</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;">${c.units}</div></div>
+            </div>
+            <div style="font-size:.78rem;color:#94a3b8;">${c.notes||''}</div>
+          </div>`).join('');
+      }
+
+      // Update summary stats
+      ['avgPPU','avgCap','compCount'].forEach(id=>{
+        const el=document.getElementById(id);
+        if(!el) return;
+        if(id==='avgPPU') el.textContent=fmtC(avgPPU);
+        if(id==='avgCap') el.textContent=avgCap+'%';
+        if(id==='compCount') el.textContent=comps.length;
+      });
+    }
+
+    function addComp() {
+      const addr = prompt('Property address:'); if(!addr) return;
+      const units = parseInt(prompt('Number of units:'))||0;
+      const price = parseFloat(prompt('Sale/list price ($):'))||0;
+      const capRate = parseFloat(prompt('Cap rate (%):'))||0;
+      const comp = { id:'c'+Date.now(), address:addr, type:'Multifamily', units, price, pricePerUnit:units?Math.round(price/units):0, capRate, noi:price*capRate/100, sqft:0, status:'sold', date:new Date().toISOString().split('T')[0], notes:'' };
+      comps.push(comp); SP.save('marketComps', comps); renderComps();
+    }
+
+    // Wire "Add Comp" button
+    document.querySelectorAll('button').forEach(btn => {
+      if(btn.textContent.toLowerCase().includes('add')) btn.onclick = addComp;
+    });
+
+    renderComps();
+  </script>
+</body>
+</html>

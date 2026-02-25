@@ -321,6 +321,22 @@ const SP = (function () {
     } catch(e) { return null; }
   }
 
+  // ─── Audit log ───────────────────────────────────────────────────────────────
+  function auditLog(action, entity, detail) {
+    const s = getSession();
+    const logs = loadAuditLogs();
+    logs.unshift({ ts: Date.now(), user: s?.email||'unknown', action, entity, detail });
+    const key = makeOrgKey('auditLog');
+    try { localStorage.setItem(key, JSON.stringify(logs.slice(0, 500))); } catch(e) {}
+  }
+
+  function loadAuditLogs() {
+    try { return JSON.parse(localStorage.getItem(makeOrgKey('auditLog')) || '[]'); } catch(e) { return []; }
+  }
+
+  // Patch save functions to auto-audit
+  const _origSaveDeals = SP => SP.saveDeals;
+
   // ─── Distributions ──────────────────────────────────────────────────────────
 
   function getDistributions() { return load('distributions', []); }
@@ -357,6 +373,8 @@ const SP = (function () {
     createInviteToken, decodeInviteToken,
     // Distributions
     getDistributions, saveDistributions, getDistributionsForInvestor,
+    // Audit
+    auditLog, loadAuditLogs,
     // Theme
     applyTheme: (theme) => {
       document.documentElement.setAttribute('data-theme', theme);

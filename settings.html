@@ -141,6 +141,8 @@
             <button class="snav-item" onclick="switchPanel('account',this)"><i class="fas fa-user"></i> My Account</button>
             <button class="snav-item" onclick="switchPanel('documents',this)"><i class="fas fa-file-contract"></i> Document Defaults</button>
             <button class="snav-item" onclick="switchPanel('notifications',this)"><i class="fas fa-bell"></i> Notifications</button>
+            <button class="snav-item" onclick="switchPanel('audit',this)"><i class="fas fa-list-alt"></i> Audit Log</button>
+            <button class="snav-item" onclick="switchPanel('export',this)"><i class="fas fa-download"></i> Export Data</button>
             <button class="snav-item" onclick="switchPanel('danger',this)"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> Danger Zone</button>
           </div>
         </div>
@@ -290,6 +292,43 @@
                 <input type="checkbox" class="notif-check" data-label="${label}" checked style="width:18px;height:18px;accent-color:var(--accent);">
                 ${label}
               </label>`).join('')}
+            </div>
+          </div>
+
+          <!-- Audit Log -->
+          <div class="settings-panel" id="panel-audit">
+            <div class="panel-title">Audit Log</div>
+            <div class="panel-sub">All data changes recorded for compliance and review.</div>
+            <div class="card" style="padding:0;">
+              <div style="padding:14px 20px;background:var(--border-light);display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:.8rem;color:var(--text-secondary);" id="auditCount">Loading…</span>
+                <button class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;" onclick="exportAuditLog()"><i class="fas fa-download"></i> Export CSV</button>
+              </div>
+              <div id="auditLogList" style="max-height:500px;overflow-y:auto;font-size:.82rem;"></div>
+            </div>
+          </div>
+
+          <!-- Export Data -->
+          <div class="settings-panel" id="panel-export">
+            <div class="panel-title">Export All Data</div>
+            <div class="panel-sub">Download a full backup of your organization's data.</div>
+            <div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+              <button class="btn btn-secondary" style="padding:20px;flex-direction:column;gap:8px;height:auto;" onclick="exportData('deals')">
+                <i class="fas fa-building" style="font-size:1.5rem;color:var(--accent);"></i>
+                <div><strong>Deals</strong></div><div style="font-size:.75rem;color:var(--text-secondary);">CSV format</div>
+              </button>
+              <button class="btn btn-secondary" style="padding:20px;flex-direction:column;gap:8px;height:auto;" onclick="exportData('investors')">
+                <i class="fas fa-users" style="font-size:1.5rem;color:var(--success);"></i>
+                <div><strong>Investors</strong></div><div style="font-size:.75rem;color:var(--text-secondary);">CSV format</div>
+              </button>
+              <button class="btn btn-secondary" style="padding:20px;flex-direction:column;gap:8px;height:auto;" onclick="exportData('distributions')">
+                <i class="fas fa-wallet" style="font-size:1.5rem;color:var(--warning);"></i>
+                <div><strong>Distributions</strong></div><div style="font-size:.75rem;color:var(--text-secondary);">CSV format</div>
+              </button>
+              <button class="btn btn-primary" style="padding:20px;flex-direction:column;gap:8px;height:auto;" onclick="exportAllJSON()">
+                <i class="fas fa-database" style="font-size:1.5rem;"></i>
+                <div><strong>Full Backup</strong></div><div style="font-size:.75rem;opacity:.8;">JSON format</div>
+              </button>
             </div>
           </div>
 
@@ -478,6 +517,81 @@ function showToast(msg, type='success') {
 }
 
 loadSettings();
+
+// ── Audit Log ────────────────────────────────────────────────────────────────
+function renderAuditLog() {
+  const logs = SP.loadAuditLogs ? SP.loadAuditLogs() : [];
+  const list = document.getElementById('auditLogList');
+  const count = document.getElementById('auditCount');
+  if (count) count.textContent = `${logs.length} events recorded`;
+  if (!list) return;
+  if (!logs.length) { list.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);"><i class="fas fa-clipboard-check" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i>No audit events yet. Changes will be logged automatically.</div>'; return; }
+  list.innerHTML = logs.slice(0, 100).map(l => `
+    <div style="padding:12px 20px;border-bottom:1px solid var(--border-light);display:flex;gap:12px;align-items:flex-start;">
+      <div style="width:8px;height:8px;background:var(--accent);border-radius:50%;flex-shrink:0;margin-top:6px;"></div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:.85rem;">${l.action}</div>
+        <div style="font-size:.78rem;color:var(--text-muted);">${l.entity}${l.detail?': '+l.detail:''}</div>
+      </div>
+      <div style="text-align:right;font-size:.72rem;color:var(--text-muted);flex-shrink:0;">
+        <div>${new Date(l.ts).toLocaleDateString()}</div>
+        <div>${new Date(l.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+        <div style="font-size:.68rem;opacity:.7;">${l.user}</div>
+      </div>
+    </div>`).join('');
+}
+
+function exportAuditLog() {
+  const logs = SP.loadAuditLogs ? SP.loadAuditLogs() : [];
+  const csv = [['Timestamp','User','Action','Entity','Detail'], ...logs.map(l=>[new Date(l.ts).toISOString(),l.user,l.action,l.entity,l.detail||''])];
+  const blob = new Blob([csv.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n')], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'audit-log.csv'; a.click();
+}
+
+// ── Export Functions ─────────────────────────────────────────────────────────
+function exportData(type) {
+  let data, headers, rows, filename;
+  if (type === 'deals') {
+    data = SP.getDeals();
+    headers = ['ID','Name','Type','Location','Raise','IRR','Equity','Status','Investors'];
+    rows = data.map(d=>[d.id,d.name,d.type,d.location,d.raise,d.irr,d.equity,d.status,(d.investors||[]).length]);
+    filename = 'deals-export.csv';
+  } else if (type === 'investors') {
+    data = SP.getInvestors();
+    headers = ['ID','First Name','Last Name','Email','Phone','Accreditation','Status','Total Invested'];
+    rows = data.map(i=>[i.id,i.firstName,i.lastName,i.email,i.phone,i.accredStatus,i.status,i.totalInvested]);
+    filename = 'investors-export.csv';
+  } else if (type === 'distributions') {
+    data = SP.getDistributions();
+    headers = ['ID','Date','Deal','Total Amount','Period'];
+    rows = data.map(d=>[d.id,d.date,d.dealName,d.totalAmount,d.period]);
+    filename = 'distributions-export.csv';
+  }
+  const csv = [headers, ...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+}
+
+function exportAllJSON() {
+  const payload = {
+    orgId: SP.getOrgId(),
+    exportedAt: new Date().toISOString(),
+    deals: SP.getDeals(),
+    investors: SP.getInvestors(),
+    distributions: SP.getDistributions(),
+    settings: SP.load('settings', {}),
+    auditLog: SP.loadAuditLogs ? SP.loadAuditLogs() : [],
+    capitalCalls: SP.load('capitalCalls', []),
+    dealRoomFiles: SP.load('dealRoomFiles', []),
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `syndicatepro-backup-${new Date().toISOString().split('T')[0]}.json`; a.click();
+}
+
+// Initialize audit log when panel shown
+document.querySelector('.snav-item[onclick*="audit"]')?.addEventListener('click', renderAuditLog);
+// Also render if starting on audit panel
+if (window.location.hash === '#audit') renderAuditLog();
 </script>
 </body>
 </html>
