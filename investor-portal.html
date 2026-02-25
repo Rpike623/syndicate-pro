@@ -396,6 +396,29 @@
     }
 
     /* ── Responsive ───────────────────────────────────────────────────── */
+
+    /* ── Capital Call Cards ─────────────────────────────────────────── */
+    .call-card { background:white; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:16px; overflow:hidden; }
+    .call-card-header { padding:20px 24px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; }
+    .call-card-title { font-size:1rem; font-weight:700; color:#1a2332; }
+    .call-card-deal { font-size:0.8rem; color:#94a3b8; margin-top:3px; }
+    .call-amount { font-size:1.4rem; font-weight:700; color:#d97706; }
+    .call-due { font-size:0.78rem; color:#94a3b8; margin-top:3px; text-align:right; }
+    .call-due.urgent { color:#dc2626; font-weight:600; }
+    .call-card-body { padding:20px 24px; }
+    .call-wire { background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:16px; font-size:0.8rem; color:#92400e; white-space:pre-line; line-height:1.7; margin-top:12px; }
+    .call-badge-paid { background:#dcfce7; color:#16a34a; font-size:0.72rem; font-weight:600; padding:4px 10px; border-radius:999px; }
+    .call-badge-due  { background:#fef3c7; color:#d97706; font-size:0.72rem; font-weight:600; padding:4px 10px; border-radius:999px; }
+    .call-badge-overdue { background:#fee2e2; color:#dc2626; font-size:0.72rem; font-weight:600; padding:4px 10px; border-radius:999px; }
+
+    /* ── Tax Doc Table ──────────────────────────────────────────────── */
+    .tax-table { width:100%; border-collapse:collapse; background:white; border-radius:12px; overflow:hidden; border:1px solid #e2e8f0; }
+    .tax-table th { padding:12px 20px; font-size:0.75rem; font-weight:600; color:#94a3b8; text-align:left; background:#f8fafc; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid #e2e8f0; }
+    .tax-table td { padding:16px 20px; font-size:0.875rem; border-bottom:1px solid #f1f5f9; }
+    .tax-table tr:last-child td { border-bottom:none; }
+    .tax-dl-btn { display:inline-flex; align-items:center; gap:6px; background:#ede9fe; color:#6366f1; padding:6px 14px; border-radius:6px; font-size:0.78rem; font-weight:600; border:none; cursor:pointer; font-family:inherit; text-decoration:none; }
+    .tax-dl-btn:hover { background:#ddd6fe; }
+
     @media (max-width: 768px) {
       .topnav { padding: 0 16px; }
       .tabnav { padding: 0; overflow-x: auto; }
@@ -445,8 +468,10 @@
   <div class="tabnav-item active" onclick="showPage('overview', this)"><i class="fas fa-th-large"></i> Overview</div>
   <div class="tabnav-item" onclick="showPage('investments', this)"><i class="fas fa-building"></i> My Investments</div>
   <div class="tabnav-item" onclick="showPage('distributions', this)"><i class="fas fa-wallet"></i> Distributions</div>
+  <div class="tabnav-item" onclick="showPage('capitalcalls', this)"><i class="fas fa-file-invoice-dollar"></i> Capital Calls</div>
+  <div class="tabnav-item" onclick="showPage('taxdocs', this)"><i class="fas fa-receipt"></i> Tax Documents</div>
   <div class="tabnav-item" onclick="showPage('documents', this)"><i class="fas fa-file-alt"></i> Documents</div>
-  <div class="tabnav-item" onclick="showPage('profile', this)"><i class="fas fa-user"></i> My Profile</div>
+  <div class="tabnav-item" onclick="showPage('profile', this)"><i class="fas fa-user-circle"></i> My Profile</div>
 </div>
 
 <!-- ── OVERVIEW PAGE ─────────────────────────────────────────────────── -->
@@ -515,6 +540,20 @@
 <div class="page" id="page-distributions">
   <div class="section-title" style="margin-bottom:20px;"><i class="fas fa-wallet"></i> Distribution History</div>
   <div id="distributionsContent"></div>
+</div>
+
+<!-- ── CAPITAL CALLS PAGE ─────────────────────────────────────────── -->
+<div class="page" id="page-capitalcalls">
+  <div class="section-title" style="margin-bottom:8px;"><i class="fas fa-file-invoice-dollar"></i> Capital Calls</div>
+  <p style="color:#64748b;font-size:0.875rem;margin-bottom:24px;">Funding requests from your GP. Wire instructions are included with each call.</p>
+  <div id="capitalCallsContent"></div>
+</div>
+
+<!-- ── TAX DOCUMENTS PAGE ─────────────────────────────────────────── -->
+<div class="page" id="page-taxdocs">
+  <div class="section-title" style="margin-bottom:8px;"><i class="fas fa-receipt"></i> Tax Documents</div>
+  <p style="color:#64748b;font-size:0.875rem;margin-bottom:24px;">K-1s and other tax documents for your investments. Available after year-end processing.</p>
+  <div id="taxDocsContent"></div>
 </div>
 
 <!-- ── DOCUMENTS PAGE ───────────────────────────────────────────────── -->
@@ -700,6 +739,133 @@
     </table>`;
   }
 
+  // ── Render Capital Calls ───────────────────────────────────────────────────
+  function renderCapitalCalls() {
+    const el = document.getElementById('capitalCallsContent');
+    const allCalls = (typeof SPData !== 'undefined' && SPData.isReady()) ? SPData.getCapitalCalls() : SP.load('capitalCalls', []);
+    // Filter to calls for deals the investor is in
+    const myCalls = allCalls.filter(call =>
+      myDeals.some(({deal}) => deal.id === call.dealId)
+    );
+
+    if (!myCalls.length) {
+      el.innerHTML = '<div class="empty"><i class="fas fa-file-invoice-dollar"></i><h3>No capital calls yet</h3><p>When your GP issues a capital call, you\'ll see wire instructions and due dates here.</p></div>';
+      return;
+    }
+
+    const today = new Date();
+    el.innerHTML = myCalls.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)).map(call => {
+      const deal = myDeals.find(m => m.deal.id === call.dealId)?.deal;
+      const entry = myDeals.find(m => m.deal.id === call.dealId)?.entry;
+      const ownershipPct = entry?.ownership || 0;
+      const myAmount = call.amount ? (ownershipPct > 0 ? (call.amount * ownershipPct / 100) : call.amount) : 0;
+      const dueDate = call.dueDate ? new Date(call.dueDate) : null;
+      const isOverdue = dueDate && dueDate < today && call.status !== 'funded';
+      const isDueSoon = dueDate && !isOverdue && (dueDate - today) < 7 * 24 * 60 * 60 * 1000;
+      const badgeClass = call.status === 'funded' ? 'call-badge-paid' : isOverdue ? 'call-badge-overdue' : 'call-badge-due';
+      const badgeText = call.status === 'funded' ? '✓ Funded' : isOverdue ? '⚠ Overdue' : 'Due';
+      return `<div class="call-card">
+        <div class="call-card-header">
+          <div>
+            <div class="call-card-title">${call.name || 'Capital Call'}</div>
+            <div class="call-card-deal">${deal?.name || '—'}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="call-amount">${myAmount ? fmtFull$(myAmount) : fmtFull$(call.amount || 0)}</div>
+            <div class="call-due ${isOverdue||isDueSoon?'urgent':''}">
+              ${dueDate ? 'Due: ' + dueDate.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'Due date TBD'}
+            </div>
+            <div style="margin-top:6px;"><span class="${badgeClass}">${badgeText}</span></div>
+          </div>
+        </div>
+        <div class="call-card-body">
+          ${call.notes ? `<p style="font-size:0.875rem;color:#475569;margin-bottom:12px;">${call.notes}</p>` : ''}
+          ${call.wireInstructions ? `<div class="call-wire"><strong>Wire Instructions</strong>\n${call.wireInstructions}</div>` : '<div style="font-size:0.8rem;color:#94a3b8;">Contact your GP for wire instructions.</div>'}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Render Tax Documents ───────────────────────────────────────────────────
+  function renderTaxDocs() {
+    const el = document.getElementById('taxDocsContent');
+    const currentYear = new Date().getFullYear();
+
+    // Build K-1 rows from distributions — one per deal per year
+    const k1Rows = [];
+    const dealYears = {};
+    myDists.forEach(d => {
+      const year = d.date ? new Date(d.date).getFullYear() : null;
+      if (!year) return;
+      const key = `${d.dealId}-${year}`;
+      if (!dealYears[key]) {
+        const deal = myDeals.find(m => m.deal.id === d.dealId)?.deal;
+        dealYears[key] = { dealId: d.dealId, dealName: deal?.name || '—', year, total: 0 };
+        k1Rows.push(dealYears[key]);
+      }
+      const rec = (d.recipients||[]).find(r => r.investorId === investorRecord.id);
+      dealYears[key].total += (rec?.amount || d.amount || 0);
+    });
+
+    if (!k1Rows.length) {
+      el.innerHTML = `<div class="empty">
+        <i class="fas fa-receipt"></i>
+        <h3>No tax documents yet</h3>
+        <p>K-1s for tax year ${currentYear - 1} will be available after year-end processing, typically by March 15th.</p>
+      </div>`;
+      return;
+    }
+
+    k1Rows.sort((a, b) => b.year - a.year);
+    el.innerHTML = `<table class="tax-table">
+      <thead><tr>
+        <th>Document</th><th>Investment</th><th>Tax Year</th><th>Your Share</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody>${k1Rows.map(row => {
+        const isCurrentYear = row.year >= currentYear;
+        const status = isCurrentYear ? '<span style="color:#d97706;font-size:0.78rem;font-weight:600;">⏳ Pending</span>' : '<span style="color:#16a34a;font-size:0.78rem;font-weight:600;">✓ Available</span>';
+        return `<tr>
+          <td><strong>Schedule K-1</strong><br><span style="font-size:0.75rem;color:#94a3b8;">Form 1065</span></td>
+          <td>${row.dealName}</td>
+          <td>${row.year}</td>
+          <td style="font-weight:600;">${fmtFull$(row.total)}</td>
+          <td>${status}</td>
+          <td>${isCurrentYear ? '' : `<button class="tax-dl-btn" onclick="generateK1('${row.dealId}','${row.year}','${row.dealName}')"><i class="fas fa-download"></i> Download</button>`}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  }
+
+  function generateK1(dealId, year, dealName) {
+    const inv = investorRecord || {};
+    const name = `${inv.firstName||''} ${inv.lastName||''}`.trim() || session?.name || '';
+    const w = window.open('', '_blank');
+    w.document.write(`<!DOCTYPE html><html><head><title>K-1 ${year} — ${dealName}</title>
+    <style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px;color:#1a2332;}
+    h1{font-size:1.2rem;border-bottom:2px solid #1a2332;padding-bottom:8px;margin-bottom:20px;}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+    .field label{font-size:0.7rem;font-weight:700;text-transform:uppercase;color:#64748b;display:block;margin-bottom:3px;}
+    .field span{font-size:0.95rem;border-bottom:1px solid #e2e8f0;display:block;padding-bottom:4px;min-height:24px;}
+    .notice{background:#fef3c7;border:1px solid #fde68a;border-radius:6px;padding:12px;font-size:0.8rem;color:#92400e;margin-top:24px;}
+    @media print{.notice{display:none;}}
+    </style></head><body>
+    <h1>Schedule K-1 (Form 1065) — Partner's Share of Income, Deductions, Credits</h1>
+    <p style="font-size:0.85rem;color:#64748b;margin-bottom:20px;">Tax Year ${year} | ${dealName}</p>
+    <div class="grid">
+      <div class="field"><label>Partner Name</label><span>${name}</span></div>
+      <div class="field"><label>Partner Email</label><span>${inv.email||''}</span></div>
+      <div class="field"><label>Partner Address</label><span>${inv.address||''}</span></div>
+      <div class="field"><label>Investment</label><span>${dealName}</span></div>
+      <div class="field"><label>Tax Year</label><span>${year}</span></div>
+      <div class="field"><label>Capital Contributed</label><span>$${(investorRecord?.totalInvested||0).toLocaleString()}</span></div>
+    </div>
+    <div class="notice">⚠ This is a placeholder K-1. Your GP will provide the final certified Schedule K-1 by the applicable tax deadline. Please consult your CPA or tax advisor.</div>
+    <p style="margin-top:24px;font-size:0.75rem;color:#94a3b8;text-align:center;">Generated by deeltrack · ${new Date().toLocaleDateString()}</p>
+    <script>setTimeout(()=>window.print(),500);<\/script>
+    </body></html>`);
+    w.document.close();
+  }
+
   // ── Render Documents ───────────────────────────────────────────────────────
   async function renderDocuments() {
     const grid = document.getElementById('documentsGrid');
@@ -808,6 +974,8 @@
     renderOverview();
     renderInvestments();
     renderDistributions();
+    renderCapitalCalls();
+    renderTaxDocs();
     renderProfile();
 
     // Hide loader
