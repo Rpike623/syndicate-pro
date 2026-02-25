@@ -161,6 +161,22 @@ const SPFB = (function () {
 
   function _markReady() {
     _ready = true;
+    // Sync Firebase user into SP session so requireGP/requireInvestor work on every page
+    if (_spUser && typeof SP !== 'undefined') {
+      const existing = SP.getSession();
+      // Only overwrite if not already set, or if Firebase has fresher role/orgId
+      if (!existing || !existing.loggedIn || existing.email !== _spUser.email) {
+        SP.setSession({
+          email:     _spUser.email,
+          name:      _spUser.name || _spUser.displayName || _spUser.email,
+          role:      _spUser.role || 'General Partner',
+          orgId:     _spUser.orgId || _orgId,
+          loggedIn:  true,
+          loginTime: Date.now(),
+          uid:       _spUser.uid,
+        });
+      }
+    }
     // Auto-patch SP.* on every page as soon as Firebase is ready
     if (typeof window !== 'undefined') {
       window.setTimeout(() => patchSPCore(), 0);
@@ -748,37 +764,39 @@ const SPFB = (function () {
   function patchSPCore() {
     if (!window.SP) return;
 
-    // Patch SP.getDeals — pull from Firestore, fall back to localStorage
+    // Helper: get org-scoped localStorage key
+    function _lsKey(name) {
+      return SP.makeOrgKey ? SP.makeOrgKey(name) : `sp_${name}`;
+    }
+    function _lsGet(name) {
+      try { return JSON.parse(localStorage.getItem(_lsKey(name)) || '[]'); } catch(e) { return []; }
+    }
+    function _lsSet(name, data) {
+      try { localStorage.setItem(_lsKey(name), JSON.stringify(data)); } catch(e) {}
+    }
+
+    // Patch SP.getDeals — return localStorage immediately, refresh from Firebase in bg
     SP.getDeals = function() {
       if (SPFB.isReady() && !SPFB.isOffline()) {
-        SPFB.getDeals().then(deals => {
-          if (deals && deals.length) {
-            const _orig = SP._getDeals || (() => {});
-            // Sync to localStorage so sync renders work
-            const key = SP.makeOrgKey ? SP.makeOrgKey('deals') : 'sp_deals';
-            try { localStorage.setItem(key, JSON.stringify(deals)); } catch(e) {}
-          }
-        }).catch(() => {});
+        SPFB.getDeals().then(deals => { if (deals && deals.length) _lsSet('deals', deals); }).catch(() => {});
       }
-      // Return localStorage immediately (may be stale until above resolves)
-      const key = SP.makeOrgKey ? SP.makeOrgKey('deals') : null;
-      if (key) { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {} }
-      return SP.load ? SP.load('deals', []) : [];
+      return _lsGet('deals');
     };
 
     // Patch SP.getInvestors — same pattern
     SP.getInvestors = function() {
       if (SPFB.isReady() && !SPFB.isOffline()) {
-        SPFB.getInvestors().then(investors => {
-          if (investors && investors.length) {
-            const key = SP.makeOrgKey ? SP.makeOrgKey('investors') : 'sp_investors';
-            try { localStorage.setItem(key, JSON.stringify(investors)); } catch(e) {}
-          }
-        }).catch(() => {});
+        SPFB.getInvestors().then(investors => { if (investors && investors.length) _lsSet('investors', investors); }).catch(() => {});
       }
-      const key = SP.makeOrgKey ? SP.makeOrgKey('investors') : null;
-      if (key) { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {} }
-      return SP.load ? SP.load('investors', []) : [];
+      return _lsGet('investors');
+    };
+
+    // Patch SP.getDistributions — pull from Firestore
+    SP.getDistributions = function() {
+      if (SPFB.isReady() && !SPFB.isOffline()) {
+        SPFB.getDistributions().then(dists => { if (dists && dists.length) _lsSet('distributions', dists); }).catch(() => {});
+      }
+      return _lsGet('distributions');
     };
 
     // Patch SP.saveDeals

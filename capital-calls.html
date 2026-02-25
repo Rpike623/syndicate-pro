@@ -210,7 +210,17 @@
 
     function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num || 0); }
 
-    function loadDeals() {
+    
+    async function _syncFromFirebase() {
+      if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
+      try {
+        const [d, i] = await Promise.all([SPFB.getDeals().catch(()=>[]), SPFB.getInvestors().catch(()=>[])]);
+        if (d.length) SP.saveDeals(d);
+        if (i.length) SP.saveInvestors(i);
+      } catch(e) {}
+    }
+        async function loadDeals() {
+      await _syncFromFirebase();
       const deals = SP.getDeals();
       const select = document.getElementById('callDeal');
       select.innerHTML = '<option value="">Select a deal...</option>' + deals.map(d => {

@@ -373,7 +373,22 @@
     let investors = [];
     let allocations = [];
 
-    function init() {
+      // Sync from Firebase before reading localStorage
+  async function _syncFromFirebase() {
+    if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
+    try {
+      const [deals, investors, dists] = await Promise.all([
+        SPFB.getDeals().catch(() => []),
+        SPFB.getInvestors().catch(() => []),
+        SPFB.getDistributions().catch(() => []),
+      ]);
+      if (deals.length) SP.saveDeals(deals);
+      if (investors.length) SP.saveInvestors(investors);
+      if (dists.length) SP.save('distributions', dists);
+    } catch(e) { console.warn('Firebase sync:', e.message); }
+  }
+
+  async function init() {
       const deals = SP.getDeals();
       const select = document.getElementById('deal-select');
       select.innerHTML = '<option value="">Select a deal...</option>';

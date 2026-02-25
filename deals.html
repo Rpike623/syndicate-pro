@@ -369,7 +369,23 @@ let deals = [];
 let sortCol = 'added', sortDir = -1;
 let currentView = 'table';
 
-function load() {
+  // Sync from Firebase before reading localStorage
+  async function _syncFromFirebase() {
+    if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
+    try {
+      const [deals, investors, dists] = await Promise.all([
+        SPFB.getDeals().catch(() => []),
+        SPFB.getInvestors().catch(() => []),
+        SPFB.getDistributions().catch(() => []),
+      ]);
+      if (deals.length) SP.saveDeals(deals);
+      if (investors.length) SP.saveInvestors(investors);
+      if (dists.length) SP.save('distributions', dists);
+    } catch(e) { console.warn('Firebase sync:', e.message); }
+  }
+
+  async function load() {
+    await _syncFromFirebase();
   deals = SP.getDeals();
   if (!deals.length) { deals = [...DEMO_DEALS]; SP.saveDeals(deals); }
 }
