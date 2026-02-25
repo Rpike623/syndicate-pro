@@ -228,8 +228,45 @@
     </main>
   </div>
 
-  <script src="js/storage.js"></script>
+  <script src="js/sp-core.js"></script>
   <script>
+    SP.requireGP();
+
+    // Inject deal selector at top of form if not already present
+    window.addEventListener('DOMContentLoaded', function() {
+      const firstInput = document.querySelector('input, select');
+      if (firstInput && !document.getElementById('pfDealSelect')) {
+        const deals = SP.getDeals().filter(d => d.units > 0 || d.type === 'multifamily');
+        if (deals.length) {
+          const wrap = document.createElement('div');
+          wrap.style.cssText = 'margin-bottom:16px;';
+          wrap.innerHTML = `
+            <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">Load from Deal (optional)</label>
+            <div style="display:flex;gap:8px;">
+              <select id="pfDealSelect" style="flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:.875rem;outline:none;">
+                <option value="">— Select a deal to pre-fill —</option>
+                ${deals.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}
+              </select>
+              <button onclick="loadFromDeal()" style="padding:10px 14px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:600;white-space:nowrap;">
+                <i class="fas fa-download"></i> Load
+              </button>
+            </div>`;
+          firstInput.closest('form, .form-section, .sidebar-form, main')?.insertBefore(wrap, firstInput.closest('form, .form-section, .sidebar-form, main').firstChild) || document.querySelector('.content, main')?.insertBefore(wrap, document.querySelector('.content, main').firstChild);
+        }
+      }
+      calculate();
+    });
+
+    function loadFromDeal() {
+      const sel = document.getElementById('pfDealSelect');
+      if (!sel?.value) return;
+      const deal = SP.getDealById(sel.value);
+      if (!deal) return;
+      if (deal.units && document.getElementById('units')) document.getElementById('units').value = deal.units;
+      if (deal.raise && document.getElementById('purchasePrice')) document.getElementById('purchasePrice').value = Math.round(deal.raise * 4); // rough estimate
+      calculate();
+    }
+
     function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num || 0); }
     
     function calculate() {
@@ -279,10 +316,23 @@
     }
     
     function exportData() {
+      // Also save results back to the deal if one is selected
+      const sel = document.getElementById('pfDealSelect');
+      if (sel?.value) {
+        const deals = SP.getDeals();
+        const idx = deals.findIndex(d => d.id === sel.value);
+        if (idx >= 0) {
+          const noi = document.getElementById('noi')?.textContent || '';
+          const capRate = document.getElementById('statCapRate')?.textContent || '';
+          deals[idx].proforma = { noi, capRate, updatedAt: new Date().toISOString() };
+          SP.saveDeals(deals);
+          SP.logActivity('fa-table', 'green', `Pro forma saved for <strong>${deals[idx].name}</strong>`);
+        }
+      }
       const data = {
-        units: document.getElementById('units').value,
-        avgRent: document.getElementById('avgRent').value,
-        noi: document.getElementById('noi').textContent,
+        units: document.getElementById('units')?.value,
+        avgRent: document.getElementById('avgRent')?.value,
+        noi: document.getElementById('noi')?.textContent,
         timestamp: new Date().toISOString()
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -292,8 +342,6 @@
       a.download = 'proforma-' + new Date().toISOString().split('T')[0] + '.json';
       a.click();
     }
-    
-    calculate();
   </script>
 </body>
 </html>

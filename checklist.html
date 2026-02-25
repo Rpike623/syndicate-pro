@@ -6,6 +6,7 @@
   <title>SyndicatePro - Closing Checklist</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-core.js"></script>
   <style>
     :root {
       --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
@@ -112,6 +113,7 @@
   </main>
 
   <script>
+    SP.requireGP();
     const defaultTasks = {
       dd: [
         { id: 1, text: 'Property inspection completed', assignee: 'Inspector', due: 'Day 5' },

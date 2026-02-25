@@ -698,20 +698,16 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="js/storage.js"></script>
+  <script src="js/sp-core.js"></script>
   <script>
-    // Auth guard
-    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
-    if (!auth.isAuthenticated) {
-      window.location.href = 'login.html';
-    }
+    SP.requireGP();
   </script>
   <script>
     let currentDocType = 'operating-agreement';
     let members = [];
-    
+
     function loadSavedDeals() {
-      const deals = JSON.parse(localStorage.getItem('syndicateDeals') || '[]');
+      const deals = SP.getDeals();
       const select = document.getElementById('dealSelect');
       select.innerHTML = '<option value="">Select a deal...</option>';
       deals.forEach(deal => {
@@ -720,21 +716,36 @@
         option.textContent = deal.name || 'Unnamed Deal';
         select.appendChild(option);
       });
+      // Pre-select from URL
+      const urlDeal = new URLSearchParams(window.location.search).get('deal');
+      if (urlDeal) { select.value = urlDeal; importDealData(); }
     }
-    
+
     function importDealData() {
       const dealId = document.getElementById('dealSelect').value;
       if (!dealId) return;
-      
-      const deals = JSON.parse(localStorage.getItem('syndicateDeals') || '[]');
-      const deal = deals.find(d => d.id === dealId);
+
+      const deal = SP.getDealById(dealId);
       if (!deal) return;
-      
-      document.getElementById('totalEquity').value = deal.totalEquity || '';
-      document.getElementById('prefReturn').value = deal.prefReturn || '';
-      document.getElementById('gpPromote').value = deal.gpPromote || '';
-      document.getElementById('gpEquity').value = deal.gpEquity || '';
-      document.getElementById('lpEquity').value = 100 - (deal.gpEquity || 0);
+
+      // Map sp-core deal fields to document form fields
+      const raise = deal.raise || 0;
+      const gpPct = 20; // default GP promote
+      const lpPct = 80;
+      if (document.getElementById('totalEquity')) document.getElementById('totalEquity').value = raise;
+      if (document.getElementById('prefReturn')) document.getElementById('prefReturn').value = deal.irr ? Math.min(8, deal.irr * 0.4).toFixed(1) : 8;
+      if (document.getElementById('gpPromote')) document.getElementById('gpPromote').value = gpPct;
+      if (document.getElementById('gpEquity')) document.getElementById('gpEquity').value = gpPct;
+      if (document.getElementById('lpEquity')) document.getElementById('lpEquity').value = lpPct;
+      // Also populate deal name / property fields if present
+      ['propertyName','dealName','llcName'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.value) el.value = deal.name || '';
+      });
+      ['propertyAddress','address'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && !el.value) el.value = deal.location || '';
+      });
       
       const btn = document.querySelector('.btn-secondary');
       const originalText = btn.innerHTML;
@@ -1020,10 +1031,11 @@
       const data = getFormData();
       data.docType = currentDocType;
       data.savedAt = new Date().toISOString();
-      
-      const drafts = JSON.parse(localStorage.getItem('documentDrafts') || '[]');
+
+      const drafts = SP.load('documentDrafts', []);
       drafts.push(data);
-      localStorage.setItem('documentDrafts', JSON.stringify(drafts));
+      SP.save('documentDrafts', drafts);
+      SP.logActivity('fa-file-contract', 'amber', `Draft saved: <strong>${currentDocType.replace(/-/g,' ')}</strong>`);
       
       const btn = document.querySelector('.btn-secondary');
       const originalText = btn.innerHTML;

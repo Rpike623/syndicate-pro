@@ -232,39 +232,93 @@
     </main>
   </div>
   
+  <script src="js/sp-core.js"></script>
   <script>
+    SP.requireGP();
+
+    // Inject deal loader at top of form
+    window.addEventListener('DOMContentLoaded', function() {
+      const deals = SP.getDeals();
+      if (deals.length) {
+        const formPanel = document.querySelector('.form-panel, .sidebar-form, form, .inputs');
+        if (formPanel) {
+          const loaderDiv = document.createElement('div');
+          loaderDiv.style.cssText = 'margin-bottom:20px;padding:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;';
+          loaderDiv.innerHTML = `
+            <label style="display:block;font-size:.8rem;font-weight:600;color:#64748b;margin-bottom:8px;"><i class="fas fa-bolt" style="color:#3b82f6;margin-right:4px;"></i> Load from Existing Deal</label>
+            <div style="display:flex;gap:8px;">
+              <select id="teaserDealSelect" style="flex:1;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-family:'Inter',sans-serif;font-size:.875rem;outline:none;">
+                <option value="">— Pick a deal —</option>
+                ${deals.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}
+              </select>
+              <button onclick="loadDealIntoTeaser()" style="padding:9px 14px;background:#3b82f6;color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:600;">Auto-fill</button>
+            </div>`;
+          formPanel.insertBefore(loaderDiv, formPanel.firstChild);
+        }
+      }
+    });
+
+    function loadDealIntoTeaser() {
+      const sel = document.getElementById('teaserDealSelect');
+      if (!sel?.value) return;
+      const deal = SP.getDealById(sel.value);
+      if (!deal) return;
+
+      const fmt$ = n => n >= 1e6 ? '$'+(n/1e6).toFixed(1)+'M' : n >= 1e3 ? '$'+(n/1e3).toFixed(0)+'K' : '$'+(n||0);
+
+      // Fill form fields
+      const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+      set('dealName', deal.name || '');
+      set('location', deal.location || '');
+      set('totalRaise', fmt$(deal.raise || 0));
+      set('targetIRR', deal.irr ? deal.irr.toFixed(1)+'%' : '');
+      set('cashOnCash', deal.irr ? (deal.irr * 0.45).toFixed(1)+'%' : '');
+      set('holdPeriod', '5 Yrs');
+
+      // Update preview
+      ['dealName','location','totalRaise','targetIRR','cashOnCash','holdPeriod'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.dispatchEvent(new Event('input'));
+      });
+
+      // Update preview title/subtitle directly
+      const pt = document.getElementById('previewTitle');
+      const ps = document.getElementById('previewSubtitle');
+      if (pt) pt.textContent = deal.name;
+      if (ps) ps.textContent = `Exclusive Investment Opportunity • ${deal.location||''}`;
+
+      SP.logActivity('fa-file-alt', 'amber', `Teaser generated for <strong>${deal.name}</strong>`);
+    }
+
     // Live preview updates
-    document.getElementById('dealName').addEventListener('input', (e) => {
-      document.getElementById('previewTitle').textContent = e.target.value || 'Deal Name';
+    const liveMap = {
+      dealName: 'previewTitle',
+      location: el => { const ps = document.getElementById('previewSubtitle'); if(ps) ps.textContent = `Exclusive Investment Opportunity • ${el.value||'Location'}`; },
+      totalRaise: 'previewRaise',
+      targetIRR: 'previewIRR',
+      cashOnCash: 'previewCash',
+      holdPeriod: 'previewHold',
+    };
+
+    Object.entries(liveMap).forEach(([inputId, targetOrFn]) => {
+      const el = document.getElementById(inputId);
+      if (!el) return;
+      el.addEventListener('input', (e) => {
+        if (typeof targetOrFn === 'function') { targetOrFn(e.target); return; }
+        const t = document.getElementById(targetOrFn);
+        if (t) t.textContent = e.target.value || '—';
+      });
     });
-    
-    document.getElementById('location').addEventListener('input', (e) => {
-      document.getElementById('previewSubtitle').textContent = `Exclusive Investment Opportunity • ${e.target.value || 'Location'}`;
-    });
-    
-    document.getElementById('totalRaise').addEventListener('input', (e) => {
-      document.getElementById('previewRaise').textContent = e.target.value || '$0';
-    });
-    
-    document.getElementById('targetIRR').addEventListener('input', (e) => {
-      document.getElementById('previewIRR').textContent = e.target.value || '0%';
-    });
-    
-    document.getElementById('cashOnCash').addEventListener('input', (e) => {
-      document.getElementById('previewCash').textContent = e.target.value || '0%';
-    });
-    
-    document.getElementById('holdPeriod').addEventListener('input', (e) => {
-      document.getElementById('previewHold').textContent = e.target.value || '0 Yrs';
-    });
-    
-    document.getElementById('highlights').addEventListener('input', (e) => {
-      document.getElementById('previewHighlights').innerHTML = e.target.value.replace(/\n/g, '<br>');
-    });
-    
-    document.getElementById('businessPlan').addEventListener('input', (e) => {
-      document.getElementById('previewPlan').textContent = e.target.value;
-    });
+
+    const hl = document.getElementById('highlights');
+    if (hl) hl.addEventListener('input', e => { const p = document.getElementById('previewHighlights'); if(p) p.innerHTML = e.target.value.replace(/\n/g,'<br>'); });
+    const bp = document.getElementById('businessPlan');
+    if (bp) bp.addEventListener('input', e => { const p = document.getElementById('previewPlan'); if(p) p.textContent = e.target.value; });
+
+    // PDF export
+    function exportTeaserPDF() {
+      window.print();
+    }
   </script>
 </body>
 </html>
