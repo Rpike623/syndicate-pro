@@ -214,6 +214,20 @@ const SPEmail = (function () {
   }
 
   async function _sendOne(to, subject, html, text, templateId, vars) {
+    // Method 1: Firebase Cloud Function (preferred — uses GoDaddy SMTP)
+    if (typeof firebase !== 'undefined' && typeof SPFB !== 'undefined' && SPFB.isReady()) {
+      try {
+        const fn = firebase.functions().httpsCallable('sendEmail');
+        const result = await fn({ to, subject, html, text, type: vars._type || 'custom' });
+        if (result.data.success) {
+          return { status: 'sent', to, method: 'cloud-function' };
+        }
+      } catch (e) {
+        console.warn('SPEmail Cloud Function failed, trying EmailJS:', e.message);
+      }
+    }
+
+    // Method 2: EmailJS fallback
     if (_config.configured && typeof emailjs !== 'undefined') {
       try {
         await emailjs.send(_config.serviceId, templateId, {
@@ -228,12 +242,12 @@ const SPEmail = (function () {
         });
         return { status: 'sent', to, method: 'emailjs' };
       } catch (e) {
-        console.error('SPEmail send error:', e);
+        console.error('SPEmail EmailJS error:', e);
         return { status: 'error', to, error: e.message, method: 'emailjs' };
       }
     }
 
-    // Fallback: open mailto (dev/unconfigured mode)
+    // Method 3: mailto fallback (dev/offline mode)
     _openMailto(to, subject, text);
     return { status: 'mailto', to, method: 'mailto' };
   }
