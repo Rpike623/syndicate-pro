@@ -321,6 +321,7 @@ function render() {
       <button class="tab active" onclick="switchTab('investors',this)"><i class="fas fa-users"></i> Investors (${linked.length})</button>
       <button class="tab" onclick="switchTab('distributions',this)"><i class="fas fa-wallet"></i> Distributions (${dists.length})</button>
       <button class="tab" onclick="switchTab('documents',this)"><i class="fas fa-file-contract"></i> Documents</button>
+      <button class="tab" onclick="switchTab('subscriptions',this)"><i class="fas fa-file-signature"></i> Sub Docs</button>
       <button class="tab" onclick="switchTab('edit',this)"><i class="fas fa-edit"></i> Edit Deal</button>
     </div>
 
@@ -365,6 +366,19 @@ function render() {
       </div>
     </div>
 
+    <!-- Subscriptions Tab -->
+    <div class="tab-panel" id="tab-subscriptions">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Subscription Agreement Tracker</div>
+          <button class="btn btn-primary" style="padding:8px 14px;font-size:.8rem;" onclick="openAddInvModal()"><i class="fas fa-plus"></i> Add Investor</button>
+        </div>
+        <div class="card-body" style="padding-top:0;">
+          ${renderSubTracker()}
+        </div>
+      </div>
+    </div>
+
     <!-- Edit Tab -->
     <div class="tab-panel" id="tab-edit">
       <div class="card">
@@ -404,6 +418,83 @@ function render() {
         </div>
       </div>
     </div>`;
+}
+
+function renderSubTracker() {
+  const linked = deal.investors || [];
+  if (!linked.length) return `<div class="empty-state"><i class="fas fa-file-signature"></i><p>No investors linked yet. Add investors to track their subscription status.</p></div>`;
+  const STATUS_STEPS = ['sent','viewed','signed','funded'];
+  const STATUS_COLORS = {sent:'#dbeafe,#3b82f6',viewed:'#fef3c7,#f59e0b',signed:'#ede9fe,#8b5cf6',funded:'#d1fae5,#10b981'};
+  const STATUS_LABELS = {sent:'Sent',viewed:'Viewed',signed:'Signed',funded:'Funded'};
+
+  return `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">
+    <thead style="background:var(--border-light);"><tr>
+      <th style="padding:10px 14px;text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Investor</th>
+      <th style="padding:10px 14px;text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Committed</th>
+      <th style="padding:10px 14px;text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Sub Doc Status</th>
+      <th style="padding:10px 14px;text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Actions</th>
+    </tr></thead>
+    <tbody>${linked.map((entry,i)=>{
+      const inv = SP.getInvestorById(entry.investorId)||{firstName:'Unknown',lastName:'',email:''};
+      const initials=(inv.firstName[0]||'')+(inv.lastName[0]||'');
+      const subStatus = entry.subStatus || 'pending';
+      const [bg,clr] = (STATUS_COLORS[subStatus]||'#f1f5f9,#64748b').split(',');
+      const stepIdx = STATUS_STEPS.indexOf(subStatus);
+      return `<tr style="border-bottom:1px solid var(--border-light);">
+        <td style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:white;flex-shrink:0;">${initials}</div>
+            <div><div style="font-weight:600;font-size:.875rem;">${inv.firstName} ${inv.lastName}</div><div style="font-size:.75rem;color:var(--text-muted);">${inv.email}</div></div>
+          </div>
+        </td>
+        <td style="padding:12px 14px;font-family:'JetBrains Mono',monospace;font-weight:600;">$${Number(entry.committed||0).toLocaleString()}</td>
+        <td style="padding:12px 14px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            ${STATUS_STEPS.map((s,si)=>`
+              <div style="display:flex;align-items:center;gap:4px;">
+                <div style="width:22px;height:22px;border-radius:50%;background:${si<=stepIdx?'var(--success)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:.65rem;color:white;font-weight:700;">${si<stepIdx?'✓':si===stepIdx?'→':''}</div>
+                <span style="font-size:.7rem;color:${si<=stepIdx?'var(--text)':'var(--text-muted)'};">${STATUS_LABELS[s]}</span>
+                ${si<STATUS_STEPS.length-1?'<div style="width:16px;height:2px;background:var(--border);margin:0 2px;"></div>':''}
+              </div>`).join('')}
+          </div>
+        </td>
+        <td style="padding:12px 14px;">
+          <div style="display:flex;gap:6px;">
+            ${STATUS_STEPS.map(s=>s!==subStatus?`<button onclick="updateSubStatus('${entry.investorId}','${s}')" style="padding:4px 8px;background:${STATUS_COLORS[s]?.split(',')[0]||'#f1f5f9'};color:${STATUS_COLORS[s]?.split(',')[1]||'#64748b'};border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;">${STATUS_LABELS[s]}</button>`:null).filter(Boolean).join('')}
+            <button onclick="sendSubDoc('${entry.investorId}')" style="padding:4px 8px;background:var(--accent-light);color:var(--accent);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+function updateSubStatus(investorId, status) {
+  const deals = SP.getDeals();
+  const d = deals.find(x=>x.id===dealId);
+  if (!d) return;
+  const inv = (d.investors||[]).find(i=>i.investorId===investorId);
+  if (inv) { inv.subStatus = status; inv.subUpdatedAt = new Date().toISOString(); }
+  SP.saveDeals(deals);
+  const invRecord = SP.getInvestorById(investorId);
+  SP.logActivity('fa-file-signature','purple',`Sub docs <strong>${status}</strong> for <strong>${invRecord?.firstName} ${invRecord?.lastName}</strong> on <strong>${d.name}</strong>`);
+  render();
+  // Re-activate subscriptions tab
+  document.querySelector('.tab.active')?.classList.remove('active');
+  document.querySelectorAll('.tab')[3]?.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-subscriptions')?.classList.add('active');
+}
+
+function sendSubDoc(investorId) {
+  const inv = SP.getInvestorById(investorId);
+  if (!inv?.email) return;
+  const settings = SP.load('settings',{});
+  const gpName = settings.gpFullName || SP.getSession()?.name || 'Your Sponsor';
+  const subj = `Subscription Agreement — ${deal.name}`;
+  const body = `Hi ${inv.firstName},\n\nPlease find attached your Subscription Agreement for ${deal.name}.\n\nPlease review, sign, and return at your earliest convenience.\n\nBest,\n${gpName}`;
+  window.open(`mailto:${inv.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`, '_blank');
+  updateSubStatus(investorId, 'sent');
 }
 
 function renderInvestorsTable(linked) {

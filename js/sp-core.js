@@ -362,6 +362,72 @@ const SP = (function () {
   };
 })();
 
+// ─── Mobile nav: ensure sidebar overlay + toggle works on every page ─────────
+(function patchMobileNav() {
+  if (typeof document === 'undefined') return;
+  document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.querySelector('.sidebar');
+    if (!sidebar) return;
+
+    // Ensure overlay exists
+    let overlay = document.getElementById('sidebarOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'sidebarOverlay';
+      overlay.className = 'sidebar-overlay';
+      overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('visible'); };
+      document.body.appendChild(overlay);
+    }
+
+    // Ensure mobile menu button exists in top-bar
+    const topLeft = document.querySelector('.top-left, .top-bar');
+    if (topLeft && !document.querySelector('.mobile-menu-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'mobile-menu-btn';
+      btn.style.cssText = 'display:none;background:none;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;cursor:pointer;align-items:center;justify-content:center;';
+      btn.innerHTML = '<i class="fas fa-bars" style="color:#64748b;"></i>';
+      btn.onclick = () => { sidebar.classList.toggle('open'); overlay.classList.toggle('visible'); };
+      topLeft.insertBefore(btn, topLeft.firstChild);
+    }
+
+    // Wire existing mobile-menu-btn if present but not functional
+    document.querySelectorAll('.mobile-menu-btn').forEach(btn => {
+      if (!btn.onclick) {
+        btn.onclick = () => { sidebar.classList.toggle('open'); overlay.classList.toggle('visible'); };
+      }
+    });
+
+    // Add mobile responsive CSS if not already present
+    if (!document.getElementById('sp-mobile-css')) {
+      const style = document.createElement('style');
+      style.id = 'sp-mobile-css';
+      style.textContent = `
+        @media(max-width:768px){
+          .sidebar{transform:translateX(-100%)!important;transition:transform .3s!important;}
+          .sidebar.open{transform:translateX(0)!important;}
+          .main{margin-left:0!important;}
+          .mobile-menu-btn{display:flex!important;}
+          .sidebar-overlay.visible{display:block!important;}
+        }
+        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;}
+      `;
+      document.head.appendChild(style);
+    }
+  });
+})();
+
+// ─── Auto-load notifications module on GP pages ──────────────────────────────
+(function loadNotifications() {
+  if (typeof document === 'undefined') return;
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!SP.isGP()) return;
+    if (document.querySelector('script[src*="sp-notifications"]')) return; // already loaded
+    const s = document.createElement('script');
+    s.src = 'js/sp-notifications.js';
+    document.head.appendChild(s);
+  });
+})();
+
 // ─── Auto-inject logout + user name into sidebar footer ─────────────────────
 (function injectSidebarUser() {
   if (typeof document === 'undefined') return;

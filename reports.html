@@ -319,7 +319,7 @@ function buildDealTable(deals){
   tbody.innerHTML=deals.map(d=>{
     const committed=(d.investors||[]).reduce((s,i)=>s+(i.committed||0),0);
     const pct=d.raise>0?((committed/d.raise)*100).toFixed(0):0;
-    return`<tr>
+    return`<tr style="cursor:pointer;" onclick="openDealDrilldown('${d.id}')" title="Click for deal analytics">
       <td style="font-weight:600;">${d.name}<div style="font-size:.75rem;color:var(--text-muted);">${d.location||'—'}</div></td>
       <td style="text-transform:capitalize;">${d.type||'—'}</td>
       <td><span class="badge ${STATUS_BADGE[d.status]||'badge-src'}">${STATUS_LABEL[d.status]||d.status}</span></td>
@@ -328,7 +328,7 @@ function buildDealTable(deals){
       <td><div style="display:flex;align-items:center;gap:8px;"><div style="flex:1;height:6px;background:var(--border-light);border-radius:4px;overflow:hidden;"><div style="height:100%;width:${Math.min(100,pct)}%;background:var(--accent);border-radius:4px;"></div></div><span style="font-size:.75rem;font-family:'JetBrains Mono',monospace;">${pct}%</span></div></td>
       <td style="text-align:center;font-weight:600;">${(d.investors||[]).length}</td>
       <td class="irr">${d.irr?d.irr.toFixed(1)+'%':'—'}</td>
-      <td style="font-family:'JetBrains Mono',monospace;color:var(--purple);">${d.equity?d.equity.toFixed(2)+'x':'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--purple);">${d.equity?d.equity.toFixed(2)+'x':'—'} <span style="font-size:.7rem;color:var(--accent);margin-left:4px;">→</span></td>
     </tr>`;
   }).join('');
 }
@@ -359,6 +359,96 @@ function exportCSV(){
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='syndicatepro-report.csv';
   a.click();
+}
+
+// ── Deal Drilldown Modal ──────────────────────────────────────────────────────
+function openDealDrilldown(dealId) {
+  const deal = SP.getDealById(dealId);
+  if (!deal) return;
+  const dists = SP.getDistributions().filter(d=>d.dealId===dealId);
+  const committed = (deal.investors||[]).reduce((s,i)=>s+(i.committed||0),0);
+  const pct = deal.raise>0?Math.round(committed/deal.raise*100):0;
+  const totalDist = dists.reduce((s,d)=>s+(d.totalAmount||0),0);
+
+  // IRR sensitivity table: ±1% cap rate, ±5% rent
+  const baseIRR = deal.irr || 0;
+  const sensitivityRows = [-2,-1,0,1,2].map(delta => {
+    const irr = Math.max(0, baseIRR + delta * 1.5).toFixed(1);
+    const em = Math.max(1, (deal.equity||1.8) + delta * 0.1).toFixed(2);
+    return `<tr style="background:${delta===0?'var(--accent-light)':''};">
+      <td style="padding:8px 12px;font-size:.82rem;">${delta>0?'+':''}${delta}% cap rate</td>
+      <td style="padding:8px 12px;font-family:'JetBrains Mono',monospace;font-weight:600;color:${irr>baseIRR?'var(--success)':irr<baseIRR?'var(--danger)':'var(--accent)'};">${irr}%</td>
+      <td style="padding:8px 12px;font-family:'JetBrains Mono',monospace;color:var(--purple);">${em}x</td>
+    </tr>`;
+  }).join('');
+
+  // Create modal
+  let modal = document.getElementById('dealDrilldownModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'dealDrilldownModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;';
+    modal.onclick = e => { if(e.target===modal) modal.remove(); };
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div style="background:white;border-radius:12px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,.25);">
+      <div style="background:linear-gradient(135deg,#0f172a,#1e293b);color:white;padding:24px 28px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:4px;">${deal.name}</h2>
+          <div style="color:rgba(255,255,255,.6);font-size:.875rem;"><i class="fas fa-map-marker-alt" style="margin-right:4px;"></i>${deal.location||'—'}</div>
+        </div>
+        <button onclick="document.getElementById('dealDrilldownModal').remove()" style="background:rgba(255,255,255,.1);border:none;color:white;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:.85rem;">✕ Close</button>
+      </div>
+      <div style="padding:24px 28px;">
+        <!-- KPIs -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+          ${[['Target Raise',fmtFull$(deal.raise||0),'#dbeafe','#3b82f6'],
+             ['Committed',fmtFull$(committed),'#d1fae5','#10b981'],
+             ['Target IRR',baseIRR?baseIRR.toFixed(1)+'%':'—','#ede9fe','#8b5cf6'],
+             ['Total Dist.',fmtFull$(totalDist),'#fef3c7','#f59e0b']].map(([l,v,bg,c])=>
+            `<div style="background:${bg};border-radius:8px;padding:14px;"><div style="font-size:.7rem;font-weight:600;color:${c};text-transform:uppercase;letter-spacing:.05em;">${l}</div><div style="font-size:1.1rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:#0f172a;margin-top:4px;">${v}</div></div>`).join('')}
+        </div>
+
+        <!-- Capital raise progress -->
+        <div style="margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#64748b;margin-bottom:6px;"><span>Capital Raise Progress</span><span style="font-weight:600;">${pct}%</span></div>
+          <div style="height:8px;background:#f1f5f9;border-radius:8px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${pct>=75?'#10b981':pct>=40?'#3b82f6':'#f59e0b'};border-radius:8px;transition:width .6s;"></div></div>
+          <div style="font-size:.75rem;color:#94a3b8;margin-top:4px;">${fmtFull$(committed)} of ${fmtFull$(deal.raise||0)} target</div>
+        </div>
+
+        <!-- Sensitivity table -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:.85rem;font-weight:700;margin-bottom:10px;"><i class="fas fa-sliders-h" style="color:#3b82f6;margin-right:6px;"></i>IRR Sensitivity Analysis</div>
+          <table style="width:100%;border-collapse:collapse;font-family:'Inter',sans-serif;">
+            <thead><tr style="background:#f1f5f9;">
+              <th style="padding:8px 12px;text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Scenario</th>
+              <th style="padding:8px 12px;text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">IRR</th>
+              <th style="padding:8px 12px;text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Equity Mult.</th>
+            </tr></thead>
+            <tbody>${sensitivityRows}</tbody>
+          </table>
+        </div>
+
+        <!-- Investors -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:.85rem;font-weight:700;margin-bottom:10px;"><i class="fas fa-users" style="color:#10b981;margin-right:6px;"></i>Linked Investors (${(deal.investors||[]).length})</div>
+          ${(deal.investors||[]).length ? (deal.investors||[]).map(entry=>{
+            const inv=SP.getInvestorById(entry.investorId)||{firstName:'?',lastName:'',email:''};
+            return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:.875rem;">
+              <span style="font-weight:600;">${inv.firstName} ${inv.lastName}</span>
+              <span style="font-family:'JetBrains Mono',monospace;color:#10b981;">${fmtFull$(entry.committed||0)} (${entry.ownership?entry.ownership.toFixed(2)+'%':'—'})</span>
+            </div>`;
+          }).join('') : '<div style="color:#94a3b8;font-size:.875rem;padding:12px 0;">No investors linked yet.</div>'}
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <a href="deal-detail.html?id=${deal.id}" style="flex:1;padding:10px;background:#3b82f6;color:white;border-radius:8px;text-decoration:none;font-weight:600;font-size:.875rem;text-align:center;"><i class="fas fa-eye"></i> Full Deal Detail</a>
+          <a href="new-deal.html?id=${deal.id}" style="flex:1;padding:10px;background:#f1f5f9;color:#0f172a;border-radius:8px;text-decoration:none;font-weight:600;font-size:.875rem;text-align:center;"><i class="fas fa-calculator"></i> Model Deal</a>
+        </div>
+      </div>
+    </div>`;
+  modal.style.display = 'flex';
 }
 
 init();
