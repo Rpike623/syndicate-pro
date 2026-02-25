@@ -191,6 +191,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-email.js"></script>
   <script>
     SP.requireGP();
 
@@ -285,6 +286,34 @@
       renderHistory();
       renderStats();
       showToast('Capital call saved!');
+
+      // Auto-send email notifications if SPEmail is configured
+      if (typeof SPEmail !== 'undefined' && SPEmail.isConfigured()) {
+        const allInvestors = SP.getInvestors().filter(inv => inv.deals?.includes(dealId));
+        if (allInvestors.length) {
+          // Build recipients list from deal investors
+          const dealObj = SP.getDeals().find(d => d.id === dealId);
+          const linkedInvIds = (dealObj?.investors || []).map(i => i.investorId || i.id);
+          const recipients = SP.getInvestors().filter(inv => linkedInvIds.includes(inv.id));
+          call.recipients = recipients.map(inv => ({
+            investorId: inv.id,
+            amount: (amount * ((inv.ownershipPct || 0) / 100)).toFixed(2),
+          }));
+          SPEmail.sendCapitalCall(call, recipients).then(results => {
+            const sent = results.filter(r => r.status === 'sent').length;
+            if (sent) showToast(`Capital call emails sent to ${sent} investors`);
+          });
+        }
+      } else if (typeof SPEmail !== 'undefined') {
+        // Show hint that email can be automated
+        setTimeout(() => {
+          const hint = document.createElement('div');
+          hint.style.cssText = 'position:fixed;bottom:80px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:.82rem;z-index:9999;max-width:280px;box-shadow:var(--shadow-lg);';
+          hint.innerHTML = '<i class="fas fa-envelope" style="color:var(--accent);"></i> <strong>Tip:</strong> Set up EmailJS in <a href="settings.html" style="color:var(--accent);">Settings → Notifications</a> to auto-send capital call emails to investors.';
+          document.body.appendChild(hint);
+          setTimeout(() => hint.remove(), 6000);
+        }, 1000);
+      }
     }
 
     function updateCallStatus(id, status) {

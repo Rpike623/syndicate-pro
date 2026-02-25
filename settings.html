@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-email.js"></script>
   <style>
     :root{--primary:#0f172a;--accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#dbeafe;
       --success:#10b981;--success-light:#d1fae5;--warning:#f59e0b;--warning-light:#fef3c7;
@@ -140,7 +141,7 @@
             <button class="snav-item active" onclick="switchPanel('firm',this)"><i class="fas fa-building"></i> Firm Profile</button>
             <button class="snav-item" onclick="switchPanel('account',this)"><i class="fas fa-user"></i> My Account</button>
             <button class="snav-item" onclick="switchPanel('documents',this)"><i class="fas fa-file-contract"></i> Document Defaults</button>
-            <button class="snav-item" onclick="switchPanel('notifications',this)"><i class="fas fa-bell"></i> Notifications</button>
+            <button class="snav-item" onclick="switchPanel('notifications',this);prefillEmailSettings();"><i class="fas fa-bell"></i> Notifications</button>
             <button class="snav-item" onclick="switchPanel('audit',this)"><i class="fas fa-list-alt"></i> Audit Log</button>
             <button class="snav-item" onclick="switchPanel('cloud',this);checkSyncStatus();"><i class="fas fa-cloud"></i> Cloud Sync</button>
             <button class="snav-item" onclick="switchPanel('export',this)"><i class="fas fa-download"></i> Export Data</button>
@@ -284,15 +285,62 @@
 
           <!-- Notifications -->
           <div class="settings-panel" id="panel-notifications">
-            <div class="panel-title">Notifications</div>
-            <div class="panel-sub">Configure when and how you get notified about activity.</div>
+            <div class="panel-title">Notifications & Email</div>
+            <div class="panel-sub">Configure email sending via EmailJS. Free plan supports 200 emails/month.</div>
+
+            <!-- EmailJS Setup -->
+            <div class="card" style="margin-bottom:16px;">
+              <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+                EmailJS Configuration
+                <span id="emailStatusBadge" style="font-size:.75rem;padding:3px 10px;border-radius:20px;background:var(--border-light);color:var(--text-secondary);">Not configured</span>
+              </div>
+              <p style="font-size:.875rem;color:var(--text-secondary);margin:0 0 16px;">EmailJS lets you send emails directly from the browser — no backend needed. <a href="https://emailjs.com" target="_blank" style="color:var(--accent);">Sign up free →</a></p>
+              <div style="display:grid;gap:12px;">
+                <div>
+                  <label style="font-size:.8rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Service ID</label>
+                  <input type="text" id="emailjsServiceId" class="form-control" placeholder="service_xxxxxxx" style="font-family:monospace;">
+                </div>
+                <div>
+                  <label style="font-size:.8rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Public Key</label>
+                  <input type="text" id="emailjsPublicKey" class="form-control" placeholder="xxxxxxxxxxxxxxxxxxxx" style="font-family:monospace;">
+                </div>
+                <div>
+                  <label style="font-size:.8rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Template ID <span style="color:var(--text-muted);">(create in EmailJS dashboard)</span></label>
+                  <input type="text" id="emailjsTemplateId" class="form-control" placeholder="template_deeltrack" style="font-family:monospace;" value="template_deeltrack">
+                </div>
+                <div>
+                  <label style="font-size:.8rem;color:var(--text-secondary);display:block;margin-bottom:4px;">From Email</label>
+                  <input type="email" id="emailjsFromEmail" class="form-control" placeholder="gp@yourfirm.com">
+                </div>
+                <button class="btn btn-primary" onclick="saveEmailConfig()"><i class="fas fa-save"></i> Save Email Config</button>
+              </div>
+              <div style="margin-top:16px;padding:12px 16px;background:var(--border-light);border-radius:var(--radius);font-size:.8rem;color:var(--text-secondary);">
+                <strong>Setup steps:</strong><br>
+                1. Sign up at emailjs.com → Add a Gmail/Outlook service<br>
+                2. Create a template with variables: <code>to_email</code>, <code>to_name</code>, <code>subject</code>, <code>html_body</code><br>
+                3. Copy your Service ID and Public Key above → Save
+              </div>
+            </div>
+
+            <!-- Notification toggles -->
             <div class="card">
-              <div class="section-title">Email Notifications</div>
+              <div class="section-title">Email Notification Triggers</div>
               ${['New investor signs up via invite link','Distribution recorded','Capital call deadline approaching (3 days)','Deal stage changes in pipeline','Investor accreditation expiring (30 days)','K-1 export generated'].map(label => `
               <label style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light);cursor:pointer;font-size:.9rem;color:var(--text);">
                 <input type="checkbox" class="notif-check" data-label="${label}" checked style="width:18px;height:18px;accent-color:var(--accent);">
                 ${label}
               </label>`).join('')}
+            </div>
+
+            <!-- Email send log -->
+            <div class="card" style="margin-top:16px;">
+              <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+                Send Log
+                <button class="btn btn-secondary" style="padding:5px 12px;font-size:.78rem;" onclick="loadEmailLog()"><i class="fas fa-sync"></i> Refresh</button>
+              </div>
+              <div id="emailLogList" style="max-height:300px;overflow-y:auto;font-size:.82rem;">
+                <p style="color:var(--text-muted);padding:12px 0;">Click Refresh to load sent email history.</p>
+              </div>
             </div>
           </div>
 
@@ -607,6 +655,60 @@ function exportAllJSON() {
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `deeltrack-backup-${new Date().toISOString().split('T')[0]}.json`; a.click();
+}
+
+// Email config functions
+function saveEmailConfig() {
+  const settings = SP.load('settings', {});
+  settings.emailjsServiceId  = document.getElementById('emailjsServiceId')?.value.trim();
+  settings.emailjsPublicKey  = document.getElementById('emailjsPublicKey')?.value.trim();
+  settings.emailjsTemplateId = document.getElementById('emailjsTemplateId')?.value.trim();
+  settings.emailjsFromEmail  = document.getElementById('emailjsFromEmail')?.value.trim();
+  SP.save('settings', settings);
+  if (typeof SPFB !== 'undefined' && SPFB.isReady()) SPFB.saveSettings(settings);
+  updateEmailStatus();
+  showToast('Email config saved!');
+}
+
+function updateEmailStatus() {
+  const settings = SP.load('settings', {});
+  const badge = document.getElementById('emailStatusBadge');
+  if (!badge) return;
+  if (settings.emailjsServiceId && settings.emailjsPublicKey) {
+    badge.style.background = 'var(--success-light)';
+    badge.style.color = 'var(--success)';
+    badge.textContent = '✓ Configured';
+  } else {
+    badge.style.background = 'var(--border-light)';
+    badge.style.color = 'var(--text-secondary)';
+    badge.textContent = 'Not configured';
+  }
+}
+
+function loadEmailLog() {
+  const log = typeof SPEmail !== 'undefined' ? SPEmail.getEmailLog(50) : [];
+  const el = document.getElementById('emailLogList');
+  if (!el) return;
+  if (!log.length) { el.innerHTML = '<p style="color:var(--text-muted);padding:12px 0;">No emails sent yet.</p>'; return; }
+  const statusColor = { sent: 'var(--success)', error: 'var(--danger)', mailto: 'var(--warning)' };
+  el.innerHTML = log.map(e => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-light);">
+      <div>
+        <div style="font-weight:600;font-size:.82rem;">${e.subject||e.type}</div>
+        <div style="color:var(--text-secondary);font-size:.75rem;">${e.to} · ${e.sentAt ? new Date(e.sentAt).toLocaleString() : '—'}</div>
+      </div>
+      <span style="font-size:.72rem;padding:2px 8px;border-radius:10px;background:var(--border-light);color:${statusColor[e.status]||'var(--text-secondary)'};">${e.status}</span>
+    </div>`).join('');
+}
+
+// Pre-fill settings from saved values
+function prefillEmailSettings() {
+  const settings = SP.load('settings', {});
+  if (settings.emailjsServiceId)  document.getElementById('emailjsServiceId').value  = settings.emailjsServiceId;
+  if (settings.emailjsPublicKey)  document.getElementById('emailjsPublicKey').value   = settings.emailjsPublicKey;
+  if (settings.emailjsTemplateId) document.getElementById('emailjsTemplateId').value  = settings.emailjsTemplateId;
+  if (settings.emailjsFromEmail)  document.getElementById('emailjsFromEmail').value   = settings.emailjsFromEmail;
+  updateEmailStatus();
 }
 
 // Cloud sync functions

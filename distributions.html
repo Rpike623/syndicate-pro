@@ -298,6 +298,7 @@
   </div>
 
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-email.js"></script>
   <script>
     SP.requireGP();
 
@@ -389,6 +390,18 @@
       closeModal();
       renderDistributions();
       updateStats();
+
+      // Auto-send distribution notification emails
+      if (typeof SPEmail !== 'undefined' && SPEmail.isConfigured() && dist.recipients?.length) {
+        const recipientIds = dist.recipients.map(r => r.investorId);
+        const allInvestors = SP.getInvestors().filter(inv => recipientIds.includes(inv.id));
+        if (allInvestors.length) {
+          SPEmail.sendDistribution(dist, allInvestors).then(results => {
+            const sent = results.filter(r => r.status === 'sent').length;
+            if (sent) showToast(`Distribution notices sent to ${sent} investors`);
+          });
+        }
+      }
     }
 
     renderDistributions();

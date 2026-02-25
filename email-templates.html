@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-email.js"></script>
   <style>
     :root {
       --primary: #0f172a;
@@ -693,14 +694,45 @@
       });
     }
 
-    function sendTest() {
+    async function sendTest() {
       const recipients = getSelectedRecipients ? getSelectedRecipients() : [];
-      const subject = document.getElementById('preview-subject').textContent;
-      const body = document.getElementById('preview-body').innerText;
+      const subject = document.getElementById('preview-subject')?.textContent || '';
+      const html    = document.getElementById('preview-body')?.innerHTML || '';
+      const text    = document.getElementById('preview-body')?.innerText || '';
       if (!recipients.length) { alert('Select at least one recipient.'); return; }
-      const toList = recipients.map(r => r.email).join(',');
-      const mailto = `mailto:${encodeURIComponent(toList)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      window.open(mailto, '_blank');
+
+      const btn = event?.target?.closest('button');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…'; }
+
+      if (SPEmail.isConfigured()) {
+        // Real send via EmailJS
+        const results = [];
+        for (const r of recipients) {
+          const res = await SPEmail.send('dealUpdate', r.email, {
+            investorName: `${r.firstName||''} ${r.lastName||''}`.trim() || r.email,
+            dealName:     document.getElementById('templateDeal')?.value || '—',
+            messageBody:  text,
+            keyMetrics:   '',
+            updateDate:   new Date().toLocaleDateString(),
+          });
+          results.push(...res);
+        }
+        const sent = results.filter(r => r.status === 'sent').length;
+        const errs = results.filter(r => r.status === 'error').length;
+        alert(`Sent: ${sent} · Errors: ${errs}`);
+      } else {
+        // Fallback mailto
+        const toList = recipients.map(r => r.email).join(',');
+        window.open(`mailto:${encodeURIComponent(toList)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`, '_blank');
+        // Show EmailJS setup prompt
+        setTimeout(() => {
+          if (confirm('To send emails directly (without opening your email client), set up EmailJS in Settings → Notifications. Open settings now?')) {
+            window.location.href = 'settings.html';
+          }
+        }, 500);
+      }
+
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send'; }
       SP.logActivity('fa-envelope', 'blue', `Email <em>${subject}</em> sent to ${recipients.length} investor${recipients.length>1?'s':''}`);
     }
 
