@@ -321,7 +321,7 @@ async function loadRoom() {
     try {
       const cloudDocs = await SPFB.getDealDocuments(activeDealId);
       if (cloudDocs.length) {
-        const existing = SP.load('dealRoomFiles', []);
+        const existing = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
         const existingIds = new Set(existing.map(f => f.cloudDocId).filter(Boolean));
         const toAdd = cloudDocs
           .filter(d => d.fileUrl && !existingIds.has(d.id))
@@ -338,7 +338,7 @@ async function loadRoom() {
             isCloud: true,
           }));
         if (toAdd.length) {
-          SP.save('dealRoomFiles', [...existing, ...toAdd]);
+          SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', [...existing, ...toAdd]);
         }
       }
     } catch (e) { console.warn('Deal Room cloud sync:', e.message); }
@@ -350,7 +350,7 @@ async function loadRoom() {
 }
 
 function getFiles(dealId) {
-  const all = SP.load('dealRoomFiles', []);
+  const all = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
   return all.filter(f => f.dealId === dealId);
 }
 
@@ -428,20 +428,20 @@ function applyBulkTags() {
   const selectedIds = Array.from(document.querySelectorAll('.file-checkbox:checked')).map(cb => cb.value);
   const cat = document.getElementById('bulkCategory').value;
   const acc = document.getElementById('bulkAccess').value;
-  const allFiles = SP.load('dealRoomFiles', []);
+  const allFiles = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
   selectedIds.forEach(id => {
     const f = allFiles.find(x => x.id === id);
     if (f) { if (cat) f.category = cat; if (acc) f.access = acc; }
   });
-  SP.save('dealRoomFiles', allFiles);
+  SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', allFiles);
   renderFiles(activeCategory);
   closeBulkModal();
 }
 
 function saveFile(fileObj) {
-  const all = SP.load('dealRoomFiles', []);
+  const all = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
   all.unshift(fileObj);
-  SP.save('dealRoomFiles', all);
+  SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', all);
 }
 
 function processFiles(fileList, dealId, category, access) {
@@ -526,7 +526,7 @@ function handleFileSelect(e) { processFiles(e.target.files, activeDealId, active
 function handleDrop(e) { e.preventDefault(); if (!activeDealId) { alert('Select a deal first.'); return; } processFiles(e.dataTransfer.files, activeDealId, 'other', 'all'); }
 
 function downloadFile(id) {
-  const all = SP.load('dealRoomFiles', []);
+  const all = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
   const f = all.find(x=>x.id===id);
   if (!f) return;
   // Cloud file — open in new tab (Firebase Storage signed URL)
@@ -537,17 +537,17 @@ function downloadFile(id) {
 }
 
 function toggleAccess(id) {
-  const all = SP.load('dealRoomFiles', []);
+  const all = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
   const idx = all.findIndex(f=>f.id===id);
   if (idx<0) return;
   all[idx].access = all[idx].access==='all'?'gp':'all';
-  SP.save('dealRoomFiles', all);
+  SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', all);
   renderFiles(activeCategory);
 }
 
 function deleteFile(id) {
   if (!confirm('Delete this file?')) return;
-  SP.save('dealRoomFiles', SP.load('dealRoomFiles',[]).filter(f=>f.id!==id));
+  SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', SP.load('dealRoomFiles',[]).filter(f=>f.id!==id));
   renderFiles(activeCategory);
   renderCategories();
 }

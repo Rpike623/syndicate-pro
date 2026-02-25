@@ -76,19 +76,52 @@ const SP = (function () {
   // ─── Auth guards ────────────────────────────────────────────────────────────
 
   function requireGP() {
-    if (!isLoggedIn()) { window.location.href = 'login.html'; return false; }
-    if (isInvestor()) { window.location.href = 'investor-portal.html'; return false; }
-    return true;
+    // If already have a local session, check immediately
+    if (isLoggedIn()) {
+      if (isInvestor()) { window.location.href = 'investor-portal.html'; return false; }
+      return true;
+    }
+    // No local session — wait up to 3s for Firebase to authenticate
+    const start = Date.now();
+    function check() {
+      if (isLoggedIn()) {
+        if (isInvestor()) { window.location.href = 'investor-portal.html'; return false; }
+        return true;
+      }
+      if (Date.now() - start > 3000) { window.location.href = 'login.html'; return false; }
+      setTimeout(check, 100);
+    }
+    setTimeout(check, 100);
+    return true; // optimistic — let page load, redirect if check fails
   }
 
   function requireInvestor() {
-    if (!isLoggedIn()) { window.location.href = 'login.html'; return false; }
-    if (isGP()) { window.location.href = 'dashboard.html'; return false; }
+    if (isLoggedIn()) {
+      if (isGP()) { window.location.href = 'dashboard.html'; return false; }
+      return true;
+    }
+    const start = Date.now();
+    function check() {
+      if (isLoggedIn()) {
+        if (isGP()) { window.location.href = 'dashboard.html'; return false; }
+        return true;
+      }
+      if (Date.now() - start > 3000) { window.location.href = 'login.html'; return false; }
+      setTimeout(check, 100);
+    }
+    setTimeout(check, 100);
     return true;
   }
 
   function requireAuth() {
-    if (!isLoggedIn()) { window.location.href = 'login.html'; return false; }
+    if (isLoggedIn()) return true;
+    const start = Date.now();
+    function check() {
+      if (isLoggedIn()) return true;
+      if (Date.now() - start > 3000) { window.location.href = 'login.html'; return false; }
+      setTimeout(check, 100);
+    }
+    setTimeout(check, 100);
     return true;
   }
 

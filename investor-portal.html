@@ -1307,6 +1307,13 @@
       if (!_allDeals.length) _allDeals = SP.getDeals(); // fallback
 
       // ── Step 3: render ────────────────────────────────────────────────────────
+      // Pre-load distributions from Firebase into localStorage so SP.getDistributions() is current
+      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
+        try {
+          const fbDists = await SPFB.getDistributions();
+          if (fbDists && fbDists.length) SP.save('distributions', fbDists);
+        } catch(e) {}
+      }
       const myDeals = getMyDeals();
       renderStats(myDeals);
       renderInvestments(myDeals);

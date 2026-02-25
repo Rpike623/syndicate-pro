@@ -343,7 +343,13 @@ const SPFB = (function () {
   async function getInvestors() {
     if (_offlineMode || !_ready) return SP.getInvestors();
     try {
-      const snap = await _col('investors').orderBy('lastName').get();
+      let snap;
+      // Investors can only read their own record (Firestore rules enforce this)
+      if (_spUser && _spUser.role === 'Investor' && _spUser.email) {
+        snap = await _col('investors').where('email', '==', _spUser.email).get();
+      } else {
+        snap = await _col('investors').orderBy('lastName').get();
+      }
       const investors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       SP.saveInvestors(investors);
       return investors;
@@ -762,7 +768,8 @@ const SPFB = (function () {
   // ── Patch SP.* to transparently write to Firestore ───────────────────────────
   // Called once after SP and SPFB are both loaded and user is authenticated.
   function patchSPCore() {
-    if (!window.SP) return;
+    if (!window.SP || window._spfbPatched) return;
+    window._spfbPatched = true;
 
     // Helper: get org-scoped localStorage key
     function _lsKey(name) {

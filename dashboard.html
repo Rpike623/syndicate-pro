@@ -1113,6 +1113,11 @@ function renderDeadlines() {
     
     if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
     
+    // SAFETY: only run for the demo GP account — never overwrite real user data
+    const session = SP.getSession();
+    const demoEmails = ['gp@deeltrack.com', 'demo@deeltrack.com', 'demo@syndicatepro.com'];
+    if (!session || !demoEmails.includes(session.email?.toLowerCase())) return;
+    
     try {
       console.log('Auto-syncing demo data to Firebase...');
       
