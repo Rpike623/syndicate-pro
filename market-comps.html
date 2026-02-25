@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Comps — SyndicatePro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --bg: #0a0a0f; --bg-panel: #13131a; --bg-card: #1a1a24; --bg-hover: #252533; --accent: #8b5cf6; --accent-2: #06b6d4; --success: #22c55e; --warning: #f59e0b; --text: #f8fafc; --text-muted: #64748b; --border: rgba(255,255,255,0.06); --radius: 16px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--bg-panel); border-right: 1px solid var(--border); position: fixed; height: 100vh; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-mark { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 10px; }
+    .nav { padding: 16px 12px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 10px; font-size: 14px; margin: 2px 0; }
+    .nav-item.active { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(6,182,212,0.1)); color: var(--text); border: 1px solid rgba(139,92,246,0.3); }
+    .main { flex: 1; margin-left: 260px; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--bg-panel); }
+    .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
+    .content { padding: 32px; }
+    .filters { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .filter-select { padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 14px; }
+    .comps-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .comps-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 120px; padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; color: var(--text-muted); }
+    .comp-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 120px; padding: 20px 24px; border-bottom: 1px solid var(--border); align-items: center; }
+    .comp-row:hover { background: var(--bg-hover); }
+    .comp-row.target { border-left: 3px solid var(--accent); background: rgba(139,92,246,0.05); }
+    .comp-info h4 { font-weight: 600; margin-bottom: 4px; }
+    .comp-info p { font-size: 13px; color: var(--text-muted); }
+    .comp-metric { font-family: 'Space Grotesk'; font-weight: 600; }
+    .comp-metric.positive { color: var(--success); }
+    .comp-metric.negative { color: var(--danger); }
+    .comp-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; text-transform: uppercase; }
+    .comp-badge.sold { background: rgba(34,197,94,0.15); color: var(--success); }
+    .comp-badge.active { background: rgba(6,182,212,0.15); color: var(--accent-2); }
+    .comp-badge.target { background: rgba(139,92,246,0.15); color: var(--accent); }
+    @media (max-width: 1200px) { .sidebar { display: none; } .main { margin-left: 0; } .comps-header, .comp-row { grid-template-columns: 2fr 1fr 1fr 120px; } .comps-header > :nth-child(3), .comps-header > :nth-child(4), .comps-header > :nth-child(5), .comp-row > :nth-child(3), .comp-row > :nth-child(4), .comp-row > :nth-child(5) { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-mark"><i class="fas fa-building"></i></div>
+          <span>SyndicatePro</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <a href="dashboard-v2.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="market-comps.html" class="nav-item active"><i class="fas fa-chart-bar"></i> Market Comps</a>
+        <a href="underwriting-calc.html" class="nav-item"><i class="fas fa-calculator"></i> Underwriting</a>
+      </nav>
+    </aside>
+    
+    <main class="main">
+      <header class="header">
+        <div>
+          <h1 style="font-size:1.4rem">Market Comps</h1>
+          <p style="font-size:14px;color:var(--text-muted)">Compare deals in your target market</p>
+        </div>
+        <button class="btn"><i class="fas fa-plus"></i> Add Comp</button>
+      </header>
+      
+      <div class="content">
+        <div class="filters">
+          <select class="filter-select">
+            <option>All Markets</option>
+            <option>Dallas, TX</option>
+            <option>Houston, TX</option>
+            <option>Austin, TX</option>
+          </select>
+          <select class="filter-select">
+            <option>All Property Types</option>
+            <option>Multifamily</option>
+            <option>Retail</option>
+            <option>Office</option>
+          </select>
+          <select class="filter-select">
+            <option>Last 12 Months</option>
+            <option>Last 6 Months</option>
+            <option>Last 3 Months</option>
+          </select>
+        </div>
+        
+        <div class="comps-table">
+          <div class="comps-header">
+            <span>Property</span>
+            <span>Price</span>
+            <span>Price/Unit</span>
+            <span>CAP Rate</span>
+            <span>Rent/SF</span>
+            <span>Status</span>
+            <span>Actions</span>
+          </div>
+          
+          <div class="comp-row target">
+            <div class="comp-info">
+              <h4>Arlington Heights (Target)</h4>
+              <p>Dallas, TX • 84 units • 2024</p>
+            </div>
+            <div class="comp-metric">$3.2M</div>
+            <div class="comp-metric positive">$38,095</div>
+            <div class="comp-metric positive">7.2%</div>
+            <div>$1.45</div>
+            <span class="comp-badge target">Under Contract</span>
+            <button class="btn" style="padding:6px 12px;font-size:12px">Analyze</button>
+          </div>
+          
+          <div class="comp-row">
+            <div class="comp-info">
+              <h4>Midtown Commons</h4>
+              <p>Dallas, TX • 96 units • 2024</p>
+            </div>
+            <div class="comp-metric">$4.8M</div>
+            <div class="comp-metric negative">$50,000</div>
+            <div class="comp-metric">6.8%</div>
+            <div>$1.52</div>
+            <span class="comp-badge sold">Sold</span>
+            <button class="btn" style="padding:6px 12px;font-size:12px">View</button>
+          </div>
+          
+          <div class="comp-row">
+            <div class="comp-info">
+              <h4>Oak Ridge Apartments</h4>
+              <p>Plano, TX • 72 units • 2024</p>
+            </div>
+            <div class="comp-metric">$3.6M</div>
+            <div class="comp-metric negative">$50,000</div>
+            <div class="comp-metric">6.5%</div>
+            <div>$1.48</div>
+            <span class="comp-badge sold
