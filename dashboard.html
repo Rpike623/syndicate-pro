@@ -769,6 +769,20 @@ const DEMO_DEALS = [
   { id:'d5', name:'Westgate Retail Center', type:'retail', raise:5800000, irr:14.5, equity:1.6, status:'loi', location:'Fort Worth, TX', added:'2026-02-10', units:0, investors:[
     {investorId:'i7',committed:50000,status:'committed',ownership:0,date:'2026-02-25'}
   ]},
+  { id:'d6', name:'Lone Star Self Storage', type:'self-storage', raise:2800000, irr:22.5, equity:2.4, status:'raising', location:'Corpus Christi, TX', added:'2026-02-20', units:450, investors:[
+    {investorId:'i2',committed:400000,status:'committed',ownership:14.29,date:'2026-02-22'},
+    {investorId:'i7',committed:125000,status:'committed',ownership:0,date:'2026-02-25'}
+  ]},
+  { id:'d7', name:'Brazos Hotel Group', type:'hospitality', raise:8500000, irr:17.2, equity:1.85, status:'loi', location:'Waco, TX', added:'2026-02-22', units:124, investors:[
+    {investorId:'i3',committed:300000,status:'committed',ownership:3.53,date:'2026-02-24'},
+    {investorId:'i4',committed:600000,status:'committed',ownership:7.06,date:'2026-02-24'},
+    {investorId:'i7',committed:175000,status:'committed',ownership:0,date:'2026-02-25'}
+  ]},
+  { id:'d8', name:'Permian Basin Flex Industrial', type:'industrial', raise:5200000, irr:20.8, equity:2.0, status:'raising', location:'Midland, TX', added:'2026-02-24', units:0, investors:[
+    {investorId:'i1',committed:350000,status:'committed',ownership:6.73,date:'2026-02-24'},
+    {investorId:'i6',committed:275000,status:'committed',ownership:5.29,date:'2026-02-25'},
+    {investorId:'i7',committed:200000,status:'committed',ownership:0,date:'2026-02-25'}
+  ]},
 ];
 const DEMO_INVESTORS = [
   { id:'i1', name:'James Hartwell', email:'j.hartwell@email.com', invested:500000, deals:2, accredited:true, status:'active' },
@@ -779,15 +793,21 @@ const DEMO_INVESTORS = [
   { id:'i6', name:'Elena Vasquez', email:'evasquez@invest.net', invested:350000, deals:2, accredited:true, status:'active' },
 ];
 const DEMO_ACTIVITY = [
-  { icon:'fa-building', color:'blue', text:'<strong>Parkview Commons</strong> moved to Due Diligence', time:'2 hours ago' },
-  { icon:'fa-user-plus', color:'green', text:'<strong>Elena Vasquez</strong> added as new investor', time:'Yesterday at 3:14 PM' },
+  { icon:'fa-warehouse', color:'green', text:'<strong>Lone Star Self Storage</strong> opened for investment — $2.8M raise', time:'Just now' },
+  { icon:'fa-hotel', color:'purple', text:'LOI signed for <strong>Brazos Hotel Group</strong> in Waco', time:'2 hours ago' },
+  { icon:'fa-industry', color:'blue', text:'<strong>Permian Basin Flex Industrial</strong> launched — 22% target IRR', time:'4 hours ago' },
+  { icon:'fa-building', color:'blue', text:'<strong>Parkview Commons</strong> moved to Due Diligence', time:'1 day ago' },
+  { icon:'fa-user-plus', color:'green', text:'<strong>Phil Chapman</strong> added as new investor — 8 deals, $1.075M', time:'Yesterday at 3:14 PM' },
   { icon:'fa-file-contract', color:'amber', text:'PPM generated for <strong>Westgate Retail Center</strong>', time:'Yesterday at 11:02 AM' },
   { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$84,200</strong> sent to 14 investors', time:'Feb 20, 2026' },
   { icon:'fa-file-invoice-dollar', color:'blue', text:'K-1s exported for <strong>Riverside Flats</strong> (12 investors)', time:'Feb 18, 2026' },
 ];
 const DEMO_DEADLINES = [
+  { day:'01', month:'MAR', name:'Lone Star Self Storage', type:'Raise Target Deadline', urgency:'urgent' },
+  { day:'03', month:'MAR', name:'Permian Basin Industrial', type:'LOI Signing', urgency:'urgent' },
   { day:'28', month:'FEB', name:'Parkview Commons', type:'LOI Expiration', urgency:'urgent' },
   { day:'05', month:'MAR', name:'Westgate Retail', type:'Due Diligence Start', urgency:'soon' },
+  { day:'10', month:'MAR', name:'Brazos Hotel Group', type:'Site Visit Scheduled', urgency:'soon' },
   { day:'15', month:'MAR', name:'Hudson Portfolio', type:'Q1 Distribution', urgency:'ok' },
   { day:'31', month:'MAR', name:'Meridian Industrial', type:'Investor Report Due', urgency:'ok' },
 ];
@@ -1086,7 +1106,7 @@ function renderDeadlines() {
 
   // Auto-sync demo data to Firebase on first load
   async function autoSyncDemoData() {
-    const syncKey = 'sp_demo_synced_v1';
+    const syncKey = 'sp_demo_synced_v2';
     if (localStorage.getItem(syncKey)) return; // Already synced
     
     if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
