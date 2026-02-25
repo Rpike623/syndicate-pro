@@ -13,8 +13,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
-  <script src="js/sp-firebase.js"></script>
   <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
   <script src="js/sp-billing.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -987,33 +987,6 @@ function renderDeadlines() {
   });
 
   // Load data — if Firebase is ready pull fresh data first
-  async function loadAndRender() {
-    let deals, investors;
-    if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
-      [deals, investors] = await Promise.all([
-        SPFB.getDeals().catch(() => loadDeals()),
-        SPFB.getInvestors().catch(() => loadInvestors()),
-      ]);
-    } else {
-      deals = loadDeals();
-      investors = loadInvestors();
-    }
-    const distYTD = loadDistributionsYTD();
-    const activity = loadActivity();
-
-    // Restore opacity
-    ['kpiAUM','kpiDeals','kpiInvestors','kpiDist'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.opacity = '1';
-    });
-
-    renderKPIs(deals, investors, distYTD);
-    renderDonut(deals);
-    renderBar(deals);
-    renderDealsTable(deals);
-    renderActivity(activity);
-    renderDeadlines();
-  }
 
   // SPData fires 'spdata-ready' when Firestore cache is warm — re-render with live data
   function _render() {

@@ -310,8 +310,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
-  <script src="js/sp-firebase.js"></script>
   <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-email.js"></script>
   <script>
@@ -401,14 +401,11 @@
 
       distributions.push(dist);
       SP.saveDistributions(distributions);
-      // Also push to Firebase explicitly (patchSPCore may not be ready yet)
-      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
-        SPFB.saveDistribution(newDist).catch(e => console.warn('SPFB.saveDistribution:', e.message));
-      }
+      // SPData handles Firestore write via SP.saveDistributions
       SP.logActivity('fa-wallet', 'purple', `Distribution of <strong>${formatCurrency(amount)}</strong> recorded for <strong>${dist.dealName}</strong>`);
       closeModal();
       renderDistributions();
-      updateStats();
+    window.addEventListener('spdata-ready', function() { renderDistributions(); });      updateStats();
 
       // Auto-send distribution notification emails
       if (typeof SPEmail !== 'undefined' && SPEmail.isConfigured() && dist.recipients?.length) {
