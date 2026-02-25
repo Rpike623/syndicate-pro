@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Investor Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-core.js"></script>
+  <style>
+    :root{--primary:#0f172a;--accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#dbeafe;
+      --success:#10b981;--success-light:#d1fae5;--warning:#f59e0b;--warning-light:#fef3c7;
+      --danger:#ef4444;--danger-light:#fee2e2;--purple:#8b5cf6;--purple-light:#ede9fe;
+      --text:#0f172a;--text-secondary:#64748b;--text-muted:#94a3b8;
+      --border:#e2e8f0;--border-light:#f1f5f9;--bg:#f8fafc;--bg-card:#fff;--bg-sidebar:#0f172a;
+      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--radius-sm:6px;--radius:8px;--radius-md:12px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+    .app{display:flex;min-height:100vh;}
+    .sidebar{width:260px;background:var(--bg-sidebar);color:white;position:fixed;height:100vh;z-index:100;}
+    .main{flex:1;margin-left:260px;min-height:100vh;}
+    .top-bar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;}
+    .content{padding:32px;max-width:1100px;}
+    .profile-hero{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--radius-md);padding:32px;color:white;margin-bottom:24px;display:flex;align-items:center;gap:24px;}
+    .profile-av{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;box-shadow:0 10px 20px rgba(0,0,0,.2);}
+    .profile-title h1{font-size:1.75rem;margin-bottom:4px;}
+    .profile-sub{font-size:.95rem;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:12px;}
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+    .stat-card{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+    .stat-lbl{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+    .stat-val{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
+    .card{background:white;border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:24px;overflow:hidden;}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--border-light);font-weight:700;}
+    .table{width:100%;border-collapse:collapse;}
+    .table th{text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);padding:10px 16px;border-bottom:1px solid var(--border-light);}
+    .table td{padding:12px 16px;border-bottom:1px solid var(--border-light);font-size:.875rem;}
+    .badge{padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;}
+    .btn{padding:10px 20px;border-radius:var(--radius);font-weight:600;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
+    .btn-secondary{background:white;border:1px solid var(--border);color:var(--text);}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <header class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="investors.html" class="btn btn-secondary" style="padding:8px 12px;"><i class="fas fa-arrow-left"></i></a>
+        <h1 style="font-size:1.25rem;">Investor Profile</h1>
+      </div>
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="exportProfile()"><i class="fas fa-download"></i> Export</button>
+      </div>
+    </header>
+    <div class="content" id="profileContent"></div>
+  </main>
+</div>
+<script>
+SP.requireGP();
+const invId = new URLSearchParams(window.location.search).get('id');
+function init() {
+  const inv = SP.getInvestorById(invId);
+  if (!inv) { document.getElementById('profileContent').innerHTML = 'Investor not found.'; return; }
+  const deals = SP.getDeals().filter(d => (d.investors||[]).some(i=>i.investorId===invId));
+  const total = deals.reduce((s,d)=>s+(d.investors.find(i=>i.investorId===invId)?.committed||0),0);
+  const dists = SP.getDistributions().reduce((s,d)=>{const r=d.recipients?.find(x=>x.investorId===invId);return s+(r?.amount||0);},0);
+  const initials = (inv.firstName[0]||'')+(inv.lastName[0]||'');
+
+  document.getElementById('profileContent').innerHTML = `
+    <div class="profile-hero">
+      <div class="profile-av">${initials}</div>
+      <div class="profile-title">
+        <h1>${inv.firstName} ${inv.lastName}</h1>
+        <div class="profile-sub">
+          <span><i class="fas fa-envelope"></i> ${inv.email}</span>
+          <span><i class="fas fa-phone"></i> ${inv.phone||'—'}</span>
+          <span class="badge ${inv.accredStatus==='verified'?'badge-op':'badge-src'}" style="background:#d1fae5;color:#065f46;">${inv.accredStatus}</span>
+        </div>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-lbl">Total Committed</div><div class="stat-val">$${total.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="stat-lbl">Total Distributions</div><div class="stat-val" style="color:var(--success);">$${dists.toLocaleString()}</div></div>
+      <div class="stat-card"><div class="stat-lbl">Active Deals</div><div class="stat-val">${deals.length}</div></div>
+      <div class="stat-card"><div class="stat-lbl">Accredited Until</div><div class="stat-val" style="font-size:1.1rem;">${inv.accredExpiry||'—'}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header">Investment Details</div>
+      <table class="table">
+        <thead><tr><th>Deal Name</th><th>Committed</th><th>Ownership</th><th>Status</th></tr></thead>
+        <tbody>${deals.map(d=>{
+          const e = d.investors.find(x=>x.investorId===invId);
+          return `<tr>
+            <td style="font-weight:600;">${d.name}</td>
+            <td style="font-family:monospace;">$${(e?.committed||0).toLocaleString()}</td>
+            <td style="color:var(--accent);">${e?.ownership?e.ownership.toFixed(2)+'%':'—'}</td>
+            <td>${d.status}</td>
+          </tr>`;
+        }).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;">No deals linked.</td></tr>'}</tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-header">Notes & Communications</div>
+      <div style="padding:20px;">${inv.notes || 'No notes on file.'}</div>
+    </div>`;
+}
+init();
+</script>
+</body>
+</html>

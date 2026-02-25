@@ -257,8 +257,15 @@
       <!-- Alert banners (injected by JS) -->
       <div id="alertBanners"></div>
 
-      <!-- KPI Cards -->
-      <div class="kpi-grid">
+      <!-- Portfolio Map / View Toggle -->
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px;">
+        <button class="btn btn-xs" id="listViewBtn" style="background:var(--accent);color:white;" onclick="togglePortfolioView('list')"><i class="fas fa-th-list"></i> List</button>
+        <button class="btn btn-xs" id="mapViewBtn" onclick="togglePortfolioView('map')"><i class="fas fa-map-marked-alt"></i> Map</button>
+      </div>
+
+      <div id="portfolioListView">
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
         <div class="kpi-card">
           <div class="kpi-icon blue"><i class="fas fa-building"></i></div>
           <div class="kpi-body">
@@ -289,6 +296,17 @@
             <div class="kpi-label">Distributions YTD</div>
             <div class="kpi-value" id="kpiDist">$0</div>
             <div class="kpi-change up" id="kpiDistChange"><i class="fas fa-arrow-up"></i> —</div>
+          </div>
+        </div>
+      </div>
+
+      </div> <!-- end portfolioListView -->
+
+      <div id="portfolioMapView" style="display:none;margin-bottom:28px;">
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div id="map" style="height:450px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--text-muted);">
+            <i class="fas fa-map-marked-alt" style="font-size:3rem;opacity:.3;"></i>
+            <p>Interactive portfolio map loading...</p>
           </div>
         </div>
       </div>
@@ -421,6 +439,44 @@
 
 <script>
 // ── Mobile sidebar ──────────────────────────────────────────────
+function togglePortfolioView(view) {
+  const lv = document.getElementById('portfolioListView');
+  const mv = document.getElementById('portfolioMapView');
+  const lBtn = document.getElementById('listViewBtn');
+  const mBtn = document.getElementById('mapViewBtn');
+  if (view === 'map') {
+    lv.style.display='none'; mv.style.display='block';
+    mBtn.style.background='var(--accent)'; mBtn.style.color='white';
+    lBtn.style.background=''; lBtn.style.color='';
+    renderMap();
+  } else {
+    lv.style.display='block'; mv.style.display='none';
+    lBtn.style.background='var(--accent)'; lBtn.style.color='white';
+    mBtn.style.background=''; mBtn.style.color='';
+  }
+}
+
+function renderMap() {
+  const mapEl = document.getElementById('map');
+  const deals = SP.getDeals().filter(d=>d.location);
+  if (!deals.length) { mapEl.innerHTML = '<div style="padding:40px;text-align:center;"><i class="fas fa-city" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i>Add deals with locations to see them on the map</div>'; return; }
+  
+  // Static map placeholder with markers
+  mapEl.innerHTML = `
+    <div style="position:relative;width:100%;height:100%;background:#e5e7eb;background-image:radial-gradient(#94a3b8 1px, transparent 1px);background-size:20px 20px;">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:rgba(0,0,0,0.05);letter-spacing:.2em;text-transform:uppercase;">SyndicatePro Portfolio Map</div>
+      ${deals.map((d,i)=>{
+        const left = Math.floor(Math.random()*80 + 10);
+        const top = Math.floor(Math.random()*70 + 15);
+        return `<div class="map-marker" style="position:absolute;left:${left}%;top:${top}%;" onclick="alert('${d.name}\\n${d.location}')">
+          <div style="width:14px;height:14px;background:var(--accent);border:2px solid white;border-radius:50%;box-shadow:0 4px 10px rgba(0,0,0,.2);cursor:pointer;position:relative;">
+            <div style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:white;padding:4px 8px;border-radius:4px;font-size:.7rem;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:6px;color:var(--text);border:1px solid var(--border);">${d.name}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('sidebarOverlay').classList.toggle('visible');

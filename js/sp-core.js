@@ -357,6 +357,40 @@ const SP = (function () {
     createInviteToken, decodeInviteToken,
     // Distributions
     getDistributions, saveDistributions, getDistributionsForInvestor,
+    // Theme
+    applyTheme: (theme) => {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('sp_theme', theme);
+      const label = document.getElementById('themeLabel');
+      if(label) label.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+      const icon = document.querySelector('a[onclick*="toggleTheme"] i');
+      if(icon) icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+      
+      let style = document.getElementById('sp-theme-css');
+      if(!style) {
+        style = document.createElement('style');
+        style.id = 'sp-theme-css';
+        document.head.appendChild(style);
+      }
+      if(theme === 'dark') {
+        style.textContent = `
+          [data-theme="dark"] body { background: #0a0a0f !important; color: #e2e8f0 !important; }
+          [data-theme="dark"] .main { background: #0a0a0f !important; }
+          [data-theme="dark"] .top-bar, [data-theme="dark"] .card, [data-theme="dark"] .card-card, [data-theme="dark"] .kpi, [data-theme="dark"] .stat-card, [data-theme="dark"] .input-panel, [data-theme="dark"] .result-panel { background: #11111a !important; border-color: #1e1e2e !important; color: #e2e8f0 !important; }
+          [data-theme="dark"] input, [data-theme="dark"] select, [data-theme="dark"] textarea { background: #1a1a2e !important; border-color: #2e2e4a !important; color: #fff !important; }
+          [data-theme="dark"] .nav-item:not(.active):hover { background: rgba(255,255,255,0.05); }
+          [data-theme="dark"] .breadcrumb-current, [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3 { color: #fff !important; }
+          [data-theme="dark"] .text-secondary, [data-theme="dark"] .text-muted { color: #94a3b8 !important; }
+          [data-theme="dark"] thead { background: #1a1a2e !important; }
+          [data-theme="dark"] tr:hover td { background: rgba(255,255,255,0.02) !important; }
+          [data-theme="dark"] .btn-secondary { background: #1a1a2e !important; border-color: #2e2e4a !important; color: #e2e8f0 !important; }
+        `;
+      } else { style.textContent = ''; }
+    },
+    toggleTheme: () => {
+      const current = localStorage.getItem('sp_theme') || 'light';
+      SP.applyTheme(current === 'light' ? 'dark' : 'light');
+    },
     // Settings
     getSettings: () => { try { return JSON.parse(localStorage.getItem(SP.makeOrgKey('settings')) || '{}'); } catch(e) { return {}; } },
   };
@@ -453,7 +487,18 @@ const SP = (function () {
       if (window.location.pathname.endsWith('settings.html')) link.classList.add('active');
       nav.appendChild(section);
       nav.appendChild(link);
+
+      // Theme toggle Link
+      const themeLink = document.createElement('a');
+      themeLink.href = '#';
+      themeLink.className = 'nav-item';
+      themeLink.innerHTML = '<i class="fas fa-moon"></i><span id="themeLabel">Dark Mode</span>';
+      themeLink.onclick = (e) => { e.preventDefault(); SP.toggleTheme(); };
+      nav.appendChild(themeLink);
     }
+
+    // Apply saved theme
+    SP.applyTheme(localStorage.getItem('sp_theme') || 'light');
 
     // Inject logout link if not already present
     const footer = document.querySelector('.sidebar-footer');

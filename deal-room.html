@@ -174,7 +174,10 @@
       <div class="card" id="fileCard" style="display:none;">
         <div class="card-header">
           <div class="card-title" id="activeCategoryTitle">All Files</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="bulkActionBtn" class="btn-xs" style="display:none;" onclick="openBulkModal()"><i class="fas fa-layer-group"></i> Bulk Edit (<span id="bulkCount">0</span>)</button>
           <span id="fileCountLabel" style="font-size:.8rem;color:var(--text-secondary);"></span>
+        </div>
         </div>
         <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()"
           ondragover="e=>e.preventDefault()" ondrop="handleDrop(event)">
@@ -187,6 +190,38 @@
       </div>
     </div>
   </main>
+</div>
+
+<!-- Bulk Edit Modal -->
+<div class="modal-overlay" id="bulkModal" onclick="if(event.target===this) closeBulkModal()">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <h2 class="modal-title"><i class="fas fa-layer-group" style="color:var(--purple);margin-right:6px;"></i>Bulk Edit Files</h2>
+      <button class="modal-close" onclick="closeBulkModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:20px;">Update tags for selected files.</p>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="bulkCategory">
+          <option value="">— No change —</option>
+          ${CATEGORIES.filter(c=>c.id!=='all').map(c=>`<option value="${c.id}">${c.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Access Level</label>
+        <select id="bulkAccess">
+          <option value="">— No change —</option>
+          <option value="all">All Linked Investors</option>
+          <option value="gp">GP Only</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeBulkModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="applyBulkTags()">Update Selected</button>
+    </div>
+  </div>
 </div>
 
 <!-- Upload Modal -->
@@ -321,6 +356,7 @@ function renderFiles(categoryId) {
   }
   list.innerHTML = files.map(f => `
     <div class="file-item">
+      <input type="checkbox" class="file-checkbox" value="${f.id}" onchange="updateBulkUI()" style="width:18px;height:18px;accent-color:var(--accent);margin-right:4px;">
       <div class="file-icon ${fileIconClass(f.name)}"><i class="fas ${fileIconFA(f.name)}"></i></div>
       <div class="file-info">
         <div class="file-name">${f.name}</div>
@@ -333,6 +369,30 @@ function renderFiles(categoryId) {
         <button class="btn-xs danger" onclick="deleteFile('${f.id}')"><i class="fas fa-trash"></i></button>
       </div>
     </div>`).join('');
+  updateBulkUI();
+}
+
+function updateBulkUI() {
+  const selected = document.querySelectorAll('.file-checkbox:checked').length;
+  document.getElementById('bulkActionBtn').style.display = selected ? 'flex' : 'none';
+  document.getElementById('bulkCount').textContent = selected;
+}
+
+function openBulkModal() { document.getElementById('bulkModal').classList.add('open'); }
+function closeBulkModal() { document.getElementById('bulkModal').classList.remove('open'); }
+
+function applyBulkTags() {
+  const selectedIds = Array.from(document.querySelectorAll('.file-checkbox:checked')).map(cb => cb.value);
+  const cat = document.getElementById('bulkCategory').value;
+  const acc = document.getElementById('bulkAccess').value;
+  const allFiles = SP.load('dealRoomFiles', []);
+  selectedIds.forEach(id => {
+    const f = allFiles.find(x => x.id === id);
+    if (f) { if (cat) f.category = cat; if (acc) f.access = acc; }
+  });
+  SP.save('dealRoomFiles', allFiles);
+  renderFiles(activeCategory);
+  closeBulkModal();
 }
 
 function saveFile(fileObj) {

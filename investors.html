@@ -533,7 +533,7 @@ function renderTable(list) {
       <td>
         <div class="investor-cell">
           <div class="investor-av av-${idx%6}">${initials(inv)}</div>
-          <div><div class="investor-name">${inv.firstName} ${inv.lastName}</div><div class="investor-email">${inv.email}</div></div>
+          <div><div class="investor-name"><a href="investor-detail.html?id=${inv.id}" style="color:inherit;text-decoration:none;">${inv.firstName} ${inv.lastName}</a></div><div class="investor-email">${inv.email}</div></div>
         </div>
       </td>
       <td style="color:var(--text-secondary);font-size:0.85rem;">${inv.phone||'—'}</td>
