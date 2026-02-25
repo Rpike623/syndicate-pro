@@ -173,14 +173,19 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="js/storage.js"></script>
+  <script src="js/sp-core.js"></script>
   <script>
+    SP.requireGP();
+
     function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num || 0); }
-    
+
     function loadDeals() {
-      const deals = Storage.getDeals();
+      const deals = SP.getDeals();
       const select = document.getElementById('callDeal');
-      select.innerHTML = '<option value="">Select a deal...</option>' + deals.map(d => `<option value="${d.id}" data-name="${d.name}" data-equity="${d.totalEquity || 0}">${d.name || 'Unnamed Deal'} - ${formatCurrency(d.totalEquity || 0)}</option>`).join('');
+      select.innerHTML = '<option value="">Select a deal...</option>' + deals.map(d => {
+        const committed = (d.investors||[]).reduce((s,i)=>s+(i.committed||0),0);
+        return `<option value="${d.id}" data-name="${d.name}" data-equity="${committed}" data-raise="${d.raise||0}">${d.name || 'Unnamed Deal'} — ${formatCurrency(d.raise||0)} raise</option>`;
+      }).join('');
     }
     
     function updatePreview() {

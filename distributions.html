@@ -297,81 +297,100 @@
     </div>
   </div>
 
-  <script src="js/storage.js"></script>
+  <script src="js/sp-core.js"></script>
   <script>
-    // Auth guard
-    const auth = JSON.parse(localStorage.getItem('auth') || '{}');
-    if (!auth.isAuthenticated) {
-      window.location.href = 'login.html';
-    }
-  </script>
-  <script>
-    let distributions = JSON.parse(localStorage.getItem('distributions') || '[]');
-    
+    SP.requireGP();
+
+    let distributions = SP.getDistributions();
+
     function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num || 0); }
-    
+
     function loadDeals() {
-      const deals = Storage.getDeals();
+      const deals = SP.getDeals();
       const select = document.getElementById('distDeal');
       select.innerHTML = '<option value="">Select a deal...</option>' + deals.map(d => `<option value="${d.id}">${d.name || 'Unnamed Deal'}</option>`).join('');
+      // Pre-select deal from URL param if present
+      const urlDeal = new URLSearchParams(window.location.search).get('deal');
+      if (urlDeal) select.value = urlDeal;
     }
-    
+
     function renderDistributions() {
       const container = document.getElementById('distributionList');
-      if (distributions.length === 0) {
+      if (!distributions.length) {
         container.innerHTML = `<div class="empty-state"><div class="icon"><i class="fas fa-wallet"></i></div><h3>No distributions recorded</h3><p>Record your first distribution to start tracking payments to investors</p></div>`;
         return;
       }
-      
       container.innerHTML = distributions.slice().reverse().map(dist => `
         <div class="distribution-card">
           <div class="distribution-header">
-            <div><div class="distribution-title">${dist.dealName || 'Unknown Deal'} - ${dist.quarter} ${dist.year}</div><div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;"><i class="fas fa-calendar"></i> ${new Date(dist.date).toLocaleDateString()} · <i class="fas fa-credit-card"></i> ${dist.method || 'Wire'}</div></div>
-            <div class="distribution-amount">${formatCurrency(dist.amount)}</div>
+            <div>
+              <div class="distribution-title">${dist.dealName || 'Unknown Deal'} — ${dist.period || dist.quarter+' '+dist.year}</div>
+              <div style="font-size:.875rem;color:var(--text-secondary);margin-top:4px;">
+                <i class="fas fa-calendar"></i> ${dist.date ? new Date(dist.date).toLocaleDateString() : '—'} &nbsp;·&nbsp;
+                <i class="fas fa-credit-card"></i> ${dist.method || 'Wire'} &nbsp;·&nbsp;
+                <i class="fas fa-users"></i> ${dist.recipients ? dist.recipients.length : (dist.investorCount || 0)} investors
+              </div>
+            </div>
+            <div class="distribution-amount">${formatCurrency(dist.totalAmount || dist.amount || 0)}</div>
           </div>
-          <div class="distribution-meta"><span><i class="fas fa-users"></i> ${dist.investorCount || 'All'} Investors</span><span><i class="fas fa-percentage"></i> ${((dist.amount / (dist.totalEquity || 1)) * 100).toFixed(2)}% of equity</span></div>
-        </div>
-      `).join('');
+          <div class="distribution-meta">
+            <span><i class="fas fa-building"></i> ${dist.dealName || '—'}</span>
+            <span>${dist.notes || ''}</span>
+          </div>
+        </div>`).join('');
     }
-    
+
     function updateStats() {
-      const ytd = distributions.filter(d => d.year === new Date().getFullYear()).reduce((sum, d) => sum + (d.amount || 0), 0);
+      const year = new Date().getFullYear();
+      const ytd = distributions.filter(d => (d.date||'').startsWith(year) || d.year === year).reduce((s,d) => s+(d.totalAmount||d.amount||0), 0);
       document.getElementById('totalDistributed').textContent = formatCurrency(ytd);
-      document.getElementById('distributionsCount').textContent = distributions.filter(d => d.year === new Date().getFullYear()).length;
-      
-      const avg = distributions.length > 0 ? distributions.reduce((sum, d) => sum + (d.amount || 0), 0) / distributions.length : 0;
+      document.getElementById('distributionsCount').textContent = distributions.filter(d => (d.date||'').startsWith(year) || d.year === year).length;
+      const all = distributions.reduce((s,d) => s+(d.totalAmount||d.amount||0), 0);
+      const avg = distributions.length ? all / distributions.length : 0;
       document.getElementById('avgDistribution').textContent = formatCurrency(avg);
     }
-    
+
     function openModal() { document.getElementById('modal').classList.add('active'); loadDeals(); }
     function closeModal() { document.getElementById('modal').classList.remove('active'); }
-    
+
     function saveDistribution() {
       const dealId = document.getElementById('distDeal').value;
-      const deals = Storage.getDeals();
-      const deal = deals.find(d => d.id === dealId);
-      
+      const deal = SP.getDealById(dealId);
+      const amount = parseFloat(document.getElementById('distAmount').value) || 0;
+      const date = document.getElementById('distDate').value;
+      const quarter = document.getElementById('distQuarter').value;
+      const year = parseInt(document.getElementById('distYear').value);
+
+      // Build per-investor breakdown from deal.investors
+      const recipients = deal ? (deal.investors || []).map(inv => ({
+        investorId: inv.investorId,
+        amount: inv.ownership ? parseFloat((amount * inv.ownership / 100).toFixed(2)) : 0,
+        ownership: inv.ownership || 0,
+      })) : [];
+
       const dist = {
-        id: Date.now().toString(),
-        dealId: dealId,
+        id: 'dist' + Date.now(),
+        dealId: dealId || '',
         dealName: deal ? deal.name : 'Unknown Deal',
-        quarter: document.getElementById('distQuarter').value,
-        year: parseInt(document.getElementById('distYear').value),
-        amount: parseFloat(document.getElementById('distAmount').value) || 0,
-        date: document.getElementById('distDate').value,
+        period: `${quarter} ${year}`,
+        quarter, year,
+        totalAmount: amount,
+        amount, // keep for legacy compat
+        date,
         method: document.getElementById('distMethod').value,
         notes: document.getElementById('distNotes').value,
-        totalEquity: deal ? deal.totalEquity : 0,
-        investorCount: deal ? (deal.investors || []).length + 1 : 0
+        investorCount: recipients.length,
+        recipients,
       };
-      
+
       distributions.push(dist);
-      localStorage.setItem('distributions', JSON.stringify(distributions));
+      SP.saveDistributions(distributions);
+      SP.logActivity('fa-wallet', 'purple', `Distribution of <strong>${formatCurrency(amount)}</strong> recorded for <strong>${dist.dealName}</strong>`);
       closeModal();
       renderDistributions();
       updateStats();
     }
-    
+
     renderDistributions();
     updateStats();
   </script>

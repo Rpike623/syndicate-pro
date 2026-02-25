@@ -6,6 +6,7 @@
   <title>SyndicatePro - Email Templates</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-core.js"></script>
   <style>
     :root {
       --primary: #0f172a;
@@ -569,18 +570,78 @@
       }
     };
 
-    async function init() {
-      const deals = await db.getAllDeals();
+    function init() {
+      // Load deals from sp-core
+      const deals = SP.getDeals();
       const select = document.getElementById('deal-select');
       deals.forEach(deal => {
         const opt = document.createElement('option');
         opt.value = deal.name;
+        opt.dataset.id = deal.id;
         opt.textContent = deal.name || 'Untitled Deal';
         select.appendChild(opt);
       });
-      
+
+      // Build recipient checkboxes from investors
+      buildRecipientList(deals);
+
       document.getElementById('send-date').valueAsDate = new Date();
       updatePreview();
+    }
+
+    function buildRecipientList(deals) {
+      const investors = SP.getInvestors();
+      // Check URL params for pre-selected investor
+      const urlParams = new URLSearchParams(window.location.search);
+      const preEmail = urlParams.get('to');
+      const preName = urlParams.get('name');
+
+      // Find or create recipient container
+      let recipContainer = document.getElementById('recipientContainer');
+      if (!recipContainer) {
+        // Inject recipient selector before send button area if not in template
+        const previewPanel = document.querySelector('.preview-panel') || document.querySelector('.email-sidebar');
+        if (previewPanel) {
+          const div = document.createElement('div');
+          div.style.cssText = 'margin-bottom:16px;';
+          div.innerHTML = `
+            <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">
+              <i class="fas fa-users"></i> Send To
+            </label>
+            <div id="recipientContainer" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--bg-card);">
+              <label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:.85rem;cursor:pointer;">
+                <input type="checkbox" id="allInvestors" onchange="toggleAll(this)" checked style="accent-color:var(--accent);"> All Investors (${investors.length})
+              </label>
+              <hr style="border:none;border-top:1px solid var(--border);margin:6px 0;">
+              ${investors.map(inv => `
+                <label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:.82rem;cursor:pointer;">
+                  <input type="checkbox" class="inv-checkbox" value="${inv.email}" data-name="${inv.firstName} ${inv.lastName}" checked style="accent-color:var(--accent);">
+                  ${inv.firstName} ${inv.lastName} <span style="color:var(--text-muted);font-size:.75rem;">${inv.email}</span>
+                </label>`).join('')}
+            </div>`;
+          previewPanel.insertBefore(div, previewPanel.firstChild);
+        }
+      }
+
+      // Pre-select specific investor from URL
+      if (preEmail) {
+        document.querySelectorAll('.inv-checkbox').forEach(cb => {
+          cb.checked = cb.value === preEmail;
+        });
+        document.getElementById('allInvestors').checked = false;
+      }
+    }
+
+    function toggleAll(master) {
+      document.querySelectorAll('.inv-checkbox').forEach(cb => cb.checked = master.checked);
+    }
+
+    function getSelectedRecipients() {
+      const selected = [];
+      document.querySelectorAll('.inv-checkbox:checked').forEach(cb => {
+        selected.push({ email: cb.value, name: cb.dataset.name });
+      });
+      return selected;
     }
 
     function selectTemplate(type) {
@@ -626,16 +687,31 @@
     }
 
     function copyToClipboard() {
-      const html = document.querySelector('.email-container').outerHTML;
-      navigator.clipboard.writeText(html);
-      alert('Email HTML copied to clipboard! Paste into your email client.');
+      const subject = document.getElementById('preview-subject').textContent;
+      const body = document.getElementById('preview-body').innerText;
+      navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`).then(() => {
+        alert('Email copied to clipboard! Paste into your email client.');
+      });
     }
 
     function sendTest() {
-      alert('Test email would be sent to your admin address. (Integration required)');
+      const recipients = getSelectedRecipients ? getSelectedRecipients() : [];
+      const subject = document.getElementById('preview-subject').textContent;
+      const body = document.getElementById('preview-body').innerText;
+      if (!recipients.length) { alert('Select at least one recipient.'); return; }
+      const toList = recipients.map(r => r.email).join(',');
+      const mailto = `mailto:${encodeURIComponent(toList)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.open(mailto, '_blank');
+      SP.logActivity('fa-envelope', 'blue', `Email <em>${subject}</em> sent to ${recipients.length} investor${recipients.length>1?'s':''}`);
     }
 
-    window.onload = init;
+    window.onload = function() {
+      // Load sp-core before init
+      if (typeof SP !== 'undefined') {
+        SP.requireGP();
+      }
+      init();
+    };
   </script>
 </body>
 </html>
