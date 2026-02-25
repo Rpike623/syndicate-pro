@@ -1170,19 +1170,21 @@
               <div class="success-icon">
                 <i class="fas fa-check"></i>
               </div>
-              <h2 class="success-title">Deal Created Successfully!</h2>
-              <p class="success-desc">
-                Your deal has been saved and all documents have been generated. You can now start raising capital or make adjustments as needed.
-              </p>
+              <h2 class="success-title">Deal Saved!</h2>
+              <p class="success-desc" id="successDealName" style="font-weight:600;font-size:1.1rem;color:var(--text);"></p>
+              <p class="success-desc">Your deal is saved and ready. What would you like to do next?</p>
               <div class="success-actions">
                 <button class="btn btn-primary" onclick="viewDeal()">
-                  <i class="fas fa-eye"></i> View Deal
+                  <i class="fas fa-eye"></i> View Deal Detail
                 </button>
                 <button class="btn btn-secondary" onclick="downloadDocuments()">
-                  <i class="fas fa-download"></i> Download Documents
+                  <i class="fas fa-file-contract"></i> Generate Documents
                 </button>
-                <button class="btn btn-secondary" onclick="window.location.href='deals.html'">
-                  <i class="fas fa-list"></i> All Deals
+                <button class="btn btn-secondary" onclick="window.location.href='investors.html'">
+                  <i class="fas fa-users"></i> Add Investors
+                </button>
+                <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">
+                  <i class="fas fa-th-large"></i> Dashboard
                 </button>
               </div>
             </div>
@@ -1418,38 +1420,49 @@
         acqFee: parseFloat(document.getElementById('acqFee').value) || 3,
         assetMgmtFee: parseFloat(document.getElementById('assetMgmtFee').value) || 2,
         createdAt: new Date().toISOString(),
-        status: 'fundraising'
+        status: 'sourcing'
       };
       
       // Save to sp-core unified deal store
       const urlId = new URLSearchParams(window.location.search).get('id');
       const spDeals = SP.getDeals();
+
+      // Estimate IRR from pref return + promote (rough proxy until full model)
+      const pref = deal.prefReturn || 8;
+      const promote = deal.gpPromote || 20;
+      const estimatedIRR = parseFloat((pref * 1.5 + (promote * 0.1)).toFixed(1));
+      const estimatedEM = parseFloat((1 + (pref / 100) * 5).toFixed(2)); // 5-year hold estimate
+
       const spDeal = {
         id: urlId || deal.id,
         name: deal.name,
-        type: (deal.propertyType||'other').toLowerCase(),
-        location: deal.propertyAddress || deal.state || '',
+        type: (deal.propertyType || 'other').toLowerCase(),
+        location: deal.propertyAddress || deal.principalOffice || deal.state || '',
         raise: deal.totalEquity || 0,
-        irr: 0, // calculated by waterfall — updated below
-        equity: 0,
-        units: deal.units || 0,
-        status: 'fundraising',
+        irr: estimatedIRR,
+        equity: estimatedEM,
+        units: parseInt(document.getElementById('propertySize')?.value) || 0,
+        status: 'sourcing',
         added: deal.createdAt ? deal.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
         investors: [],
         documents: [],
-        notes: deal.description || '',
-        // Store full wizard data
+        notes: '',
+        // Full wizard data for documents/proforma
         wizardData: deal,
         prefReturn: deal.prefReturn || 8,
         gpPromote: deal.gpPromote || 20,
-        gpEquity: deal.gpEquity || 20,
-        lpEquity: deal.lpEquity || 80,
+        gpEquity: deal.gpEquity || 10,
+        lpEquity: deal.lpEquity || 90,
         waterfallType: deal.waterfallType || 'simple',
         purchasePrice: deal.purchasePrice || 0,
         loanAmount: deal.loanAmount || 0,
         totalEquity: deal.totalEquity || 0,
         acqFee: deal.acqFee || 3,
         assetMgmtFee: deal.assetMgmtFee || 2,
+        companyName: deal.companyName || '',
+        state: deal.state || '',
+        interestRate: parseFloat(document.getElementById('interestRate')?.value) || 0,
+        minInvestment: parseFloat(document.getElementById('minInvestment')?.value) || 50000,
       };
       if (urlId) {
         const idx = spDeals.findIndex(d => d.id === urlId);
@@ -1463,7 +1476,11 @@
 
       // Store current deal for document generation (legacy compat)
       localStorage.setItem('currentDeal', JSON.stringify(deal));
-      
+
+      // Show deal name on success screen
+      const nameEl = document.getElementById('successDealName');
+      if (nameEl) nameEl.textContent = deal.name;
+
       showStep('success');
     }
     
@@ -1477,7 +1494,9 @@
     }
     
     function downloadDocuments() {
-      window.location.href = 'documents.html';
+      const deal = JSON.parse(localStorage.getItem('currentDeal') || '{}');
+      const id = deal.id || (new URLSearchParams(window.location.search).get('id'));
+      window.location.href = id ? `documents.html?deal=${id}` : 'documents.html';
     }
     
     function updatePreview() {

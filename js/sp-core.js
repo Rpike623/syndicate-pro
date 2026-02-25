@@ -130,7 +130,10 @@ const SP = (function () {
   }
 
   function normalizeSpDeal(d) {
+    // Spread all fields first so extended wizard data (wizardData, prefReturn,
+    // purchasePrice, etc.) is preserved, then enforce required shape on top.
     return {
+      ...d,
       id: d.id,
       name: d.name || 'Unnamed Deal',
       type: d.type || 'other',

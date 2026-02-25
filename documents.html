@@ -728,35 +728,51 @@
       const deal = SP.getDealById(dealId);
       if (!deal) return;
 
-      // Map sp-core deal fields to document form fields
-      const raise = deal.raise || 0;
-      const gpPct = 20; // default GP promote
-      const lpPct = 80;
-      if (document.getElementById('totalEquity')) document.getElementById('totalEquity').value = raise;
-      if (document.getElementById('prefReturn')) document.getElementById('prefReturn').value = deal.irr ? Math.min(8, deal.irr * 0.4).toFixed(1) : 8;
-      if (document.getElementById('gpPromote')) document.getElementById('gpPromote').value = gpPct;
-      if (document.getElementById('gpEquity')) document.getElementById('gpEquity').value = gpPct;
-      if (document.getElementById('lpEquity')) document.getElementById('lpEquity').value = lpPct;
-      // Also populate deal name / property fields if present
-      ['propertyName','dealName','llcName'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el && !el.value) el.value = deal.name || '';
-      });
-      ['propertyAddress','address'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el && !el.value) el.value = deal.location || '';
-      });
-      
-      const btn = document.querySelector('.btn-secondary');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-check"></i> Imported!';
-      btn.style.background = 'var(--success)';
-      btn.style.color = 'white';
-      setTimeout(() => {
-        btn.innerHTML = originalText;
-        btn.style.background = '';
-        btn.style.color = '';
-      }, 1500);
+      // Use wizard data if available (from new-deal.html), else fall back to sp-core fields
+      const wd = deal.wizardData || {};
+
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null && val !== '') el.value = val; };
+
+      // Deal identity
+      set('companyName', wd.companyName || deal.name || '');
+      set('propertyName', deal.name);
+      set('dealName', deal.name);
+      set('llcName', wd.companyName || deal.companyName || '');
+      set('propertyAddress', wd.propertyAddress || deal.location || '');
+      set('address', wd.propertyAddress || deal.location || '');
+
+      // Capital structure — prefer wizard data, fall back to sp-core fields
+      set('totalEquity', wd.totalEquity || deal.totalEquity || deal.raise || '');
+      set('minInvestment', wd.minInvestment || deal.minInvestment || 50000);
+      set('prefReturn', wd.prefReturn || deal.prefReturn || 8);
+      set('gpPromote', wd.gpPromote || deal.gpPromote || 20);
+      set('gpEquity', wd.gpEquity || deal.gpEquity || 10);
+      set('lpEquity', wd.lpEquity || deal.lpEquity || 90);
+      set('acqFee', wd.acqFee || deal.acqFee || 3);
+      set('assetMgmtFee', wd.assetMgmtFee || deal.assetMgmtFee || 2);
+
+      // State
+      const stateEl = document.getElementById('state');
+      const stateVal = wd.state || deal.state || '';
+      if (stateEl && stateVal) stateEl.value = stateVal;
+
+      // GP rep from settings
+      const settings = SP.load('settings', {});
+      set('gpName', settings.firmName || wd.companyName || deal.companyName || '');
+      set('gpRep', settings.gpFullName || SP.getSession()?.name || '');
+
+      // Visual feedback
+      const btn = document.getElementById('importBtn') || document.querySelector('button[onclick*="importDealData"]');
+      if (btn) {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Loaded!';
+        btn.style.background = 'var(--success)';
+        btn.style.color = 'white';
+        setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; }, 2000);
+      }
+
+      // Trigger preview refresh if available
+      if (typeof generateDocument === 'function') generateDocument();
     }
     
     document.querySelectorAll('.doc-type').forEach(type => {
