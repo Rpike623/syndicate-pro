@@ -398,7 +398,8 @@
         tier: 'pro'
       }));
 
-      window.location.href = 'index.html';
+      // Redirect to mobile dashboard
+      window.location.href = 'mobile-dashboard.html';
     }
     
     function googleAuth() {
@@ -415,10 +416,10 @@
             toggleBackendFields();
         }
         
-        // Skip login if session persistent
+        // Skip login if session persistent - redirect to mobile dashboard
         const auth = JSON.parse(localStorage.getItem('auth') || '{}');
         if (auth.isAuthenticated) {
-          // window.location.href = 'index.html'; 
+          window.location.href = 'mobile-dashboard.html'; 
         }
     };
   </script>
