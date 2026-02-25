@@ -9,9 +9,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": "22"
+  },
   "dependencies": {
+    "@azure/msal-node": "^5.0.5",
     "firebase-admin": "^13.6.1",
     "firebase-functions": "^7.0.5",
+    "imap": "^0.8.19",
     "nodemailer": "^8.0.1"
   }
 }
