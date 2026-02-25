@@ -359,3 +359,29 @@ const SP = (function () {
     getDistributions, saveDistributions, getDistributionsForInvestor,
   };
 })();
+
+// ─── Auto-inject logout + user name into sidebar footer ─────────────────────
+(function injectSidebarUser() {
+  if (typeof document === 'undefined') return;
+  document.addEventListener('DOMContentLoaded', function () {
+    const s = SP.getSession();
+    if (!s) return;
+    // Update user name in sidebar if element exists
+    const nameEl = document.querySelector('.sidebar .user-name');
+    if (nameEl && s.name) nameEl.textContent = s.name;
+    const roleEl = document.querySelector('.sidebar .user-role');
+    if (roleEl && s.role) roleEl.textContent = s.role;
+    // Inject logout link if not already present
+    const footer = document.querySelector('.sidebar-footer');
+    if (footer && !footer.querySelector('.logout-btn')) {
+      const logoutBtn = document.createElement('button');
+      logoutBtn.className = 'logout-btn';
+      logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Sign Out';
+      logoutBtn.style.cssText = 'width:100%;margin-top:10px;padding:8px 12px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);border-radius:8px;color:#f87171;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:all 0.15s;';
+      logoutBtn.onmouseenter = () => { logoutBtn.style.background = 'rgba(239,68,68,0.22)'; };
+      logoutBtn.onmouseleave = () => { logoutBtn.style.background = 'rgba(239,68,68,0.12)'; };
+      logoutBtn.onclick = () => SP.logout();
+      footer.appendChild(logoutBtn);
+    }
+  });
+})();

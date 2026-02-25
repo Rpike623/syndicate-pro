@@ -604,7 +604,7 @@
     
     async function init() {
       // Load deals
-      const deals = JSON.parse(localStorage.getItem('pipelineDeals') || '[]');
+      const deals = JSON.parse(localStorage.getItem(SP.makeOrgKey('deals')) || '[]');
       const select = document.getElementById('dealSelect');
       
       deals.forEach(deal => {
@@ -642,7 +642,7 @@
       const dealId = document.getElementById('dealSelect').value;
       if (!dealId) return;
       
-      const deals = JSON.parse(localStorage.getItem('pipelineDeals') || '[]');
+      const deals = JSON.parse(localStorage.getItem(SP.makeOrgKey('deals')) || '[]');
       currentDeal = deals.find(d => d.id === dealId);
       
       if (!currentDeal) return;
@@ -655,7 +655,7 @@
     }
     
     function loadCommitments() {
-      const allCommitments = JSON.parse(localStorage.getItem('commitments') || '[]');
+      const allCommitments = JSON.parse(localStorage.getItem(SP.makeOrgKey('commitments')) || '[]');
       commitments = allCommitments.filter(c => c.dealId === (currentDeal?.id));
       
       renderCommitments();
@@ -787,20 +787,20 @@
         date: new Date().toISOString()
       };
       
-      const allCommitments = JSON.parse(localStorage.getItem('commitments') || '[]');
+      const allCommitments = JSON.parse(localStorage.getItem(SP.makeOrgKey('commitments')) || '[]');
       allCommitments.push(commitment);
-      localStorage.setItem('commitments', JSON.stringify(allCommitments));
+      localStorage.setItem(SP.makeOrgKey('commitments'), JSON.stringify(allCommitments));
       
       closeModal();
       loadCommitments();
     }
     
     function markWired(id) {
-      const allCommitments = JSON.parse(localStorage.getItem('commitments') || '[]');
+      const allCommitments = JSON.parse(localStorage.getItem(SP.makeOrgKey('commitments')) || '[]');
       const c = allCommitments.find(x => x.id === id);
       if (c) {
         c.status = 'wired';
-        localStorage.setItem('commitments', JSON.stringify(allCommitments));
+        localStorage.setItem(SP.makeOrgKey('commitments'), JSON.stringify(allCommitments));
         loadCommitments();
       }
     }
@@ -808,9 +808,9 @@
     function deleteCommitment(id) {
       if (!confirm('Delete this commitment?')) return;
       
-      let allCommitments = JSON.parse(localStorage.getItem('commitments') || '[]');
+      let allCommitments = JSON.parse(localStorage.getItem(SP.makeOrgKey('commitments')) || '[]');
       allCommitments = allCommitments.filter(c => c.id !== id);
-      localStorage.setItem('commitments', JSON.stringify(allCommitments));
+      localStorage.setItem(SP.makeOrgKey('commitments'), JSON.stringify(allCommitments));
       loadCommitments();
     }
     
