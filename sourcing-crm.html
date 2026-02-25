@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deal Sourcing CRM — SyndicatePro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #0a0a0f; --bg-panel: #13131a; --bg-card: #1a1a24; --bg-hover: #252533;
+      --accent: #8b5cf6; --accent-2: #06b6d4; --success: #22c55e; --warning: #f59e0b; --danger: #ef4444;
+      --text: #f8fafc; --text-muted: #64748b; --border: rgba(255,255,255,0.06); --radius: 16px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--bg-panel); border-right: 1px solid var(--border); position: fixed; height: 100vh; z-index: 100; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-mark { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .logo span { font-weight: 700; font-size: 1.25rem; }
+    .nav { padding: 16px 12px; }
+    .nav-section { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin: 24px 12px 12px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 10px; font-size: 14px; margin: 2px 0; transition: all 0.15s; }
+    .nav-item:hover, .nav-item.active { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(6,182,212,0.1)); color: var(--text); border: 1px solid rgba(139,92,246,0.3); }
+    .nav-item i { width: 20px; text-align: center; }
+    .main { flex: 1; margin-left: 260px; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--bg-panel); }
+    .page-title h1 { font-size: 1.4rem; }
+    .page-title p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+    .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; transition: all 0.15s; }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(139,92,246,0.35); }
+    .btn-ghost { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); }
+    .content { padding: 32px; max-width: 1440px; }
+    
+    /* Stats Bar */
+    .stats-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-pill { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: flex; align-items: center; gap: 16px; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .stat-icon.new { background: rgba(139,92,246,0.15); color: var(--accent); }
+    .stat-icon.review { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .stat-icon.loi { background: rgba(6,182,212,0.15); color: var(--accent-2); }
+    .stat-icon.pass { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .stat-icon.closed { background: rgba(34,197,94,0.15); color: var(--success); }
+    .stat-info h3 { font-family: 'Space Grotesk'; font-size: 1.5rem; font-weight: 600; }
+    .stat-info p { font-size: 13px; color: var(--text-muted); }
+    
+    /* Filters */
+    .filter-bar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .filter-group { display: flex; gap: 8px; }
+    .filter-btn { padding: 10px 20px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted); font-size: 14px; cursor: pointer; }
+    .filter-btn.active { border-color: var(--accent); color: var(--text); background: rgba(139,92,246,0.1); }
+    .search-box { flex: 1; position: relative; min-width: 250px; }
+    .search-box input { width: 100%; padding: 12px 16px 12px 44px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 14px; }
+    .search-box i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    
+    /* Deal Table */
+    .table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .table-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 100px 140px; padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 500; }
+    .deal-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 100px 140px; padding: 20px 24px; border-bottom: 1px solid var(--border); align-items: center; transition: all 0.15s; }
+    .deal-row:hover { background: var(--bg-hover); }
+    .deal-row:last-child { border-bottom: none; }
+    .deal-info { display: flex; flex-direction: column; gap: 4px; }
+    .deal-name { font-weight: 600; font-size: 15px; }
+    .deal-address { font-size: 13px; color: var(--text-muted); }
+    .deal-metrics { display: flex; gap: 16px; font-size: 13px; }
+    .deal-metric { display: flex; align-items: center; gap: 6px; }
+    .deal-metric i { color: var(--accent); font-size: 12px; }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .status-badge.new { background: rgba(139,92,246,0.15); color: var(--accent); }
+    .status-badge.review { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .status-badge.loi { background: rgba(6,182,212,0.15); color: var(--accent-2); }
+    .status-badge.pass { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .status-badge.closed { background: rgba(34,197,94,0.15); color: var(--success); }
+    .deal-date { font-size: 13px; color: var(--text-muted); }
+    .deal-actions { display: flex; gap: 8px; }
+    .action-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+    .action-btn:hover { border-color: var(--accent); color: var(--text); }
+    
+    /* Mobile */
+    @media (max-width: 1200px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .stats-bar { grid-template-columns: repeat(3, 1fr); }
+      .table-header, .deal-row { grid-template-columns: 2fr 1fr 100px; }
+      .table-header > :nth-child(3), .table-header > :nth-child(4), .table-header > :nth-child(5),
+      .deal-row > :nth-child(3), .deal-row > :nth-child(4), .deal-row > :nth-child(5) { display: none; }
+    }
+    @media (max-width: 768px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+      .filter-bar { flex-direction: column; }
+      .table-header, .deal-row { grid-template-columns: 1fr; gap: 8px; }
+      .table-header > * { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-mark"><i class="fas fa-building"></i></div>
+          <span>SyndicatePro</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-section">Portfolio</div>
+        <a href="dashboard-v2.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="sourcing-crm.html" class="nav-item active"><i class="fas fa-search"></i> Sourcing CRM</a>
+        <a href="pipeline-v2.html" class="nav-item"><i class="fas fa-columns"></i> Pipeline</a>
+        <a href="deals.html" class="nav-item"><i class="fas fa-folder-open"></i> All Deals</a>
+      </nav>
+    </aside>
+    
+    <main class="main">
+      <header class="header">
+        <div class="page-title">
+          <h1>Deal Sourcing CRM</h1>
+          <p>Track every deal from first look to close or pass</p>
+        </div>
+        <div style="display: flex; gap: 12px;">
+          <button class="btn btn-ghost"><i class="fas fa-download"></i> Export</button>
+          <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Deal</button>
+        </div>
+      </header>
+      
+      <div class="content">
+        <div class="stats-bar">
+          <div class="stat-pill">
+            <div class="stat-icon new"><i class="fas fa-inbox"></i></div>
+            <div class="stat-info">
+              <h3>12</h3>
+              <p>New This Week</p>
+            </div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-icon review"><i class="fas fa-eye"></i></div>
+            <div class="stat-info">
+              <h3>8</h3>
+              <p>Under Review</p>
+            </div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-icon loi"><i class="fas fa-file-signature"></i></div>
+            <div class="stat-info">
+              <h3>3</h3>
+              <p>LOI Submitted</p>
+            </div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-icon pass"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info">
+              <h3>47</h3>
+              <p>Passed YTD</p>
+            </div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-icon closed"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+              <h3>6</h3>
+              <p>Closed YTD</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="filter-bar">
+          <div class="filter-group">
+            <button class="filter-btn active">All Deals</button>
+            <button class="filter-btn">New</button>
+            <button class="filter-btn">Reviewing</button>
+            <button class="filter-btn">LOI Sent</button>
+            <button class="filter-btn">Passed</button>
+          </div>
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search deals, addresses, brokers...">
+          </div>
+        </div>
+        
+        <div class="table-container">
+          <div class="table-header">
+            <span>Property</span>
+            <span>Metrics</span>
+            <span>Broker</span>
+            <span>Source</span>
+            <span>Status</span>
+            <span>Actions</span>
+          </div>
+          
+          <div class="deal-row">
+            <div class="deal-info">
+              <div class="deal-name">Lakeside Apartments</div>
+              <div class="deal-address">2450 Lakeside Blvd, Fort Worth, TX 76102</div>
+            </div>
+            <div class="deal-metrics">
+              <div class="deal-metric"><i class="fas fa-dollar-sign"></i> $3.2M</div>
+              <div class="deal-metric"><i class="fas fa-home"></i> 64 units</div>
+              <div class="deal-metric"><i class="fas fa-percentage"></i> 7.2% CAP</div>
+            </div>
+            <div class="deal-metric"><i class="fas fa-user"></i> Marcus & Millichap</div>
+            <div style="font-size: 13px; color: var(--text-muted);">Email Blast</div>
+            <span class="status-badge new"><i class="fas fa-circle" style="font-size: 6px;"></i> New</span>
+            <div class="deal-actions">
+              <button class="action-btn"><i class="fas fa-eye"></i></button>
+              <button class="action-btn"><i class="fas fa-envelope"></i></button>
+            </div>
+          </div>
+          
+          <div class="deal-row">
+            <div class="deal-info">
+              <div class="deal-name">Downtown Office Plaza</div>
+              <div class="deal-address">500 Commerce St, Dallas, TX 75202</div>
+            </div>
+            <div class="deal-metrics">
+              <div class="deal-metric"><i class="fas fa-dollar-sign"></i> $8.5M</div>
+              <div class="deal-metric"><i class="fas fa-building"></i> 120K sf</div>
+              <div class="deal-metric"><i class="fas fa-percentage"></i> 6.8% CAP</div>
+            </div>
+            <div class="deal-metric"><i class="fas fa-user"></i> CBRE</div>
+            <div style="font-size: 13px; color: var(--text-muted);">Direct Relationship</div>
+            <span class="status-badge review"><i class="fas fa-circle" style="font-size: 6px;"></i> Reviewing</span>
+            <div class="deal-actions">
+              <button class="action-btn"><i class="fas fa-eye"></i></button>
+              <button class="action-btn"><i class="fas fa-file-alt"></i></button>
+            </div>
+          </div>
+          
+          <div class="deal-row">
+            <div class="deal-info">
+              <div class="deal-name">Parkview Gardens</div>
+              <div class="deal-address">1800 Park Blvd, Plano, TX 75074</div>
+            </div>
+            <div class="deal-metrics">
+              <div class="deal-metric"><i class="fas fa-dollar-sign"></i> $4.1M</div>
+              <div class="deal-metric"><i class="fas fa-home"></i> 96 units</div>
+              <div class="deal-metric"><i class="fas fa-percentage"></i> 7.5% CAP</div>
+            </div>
+            <div class="deal-metric"><i class="fas fa-user"></i> Eastdil Secured</div>
+            <div style="font-size: 13px; color: var(--text-muted);">LoopNet</div>
+            <span class="status-badge loi"><i class="fas fa-circle" style="font-size: 6px;"></i> LOI Sent</span>
+            <div class="deal-actions">
+              <button class="action-btn"><i class="fas fa-eye"></i></button>
+              <button class="action-btn"><i class="fas fa-edit"></i></button>
+            </div>
+          </div>
+          
+          <div class="deal-row">
+            <div class="deal-info">
+              <div class="deal-name">Industrial Park West</div>
+              <div class="deal-address">4500 Airport Fwy, Irving, TX 75062</div>
+            </div>
+            <div class="deal-metrics">
+              <div class="deal-metric"><i class="fas fa-dollar-sign"></i> $12M</div>
+              <div class="deal-metric"><i class="fas fa-warehouse"></i> 200K sf</div>
+              <div class="deal-metric"><i class="fas fa-percentage"></i> 5.5% CAP</div>
+            </div>
+            <div class="deal-metric"><i class="fas fa-user"></i> JLL</div>
+            <div style="font-size: 13px; color: var(--text-muted);">Broker Call</div>
+            <span class="status-badge pass"><i class="fas fa-circle" style="font-size: 6px;"></i> Passed</span>
+            <div class="deal-actions">
+              <button class="action-btn"><i class="fas fa-eye"></i></button>
+              <button class="action-btn"><i class="fas fa-redo"></i></button>
+            </div>
+          </div>
+          
+          <div class="deal-row">
+            <div class="deal-info">
+              <div class="deal-name">Uptown Retail Center</div>
+              <div class="deal-address">3200 Mckinney Ave, Dallas, TX 75204</div>
+            </div>
+            <div class="deal-metrics">
+              <div class="deal-metric"><i class="fas fa-dollar-sign"></i> $6.8M</div>
+              <div class="deal-metric"><i class="fas fa-store"></i> 45K sf</div>
+              <div class="deal-metric"><i class="fas fa-percentage"></i> 6.2% CAP</div>
+            </div>
+            <div class="deal-metric"><i class="fas fa-user"></i> Newmark</div>
+            <div style="font-size: 13px; color: var(--text-muted);">Direct Mail</div>
+            <span class="status-badge review"><i class="fas fa-circle" style="font-size: 6px;"></i> Reviewing</span>
+            <div class="deal-actions">
+              <button class="action-btn"><i class="fas fa-eye"></i></button>
+              <button class="action-btn"><i class="fas fa-calculator"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
