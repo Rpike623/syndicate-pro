@@ -1041,19 +1041,64 @@
     function renderDocuments(myDeals) {
       const grid = document.querySelector('.documents-grid');
       if (!grid) return;
-      if (!myDeals.length) { grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.875rem;">No documents yet.</p>'; return; }
+      if (!myDeals.length) { grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.875rem;">No documents yet. Your GP will upload documents once you\'re linked to a deal.</p>'; return; }
       const docs = [];
       myDeals.forEach(({deal}) => {
-        docs.push({ icon:'fa-file-contract', name:'Operating Agreement', deal: deal.name });
-        docs.push({ icon:'fa-file-alt', name:'PPM', deal: deal.name });
-        docs.push({ icon:'fa-file-invoice-dollar', name:'K-1 (2025)', deal: deal.name });
+        docs.push({ icon:'fa-file-contract', name:'Operating Agreement', deal: deal.name, type:'oa' });
+        docs.push({ icon:'fa-file-alt', name:'PPM', deal: deal.name, type:'ppm' });
+        docs.push({ icon:'fa-file-invoice-dollar', name:'K-1 (2025)', deal: deal.name, type:'k1' });
+        docs.push({ icon:'fa-file-signature', name:'Subscription Agreement', deal: deal.name, type:'sub' });
       });
       grid.innerHTML = docs.slice(0,8).map(d => `
-        <div class="document-card">
+        <div class="document-card" onclick="requestDoc('${d.type}','${d.deal}')">
           <div class="document-icon"><i class="fas ${d.icon}"></i></div>
           <div class="document-name">${d.name}</div>
           <div class="document-date">${d.deal}</div>
         </div>`).join('');
+    }
+
+    function requestDoc(type, dealName) {
+      const labels = {oa:'Operating Agreement',ppm:'Private Placement Memorandum',k1:'K-1 Tax Document',sub:'Subscription Agreement'};
+      const msg = `To request your ${labels[type]||type} for ${dealName}, please contact your GP directly. They will provide the document securely.`;
+      alert(msg);
+    }
+
+    // ── Render distributions for investor ────────────────────────────────────────
+    function renderDistributionsTab(myDeals) {
+      const distSection = document.querySelector('#tab-distributions, .distributions-section');
+      if (!distSection) return;
+      const inv = investorRecord;
+      if (!inv) return;
+      const allDists = SP.getDistributions();
+      const myDists = [];
+      allDists.forEach(dist => {
+        const r = (dist.recipients||[]).find(r => r.investorId === inv.id);
+        if (r) myDists.push({ ...dist, myAmount: r.amount, myOwnership: r.ownership });
+      });
+      const totalReceived = myDists.reduce((s,d) => s+(d.myAmount||0),0);
+      const distHTML = myDists.length ? `
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
+          <div class="stat-card"><div class="stat-label">Total Received</div><div class="stat-value">$${Number(totalReceived).toLocaleString()}</div></div>
+          <div class="stat-card"><div class="stat-label"># Distributions</div><div class="stat-value">${myDists.length}</div></div>
+          <div class="stat-card"><div class="stat-label">Last Distribution</div><div class="stat-value" style="font-size:1rem;">${myDists[myDists.length-1]?.date||'—'}</div></div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead style="background:var(--border-light);"><tr>
+              <th style="padding:10px 16px;text-align:left;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Deal</th>
+              <th style="padding:10px 16px;text-align:left;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Period</th>
+              <th style="padding:10px 16px;text-align:left;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Date</th>
+              <th style="padding:10px 16px;text-align:right;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">My Share</th>
+            </tr></thead>
+            <tbody>${myDists.map(d=>`<tr style="border-bottom:1px solid var(--border-light);">
+              <td style="padding:12px 16px;font-weight:600;">${d.dealName||'—'}</td>
+              <td style="padding:12px 16px;color:var(--text-secondary);">${d.period||'—'}</td>
+              <td style="padding:12px 16px;color:var(--text-secondary);">${d.date||'—'}</td>
+              <td style="padding:12px 16px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--success);">$${Number(d.myAmount||0).toLocaleString()}</td>
+            </tr>`).join('')}</tbody>
+          </table>
+        </div>` : `<div style="text-align:center;padding:40px;color:var(--text-muted);"><i class="fas fa-wallet" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i><p>No distributions recorded yet. Your GP will record distributions here as they are paid.</p></div>`;
+      distSection.innerHTML = distHTML;
     }
 
     // ── Deal detail modal ────────────────────────────────────────────────────────
@@ -1114,6 +1159,7 @@
       renderInvestments(myDeals);
       renderActivity(myDeals);
       renderDocuments(myDeals);
+      renderDistributionsTab(myDeals);
     })();
   </script>
 </body>

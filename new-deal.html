@@ -1372,27 +1372,47 @@
         status: 'fundraising'
       };
       
-      // Save to storage
-      const deals = JSON.parse(localStorage.getItem('syndicateDeals') || '[]');
-      deals.push(deal);
-      localStorage.setItem('syndicateDeals', JSON.stringify(deals));
-      
-      // Also save to pipeline
-      const pipelineDeals = JSON.parse(localStorage.getItem('pipelineDeals') || '[]');
-      pipelineDeals.push({
-        id: deal.id,
+      // Save to sp-core unified deal store
+      const urlId = new URLSearchParams(window.location.search).get('id');
+      const spDeals = SP.getDeals();
+      const spDeal = {
+        id: urlId || deal.id,
         name: deal.name,
-        address: deal.propertyAddress,
-        type: deal.propertyType,
-        stage: 'fundraising',
-        price: deal.purchasePrice,
-        equity: deal.totalEquity,
+        type: (deal.propertyType||'other').toLowerCase(),
+        location: deal.propertyAddress || deal.state || '',
+        raise: deal.totalEquity || 0,
+        irr: 0, // calculated by waterfall — updated below
+        equity: 0,
+        units: deal.units || 0,
         status: 'fundraising',
-        createdAt: deal.createdAt
-      });
-      localStorage.setItem('pipelineDeals', JSON.stringify(pipelineDeals));
-      
-      // Store current deal for document generation
+        added: deal.createdAt ? deal.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+        investors: [],
+        documents: [],
+        notes: deal.description || '',
+        // Store full wizard data
+        wizardData: deal,
+        prefReturn: deal.prefReturn || 8,
+        gpPromote: deal.gpPromote || 20,
+        gpEquity: deal.gpEquity || 20,
+        lpEquity: deal.lpEquity || 80,
+        waterfallType: deal.waterfallType || 'simple',
+        purchasePrice: deal.purchasePrice || 0,
+        loanAmount: deal.loanAmount || 0,
+        totalEquity: deal.totalEquity || 0,
+        acqFee: deal.acqFee || 3,
+        assetMgmtFee: deal.assetMgmtFee || 2,
+      };
+      if (urlId) {
+        const idx = spDeals.findIndex(d => d.id === urlId);
+        if (idx >= 0) { spDeals[idx] = { ...spDeals[idx], ...spDeal }; }
+        else { spDeals.unshift(spDeal); }
+      } else {
+        spDeals.unshift(spDeal);
+      }
+      SP.saveDeals(spDeals);
+      SP.logActivity('fa-calculator', 'blue', `Deal model saved: <strong>${deal.name}</strong>`);
+
+      // Store current deal for document generation (legacy compat)
       localStorage.setItem('currentDeal', JSON.stringify(deal));
       
       showStep('success');
@@ -1404,7 +1424,7 @@
     
     function viewDeal() {
       const deal = JSON.parse(localStorage.getItem('currentDeal') || '{}');
-      window.location.href = `deals.html?deal=${deal.id}`;
+      window.location.href = deal.id ? `deal-detail.html?id=${deal.id}` : 'pipeline.html';
     }
     
     function downloadDocuments() {

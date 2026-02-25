@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-core.js"></script>
+  <style>
+    :root{--primary:#0f172a;--accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#dbeafe;
+      --success:#10b981;--success-light:#d1fae5;--warning:#f59e0b;--warning-light:#fef3c7;
+      --danger:#ef4444;--danger-light:#fee2e2;--purple:#8b5cf6;--purple-light:#ede9fe;
+      --text:#0f172a;--text-secondary:#64748b;--text-muted:#94a3b8;
+      --border:#e2e8f0;--border-light:#f1f5f9;--bg:#f8fafc;--bg-card:#fff;--bg-sidebar:#0f172a;
+      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--radius-sm:6px;--radius:8px;--radius-md:12px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;}
+    .app{display:flex;min-height:100vh;}
+    .sidebar{width:260px;background:var(--bg-sidebar);color:white;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .3s;}
+    .sidebar-header{padding:24px;border-bottom:1px solid rgba(255,255,255,.1);}
+    .logo{display:flex;align-items:center;gap:12px;font-size:1.25rem;font-weight:700;text-decoration:none;color:white;}
+    .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#60a5fa);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+    .nav-section{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);padding:16px 12px 8px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);color:rgba(255,255,255,.7);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .15s;}
+    .nav-item:hover{background:rgba(255,255,255,.05);color:white;}
+    .nav-item.active{background:var(--accent);color:white;}
+    .nav-item i{width:20px;text-align:center;}
+    .sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1);}
+    .user-info{display:flex;align-items:center;gap:12px;}
+    .user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--success),#34d399);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;color:white;flex-shrink:0;}
+    .user-name{font-size:.9rem;font-weight:600;}.user-role{font-size:.75rem;color:rgba(255,255,255,.5);}
+    .main{flex:1;margin-left:260px;min-height:100vh;}
+    .top-bar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+    .top-left{display:flex;align-items:center;gap:16px;}
+    .mobile-menu-btn{display:none;background:none;border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;cursor:pointer;}
+    .page-title-bar h1{font-size:1.25rem;font-weight:700;}
+    .page-title-bar p{font-size:.8rem;color:var(--text-secondary);}
+    .top-actions{display:flex;gap:10px;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-size:.875rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;font-family:'Inter',sans-serif;}
+    .btn-primary{background:var(--accent);color:white;}.btn-primary:hover{background:var(--accent-hover);}
+    .btn-secondary{background:var(--bg-card);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border-light);}
+    .content{padding:32px;max-width:900px;}
+    .settings-grid{display:grid;grid-template-columns:240px 1fr;gap:24px;}
+    /* Settings nav */
+    .settings-nav{display:flex;flex-direction:column;gap:4px;}
+    .snav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius);color:var(--text-secondary);cursor:pointer;font-size:.9rem;font-weight:500;transition:all .15s;border:none;background:none;font-family:'Inter',sans-serif;width:100%;text-align:left;}
+    .snav-item:hover{background:var(--border-light);color:var(--text);}
+    .snav-item.active{background:var(--accent-light);color:var(--accent);font-weight:600;}
+    .snav-item i{width:18px;text-align:center;}
+    /* Panels */
+    .settings-panel{display:none;}.settings-panel.active{display:block;}
+    .panel-title{font-size:1.1rem;font-weight:700;margin-bottom:4px;}
+    .panel-sub{font-size:.85rem;color:var(--text-secondary);margin-bottom:24px;}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:28px;margin-bottom:20px;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .form-group{margin-bottom:0;}
+    .form-group.full{grid-column:1/-1;}
+    label{display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
+    input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;color:var(--text);background:var(--bg-card);outline:none;transition:all .15s;font-family:'Inter',sans-serif;}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+    textarea{resize:vertical;min-height:80px;}
+    .section-title{font-size:.85rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border-light);}
+    /* Logo upload */
+    .logo-upload{border:2px dashed var(--border);border-radius:var(--radius-md);padding:24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;}
+    .logo-upload:hover{border-color:var(--accent);background:var(--accent-light);}
+    .logo-preview{max-height:80px;max-width:200px;object-fit:contain;margin-bottom:8px;}
+    .logo-upload input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+    /* Toast */
+    .toast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:var(--radius);font-size:.875rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.15);transition:all .3s;background:var(--success);color:white;display:none;}
+    .toast.show{display:flex;align-items:center;gap:8px;}
+    /* Danger zone */
+    .danger-card{background:var(--danger-light);border:1px solid var(--danger);border-radius:var(--radius-md);padding:20px 24px;}
+    .danger-card h3{color:var(--danger);font-size:.95rem;margin-bottom:8px;}
+    .danger-card p{font-size:.85rem;color:#7f1d1d;margin-bottom:14px;}
+    .btn-danger{background:var(--danger);color:white;padding:8px 16px;font-size:.85rem;}
+    .btn-danger:hover{background:#dc2626;}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;}
+    .sidebar-overlay.visible{display:block;}
+    @media(max-width:768px){
+      .sidebar{transform:translateX(-100%);}
+      .sidebar.open{transform:translateX(0);}
+      .main{margin-left:0!important;}
+      .mobile-menu-btn{display:flex!important;}
+      .top-bar,.content{padding:12px 16px;}
+      .settings-grid{grid-template-columns:1fr;}
+      .form-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>SyndicatePro</span></a>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Deal Pipeline</span></a>
+      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+      <div class="nav-section">Tools</div>
+      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
+      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+      <div class="nav-section">Account</div>
+      <a href="settings.html" class="nav-item active"><i class="fas fa-cog"></i><span>Settings</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="avatarEl">GP</div>
+        <div class="user-details"><div class="user-name" id="userNameEl">General Partner</div><div class="user-role" id="userRoleEl">Administrator</div></div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <main class="main">
+    <header class="top-bar">
+      <div class="top-left">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
+        <div class="page-title-bar"><h1>Settings</h1><p>Manage your firm profile and account preferences</p></div>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-primary" onclick="saveAll()"><i class="fas fa-save"></i> Save Changes</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="settings-grid">
+        <!-- Settings nav -->
+        <div>
+          <div class="settings-nav">
+            <button class="snav-item active" onclick="switchPanel('firm',this)"><i class="fas fa-building"></i> Firm Profile</button>
+            <button class="snav-item" onclick="switchPanel('account',this)"><i class="fas fa-user"></i> My Account</button>
+            <button class="snav-item" onclick="switchPanel('documents',this)"><i class="fas fa-file-contract"></i> Document Defaults</button>
+            <button class="snav-item" onclick="switchPanel('notifications',this)"><i class="fas fa-bell"></i> Notifications</button>
+            <button class="snav-item" onclick="switchPanel('danger',this)"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> Danger Zone</button>
+          </div>
+        </div>
+
+        <!-- Panels -->
+        <div>
+          <!-- Firm Profile -->
+          <div class="settings-panel active" id="panel-firm">
+            <div class="panel-title">Firm Profile</div>
+            <div class="panel-sub">This information appears on all generated documents, K-1s, capital calls, and investor communications.</div>
+
+            <div class="card">
+              <div class="section-title">Company Logo</div>
+              <div class="logo-upload" id="logoDropzone" onclick="document.getElementById('logoFile').click()">
+                <img id="logoPreview" class="logo-preview" style="display:none;">
+                <div id="logoPlaceholder">
+                  <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--text-muted);margin-bottom:8px;display:block;"></i>
+                  <div style="font-weight:600;color:var(--text-secondary);">Click to upload logo</div>
+                  <div style="font-size:.78rem;color:var(--text-muted);margin-top:4px;">PNG, JPG up to 2MB • Recommended: 400×120px</div>
+                </div>
+                <input type="file" id="logoFile" accept="image/*" onchange="handleLogoUpload(event)" style="display:none;">
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">Company Information</div>
+              <div class="form-grid">
+                <div class="form-group full"><label>Company / Firm Name *</label><input id="firmName" placeholder="Pike Capital Management LLC"></div>
+                <div class="form-group"><label>DBA / Brand Name</label><input id="firmDBA" placeholder="Pike Capital"></div>
+                <div class="form-group"><label>Entity Type</label>
+                  <select id="firmEntityType">
+                    <option value="LLC">LLC</option>
+                    <option value="LP">Limited Partnership</option>
+                    <option value="Corp">Corporation</option>
+                    <option value="Trust">Trust</option>
+                  </select>
+                </div>
+                <div class="form-group"><label>EIN / Tax ID</label><input id="firmEIN" placeholder="XX-XXXXXXX"></div>
+                <div class="form-group"><label>State of Formation</label>
+                  <select id="firmState">
+                    <option value="">Select state</option>
+                    <option value="TX">Texas</option><option value="DE">Delaware</option><option value="FL">Florida</option>
+                    <option value="CA">California</option><option value="NY">New York</option><option value="NV">Nevada</option>
+                    <option value="WY">Wyoming</option><option value="CO">Colorado</option><option value="AZ">Arizona</option>
+                  </select>
+                </div>
+                <div class="form-group"><label>Year Founded</label><input id="firmYear" placeholder="2020" type="number"></div>
+                <div class="form-group full"><label>Registered Address</label><input id="firmAddress" placeholder="123 Main St, Fort Worth, TX 76102"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">Contact Information</div>
+              <div class="form-grid">
+                <div class="form-group"><label>Primary Email</label><input id="firmEmail" type="email" placeholder="contact@pikecapital.com"></div>
+                <div class="form-group"><label>Phone</label><input id="firmPhone" placeholder="(817) 555-0100"></div>
+                <div class="form-group"><label>Website</label><input id="firmWebsite" placeholder="https://pikecapital.com"></div>
+                <div class="form-group"><label>LinkedIn</label><input id="firmLinkedIn" placeholder="linkedin.com/company/pike-capital"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">Managing Partner</div>
+              <div class="form-grid">
+                <div class="form-group"><label>Full Name *</label><input id="gpFullName" placeholder="Robert Pike"></div>
+                <div class="form-group"><label>Title</label><input id="gpTitle" placeholder="Managing Member"></div>
+                <div class="form-group"><label>Direct Email</label><input id="gpEmail" type="email" placeholder="robert@pikecapital.com"></div>
+                <div class="form-group"><label>Direct Phone</label><input id="gpPhone" placeholder="(817) 555-0101"></div>
+                <div class="form-group full"><label>Bio / Signature Block</label><textarea id="gpBio" placeholder="Brief bio used in investor communications and documents..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account -->
+          <div class="settings-panel" id="panel-account">
+            <div class="panel-title">My Account</div>
+            <div class="panel-sub">Update your login credentials and personal preferences.</div>
+            <div class="card">
+              <div class="section-title">Profile</div>
+              <div class="form-grid">
+                <div class="form-group"><label>Full Name</label><input id="acctName" placeholder="Robert Pike"></div>
+                <div class="form-group"><label>Email</label><input id="acctEmail" type="email" placeholder="robert@pikecapital.com" readonly style="background:var(--border-light);color:var(--text-secondary);"></div>
+                <div class="form-group full"><label>Timezone</label>
+                  <select id="acctTimezone">
+                    <option value="America/Chicago">Central Time (CT)</option>
+                    <option value="America/New_York">Eastern Time (ET)</option>
+                    <option value="America/Denver">Mountain Time (MT)</option>
+                    <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-title">Change Password</div>
+              <div class="form-grid">
+                <div class="form-group full"><label>Current Password</label><input type="password" id="pwCurrent" placeholder="••••••••"></div>
+                <div class="form-group"><label>New Password</label><input type="password" id="pwNew" placeholder="Min 8 characters"></div>
+                <div class="form-group"><label>Confirm New Password</label><input type="password" id="pwConfirm" placeholder="••••••••"></div>
+              </div>
+              <button class="btn btn-secondary" style="margin-top:16px;" onclick="changePassword()"><i class="fas fa-lock"></i> Update Password</button>
+            </div>
+          </div>
+
+          <!-- Document Defaults -->
+          <div class="settings-panel" id="panel-documents">
+            <div class="panel-title">Document Defaults</div>
+            <div class="panel-sub">Default values pre-filled when generating operating agreements, PPMs, and subscription documents.</div>
+            <div class="card">
+              <div class="section-title">Waterfall Defaults</div>
+              <div class="form-grid">
+                <div class="form-group"><label>Default Pref Return (%)</label><input id="defPref" type="number" placeholder="8" step="0.5"></div>
+                <div class="form-group"><label>Default GP Promote (%)</label><input id="defPromote" type="number" placeholder="20" step="1"></div>
+                <div class="form-group"><label>Default GP Equity (%)</label><input id="defGPEquity" type="number" placeholder="20" step="1"></div>
+                <div class="form-group"><label>Default Hold Period (years)</label><input id="defHold" type="number" placeholder="5" step="1"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="section-title">Legal / Compliance</div>
+              <div class="form-grid">
+                <div class="form-group"><label>Default Governing State</label>
+                  <select id="defState">
+                    <option value="TX">Texas</option><option value="DE">Delaware</option><option value="FL">Florida</option>
+                    <option value="CA">California</option><option value="NY">New York</option><option value="NV">Nevada</option><option value="WY">Wyoming</option>
+                  </select>
+                </div>
+                <div class="form-group"><label>SEC Exemption</label>
+                  <select id="defSEC">
+                    <option value="506b">Rule 506(b)</option>
+                    <option value="506c">Rule 506(c)</option>
+                    <option value="4a5">Section 4(a)(5)</option>
+                  </select>
+                </div>
+                <div class="form-group full"><label>Legal Counsel Name & Firm</label><input id="defCounsel" placeholder="Jane Smith, Esq. — Smith & Associates PLLC"></div>
+                <div class="form-group full"><label>Standard Risk Disclaimer</label><textarea id="defDisclaimer" rows="3" placeholder="Investing involves risk. This is not an offer to sell securities..."></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div class="settings-panel" id="panel-notifications">
+            <div class="panel-title">Notifications</div>
+            <div class="panel-sub">Configure when and how you get notified about activity.</div>
+            <div class="card">
+              <div class="section-title">Email Notifications</div>
+              ${['New investor signs up via invite link','Distribution recorded','Capital call deadline approaching (3 days)','Deal stage changes in pipeline','Investor accreditation expiring (30 days)','K-1 export generated'].map(label => `
+              <label style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light);cursor:pointer;font-size:.9rem;color:var(--text);">
+                <input type="checkbox" class="notif-check" data-label="${label}" checked style="width:18px;height:18px;accent-color:var(--accent);">
+                ${label}
+              </label>`).join('')}
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="settings-panel" id="panel-danger">
+            <div class="panel-title">Danger Zone</div>
+            <div class="panel-sub">Irreversible actions. Proceed with caution.</div>
+            <div class="danger-card" style="margin-bottom:16px;">
+              <h3><i class="fas fa-trash"></i> Clear All Demo Data</h3>
+              <p>Removes all seeded demo deals and investors. Your real data stays intact. Use this when you're ready to go live with real data.</p>
+              <button class="btn btn-danger" onclick="clearDemoData()"><i class="fas fa-trash"></i> Clear Demo Data</button>
+            </div>
+            <div class="danger-card">
+              <h3><i class="fas fa-exclamation-circle"></i> Reset All Data</h3>
+              <p>Permanently deletes ALL data for your organization — deals, investors, distributions, documents. This cannot be undone.</p>
+              <button class="btn btn-danger" onclick="resetAllData()"><i class="fas fa-bomb"></i> Reset Everything</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Saved successfully!</span></div>
+
+<script>
+SP.requireGP();
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible');}
+function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('visible');}
+
+const session = SP.getSession();
+if (session) {
+  document.getElementById('userNameEl').textContent = session.name || 'General Partner';
+  document.getElementById('userRoleEl').textContent = session.role || 'Administrator';
+  const initials = (session.name||'GP').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('avatarEl').textContent = initials;
+}
+
+function switchPanel(name, btn) {
+  document.querySelectorAll('.snav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+// ── Load settings ─────────────────────────────────────────────────────────────
+function loadSettings() {
+  const s = SP.load('settings', {});
+  const fields = ['firmName','firmDBA','firmEntityType','firmEIN','firmState','firmYear','firmAddress',
+    'firmEmail','firmPhone','firmWebsite','firmLinkedIn','gpFullName','gpTitle','gpEmail','gpPhone','gpBio',
+    'defPref','defPromote','defGPEquity','defHold','defState','defSEC','defCounsel','defDisclaimer',
+    'acctName','acctTimezone'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && s[id] !== undefined) el.value = s[id];
+  });
+  // Account email from session (read-only)
+  if (session?.email) {
+    const acctEmail = document.getElementById('acctEmail');
+    if (acctEmail) acctEmail.value = session.email;
+  }
+  // Autofill GP name from session if not saved yet
+  if (!s.gpFullName && session?.name) {
+    const el = document.getElementById('gpFullName');
+    if (el) el.value = session.name;
+  }
+  if (!s.firmName) {
+    const el = document.getElementById('firmName');
+    if (el) el.value = session?.company || '';
+  }
+  // Logo
+  if (s.logoDataUrl) {
+    document.getElementById('logoPreview').src = s.logoDataUrl;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+  }
+  // Notifications
+  if (s.notifications) {
+    document.querySelectorAll('.notif-check').forEach(cb => {
+      const saved = s.notifications[cb.dataset.label];
+      if (saved !== undefined) cb.checked = saved;
+    });
+  }
+}
+
+// ── Save all ──────────────────────────────────────────────────────────────────
+function saveAll() {
+  const existing = SP.load('settings', {});
+  const fields = ['firmName','firmDBA','firmEntityType','firmEIN','firmState','firmYear','firmAddress',
+    'firmEmail','firmPhone','firmWebsite','firmLinkedIn','gpFullName','gpTitle','gpEmail','gpPhone','gpBio',
+    'defPref','defPromote','defGPEquity','defHold','defState','defSEC','defCounsel','defDisclaimer',
+    'acctTimezone'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) existing[id] = el.value;
+  });
+  // Notifications
+  existing.notifications = {};
+  document.querySelectorAll('.notif-check').forEach(cb => {
+    existing.notifications[cb.dataset.label] = cb.checked;
+  });
+  SP.save('settings', existing);
+  // Update session name if changed
+  const newName = document.getElementById('gpFullName')?.value || document.getElementById('acctName')?.value;
+  if (newName && session) {
+    const s = SP.getSession();
+    s.name = newName;
+    SP.setSession(s);
+    // Update sidebar
+    const nameEl = document.querySelector('.sidebar .user-name');
+    if (nameEl) nameEl.textContent = newName;
+    const av = document.getElementById('avatarEl');
+    if (av) av.textContent = newName.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  }
+  showToast('Settings saved!');
+}
+
+// ── Logo upload ───────────────────────────────────────────────────────────────
+function handleLogoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { alert('Logo must be under 2MB'); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const dataUrl = ev.target.result;
+    document.getElementById('logoPreview').src = dataUrl;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+    const s = SP.load('settings', {});
+    s.logoDataUrl = dataUrl;
+    SP.save('settings', s);
+    showToast('Logo uploaded!');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Password change ───────────────────────────────────────────────────────────
+function changePassword() {
+  const current = document.getElementById('pwCurrent').value;
+  const newPw = document.getElementById('pwNew').value;
+  const confirm = document.getElementById('pwConfirm').value;
+  if (!current || !newPw) { alert('Please fill in current and new password.'); return; }
+  if (newPw !== confirm) { alert('New passwords do not match.'); return; }
+  if (newPw.length < 8) { alert('Password must be at least 8 characters.'); return; }
+  const users = SP.getUsers();
+  const idx = users.findIndex(u => u.email === session?.email);
+  if (idx < 0 || users[idx].password !== current) { alert('Current password is incorrect.'); return; }
+  users[idx].password = newPw;
+  SP.saveUsers(users);
+  document.getElementById('pwCurrent').value = '';
+  document.getElementById('pwNew').value = '';
+  document.getElementById('pwConfirm').value = '';
+  showToast('Password updated!');
+}
+
+// ── Danger zone ───────────────────────────────────────────────────────────────
+function clearDemoData() {
+  if (!confirm('Clear all demo/seeded data? This removes the pre-loaded sample deals and investors. Your real data stays intact.')) return;
+  const DEMO_IDS = ['d1','d2','d3','d4','d5','p1','p2','p3','i1','i2','i3','i4','i5','i6'];
+  const deals = SP.getDeals().filter(d => !DEMO_IDS.includes(d.id));
+  const investors = SP.getInvestors().filter(i => !DEMO_IDS.includes(i.id));
+  SP.saveDeals(deals);
+  SP.saveInvestors(investors);
+  showToast('Demo data cleared!');
+}
+
+function resetAllData() {
+  const confirm1 = confirm('⚠️ This will DELETE ALL your data permanently. Type "RESET" to confirm.');
+  if (!confirm1) return;
+  const word = prompt('Type RESET to confirm:');
+  if (word !== 'RESET') { alert('Cancelled.'); return; }
+  ['deals','investors','distributions','activity','documentDrafts','commitments','settings'].forEach(k => {
+    localStorage.removeItem(SP.makeOrgKey(k));
+  });
+  showToast('All data reset. Redirecting…');
+  setTimeout(() => window.location.href = 'dashboard.html', 1500);
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.style.background = type === 'success' ? 'var(--success)' : 'var(--danger)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+loadSettings();
+</script>
+</body>
+</html>

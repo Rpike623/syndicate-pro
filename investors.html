@@ -175,6 +175,7 @@
         <div class="page-title-bar"><h1>Investors</h1><p>Manage your limited partners and track commitments</p></div>
       </div>
       <div class="top-actions">
+        <button class="btn btn-secondary" onclick="openCSVModal()"><i class="fas fa-file-csv"></i> Import CSV</button>
         <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-user-plus"></i> Add Investor</button>
       </div>
     </header>
@@ -281,6 +282,32 @@
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn btn-primary" onclick="saveInvestor()"><i class="fas fa-save"></i> Save Investor</button>
+    </div>
+  </div>
+</div>
+
+<!-- CSV Import Modal -->
+<div class="modal-overlay" id="csvModal" onclick="handleCSVOverlay(event)">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h2 class="modal-title"><i class="fas fa-file-csv" style="color:var(--success);margin-right:8px;"></i>Import Investors from CSV</h2>
+      <button class="modal-close" onclick="closeCSVModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--border-light);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;font-size:.82rem;color:var(--text-secondary);">
+        <div style="font-weight:600;margin-bottom:6px;">Expected CSV columns (any order):</div>
+        <code style="font-size:.78rem;">first_name, last_name, email, phone, address, accredited, invested, notes</code>
+        <div style="margin-top:6px;">Or use: <code>name, email</code> as a minimal format. Duplicates (same email) are skipped.</div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">Upload CSV File</label>
+        <input type="file" id="csvFile" accept=".csv,text/csv" onchange="handleCSVFile(event)" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:.875rem;">
+      </div>
+      <div id="csvPreviewArea"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeCSVModal()">Cancel</button>
+      <a href="data:text/csv;charset=utf-8,first_name%2Clast_name%2Cemail%2Cphone%2Caddress%2Caccredited%2Cinvested%2Cnotes%0AJohn%2CSmith%2Cjohn%40email.com%2C5550001%2C123+Main+St%2Cverified%2C100000%2CNotes+here" download="investor-import-template.csv" class="btn btn-secondary"><i class="fas fa-download"></i> Download Template</a>
     </div>
   </div>
 </div>
@@ -750,6 +777,88 @@ function sendInviteEmail() {
   window.open(mailto, '_blank');
   logActivity('fa-paper-plane','blue',`Invite sent to <strong>${_inviteEmail}</strong>`);
   closeInviteModal();
+}
+
+// ── CSV Import ────────────────────────────────────────────────────────────────
+function openCSVModal() { document.getElementById('csvModal').classList.add('open'); }
+function closeCSVModal() { document.getElementById('csvModal').classList.remove('open'); document.getElementById('csvPreviewArea').innerHTML = ''; document.getElementById('csvFile').value=''; }
+function handleCSVOverlay(e) { if(e.target===document.getElementById('csvModal')) closeCSVModal(); }
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n').map(l => l.split(',').map(c => c.trim().replace(/^"|"$/g,'')));
+  if (lines.length < 2) return [];
+  const headers = lines[0].map(h => h.toLowerCase().replace(/\s+/g,'_'));
+  return lines.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = row[i]||'');
+    return obj;
+  }).filter(r => r.first_name||r.firstname||r.name||r.email);
+}
+
+function normalizeRow(r) {
+  const name = (r.name||'').trim();
+  const parts = name.split(' ');
+  return {
+    id: 'csv_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+    firstName: r.first_name||r.firstname||parts[0]||'',
+    lastName: r.last_name||r.lastname||parts.slice(1).join(' ')||'',
+    email: r.email||r.email_address||'',
+    phone: r.phone||r.phone_number||r.mobile||'',
+    address: r.address||r.street||'',
+    accredStatus: (r.accredited||r.accreditation||'').toLowerCase().includes('verif') ? 'verified' : 'pending',
+    totalInvested: parseFloat((r.invested||r.total_invested||r.amount||'').replace(/[$,]/g,''))||0,
+    deals: 0,
+    status: 'active',
+    notes: r.notes||r.note||'',
+  };
+}
+
+function handleCSVFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const rows = parseCSV(ev.target.result);
+    if (!rows.length) { document.getElementById('csvPreviewArea').innerHTML = '<p style="color:var(--danger);padding:12px;">No valid rows found. Check your CSV format.</p>'; return; }
+    const normalized = rows.map(normalizeRow).filter(r => r.email);
+    const dupes = normalized.filter(r => investors.some(i => i.email.toLowerCase() === r.email.toLowerCase()));
+    const news = normalized.filter(r => !investors.some(i => i.email.toLowerCase() === r.email.toLowerCase()));
+    document.getElementById('csvPreviewArea').innerHTML = `
+      <div style="margin-bottom:12px;padding:12px;background:var(--success-light);border:1px solid var(--success);border-radius:var(--radius);font-size:.85rem;">
+        <strong>${news.length} new investors</strong> will be added &nbsp;·&nbsp; ${dupes.length} duplicates skipped
+      </div>
+      <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius);">
+        <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+          <thead><tr style="background:var(--border-light);">
+            <th style="padding:8px 12px;text-align:left;">Name</th>
+            <th style="padding:8px 12px;text-align:left;">Email</th>
+            <th style="padding:8px 12px;text-align:left;">Status</th>
+          </tr></thead>
+          <tbody>${normalized.map(r => {
+            const isDupe = investors.some(i => i.email.toLowerCase() === r.email.toLowerCase());
+            return `<tr style="border-bottom:1px solid var(--border-light);${isDupe?'opacity:.4;':''}">
+              <td style="padding:8px 12px;">${r.firstName} ${r.lastName}</td>
+              <td style="padding:8px 12px;">${r.email}</td>
+              <td style="padding:8px 12px;">${isDupe?'<span style="color:var(--warning);">Duplicate</span>':'<span style="color:var(--success);">New</span>'}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      </div>
+      <button onclick="confirmCSVImport()" style="margin-top:14px;width:100%;padding:12px;background:var(--accent);color:white;border:none;border-radius:var(--radius);font-size:.9rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">
+        <i class="fas fa-file-import"></i> Import ${news.length} Investor${news.length!==1?'s':''}
+      </button>`;
+    document.getElementById('csvPreviewArea').dataset.rows = JSON.stringify(normalized);
+  };
+  reader.readAsText(file);
+}
+
+function confirmCSVImport() {
+  const rows = JSON.parse(document.getElementById('csvPreviewArea').dataset.rows || '[]');
+  const news = rows.filter(r => r.email && !investors.some(i => i.email.toLowerCase() === r.email.toLowerCase()));
+  investors = [...news, ...investors];
+  save(); updateStats(); filterTable(); closeCSVModal();
+  SP.logActivity('fa-file-import','green',`<strong>${news.length} investors</strong> imported via CSV`);
+  showToast(`${news.length} investor${news.length!==1?'s':''} imported ✓`, 'success');
 }
 
 load(); updateStats(); filterTable();

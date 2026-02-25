@@ -357,6 +357,8 @@ const SP = (function () {
     createInviteToken, decodeInviteToken,
     // Distributions
     getDistributions, saveDistributions, getDistributionsForInvestor,
+    // Settings
+    getSettings: () => { try { return JSON.parse(localStorage.getItem(SP.makeOrgKey('settings')) || '{}'); } catch(e) { return {}; } },
   };
 })();
 
@@ -371,6 +373,22 @@ const SP = (function () {
     if (nameEl && s.name) nameEl.textContent = s.name;
     const roleEl = document.querySelector('.sidebar .user-role');
     if (roleEl && s.role) roleEl.textContent = s.role;
+    // Inject Settings nav link if sidebar nav exists and doesn't already have it
+    const nav = document.querySelector('.sidebar .nav');
+    if (nav && !nav.querySelector('a[href="settings.html"]')) {
+      const section = document.createElement('div');
+      section.className = 'nav-section';
+      section.textContent = 'Account';
+      const link = document.createElement('a');
+      link.href = 'settings.html';
+      link.className = 'nav-item';
+      link.innerHTML = '<i class="fas fa-cog"></i><span>Settings</span>';
+      // Mark active if on settings page
+      if (window.location.pathname.endsWith('settings.html')) link.classList.add('active');
+      nav.appendChild(section);
+      nav.appendChild(link);
+    }
+
     // Inject logout link if not already present
     const footer = document.querySelector('.sidebar-footer');
     if (footer && !footer.querySelector('.logout-btn')) {

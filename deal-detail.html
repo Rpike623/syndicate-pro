@@ -271,6 +271,7 @@ function render() {
   document.getElementById('topActions').innerHTML = `
     <a href="pipeline.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Pipeline</a>
     <a href="new-deal.html?id=${deal.id}" class="btn btn-secondary"><i class="fas fa-calculator"></i> Model</a>
+    <button class="btn btn-secondary" onclick="shareTeaserLink('${deal.id}')" title="Share public teaser"><i class="fas fa-share-alt"></i> Share</button>
     <button class="btn btn-primary" onclick="openAddInvModal()"><i class="fas fa-user-plus"></i> Add Investor</button>
     <button class="btn btn-danger" onclick="confirmDelete()"><i class="fas fa-trash"></i></button>`;
 
@@ -507,6 +508,21 @@ function saveAddInv() {
   SP.logActivity('fa-link','blue',`<strong>${inv?.firstName} ${inv?.lastName}</strong> linked to <strong>${deal?.name}</strong>`);
   closeAddInvModal();
   render();
+}
+
+function shareTeaserLink(dId) {
+  const orgId = SP.getOrgId();
+  const token = btoa(`${orgId}|${dId}`).replace(/=/g,'');
+  const base = window.location.href.replace(/deal-detail\.html.*/, '');
+  const url = `${base}deal-teaser.html?t=${token}`;
+  navigator.clipboard.writeText(url).then(() => {
+    // Show toast
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:#10b981;color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;';
+    t.innerHTML = '<i class="fas fa-check-circle"></i> Teaser link copied to clipboard!';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }).catch(() => { prompt('Copy this teaser link:', url); });
 }
 
 if(!dealId) { window.location.href='pipeline.html'; } else { render(); }

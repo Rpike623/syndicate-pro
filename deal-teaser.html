@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investment Opportunity — SyndicatePro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-core.js"></script>
+  <style>
+    :root{--accent:#3b82f6;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--purple:#8b5cf6;
+      --text:#0f172a;--text-secondary:#64748b;--text-muted:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;
+      --bg:#f8fafc;--bg-card:#fff;--radius:8px;--radius-md:12px;--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;}
+
+    /* Header */
+    .site-header{background:#0f172a;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;}
+    .site-logo{display:flex;align-items:center;gap:10px;color:white;text-decoration:none;font-size:1.1rem;font-weight:700;}
+    .site-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#60a5fa);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;}
+    .header-cta{padding:8px 20px;background:var(--accent);color:white;border:none;border-radius:var(--radius);font-size:.875rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;}
+
+    /* Hero */
+    .hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);color:white;padding:64px 32px 48px;text-align:center;position:relative;overflow:hidden;}
+    .hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(59,130,246,.2),transparent 70%);}
+    .hero-label{display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);color:#93c5fd;padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:600;margin-bottom:20px;}
+    .hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;margin-bottom:12px;position:relative;}
+    .hero-location{display:flex;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,.6);font-size:1rem;margin-bottom:32px;}
+    .hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:800px;margin:0 auto;}
+    .hero-metric{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-md);padding:20px;text-align:center;}
+    .hero-metric .val{font-size:1.6rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:white;}
+    .hero-metric .lbl{font-size:.72rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em;margin-top:4px;}
+
+    /* Content */
+    .container{max-width:960px;margin:0 auto;padding:48px 32px;}
+    .two-col{display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start;}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:24px;overflow:hidden;}
+    .card-header{padding:20px 24px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:10px;}
+    .card-header-icon{width:32px;height:32px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:.85rem;}
+    .card-header-icon.blue{background:#dbeafe;color:var(--accent);}
+    .card-header-icon.green{background:#d1fae5;color:var(--success);}
+    .card-header-icon.amber{background:#fef3c7;color:var(--warning);}
+    .card-title{font-size:1rem;font-weight:700;}
+    .card-body{padding:20px 24px;}
+    /* Highlights */
+    .highlight-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+    .highlight-list li{display:flex;align-items:flex-start;gap:10px;font-size:.9rem;}
+    .hl-dot{width:20px;height:20px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+    .hl-dot i{font-size:.65rem;color:white;}
+    /* Disclaimer */
+    .disclaimer{background:var(--border-light);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:.75rem;color:var(--text-muted);line-height:1.6;margin-top:24px;}
+    /* Sticky CTA sidebar */
+    .cta-card{background:#0f172a;border-radius:var(--radius-md);padding:28px;color:white;position:sticky;top:24px;}
+    .cta-card h3{font-size:1.1rem;font-weight:700;margin-bottom:8px;}
+    .cta-card p{font-size:.85rem;color:rgba(255,255,255,.6);margin-bottom:20px;}
+    .cta-form-group{margin-bottom:14px;}
+    .cta-form-group label{display:block;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:6px;}
+    .cta-form-group input,.cta-form-group select,.cta-form-group textarea{width:100%;padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);color:white;font-size:.875rem;font-family:'Inter',sans-serif;outline:none;transition:all .2s;}
+    .cta-form-group input::placeholder,.cta-form-group textarea::placeholder{color:rgba(255,255,255,.3);}
+    .cta-form-group input:focus,.cta-form-group textarea:focus{border-color:var(--accent);background:rgba(59,130,246,.1);}
+    .cta-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),#1d4ed8);color:white;border:none;border-radius:var(--radius);font-size:1rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
+    .cta-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(59,130,246,.35);}
+    .cta-success{display:none;text-align:center;padding:20px 0;}
+    .cta-success i{font-size:2.5rem;color:var(--success);display:block;margin-bottom:12px;}
+    .cta-success h4{color:white;margin-bottom:6px;}
+    .cta-success p{font-size:.82rem;color:rgba(255,255,255,.5);}
+    /* Firm info */
+    .firm-info{display:flex;align-items:center;gap:12px;padding:16px 24px;border-top:1px solid var(--border-light);}
+    .firm-logo-circle{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),#60a5fa);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.9rem;flex-shrink:0;}
+    .not-found{text-align:center;padding:80px 20px;color:var(--text-muted);}
+    .not-found i{font-size:3rem;opacity:.3;display:block;margin-bottom:16px;}
+    @media(max-width:768px){
+      .hero-metrics{grid-template-columns:repeat(2,1fr);}
+      .two-col{grid-template-columns:1fr;}
+      .container{padding:24px 16px;}
+      .cta-card{position:static;}
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="site-logo">
+    <div class="site-logo-icon">◆</div>
+    SyndicatePro
+  </a>
+  <a href="login.html" class="header-cta">GP Login</a>
+</header>
+
+<div id="teaserContent">
+  <!-- Populated by JS -->
+</div>
+
+<script>
+// This page is intentionally PUBLIC — no auth guard
+// It reads deal data from a shared localStorage snapshot identified by a token
+
+const params = new URLSearchParams(window.location.search);
+const token = params.get('t');
+const dealId = params.get('deal'); // fallback for direct GP preview
+
+function fmt$(n){if(!n)return'$0';if(n>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(n>=1e3)return'$'+(n/1e3).toFixed(0)+'K';return'$'+Number(n).toLocaleString();}
+
+function notFound(msg) {
+  document.getElementById('teaserContent').innerHTML = `
+    <div class="not-found">
+      <i class="fas fa-lock"></i>
+      <h2 style="margin-bottom:8px;">${msg||'Deal not found'}</h2>
+      <p>This link may have expired or been removed.</p>
+      <a href="login.html" style="display:inline-block;margin-top:20px;padding:10px 24px;background:var(--accent);color:white;border-radius:8px;text-decoration:none;font-weight:600;">Go to Login</a>
+    </div>`;
+}
+
+function render(deal, settings, gpName) {
+  const firm = settings.firmName || gpName || 'The Sponsor';
+  const gpEmail = settings.gpEmail || settings.firmEmail || '';
+  const gpPhone = settings.gpPhone || settings.firmPhone || '';
+  const logoHtml = settings.logoDataUrl
+    ? `<img src="${settings.logoDataUrl}" style="height:36px;object-fit:contain;">`
+    : `<div class="firm-logo-circle">${firm.charAt(0)}</div>`;
+
+  const typeLabel = {multifamily:'Multifamily',industrial:'Industrial',retail:'Retail',office:'Office',other:'Other'}[deal.type]||deal.type||'—';
+  const statusLabel = {sourcing:'Sourcing',loi:'LOI Stage',dd:'Due Diligence',operating:'Operating',closed:'Closed'}[deal.status]||deal.status||'—';
+
+  document.title = `${deal.name} — Investment Opportunity`;
+
+  document.getElementById('teaserContent').innerHTML = `
+    <div class="hero">
+      <div class="hero-label"><i class="fas fa-star"></i> Exclusive Investment Opportunity</div>
+      <h1>${deal.name}</h1>
+      <div class="hero-location"><i class="fas fa-map-marker-alt"></i> ${deal.location||'Location on file'} &nbsp;·&nbsp; ${typeLabel} &nbsp;·&nbsp; ${statusLabel}</div>
+      <div class="hero-metrics">
+        <div class="hero-metric"><div class="val">${fmt$(deal.raise||0)}</div><div class="lbl">Target Raise</div></div>
+        <div class="hero-metric"><div class="val">${deal.irr?deal.irr.toFixed(1)+'%':'—'}</div><div class="lbl">Target IRR</div></div>
+        <div class="hero-metric"><div class="val">${deal.equity?deal.equity.toFixed(2)+'x':'—'}</div><div class="lbl">Equity Multiple</div></div>
+        <div class="hero-metric"><div class="val">${deal.units||'—'}</div><div class="lbl">Units</div></div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="two-col">
+        <!-- Left: deal content -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-icon green"><i class="fas fa-check-circle"></i></div>
+              <div class="card-title">Investment Highlights</div>
+            </div>
+            <div class="card-body">
+              <ul class="highlight-list">
+                <li><div class="hl-dot"><i class="fas fa-check"></i></div><span>${typeLabel} property in ${deal.location||'Prime Market'}</span></li>
+                <li><div class="hl-dot"><i class="fas fa-check"></i></div><span>Target IRR of ${deal.irr?deal.irr.toFixed(1)+'%':'competitive returns'} over ${deal.holdPeriod||'5'}-year hold</span></li>
+                <li><div class="hl-dot"><i class="fas fa-check"></i></div><span>${deal.equity?deal.equity.toFixed(2)+'x equity multiple':'Attractive equity multiple'}${deal.raise?' on $'+Number(deal.raise).toLocaleString()+' raise':''}</span></li>
+                ${deal.notes ? `<li><div class="hl-dot"><i class="fas fa-check"></i></div><span>${deal.notes}</span></li>` : ''}
+                ${(deal.investors&&deal.investors.length)?`<li><div class="hl-dot"><i class="fas fa-check"></i></div><span>${deal.investors.length} investor${deal.investors.length>1?'s':''} already committed</span></li>`:''}
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-icon blue"><i class="fas fa-chart-bar"></i></div>
+              <div class="card-title">Deal Metrics</div>
+            </div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+                ${[
+                  ['Target Raise', fmt$(deal.raise||0)],
+                  ['Target IRR', deal.irr?deal.irr.toFixed(1)+'%':'—'],
+                  ['Equity Multiple', deal.equity?deal.equity.toFixed(2)+'x':'—'],
+                  ['Property Type', typeLabel],
+                  ['Location', deal.location||'—'],
+                  ['Deal Status', statusLabel],
+                ].map(([l,v])=>`<div style="background:var(--border-light);border-radius:var(--radius);padding:14px;"><div style="font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">${l}</div><div style="font-size:1rem;font-weight:700;margin-top:4px;font-family:'JetBrains Mono',monospace;">${v}</div></div>`).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-icon amber"><i class="fas fa-building"></i></div>
+              <div class="card-title">Presented By</div>
+            </div>
+            <div class="firm-info">
+              ${logoHtml}
+              <div>
+                <div style="font-weight:700;">${firm}</div>
+                <div style="font-size:.8rem;color:var(--text-secondary);">${gpEmail}${gpEmail&&gpPhone?' · ':''}${gpPhone}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="disclaimer">
+            <strong>Important Disclaimer:</strong> This is not an offer to sell or solicitation of an offer to buy securities. 
+            An investment in this offering involves significant risks, including the potential loss of your entire investment. 
+            This teaser is for informational purposes only and should not be relied upon as the basis for any investment decision. 
+            A complete offering memorandum (PPM) will be provided to qualified investors upon request.
+          </div>
+        </div>
+
+        <!-- Right: request access form -->
+        <div>
+          <div class="cta-card">
+            <h3>Request Full Offering Docs</h3>
+            <p>Get access to the full PPM, financial projections, and subscription documents.</p>
+            <div id="ctaForm">
+              <div class="cta-form-group"><label>Full Name *</label><input id="reqName" placeholder="Jane Smith"></div>
+              <div class="cta-form-group"><label>Email *</label><input id="reqEmail" type="email" placeholder="jane@email.com"></div>
+              <div class="cta-form-group"><label>Phone</label><input id="reqPhone" placeholder="(555) 000-0000"></div>
+              <div class="cta-form-group"><label>Investment Range</label>
+                <select id="reqAmount" style="width:100%;padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);color:white;font-size:.875rem;font-family:'Inter',sans-serif;outline:none;">
+                  <option value="">Select range</option>
+                  <option value="25k-50k">$25K – $50K</option>
+                  <option value="50k-100k">$50K – $100K</option>
+                  <option value="100k-250k">$100K – $250K</option>
+                  <option value="250k-500k">$250K – $500K</option>
+                  <option value="500k+">$500K+</option>
+                </select>
+              </div>
+              <div class="cta-form-group"><label>Message (optional)</label><textarea id="reqMessage" rows="2" placeholder="Any questions or notes for the sponsor..."></textarea></div>
+              <button class="cta-btn" onclick="submitRequest()"><i class="fas fa-paper-plane"></i> Request Access</button>
+              <div style="font-size:.72rem;color:rgba(255,255,255,.3);text-align:center;margin-top:10px;">Your information is kept strictly confidential.</div>
+            </div>
+            <div class="cta-success" id="ctaSuccess">
+              <i class="fas fa-check-circle"></i>
+              <h4>Request Sent!</h4>
+              <p>The sponsor will be in touch within 1-2 business days with the full offering documents.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function submitRequest() {
+  const name = document.getElementById('reqName').value.trim();
+  const email = document.getElementById('reqEmail').value.trim();
+  if (!name || !email) { alert('Please enter your name and email.'); return; }
+  // Save lead to sp-core (will be visible to GP in investors page)
+  const leads = JSON.parse(localStorage.getItem('sp_teaser_leads') || '[]');
+  leads.push({ name, email, phone: document.getElementById('reqPhone').value, amount: document.getElementById('reqAmount').value, message: document.getElementById('reqMessage').value, dealId: dealId||token, ts: Date.now() });
+  localStorage.setItem('sp_teaser_leads', JSON.stringify(leads));
+  document.getElementById('ctaForm').style.display = 'none';
+  document.getElementById('ctaSuccess').style.display = 'block';
+}
+
+// Load deal — supports both ?deal=ID (GP preview) and ?t=TOKEN (shared link)
+(function load() {
+  let deal = null;
+  let settings = {};
+  let gpName = 'The Sponsor';
+
+  if (dealId && SP.isLoggedIn()) {
+    // GP previewing their own deal
+    deal = SP.getDealById(dealId);
+    settings = SP.load('settings', {});
+    const s = SP.getSession();
+    gpName = s?.name || gpName;
+  } else if (token) {
+    // Shared link — token encodes orgId + dealId
+    try {
+      const padded = token + '=='.slice(0, (4 - token.length % 4) % 4);
+      const decoded = atob(padded);
+      const [orgId, dId] = decoded.split('|');
+      // Load data from that org's namespace
+      const orgDealsKey = `sp_org_${orgId}_deals`;
+      const orgSettingsKey = `sp_org_${orgId}_settings`;
+      const deals = JSON.parse(localStorage.getItem(orgDealsKey) || '[]');
+      deal = deals.find(d => d.id === dId) || null;
+      settings = JSON.parse(localStorage.getItem(orgSettingsKey) || '{}');
+      gpName = settings.gpFullName || settings.firmName || 'The Sponsor';
+    } catch(e) {}
+  }
+
+  if (!deal) { notFound('Deal not found or link has expired.'); return; }
+  render(deal, settings, gpName);
+})();
+</script>
+</body>
+</html>
