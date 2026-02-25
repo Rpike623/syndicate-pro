@@ -1251,22 +1251,62 @@
       const content = document.querySelector('.content');
       if (!content) return;
       content.innerHTML = `
-        <div style="text-align:center;padding:80px 20px;max-width:500px;margin:0 auto;">
+        <div style="text-align:center;padding:80px 20px;max-width:600px;margin:0 auto;">
           <div style="font-size:3rem;margin-bottom:20px;">🔒</div>
           <h2 style="margin-bottom:12px;">Account not linked</h2>
-          <p style="color:var(--text-secondary);margin-bottom:24px;">Your account exists but hasn't been linked to any investments yet. Your GP needs to add your email to the investor CRM and link you to your deals.</p>
-          <p style="font-size:0.875rem;color:var(--text-muted);">Signed in as: <strong>${session?.email || '—'}</strong></p>
-          <button onclick="SP.logout()" style="margin-top:20px;padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;">Sign Out</button>
+          <p style="color:var(--text-secondary);margin-bottom:16px;">Your account exists but hasn't been linked to any investments yet. This usually means:</p>
+          <ul style="text-align:left;color:var(--text-secondary);margin-bottom:24px;display:inline-block;">
+            <li>Your GP is still setting up your deal access</li>
+            <li>The invite was sent but your deals haven't been linked yet</li>
+            <li>There may be a delay syncing your data</li>
+          </ul>
+          <p style="color:var(--text-secondary);margin-bottom:24px;">Try refreshing in a few minutes, or contact your GP directly.</p>
+          <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:16px;">Signed in as: <strong>${session?.email || '—'}</strong></p>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+            <button onclick="location.reload()" style="padding:10px 24px;background:var(--success);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;"><i class="fas fa-sync-alt"></i> Refresh</button>
+            <button onclick="SP.logout()" style="padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;">Sign Out</button>
+          </div>
         </div>`;
     }
 
     // ── Init ─────────────────────────────────────────────────────────────────────
-    (function init() {
+    async function init() {
       personalize();
-      if (!investorRecord) {
+      
+      // Try to load investor data from Firebase if available
+      let inv = investorRecord;
+      if (!inv && typeof SPFB !== 'undefined' && SPFB.isReady()) {
+        try {
+          // Check if there's an investor with this email in Firebase
+          const fbInvestors = await SPFB.getInvestors();
+          inv = fbInvestors.find(i => i.email.toLowerCase() === session?.email?.toLowerCase());
+          if (inv) {
+            // Save to localStorage for future loads
+            const localInvs = SP.getInvestors();
+            if (!localInvs.find(i => i.id === inv.id)) {
+              localInvs.push(inv);
+              SP.saveInvestors(localInvs);
+            }
+          }
+        } catch(e) { console.warn('Firebase investor load failed:', e.message); }
+      }
+      
+      // If still no investor record, show friendly message with option to contact GP
+      if (!inv) {
         showNoAccess();
         return;
       }
+      
+      // Load deals from Firebase if available
+      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
+        try {
+          const fbDeals = await SPFB.getDeals();
+          if (fbDeals && fbDeals.length) {
+            SP.saveDeals(fbDeals);
+          }
+        } catch(e) { console.warn('Firebase deals load failed:', e.message); }
+      }
+      
       const myDeals = getMyDeals();
       renderStats(myDeals);
       renderInvestments(myDeals);
@@ -1274,7 +1314,9 @@
       renderDocuments(myDeals);
       renderDistributionsTab(myDeals);
       renderStatementArchive(myDeals);
-    })();
+    }
+    
+    init();
   </script>
 </body>
 </html>
