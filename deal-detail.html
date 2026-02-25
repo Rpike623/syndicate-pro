@@ -904,7 +904,16 @@ function shareTeaserLink(dId) {
   }).catch(() => { prompt('Copy this teaser link:', url); });
 }
 
-if(!dealId) { window.location.href='pipeline.html'; } else { render(); }
+if(!dealId) {
+  window.location.href='pipeline.html';
+} else {
+  // Wait for Firestore data before first render
+  function _initialRender() {
+    if (SP.getDealById(dealId)) render();
+  }
+  window.addEventListener('spdata-ready', _initialRender);
+  if (typeof SPData !== 'undefined' && SPData.isReady()) _initialRender();
+}
 </script>
 </body>
 </html>

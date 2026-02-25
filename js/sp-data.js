@@ -271,6 +271,10 @@ const SPData = (() => {
     SP.saveSettings      = saveSettings;
 
     // Compound operations — must use SPData's versions so writes go to Firestore
+    // Delete operations — remove from cache AND Firestore
+    SP.deleteDeal = async function(id) { await deleteDeal(id); };
+    SP.deleteInvestor = async function(id) { await deleteInvestor(id); };
+
     SP.addInvestorToDeal = function(dealId, entry) {
       const deal = getDealById(dealId);
       if (!deal) return false;

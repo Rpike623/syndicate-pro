@@ -302,7 +302,9 @@
 
       // Auto-send email notifications if SPEmail is configured
       if (typeof SPEmail !== 'undefined' && SPEmail.isConfigured()) {
-        const allInvestors = SP.getInvestors().filter(inv => inv.deals?.includes(dealId));
+        const dealObj2 = SP.getDeals().find(d => d.id === dealId);
+          const linkedInvIds2 = (dealObj2?.investors || []).map(i => i.investorId || i.id);
+          const allInvestors = SP.getInvestors().filter(inv => linkedInvIds2.includes(inv.id));
         if (allInvestors.length) {
           // Build recipients list from deal investors
           const dealObj = SP.getDeals().find(d => d.id === dealId);

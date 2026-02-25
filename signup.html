@@ -357,63 +357,29 @@
         role = 'General Partner';
       }
 
-      // For invited investors, check if investor record already exists (GP may have pre-created it)
-      // If not, create one so the portal can link them to deals
-      if (inviteToken && role === 'Investor') {
-        const existingInv = SP.getInvestorByEmail(email);
-        if (!existingInv) {
-          // Create investor record for this new user
-          const newInv = {
-            id: 'inv_' + Date.now(),
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            phone: '',
-            address: '',
-            entityName: '',
-            accredMethod: 'self',
-            accredStatus: 'pending',
-            minInvest: 25000,
-            maxInvest: 100000,
-            totalInvested: 0,
-            deals: 0,
-            status: 'active',
-            invited: true,
-            invitedAt: new Date().toISOString(),
-            signedUpAt: new Date().toISOString(),
-            notes: 'Signed up via invite link'
-          };
-          const investors = SP.getInvestors();
-          investors.push(newInv);
-          SP.saveInvestors(investors);
-          console.log('Created investor record for', email);
-        }
-      }
-
       if (typeof SPFB !== 'undefined' && !SPFB.isOffline()) {
         // Create Firebase user
         SPFB.signUp(email, password, name, role, orgId).then(fbUser => {
           if (fbUser) {
-            // Firebase user created — now authenticate locally (for demo account fallback)
-            SP.authenticate(email, password);
-            // Redirect based on role
+            // Set SP session directly — no localStorage password needed
+            SP.setSession({ email, name, role, orgId, loggedIn: true, loginTime: Date.now() });
             window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
           } else {
             // Firebase signup failed — fall back to local
             SP.createUser(email, password, name, role, orgId);
-            const session = SP.authenticate(email, password);
+            SP.authenticate(email, password);
             window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
           }
         }).catch(fbErr => {
           console.warn('Firebase signup failed, using local:', fbErr.message);
           SP.createUser(email, password, name, role, orgId);
-          const session = SP.authenticate(email, password);
+          SP.authenticate(email, password);
           window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
         });
       } else {
         // Offline mode — use local auth
         SP.createUser(email, password, name, role, orgId);
-        const session = SP.authenticate(email, password);
+        SP.authenticate(email, password);
         window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
       }
       // Redirect based on role
