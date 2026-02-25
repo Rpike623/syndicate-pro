@@ -1296,6 +1296,10 @@
         showNoAccess();
         return;
       }
+      // Store investor id on SPFB user so getDeals can filter correctly
+      if (typeof SPFB !== 'undefined' && SPFB.getUser()) {
+        SPFB.getUser().firestoreInvestorId = investorRecord.id;
+      }
 
       // ── Step 2: load ALL deals from Firebase → localStorage → empty ───────────
       if (typeof SPFB !== 'undefined' && SPFB.isReady()) {

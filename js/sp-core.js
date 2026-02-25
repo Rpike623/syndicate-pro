@@ -21,7 +21,14 @@ const SP = (function () {
 
   function isLoggedIn() {
     const s = getSession();
-    return !!(s && s.loggedIn);
+    if (!s || !s.loggedIn) return false;
+    // Expire sessions after 30 days
+    const MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+    if (s.loginTime && (Date.now() - s.loginTime) > MAX_AGE) {
+      clearSession();
+      return false;
+    }
+    return true;
   }
 
   function isGP() {

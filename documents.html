@@ -721,7 +721,14 @@
     let currentDocType = 'operating-agreement';
     let members = [];
 
-    function loadSavedDeals() {
+    async function loadSavedDeals() {
+      // Sync from Firebase before reading
+      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
+        try {
+          const fbDeals = await SPFB.getDeals();
+          if (fbDeals.length) SP.saveDeals(fbDeals);
+        } catch(e) {}
+      }
       const deals = SP.getDeals();
       const select = document.getElementById('dealSelect');
       select.innerHTML = '<option value="">Select a deal...</option>';

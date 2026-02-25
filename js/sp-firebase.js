@@ -49,6 +49,7 @@ const SPFB = (function () {
       _db      = firebase.firestore();
       _storage = firebase.storage();
       _auth    = firebase.auth();
+      _auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
       // Enable offline persistence
       _db.enablePersistence({ synchronizeTabs: true })
@@ -266,8 +267,16 @@ const SPFB = (function () {
     if (_offlineMode || !_ready) return SP.getDeals();
     try {
       const snap = await _col('deals').orderBy('added', 'desc').get();
-      const deals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      // Sync to localStorage cache
+      let deals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Investors only see deals they are linked to
+      if (_spUser && _spUser.role === 'Investor') {
+        const invRecord = deals.length ? null : null; // will filter below
+        deals = deals.filter(d =>
+          Array.isArray(d.investors) && d.investors.some(i => i.investorId === _spUser.investorId ||
+            // fallback: match by email via investor id stored in Firestore
+            i.investorId === (_spUser.firestoreInvestorId || _spUser.investorId))
+        );
+      }
       SP.saveDeals(deals);
       return deals;
     } catch (e) {

@@ -584,8 +584,15 @@
       }
     };
 
-    function init() {
+    async function init() {
       // Load deals from sp-core
+      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
+        try {
+          const [d,i] = await Promise.all([SPFB.getDeals().catch(()=>[]), SPFB.getInvestors().catch(()=>[])]);
+          if (d.length) SP.saveDeals(d);
+          if (i.length) SP.saveInvestors(i);
+        } catch(e) {}
+      }
       const deals = SP.getDeals();
       const select = document.getElementById('deal-select');
       deals.forEach(deal => {

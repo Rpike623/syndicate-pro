@@ -1568,6 +1568,11 @@
       spDeal.oaGeneratedAt = new Date().toISOString();
 
       SP.saveDeals(spDeals);
+      // Also push to Firebase if ready
+      if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
+        const savedDeal = spDeals.find(d => d.id === id);
+        if (savedDeal) SPFB.saveDeal(savedDeal).catch(e => console.warn('SPFB.saveDeal:', e.message));
+      }
       SP.logActivity('fa-file-contract', 'green', `Operating Agreement auto-generated for <strong>${deal.name}</strong>`);
 
       // Store current deal id for viewDeal()
