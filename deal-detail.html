@@ -528,7 +528,7 @@ function generateOANow() {
   if (idx >= 0) {
     allDeals[idx].generatedOA = oa;
     allDeals[idx].oaGeneratedAt = new Date().toISOString();
-    SP.saveDeals(allDeals);
+    if (typeof SPData !== "undefined" && SPData.isReady()) SPData.saveDeal(allDeals[idx]); else SP.saveDeals(allDeals);
   }
   SP.logActivity('fa-file-contract', 'green', `Operating Agreement generated for <strong>${deal.name}</strong>`);
   if (window._spNotif) window._spNotif.addNotification('doc', 'fa-file-contract', 'green', 'OA Ready', `Operating Agreement generated for ${deal.name}`, `deal-detail.html?id=${dealId}`);

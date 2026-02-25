@@ -354,7 +354,14 @@ const SP = (function () {
 
   function logout() {
     clearSession();
-    window.location.href = 'login.html';
+    // Also sign out of Firebase Auth to prevent auto-re-login
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+      firebase.auth().signOut().catch(() => {}).finally(() => {
+        window.location.href = 'login.html';
+      });
+    } else {
+      window.location.href = 'login.html';
+    }
   }
 
   // ─── Demo data seeding ──────────────────────────────────────────────────────

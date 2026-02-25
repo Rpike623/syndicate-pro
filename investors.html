@@ -482,7 +482,7 @@ function fmt$(n) {
   return '$'+n.toFixed(0);
 }
 
-function initials(inv) { return (inv.firstName[0]||'') + (inv.lastName[0]||''); }
+function initials(inv) { return ((inv.firstName||inv.name||'?')[0]||'').toUpperCase() + ((inv.lastName||'')[0]||'').toUpperCase(); }
 
 function updateStats() {
   const total = investors.length;

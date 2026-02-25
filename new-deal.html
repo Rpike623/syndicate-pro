@@ -1573,7 +1573,7 @@
       SP.logActivity('fa-file-contract', 'green', `Operating Agreement auto-generated for <strong>${deal.name}</strong>`);
 
       // Store current deal id for viewDeal()
-      localStorage.setItem('currentDeal', JSON.stringify({ id: spDeal.id, name: deal.name }));
+      // currentDeal tracked in memory via spDeal.id
       window._savedDealId = spDeal.id;
 
       // Populate success screen

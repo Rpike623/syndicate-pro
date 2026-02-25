@@ -42,10 +42,13 @@ const SPData = (() => {
 
   // Chunked batch write to avoid Firestore 500-doc limit
   async function _batchWrite(items, refFn) {
+    if (!items || !items.length) return;
     const CHUNK = 400;
     for (let i = 0; i < items.length; i += CHUNK) {
+      const chunk = items.slice(i, i + CHUNK);
+      if (!chunk.length) continue;
       const batch = _db.batch();
-      items.slice(i, i + CHUNK).forEach(item => {
+      chunk.forEach(item => {
         batch.set(refFn(item), { ...item, orgId: _orgId, updatedAt: _ts() }, { merge: true });
       });
       await batch.commit();
@@ -271,6 +274,9 @@ const SPData = (() => {
     SP.saveSettings      = saveSettings;
 
     // Compound operations — must use SPData's versions so writes go to Firestore
+    // Single deal save (efficient — only writes the changed deal)
+    SP.saveDeal = saveDeal;
+
     // Delete operations — remove from cache AND Firestore
     SP.deleteDeal = async function(id) { await deleteDeal(id); };
     SP.deleteInvestor = async function(id) { await deleteInvestor(id); };
