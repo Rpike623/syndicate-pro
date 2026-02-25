@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Deals - SyndicatePro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="mobile.css">
+  <style>
+    .pipeline-scroll { display: flex; overflow-x: auto; gap: 12px; padding: 0 16px 16px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .pipeline-column { flex: 0 0 280px; scroll-snap-align: start; }
+    .column-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--bg-card); border-top-left-radius: 12px; border-top-right-radius: 12px; border: 1px solid var(--border); border-bottom: none; }
+    .column-title { font-weight: 600; font-size: 15px; }
+    .column-count { font-size: 13px; color: var(--text-muted); background: var(--bg); padding: 2px 10px; border-radius: 20px; }
+    .column-content { background: var(--bg-card); border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border: 1px solid var(--border); padding: 12px; min-height: 200px; }
+    .deal-card { background: var(--bg); border-radius: 10px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+    .deal-card:active { transform: scale(0.98); }
+    .deal-name { font-weight: 600; margin-bottom: 4px; }
+    .deal-location { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+    .deal-stats { display: flex; gap: 16px; font-size: 12px; }
+    .deal-stat { display: flex; align-items: center; gap: 4px; color: var(--text-muted); }
+    .view-toggle { display: flex; gap: 8px; padding: 0 16px 16px; }
+    .toggle-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .toggle-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-card); border-bottom: 1px solid var(--border); }
+    .list-item:first-child { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+    .list-item:last-child { border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; border-bottom: none; }
+  </style>
+</head>
+<body>
+  <header class="mobile-header">
+    <button class="hamburger" onclick="toggleNav()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="mobile-logo">Syndicate<span>Pro</span></div>
+    <button style="width:40px;height:40px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;color:var(--text);">
+      <i class="fas fa-search"></i>
+    </button>
+  </header>
+
+  <div class="nav-overlay" onclick="toggleNav()"></div>
+  <nav class="mobile-nav" id="mobileNav">
+    <div class="nav-section">Portfolio</div>
+    <a href="mobile-dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="m-deals.html" class="nav-item active"><i class="fas fa-folder-open"></i> Deals</a>
+    <a href="#" class="nav-item"><i class="fas fa-users"></i> Investors</a>
+    <div class="nav-section">Operations</div>
+    <a href="#" class="nav-item"><i class="fas fa-money-bill-wave"></i> Distributions</a>
+    <a href="#" class="nav-item"><i class="fas fa-file-alt"></i> Documents</a>
+    <a href="#" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+  </nav>
+
+  <main class="main-content" style="padding-top: calc(56px + 16px);">
+    <div class="view-toggle">
+      <button class="toggle-btn active" onclick="showView('pipeline')">Pipeline</button>
+      <button class="toggle-btn" onclick="showView('list')">List</button>
+    </div>
+
+    <div id="pipelineView">
+      <div class="pipeline-scroll">
+        <div class="pipeline-column">
+          <div class="column-header">
+            <span class="column-title">Sourcing</span>
+            <span class="column-count">3</span>
+          </div>
+          <div class="column-content">
+            <div class="deal-card">
+              <div class="deal-name">Lakeside Apartments</div>
+              <div class="deal-location">Fort Worth, TX</div>
+              <div class="deal-stats">
+                <div class="deal-stat"><i class="fas fa-dollar-sign"></i> $3.2M</div>
+                <div class="deal-stat"><i class="fas fa-home"></i> 64 units</div>
+              </div>
+            </div>
+            <div class="deal-card">
+              <div class="deal-name">Downtown Office</div>
+              <div class="deal-location">Austin, TX</div>
+              <div class="deal-stats">
+                <div class="deal-stat"><i class="fas fa-dollar-sign"></i> $8.5M</div>
+                <div class="deal-stat"><i class="fas fa-building"></i> 120K sf</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipeline-column">
+          <div class="column-header">
+            <span class="column-title">LOI Sent</span>
+            <span class="column-count">1</span>
+          </div>
+          <div class="column-content">
+            <div class="deal-card">
+              <div class="deal-name">Parkview Gardens</div>
+              <div class="deal-location">Plano, TX</div>
+              <div class="deal-stats">
+                <div class="deal-stat"><i class="fas fa-clock" style="color:var(--warning)"></i> Expires in 2 days</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipeline-column">
+          <div class="column-header">
+            <span class="column-title">Due Diligence</span>
+            <span class="column-count">1</span>
+          </div>
+          <div class="column-content">
+            <div class="deal-card">
+              <div class="deal-name">Arlington Heights</div>
+              <div class="deal-location">Dallas, TX</div>
+              <div class="deal-stats">
+                <div class="deal-stat"><i class="fas fa-exclamation-circle" style="color:var(--warning)"></i> Inspection pending</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipeline-column">
+          <div class="column-header">
+            <span class="column-title">Closing</span>
+            <span class="column-count">1</span>
+          </div>
+          <div class="column-content">
+            <div class="deal-card">
+              <div class="deal-name">Metro Storage</div>
+              <div class="deal-location">Austin, TX</div>
+              <div class="deal-stats">
+                <div class="deal-stat"><i class="fas fa-calendar" style="color:var(--accent-2)"></i> Closing Mar 15</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipeline-column">
+          <div class="column-header">
+            <span class="column-title">Operating</span>
+            <span class="column-count">2</span>
+          </div>
+          <div class="column-content">
+            <div class="deal-card">
+              <div class="deal-name">River Oaks Retail</div>
+              <div class="deal-location">Houston, TX</div>
+              <div class="deal-stats">
+                <div class="deal-stat"><i class="fas fa-check-circle" style="color:var(--success)"></i> 21% IRR</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="listView" style="display:none;padding:0 16px;">
