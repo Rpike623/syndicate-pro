@@ -213,10 +213,21 @@
         <div class="logo-icon">◆</div>
         <span>SyndicatePro</span>
       </div>
-      <h1>Start your free trial</h1>
-      <p>No credit card required. 14 days free.</p>
+      <h1 id="signupHeading">Start your free trial</h1>
+      <p id="signupSubhead">No credit card required. 14 days free.</p>
     </div>
-    
+
+    <!-- Invite banner (shown when arriving via invite link) -->
+    <div id="inviteBanner" style="display:none;background:linear-gradient(135deg,#dbeafe,#ede9fe);border:1px solid #93c5fd;border-radius:12px;padding:16px 18px;margin-bottom:20px;display:none;align-items:flex-start;gap:12px;">
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;flex-shrink:0;">
+        <i class="fas fa-envelope-open-text"></i>
+      </div>
+      <div>
+        <div style="font-weight:700;color:#1e40af;font-size:0.95rem;">You've been invited!</div>
+        <div style="font-size:0.82rem;color:#3730a3;margin-top:3px;" id="inviteBannerText">Your sponsor has added you to SyndicatePro. Create your free account to access your investor portal.</div>
+      </div>
+    </div>
+
     <div class="plan-selected" id="planDisplay">
       <span class="plan-name" id="planName">Professional Plan</span>
       <span class="plan-price" id="planPrice">$149/mo</span>
@@ -267,39 +278,79 @@
   </div>
 
   <script>
-    // Parse plan from URL
+    // Parse URL params
     const urlParams = new URLSearchParams(window.location.search);
     const plan = urlParams.get('plan') || 'pro';
-    
+    const inviteToken = urlParams.get('invite');
+    const inviteEmail = urlParams.get('email');
+    const inviteName = urlParams.get('name');
+
+    // Handle invite params
+    if (inviteToken && inviteEmail) {
+      // Show invite banner
+      const banner = document.getElementById('inviteBanner');
+      banner.style.display = 'flex';
+      document.getElementById('signupHeading').textContent = 'Create your investor account';
+      document.getElementById('signupSubhead').textContent = 'Your account is ready — just set a password to get started.';
+      // Try to decode token for GP name
+      try {
+        const decoded = atob(inviteToken.replace(/-/g,'+').replace(/_/g,'/') + '==');
+        // decoded = "email|timestamp"
+      } catch(e) {}
+      // Pre-fill fields
+      document.getElementById('email').value = decodeURIComponent(inviteEmail);
+      document.getElementById('email').readOnly = true;
+      document.getElementById('email').style.background = '#f1f5f9';
+      if (inviteName) {
+        const parts = decodeURIComponent(inviteName).split(' ');
+        document.getElementById('firstName').value = parts[0] || '';
+        document.getElementById('lastName').value = parts.slice(1).join(' ') || '';
+      }
+      // Hide plan selector for invited users
+      document.getElementById('planDisplay').style.display = 'none';
+    }
+
     const plans = {
       starter: { name: 'Starter Plan', price: '$49/mo' },
       pro: { name: 'Professional Plan', price: '$149/mo' },
       enterprise: { name: 'Enterprise Plan', price: '$499/mo' }
     };
-    
     const selectedPlan = plans[plan] || plans.pro;
-    document.getElementById('planName').textContent = selectedPlan.name;
-    document.getElementById('planPrice').textContent = selectedPlan.price;
-    
+    document.getElementById('planName').textContent = inviteToken ? 'Investor Portal Access' : selectedPlan.name;
+    document.getElementById('planPrice').textContent = inviteToken ? 'Free' : selectedPlan.price;
+
     function handleSignup(e) {
       e.preventDefault();
-      
-      // Demo: Create account and redirect
+      const email = document.getElementById('email').value;
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const password = document.getElementById('password').value;
+
+      // Save user to sp_users
+      const users = JSON.parse(localStorage.getItem('sp_users') || '[]');
+      if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+        alert('An account with this email already exists. Please sign in.');
+        window.location.href = 'login.html';
+        return;
+      }
+      const role = inviteToken ? 'Investor' : 'General Partner';
+      users.push({ email, password, name: `${firstName} ${lastName}`, role });
+      localStorage.setItem('sp_users', JSON.stringify(users));
+
+      // Create session
+      const session = { email, name: `${firstName} ${lastName}`, role, loggedIn: true, loginTime: Date.now() };
+      localStorage.setItem('sp_session', JSON.stringify(session));
       localStorage.setItem('auth', JSON.stringify({
         isAuthenticated: true,
-        user: {
-          email: document.getElementById('email').value,
-          firstName: document.getElementById('firstName').value,
-          lastName: document.getElementById('lastName').value,
-          company: document.getElementById('company').value
-        },
-        tier: plan,
+        user: { email, firstName, lastName, company: document.getElementById('company').value },
+        tier: inviteToken ? 'investor' : plan,
         trialEnds: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
       }));
-      
-      window.location.href = 'index.html';
+
+      // Redirect: investors go to portal, GPs go to dashboard
+      window.location.href = inviteToken ? 'investor-portal.html' : 'dashboard.html';
     }
-    
+
     function googleAuth() {
       alert('Google OAuth integration coming soon');
     }

@@ -284,6 +284,59 @@
   </div>
 </div>
 
+<!-- Invite Modal -->
+<div class="modal-overlay" id="inviteOverlay" onclick="handleInviteOverlayClick(event)">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h2 class="modal-title"><i class="fas fa-paper-plane" style="color:var(--accent);margin-right:8px;"></i>Invite Investor to Portal</h2>
+      <button class="modal-close" onclick="closeInviteModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Success banner -->
+      <div style="background:var(--success-light);border:1px solid var(--success);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <i class="fas fa-check-circle" style="color:var(--success);font-size:1.1rem;"></i>
+        <div>
+          <div style="font-weight:600;color:#065f46;">Investor added successfully!</div>
+          <div style="font-size:0.8rem;color:#047857;margin-top:2px;">Send them an invite to create their investor portal account.</div>
+        </div>
+      </div>
+
+      <!-- Invite link -->
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">
+          <i class="fas fa-link" style="margin-right:4px;"></i>Personal Invite Link
+        </label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="inviteLinkInput" readonly style="flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:0.8rem;background:var(--border-light);color:var(--text-secondary);font-family:monospace;">
+          <button class="btn btn-secondary" onclick="copyInviteLink()" id="copyBtn" style="padding:10px 14px;white-space:nowrap;">
+            <i class="fas fa-copy"></i> Copy
+          </button>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;"><i class="fas fa-info-circle"></i> Link pre-fills their name and email on the signup page</div>
+      </div>
+
+      <!-- Email preview -->
+      <div style="margin-bottom:4px;">
+        <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">
+          <i class="fas fa-envelope" style="margin-right:4px;"></i>Email Preview
+        </label>
+        <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+          <div style="background:var(--border-light);padding:10px 14px;border-bottom:1px solid var(--border);font-size:0.8rem;color:var(--text-secondary);">
+            <div><strong>To:</strong> <span id="inviteToLine">—</span></div>
+            <div style="margin-top:3px;"><strong>Subject:</strong> <span id="inviteSubjectLine">You've been invited to SyndicatePro</span></div>
+          </div>
+          <div id="inviteEmailBody" style="padding:16px;font-size:0.85rem;line-height:1.7;color:var(--text);background:white;white-space:pre-wrap;max-height:220px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="gap:10px;">
+      <button class="btn btn-secondary" onclick="closeInviteModal()">Skip for Now</button>
+      <button class="btn btn-secondary" onclick="copyEmailText()" style="gap:6px;"><i class="fas fa-copy"></i> Copy Email</button>
+      <button class="btn btn-primary" onclick="sendInviteEmail()" style="gap:6px;"><i class="fas fa-paper-plane"></i> Open in Email Client</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
@@ -427,6 +480,7 @@ function saveInvestor() {
     status: document.getElementById('fStatus').value,
     notes: document.getElementById('fNotes').value.trim(),
   };
+  const isNew = !editingId;
   if (editingId) {
     const idx = investors.findIndex(i=>i.id===editingId);
     if (idx>=0) { data.id=editingId; data.deals=investors[idx].deals||0; investors[idx]={...investors[idx],...data}; }
@@ -436,6 +490,8 @@ function saveInvestor() {
     logActivity('fa-user-plus','green',`<strong>${firstName} ${lastName}</strong> added as new investor`);
   }
   save(); updateStats(); filterTable(); closeModal();
+  // Show invite modal only for new investors
+  if (isNew) openInviteModal(firstName, lastName, email);
 }
 
 function editInvestor(id) { openModal(id); }
@@ -467,6 +523,92 @@ function logActivity(icon, color, text) {
   const activity = JSON.parse(localStorage.getItem('sp_activity')||'[]');
   activity.unshift({ icon:'fa-'+icon.replace('fa-',''), color, text, time:'Just now' });
   localStorage.setItem('sp_activity', JSON.stringify(activity.slice(0,20)));
+}
+
+// ── Invite modal ──────────────────────────────────────────────────────────────
+let _inviteEmail = '', _inviteSubject = '', _inviteBody = '';
+
+function openInviteModal(firstName, lastName, email) {
+  // Build invite token (base64 of email + timestamp — lightweight, no server needed)
+  const token = btoa(`${email}|${Date.now()}`).replace(/=/g,'');
+  const base = window.location.href.replace(/investors\.html.*$/, '');
+  const inviteUrl = `${base}signup.html?invite=${token}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(firstName+' '+lastName)}`;
+
+  // Get GP name from session
+  const session = JSON.parse(localStorage.getItem('sp_session')||'{}');
+  const gpName = session.name || 'Your Sponsor';
+
+  _inviteEmail = email;
+  _inviteSubject = `You've been invited to SyndicatePro — ${gpName}`;
+  _inviteBody = `Hi ${firstName},
+
+${gpName} has added you as an investor on SyndicatePro, a real estate syndication platform.
+
+Your investor portal gives you access to:
+  • Deal documents and updates
+  • Distribution history and statements
+  • K-1 tax documents
+  • Capital call notices
+
+Click the link below to create your account and get started:
+
+${inviteUrl}
+
+This link is personalized for you — it will pre-fill your name and email so setup takes less than 60 seconds.
+
+If you have any questions, reply to this email or contact ${gpName} directly.
+
+Best regards,
+${gpName}
+Powered by SyndicatePro`;
+
+  document.getElementById('inviteLinkInput').value = inviteUrl;
+  document.getElementById('inviteToLine').textContent = `${firstName} ${lastName} <${email}>`;
+  document.getElementById('inviteSubjectLine').textContent = _inviteSubject;
+  document.getElementById('inviteEmailBody').textContent = _inviteBody;
+
+  document.getElementById('inviteOverlay').classList.add('open');
+}
+
+function closeInviteModal() {
+  document.getElementById('inviteOverlay').classList.remove('open');
+}
+
+function handleInviteOverlayClick(e) {
+  if (e.target === document.getElementById('inviteOverlay')) closeInviteModal();
+}
+
+function copyInviteLink() {
+  const input = document.getElementById('inviteLinkInput');
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    btn.style.background = 'var(--success-light)';
+    btn.style.borderColor = 'var(--success)';
+    btn.style.color = 'var(--success)';
+    setTimeout(() => {
+      btn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+      btn.style = '';
+    }, 2000);
+  }).catch(() => {
+    input.select();
+    document.execCommand('copy');
+  });
+}
+
+function copyEmailText() {
+  navigator.clipboard.writeText(_inviteBody).then(() => {
+    const btns = document.querySelectorAll('#inviteOverlay .modal-footer .btn');
+    btns[1].innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => { btns[1].innerHTML = '<i class="fas fa-copy"></i> Copy Email'; }, 2000);
+  });
+}
+
+function sendInviteEmail() {
+  const mailto = `mailto:${encodeURIComponent(_inviteEmail)}?subject=${encodeURIComponent(_inviteSubject)}&body=${encodeURIComponent(_inviteBody)}`;
+  window.open(mailto, '_blank');
+  logActivity('fa-paper-plane','blue',`Invite sent to <strong>${_inviteEmail}</strong>`);
+  closeInviteModal();
 }
 
 load(); updateStats(); filterTable();
