@@ -799,7 +799,9 @@ function showToast(msg, type) {
 let _inviteEmail = '', _inviteSubject = '', _inviteBody = '';
 
 function openInviteModal(firstName, lastName, email) {
-  const token = SP.createInviteToken(email, SP.getOrgId());
+  // Always use Firebase orgId so investors land in the right Firestore collection
+  const orgId = (typeof SPFB !== 'undefined' && SPFB.isReady()) ? SPFB.getOrgId() : SP.getOrgId();
+  const token = SP.createInviteToken(email, orgId);
   const base = window.location.href.replace(/investors\.html.*$/, '');
   const inviteUrl = `${base}signup.html?invite=${token}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(firstName+' '+lastName)}`;
 
