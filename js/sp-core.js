@@ -1,5 +1,5 @@
 /**
- * SyndicatePro Core — Auth, Data Access, Org Scoping
+ * deeltrack Core — Auth, Data Access, Org Scoping
  * Include this on every page: <script src="js/sp-core.js"></script>
  */
 
@@ -282,12 +282,15 @@ const SP = (function () {
 
   function authenticate(email, password) {
     const users = getUsers();
-    // Seed demo GP if not exists
-    if (!users.find(u => u.email === 'demo@syndicatepro.com')) {
-      const orgId = simpleHash('demo@syndicatepro.com');
-      users.push({ email: 'demo@syndicatepro.com', password: 'demo123', name: 'Robert Pike', role: 'General Partner', orgId });
-      localStorage.setItem('sp_users', JSON.stringify(users));
-    }
+    // Seed demo GP — accept both old and new demo emails
+    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com'];
+    demoEmails.forEach(demoEmail => {
+      if (!users.find(u => u.email === demoEmail)) {
+        const orgId = simpleHash('demo@deeltrack.com'); // same orgId for both so data is shared
+        users.push({ email: demoEmail, password: 'demo123', name: 'Robert Pike', role: 'General Partner', orgId });
+      }
+    });
+    localStorage.setItem('sp_users', JSON.stringify(users));
     const user = getUsers().find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
     if (!user) return null;
     // Ensure orgId
@@ -302,7 +305,7 @@ const SP = (function () {
     setSession(session);
 
     // Seed rich demo data for the demo account on first login
-    if (email.toLowerCase() === 'demo@syndicatepro.com') {
+    if (['demo@deeltrack.com','demo@syndicatepro.com'].includes(email.toLowerCase())) {
       seedDemoData(session);
     }
 
@@ -672,6 +675,24 @@ const SP = (function () {
     if (nameEl && s.name) nameEl.textContent = s.name;
     const roleEl = document.querySelector('.sidebar .user-role');
     if (roleEl && s.role) roleEl.textContent = s.role;
+    // Inject deeltrack logo into sidebar header
+    const sidebarHeader = document.querySelector('.sidebar-header');
+    if (sidebarHeader) {
+      const logoEl = sidebarHeader.querySelector('.logo, a[href]');
+      if (logoEl) {
+        const href = logoEl.getAttribute('href') || 'dashboard.html';
+        logoEl.outerHTML = `<a href="${href}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="34" height="34" style="flex-shrink:0;">
+            <circle cx="16" cy="16" r="15" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+            <circle cx="16" cy="16" r="15" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
+            <rect x="7" y="5" width="3.5" height="22" rx="1.5" fill="#3b82f6"/>
+            <path d="M 13 11 L 23 16 L 13 21" stroke="#3b82f6" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.3px;">deel<span style="color:#60a5fa;">track</span></span>
+        </a>`;
+      }
+    }
+
     // Inject Settings nav link if sidebar nav exists and doesn't already have it
     const nav = document.querySelector('.sidebar .nav');
     if (nav && !nav.querySelector('a[href="settings.html"]')) {

@@ -1,5 +1,5 @@
 /**
- * SyndicatePro - Backend Connector
+ * deeltrack - Backend Connector
  * Abstracted layer to handle Cloud DB (Supabase/Firebase) vs LocalDB
  */
 
@@ -30,7 +30,7 @@ const Backend = {
             this.client = supabase.createClient(url, key);
         }
         
-        console.log(`SyndicatePro Backend: Initialized as ${provider}`);
+        console.log(`deeltrack Backend: Initialized as ${provider}`);
         return true;
     },
 
@@ -90,7 +90,7 @@ const Backend = {
         if (this.config.provider === 'supabase') {
             return await this.client.auth.signInWithPassword({ email, password });
         }
-        return { user: { email: 'demo@syndicatepro.com' }, error: null };
+        return { user: { email: 'demo@deeltrack.com' }, error: null };
     },
 
     async signup(email, password) {

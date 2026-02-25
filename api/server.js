@@ -1,4 +1,4 @@
-// SyndicatePro API Server
+// deeltrack API Server
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');

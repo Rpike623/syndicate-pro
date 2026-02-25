@@ -1,4 +1,4 @@
-// Authentication Guard for SyndicatePro
+// Authentication Guard for deeltrack
 // Checks if user is logged in before allowing access to protected pages
 
 (function() {

@@ -1,9 +1,9 @@
 /**
- * SyndicatePro - Data Layer
+ * deeltrack - Data Layer
  * Handles persistence, deals, documents, and investors
  */
 
-const DB_NAME = 'SyndicateProDB';
+const DB_NAME = 'deeltrackDB';
 const DB_VERSION = 1;
 
 class SyndicateDB {

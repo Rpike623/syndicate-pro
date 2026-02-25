@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SyndicatePro - Reports</title>
+  <title>deeltrack - Reports</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="js/sp-core.js"></script>
@@ -92,7 +92,7 @@
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>SyndicatePro</span></a>
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>deeltrack</span></a>
     </div>
     <nav class="nav">
       <div class="nav-section">Main</div>
@@ -400,7 +400,7 @@ function exportCSV(){
   const csv=[headers,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='syndicatepro-report.csv';
+  a.download='deeltrack-report.csv';
   a.click();
 }
 

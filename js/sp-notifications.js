@@ -1,5 +1,5 @@
 /**
- * SyndicatePro Notifications Panel
+ * deeltrack Notifications Panel
  * Include on any GP page: <script src="js/sp-notifications.js"></script>
  * Requires sp-core.js loaded first.
  */

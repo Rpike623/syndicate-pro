@@ -1,4 +1,4 @@
-// SyndicatePro Mobile Gestures & Utilities
+// deeltrack Mobile Gestures & Utilities
 
 // Toggle mobile navigation
 function toggleNav() {

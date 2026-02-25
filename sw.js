@@ -1,4 +1,4 @@
-// SyndicatePro Service Worker v3
+// deeltrack Service Worker v3
 // Network-first for HTML, Cache-first for assets, localStorage data always available
 
 const CACHE_VERSION = 'sp-v3';
@@ -141,7 +141,7 @@ async function networkFirstWithOfflineFallback(request) {
 }
 
 function offlinePage() {
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Offline — SyndicatePro</title>
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Offline - deeltrack</title>
   <style>body{font-family:'Inter',sans-serif;background:#0f172a;color:white;display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;}
   h1{font-size:1.5rem;}p{color:#94a3b8;}</style></head>
   <body><div>◆</div><h1>You're offline</h1><p>Your data is still available. Reconnect to sync.</p>

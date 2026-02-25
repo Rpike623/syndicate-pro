@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SyndicatePro - Dashboard</title>
+  <title>deeltrack - Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="js/sp-core.js"></script>
@@ -211,7 +211,7 @@
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>SyndicatePro</span></a>
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>deeltrack</span></a>
     </div>
     <nav class="nav">
       <div class="nav-section">Main</div>
@@ -517,7 +517,7 @@ async function renderMap() {
       if (!coords) {
         const query = encodeURIComponent(deal.location);
         const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`, {
-          headers: { 'Accept-Language': 'en', 'User-Agent': 'SyndicatePro/1.0' }
+          headers: { 'Accept-Language': 'en', 'User-Agent': 'deeltrack/1.0' }
         });
         const data = await res.json();
         if (data[0]) {

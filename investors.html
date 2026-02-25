@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SyndicatePro - Investors</title>
+  <title>deeltrack - Investors</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="js/sp-core.js"></script>
@@ -142,7 +142,7 @@
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>SyndicatePro</span></a>
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>deeltrack</span></a>
     </div>
     <nav class="nav">
       <div class="nav-section">Main</div>
@@ -363,7 +363,7 @@
         <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
           <div style="background:var(--border-light);padding:10px 14px;border-bottom:1px solid var(--border);font-size:0.8rem;color:var(--text-secondary);">
             <div><strong>To:</strong> <span id="inviteToLine">—</span></div>
-            <div style="margin-top:3px;"><strong>Subject:</strong> <span id="inviteSubjectLine">You've been invited to SyndicatePro</span></div>
+            <div style="margin-top:3px;"><strong>Subject:</strong> <span id="inviteSubjectLine">You've been invited to deeltrack</span></div>
           </div>
           <div id="inviteEmailBody" style="padding:16px;font-size:0.85rem;line-height:1.7;color:var(--text);background:white;white-space:pre-wrap;max-height:220px;overflow-y:auto;"></div>
         </div>
@@ -796,10 +796,10 @@ function openInviteModal(firstName, lastName, email) {
   const gpName = session.name || 'Your Sponsor';
 
   _inviteEmail = email;
-  _inviteSubject = `You've been invited to SyndicatePro — ${gpName}`;
+  _inviteSubject = `You've been invited to deeltrack — ${gpName}`;
   _inviteBody = `Hi ${firstName},
 
-${gpName} has added you as an investor on SyndicatePro, a real estate syndication platform.
+${gpName} has added you as an investor on deeltrack, a real estate syndication platform.
 
 Your investor portal gives you access to:
   • Deal documents and updates
@@ -817,7 +817,7 @@ If you have any questions, reply to this email or contact ${gpName} directly.
 
 Best regards,
 ${gpName}
-Powered by SyndicatePro`;
+Powered by deeltrack`;
 
   document.getElementById('inviteLinkInput').value = inviteUrl;
   document.getElementById('inviteToLine').textContent = `${firstName} ${lastName} <${email}>`;

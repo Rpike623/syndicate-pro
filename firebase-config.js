@@ -1,11 +1,11 @@
-// Firebase Configuration for SyndicatePro
+// Firebase Configuration for deeltrack
 // Replace with your Firebase project credentials
 
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
-  authDomain: "syndicatepro.firebaseapp.com",
-  projectId: "syndicatepro",
-  storageBucket: "syndicatepro.appspot.com",
+  authDomain: "deeltrack.firebaseapp.com",
+  projectId: "deeltrack",
+  storageBucket: "deeltrack.appspot.com",
   messagingSenderId: "123456789",
   appId: "1:123456789:web:abcdef123456"
 };

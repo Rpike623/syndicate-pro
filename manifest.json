@@ -1,6 +1,6 @@
 {
-  "name": "SyndicatePro",
-  "short_name": "SyndicatePro",
+  "name": "deeltrack",
+  "short_name": "deeltrack",
   "description": "Real estate syndication platform for sponsors and investors",
   "start_url": "/syndicate-pro/dashboard.html",
   "display": "standalone",
@@ -14,8 +14,8 @@
     { "src": "icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    { "name": "Dashboard", "short_name": "Home", "url": "/syndicate-pro/dashboard.html", "icons": [{ "src": "icon-192x192.png", "sizes": "192x192" }] },
-    { "name": "Deal Pipeline", "short_name": "Pipeline", "url": "/syndicate-pro/pipeline.html", "icons": [{ "src": "icon-192x192.png", "sizes": "192x192" }] },
-    { "name": "Investors", "short_name": "Investors", "url": "/syndicate-pro/investors.html", "icons": [{ "src": "icon-192x192.png", "sizes": "192x192" }] }
+    { "name": "Dashboard", "short_name": "Home", "url": "/syndicate-pro/dashboard.html" },
+    { "name": "Deal Pipeline", "short_name": "Pipeline", "url": "/syndicate-pro/pipeline.html" },
+    { "name": "Investors", "short_name": "Investors", "url": "/syndicate-pro/investors.html" }
   ]
 }
