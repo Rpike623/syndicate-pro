@@ -1038,6 +1038,65 @@ function renderDeadlines() {
       if (typeof SPFB.patchSPCore === 'function') SPFB.patchSPCore();
     });
   }
+
+  // ── Push demo data to Firebase ─────────────────────────────────────────────
+  async function pushDemoDataToFirebase() {
+    if (typeof SPFB === 'undefined' || !SPFB.isReady()) {
+      alert('Firebase not ready. Please wait for the sync indicator to turn green.');
+      return;
+    }
+    
+    const btn = document.getElementById('pushDemoBtn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Pushing…'; }
+    
+    try {
+      // Push all demo investors including Phil
+      const investors = SP.getInvestors().length ? SP.getInvestors() : DEMO_INVESTORS.map(i => ({...i}));
+      await SPFB.saveInvestors(investors);
+      console.log('Pushed', investors.length, 'investors to Firebase');
+      
+      // Push all demo deals with investor links
+      const deals = SP.getDeals().length ? SP.getDeals() : DEMO_DEALS.map(d => ({...d}));
+      for (const deal of deals) {
+        await SPFB.saveDeal(deal);
+      }
+      console.log('Pushed', deals.length, 'deals to Firebase');
+      
+      // Push demo distributions
+      const dists = [
+        { id: 'dist_1', dealId: 'd1', date: '2025-12-15', totalAmount: 42000, recipients: [{investorId: 'i1', amount: 10000}, {investorId: 'i2', amount: 20000}, {investorId: 'i4', amount: 12000}] },
+        { id: 'dist_2', dealId: 'd1', date: '2026-03-15', totalAmount: 45000, recipients: [{investorId: 'i1', amount: 11000}, {investorId: 'i2', amount: 21000}, {investorId: 'i4', amount: 13000}] },
+        { id: 'dist_3', dealId: 'd3', date: '2026-02-28', totalAmount: 85000, recipients: [{investorId: 'i1', amount: 8000}, {investorId: 'i2', amount: 32000}, {investorId: 'i4', amount: 22000}, {investorId: 'i6', amount: 11000}, {investorId: 'i7', amount: 12000}] },
+      ];
+      for (const dist of dists) {
+        await SPFB.saveDistribution(dist);
+      }
+      console.log('Pushed', dists.length, 'distributions to Firebase');
+      
+      alert('✅ Demo data pushed to Firebase! All investors can now access their deals across devices.');
+      SP.logActivity('fa-cloud-upload-alt', 'blue', 'Demo data synced to Firebase');
+      
+    } catch (err) {
+      console.error('Push failed:', err);
+      alert('❌ Failed to push: ' + err.message);
+    }
+    
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sync Demo Data to Cloud'; }
+  }
+
+  // Add button after SPFB is ready
+  SPFB.onReady(() => {
+    const topBar = document.querySelector('.top-bar');
+    if (topBar && !document.getElementById('pushDemoBtn')) {
+      const btn = document.createElement('button');
+      btn.id = 'pushDemoBtn';
+      btn.className = 'btn btn-secondary';
+      btn.style.cssText = 'margin-left:auto;margin-right:12px;font-size:0.8rem;padding:8px 16px;';
+      btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sync Demo Data to Cloud';
+      btn.onclick = pushDemoDataToFirebase;
+      topBar.insertBefore(btn, topBar.querySelector('.user-menu'));
+    }
+  });
 })();
 </script>
 </body>
