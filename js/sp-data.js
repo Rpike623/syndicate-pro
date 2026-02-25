@@ -64,7 +64,10 @@ const SPData = (() => {
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────
+  let _initialized = false;
   async function init(db, orgId, role, email) {
+    if (_initialized) return; // prevent double-init
+    _initialized = true;
     _db    = db;
     _orgId = orgId;
     _role  = role  || 'General Partner';
@@ -266,6 +269,25 @@ const SPData = (() => {
     SP.saveDistributions = saveDistributions;
     SP.logActivity       = logActivity;
     SP.saveSettings      = saveSettings;
+
+    // Compound operations — must use SPData's versions so writes go to Firestore
+    SP.addInvestorToDeal = function(dealId, entry) {
+      const deal = getDealById(dealId);
+      if (!deal) return false;
+      if (!Array.isArray(deal.investors)) deal.investors = [];
+      const idx = deal.investors.findIndex(i => i.investorId === entry.investorId);
+      if (idx >= 0) deal.investors[idx] = { ...deal.investors[idx], ...entry };
+      else deal.investors.push(entry);
+      saveDeal(deal);
+      return true;
+    };
+    SP.removeInvestorFromDeal = function(dealId, investorId) {
+      const deal = getDealById(dealId);
+      if (!deal) return false;
+      deal.investors = (deal.investors || []).filter(i => i.investorId !== investorId);
+      saveDeal(deal);
+      return true;
+    };
 
     // SP.load — intercept data keys
     const _origLoad = SP.load.bind(SP);

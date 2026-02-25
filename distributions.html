@@ -320,8 +320,8 @@
     let distributions = [];
 
     function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num || 0); }
-        async function loadDeals() {
-      deals = SP.getDeals(); // now fresh from Firebase
+        function loadDeals() {
+      deals = SP.getDeals();
       distributions = SP.getDistributions(); // fresh from Firebase
       const select = document.getElementById('distDeal');
       select.innerHTML = '<option value="">Select a deal...</option>' + deals.map(d => `<option value="${d.id}">${d.name || 'Unnamed Deal'}</option>`).join('');

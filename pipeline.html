@@ -651,14 +651,6 @@
     const STATUS_TO_STAGE = { sourcing:'sourcing', loi:'loi', dd:'dd', operating:'financing', closed:'closed', archived:'archived' };
         async function loadDeals() {
       deals = SP.getDeals().filter(d => d.status !== 'archived');
-      if (!deals.length) {
-        deals = [
-          { id:'p1', name:'Sunset Gardens', location:'Austin, TX', type:'multifamily', raise:5200000, irr:18.5, equity:1.9, status:'sourcing', priority:'high', due: new Date(Date.now()+3*86400000).toISOString().split('T')[0], added: new Date().toISOString().split('T')[0], investors:[], documents:[] },
-          { id:'p2', name:'Commerce Plaza', location:'Dallas, TX', type:'retail', raise:3500000, irr:14.2, equity:1.6, status:'loi', priority:'medium', due: new Date(Date.now()+5*86400000).toISOString().split('T')[0], added: new Date().toISOString().split('T')[0], investors:[], documents:[] },
-          { id:'p3', name:'Riverfront Lofts', location:'Houston, TX', type:'multifamily', raise:8900000, irr:21.0, equity:2.1, status:'dd', priority:'high', due: new Date(Date.now()+14*86400000).toISOString().split('T')[0], added: new Date().toISOString().split('T')[0], investors:[], documents:[] },
-        ];
-        SP.saveDeals(deals);
-      }
     }
 
     function renderPipeline() {

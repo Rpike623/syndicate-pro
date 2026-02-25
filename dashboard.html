@@ -819,14 +819,19 @@ const DEMO_DEADLINES = [
 function loadDeals() {
   const deals = SP.getDeals();
   if (deals && deals.length) return deals;
-  SP.saveDeals(DEMO_DEALS);
-  return DEMO_DEALS;
+  // Only seed demo data for the demo GP account
+  const session = SP.getSession();
+  const isDemoAccount = ['gp@deeltrack.com','demo@deeltrack.com'].includes(session?.email?.toLowerCase());
+  if (isDemoAccount) { SP.saveDeals(DEMO_DEALS); return DEMO_DEALS; }
+  return [];
 }
 function loadInvestors() {
   const investors = SP.getInvestors();
   if (investors && investors.length) return investors;
-  SP.saveInvestors(DEMO_INVESTORS);
-  return DEMO_INVESTORS;
+  const session = SP.getSession();
+  const isDemoAccount = ['gp@deeltrack.com','demo@deeltrack.com'].includes(session?.email?.toLowerCase());
+  if (isDemoAccount) { SP.saveInvestors(DEMO_INVESTORS); return DEMO_INVESTORS; }
+  return [];
 }
 function loadDistributionsYTD() {
   const dists = SP.getDistributions();
