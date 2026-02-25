@@ -21,245 +21,103 @@
       --radius: 16px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 100px; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 40px 24px 100px; }
     h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
-    
-    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+    .container { max-width: 1000px; margin: 0 auto; }
     
     .header { text-align: center; margin-bottom: 48px; }
-    .header h1 { font-size: 2.2rem; margin-bottom: 12px; }
-    .header p { color: var(--text-muted); font-size: 1rem; max-width: 600px; margin: 0 auto; }
+    .header h1 { font-size: 2rem; margin-bottom: 12px; }
+    .header p { color: var(--text-muted); }
     
-    /* Cards */
-    .structures { display: grid; gap: 20px; }
-    .structure { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: all 0.3s; }
-    .structure:hover { border-color: rgba(139,92,246,0.3); }
-    .structure.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-    .structure.expanded { box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-    
+    .structure { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
+    .structure.selected { border-color: var(--accent); }
     .structure-header { padding: 20px 24px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
-    .structure-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
-    .structure-icon.simple { background: rgba(139,92,246,0.15); color: var(--accent); }
-    .structure-icon.pref { background: rgba(6,182,212,0.15); color: var(--accent-2); }
-    .structure-icon.catchup { background: rgba(34,197,94,0.15); color: var(--success); }
-    .structure-icon.irr { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .structure-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: rgba(139,92,246,0.15); color: var(--accent); }
     .structure-info { flex: 1; }
-    .structure-name { font-size: 1.15rem; font-weight: 600; margin-bottom: 2px; }
+    .structure-name { font-size: 1.1rem; font-weight: 600; }
     .structure-desc { color: var(--text-muted); font-size: 13px; }
-    .structure-select { padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.15s; }
-    .structure-select:hover { border-color: var(--accent); }
+    .structure-select { padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; }
     .structure.selected .structure-select { background: var(--accent); border-color: var(--accent); }
     
     .structure-visual { padding: 0 24px 24px; display: none; }
-    .structure.expanded .structure-visual { display: block; animation: slideDown 0.3s ease; }
-    @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .structure.expanded .structure-visual { display: block; }
     
-    /* Flow Diagram */
-    .flow-diagram { background: var(--bg-panel); border-radius: 12px; padding: 28px; margin-bottom: 20px; }
-    .flow-step { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; position: relative; }
-    .flow-step:last-child { margin-bottom: 0; }
-    .flow-arrow-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.3s; }
-    .flow-arrow-icon.reached { color: var(--success); }
-    .flow-box { flex: 1; padding: 14px 18px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; position: relative; transition: all 0.5s; opacity: 0.3; }
-    .flow-box.reached { opacity: 1; }
-    .flow-box.lp { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25); }
-    .flow-box.gp { background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.25); }
-    .flow-box.split { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); }
-    .flow-label { font-weight: 500; font-size: 14px; }
-    .flow-amount { font-family: 'Space Grotesk'; font-weight: 600; font-size: 1.1rem; }
-    
-    .flow-badges { position: absolute; right: 18px; top: -8px; display: flex; gap: 6px; }
-    .flow-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
-    .flow-badge.visible { opacity: 1; }
-    .flow-badge.pref { background: rgba(139,92,246,0.2); color: var(--accent); }
-    .flow-badge.catchup { background: rgba(6,182,212,0.2); color: var(--accent-2); }
-    .flow-badge.split { background: rgba(34,197,94,0.2); color: var(--success); }
-    
-    /* Example Section */
-    .example-section { background: var(--bg); border-radius: 12px; padding: 20px; }
-    .example-header { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 16px; }
-    .example-controls { display: flex; align-items: flex-end; gap: 24px; margin-bottom: 20px; }
-    .input-group { display: flex; flex-direction: column; gap: 6px; }
-    .input-group label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
-    .input-group input, .input-group select { background: var(--bg-card); border: 1px solid var(--border); padding: 10px 14px; border-radius: 8px; color: var(--text); font-size: 15px; width: 140px; }
-    .input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent); }
-    .btn-run { padding: 10px 24px; background: var(--accent); border: none; border-radius: 8px; color: white; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-    .btn-run:hover { background: #7c4fe8; }
-    
-    .example-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .result-card { background: var(--bg-panel); border-radius: 10px; padding: 20px; text-align: center; transition: all 0.3s; }
-    .result-card.highlight { transform: scale(1.02); }
-    .result-card.lp { border: 1px solid rgba(139,92,246,0.2); }
-    .result-card.gp { border: 1px solid rgba(6,182,212,0.2); }
-    .result-card.total { border: 1px solid rgba(34,197,94,0.2); }
-    .result-amount { font-family: 'Space Grotesk'; font-size: 1.6rem; font-weight: 600; margin-bottom: 4px; }
-    .result-amount.lp { color: var(--accent); }
-    .result-amount.gp { color: var(--accent-2); }
-    .result-amount.total { color: var(--success); }
-    .result-label { font-size: 12px; color: var(--text-muted); }
-    .result-sublabel { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-    
-    /* Info Grid */
-    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
-    .info-card { background: var(--bg-panel); border-radius: 10px; padding: 16px; }
-    .info-card h4 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 8px; }
-    .info-card p { font-size: 13px; line-height: 1.5; color: var(--text-muted); }
-    
-    /* Bottom Action */
-    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-panel); border-top: 1px solid var(--border); padding: 16px 40px; display: flex; justify-content: center; gap: 12px; z-index: 100; }
-    .btn { padding: 10px 28px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.15s; }
-    .btn-secondary { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); }
-    .btn-secondary:hover { border-color: var(--accent); }
+    .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; }
     .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
-    .btn-primary:hover { box-shadow: 0 8px 25px rgba(139,92,246,0.35); }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-secondary { background: var(--bg-hover); border: 1px solid var(--border); color: var(--text); }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-panel); border-top: 1px solid var(--border); padding: 16px; display: flex; justify-content: center; gap: 12px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>Choose Your Waterfall Structure</h1>
-      <p>Select how cash flows between Limited Partners (LPs) and General Partners (GPs). Click each option to see how it works with a live example.</p>
+      <p>Select how cash flows between Limited Partners (LPs) and General Partners (GPs)</p>
     </div>
     
-    <div class="structures">
-      <!-- Simple Split -->
-      <div class="structure expanded" id="structure-simple">
-        <div class="structure-header" onclick="toggleStructure('simple')">
-          <div class="structure-icon simple"><i class="fas fa-percentage"></i></div>
-          <div class="structure-info">
-            <div class="structure-name">Simple Split (Parri Passu)</div>
-            <div class="structure-desc">All cash distributed proportionally between LPs and GP based on ownership</div>
-          </div>
-          <button class="structure-select" onclick="selectStructure('simple', event)">Select</button>
+    <div class="structure expanded" id="structure-simple">
+      <div class="structure-header" onclick="toggleStructure('simple')">
+        <div class="structure-icon"><i class="fas fa-percentage"></i></div>
+        <div class="structure-info">
+          <div class="structure-name">Simple Split (Parri Passu)</div>
+          <div class="structure-desc">All cash distributed proportionally between LPs and GP</div>
         </div>
-        <div class="structure-visual">
-          <div class="flow-diagram">
-            <div class="flow-step">
-              <div class="flow-arrow-icon"><i class="fas fa-arrow-down"></i></div>
-              <div class="flow-box split reached" id="simple-step1">
-                <span class="flow-label">💰 Available Cash</span>
-                <span class="flow-amount" id="simple-cash">$100,000</span>
-              </div>
-              <div class="flow-badges">
-                <span class="flow-badge split visible">80/20 Split</span>
-              </div>
-            </div>
-            <div class="flow-step">
-              <div class="flow-arrow-icon reached"><i class="fas fa-arrow-down"></i></div>
-              <div class="flow-row" style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <div class="flow-box lp reached">
-                  <span class="flow-label">LPs Get</span>
-                  <span class="flow-amount lp" id="simple-lp">$80,000</span>
-                </div>
-                <div class="flow-box gp reached">
-                  <span class="flow-label">GP Gets</span>
-                  <span class="flow-amount gp" id="simple-gp">$20,000</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="example-section">
-            <div class="example-header">Try It Out</div>
-            <div class="example-controls">
-              <div class="input-group">
-                <label>Distribution Amount</label>
-                <input type="number" id="simple-input" value="100000" oninput="runSimple()">
-              </div>
-              <div class="input-group">
-                <label>LP Split %</label>
-                <select id="simple-split-lp" onchange="runSimple()">
-                  <option value="70">70%</option>
-                  <option value="80" selected>80%</option>
-                  <option value="90">90%</option>
-                </select>
-              </div>
-              <div class="input-group" style="flex: 1;"></div>
-              <button class="btn-run" onclick="animateSimple()">▶ Run Animation</button>
-            </div>
-            <div class="example-results">
-              <div class="result-card lp" id="simple-result-lp">
-                <div class="result-amount lp" id="simple-result-lp-val">$80,000</div>
-                <div class="result-label">To Limited Partners</div>
-                <div class="result-sublabel">80% of distribution</div>
-              </div>
-              <div class="result-card gp" id="simple-result-gp">
-                <div class="result-amount gp" id="simple-result-gp-val">$20,000</div>
-                <div class="result-label">To General Partner</div>
-                <div class="result-sublabel">20% promote</div>
-              </div>
-              <div class="result-card total">
-                <div class="result-amount total" id="simple-result-total">$100,000</div>
-                <div class="result-label">Total Distribution</div>
-                <div class="result-sublabel">100% of available cash</div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="info-grid">
-            <div class="info-card">
-              <h4>✅ Best For</h4>
-              <p>Small deals, first-time syndicators, or when you want equal alignment between GP and LP interests.</p>
-            </div>
-            <div class="info-card">
-              <h4>⚠️ Trade-offs</h4>
-              <p>GP doesn't get rewarded for outperformance. LPs may prefer GP to have incentive to exceed targets.</p>
-            </div>
-            <div class="info-card">
-              <h4>📊 Typical Terms</h4>
-              <p>70/30, 80/20, or 85/15 splits. Common in deals under $5M or with inexperienced sponsors.</p>
-            </div>
-          </div>
-        </div>
+        <button class="structure-select" onclick="selectStructure('simple', event)">Select</button>
       </div>
-      
-      <!-- Preferred Return -->
-      <div class="structure" id="structure-pref">
-        <div class="structure-header" onclick="toggleStructure('pref')">
-          <div class="structure-icon pref"><i class="fas fa-layer-group"></i></div>
-          <div class="structure-info">
-            <div class="structure-name">Preferred Return + Split</div>
-            <div class="structure-desc">LPs get their preferred return first, then remaining cash is split</div>
-          </div>
-          <button class="structure-select" onclick="selectStructure('pref', event)">Select</button>
+    </div>
+    
+    <div class="structure" id="structure-pref">
+      <div class="structure-header" onclick="toggleStructure('pref')">
+        <div class="structure-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="structure-info">
+          <div class="structure-name">Preferred Return + Split</div>
+          <div class="structure-desc">LPs get their preferred return first, then remaining cash is split</div>
         </div>
-        <div class="structure-visual">
-          <div class="flow-diagram">
-            <div class="flow-step" id="pref-step1">
-              <div class="flow-arrow-icon"><i class="fas fa-arrow-down"></i></div>
-              <div class="flow-box split reached">
-                <span class="flow-label">💰 Available Cash</span>
-                <span class="flow-amount" id="pref-cash">$100,000</span>
-              </div>
-            </div>
-            <div class="flow-step" id="pref-step2">
-              <div class="flow-arrow-icon"><i class="fas fa-arrow-down"></i></div>
-              <div class="flow-box lp">
-                <span class="flow-label">First: LP Preferred Return</span>
-                <span class="flow-amount lp" id="pref-pref">$42,500</span>
-              </div>
-              <div class="flow-badges">
-                <span class="flow-badge pref">8% Pref</span>
-              </div>
-            </div>
-            <div class="flow-step" id="pref-step3">
-              <div class="flow-arrow-icon"><i class="fas fa-arrow-down"></i></div>
-              <div class="flow-row" style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <div class="flow-box lp">
-                  <span class="flow-label">Then: LPs Get</span>
-                  <span class="flow-amount lp" id="pref-lp">$46,000</span>
-                </div>
-                <div class="flow-box gp">
-                  <span class="flow-label">Then: GP Gets</span>
-                  <span class="flow-amount gp" id="pref-gp">$11,500</span>
-                </div>
-              </div>
-              <div class="flow-badges">
-                <span class="flow-badge split">80/20 Split</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="example-section">
-            <div class="example-header">Try It
+        <button class="structure-select" onclick="selectStructure('pref', event)">Select</button>
+      </div>
+    </div>
+    
+    <div class="structure" id="structure-catchup">
+      <div class="structure-header" onclick="toggleStructure('catchup')">
+        <div class="structure-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="structure-info">
+          <div class="structure-name">Preferred Return + GP Catch-Up</div>
+          <div class="structure-desc">LPs get pref, then GP catches up to full promote, then split</div>
+        </div>
+        <button class="structure-select" onclick="selectStructure('catchup', event)">Select</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="bottom-bar">
+    <button class="btn btn-secondary" onclick="history.back()">← Back</button>
+    <button class="btn btn-primary" id="continue-btn" disabled onclick="continueToDeal()">Continue →</button>
+  </div>
+  
+  <script>
+    let selectedStructure = null;
+    
+    function toggleStructure(id) {
+      const el = document.getElementById('structure-' + id);
+      el.classList.toggle('expanded');
+    }
+    
+    function selectStructure(type, event) {
+      event.stopPropagation();
+      selectedStructure = type;
+      document.querySelectorAll('.structure').forEach(s => s.classList.remove('selected'));
+      document.getElementById('structure-' + type).classList.add('selected');
+      document.getElementById('continue-btn').disabled = false;
+      const names = { simple: 'Simple Split', pref: 'Preferred Return', catchup: 'Catch-Up' };
+      document.getElementById('continue-btn').textContent = `Continue with ${names[type]} →`;
+    }
+    
+    function continueToDeal() {
+      if (selectedStructure) {
+        localStorage.setItem('waterfallType', selectedStructure);
+        window.location.href = 'new-deal.html';
+      }
+    }
+  </script>
+</body>
+</html>
