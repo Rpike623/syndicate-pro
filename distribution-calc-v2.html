@@ -152,9 +152,29 @@
       const dealStr = localStorage.getItem('currentDeal');
       if (dealStr) {
         const deal = JSON.parse(dealStr);
+        console.log('Loading deal settings:', deal);
+        
         if (deal.waterfallType) {
-          document.getElementById('prefRate').value = deal.prefRate || 8;
-          document.getElementById('lpSplit').value = deal.lpSplit || 80;
+          // Map deal settings to distribution calc fields
+          const prefReturn = deal.prefReturn || 8;
+          const gpPromote = deal.gpPromote || 30;
+          const lpSplit = 100 - gpPromote;
+          
+          document.getElementById('prefRate').value = prefReturn;
+          document.getElementById('lpSplit').value = lpSplit;
+          
+          // Show waterfall type badge
+          const wfBadge = document.getElementById('waterfallBadge');
+          if (wfBadge) {
+            const wfNames = {
+              simple: 'Simple Split',
+              pref: 'Preferred Return + Split',
+              catchup: 'Pref + GP Catch-Up',
+              tiered: 'Tiered Promote'
+            };
+            wfBadge.textContent = wfNames[deal.waterfallType] || deal.waterfallType;
+            wfBadge.style.display = 'inline-block';
+          }
         }
       }
     }
