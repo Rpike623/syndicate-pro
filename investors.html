@@ -6,6 +6,7 @@
   <title>SyndicatePro - Investors</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-core.js"></script>
   <style>
     :root {
       --primary: #0f172a; --accent: #3b82f6; --accent-hover: #2563eb; --accent-light: #dbeafe;
@@ -337,6 +338,54 @@
   </div>
 </div>
 
+<!-- Link to Deal Modal -->
+<div class="modal-overlay" id="dealLinkOverlay" onclick="handleDealLinkOverlayClick(event)">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h2 class="modal-title"><i class="fas fa-link" style="color:var(--accent);margin-right:8px;"></i>Link Investor to Deal</h2>
+      <button class="modal-close" onclick="closeDealLinkModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--border-light);border-radius:var(--radius);padding:12px 14px;margin-bottom:20px;font-size:0.875rem;color:var(--text-secondary);">
+        <i class="fas fa-user" style="color:var(--accent);margin-right:6px;"></i>
+        Linking: <strong id="dlInvestorName" style="color:var(--text);">—</strong>
+      </div>
+      <div class="form-group">
+        <label>Select Deal *</label>
+        <select id="dlDealSelect" onchange="updateOwnership()">
+          <option value="">— Choose a deal —</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Committed Amount ($) *</label>
+          <input type="number" id="dlCommitted" placeholder="250000" oninput="updateOwnership()">
+        </div>
+        <div class="form-group">
+          <label>Ownership %</label>
+          <input type="text" id="dlOwnership" placeholder="Auto-calculated" readonly style="background:var(--border-light);color:var(--text-secondary);">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Investment Status</label>
+        <select id="dlStatus">
+          <option value="committed">Committed</option>
+          <option value="funded">Funded</option>
+          <option value="active">Active</option>
+          <option value="exited">Exited</option>
+        </select>
+      </div>
+      <div id="dlAlreadyLinked" style="display:none;background:var(--warning-light);border:1px solid var(--warning);border-radius:var(--radius);padding:10px 14px;font-size:0.82rem;color:#92400e;margin-top:-8px;">
+        <i class="fas fa-exclamation-triangle"></i> This investor is already linked to this deal. Saving will update their existing entry.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDealLinkModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDealLink()"><i class="fas fa-link"></i> Link to Deal</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
@@ -356,16 +405,21 @@ const DEMO_INVESTORS = [
   { id:'i6', firstName:'Elena', lastName:'Vasquez', email:'evasquez@invest.net', phone:'(210) 555-0606', address:'115 E Travis, San Antonio, TX 78205', accredMethod:'broker', accredStatus:'verified', minInvest:100000, maxInvest:500000, totalInvested:350000, deals:2, status:'active', notes:'Interested in deals near San Antonio.' },
 ];
 
+// Auth guard — GP only
+SP.requireGP();
+
 let investors = [];
 let editingId = null;
 
 function load() {
-  const stored = localStorage.getItem('sp_investors');
-  if (stored) { try { investors = JSON.parse(stored); } catch(e) { investors = [...DEMO_INVESTORS]; } }
-  else { investors = [...DEMO_INVESTORS]; localStorage.setItem('sp_investors', JSON.stringify(investors)); }
+  investors = SP.getInvestors();
+  if (!investors.length) {
+    investors = DEMO_INVESTORS.map(i => ({...i}));
+    SP.saveInvestors(investors);
+  }
 }
 
-function save() { localStorage.setItem('sp_investors', JSON.stringify(investors)); }
+function save() { SP.saveInvestors(investors); }
 
 function fmt$(n) {
   if (!n) return '$0';
@@ -410,7 +464,11 @@ function renderTable(list) {
   }
   const accBadge = { verified:'<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>', pending:'<span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>', expired:'<span class="badge badge-expired"><i class="fas fa-exclamation-triangle"></i> Expired</span>' };
   const statusBadge = { active:'<span class="badge badge-active">Active</span>', inactive:'<span class="badge badge-inactive">Inactive</span>' };
-  tbody.innerHTML = list.map((inv, idx) => `
+  const allDeals = SP.getDeals();
+  tbody.innerHTML = list.map((inv, idx) => {
+    // Count deals this investor is actually linked to
+    const linkedDeals = allDeals.filter(d => Array.isArray(d.investors) && d.investors.some(i => i.investorId === inv.id));
+    return `
     <tr>
       <td>
         <div class="investor-cell">
@@ -421,16 +479,21 @@ function renderTable(list) {
       <td style="color:var(--text-secondary);font-size:0.85rem;">${inv.phone||'—'}</td>
       <td>${accBadge[inv.accredStatus]||'—'}</td>
       <td class="money">${fmt$(inv.totalInvested||0)}</td>
-      <td style="font-weight:600;text-align:center;">${inv.deals||0}</td>
+      <td style="text-align:center;">
+        <span style="font-weight:600;">${linkedDeals.length}</span>
+        ${linkedDeals.length ? `<div style="font-size:0.7rem;color:var(--text-muted);">${linkedDeals.map(d=>d.name).slice(0,2).join(', ')}${linkedDeals.length>2?' +more':''}</div>` : ''}
+      </td>
       <td>${statusBadge[inv.status]||'—'}</td>
       <td>
         <div class="action-btns">
           <button class="btn-xs" onclick="editInvestor('${inv.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+          <button class="btn-xs" onclick="openDealLinkModal('${inv.id}')" title="Link to Deal" style="color:var(--accent);"><i class="fas fa-link"></i></button>
           <button class="btn-xs" onclick="emailInvestor('${inv.id}')" title="Email"><i class="fas fa-envelope"></i></button>
           <button class="btn-xs danger" onclick="deleteInvestor('${inv.id}')" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function openModal(id) {
@@ -520,17 +583,95 @@ function exportCSV() {
 }
 
 function logActivity(icon, color, text) {
-  const activity = JSON.parse(localStorage.getItem('sp_activity')||'[]');
-  activity.unshift({ icon:'fa-'+icon.replace('fa-',''), color, text, time:'Just now' });
-  localStorage.setItem('sp_activity', JSON.stringify(activity.slice(0,20)));
+  SP.logActivity(icon.replace('fa-','fas fa-').replace('fas fa-fas fa-','fas fa-'), color, text);
+}
+
+// ── Deal-link modal ───────────────────────────────────────────────────────────
+let _dlInvestorId = null;
+
+function openDealLinkModal(investorId) {
+  _dlInvestorId = investorId;
+  const inv = investors.find(i => i.id === investorId);
+  if (!inv) return;
+  document.getElementById('dlInvestorName').textContent = `${inv.firstName} ${inv.lastName}`;
+  document.getElementById('dlCommitted').value = '';
+  document.getElementById('dlOwnership').value = '';
+  document.getElementById('dlAlreadyLinked').style.display = 'none';
+
+  // Populate deals dropdown
+  const deals = SP.getDeals().filter(d => !['closed','exited'].includes(d.status));
+  const sel = document.getElementById('dlDealSelect');
+  sel.innerHTML = '<option value="">— Choose a deal —</option>' +
+    deals.map(d => `<option value="${d.id}" data-raise="${d.raise||0}">${d.name}${d.location?' · '+d.location:''} (${fmtStatus(d.status)})</option>`).join('');
+
+  document.getElementById('dealLinkOverlay').classList.add('open');
+}
+
+function fmtStatus(s) {
+  return {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',closed:'Closed',operating:'Operating'}[s]||s||'—';
+}
+
+function closeDealLinkModal() { document.getElementById('dealLinkOverlay').classList.remove('open'); }
+function handleDealLinkOverlayClick(e) { if(e.target===document.getElementById('dealLinkOverlay')) closeDealLinkModal(); }
+
+function updateOwnership() {
+  const sel = document.getElementById('dlDealSelect');
+  const opt = sel.options[sel.selectedIndex];
+  const raise = parseFloat(opt?.dataset?.raise || 0);
+  const committed = parseFloat(document.getElementById('dlCommitted').value) || 0;
+  if (raise > 0 && committed > 0) {
+    document.getElementById('dlOwnership').value = (committed / raise * 100).toFixed(2) + '%';
+  } else {
+    document.getElementById('dlOwnership').value = '';
+  }
+  // Check if already linked
+  if (_dlInvestorId && sel.value) {
+    const deal = SP.getDealById(sel.value);
+    const already = deal && Array.isArray(deal.investors) && deal.investors.some(i => i.investorId === _dlInvestorId);
+    document.getElementById('dlAlreadyLinked').style.display = already ? 'block' : 'none';
+  }
+}
+
+function saveDealLink() {
+  const dealId = document.getElementById('dlDealSelect').value;
+  const committed = parseFloat(document.getElementById('dlCommitted').value) || 0;
+  const status = document.getElementById('dlStatus').value;
+  if (!dealId) { alert('Please select a deal.'); return; }
+  if (!committed) { alert('Please enter a committed amount.'); return; }
+  const sel = document.getElementById('dlDealSelect');
+  const raise = parseFloat(sel.options[sel.selectedIndex]?.dataset?.raise || 0);
+  const ownership = raise > 0 ? parseFloat((committed / raise * 100).toFixed(4)) : 0;
+  SP.addInvestorToDeal(dealId, { investorId: _dlInvestorId, committed, ownership, status, linkedAt: new Date().toISOString() });
+  // Update investor's total invested
+  const inv = investors.find(i => i.id === _dlInvestorId);
+  if (inv) {
+    const allLinked = SP.getDeals().filter(d => Array.isArray(d.investors) && d.investors.some(i => i.investorId === _dlInvestorId));
+    inv.totalInvested = allLinked.reduce((s,d) => {
+      const entry = d.investors.find(i => i.investorId === _dlInvestorId);
+      return s + (entry?.committed || 0);
+    }, 0);
+    inv.deals = allLinked.length;
+    save();
+  }
+  const deal = SP.getDealById(dealId);
+  SP.logActivity('fa-link', 'blue', `<strong>${inv?.firstName} ${inv?.lastName}</strong> linked to <strong>${deal?.name}</strong>`);
+  closeDealLinkModal(); updateStats(); filterTable();
+  showToast(`Linked to ${deal?.name} ✓`, 'success');
+}
+
+function showToast(msg, type) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:0.875rem;font-weight:600;font-family:'Inter',sans-serif;box-shadow:0 8px 24px rgba(0,0,0,0.15);transition:all 0.3s;${type==='success'?'background:#10b981;color:white;':'background:#ef4444;color:white;'}`;
+  t.innerHTML = `<i class="fas fa-check-circle" style="margin-right:8px;"></i>${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 2500);
 }
 
 // ── Invite modal ──────────────────────────────────────────────────────────────
 let _inviteEmail = '', _inviteSubject = '', _inviteBody = '';
 
 function openInviteModal(firstName, lastName, email) {
-  // Build invite token (base64 of email + timestamp — lightweight, no server needed)
-  const token = btoa(`${email}|${Date.now()}`).replace(/=/g,'');
+  const token = SP.createInviteToken(email, SP.getOrgId());
   const base = window.location.href.replace(/investors\.html.*$/, '');
   const inviteUrl = `${base}signup.html?invite=${token}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(firstName+' '+lastName)}`;
 

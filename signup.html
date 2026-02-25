@@ -277,6 +277,7 @@
     </div>
   </div>
 
+  <script src="js/sp-core.js"></script>
   <script>
     // Parse URL params
     const urlParams = new URLSearchParams(window.location.search);
@@ -321,34 +322,35 @@
 
     function handleSignup(e) {
       e.preventDefault();
-      const email = document.getElementById('email').value;
-      const firstName = document.getElementById('firstName').value;
-      const lastName = document.getElementById('lastName').value;
+      const email = document.getElementById('email').value.trim();
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
       const password = document.getElementById('password').value;
+      const name = `${firstName} ${lastName}`;
 
-      // Save user to sp_users
-      const users = JSON.parse(localStorage.getItem('sp_users') || '[]');
-      if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+      if (SP.getUserByEmail(email)) {
         alert('An account with this email already exists. Please sign in.');
         window.location.href = 'login.html';
         return;
       }
-      const role = inviteToken ? 'Investor' : 'General Partner';
-      users.push({ email, password, name: `${firstName} ${lastName}`, role });
-      localStorage.setItem('sp_users', JSON.stringify(users));
 
-      // Create session
-      const session = { email, name: `${firstName} ${lastName}`, role, loggedIn: true, loginTime: Date.now() };
-      localStorage.setItem('sp_session', JSON.stringify(session));
-      localStorage.setItem('auth', JSON.stringify({
-        isAuthenticated: true,
-        user: { email, firstName, lastName, company: document.getElementById('company').value },
-        tier: inviteToken ? 'investor' : plan,
-        trialEnds: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
-      }));
+      let orgId, role;
+      if (inviteToken) {
+        // Investor signing up via invite — decode orgId from token
+        const decoded = SP.decodeInviteToken(inviteToken);
+        orgId = decoded ? decoded.orgId : SP.simpleHash(email);
+        role = 'Investor';
+      } else {
+        // GP signing up fresh — orgId is hash of their own email
+        orgId = SP.simpleHash(email.toLowerCase());
+        role = 'General Partner';
+      }
 
-      // Redirect: investors go to portal, GPs go to dashboard
-      window.location.href = inviteToken ? 'investor-portal.html' : 'dashboard.html';
+      SP.createUser(email, password, name, role, orgId);
+
+      const session = SP.authenticate(email, password);
+      // Redirect based on role
+      window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
     }
 
     function googleAuth() {

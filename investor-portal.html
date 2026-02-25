@@ -874,64 +874,247 @@
     </div>
   </div>
 
+  <script src="js/sp-core.js"></script>
   <script>
-    const investments = {
-      hpa: {
-        name: 'Highland Park Apartments',
-        location: 'Fort Worth, TX',
-        investment: '$150,000',
-        ownership: '3.3%',
-        value: '$168,000',
-        gain: '+$18,000 (12%)'
-      },
-      rrc: {
-        name: 'Riverfront Retail Center',
-        location: 'Dallas, TX',
-        investment: '$100,000',
-        ownership: '3.6%',
-        value: '$102,000',
-        gain: '+$2,000 (2%)'
-      },
-      wip: {
-        name: 'Westside Industrial Park',
-        location: 'Fort Worth, TX',
-        investment: '$200,000',
-        ownership: '6.25%',
-        value: '$242,000',
-        gain: '+$42,000 (21%)'
-      }
-    };
+    // ── Auth guard ──────────────────────────────────────────────────────────────
+    SP.requireInvestor();
 
-    function openInvestment(id) {
-      const inv = investments[id];
-      if (!inv) return;
-      
-      document.getElementById('modalDealName').textContent = inv.name;
-      document.getElementById('modalDealLocation').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${inv.location}`;
-      document.getElementById('detailInvestment').textContent = inv.investment;
-      document.getElementById('detailOwnership').textContent = inv.ownership;
-      document.getElementById('detailValue').textContent = inv.value;
-      document.getElementById('detailGain').textContent = inv.gain;
-      
+    const session = SP.getSession();
+    const investorRecord = SP.getCurrentInvestorRecord();
+
+    // ── Helpers ─────────────────────────────────────────────────────────────────
+    function fmt$(n) {
+      if (!n) return '$0';
+      if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
+      return '$' + Number(n).toLocaleString();
+    }
+    function fmtFull$(n) { return '$' + Number(n||0).toLocaleString(); }
+
+    // ── Personalize header ──────────────────────────────────────────────────────
+    function personalize() {
+      const name = session?.name || 'Investor';
+      const first = name.split(' ')[0];
+      const h = new Date().getHours();
+      const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+      const banner = document.querySelector('.welcome-banner h1');
+      if (banner) banner.textContent = `${greet}, ${first}`;
+      const bannerP = document.querySelector('.welcome-banner p');
+      if (bannerP) bannerP.textContent = "Here's your investment portfolio overview.";
+      // Top bar name
+      const un = document.querySelector('.user-name');
+      if (un) un.textContent = name;
+      // Avatar initials
+      const av = document.querySelector('.avatar-large');
+      if (av) av.textContent = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    }
+
+    // ── Load investor's deals ────────────────────────────────────────────────────
+    function getMyDeals() {
+      if (!investorRecord) return [];
+      return SP.getDealsForInvestor(investorRecord.id).map(deal => {
+        const entry = deal.investors.find(i => i.investorId === investorRecord.id);
+        return { deal, entry };
+      });
+    }
+
+    // ── Render stats ─────────────────────────────────────────────────────────────
+    function renderStats(myDeals) {
+      const totalInvested = myDeals.reduce((s, {entry}) => s + (entry?.committed || 0), 0);
+      const avgIRR = myDeals.length
+        ? (myDeals.reduce((s, {deal}) => s + (deal.irr || 0), 0) / myDeals.length)
+        : 0;
+      const active = myDeals.filter(({deal}) => ['operating','active','funded'].includes(deal.status));
+      const dists = SP.getDistributionsForInvestor(investorRecord?.id || '');
+      const totalDists = dists.reduce((s,d) => s + (d.amount || 0), 0);
+
+      const statsGrid = document.querySelector('.stats-grid');
+      if (!statsGrid) return;
+      statsGrid.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-label">Total Invested</div>
+          <div class="stat-value">${fmt$(totalInvested)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Investments</div>
+          <div class="stat-value">${active.length}</div>
+          <div class="stat-change">${myDeals.length} total deals</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Lifetime Distributions</div>
+          <div class="stat-value">${fmt$(totalDists)}</div>
+          <div class="stat-change positive">${totalDists > 0 ? 'Received' : 'None yet'}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Portfolio Avg IRR</div>
+          <div class="stat-value">${avgIRR.toFixed(1)}%</div>
+          <div class="stat-change positive">Projected</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Accreditation</div>
+          <div class="stat-value" style="font-size:1rem;">${investorRecord?.accredStatus === 'verified' ? '<span style="color:var(--success)"><i class="fas fa-check-circle"></i> Verified</span>' : '<span style="color:var(--warning)"><i class="fas fa-clock"></i> Pending</span>'}</div>
+        </div>`;
+    }
+
+    // ── Render investment cards ──────────────────────────────────────────────────
+    function renderInvestments(myDeals) {
+      const grid = document.querySelector('.investments-grid');
+      if (!grid) return;
+
+      if (!myDeals.length) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);">
+            <i class="fas fa-building" style="font-size:2.5rem;opacity:0.3;display:block;margin-bottom:16px;"></i>
+            <h3 style="color:var(--text-secondary);margin-bottom:8px;">No investments yet</h3>
+            <p style="font-size:0.875rem;">Your GP will link you to deals once you're committed. Check back soon.</p>
+          </div>`;
+        return;
+      }
+
+      const STATUS_COLOR = { operating:'active', active:'active', funded:'active', loi:'pending', dd:'pending', sourcing:'', closed:'closed' };
+      const STATUS_LABEL = { operating:'Operating', active:'Active', funded:'Funded', loi:'LOI Stage', dd:'Due Diligence', sourcing:'Sourcing', closed:'Closed' };
+
+      grid.innerHTML = myDeals.map(({deal, entry}) => {
+        const statusClass = STATUS_COLOR[deal.status] || '';
+        const statusLabel = STATUS_LABEL[deal.status] || deal.status;
+        return `
+          <div class="investment-card" onclick="openInvestment('${deal.id}')">
+            <div class="investment-header">
+              <div class="investment-title">${deal.name}</div>
+              <div class="investment-location"><i class="fas fa-map-marker-alt"></i> ${deal.location || '—'}</div>
+            </div>
+            <div class="investment-body">
+              <div class="investment-metrics">
+                <div class="metric">
+                  <div class="metric-value">${fmt$(entry?.committed||0)}</div>
+                  <div class="metric-label">My Investment</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">${entry?.ownership ? entry.ownership.toFixed(2)+'%' : '—'}</div>
+                  <div class="metric-label">Ownership</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value positive">${deal.irr ? deal.irr.toFixed(1)+'%' : '—'}</div>
+                  <div class="metric-label">Target IRR</div>
+                </div>
+                <div class="metric">
+                  <div class="metric-value">${deal.equity ? deal.equity.toFixed(2)+'x' : '—'}</div>
+                  <div class="metric-label">Equity Multiple</div>
+                </div>
+              </div>
+            </div>
+            <div class="investment-footer">
+              <div class="investment-status">
+                <span class="status-dot ${statusClass}"></span>
+                ${statusLabel}
+              </div>
+              <span style="color:var(--accent);font-size:0.875rem;">View Details <i class="fas fa-arrow-right"></i></span>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Render activity ──────────────────────────────────────────────────────────
+    function renderActivity(myDeals) {
+      const feed = document.querySelector('.activity-list');
+      if (!feed) return;
+      // Build activity from deal events scoped to this investor
+      const items = [];
+      myDeals.forEach(({deal, entry}) => {
+        if (entry?.linkedAt) {
+          items.push({ icon:'fa-building', cls:'deal', title:'Added to investment', desc:`${deal.name}`, date: new Date(entry.linkedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) });
+        }
+      });
+      if (!items.length) {
+        feed.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:0.875rem;"><i class="fas fa-history" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:8px;"></i>No activity yet</div>`;
+        return;
+      }
+      feed.innerHTML = items.map(a => `
+        <div class="activity-item">
+          <div class="activity-icon ${a.cls}"><i class="fas ${a.icon}"></i></div>
+          <div class="activity-content"><div class="activity-title">${a.title}</div><div class="activity-desc">${a.desc}</div></div>
+          <div class="activity-date">${a.date}</div>
+        </div>`).join('');
+    }
+
+    // ── Render documents ─────────────────────────────────────────────────────────
+    function renderDocuments(myDeals) {
+      const grid = document.querySelector('.documents-grid');
+      if (!grid) return;
+      if (!myDeals.length) { grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.875rem;">No documents yet.</p>'; return; }
+      const docs = [];
+      myDeals.forEach(({deal}) => {
+        docs.push({ icon:'fa-file-contract', name:'Operating Agreement', deal: deal.name });
+        docs.push({ icon:'fa-file-alt', name:'PPM', deal: deal.name });
+        docs.push({ icon:'fa-file-invoice-dollar', name:'K-1 (2025)', deal: deal.name });
+      });
+      grid.innerHTML = docs.slice(0,8).map(d => `
+        <div class="document-card">
+          <div class="document-icon"><i class="fas ${d.icon}"></i></div>
+          <div class="document-name">${d.name}</div>
+          <div class="document-date">${d.deal}</div>
+        </div>`).join('');
+    }
+
+    // ── Deal detail modal ────────────────────────────────────────────────────────
+    let _currentDealId = null;
+
+    function openInvestment(dealId) {
+      _currentDealId = dealId;
+      const deal = SP.getDealById(dealId);
+      if (!deal) return;
+      const entry = deal.investors?.find(i => i.investorId === investorRecord?.id);
+
+      document.getElementById('modalDealName').textContent = deal.name;
+      document.getElementById('modalDealLocation').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${deal.location || '—'}`;
+      document.getElementById('detailInvestment').textContent = fmtFull$(entry?.committed || 0);
+      document.getElementById('detailOwnership').textContent = entry?.ownership ? entry.ownership.toFixed(2) + '%' : '—';
+      document.getElementById('detailValue').textContent = fmtFull$(entry?.committed || 0); // placeholder until valuation built
+      document.getElementById('detailGain').textContent = deal.irr ? deal.irr.toFixed(1) + '% IRR target' : '—';
+
       document.getElementById('investmentModal').classList.add('active');
     }
 
-    function closeModal() {
-      document.getElementById('investmentModal').classList.remove('active');
-    }
+    function closeModal() { document.getElementById('investmentModal').classList.remove('active'); }
 
     function switchTab(tab) {
       document.querySelectorAll('.investment-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      
       event.target.classList.add('active');
       document.getElementById('tab-' + tab).classList.add('active');
     }
 
-    // Close modal on outside click
     document.getElementById('investmentModal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
+
+    // ── No-access fallback ───────────────────────────────────────────────────────
+    function showNoAccess() {
+      const content = document.querySelector('.content');
+      if (!content) return;
+      content.innerHTML = `
+        <div style="text-align:center;padding:80px 20px;max-width:500px;margin:0 auto;">
+          <div style="font-size:3rem;margin-bottom:20px;">🔒</div>
+          <h2 style="margin-bottom:12px;">Account not linked</h2>
+          <p style="color:var(--text-secondary);margin-bottom:24px;">Your account exists but hasn't been linked to any investments yet. Your GP needs to add your email to the investor CRM and link you to your deals.</p>
+          <p style="font-size:0.875rem;color:var(--text-muted);">Signed in as: <strong>${session?.email || '—'}</strong></p>
+          <button onclick="SP.logout()" style="margin-top:20px;padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;">Sign Out</button>
+        </div>`;
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────────
+    (function init() {
+      personalize();
+      if (!investorRecord) {
+        showNoAccess();
+        return;
+      }
+      const myDeals = getMyDeals();
+      renderStats(myDeals);
+      renderInvestments(myDeals);
+      renderActivity(myDeals);
+      renderDocuments(myDeals);
+    })();
   </script>
 </body>
 </html>

@@ -6,6 +6,7 @@
   <title>SyndicatePro - Deals</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-core.js"></script>
   <style>
     :root {
       --primary: #0f172a; --accent: #3b82f6; --accent-hover: #2563eb; --accent-light: #dbeafe;
@@ -317,17 +318,18 @@ const DEMO_DEALS = [
   { id:'d5', name:'Westgate Retail Center', type:'retail', raise:5800000, irr:14.5, equity:1.6, status:'loi', location:'Fort Worth, TX', added:'2026-02-10', units:0 },
 ];
 
+SP.requireGP();
+
 let deals = [];
 let sortCol = 'added', sortDir = -1;
 let currentView = 'table';
 
 function load() {
-  const stored = localStorage.getItem('sp_deals');
-  if (stored) { try { deals = JSON.parse(stored); } catch(e) { deals = [...DEMO_DEALS]; } }
-  else { deals = [...DEMO_DEALS]; localStorage.setItem('sp_deals', JSON.stringify(deals)); }
+  deals = SP.getDeals();
+  if (!deals.length) { deals = [...DEMO_DEALS]; SP.saveDeals(deals); }
 }
 
-function save() { localStorage.setItem('sp_deals', JSON.stringify(deals)); }
+function save() { SP.saveDeals(deals); }
 
 function fmt$(n) {
   if (!n) return '$0';

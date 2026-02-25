@@ -6,6 +6,7 @@
   <title>SyndicatePro - Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-core.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
@@ -477,35 +478,28 @@ const DEMO_DEADLINES = [
 
 // ── Load data ───────────────────────────────────────────────────
 function loadDeals() {
-  const stored = localStorage.getItem('sp_deals');
-  if (stored) {
-    try { return JSON.parse(stored); } catch(e) {}
-  }
+  const deals = SP.getDeals();
+  if (deals && deals.length) return deals;
+  SP.saveDeals(DEMO_DEALS);
   return DEMO_DEALS;
 }
 function loadInvestors() {
-  const stored = localStorage.getItem('sp_investors');
-  if (stored) {
-    try { return JSON.parse(stored); } catch(e) {}
-  }
+  const investors = SP.getInvestors();
+  if (investors && investors.length) return investors;
+  SP.saveInvestors(DEMO_INVESTORS);
   return DEMO_INVESTORS;
 }
 function loadDistributionsYTD() {
-  const stored = localStorage.getItem('sp_distributions');
-  if (stored) {
-    try {
-      const dists = JSON.parse(stored);
-      const year = new Date().getFullYear();
-      return dists.filter(d => d.date && d.date.startsWith(year)).reduce((sum, d) => sum + (d.amount || 0), 0);
-    } catch(e) {}
+  const dists = SP.getDistributions();
+  if (dists && dists.length) {
+    const year = new Date().getFullYear();
+    return dists.filter(d => d.date && d.date.startsWith(year)).reduce((sum, d) => sum + (d.amount || 0), 0);
   }
   return 84200; // demo
 }
 function loadActivity() {
-  const stored = localStorage.getItem('sp_activity');
-  if (stored) {
-    try { return JSON.parse(stored); } catch(e) {}
-  }
+  const stored = SP.getActivity();
+  if (stored && stored.length) return stored;
   return DEMO_ACTIVITY;
 }
 
@@ -632,6 +626,7 @@ function renderDeadlines() {
 
 // ── Init ────────────────────────────────────────────────────────
 (function init() {
+  SP.requireGP();
   setGreeting();
   const deals = loadDeals();
   const investors = loadInvestors();
@@ -645,9 +640,7 @@ function renderDeadlines() {
   renderActivity(activity);
   renderDeadlines();
 
-  // Seed demo data if empty
-  if (!localStorage.getItem('sp_deals')) localStorage.setItem('sp_deals', JSON.stringify(DEMO_DEALS));
-  if (!localStorage.getItem('sp_investors')) localStorage.setItem('sp_investors', JSON.stringify(DEMO_INVESTORS));
+  // Demo data already seeded via loadDeals/loadInvestors above
 })();
 </script>
 </body>
