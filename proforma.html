@@ -249,12 +249,14 @@
 
     // Inject deal selector at top of form if not already present
     window.addEventListener('DOMContentLoaded', function() {
-      window.addEventListener('spdata-ready', function() {
+      function _updatePfDealSelect() {
         const sel = document.getElementById('pfDealSelect');
         if (!sel) return;
         const deals = SP.getDeals();
         sel.innerHTML = '<option value="">— Select deal —</option>' + deals.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
-      });
+      }
+      window.addEventListener('spdata-ready', _updatePfDealSelect);
+      if (typeof SPData !== 'undefined' && SPData.isReady()) _updatePfDealSelect();
       const firstInput = document.querySelector('input, select');
       if (firstInput && !document.getElementById('pfDealSelect')) {
         const deals = SP.getDeals();

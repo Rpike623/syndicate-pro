@@ -768,7 +768,7 @@ function saveStripeConfig() {
   settings.stripeEnterpriseLink = document.getElementById('stripeEnterpriseLink')?.value.trim();
   settings.stripePortalLink     = document.getElementById('stripePortalLink')?.value.trim();
   SP.save('settings', settings);
-  if (typeof SPFB !== 'undefined' && SPFB.isReady()) SPFB.saveSettings(settings);
+  if (typeof SPData !== 'undefined' && SPData.isReady()) SPData.saveSettings(settings);
   showToast('Stripe config saved!');
 }
 
@@ -780,7 +780,7 @@ function saveEmailConfig() {
   settings.emailjsTemplateId = document.getElementById('emailjsTemplateId')?.value.trim();
   settings.emailjsFromEmail  = document.getElementById('emailjsFromEmail')?.value.trim();
   SP.save('settings', settings);
-  if (typeof SPFB !== 'undefined' && SPFB.isReady()) SPFB.saveSettings(settings);
+  if (typeof SPData !== 'undefined' && SPData.isReady()) SPData.saveSettings(settings);
   updateEmailStatus();
   showToast('Email config saved!');
 }

@@ -530,7 +530,7 @@ function exportCSV() {
   a.click();
 }
 
-load(); updateStats(); filterDeals();
-    window.addEventListener('spdata-ready', function() { load(); updateStats(); filterDeals(); });</script>
+load().then(() => { updateStats(); filterDeals(); });
+    window.addEventListener('spdata-ready', function() { load().then(() => { updateStats(); filterDeals(); }); });</script>
 </body>
 </html>

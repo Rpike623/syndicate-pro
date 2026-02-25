@@ -986,8 +986,10 @@
   }
 
   // Start: wait for SPData then init
-  window.addEventListener('spdata-ready', init);
-  if (typeof SPData !== 'undefined' && SPData.isReady()) init();
+  let _initCalled = false;
+  function _safeInit() { if (_initCalled) return; _initCalled = true; init(); }
+  window.addEventListener('spdata-ready', _safeInit);
+  if (typeof SPData !== 'undefined' && SPData.isReady()) _safeInit();
 </script>
 </body>
 </html>

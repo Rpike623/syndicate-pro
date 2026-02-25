@@ -405,7 +405,7 @@
       SP.logActivity('fa-wallet', 'purple', `Distribution of <strong>${formatCurrency(amount)}</strong> recorded for <strong>${dist.dealName}</strong>`);
       closeModal();
       renderDistributions();
-    window.addEventListener('spdata-ready', function() { renderDistributions(); });      updateStats();
+    window.addEventListener('spdata-ready', function() { renderDistributions(); updateStats(); });
 
       // Auto-send distribution notification emails
       if (typeof SPEmail !== 'undefined' && SPEmail.isConfigured() && dist.recipients?.length) {

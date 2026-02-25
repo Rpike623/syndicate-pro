@@ -53,22 +53,13 @@ const SPData = (() => {
   }
 
   // Load a collection into cache, with fallback
-  async function _load(name, orderField) {
+  async function _load(name) {
     try {
-      const snap = await (orderField
-        ? _col(name).orderBy(orderField, 'desc').get()
-        : _col(name).get()
-      );
+      const snap = await _col(name).get();
       _cache[name] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch(e) {
-      // orderBy fails with no index — retry without ordering
-      try {
-        const snap = await _col(name).get();
-        _cache[name] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      } catch(e2) {
-        console.warn(`SPData: load ${name} failed:`, e2.message);
-        _cache[name] = [];
-      }
+      console.warn(`SPData: load ${name} failed:`, e.message);
+      _cache[name] = [];
     }
   }
 
@@ -87,6 +78,8 @@ const SPData = (() => {
       _load('capitalCalls'),
       _load('activity'),
     ]);
+    // Sort activity by ts desc after load
+    if (_cache.activity) _cache.activity.sort((a, b) => (b.ts || 0) - (a.ts || 0));
 
     // Load settings separately (single doc, not collection)
     try {
@@ -208,7 +201,7 @@ const SPData = (() => {
     _cache.distributions = dists;
     if (!_db || !_orgId) return;
     await _batchWrite(dists.map(d => ({ ...d, id: d.id || _id('dist') })),
-      item => _col('distributions').doc(item.id))
+      item => { if (!item.id) item.id = _id('dist'); return _col('distributions').doc(item.id); })
       .catch(e => console.warn('SPData.saveDistributions:', e.message));
   }
 
@@ -227,7 +220,7 @@ const SPData = (() => {
     _cache.capitalCalls = calls;
     if (!_db || !_orgId) return;
     await _batchWrite(calls.map(c => ({ ...c, id: c.id || _id('call') })),
-      item => _col('capitalCalls').doc(item.id))
+      item => { if (!item.id) item.id = _id('call'); return _col('capitalCalls').doc(item.id); })
       .catch(e => console.warn('SPData.saveCapitalCalls:', e.message));
   }
 
