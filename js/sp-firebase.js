@@ -748,6 +748,39 @@ const SPFB = (function () {
   function patchSPCore() {
     if (!window.SP) return;
 
+    // Patch SP.getDeals — pull from Firestore, fall back to localStorage
+    SP.getDeals = function() {
+      if (SPFB.isReady() && !SPFB.isOffline()) {
+        SPFB.getDeals().then(deals => {
+          if (deals && deals.length) {
+            const _orig = SP._getDeals || (() => {});
+            // Sync to localStorage so sync renders work
+            const key = SP.makeOrgKey ? SP.makeOrgKey('deals') : 'sp_deals';
+            try { localStorage.setItem(key, JSON.stringify(deals)); } catch(e) {}
+          }
+        }).catch(() => {});
+      }
+      // Return localStorage immediately (may be stale until above resolves)
+      const key = SP.makeOrgKey ? SP.makeOrgKey('deals') : null;
+      if (key) { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {} }
+      return SP.load ? SP.load('deals', []) : [];
+    };
+
+    // Patch SP.getInvestors — same pattern
+    SP.getInvestors = function() {
+      if (SPFB.isReady() && !SPFB.isOffline()) {
+        SPFB.getInvestors().then(investors => {
+          if (investors && investors.length) {
+            const key = SP.makeOrgKey ? SP.makeOrgKey('investors') : 'sp_investors';
+            try { localStorage.setItem(key, JSON.stringify(investors)); } catch(e) {}
+          }
+        }).catch(() => {});
+      }
+      const key = SP.makeOrgKey ? SP.makeOrgKey('investors') : null;
+      if (key) { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {} }
+      return SP.load ? SP.load('investors', []) : [];
+    };
+
     // Patch SP.saveDeals
     const _origSaveDeals = SP.saveDeals.bind(SP);
     SP.saveDeals = function(deals) {
