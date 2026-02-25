@@ -737,36 +737,50 @@ const SP = (function () {
       }
     }
 
-    // Inject Settings nav link if sidebar nav exists and doesn't already have it
+    // Rebuild sidebar nav completely — ensures every page has the correct full nav
     const nav = document.querySelector('.sidebar .nav');
-    if (nav && !nav.querySelector('a[href="settings.html"]')) {
-      const section = document.createElement('div');
-      section.className = 'nav-section';
-      section.textContent = 'Account';
-      const link = document.createElement('a');
-      link.href = 'settings.html';
-      link.className = 'nav-item';
-      link.innerHTML = '<i class="fas fa-cog"></i><span>Settings</span>';
-      // Mark active if on settings page
-      if (window.location.pathname.endsWith('settings.html')) link.classList.add('active');
-      nav.appendChild(section);
-      nav.appendChild(link);
+    if (nav) {
+      const page = window.location.pathname.split('/').pop() || 'dashboard.html';
+      const navItems = [
+        { section: 'Main' },
+        { href: 'dashboard.html', icon: 'fa-th-large', label: 'Dashboard' },
+        { href: 'pipeline.html', icon: 'fa-stream', label: 'Pipeline' },
+        { href: 'new-deal.html', icon: 'fa-calculator', label: 'Deal Modeling' },
+        { href: 'investors.html', icon: 'fa-users', label: 'Investors' },
+        { href: 'documents.html', icon: 'fa-file-contract', label: 'Documents' },
+        { href: 'reports.html', icon: 'fa-chart-bar', label: 'Reports' },
+        { section: 'Tools' },
+        { href: 'proforma.html', icon: 'fa-table', label: 'Pro Forma' },
+        { href: 'distributions.html', icon: 'fa-wallet', label: 'Distributions' },
+        { href: 'capital-calls.html', icon: 'fa-hand-holding-usd', label: 'Capital Calls' },
+        { href: 'k1-generator.html', icon: 'fa-file-invoice-dollar', label: 'K-1 Generator' },
+        { href: 'email-templates.html', icon: 'fa-envelope', label: 'Email Templates' },
+        { href: 'deal-room.html', icon: 'fa-folder-open', label: 'Deal Room' },
+        { href: 'deal-compare.html', icon: 'fa-balance-scale', label: 'Compare Deals' },
+        { section: 'Account' },
+        { href: 'settings.html', icon: 'fa-cog', label: 'Settings' },
+      ];
 
-      // Deal Compare link
-      const compareLink = document.createElement('a');
-      compareLink.href = 'deal-compare.html';
-      compareLink.className = 'nav-item';
-      compareLink.innerHTML = '<i class="fas fa-balance-scale"></i><span>Compare Deals</span>';
-      if (window.location.pathname.endsWith('deal-compare.html')) compareLink.classList.add('active');
-      nav.insertBefore(compareLink, link); // Insert before Settings
+      // Also active for deal-detail, investor-detail, etc.
+      const activeMap = {
+        'deal-detail.html': 'pipeline.html',
+        'deals.html': 'pipeline.html',
+        'investor-detail.html': 'investors.html',
+        'investor-statements.html': 'reports.html',
+        'distribution-calc.html': 'distributions.html',
+        'deal-teaser.html': 'pipeline.html',
+        'deal-compare.html': 'deal-compare.html',
+        'rent-roll-analyzer.html': 'proforma.html',
+        'market-comps.html': 'reports.html',
+        'ic-memo-builder.html': 'documents.html',
+      };
+      const activePage = activeMap[page] || page;
 
-      // Theme toggle Link
-      const themeLink = document.createElement('a');
-      themeLink.href = '#';
-      themeLink.className = 'nav-item';
-      themeLink.innerHTML = '<i class="fas fa-moon"></i><span id="themeLabel">Dark Mode</span>';
-      themeLink.onclick = (e) => { e.preventDefault(); SP.toggleTheme(); };
-      nav.appendChild(themeLink);
+      nav.innerHTML = navItems.map(item => {
+        if (item.section) return `<div class="nav-section">${item.section}</div>`;
+        const isActive = item.href === activePage;
+        return `<a href="${item.href}" class="nav-item ${isActive ? 'active' : ''}"><i class="fas ${item.icon}"></i><span>${item.label}</span></a>`;
+      }).join('');
     }
 
     // Apply saved theme

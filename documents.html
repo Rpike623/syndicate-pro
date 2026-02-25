@@ -699,6 +699,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-documents.js"></script>
   <script>
     SP.requireGP();
   </script>
@@ -999,16 +1000,46 @@
       const data = getFormData();
       let content = '';
       
+      const _sett = SP.load('settings', {});
+      const _gpN = data.gpName || _sett.firmName || data.companyName || '[GP NAME]';
+      const _gpR = data.gpRep || _sett.gpFullName || SP.getSession()?.name || 'Managing Member';
+      const _st = data.state || _sett.defState || 'DE';
+      const _addr = _sett.firmAddress || data.address || '';
+      const _min = data.minInvestment || 50000;
+
+      // Build a deal-like object from form data for SPDocs
+      const _dealObj = {
+        name: data.propertyAddress || data.companyName || '[DEAL]',
+        location: data.propertyAddress || '',
+        raise: parseFloat(data.totalEquity) || 0,
+        totalEquity: parseFloat(data.totalEquity) || 0,
+        gpEquity: parseFloat(data.gpEquity) || 10,
+        lpEquity: parseFloat(data.lpEquity) || 90,
+        prefReturn: parseFloat(data.prefReturn) || 8,
+        gpPromote: parseFloat(data.gpPromote) || 20,
+        acqFee: parseFloat(data.acqFee) || 3,
+        assetMgmtFee: parseFloat(data.assetMgmtFee) || 2,
+        companyName: data.companyName || _gpN,
+        state: _st,
+        minInvestment: parseFloat(_min),
+      };
+
       switch(currentDocType) {
         case 'operating-agreement':
         case 'lp-agreement':
-          content = generateOperatingAgreement(data);
+          content = (typeof SPDocs !== 'undefined')
+            ? SPDocs.generateOA(_dealObj, _gpN, _gpR, _addr, _st, _min)
+            : generateOperatingAgreement(data);
           break;
         case 'ppm':
           content = generatePPM(data);
           break;
         case 'subscription':
-          content = generateSubscription(data);
+          // Build a dummy investor from form data for the sub doc
+          const _inv = { firstName: '[INVESTOR', lastName: 'NAME]', email: '', address: '', phone: '', committed: parseFloat(data.minInvestment) || 50000 };
+          content = (typeof SPDocs !== 'undefined')
+            ? SPDocs.generateSubDoc(_dealObj, _inv, _gpN, _gpR)
+            : generateSubscription(data);
           break;
       }
       

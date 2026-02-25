@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-documents.js"></script>
   <style>
     :root {
       --primary: #0f172a;
@@ -1472,7 +1473,17 @@
         spDeals.unshift(spDeal);
       }
       // Auto-generate Operating Agreement and store on the deal
-      spDeal.generatedOA = autoGenerateOA(spDeal);
+      // Generate OA using professional template from sp-documents.js
+      const _settings = SP.load('settings', {});
+      const _gpName = _settings.firmName || spDeal.companyName || spDeal.name + ' GP, LLC';
+      const _gpRep = _settings.gpFullName || SP.getSession()?.name || 'Managing Member';
+      const _state = spDeal.state || _settings.defState || _settings.firmState || 'DE';
+      const _minInv = spDeal.minInvestment || 50000;
+      if (typeof SPDocs !== 'undefined') {
+        spDeal.generatedOA = SPDocs.generateOA(spDeal, _gpName, _gpRep, _settings.firmAddress || '', _state, _minInv);
+      } else {
+        spDeal.generatedOA = autoGenerateOA(spDeal);
+      }
       spDeal.oaGeneratedAt = new Date().toISOString();
 
       SP.saveDeals(spDeals);
