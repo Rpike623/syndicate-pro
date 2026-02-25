@@ -1471,8 +1471,12 @@
       } else {
         spDeals.unshift(spDeal);
       }
+      // Auto-generate Operating Agreement and store on the deal
+      spDeal.generatedOA = autoGenerateOA(spDeal);
+      spDeal.oaGeneratedAt = new Date().toISOString();
+
       SP.saveDeals(spDeals);
-      SP.logActivity('fa-calculator', 'blue', `Deal model saved: <strong>${deal.name}</strong>`);
+      SP.logActivity('fa-file-contract', 'green', `Operating Agreement auto-generated for <strong>${deal.name}</strong>`);
 
       // Store current deal for document generation (legacy compat)
       localStorage.setItem('currentDeal', JSON.stringify(deal));
@@ -1484,6 +1488,120 @@
       showStep('success');
     }
     
+    function autoGenerateOA(d) {
+      const settings = SP.load('settings', {});
+      const gpName = settings.firmName || d.companyName || d.name + ' GP, LLC';
+      const gpRep = settings.gpFullName || SP.getSession()?.name || 'Managing Member';
+      const state = d.state || settings.defState || settings.firmState || 'DE';
+      const address = d.location || settings.firmAddress || '';
+
+      const stateProvisions = {
+        'TX': `<p><strong>Tax Treatment.</strong> The Company elects to be taxed as a partnership under Texas Tax Code § 171.0002.</p><p><strong>Franchise Tax.</strong> The Company acknowledges potential franchise tax obligations under Texas Tax Code Chapter 171.</p><p><strong>Community Property.</strong> If any member is married, their spouse consents per Texas Family Code § 3.104.</p>`,
+        'DE': `<p><strong>Series LLC.</strong> The Company may establish separate series pursuant to Section 18-215 of the Delaware LLC Act.</p><p><strong>Charging Order.</strong> A member's interest is subject to charging order as sole remedy under Section 18-703.</p>`,
+        'FL': `<p><strong>Registered Agent.</strong> The Company maintains a Florida registered agent as required by § 605.0113, Florida Statutes.</p><p><strong>Annual Report.</strong> The Company shall file annual reports with the Florida Division of Corporations.</p>`,
+        'CA': `<p><strong>Franchise Tax.</strong> The Company shall pay the annual $800 minimum franchise tax under California Revenue and Taxation Code § 17941.</p><p><strong>Securities.</strong> Interests are offered pursuant to California Corporations Code § 25102(f) exemption.</p>`,
+        'NV': `<p><strong>Charging Order.</strong> A judgment creditor's exclusive remedy is a charging order per NRS 86.401.</p><p><strong>Asset Protection.</strong> Nevada law provides strong asset protection for LLC members under NRS Chapter 86.</p>`,
+        'WY': `<p><strong>Asset Protection.</strong> Wyoming provides charging order protection as sole remedy per W.S. 17-29-503.</p><p><strong>Privacy.</strong> Member information is not publicly filed with the Wyoming Secretary of State.</p>`,
+        'NY': `<p><strong>Publication.</strong> The Company has satisfied NY LLC Law § 206 publication requirements.</p><p><strong>Member Liability.</strong> Members are not liable for company debts per NY LLC Law § 609.</p>`,
+      };
+      const stateClause = stateProvisions[state] || stateProvisions['DE'];
+      const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const gpPct = d.gpEquity || 10;
+      const lpPct = d.lpEquity || 90;
+      const pref = d.prefReturn || 8;
+      const promote = d.gpPromote || 20;
+      const residualLP = 100 - promote;
+      const equity = d.totalEquity || d.raise || 0;
+
+      return `<div style="font-family:Georgia,serif;line-height:1.8;max-width:800px;margin:0 auto;">
+        <div style="text-align:center;border-bottom:3px double #0f172a;padding-bottom:20px;margin-bottom:28px;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#64748b;margin-bottom:8px;">Operating Agreement</div>
+          <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:4px;">${gpName}</h1>
+          <div style="font-size:.9rem;color:#64748b;">A ${state} Limited Liability Company</div>
+        </div>
+        <div style="background:#fef9c3;border:1px solid #fbbf24;border-radius:6px;padding:12px 16px;margin-bottom:24px;font-size:.8rem;font-family:sans-serif;color:#78350f;">
+          <strong>⚠ PLACEHOLDER DOCUMENT:</strong> This Operating Agreement was auto-generated from your deal inputs for reference purposes. Have your attorney review and finalize before use with actual investors.
+        </div>
+        <p>THIS OPERATING AGREEMENT ("<strong>Agreement</strong>") is entered into as of ${today}, by and among the Members listed on Schedule A attached hereto.</p>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">ARTICLE I — FORMATION</h2>
+        <p><strong>1.1 Formation.</strong> The Members hereby form a limited liability company pursuant to the ${state} Limited Liability Company Act.</p>
+        <p><strong>1.2 Name.</strong> The name of the Company shall be <strong>${gpName}</strong>.</p>
+        <p><strong>1.3 Principal Office.</strong> The principal office shall be at ${address || '[ADDRESS ON FILE]'}.</p>
+        <p><strong>1.4 Purpose.</strong> To acquire, own, operate, and dispose of real property known as <strong>${d.name}</strong>, located at ${d.location || '[PROPERTY ADDRESS]'}, and all activities necessary or incidental thereto.</p>
+        <p><strong>1.5 Duration.</strong> The Company shall have perpetual existence unless dissolved in accordance with Article VIII.</p>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">ARTICLE II — CAPITAL CONTRIBUTIONS</h2>
+        <p><strong>2.1 Total Capitalization.</strong> The total equity raise shall be <strong>$${equity.toLocaleString()}</strong>.</p>
+        <p><strong>2.2 General Partner.</strong> ${gpName} shall contribute <strong>${gpPct}%</strong> of total equity ($${Math.round(equity * gpPct / 100).toLocaleString()}).</p>
+        <p><strong>2.3 Limited Partners.</strong> Limited Partners shall collectively contribute <strong>${lpPct}%</strong> of total equity ($${Math.round(equity * lpPct / 100).toLocaleString()}).</p>
+        <p><strong>2.4 Minimum Investment.</strong> The minimum investment per Limited Partner is $${(d.minInvestment || 50000).toLocaleString()}.</p>
+        <p><strong>2.5 Capital Accounts.</strong> A separate Capital Account shall be maintained for each Member in accordance with Treasury Regulations § 1.704-1(b)(2)(iv).</p>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">ARTICLE III — DISTRIBUTIONS AND WATERFALL</h2>
+        <p><strong>3.1 Distribution Priority.</strong> Distributable Cash shall be distributed in the following order:</p>
+        <blockquote style="border-left:3px solid #3b82f6;padding:8px 16px;margin:12px 0;background:#f0f9ff;">
+          <p><strong>(a) Return of Capital:</strong> 100% to Members pro-rata until each Member has received a full return of their capital contribution;</p>
+          <p><strong>(b) Preferred Return:</strong> 100% to Limited Partners until they have received a cumulative preferred return of <strong>${pref}% per annum</strong> on invested capital;</p>
+          <p><strong>(c) GP Catch-Up:</strong> 100% to the General Partner until the GP has received <strong>${promote}%</strong> of all distributions made under (b) and (c) combined;</p>
+          <p><strong>(d) Residual Split:</strong> <strong>${promote}% to GP</strong> and <strong>${residualLP}% to Limited Partners</strong> on all remaining Distributable Cash.</p>
+        </blockquote>
+        <p><strong>3.2 Timing.</strong> The GP shall distribute Distributable Cash within 60 days after each fiscal quarter end.</p>
+        <p><strong>3.3 Tax Distributions.</strong> The GP may make tax distributions to Members sufficient to cover federal and state income tax liabilities on allocated income.</p>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">ARTICLE IV — MANAGEMENT</h2>
+        <p><strong>4.1 Managing Member.</strong> <strong>${gpName}</strong>, acting through ${gpRep}, shall serve as the sole Managing Member with full authority to manage the Company.</p>
+        <p><strong>4.2 LP Restrictions.</strong> Limited Partners shall have no right to participate in management and no authority to bind the Company.</p>
+        <p><strong>4.3 GP Fees.</strong> The GP shall receive: (a) Acquisition Fee of <strong>${d.acqFee || 3}%</strong> of purchase price at closing; (b) Asset Management Fee of <strong>${d.assetMgmtFee || 2}%</strong> of gross revenues annually.</p>
+        <p><strong>4.4 Major Decisions.</strong> The following require approval of a majority-in-interest of Limited Partners: (a) sale or refinancing of the Property; (b) material alteration of the business plan; (c) incurring debt in excess of 125% of budgeted amounts.</p>
+        <p><strong>4.5 GP Removal.</strong> The GP may be removed for Cause (fraud, gross negligence, willful misconduct, or material breach not cured within 30 days) by vote of 66.7% in interest of Limited Partners.</p>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">ARTICLE V — TRANSFERS</h2>
+        <p><strong>5.1 Restrictions.</strong> No Member may transfer their interest without prior written consent of the GP, which may be withheld in the GP's sole discretion.</p>
+        <p><strong>5.2 Right of First Refusal.</strong> Before any permitted transfer, the Company shall have a 30-day right of first refusal at the proposed transfer price.</p>
+        <p><strong>5.3 No Withdrawal.</strong> No Member has the right to withdraw or demand return of their capital contribution prior to dissolution.</p>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">ARTICLE VI — ACCOUNTING AND TAX</h2>
+        <p><strong>6.1 Fiscal Year.</strong> The fiscal year of the Company shall be the calendar year.</p>
+        <p><strong>6.2 Reporting.</strong> The GP shall provide quarterly updates and annual financial statements to all Members.</p>
+        <p><strong>6.3 K-1s.</strong> The Company shall file IRS Form 1065 and provide Schedule K-1s to all Members by March 15 of each year.</p>
+        <p><strong>6.4 Tax Matters Partner.</strong> The GP shall serve as the Tax Matters Partner / Partnership Representative.</p>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">ARTICLE VII — STATE-SPECIFIC PROVISIONS</h2>
+        ${stateClause}
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">ARTICLE VIII — DISSOLUTION</h2>
+        <p><strong>8.1 Events.</strong> The Company dissolves upon: (a) sale of the Property; (b) unanimous consent; (c) judicial dissolution; (d) entry of decree of dissolution.</p>
+        <p><strong>8.2 Winding Up.</strong> Upon dissolution, the GP (or a liquidating trustee) shall wind up the Company's affairs and distribute assets: first to creditors, then to Members per Article III.</p>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;">ARTICLE IX — GENERAL PROVISIONS</h2>
+        <p><strong>9.1 Governing Law.</strong> This Agreement is governed by the laws of ${state}.</p>
+        <p><strong>9.2 Amendments.</strong> This Agreement may be amended by the GP with approval of a majority-in-interest of Limited Partners.</p>
+        <p><strong>9.3 Entire Agreement.</strong> This Agreement constitutes the entire agreement and supersedes all prior understandings.</p>
+        <p><strong>9.4 Counterparts.</strong> This Agreement may be executed in one or more counterparts, including electronic signatures.</p>
+        <div style="margin-top:48px;border-top:2px solid #0f172a;padding-top:20px;">
+          <h2 style="font-size:1rem;margin-bottom:20px;">SIGNATURES</h2>
+          <p>IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first written above.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:32px;">
+            <div>
+              <div style="border-top:1px solid #333;padding-top:8px;margin-top:48px;"></div>
+              <div><strong>GENERAL PARTNER:</strong></div>
+              <div>${gpName}</div>
+              <div>By: ${gpRep}, Managing Member</div>
+              <div style="margin-top:8px;color:#64748b;font-size:.85rem;">Date: _______________</div>
+            </div>
+            <div>
+              <div style="border-top:1px solid #333;padding-top:8px;margin-top:48px;"></div>
+              <div><strong>LIMITED PARTNERS:</strong></div>
+              <div>See Schedule A</div>
+              <div style="margin-top:8px;color:#64748b;font-size:.85rem;">Date: _______________</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:40px;border-top:1px solid #e2e8f0;padding-top:20px;">
+          <h3 style="font-size:.9rem;">SCHEDULE A — MEMBERS</h3>
+          <table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:.85rem;">
+            <thead><tr style="background:#f8fafc;"><th style="padding:8px;border:1px solid #e2e8f0;text-align:left;">Member Name</th><th style="padding:8px;border:1px solid #e2e8f0;">Capital Contribution</th><th style="padding:8px;border:1px solid #e2e8f0;">Ownership %</th><th style="padding:8px;border:1px solid #e2e8f0;">Role</th></tr></thead>
+            <tbody>
+              <tr><td style="padding:8px;border:1px solid #e2e8f0;">${gpName}</td><td style="padding:8px;border:1px solid #e2e8f0;text-align:center;">$${Math.round(equity * gpPct / 100).toLocaleString()}</td><td style="padding:8px;border:1px solid #e2e8f0;text-align:center;">${gpPct}%</td><td style="padding:8px;border:1px solid #e2e8f0;text-align:center;">General Partner</td></tr>
+              <tr><td style="padding:8px;border:1px solid #e2e8f0;color:#64748b;font-style:italic;">[Limited Partners — added on investment]</td><td style="padding:8px;border:1px solid #e2e8f0;text-align:center;">$${Math.round(equity * lpPct / 100).toLocaleString()}</td><td style="padding:8px;border:1px solid #e2e8f0;text-align:center;">${lpPct}%</td><td style="padding:8px;border:1px solid #e2e8f0;text-align:center;">Limited Partners</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+
     function saveDraft() {
       alert('Draft saved! You can continue later.');
     }

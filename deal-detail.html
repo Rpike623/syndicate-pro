@@ -354,18 +354,7 @@ function render() {
 
     <!-- Documents Tab -->
     <div class="tab-panel" id="tab-documents">
-      <div class="card">
-        <div class="card-header"><div class="card-title">Deal Documents</div><a href="documents.html?deal=${deal.id}" class="btn btn-secondary" style="padding:8px 14px;font-size:.8rem;"><i class="fas fa-plus"></i> Generate Doc</a></div>
-        <div class="card-body">
-          <div class="doc-grid">
-            <div class="doc-card" onclick="alert('Generate from Documents page')"><div class="doc-icon"><i class="fas fa-file-contract"></i></div><div class="doc-name">Operating Agreement</div><div class="doc-sub">LLC OA</div></div>
-            <div class="doc-card" onclick="alert('Generate from Documents page')"><div class="doc-icon"><i class="fas fa-file-alt"></i></div><div class="doc-name">PPM</div><div class="doc-sub">Private Placement</div></div>
-            <div class="doc-card" onclick="alert('Generate from Documents page')"><div class="doc-icon"><i class="fas fa-file-signature"></i></div><div class="doc-name">Subscription Agmt</div><div class="doc-sub">Investor signup</div></div>
-            <div class="doc-card" onclick="alert('Generate from Documents page')"><div class="doc-icon"><i class="fas fa-file-invoice-dollar"></i></div><div class="doc-name">K-1 Report</div><div class="doc-sub">Tax document</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
+      ${renderDocumentsTab()}</div>
 
     <!-- Subscriptions Tab -->
     <div class="tab-panel" id="tab-subscriptions">
@@ -424,6 +413,134 @@ function render() {
         </div>
       </div>
     </div>`;
+}
+
+function renderDocumentsTab() {
+  const hasOA = !!(deal.generatedOA);
+  const oaDate = deal.oaGeneratedAt ? new Date(deal.oaGeneratedAt).toLocaleDateString() : null;
+
+  return `
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Operating Agreement</div>
+          <div style="font-size:.8rem;color:var(--text-secondary);">${hasOA ? `Auto-generated ${oaDate} · ${deal.state || 'DE'} LLC` : 'Not yet generated'}</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          ${hasOA ? `
+            <button class="btn btn-secondary" style="padding:8px 12px;font-size:.8rem;" onclick="viewOA()"><i class="fas fa-eye"></i> View</button>
+            <button class="btn btn-secondary" style="padding:8px 12px;font-size:.8rem;" onclick="printOA()"><i class="fas fa-print"></i> Print / PDF</button>
+            <button class="btn btn-secondary" style="padding:8px 12px;font-size:.8rem;" onclick="downloadOAWord()"><i class="fas fa-file-word"></i> Download</button>
+          ` : `
+            <button class="btn btn-primary" style="padding:8px 12px;font-size:.8rem;" onclick="generateOANow()"><i class="fas fa-file-contract"></i> Generate OA</button>
+          `}
+        </div>
+      </div>
+      ${hasOA ? `
+        <div id="oaPreview" style="display:none;border-top:1px solid var(--border);padding:32px;background:#fafafa;">
+          ${deal.generatedOA}
+        </div>` : ''}
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+      <div class="doc-card" onclick="window.location.href='documents.html?deal=${deal.id}&type=ppm'">
+        <div class="doc-icon"><i class="fas fa-file-alt"></i></div>
+        <div class="doc-name">PPM</div>
+        <div class="doc-sub">Generate →</div>
+      </div>
+      <div class="doc-card" onclick="window.location.href='k1-generator.html?deal=${deal.id}'">
+        <div class="doc-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+        <div class="doc-name">K-1 Reports</div>
+        <div class="doc-sub">Generate →</div>
+      </div>
+      <div class="doc-card" onclick="window.location.href='deal-room.html?deal=${deal.id}'">
+        <div class="doc-icon"><i class="fas fa-folder-open"></i></div>
+        <div class="doc-name">Deal Room</div>
+        <div class="doc-sub">Upload files →</div>
+      </div>
+    </div>`;
+}
+
+function viewOA() {
+  const preview = document.getElementById('oaPreview');
+  if (!preview) return;
+  const isVisible = preview.style.display !== 'none';
+  preview.style.display = isVisible ? 'none' : 'block';
+  // Update button text
+  const btn = document.querySelector('button[onclick="viewOA()"]');
+  if (btn) btn.innerHTML = isVisible ? '<i class="fas fa-eye"></i> View' : '<i class="fas fa-eye-slash"></i> Hide';
+}
+
+function printOA() {
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>${deal.name} — Operating Agreement</title>
+    <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}
+    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style></head>
+    <body>${deal.generatedOA}</body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+}
+
+function downloadOAWord() {
+  const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word'><head><meta charset='utf-8'></head><body>${deal.generatedOA}</body></html>`;
+  const blob = new Blob([html], {type:'application/msword'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${deal.name.replace(/\s+/g,'-')}-Operating-Agreement.doc`;
+  a.click();
+}
+
+function generateOANow() {
+  // Re-run the OA generator using deal data (same logic as new-deal.html)
+  const settings = SP.load('settings', {});
+  const gpName = settings.firmName || deal.companyName || deal.name + ' GP, LLC';
+  const gpRep = settings.gpFullName || SP.getSession()?.name || 'Managing Member';
+  const state = deal.state || settings.defState || settings.firmState || 'DE';
+  const stateProvisions = {
+    TX: '<p><strong>Tax Treatment.</strong> The Company elects to be taxed as a partnership under Texas Tax Code § 171.0002.</p><p><strong>Community Property.</strong> If any member is married, their spouse consents per Texas Family Code § 3.104.</p>',
+    DE: '<p><strong>Series LLC.</strong> The Company may establish separate series pursuant to Section 18-215 of the Delaware LLC Act.</p><p><strong>Charging Order.</strong> Sole remedy per Section 18-703.</p>',
+    FL: '<p><strong>Annual Report.</strong> The Company shall file annual reports with the Florida Division of Corporations.</p>',
+    CA: '<p><strong>Franchise Tax.</strong> The Company shall pay the annual $800 minimum franchise tax under California Revenue and Taxation Code § 17941.</p>',
+    NV: '<p><strong>Charging Order.</strong> Sole remedy per NRS 86.401.</p><p><strong>Asset Protection.</strong> Nevada law provides strong asset protection per NRS Chapter 86.</p>',
+    WY: '<p><strong>Asset Protection.</strong> Wyoming provides charging order protection per W.S. 17-29-503.</p>',
+    NY: '<p><strong>Publication.</strong> NY LLC Law § 206 publication requirements satisfied.</p>',
+  };
+  const sc = stateProvisions[state] || stateProvisions['DE'];
+  const equity = deal.totalEquity || deal.raise || 0;
+  const gpPct = deal.gpEquity || 10;
+  const lpPct = deal.lpEquity || 90;
+  const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  const oa = `<div style="font-family:Georgia,serif;line-height:1.8;">
+    <div style="background:#fef9c3;border:1px solid #fbbf24;border-radius:6px;padding:12px 16px;margin-bottom:24px;font-size:.8rem;font-family:sans-serif;color:#78350f;"><strong>⚠ PLACEHOLDER DOCUMENT</strong> — Auto-generated for reference. Have your attorney review before use.</div>
+    <h1 style="text-align:center;font-size:1.4rem;">${gpName}</h1>
+    <p style="text-align:center;color:#64748b;">A ${state} Limited Liability Company — Operating Agreement</p>
+    <p style="text-align:center;">${today}</p>
+    <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE I — FORMATION</h2>
+    <p><strong>1.1 Name.</strong> ${gpName}.</p>
+    <p><strong>1.2 Purpose.</strong> Acquire, own, and operate <strong>${deal.name}</strong> at ${deal.location||'[Property Address]'}.</p>
+    <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE II — CAPITAL</h2>
+    <p><strong>2.1 Total Equity:</strong> $${equity.toLocaleString()} (GP: ${gpPct}% / LP: ${lpPct}%)</p>
+    <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE III — DISTRIBUTIONS</h2>
+    <p><strong>Waterfall:</strong> (a) Return of capital; (b) ${deal.prefReturn||8}% preferred return to LPs; (c) GP catch-up to ${deal.gpPromote||20}%; (d) ${deal.gpPromote||20}/${100-(deal.gpPromote||20)} split.</p>
+    <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">STATE-SPECIFIC PROVISIONS (${state})</h2>
+    ${sc}
+    <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+      <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:40px;"></div><div>${gpRep}, Managing Member</div><div style="color:#94a3b8;font-size:.85rem;">Date: ___________</div></div>
+      <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:40px;"></div><div>Limited Partners (See Schedule A)</div></div>
+    </div>
+  </div>`;
+
+  const allDeals = SP.getDeals();
+  const idx = allDeals.findIndex(d=>d.id===dealId);
+  if (idx>=0) { allDeals[idx].generatedOA = oa; allDeals[idx].oaGeneratedAt = new Date().toISOString(); SP.saveDeals(allDeals); }
+  SP.logActivity('fa-file-contract','green',`OA generated for <strong>${deal.name}</strong>`);
+  render();
+  // Switch to docs tab
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab')[2]?.classList.add('active');
+  document.getElementById('tab-documents')?.classList.add('active');
 }
 
 function renderSubTracker() {

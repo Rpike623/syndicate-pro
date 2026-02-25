@@ -300,12 +300,166 @@ const SP = (function () {
       orgId: user.orgId, loggedIn: true, loginTime: Date.now()
     };
     setSession(session);
+
+    // Seed rich demo data for the demo account on first login
+    if (email.toLowerCase() === 'demo@syndicatepro.com') {
+      seedDemoData(session);
+    }
+
     return session;
   }
 
   function logout() {
     clearSession();
     window.location.href = 'login.html';
+  }
+
+  // ─── Demo data seeding ──────────────────────────────────────────────────────
+  function seedDemoData(session) {
+    const orgKey = makeOrgKey('deals');
+    if (localStorage.getItem(orgKey)) return; // already seeded
+
+    // Settings
+    save('settings', {
+      firmName: 'Pike Capital Management LLC',
+      firmDBA: 'Pike Capital',
+      firmEntityType: 'LLC',
+      firmEIN: '47-1234567',
+      firmState: 'TX',
+      firmAddress: '500 Throckmorton St, Suite 800, Fort Worth, TX 76102',
+      firmEmail: 'robert@pikecapital.com',
+      firmPhone: '(817) 555-0100',
+      firmWebsite: 'https://pikecapital.com',
+      gpFullName: 'Robert Pike',
+      gpTitle: 'Managing Member',
+      gpEmail: 'robert@pikecapital.com',
+      gpPhone: '(817) 555-0101',
+      defPref: '8',
+      defPromote: '20',
+      defGPEquity: '10',
+      defHold: '5',
+      defState: 'TX',
+      defSEC: '506b',
+    });
+
+    // Investors
+    const investors = [
+      { id:'di1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@email.com', phone:'(214) 555-0101', address:'4521 Oak Blvd, Dallas, TX 75201', accredMethod:'cpa', accredStatus:'verified', accredDate:'2024-03-15', accredExpiry:'2026-03-15', minInvest:100000, maxInvest:500000, totalInvested:650000, deals:2, status:'active', notes:'High net worth individual. Prefers multifamily.' },
+      { id:'di2', firstName:'Sarah', lastName:'Chen', email:'s.chen@capitalgroup.com', phone:'(713) 555-0202', address:'1800 Post Oak Blvd, Houston, TX 77056', accredMethod:'entity', accredStatus:'verified', accredDate:'2024-01-10', accredExpiry:'2026-01-10', minInvest:250000, maxInvest:1000000, totalInvested:1000000, deals:2, status:'active', notes:'Family office rep. Very responsive.' },
+      { id:'di3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@invest.com', phone:'(512) 555-0303', address:'200 W Cesar Chavez, Austin, TX 78701', accredMethod:'attorney', accredStatus:'verified', accredDate:'2024-06-01', accredExpiry:'2026-06-01', minInvest:50000, maxInvest:250000, totalInvested:250000, deals:1, status:'active', notes:'First-time syndication investor.' },
+      { id:'di4', firstName:'Priya', lastName:'Patel', email:'ppatel@wealth.com', phone:'(469) 555-0404', address:'5000 Granite Pkwy, Plano, TX 75024', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-01-15', accredExpiry:'2027-01-15', minInvest:500000, maxInvest:2000000, totalInvested:1000000, deals:1, status:'active', notes:'Prefers industrial. Long-term hold.' },
+    ];
+    save('investors', investors);
+
+    function makeOA(deal, gpName, gpRep) {
+      const state = deal.state || 'TX';
+      const sc = state === 'TX' ? '<p><strong>Tax Treatment.</strong> The Company elects partnership treatment under Texas Tax Code § 171.0002.</p><p><strong>Community Property.</strong> Spousal consent obtained per Texas Family Code § 3.104.</p>' : '<p><strong>Charging Order.</strong> Sole remedy per Delaware LLC Act Section 18-703.</p>';
+      const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+      const equity = deal.totalEquity || deal.raise || 0;
+      return `<div style="font-family:Georgia,serif;line-height:1.8;">
+        <div style="background:#fef9c3;border:1px solid #fbbf24;border-radius:6px;padding:12px 16px;margin-bottom:24px;font-size:.8rem;font-family:sans-serif;color:#78350f;"><strong>⚠ PLACEHOLDER DOCUMENT</strong> — Auto-generated for reference. Have your attorney review before use with actual investors.</div>
+        <h1 style="text-align:center;font-size:1.4rem;">${deal.companyName || gpName}</h1>
+        <p style="text-align:center;color:#64748b;">A ${state} Limited Liability Company — Operating Agreement — ${today}</p>
+        <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE I — FORMATION</h2>
+        <p><strong>1.2 Name.</strong> ${deal.companyName || gpName}.</p>
+        <p><strong>1.4 Purpose.</strong> Acquire, own, and operate <strong>${deal.name}</strong> at ${deal.location}.</p>
+        <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE II — CAPITAL</h2>
+        <p><strong>2.1 Total Equity:</strong> $${equity.toLocaleString()} &nbsp;·&nbsp; GP: ${deal.gpEquity||10}% &nbsp;/&nbsp; LP: ${deal.lpEquity||90}%</p>
+        <p><strong>2.4 Minimum Investment:</strong> $${(deal.minInvestment||50000).toLocaleString()}</p>
+        <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE III — DISTRIBUTIONS</h2>
+        <p><strong>Waterfall:</strong> (a) Return of capital; (b) ${deal.prefReturn||8}% preferred return to LPs; (c) GP catch-up to ${deal.gpPromote||20}%; (d) ${deal.gpPromote||20}/${100-(deal.gpPromote||20)} GP/LP split on remaining cash.</p>
+        <p><strong>Fees:</strong> Acquisition fee ${deal.acqFee||3}% · Asset management fee ${deal.assetMgmtFee||2}% of gross revenues.</p>
+        <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">STATE PROVISIONS (${state})</h2>
+        ${sc}
+        <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+          <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:40px;"></div><div>${gpRep}, Managing Member</div></div>
+          <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:40px;"></div><div>Limited Partners (See Schedule A)</div></div>
+        </div>
+      </div>`;
+    }
+
+    const oa1 = makeOA({name:'Riverside Flats',location:'Austin, TX',state:'TX',raise:4200000,totalEquity:4200000,gpEquity:10,lpEquity:90,prefReturn:8,gpPromote:20,acqFee:3,assetMgmtFee:2,minInvestment:100000,companyName:'Riverside Flats Capital LLC'}, 'Pike Capital Management LLC', 'Robert Pike');
+    const oa2 = makeOA({name:'The Hudson Portfolio',location:'Houston, TX',state:'TX',raise:12000000,totalEquity:12000000,gpEquity:10,lpEquity:90,prefReturn:8,gpPromote:20,acqFee:3,assetMgmtFee:2,minInvestment:250000,companyName:'Hudson Portfolio Capital LLC'}, 'Pike Capital Management LLC', 'Robert Pike');
+
+    // Deals with investors linked, OAs pre-generated
+    const deals = [
+      {
+        id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9,
+        status:'operating', location:'Austin, TX', added:'2025-11-10', units:96, state:'TX',
+        companyName:'Riverside Flats Capital LLC', purchasePrice:21000000, loanAmount:16800000,
+        totalEquity:4200000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
+        generatedOA: oa1, oaGeneratedAt:'2025-11-10T09:00:00.000Z',
+        investors:[
+          {investorId:'di1',committed:250000,ownership:5.95,status:'active',linkedAt:'2025-11-15T10:00:00.000Z',subStatus:'signed'},
+          {investorId:'di2',committed:500000,ownership:11.9,status:'active',linkedAt:'2025-11-15T10:00:00.000Z',subStatus:'funded'},
+          {investorId:'di3',committed:250000,ownership:5.95,status:'active',linkedAt:'2025-11-20T10:00:00.000Z',subStatus:'signed'},
+        ],
+        documents:[], notes:'96-unit Class B multifamily. Value-add play with $200/unit rent upside.'
+      },
+      {
+        id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1,
+        status:'closed', location:'Dallas, TX', added:'2025-12-01', units:0, state:'TX',
+        companyName:'Meridian Industrial Capital LLC', purchasePrice:37500000, loanAmount:30000000,
+        totalEquity:7500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
+        investors:[
+          {investorId:'di2',committed:500000,ownership:6.67,status:'active',linkedAt:'2025-12-10T10:00:00.000Z',subStatus:'funded'},
+          {investorId:'di4',committed:1000000,ownership:13.33,status:'active',linkedAt:'2025-12-10T10:00:00.000Z',subStatus:'funded'},
+        ],
+        documents:[], notes:'750k SF industrial park. NNN leases in place.'
+      },
+      {
+        id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7,
+        status:'operating', location:'Houston, TX', added:'2026-01-15', units:248, state:'TX',
+        companyName:'Hudson Portfolio Capital LLC', purchasePrice:60000000, loanAmount:48000000,
+        totalEquity:12000000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
+        generatedOA: oa2, oaGeneratedAt:'2026-01-15T09:00:00.000Z',
+        investors:[
+          {investorId:'di1',committed:400000,ownership:3.33,status:'active',linkedAt:'2026-01-20T10:00:00.000Z',subStatus:'funded'},
+          {investorId:'di2',committed:500000,ownership:4.17,status:'active',linkedAt:'2026-01-20T10:00:00.000Z',subStatus:'funded'},
+        ],
+        documents:[], notes:'248-unit portfolio across 3 Houston submarkets.'
+      },
+      {
+        id:'d4', name:'Parkview Commons', type:'multifamily', raise:3100000, irr:19.0, equity:1.95,
+        status:'dd', location:'San Antonio, TX', added:'2026-02-01', units:72, state:'TX',
+        companyName:'Parkview Commons Capital LLC', purchasePrice:15500000, loanAmount:12400000,
+        totalEquity:3100000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
+        investors:[], documents:[], notes:'72-unit Class C value-add in San Antonio.',
+        due: new Date(Date.now() + 5*86400000).toISOString().split('T')[0]
+      },
+      {
+        id:'d5', name:'Westgate Retail Center', type:'retail', raise:5800000, irr:14.5, equity:1.6,
+        status:'loi', location:'Fort Worth, TX', added:'2026-02-10', units:0, state:'TX',
+        companyName:'Westgate Retail Capital LLC', purchasePrice:29000000, loanAmount:23200000,
+        totalEquity:5800000, gpEquity:10, lpEquity:90, prefReturn:7, gpPromote:20, acqFee:2.5, assetMgmtFee:2,
+        investors:[], documents:[], notes:'42k SF anchored retail center.',
+        due: new Date(Date.now() + 12*86400000).toISOString().split('T')[0]
+      },
+    ];
+    save('deals', deals);
+
+    // Distributions (so investor portal shows real history)
+    save('distributions', [
+      { id:'dd1', dealId:'d1', dealName:'Riverside Flats', period:'Q4 2025', quarter:'Q4', year:2025, totalAmount:84000, amount:84000, date:'2026-01-05', method:'Wire', investorCount:3,
+        recipients:[{investorId:'di1',amount:14875,ownership:5.95},{investorId:'di2',amount:29750,ownership:11.9},{investorId:'di3',amount:14875,ownership:5.95}] },
+      { id:'dd2', dealId:'d2', dealName:'Meridian Industrial', period:'Q4 2025', quarter:'Q4', year:2025, totalAmount:150000, amount:150000, date:'2026-01-08', method:'Wire', investorCount:2,
+        recipients:[{investorId:'di2',amount:50025,ownership:6.67},{investorId:'di4',amount:99975,ownership:13.33}] },
+    ]);
+
+    // Capital calls
+    save('capitalCalls', [
+      { id:'cc1', dealId:'d1', dealName:'Riverside Flats', callNumber:'Initial', amount:4200000, dueDate:'2025-11-20', purpose:'Property acquisition and closing costs', status:'received', sentAt:'2025-11-10T09:00:00.000Z', receivedAt:'2025-11-18T09:00:00.000Z' },
+      { id:'cc2', dealId:'d4', dealName:'Parkview Commons', callNumber:'Initial', amount:3100000, dueDate:new Date(Date.now()+10*86400000).toISOString().split('T')[0], purpose:'Property acquisition — pending due diligence completion', status:'sent', sentAt:new Date().toISOString() },
+    ]);
+
+    // Activity log
+    save('activity', [
+      { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$84,000</strong> sent to 3 investors from Riverside Flats', time:'Jan 5, 2026' },
+      { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$150,000</strong> sent to 2 investors from Meridian Industrial', time:'Jan 8, 2026' },
+      { icon:'fa-building', color:'blue', text:'<strong>The Hudson Portfolio</strong> added — 248 units in Houston', time:'Jan 15, 2026' },
+      { icon:'fa-user-plus', color:'green', text:'<strong>Priya Patel</strong> linked to Meridian Industrial — $1M commitment', time:'Dec 10, 2025' },
+      { icon:'fa-file-contract', color:'amber', text:'Operating Agreement auto-generated for <strong>Riverside Flats</strong>', time:'Nov 10, 2025' },
+    ]);
   }
 
   // ─── Invite token helpers ────────────────────────────────────────────────────
