@@ -712,6 +712,7 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-data.js"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-documents.js"></script>
   <script>
@@ -721,14 +722,7 @@
     let currentDocType = 'operating-agreement';
     let members = [];
 
-    async function loadSavedDeals() {
-      // Sync from Firebase before reading
-      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
-        try {
-          const fbDeals = await SPFB.getDeals();
-          if (fbDeals.length) SP.saveDeals(fbDeals);
-        } catch(e) {}
-      }
+    function loadSavedDeals() {
       const deals = SP.getDeals();
       const select = document.getElementById('dealSelect');
       select.innerHTML = '<option value="">Select a deal...</option>';

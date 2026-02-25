@@ -311,6 +311,7 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-data.js"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-email.js"></script>
   <script>
@@ -319,19 +320,7 @@
     let distributions = [];
 
     function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num || 0); }
-
-    
-    async function _syncFromFirebase() {
-      if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
-      try {
-        const [d, i, dists] = await Promise.all([SPFB.getDeals().catch(()=>[]), SPFB.getInvestors().catch(()=>[]), SPFB.getDistributions().catch(()=>[])]);
-        if (d.length) SP.saveDeals(d);
-        if (i.length) SP.saveInvestors(i);
-        if (dists.length) SP.save('distributions', dists);
-      } catch(e) {}
-    }
         async function loadDeals() {
-      await _syncFromFirebase();
       deals = SP.getDeals(); // now fresh from Firebase
       distributions = SP.getDistributions(); // fresh from Firebase
       const select = document.getElementById('distDeal');

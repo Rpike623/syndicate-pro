@@ -365,6 +365,7 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-data.js"></script>
   <script src="js/sp-billing.js"></script>
   <script>
     SP.requireGP();
@@ -374,19 +375,6 @@
     let allocations = [];
 
       // Sync from Firebase before reading localStorage
-  async function _syncFromFirebase() {
-    if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
-    try {
-      const [deals, investors, dists] = await Promise.all([
-        SPFB.getDeals().catch(() => []),
-        SPFB.getInvestors().catch(() => []),
-        SPFB.getDistributions().catch(() => []),
-      ]);
-      if (deals.length) SP.saveDeals(deals);
-      if (investors.length) SP.saveInvestors(investors);
-      if (dists.length) SP.save('distributions', dists);
-    } catch(e) { console.warn('Firebase sync:', e.message); }
-  }
 
   async function init() {
       const deals = SP.getDeals();

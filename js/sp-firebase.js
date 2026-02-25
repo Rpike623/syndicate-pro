@@ -178,12 +178,20 @@ const SPFB = (function () {
         });
       }
     }
-    // Auto-patch SP.* on every page as soon as Firebase is ready
-    if (typeof window !== 'undefined') {
-      window.setTimeout(() => patchSPCore(), 0);
+    // Init SPData — Firestore-first layer — replaces patchSPCore
+    if (typeof SPData !== 'undefined' && _db && _orgId) {
+      SPData.init(_db, _orgId, _spUser?.role || 'General Partner', _spUser?.email || '').then(() => {
+        _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
+        _readyCallbacks = [];
+      });
+    } else {
+      // Fallback: old patchSPCore if SPData not loaded
+      if (typeof window !== 'undefined' && typeof patchSPCore === 'function') {
+        window.setTimeout(() => patchSPCore(), 0);
+      }
+      _readyCallbacks.forEach(cb => cb());
+      _readyCallbacks = [];
     }
-    _readyCallbacks.forEach(cb => cb());
-    _readyCallbacks = [];
   }
 
   function onReady(cb) {

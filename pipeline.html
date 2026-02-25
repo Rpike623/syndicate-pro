@@ -623,6 +623,7 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-data.js"></script>
   <script src="js/sp-billing.js"></script>
   <script>
     SP.requireGP();
@@ -648,18 +649,7 @@
     // Stage mapping: pipeline stages → sp-core status values
     const STAGE_TO_STATUS = { sourcing:'sourcing', loi:'loi', dd:'dd', financing:'operating', closed:'closed' };
     const STATUS_TO_STAGE = { sourcing:'sourcing', loi:'loi', dd:'dd', operating:'financing', closed:'closed', archived:'archived' };
-
-    
-    async function _syncFromFirebase() {
-      if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
-      try {
-        const [d, i] = await Promise.all([SPFB.getDeals().catch(()=>[]), SPFB.getInvestors().catch(()=>[])]);
-        if (d.length) SP.saveDeals(d);
-        if (i.length) SP.saveInvestors(i);
-      } catch(e) {}
-    }
         async function loadDeals() {
-      await _syncFromFirebase();
       deals = SP.getDeals().filter(d => d.status !== 'archived');
       if (!deals.length) {
         deals = [

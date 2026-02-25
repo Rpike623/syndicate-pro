@@ -14,6 +14,7 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-data.js"></script>
   <script src="js/sp-billing.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -261,18 +262,7 @@ function fmtFull$(n){return'$'+Number(n||0).toLocaleString();}
 const COLORS=['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#ec4899','#84cc16'];
 const STATUS_BADGE={operating:'badge-op',closed:'badge-cl',dd:'badge-dd',loi:'badge-loi',sourcing:'badge-src'};
 const STATUS_LABEL={operating:'Operating',closed:'Closed',dd:'Due Diligence',loi:'LOI',sourcing:'Sourcing'};
-
-
-
-function _syncFromFirebase(cb) {
-  if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) { cb && cb(); return; }
-  Promise.all([SPFB.getDeals().catch(()=>[]), SPFB.getInvestors().catch(()=>[])]).then(([d,i]) => {
-    if (d.length) SP.saveDeals(d);
-    if (i.length) SP.saveInvestors(i);
-    cb && cb();
-  }).catch(() => { cb && cb(); });
-}
-function init(){ _syncFromFirebase(_runInit); } function _runInit(){
+function init(){
   const deals=SP.getDeals();
   const investors=SP.getInvestors();
   const dists=SP.getDistributions();

@@ -893,6 +893,7 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-data.js"></script>
   <script>
     // ── Auth guard ──────────────────────────────────────────────────────────────
     SP.requireInvestor();
@@ -1332,12 +1333,10 @@
       renderStatementArchive(myDeals);
     }
 
-    // Wait for SPFB if it's still initializing, then run
-    if (typeof SPFB !== 'undefined' && !SPFB.isReady()) {
-      SPFB.onReady(() => init());
-    } else {
-      init();
-    }
+    // SPData fires 'spdata-ready' once Firestore cache is warm
+    window.addEventListener('spdata-ready', () => init());
+    // Also run immediately in case SPData is already ready
+    if (typeof SPData !== 'undefined' && SPData.isReady()) init();
   </script>
 </body>
 </html>

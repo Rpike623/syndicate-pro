@@ -14,6 +14,7 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-data.js"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-documents.js"></script>
   <style>
@@ -273,16 +274,7 @@ const STATUS_BADGE = {sourcing:'badge-status-sourcing',loi:'badge-status-loi',dd
 const STATUS_LABEL = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',operating:'Operating',closed:'Closed'};
 const TYPE_LABEL = {multifamily:'Multifamily',industrial:'Industrial',retail:'Retail',office:'Office',other:'Other'};
 
-async function render() {
-  // Prefer Firebase data — ensures we see latest investors/deals cross-device
-  if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
-    try {
-      const fbDeals = await SPFB.getDeals();
-      if (fbDeals && fbDeals.length) SP.saveDeals(fbDeals);
-      const fbInvs = await SPFB.getInvestors();
-      if (fbInvs && fbInvs.length) SP.saveInvestors(fbInvs);
-    } catch(e) { console.warn('deal-detail Firebase load:', e.message); }
-  }
+function render() {
   deal = SP.getDealById(dealId);
   if(!deal) {
     document.getElementById('mainContent').innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Deal not found</h3><p><a href="pipeline.html">Back to pipeline</a></p></div>`;

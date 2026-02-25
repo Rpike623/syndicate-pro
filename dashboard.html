@@ -14,6 +14,7 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-data.js"></script>
   <script src="js/sp-billing.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -1014,22 +1015,23 @@ function renderDeadlines() {
     renderDeadlines();
   }
 
-  // If Firebase already ready, load immediately; else load from cache and refresh when ready
-  if (typeof SPFB !== 'undefined' && !SPFB.isReady()) {
-    // Load from cache right away so page isn't blank
-    const deals = loadDeals(); const investors = loadInvestors();
-    const distYTD = loadDistributionsYTD(); const activity = loadActivity();
-    renderKPIs(deals, investors, distYTD);
-    renderDonut(deals); renderBar(deals); renderDealsTable(deals);
-    renderActivity(activity); renderDeadlines();
+  // SPData fires 'spdata-ready' when Firestore cache is warm — re-render with live data
+  function _render() {
+    const deals = SP.getDeals();
+    const investors = SP.getInvestors();
+    const distYTD = loadDistributionsYTD();
+    const activity = loadActivity();
     ['kpiAUM','kpiDeals','kpiInvestors','kpiDist'].forEach(id => {
       const el = document.getElementById(id); if (el) el.style.opacity = '1';
     });
-    // Then refresh from Firebase when ready
-    SPFB.onReady(() => loadAndRender());
-  } else {
-    loadAndRender();
+    renderKPIs(deals, investors, distYTD);
+    renderDonut(deals); renderBar(deals); renderDealsTable(deals);
+    renderActivity(activity); renderDeadlines();
   }
+
+  // Show cached/demo data immediately, then re-render when Firestore ready
+  _render();
+  window.addEventListener('spdata-ready', _render);
 
   // Demo data already seeded via loadDeals/loadInvestors above
 
@@ -1106,75 +1108,6 @@ function renderDeadlines() {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sync Demo Data to Cloud'; }
   }
 
-  // Auto-sync demo data to Firebase on first load
-  async function autoSyncDemoData() {
-    const syncKey = 'sp_demo_synced_v2';
-    if (localStorage.getItem(syncKey)) return; // Already synced
-    
-    if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
-    
-    // SAFETY: only run for the demo GP account — never overwrite real user data
-    const session = SP.getSession();
-    const demoEmails = ['gp@deeltrack.com', 'demo@deeltrack.com', 'demo@syndicatepro.com'];
-    if (!session || !demoEmails.includes(session.email?.toLowerCase())) return;
-    
-    try {
-      console.log('Auto-syncing demo data to Firebase...');
-      
-      // Push all demo investors
-      const investors = DEMO_INVESTORS.map(i => ({...i}));
-      await SPFB.saveInvestors(investors);
-      SP.saveInvestors(investors); // Also save locally
-      console.log('✅ Auto-synced', investors.length, 'investors');
-      
-      // Push all demo deals
-      const deals = DEMO_DEALS.map(d => ({...d}));
-      for (const deal of deals) {
-        await SPFB.saveDeal(deal);
-      }
-      SP.saveDeals(deals); // Also save locally
-      console.log('✅ Auto-synced', deals.length, 'deals');
-      
-      // Push demo distributions
-      const dists = [
-        { id: 'dist_1', dealId: 'd1', date: '2025-12-15', totalAmount: 42000, recipients: [{investorId: 'i1', amount: 10000}, {investorId: 'i2', amount: 20000}, {investorId: 'i4', amount: 12000}] },
-        { id: 'dist_2', dealId: 'd1', date: '2026-03-15', totalAmount: 45000, recipients: [{investorId: 'i1', amount: 11000}, {investorId: 'i2', amount: 21000}, {investorId: 'i4', amount: 13000}] },
-        { id: 'dist_3', dealId: 'd3', date: '2026-02-28', totalAmount: 85000, recipients: [{investorId: 'i1', amount: 8000}, {investorId: 'i2', amount: 32000}, {investorId: 'i4', amount: 22000}, {investorId: 'i6', amount: 11000}, {investorId: 'i7', amount: 12000}] },
-      ];
-      for (const dist of dists) {
-        await SPFB.saveDistribution(dist);
-      }
-      SP.save('distributions', dists);
-      console.log('✅ Auto-synced', dists.length, 'distributions');
-      
-      localStorage.setItem(syncKey, Date.now().toString());
-      console.log('✅ Demo data auto-sync complete!');
-      SP.logActivity('fa-cloud-upload-alt', 'blue', 'Demo data auto-synced to Firebase');
-      
-      // Refresh the page to show synced data
-      setTimeout(() => location.reload(), 500);
-      
-    } catch (err) {
-      console.error('Auto-sync failed:', err);
-    }
-  }
-
-  // Add button after SPFB is ready
-  SPFB.onReady(() => {
-    const topBar = document.querySelector('.top-bar');
-    if (topBar && !document.getElementById('pushDemoBtn')) {
-      const btn = document.createElement('button');
-      btn.id = 'pushDemoBtn';
-      btn.className = 'btn btn-secondary';
-      btn.style.cssText = 'margin-left:auto;margin-right:12px;font-size:0.8rem;padding:8px 16px;';
-      btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sync Demo Data to Cloud';
-      btn.onclick = pushDemoDataToFirebase;
-      topBar.insertBefore(btn, topBar.querySelector('.user-menu'));
-    }
-    
-    // Trigger auto-sync
-    autoSyncDemoData();
-  });
 })();
 </script>
 </body>
