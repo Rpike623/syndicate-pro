@@ -574,6 +574,50 @@ const SP = (function () {
   };
 })();
 
+// ─── Firebase: load SDKs + sp-firebase.js on every page ──────────────────────
+(function loadFirebase() {
+  if (typeof document === 'undefined') return;
+  // Don't load on login/signup (they handle their own Firebase loading)
+  const page = window.location.pathname.split('/').pop();
+  if (page === 'login.html' || page === 'signup.html') return;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof firebase !== 'undefined') {
+      // Firebase already loaded (e.g. login.html injected it)
+      if (typeof SPFB !== 'undefined') { SPFB.init(); }
+      return;
+    }
+
+    // Dynamically load Firebase SDKs then sp-firebase.js
+    const sdks = [
+      'https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js',
+      'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
+      'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js',
+      'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js',
+    ];
+
+    let loaded = 0;
+    function onSDKLoad() {
+      loaded++;
+      if (loaded < sdks.length) return;
+      // All SDKs loaded — load config then sp-firebase
+      const cfg = document.createElement('script'); cfg.src = 'firebase-config.js';
+      cfg.onload = () => {
+        const fb = document.createElement('script'); fb.src = 'js/sp-firebase.js';
+        fb.onload = () => { if (typeof SPFB !== 'undefined') SPFB.init(); };
+        document.head.appendChild(fb);
+      };
+      document.head.appendChild(cfg);
+    }
+
+    sdks.forEach(src => {
+      const s = document.createElement('script');
+      s.src = src; s.onload = onSDKLoad; s.onerror = onSDKLoad;
+      document.head.appendChild(s);
+    });
+  });
+})();
+
 // ─── Theme: inject sp-theme.js on every page ─────────────────────────────────
 (function loadTheme() {
   if (typeof document === 'undefined') return;

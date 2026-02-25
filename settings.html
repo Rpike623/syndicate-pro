@@ -142,6 +142,7 @@
             <button class="snav-item" onclick="switchPanel('documents',this)"><i class="fas fa-file-contract"></i> Document Defaults</button>
             <button class="snav-item" onclick="switchPanel('notifications',this)"><i class="fas fa-bell"></i> Notifications</button>
             <button class="snav-item" onclick="switchPanel('audit',this)"><i class="fas fa-list-alt"></i> Audit Log</button>
+            <button class="snav-item" onclick="switchPanel('cloud',this);checkSyncStatus();"><i class="fas fa-cloud"></i> Cloud Sync</button>
             <button class="snav-item" onclick="switchPanel('export',this)"><i class="fas fa-download"></i> Export Data</button>
             <button class="snav-item" onclick="switchPanel('danger',this)"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> Danger Zone</button>
           </div>
@@ -329,6 +330,26 @@
                 <i class="fas fa-database" style="font-size:1.5rem;"></i>
                 <div><strong>Full Backup</strong></div><div style="font-size:.75rem;opacity:.8;">JSON format</div>
               </button>
+            </div>
+          </div>
+
+          <!-- Cloud Sync -->
+          <div class="settings-panel" id="panel-cloud">
+            <div class="panel-title">Cloud Sync</div>
+            <div class="panel-sub">Sync your data to Firebase so it's accessible from any device.</div>
+            <div class="card" id="cloudStatusCard">
+              <div id="cloudStatus" style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:16px;background:var(--border-light);border-radius:var(--radius);">
+                <i class="fas fa-circle" id="cloudDot" style="color:var(--text-muted);font-size:.7rem;"></i>
+                <span id="cloudStatusText">Checking Firebase connection…</span>
+              </div>
+              <p style="font-size:.875rem;color:var(--text-secondary);margin-bottom:20px;">
+                Click <strong>Migrate to Cloud</strong> to copy all your current deals, investors, and documents to Firebase. Your data stays in localStorage as a backup — nothing is deleted.
+              </p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-primary" onclick="runMigration()"><i class="fas fa-cloud-upload-alt"></i> Migrate to Cloud</button>
+                <button class="btn btn-secondary" onclick="checkSyncStatus()"><i class="fas fa-sync"></i> Check Status</button>
+              </div>
+              <div id="migrationResult" style="margin-top:16px;display:none;"></div>
             </div>
           </div>
 
@@ -586,6 +607,48 @@ function exportAllJSON() {
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `deeltrack-backup-${new Date().toISOString().split('T')[0]}.json`; a.click();
+}
+
+// Cloud sync functions
+function checkSyncStatus() {
+  const dot = document.getElementById('cloudDot');
+  const txt = document.getElementById('cloudStatusText');
+  if (!dot || !txt) return;
+  if (typeof SPFB === 'undefined' || SPFB.isOffline()) {
+    dot.style.color = '#ef4444';
+    txt.textContent = 'Firebase not connected — running in offline mode';
+  } else if (SPFB.isReady()) {
+    dot.style.color = '#10b981';
+    txt.textContent = 'Connected to Firebase — org: ' + (SPFB.getOrgId() || 'loading…');
+  } else {
+    dot.style.color = '#f59e0b';
+    txt.textContent = 'Firebase loading…';
+    setTimeout(checkSyncStatus, 1500);
+  }
+}
+
+async function runMigration() {
+  const resultEl = document.getElementById('migrationResult');
+  if (!resultEl) return;
+  if (typeof SPFB === 'undefined' || SPFB.isOffline()) {
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = '<div style="background:var(--danger-light);color:var(--danger);padding:12px 16px;border-radius:var(--radius);">Firebase not connected. Please sign in to enable cloud sync.</div>';
+    return;
+  }
+  if (!SPFB.isReady()) {
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = '<div style="background:var(--warning-light);color:var(--warning);padding:12px 16px;border-radius:var(--radius);">Firebase still loading — try again in a moment.</div>';
+    return;
+  }
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = '<div style="padding:12px 16px;background:var(--border-light);border-radius:var(--radius);"><i class="fas fa-spinner fa-spin"></i> Migrating data to Firebase…</div>';
+  const result = await SPFB.migrateFromLocalStorage();
+  if (result.success) {
+    resultEl.innerHTML = `<div style="background:var(--success-light);color:var(--success);padding:12px 16px;border-radius:var(--radius);"><i class="fas fa-check-circle"></i> Migration complete — ${result.written} records synced to Firebase. Your data is now in the cloud.</div>`;
+    showToast('Data synced to Firebase!');
+  } else {
+    resultEl.innerHTML = `<div style="background:var(--danger-light);color:var(--danger);padding:12px 16px;border-radius:var(--radius);"><i class="fas fa-times-circle"></i> Migration failed: ${result.error || result.reason}. Try again.</div>`;
+  }
 }
 
 // Initialize audit log when panel shown

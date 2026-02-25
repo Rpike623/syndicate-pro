@@ -6,8 +6,15 @@
   <title>deeltrack - Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="js/sp-theme.js"></script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-firebase.js"></script>
   <style>
     :root { --accent: #3b82f6; --accent-hover: #2563eb; --success: #10b981; --danger: #ef4444; --border: #e2e8f0; --text: #0f172a; --radius: 8px; --radius-md: 12px; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -126,23 +133,54 @@
     document.getElementById('password').value = 'demo123';
   }
 
-  function handleLogin(e) {
+    async function handleLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('email').value.trim();
+    const email = document.getElementById('email').value.trim().toLowerCase();
     const password = document.getElementById('password').value;
     const btn = document.getElementById('loginBtn');
     document.getElementById('errorAlert').classList.remove('show');
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
 
-    setTimeout(() => {
-      const session = SP.authenticate(email, password);
-      if (session) {
+    try {
+      let signedIn = false;
+
+      // Try Firebase Auth first
+      if (typeof SPFB !== 'undefined' && !SPFB.isOffline()) {
+        try {
+          const fbUser = await SPFB.signIn(email, password);
+          if (fbUser && fbUser.email) {
+            // Firebase sign-in succeeded — wait for SPFB to be ready
+            await new Promise((resolve, reject) => {
+              const timeout = setTimeout(() => reject(new Error('timeout')), 8000);
+              SPFB.onReady(() => { clearTimeout(timeout); resolve(); });
+              // If already ready
+              if (SPFB.isReady()) { clearTimeout(timeout); resolve(); }
+            });
+            const spUser = SPFB.getUser();
+            if (spUser) {
+              SP.setSession({ ...spUser, loggedIn: true, loginTime: Date.now() });
+              signedIn = true;
+            }
+          }
+        } catch (fbErr) {
+          console.warn('Firebase auth failed, trying local:', fbErr.message);
+        }
+      }
+
+      // Fallback to localStorage auth (demo account, offline)
+      if (!signedIn) {
+        const session = SP.authenticate(email, password);
+        if (session) signedIn = true;
+      }
+
+      if (signedIn) {
         if (document.getElementById('remember').checked) localStorage.setItem('sp_remember', email);
         document.getElementById('successAlert').classList.add('show');
         btn.innerHTML = '<i class="fas fa-check"></i> Success!';
+        const session = SP.getSession();
         setTimeout(() => {
-          window.location.href = session.role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+          window.location.href = session?.role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
         }, 700);
       } else {
         document.getElementById('errorAlert').classList.add('show');
@@ -151,7 +189,12 @@
         btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
         document.getElementById('password').value = '';
       }
-    }, 600);
+    } catch (err) {
+      document.getElementById('errorAlert').classList.add('show');
+      document.getElementById('errorMsg').textContent = 'Sign in error: ' + err.message;
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+    }
   }
 
   const remembered = localStorage.getItem('sp_remember');

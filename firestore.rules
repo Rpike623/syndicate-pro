@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function userOrgId() {
+      return userDoc().orgId;
+    }
+
+    function isGP() {
+      return isSignedIn() && userDoc().role != 'Investor';
+    }
+
+    function isInvestor() {
+      return isSignedIn() && userDoc().role == 'Investor';
+    }
+
+    function ownsOrg(orgId) {
+      return isSignedIn() && userOrgId() == orgId;
+    }
+
+    // ── Users collection ──────────────────────────────────────────────────────
+    // Each user can read/write their own profile only.
+
+    match /users/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow update: if isSignedIn() && request.auth.uid == uid;
+      allow delete: if false; // Never delete user profiles
+    }
+
+    // ── Org data ──────────────────────────────────────────────────────────────
+    // All org sub-collections are scoped by orgId.
+    // GPs can read/write their own org.
+    // Investors can only read specific sub-collections.
+
+    match /orgs/{orgId} {
+      allow read, write: if ownsOrg(orgId) && isGP();
+
+      // ── Deals ───────────────────────────────────────────────────────────────
+      match /deals/{dealId} {
+        // GP: full read/write on their org's deals
+        allow read, write: if ownsOrg(orgId) && isGP();
+
+        // Investor: can read a deal only if they are linked to it
+        allow read: if ownsOrg(orgId) && isInvestor() &&
+          resource.data.investors != null &&
+          resource.data.investors.hasAny([{'investorId': userDoc().investorId}]);
+      }
+
+      // ── Investors ────────────────────────────────────────────────────────────
+      match /investors/{investorId} {
+        // GP: full access
+        allow read, write: if ownsOrg(orgId) && isGP();
+
+        // Investor: read their own record only
+        allow read: if ownsOrg(orgId) && isInvestor() &&
+          resource.data.email == request.auth.token.email;
+      }
+
+      // ── Documents ────────────────────────────────────────────────────────────
+      match /documents/{docId} {
+        // GP: full access to all documents in their org
+        allow read, write: if ownsOrg(orgId) && isGP();
+
+        // Investor: read only if accessLevel is 'all_investors' or their specific investorId
+        allow read: if ownsOrg(orgId) && isInvestor() && (
+          resource.data.accessLevel == 'all_investors' ||
+          resource.data.accessLevel == userDoc().investorId
+        );
+      }
+
+      // ── Distributions ─────────────────────────────────────────────────────────
+      match /distributions/{distId} {
+        allow read, write: if ownsOrg(orgId) && isGP();
+
+        // Investor can read distributions where they are a recipient
+        allow read: if ownsOrg(orgId) && isInvestor() &&
+          resource.data.recipients != null;
+      }
+
+      // ── Capital Calls ─────────────────────────────────────────────────────────
+      match /capitalCalls/{callId} {
+        allow read, write: if ownsOrg(orgId) && isGP();
+      }
+
+      // ── Activity Log ──────────────────────────────────────────────────────────
+      match /activity/{actId} {
+        allow read, write: if ownsOrg(orgId) && isGP();
+      }
+
+      // ── Settings ──────────────────────────────────────────────────────────────
+      match /settings/{settingId} {
+        allow read, write: if ownsOrg(orgId) && isGP();
+      }
+    }
+  }
+}
