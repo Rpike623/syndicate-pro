@@ -147,6 +147,18 @@
   </div>
   
   <script>
+    // Load deal waterfall settings from localStorage
+    function loadDealSettings() {
+      const dealStr = localStorage.getItem('currentDeal');
+      if (dealStr) {
+        const deal = JSON.parse(dealStr);
+        if (deal.waterfallType) {
+          document.getElementById('prefRate').value = deal.prefRate || 8;
+          document.getElementById('lpSplit').value = deal.lpSplit || 80;
+        }
+      }
+    }
+    
     function formatMoney(num) {
       return '$' + Math.round(num).toLocaleString();
     }
@@ -170,6 +182,10 @@
       document.getElementById('resGP').textContent = formatMoney(gpAmount);
       document.getElementById('resLPTotal').textContent = formatMoney(prefPaid + lpSplitAmount);
     }
+    
+    // Initialize with deal settings
+    loadDealSettings();
+    calculate();
   </script>
 </body>
 </html>

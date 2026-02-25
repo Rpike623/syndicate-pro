@@ -114,6 +114,20 @@
     
     function continueToDeal() {
       if (selectedStructure) {
+        // Get values from inputs if they exist
+        const prefRate = document.getElementById('pref-rate') ? document.getElementById('pref-rate').value : 8;
+        const lpSplit = document.getElementById('pref-split') ? document.getElementById('pref-split').value : 80;
+        
+        // Save comprehensive deal settings
+        const dealSettings = {
+          waterfallType: selectedStructure,
+          prefRate: parseFloat(prefRate),
+          lpSplit: parseFloat(lpSplit),
+          gpSplit: 100 - parseFloat(lpSplit),
+          selectedAt: new Date().toISOString()
+        };
+        
+        localStorage.setItem('currentDeal', JSON.stringify(dealSettings));
         localStorage.setItem('waterfallType', selectedStructure);
         window.location.href = 'new-deal.html';
       }
