@@ -379,10 +379,11 @@
         </div>
       </div>
     </div>
-    <div class="modal-footer" style="gap:10px;">
+    <div class="modal-footer" style="gap:10px;flex-wrap:wrap;">
       <button class="btn btn-secondary" onclick="closeInviteModal()">Skip for Now</button>
       <button class="btn btn-secondary" onclick="copyEmailText()" style="gap:6px;"><i class="fas fa-copy"></i> Copy Email</button>
-      <button class="btn btn-primary" onclick="sendInviteEmail()" style="gap:6px;"><i class="fas fa-paper-plane"></i> Open in Email Client</button>
+      <button class="btn btn-secondary" onclick="sendInviteEmail()" style="gap:6px;"><i class="fas fa-envelope-open"></i> Open in Email Client</button>
+      <button class="btn btn-primary" onclick="sendInviteViaDeeltrack()" style="gap:6px;background:linear-gradient(135deg,#6366f1,#818cf8);"><i class="fas fa-paper-plane"></i> Send via deeltrack</button>
     </div>
   </div>
 </div>
@@ -915,6 +916,140 @@ async function sendInviteEmail() {
 
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Invite'; }
   closeInviteModal();
+}
+
+async function sendInviteViaDeeltrack() {
+  const btn = document.querySelector('#inviteOverlay .btn-primary');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…'; }
+
+  // Build professional HTML email
+  const htmlBody = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're invited to deeltrack</title>
+</head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#f8fafc;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+    <tr>
+      <td align="center" style="padding:40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#6366f1,#818cf8);padding:32px 40px;text-align:center;">
+              <h1 style="color:#ffffff;margin:0;font-size:28px;font-weight:700;">deeltrack</h1>
+              <p style="color:rgba(255,255,255,0.9);margin:8px 0 0;font-size:16px;">Real Estate Syndication Platform</p>
+            </td>
+          </tr>
+          <!-- Content -->
+          <tr>
+            <td style="padding:40px;">
+              <h2 style="color:#1e293b;margin:0 0 20px;font-size:24px;font-weight:600;">You're invited!</h2>
+              <p style="color:#475569;font-size:16px;line-height:1.6;margin:0 0 20px;">Hi ${_inviteEmail.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,l=>l.toUpperCase())},</p>
+              <p style="color:#475569;font-size:16px;line-height:1.6;margin:0 0 24px;"><strong>${document.getElementById('inviteSubjectLine').textContent.replace(/.*—\s*/,'')}</strong> has added you as an investor on deeltrack.</p>
+              
+              <div style="background:#f8fafc;border-radius:8px;padding:24px;margin:24px 0;">
+                <h3 style="color:#1e293b;margin:0 0 16px;font-size:18px;font-weight:600;">Your investor portal includes:</h3>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                  <tr>
+                    <td style="padding:8px 0;color:#475569;font-size:15px;"><span style="color:#6366f1;margin-right:8px;">✓</span> Deal documents and updates</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;color:#475569;font-size:15px;"><span style="color:#6366f1;margin-right:8px;">✓</span> Distribution history and statements</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;color:#475569;font-size:15px;"><span style="color:#6366f1;margin-right:8px;">✓</span> K-1 tax documents</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;color:#475569;font-size:15px;"><span style="color:#6366f1;margin-right:8px;">✓</span> Capital call notices</td>
+                  </tr>
+                </table>
+              </div>
+              
+              <div style="text-align:center;margin:32px 0;">
+                <a href="${document.getElementById('inviteLinkInput').value}" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#818cf8);color:#ffffff;text-decoration:none;padding:16px 32px;border-radius:8px;font-weight:600;font-size:16px;box-shadow:0 4px 6px -1px rgba(99,102,241,0.3);">Create Your Account</a>
+              </div>
+              
+              <p style="color:#64748b;font-size:14px;line-height:1.5;margin:24px 0 0;padding-top:24px;border-top:1px solid #e2e8f0;">This link is personalized for you and will pre-fill your information. If you have any questions, simply reply to this email.</p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f1f5f9;padding:24px 40px;text-align:center;">
+              <p style="color:#94a3b8;font-size:13px;margin:0;">Powered by deeltrack · Real Estate Syndication Platform</p>
+              <p style="color:#cbd5e1;font-size:12px;margin:8px 0 0;">This invitation was sent on behalf of your sponsor</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  let sent = false;
+  let errorMsg = '';
+
+  // Try Microsoft Graph API first
+  if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
+    try {
+      // Use the existing sendEmail infrastructure if available
+      const result = await SPFB.sendEmail({
+        to: _inviteEmail,
+        subject: _inviteSubject,
+        html: htmlBody,
+        text: _inviteBody,
+        type: 'investor_invite'
+      });
+      if (result.success) {
+        sent = true;
+      }
+    } catch (e) {
+      console.warn('SPFB send failed:', e.message);
+    }
+  }
+
+  // Fallback: Try Cloud Function
+  if (!sent && typeof firebase !== 'undefined') {
+    try {
+      const fn = firebase.functions().httpsCallable('sendEmail');
+      const result = await fn({
+        to: _inviteEmail,
+        subject: _inviteSubject,
+        html: htmlBody,
+        text: _inviteBody,
+        type: 'investor_invite'
+      });
+      if (result.data && result.data.success) {
+        sent = true;
+      }
+    } catch (e) {
+      console.warn('Cloud Function send failed:', e.message);
+      errorMsg = e.message;
+    }
+  }
+
+  if (sent) {
+    SP.logActivity('fa-paper-plane', 'blue', `Invite sent via deeltrack to <strong>${_inviteEmail}</strong>`);
+    showToast(`Invite sent to ${_inviteEmail} via deeltrack`);
+    
+    // Update investor record to show invite was sent
+    const inv = investors.find(i => i.email === _inviteEmail);
+    if (inv) {
+      inv.invited = true;
+      inv.inviteSentAt = new Date().toISOString();
+      save();
+      render();
+    }
+    
+    closeInviteModal();
+  } else {
+    showToast('Could not send via deeltrack. Try "Open in Email Client" instead.', 'error');
+    console.error('Send via deeltrack failed:', errorMsg);
+  }
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send via deeltrack'; }
 }
 
 // ── CSV Import ────────────────────────────────────────────────────────────────
