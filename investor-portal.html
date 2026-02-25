@@ -816,6 +816,7 @@
           <button class="investment-tab" onclick="switchTab('performance')">Performance</button>
           <button class="investment-tab" onclick="switchTab('distributions')">Distributions</button>
           <button class="investment-tab" onclick="switchTab('documents')">Documents</button>
+          <button class="investment-tab" onclick="switchTab('statements')">Statements</button>
         </div>
         
         <div class="tab-panel active" id="tab-overview">
@@ -869,6 +870,11 @@
         
         <div class="tab-panel" id="tab-documents">
           <p>Investment documents would appear here...</p>
+        </div>
+
+        <!-- Statement Archive Tab -->
+        <div class="tab-panel" id="tab-statements">
+          <div id="statementArchive"></div>
         </div>
       </div>
     </div>
@@ -1133,6 +1139,59 @@
       if (e.target === this) closeModal();
     });
 
+    // ── Statement archive ─────────────────────────────────────────────────────────
+    function renderStatementArchive(myDeals) {
+      const el = document.getElementById('statementArchive');
+      if (!el) return;
+      const inv = investorRecord;
+      const dists = SP.getDistributions();
+
+      // Generate quarterly periods from deal start dates
+      const periods = [];
+      const now = new Date();
+      for (let y = now.getFullYear(); y >= now.getFullYear() - 2; y--) {
+        for (let q = 4; q >= 1; q--) {
+          periods.push({ label:`Q${q} ${y}`, year:y, quarter:q });
+        }
+      }
+
+      if (!myDeals.length) {
+        el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);"><i class="fas fa-file-alt" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i><p>No statements available yet.</p></div>';
+        return;
+      }
+
+      el.innerHTML = `
+        <div style="margin-bottom:16px;font-size:.875rem;color:var(--text-secondary);">
+          Download quarterly investor statements for any period. Statements show your capital, ownership %, and distributions received.
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+          ${periods.slice(0,8).map(p => {
+            const periodDists = dists.filter(d => {
+              if (!d.date) return false;
+              const dd = new Date(d.date);
+              const qMonth = dd.getMonth();
+              const dq = Math.floor(qMonth/3) + 1;
+              return dd.getFullYear() === p.year && dq === p.quarter;
+            });
+            const myTotal = periodDists.reduce((s,d)=>{
+              const r=(d.recipients||[]).find(x=>x.investorId===inv?.id);
+              return s+(r?.amount||0);
+            },0);
+            const hasActivity = myTotal > 0 || p.year === now.getFullYear();
+            return `<div style="background:white;border:1px solid var(--border);border-radius:10px;padding:16px;${hasActivity?'':'opacity:.5'}">
+              <div style="font-weight:700;margin-bottom:4px;">${p.label}</div>
+              <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:12px;">
+                ${myTotal > 0 ? `Distribution: $${myTotal.toLocaleString()}` : 'No distributions'}
+              </div>
+              <a href="investor-statements.html?investor=${inv?.id||''}&period=${encodeURIComponent(p.label)}"
+                style="display:block;text-align:center;padding:7px;background:${hasActivity?'var(--accent-light)':'var(--border-light)'};color:${hasActivity?'var(--accent)':'var(--text-muted)'};border-radius:6px;font-size:.8rem;font-weight:600;text-decoration:none;">
+                <i class="fas fa-download"></i> Statement
+              </a>
+            </div>`;
+          }).join('')}
+        </div>`;
+    }
+
     // ── No-access fallback ───────────────────────────────────────────────────────
     function showNoAccess() {
       const content = document.querySelector('.content');
@@ -1160,6 +1219,7 @@
       renderActivity(myDeals);
       renderDocuments(myDeals);
       renderDistributionsTab(myDeals);
+      renderStatementArchive(myDeals);
     })();
   </script>
 </body>

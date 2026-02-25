@@ -396,6 +396,30 @@ const SP = (function () {
   };
 })();
 
+// ─── PWA: Register service worker ────────────────────────────────────────────
+(function registerSW() {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/syndicate-pro/sw.js')
+      .then(reg => {
+        // Check for updates
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Show update banner
+              const banner = document.createElement('div');
+              banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#3b82f6;color:white;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;z-index:9999;font-family:Inter,sans-serif;font-size:.875rem;';
+              banner.innerHTML = '<span><i class="fas fa-download" style="margin-right:8px;"></i>New version available</span><button onclick="window.location.reload()" style="background:white;color:#3b82f6;border:none;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer;">Update Now</button>';
+              document.body.appendChild(banner);
+            }
+          });
+        });
+      })
+      .catch(err => console.warn('SW registration failed:', err));
+  });
+})();
+
 // ─── Mobile nav: ensure sidebar overlay + toggle works on every page ─────────
 (function patchMobileNav() {
   if (typeof document === 'undefined') return;

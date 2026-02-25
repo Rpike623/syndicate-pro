@@ -514,8 +514,29 @@ function renderAlerts() {
     link: 'investors.html', linkText: 'Send renewal reminders'
   });
 
-  // Deals with upcoming LOI/close deadlines
+  // Form D filing reminder: check any deals that have investors but no Form D filed date
   const deals = SP.getDeals();
+  deals.forEach(deal => {
+    if (!deal.investors?.length) return;
+    const firstLinked = deal.investors.reduce((earliest, inv) => {
+      const t = inv.linkedAt ? new Date(inv.linkedAt) : null;
+      return (!earliest || (t && t < earliest)) ? t : earliest;
+    }, null);
+    if (!firstLinked) return;
+    const daysSinceFirst = Math.floor((today - firstLinked) / 86400000);
+    if (daysSinceFirst >= 0 && !deal.formDFiled) {
+      const key = `formd-${deal.id}`;
+      if (daysSinceFirst >= 15 && !existing.find(n => n.id === key)) {
+        alerts.push({
+          type: 'warning', icon: 'fa-landmark',
+          msg: `<strong>Form D reminder:</strong> ${deal.name} has had investors for ${daysSinceFirst} days. SEC Form D filing may be required within 15 days of first sale.`,
+          link: 'https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=D&dateb=&owner=include&count=40', linkText: 'SEC EDGAR →'
+        });
+      }
+    }
+  });
+
+  // Deals with upcoming LOI/close deadlines
   const urgentDeals = deals.filter(d => {
     if (!d.due) return false;
     const days = Math.ceil((new Date(d.due) - today) / 86400000);

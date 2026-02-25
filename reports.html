@@ -180,6 +180,39 @@
         </div>
       </div>
 
+      <!-- LTV Sensitivity Section -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">LTV Sensitivity Analysis</div>
+            <div class="card-sub">IRR impact at different leverage levels</div>
+          </div>
+          <select id="ltvDealSelect" onchange="buildLTVChart()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:.85rem;outline:none;">
+            <option value="">— Select deal —</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <div style="height:240px;position:relative;"><canvas id="ltvChart"></canvas></div>
+          <div id="ltvRiskMatrix" style="margin-top:20px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;"></div>
+        </div>
+      </div>
+
+      <!-- Cap Rate Risk Matrix -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Cap Rate Risk Matrix</div>
+            <div class="card-sub">Entry vs exit cap rate scenario analysis</div>
+          </div>
+          <select id="capRateDealSelect" onchange="buildCapRateMatrix()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:.85rem;outline:none;">
+            <option value="">— Select deal —</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <div id="capRateMatrix"></div>
+        </div>
+      </div>
+
       <!-- Investor table -->
       <div class="card">
         <div class="card-header"><div class="card-title">Investor Summary</div></div>
@@ -239,6 +272,7 @@ function init(){
   buildInvestorChart(investors,deals);
   buildDealTable(deals);
   buildInvestorTable(investors,deals);
+  populateDealSelects(deals);
 }
 
 function buildIRRChart(deals){
@@ -359,6 +393,126 @@ function exportCSV(){
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='syndicatepro-report.csv';
   a.click();
+}
+
+// ── LTV Sensitivity Chart ─────────────────────────────────────────────────────
+let ltvChartInst = null;
+function populateDealSelects(deals) {
+  ['ltvDealSelect','capRateDealSelect'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    deals.forEach(d => { const o = new Option(d.name, d.id); sel.appendChild(o); });
+  });
+}
+
+function buildLTVChart() {
+  const dealId = document.getElementById('ltvDealSelect').value;
+  if (!dealId) return;
+  const deal = SP.getDealById(dealId);
+  if (!deal) return;
+  const baseIRR = deal.irr || 15;
+  const baseEquity = deal.raise || 2000000;
+  const purchasePrice = deal.purchasePrice || baseEquity * 5;
+  const ltvLevels = [0.55, 0.60, 0.65, 0.70, 0.75, 0.80];
+
+  // IRR improves with leverage (simplified model)
+  const irrs = ltvLevels.map(ltv => {
+    const debt = purchasePrice * ltv;
+    const equity = purchasePrice - debt;
+    const leverageFactor = baseEquity / equity;
+    return Math.min(35, parseFloat((baseIRR * Math.sqrt(leverageFactor)).toFixed(1)));
+  });
+  const equityMults = ltvLevels.map(ltv => {
+    const debt = purchasePrice * ltv;
+    const equity = purchasePrice - debt;
+    const em = deal.equity || 1.8;
+    return parseFloat((em * (baseEquity / equity) * 0.85).toFixed(2));
+  });
+
+  // Risk matrix cards
+  const matrix = document.getElementById('ltvRiskMatrix');
+  matrix.innerHTML = ltvLevels.map((ltv, i) => {
+    const risk = ltv <= 0.60 ? { label:'Conservative', color:'var(--success)', bg:'var(--success-light)' }
+               : ltv <= 0.70 ? { label:'Moderate', color:'var(--warning)', bg:'var(--warning-light)' }
+               : { label:'Aggressive', color:'var(--danger)', bg:'var(--danger-light)' };
+    return `<div style="background:${risk.bg};border-radius:var(--radius);padding:14px;text-align:center;">
+      <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:${risk.color};margin-bottom:6px;">${Math.round(ltv*100)}% LTV</div>
+      <div style="font-size:1.1rem;font-weight:700;font-family:'JetBrains Mono',monospace;">${irrs[i]}%</div>
+      <div style="font-size:.7rem;color:${risk.color};">${equityMults[i]}x EM</div>
+      <div style="font-size:.68rem;margin-top:4px;font-weight:600;color:${risk.color};">${risk.label}</div>
+    </div>`;
+  }).join('');
+
+  // Chart
+  if (ltvChartInst) ltvChartInst.destroy();
+  const ctx = document.getElementById('ltvChart').getContext('2d');
+  ltvChartInst = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ltvLevels.map(l => Math.round(l*100) + '%'),
+      datasets: [
+        { label:'Projected IRR', data: irrs, borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', tension:0.4, fill:true, pointBackgroundColor:'#3b82f6', pointRadius:5 },
+        { label:'Equity Multiple', data: equityMults, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,0.05)', tension:0.4, fill:false, pointBackgroundColor:'#10b981', pointRadius:5, yAxisID:'y1' },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'top', labels:{ font:{ size:11 }, boxWidth:12 } } },
+      scales:{
+        y:{ beginAtZero:true, ticks:{ callback:v=>v+'%', color:'#94a3b8', font:{size:11} }, grid:{ color:'#f1f5f9' }, title:{ display:true, text:'IRR', color:'#3b82f6' } },
+        y1:{ position:'right', beginAtZero:true, ticks:{ callback:v=>v+'x', color:'#10b981', font:{size:11} }, grid:{ drawOnChartArea:false } },
+        x:{ grid:{ display:false }, ticks:{ color:'#64748b', font:{size:11} } }
+      }
+    }
+  });
+}
+
+// ── Cap Rate Risk Matrix ───────────────────────────────────────────────────────
+function buildCapRateMatrix() {
+  const dealId = document.getElementById('capRateDealSelect').value;
+  if (!dealId) return;
+  const deal = SP.getDealById(dealId);
+  if (!deal) return;
+  const baseIRR = deal.irr || 15;
+  const entryCaps = [4.0, 4.5, 5.0, 5.5, 6.0];
+  const exitCaps  = [4.0, 4.5, 5.0, 5.5, 6.0];
+  const container = document.getElementById('capRateMatrix');
+
+  // Color scale: green = high IRR, red = low
+  function cellColor(irr) {
+    if (irr >= baseIRR + 3) return { bg:'#d1fae5', text:'#065f46' };
+    if (irr >= baseIRR)     return { bg:'#dbeafe', text:'#1e40af' };
+    if (irr >= baseIRR - 3) return { bg:'#fef3c7', text:'#92400e' };
+    return { bg:'#fee2e2', text:'#991b1b' };
+  }
+
+  let html = `<div style="margin-bottom:10px;font-size:.82rem;color:var(--text-secondary);">
+    <strong>How to read:</strong> Rows = Entry cap rate. Columns = Exit cap rate. 
+    Higher entry + lower exit = cap compression (value creation). Green = target IRR met.
+  </div>
+  <div style="overflow-x:auto;">
+  <table style="border-collapse:collapse;width:100%;font-size:.8rem;">
+    <thead><tr>
+      <th style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);">Entry ↓ / Exit →</th>
+      ${exitCaps.map(e=>`<th style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);font-family:'JetBrains Mono',monospace;">${e.toFixed(1)}% exit</th>`).join('')}
+    </tr></thead>
+    <tbody>`;
+
+  entryCaps.forEach(entry => {
+    html += `<tr>
+      <td style="padding:8px 12px;background:var(--border-light);border:1px solid var(--border);font-weight:700;font-family:'JetBrains Mono',monospace;">${entry.toFixed(1)}% entry</td>`;
+    exitCaps.forEach(exit => {
+      // Cap compression = exit < entry = value creation
+      const spread = entry - exit;
+      const irr = parseFloat((baseIRR + spread * 4).toFixed(1));
+      const { bg, text } = cellColor(irr);
+      const isDiag = entry === exit;
+      html += `<td style="padding:10px 12px;border:1px solid var(--border);background:${bg};color:${text};text-align:center;font-weight:600;font-family:'JetBrains Mono',monospace;${isDiag?'border:2px solid #94a3b8;':''}">${irr}%</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
 }
 
 // ── Deal Drilldown Modal ──────────────────────────────────────────────────────
