@@ -303,11 +303,10 @@
       </div> <!-- end portfolioListView -->
 
       <div id="portfolioMapView" style="display:none;margin-bottom:28px;">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <div class="card" style="padding:0;overflow:hidden;">
-          <div id="map" style="height:450px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--text-muted);">
-            <i class="fas fa-map-marked-alt" style="font-size:3rem;opacity:.3;"></i>
-            <p>Interactive portfolio map loading...</p>
-          </div>
+          <div id="map" style="height:460px;"></div>
         </div>
       </div>
 
@@ -456,25 +455,134 @@ function togglePortfolioView(view) {
   }
 }
 
-function renderMap() {
+let _leafletMap = null;
+
+async function renderMap() {
   const mapEl = document.getElementById('map');
-  const deals = SP.getDeals().filter(d=>d.location);
-  if (!deals.length) { mapEl.innerHTML = '<div style="padding:40px;text-align:center;"><i class="fas fa-city" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i>Add deals with locations to see them on the map</div>'; return; }
-  
-  // Static map placeholder with markers
-  mapEl.innerHTML = `
-    <div style="position:relative;width:100%;height:100%;background:#e5e7eb;background-image:radial-gradient(#94a3b8 1px, transparent 1px);background-size:20px 20px;">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;color:rgba(0,0,0,0.05);letter-spacing:.2em;text-transform:uppercase;">SyndicatePro Portfolio Map</div>
-      ${deals.map((d,i)=>{
-        const left = Math.floor(Math.random()*80 + 10);
-        const top = Math.floor(Math.random()*70 + 15);
-        return `<div class="map-marker" style="position:absolute;left:${left}%;top:${top}%;" onclick="alert('${d.name}\\n${d.location}')">
-          <div style="width:14px;height:14px;background:var(--accent);border:2px solid white;border-radius:50%;box-shadow:0 4px 10px rgba(0,0,0,.2);cursor:pointer;position:relative;">
-            <div style="position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:white;padding:4px 8px;border-radius:4px;font-size:.7rem;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:6px;color:var(--text);border:1px solid var(--border);">${d.name}</div>
+  const deals = SP.getDeals().filter(d => d.location);
+
+  if (!deals.length) {
+    mapEl.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-muted);gap:12px;"><i class="fas fa-map-marked-alt" style="font-size:3rem;opacity:.3;"></i><p>Add deals with locations to see them on the map</p></div>';
+    return;
+  }
+
+  // Wait for Leaflet to load
+  if (typeof L === 'undefined') {
+    await new Promise(resolve => {
+      const check = setInterval(() => { if (typeof L !== 'undefined') { clearInterval(check); resolve(); } }, 100);
+      setTimeout(() => { clearInterval(check); resolve(); }, 5000);
+    });
+  }
+  if (typeof L === 'undefined') { mapEl.innerHTML = '<p style="padding:20px;">Map failed to load. Check your connection.</p>'; return; }
+
+  // Destroy existing map instance if switching deals/views
+  if (_leafletMap) { _leafletMap.remove(); _leafletMap = null; }
+
+  // Init map centered on US
+  _leafletMap = L.map('map', { zoomControl: true }).setView([37.8, -96], 4);
+
+  // OpenStreetMap tiles — free, no API key
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19,
+  }).addTo(_leafletMap);
+
+  // Custom marker icon using SVG — blue pin
+  function makeIcon(color) {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+      <path d="M14 0C6.27 0 0 6.27 0 14c0 9.63 14 22 14 22s14-12.37 14-22C28 6.27 21.73 0 14 0z" fill="${color}" stroke="white" stroke-width="2"/>
+      <circle cx="14" cy="14" r="6" fill="white" opacity="0.9"/>
+    </svg>`;
+    return L.divIcon({
+      html: svg,
+      className: '',
+      iconSize: [28, 36],
+      iconAnchor: [14, 36],
+      popupAnchor: [0, -36],
+    });
+  }
+
+  const STATUS_COLORS = {
+    operating: '#10b981', closed: '#8b5cf6', dd: '#3b82f6',
+    loi: '#f59e0b', sourcing: '#94a3b8', archived: '#cbd5e1',
+  };
+
+  const geocodeCache = JSON.parse(localStorage.getItem('sp_geocache') || '{}');
+
+  // Geocode each deal and place marker
+  const markers = [];
+  for (const deal of deals) {
+    try {
+      let coords = geocodeCache[deal.location];
+      if (!coords) {
+        const query = encodeURIComponent(deal.location);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`, {
+          headers: { 'Accept-Language': 'en', 'User-Agent': 'SyndicatePro/1.0' }
+        });
+        const data = await res.json();
+        if (data[0]) {
+          coords = { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+          geocodeCache[deal.location] = coords;
+          localStorage.setItem('sp_geocache', JSON.stringify(geocodeCache));
+        }
+      }
+      if (!coords) continue;
+
+      const color = STATUS_COLORS[deal.status] || '#64748b';
+      const committed = (deal.investors || []).reduce((s, i) => s + (i.committed || 0), 0);
+      const pct = deal.raise > 0 ? Math.round(committed / deal.raise * 100) : 0;
+      const fmt$ = n => n >= 1e6 ? '$' + (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? '$' + (n / 1e3).toFixed(0) + 'K' : '$' + n;
+
+      const marker = L.marker([coords.lat, coords.lon], { icon: makeIcon(color) }).addTo(_leafletMap);
+      marker.bindPopup(`
+        <div style="font-family:Inter,sans-serif;min-width:200px;">
+          <div style="font-weight:700;font-size:.95rem;margin-bottom:4px;">${deal.name}</div>
+          <div style="font-size:.78rem;color:#64748b;margin-bottom:10px;"><i class="fas fa-map-marker-alt" style="margin-right:4px;"></i>${deal.location}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <div style="background:#f8fafc;padding:8px;border-radius:6px;text-align:center;">
+              <div style="font-size:.65rem;color:#94a3b8;text-transform:uppercase;font-weight:700;">Raise</div>
+              <div style="font-weight:700;font-family:monospace;">${fmt$(deal.raise || 0)}</div>
+            </div>
+            <div style="background:#f8fafc;padding:8px;border-radius:6px;text-align:center;">
+              <div style="font-size:.65rem;color:#94a3b8;text-transform:uppercase;font-weight:700;">IRR</div>
+              <div style="font-weight:700;font-family:monospace;color:#10b981;">${deal.irr ? deal.irr.toFixed(1) + '%' : '—'}</div>
+            </div>
           </div>
-        </div>`;
-      }).join('')}
-    </div>`;
+          <div style="background:#f1f5f9;border-radius:4px;height:6px;overflow:hidden;margin-bottom:6px;">
+            <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;"></div>
+          </div>
+          <div style="font-size:.72rem;color:#64748b;">${pct}% raised · ${(deal.investors || []).length} investor${(deal.investors || []).length !== 1 ? 's' : ''}</div>
+          <a href="deal-detail.html?id=${deal.id}" style="display:block;margin-top:10px;text-align:center;padding:6px;background:#3b82f6;color:white;border-radius:6px;text-decoration:none;font-size:.8rem;font-weight:600;">View Deal →</a>
+        </div>
+      `, { maxWidth: 240 });
+      markers.push(marker);
+    } catch(e) {
+      console.warn('Geocode failed for', deal.location, e);
+    }
+  }
+
+  // Fit map to markers if any placed
+  if (markers.length > 1) {
+    const group = L.featureGroup(markers);
+    _leafletMap.fitBounds(group.getBounds().pad(0.15));
+  } else if (markers.length === 1) {
+    _leafletMap.setView(markers[0].getLatLng(), 10);
+  }
+
+  // Legend
+  const legend = L.control({ position: 'bottomright' });
+  legend.onAdd = () => {
+    const div = L.DomUtil.create('div');
+    div.style.cssText = 'background:white;padding:10px 14px;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.12);font-family:Inter,sans-serif;font-size:.72rem;';
+    div.innerHTML = Object.entries(STATUS_COLORS).map(([s, c]) =>
+      `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:${c};"></div>
+        <span style="text-transform:capitalize;">${s}</span>
+      </div>`
+    ).join('');
+    return div;
+  };
+  legend.addTo(_leafletMap);
 }
 
 function toggleSidebar() {
