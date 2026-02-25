@@ -574,6 +574,16 @@ const SP = (function () {
   };
 })();
 
+// ─── Theme: inject sp-theme.js on every page ─────────────────────────────────
+(function loadTheme() {
+  if (typeof document === 'undefined') return;
+  const s = document.createElement('script');
+  s.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-theme.js';
+  // Fallback path resolution
+  if (!s.src || s.src === 'sp-theme.js') s.src = 'js/sp-theme.js';
+  document.head.appendChild(s);
+})();
+
 // ─── Legal footer + disclaimer banner ────────────────────────────────────────
 (function injectLegalFooter() {
   if (typeof document === 'undefined') return;
