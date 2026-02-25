@@ -3,1340 +3,823 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Investor Portal - deeltrack</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>deeltrack — Investor Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --primary: #0f172a;
-      --primary-light: #1e293b;
-      --secondary: #334155;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --accent-light: #dbeafe;
-      --success: #10b981;
-      --success-light: #d1fae5;
-      --warning: #f59e0b;
-      --warning-light: #fef3c7;
-      --danger: #ef4444;
-      --danger-light: #fee2e2;
-      --text: #0f172a;
-      --text-secondary: #64748b;
-      --text-muted: #94a3b8;
-      --border: #e2e8f0;
-      --border-light: #f1f5f9;
-      --bg: #f8fafc;
-      --bg-card: #ffffff;
-      --bg-sidebar: #0f172a;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --radius-sm: 6px;
-      --radius: 8px;
-      --radius-md: 12px;
-    }
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-    
-    .app { display: flex; min-height: 100vh; }
-    
-    /* Sidebar - Simplified for Investors */
-    .sidebar {
-      width: 260px;
-      background: var(--bg-sidebar);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      height: 100vh;
-      z-index: 100;
-    }
-    
-    .sidebar-header {
-      padding: 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-    
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, var(--accent), #60a5fa);
-      border-radius: var(--radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-    }
-    
-    .nav {
-      flex: 1;
-      padding: 16px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    
-    .nav-section {
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: rgba(255,255,255,0.4);
-      padding: 16px 12px 8px;
-    }
-    
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 12px;
-      border-radius: var(--radius);
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: all 0.15s;
-    }
-    
-    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
-    .nav-item.active { background: var(--accent); color: white; }
-    .nav-item i { width: 20px; text-align: center; }
-    
-    /* Main Content */
-    .main { flex: 1; margin-left: 260px; min-height: 100vh; }
-    
-    .top-bar {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-    
-    .breadcrumb {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-    
-    .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
-    .breadcrumb-current { color: var(--text); font-weight: 500; }
-    
-    .user-menu {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    .user-info {
-      text-align: right;
-    }
-    
-    .user-name { font-weight: 600; font-size: 0.9rem; }
-    .user-role { font-size: 0.8rem; color: var(--text-muted); }
-    
-    .avatar-large {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-    }
-    
-    .content { padding: 32px; max-width: 1400px; }
-    
-    /* Welcome Banner */
-    .welcome-banner {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      border-radius: var(--radius-md);
-      padding: 32px;
-      color: white;
-      margin-bottom: 32px;
-    }
-    
-    .welcome-banner h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    
-    .welcome-banner p {
-      opacity: 0.8;
-      font-size: 1rem;
-    }
-    
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 32px;
-    }
-    
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow-sm);
-    }
-    
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 8px;
-    }
-    
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    
-    .stat-change {
-      font-size: 0.8rem;
-      margin-top: 4px;
-    }
-    .stat-change.positive { color: var(--success); }
-    .stat-change.negative { color: var(--danger); }
-    
-    /* Section Headers */
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    
-    .section-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-    }
-    
-    .view-all {
-      color: var(--accent);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-    
-    /* Investment Cards */
-    .investments-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 20px;
-      margin-bottom: 40px;
-    }
-    
-    .investment-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: var(--shadow-sm);
-    }
-    
-    .investment-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-      border-color: var(--accent);
-    }
-    
-    .investment-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--border-light);
-    }
-    
-    .investment-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    
-    .investment-location {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-    
-    .investment-body {
-      padding: 20px;
-    }
-    
-    .investment-metrics {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
-    
-    .metric {
-      text-align: center;
-    }
-    
-    .metric-value {
-      font-size: 1.125rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-    
-    .metric-value.positive { color: var(--success); }
-    .metric-value.negative { color: var(--danger); }
-    
-    .metric-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-    
-    .investment-footer {
-      padding: 16px 20px;
-      background: var(--bg);
-      border-top: 1px solid var(--border-light);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .investment-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-    
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-    .status-dot.active { background: var(--success); }
-    .status-dot.pending { background: var(--warning); }
-    
-    /* Recent Activity */
-    .activity-list {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 20px;
-    }
-    
-    .activity-item {
-      display: flex;
-      gap: 16px;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border-light);
-    }
-    
-    .activity-item:last-child {
-      border-bottom: none;
-    }
-    
-    .activity-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    
-    .activity-icon.distribution { background: var(--success-light); color: var(--success); }
-    .activity-icon.document { background: var(--accent-light); color: var(--accent); }
-    .activity-icon.update { background: var(--warning-light); color: var(--warning); }
-    
-    .activity-content {
-      flex: 1;
-    }
-    
-    .activity-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    
-    .activity-desc {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-    
-    .activity-date {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-    
-    /* Documents Section */
-    .documents-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 16px;
-    }
-    
-    .document-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    
-    .document-card:hover {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-sm);
-    }
-    
-    .document-icon {
-      font-size: 2.5rem;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-    
-    .document-name {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    
-    .document-date {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    
-    /* Drill Down Modal */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 40px;
-    }
-    
-    .modal-overlay.active { display: flex; }
-    
-    .modal-large {
-      background: var(--bg-card);
-      border-radius: var(--radius-md);
-      width: 100%;
-      max-width: 900px;
-      max-height: 90vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: var(--shadow-lg);
-    }
-    
-    .modal-header {
-      padding: 24px 32px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .modal-close {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s;
-    }
-    
-    .modal-close:hover {
-      background: var(--bg);
-      border-color: var(--danger);
-      color: var(--danger);
-    }
-    
-    .modal-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 32px;
-    }
-    
-    .investment-tabs {
-      display: flex;
-      gap: 4px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 24px;
-    }
-    
-    .investment-tab {
-      padding: 12px 20px;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--text-secondary);
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      transition: all 0.15s;
-    }
-    
-    .investment-tab:hover { color: var(--text); }
-    .investment-tab.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-    
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-    
-    @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .main { margin-left: 0; }
-      .investments-grid { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo">
-          <div class="logo-icon"><i class="fas fa-bolt"></i></div>
-          <span>deeltrack</span>
-        </div>
-      </div>
-      <nav class="nav">
-        <div class="nav-section">My Account</div>
-        <a href="#" class="nav-item active"><i class="fas fa-chart-pie"></i><span>My Investments</span></a>
-        <a href="#" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
-        <a href="#" class="nav-item"><i class="fas fa-file-alt"></i><span>Documents</span></a>
-        <a href="#" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>Tax Forms</span></a>
-        
-        <div class="nav-section">Account</div>
-        <a href="#" class="nav-item"><i class="fas fa-user"></i><span>Profile</span></a>
-        <a href="#" class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></a>
-        <a href="login.html" class="nav-item"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a>
-      </nav>
-    </aside>
-
-    <main class="main">
-      <header class="top-bar">
-        <div class="breadcrumb">
-          <span class="breadcrumb-current">Investor Portal</span>
-        </div>
-        <div class="user-menu">
-          <div class="user-info">
-            <div class="user-name">John Investor</div>
-            <div class="user-role">Limited Partner</div>
-          </div>
-          <div class="avatar-large">JI</div>
-        </div>
-      </header>
-
-      <div class="content">
-        <!-- Accredited Investor Notice -->
-        <div style="background:#fef9c3;border:1px solid #f59e0b;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:.78rem;color:#78350f;display:flex;align-items:center;gap:10px;">
-          <i class="fas fa-shield-alt" style="color:#f59e0b;flex-shrink:0;"></i>
-          <span>This portal is for <strong>accredited investors only</strong>. Information shown does not constitute an offer or solicitation to buy or sell securities. Past distributions do not guarantee future returns. &nbsp;<a href="disclaimer.html" style="color:#b45309;font-weight:600;">Full Disclaimer</a></span>
-        </div>
-        <!-- Welcome Banner -->
-        <div class="welcome-banner">
-          <h1>Welcome back, John</h1>
-          <p>Your portfolio is performing well. You've received $12,450 in distributions this quarter.</p>
-        </div>
-
-        <!-- Portfolio Stats -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">Total Invested</div>
-            <div class="stat-value">$450,000</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Current Value</div>
-            <div class="stat-value">$512,000</div>
-            <div class="stat-change positive">+13.8% unrealized</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Lifetime Distributions</div>
-            <div class="stat-value">$48,250</div>
-            <div class="stat-change positive">$12,450 this quarter</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Portfolio IRR</div>
-            <div class="stat-value">18.4%</div>
-            <div class="stat-change positive">+2.1% vs target</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Active Investments</div>
-            <div class="stat-value">4</div>
-            <div class="stat-change">2 in due diligence</div>
-          </div>
-        </div>
-
-        <!-- My Investments -->
-        <div class="section-header">
-          <h2 class="section-title">My Investments</h2>
-          <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
-        </div>
-
-        <div class="investments-grid">
-          <div class="investment-card" onclick="openInvestment('hpa')">
-            <div class="investment-header">
-              <div class="investment-title">Highland Park Apartments</div>
-              <div class="investment-location"><i class="fas fa-map-marker-alt"></i> Fort Worth, TX</div>
-            </div>
-            <div class="investment-body">
-              <div class="investment-metrics">
-                <div class="metric">
-                  <div class="metric-value">$150K</div>
-                  <div class="metric-label">My Investment</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value">3.3%</div>
-                  <div class="metric-label">Ownership</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value positive">8.5%</div>
-                  <div class="metric-label">Cash-on-Cash</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value">$12,750</div>
-                  <div class="metric-label">YTD Distributions</div>
-                </div>
-              </div>
-            </div>
-            <div class="investment-footer">
-              <div class="investment-status">
-                <span class="status-dot active"></span>
-                Active
-              </div>
-              <span style="color: var(--accent); font-size: 0.875rem;">View Details <i class="fas fa-arrow-right"></i></span>
-            </div>
-          </div>
-
-          <div class="investment-card" onclick="openInvestment('rrc')">
-            <div class="investment-header">
-              <div class="investment-title">Riverfront Retail Center</div>
-              <div class="investment-location"><i class="fas fa-map-marker-alt"></i> Dallas, TX</div>
-            </div>
-            <div class="investment-body">
-              <div class="investment-metrics">
-                <div class="metric">
-                  <div class="metric-value">$100K</div>
-                  <div class="metric-label">My Investment</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value">3.6%</div>
-                  <div class="metric-label">Ownership</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value positive">7.2%</div>
-                  <div class="metric-label">Cash-on-Cash</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value">$3,600</div>
-                  <div class="metric-label">YTD Distributions</div>
-                </div>
-              </div>
-            </div>
-            <div class="investment-footer">
-              <div class="investment-status">
-                <span class="status-dot pending"></span>
-                Fundraising
-              </div>
-              <span style="color: var(--accent); font-size: 0.875rem;">View Details <i class="fas fa-arrow-right"></i></span>
-            </div>
-          </div>
-
-          <div class="investment-card" onclick="openInvestment('wip')">
-            <div class="investment-header">
-              <div class="investment-title">Westside Industrial Park</div>
-              <div class="investment-location"><i class="fas fa-map-marker-alt"></i> Fort Worth, TX</div>
-            </div>
-            <div class="investment-body">
-              <div class="investment-metrics">
-                <div class="metric">
-                  <div class="metric-value">$200K</div>
-                  <div class="metric-label">My Investment</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value">6.25%</div>
-                  <div class="metric-label">Ownership</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value positive">9.2%</div>
-                  <div class="metric-label">Cash-on-Cash</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value">$18,400</div>
-                  <div class="metric-label">YTD Distributions</div>
-                </div>
-              </div>
-            </div>
-            <div class="investment-footer">
-              <div class="investment-status">
-                <span class="status-dot active"></span>
-                Active
-              </div>
-              <span style="color: var(--accent); font-size: 0.875rem;">View Details <i class="fas fa-arrow-right"></i></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="section-header">
-          <h2 class="section-title">Recent Activity</h2>
-        </div>
-
-        <div class="activity-list">
-          <div class="activity-item">
-            <div class="activity-icon distribution">
-              <i class="fas fa-hand-holding-usd"></i>
-            </div>
-            <div class="activity-content">
-              <div class="activity-title">Q4 Distribution Received</div>
-              <div class="activity-desc">Highland Park Apartments - $3,750 deposited to your account</div>
-            </div>
-            <div class="activity-date">2 days ago</div>
-          </div>
-          
-          <div class="activity-item">
-            <div class="activity-icon document">
-              <i class="fas fa-file-alt"></i>
-            </div>
-            <div class="activity-content">
-              <div class="activity-title">K-1 Tax Document Available</div>
-              <div class="activity-desc">Your 2024 Schedule K-1 for Westside Industrial is ready for download</div>
-            </div>
-            <div class="activity-date">1 week ago</div>
-          </div>
-          
-          <div class="activity-item">
-            <div class="activity-icon update">
-              <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="activity-content">
-              <div class="activity-title">Quarterly Update Published</div>
-              <div class="activity-desc">Riverfront Retail Center Q4 2024 performance report</div>
-            </div>
-            <div class="activity-date">2 weeks ago</div>
-          </div>
-          
-          <div class="activity-item">
-            <div class="activity-icon distribution">
-              <i class="fas fa-hand-holding-usd"></i>
-            </div>
-            <div class="activity-content">
-              <div class="activity-title">Distribution Received</div>
-              <div class="activity-desc">Westside Industrial Park - $4,600 deposited to your account</div>
-            </div>
-            <div class="activity-date">1 month ago</div>
-          </div>
-        </div>
-
-        <!-- Documents -->
-        <div class="section-header" style="margin-top: 40px;">
-          <h2 class="section-title">My Documents</h2>
-          <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
-        </div>
-
-        <div class="documents-grid">
-          <div class="document-card">
-            <div class="document-icon"><i class="fas fa-file-contract"></i></div>
-            <div class="document-name">Operating Agreement</div>
-            <div class="document-date">Highland Park Apts</div>
-          </div>
-          <div class="document-card">
-            <div class="document-icon"><i class="fas fa-file-alt"></i></div>
-            <div class="document-name">PPM</div>
-            <div class="document-date">Highland Park Apts</div>
-          </div>
-          <div class="document-card">
-            <div class="document-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-            <div class="document-name">2024 K-1</div>
-            <div class="document-date">Westside Industrial</div>
-          </div>
-          <div class="document-card">
-            <div class="document-icon"><i class="fas fa-chart-bar"></i></div>
-            <div class="document-name">Q4 Report</div>
-            <div class="document-date">All Investments</div>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- Investment Detail Modal -->
-  <div class="modal-overlay" id="investmentModal">
-    <div class="modal-large">
-      <div class="modal-header">
-        <div>
-          <h2 id="modalDealName">Investment Name</h2>
-          <p id="modalDealLocation" style="color: var(--text-secondary); margin-top: 4px;">
-            <i class="fas fa-map-marker-alt"></i> Location
-          </p>
-        </div>
-        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="modal-body">
-        <div class="investment-tabs">
-          <button class="investment-tab active" onclick="switchTab('overview')">Overview</button>
-          <button class="investment-tab" onclick="switchTab('performance')">Performance</button>
-          <button class="investment-tab" onclick="switchTab('distributions')">Distributions</button>
-          <button class="investment-tab" onclick="switchTab('documents')">Documents</button>
-          <button class="investment-tab" onclick="switchTab('statements')">Statements</button>
-        </div>
-        
-        <div class="tab-panel active" id="tab-overview">
-          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
-            <div class="stat-card">
-              <div class="stat-label">My Investment</div>
-              <div class="stat-value" id="detailInvestment">-</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Ownership %</div>
-              <div class="stat-value" id="detailOwnership">-</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Current Value</div>
-              <div class="stat-value" id="detailValue">-</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">Unrealized Gain</div>
-              <div class="stat-value positive" id="detailGain">-</div>
-            </div>
-          </div>
-          
-          <div style="margin-top: 24px; padding: 20px; background: var(--bg); border-radius: var(--radius);">
-            <h4 style="margin-bottom: 16px;">Investment Timeline</h4>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="text-align: center;">
-                <div style="font-weight: 600;">Jun 2023</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Initial Investment</div>
-              </div>
-              <div style="flex: 1; height: 2px; background: var(--border); margin: 0 20px;"></div>
-              <div style="text-align: center;">
-                <div style="font-weight: 600;">Active</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Hold Period</div>
-              </div>
-              <div style="flex: 1; height: 2px; background: var(--border); margin: 0 20px;"></div>
-              <div style="text-align: center;">
-                <div style="font-weight: 600;">Jun 2028</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted);">Target Exit</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="tab-panel" id="tab-performance">
-          <p>Detailed performance charts would appear here...</p>
-        </div>
-        
-        <div class="tab-panel" id="tab-distributions">
-          <p>Distribution history would appear here...</p>
-        </div>
-        
-        <div class="tab-panel" id="tab-documents">
-          <p>Investment documents would appear here...</p>
-        </div>
-
-        <!-- Statement Archive Tab -->
-        <div class="tab-panel" id="tab-statements">
-          <div id="statementArchive"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js"></script>
   <script src="js/sp-data.js"></script>
+  <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
-  <script>
-    // ── Auth guard ──────────────────────────────────────────────────────────────
-    SP.requireInvestor();
-
-    const session = SP.getSession();
-    // investorRecord starts null — init() resolves it from Firebase or localStorage
-    let investorRecord = null;
-
-    // ── Helpers ─────────────────────────────────────────────────────────────────
-    function fmt$(n) {
-      if (!n) return '$0';
-      if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
-      if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
-      return '$' + Number(n).toLocaleString();
-    }
-    function fmtFull$(n) { return '$' + Number(n||0).toLocaleString(); }
-
-    // ── Personalize header ──────────────────────────────────────────────────────
-    function personalize() {
-      const name = session?.name || 'Investor';
-      const first = name.split(' ')[0];
-      const h = new Date().getHours();
-      const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-      const banner = document.querySelector('.welcome-banner h1');
-      if (banner) banner.textContent = `${greet}, ${first}`;
-      const bannerP = document.querySelector('.welcome-banner p');
-      if (bannerP) bannerP.textContent = "Here's your investment portfolio overview.";
-      // Top bar name
-      const un = document.querySelector('.user-name');
-      if (un) un.textContent = name;
-      // Avatar initials
-      const av = document.querySelector('.avatar-large');
-      if (av) av.textContent = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f4f8;
+      color: #1a2332;
+      min-height: 100vh;
     }
 
-    // ── Load investor's deals (always from the loaded allDeals array) ────────────
-    let _allDeals = [];
-    function getMyDeals() {
-      if (!investorRecord) return [];
-      return _allDeals
-        .filter(deal => (deal.investors || []).some(i => i.investorId === investorRecord.id))
-        .map(deal => {
-          const entry = deal.investors.find(i => i.investorId === investorRecord.id);
-          return { deal, entry };
-        });
+    /* ── Top Nav ──────────────────────────────────────────────────────── */
+    .topnav {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topnav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1a2332;
+      text-decoration: none;
+    }
+    .topnav-brand .brand-dot {
+      width: 28px; height: 28px;
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 0.75rem; font-weight: 700;
+    }
+    .topnav-badge {
+      background: #ede9fe;
+      color: #6366f1;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+    }
+    .topnav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .topnav-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1a2332;
+    }
+    .topnav-avatar {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer;
+    }
+    .topnav-signout {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background: none;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .topnav-signout:hover { background: #f8fafc; color: #475569; }
+
+    /* ── Tab Nav ──────────────────────────────────────────────────────── */
+    .tabnav {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 32px;
+      display: flex;
+      gap: 0;
+    }
+    .tabnav-item {
+      padding: 14px 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+    .tabnav-item:hover { color: #1a2332; }
+    .tabnav-item.active { color: #6366f1; border-bottom-color: #6366f1; font-weight: 600; }
+
+    /* ── Layout ───────────────────────────────────────────────────────── */
+    .page { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* ── Hero Banner ──────────────────────────────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #6366f1 0%, #818cf8 60%, #a5b4fc 100%);
+      border-radius: 16px;
+      padding: 36px 40px;
+      color: white;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      right: -40px; top: -40px;
+      width: 220px; height: 220px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 50%;
+    }
+    .hero h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 6px; }
+    .hero p { font-size: 0.95rem; opacity: 0.85; }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+    .hero-stat-label { font-size: 0.75rem; opacity: 0.75; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .hero-stat-value { font-size: 1.6rem; font-weight: 700; }
+    .hero-stat-sub { font-size: 0.8rem; opacity: 0.75; margin-top: 2px; }
+
+    /* ── Stat Cards ───────────────────────────────────────────────────── */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 24px;
+      border: 1px solid #e2e8f0;
+    }
+    .stat-card-label { font-size: 0.78rem; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .stat-card-value { font-size: 1.5rem; font-weight: 700; color: #1a2332; }
+    .stat-card-sub { font-size: 0.78rem; color: #94a3b8; margin-top: 4px; }
+    .stat-card-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.75rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px; margin-top: 6px;
+    }
+    .badge-green { background: #dcfce7; color: #16a34a; }
+    .badge-blue  { background: #dbeafe; color: #2563eb; }
+    .badge-amber { background: #fef3c7; color: #d97706; }
+    .badge-purple{ background: #ede9fe; color: #7c3aed; }
+
+    /* ── Section ──────────────────────────────────────────────────────── */
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a2332;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title i { color: #6366f1; }
+
+    /* ── Investment Cards ─────────────────────────────────────────────── */
+    .investments-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .inv-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .inv-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .inv-card-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .inv-card-name { font-size: 1rem; font-weight: 700; color: #1a2332; margin-bottom: 4px; }
+    .inv-card-type { font-size: 0.78rem; color: #94a3b8; }
+    .inv-card-status {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .status-operating { background: #dcfce7; color: #16a34a; }
+    .status-closed    { background: #e0e7ff; color: #4338ca; }
+    .status-raising   { background: #fef3c7; color: #d97706; }
+    .status-dd        { background: #fee2e2; color: #dc2626; }
+    .status-loi       { background: #f3f4f6; color: #6b7280; }
+    .inv-card-body { padding: 20px 24px; }
+    .inv-card-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .inv-metric-label { font-size: 0.72rem; color: #94a3b8; margin-bottom: 3px; }
+    .inv-metric-value { font-size: 1rem; font-weight: 600; color: #1a2332; }
+    .inv-metric-value.green { color: #16a34a; }
+    .inv-card-footer {
+      padding: 14px 24px;
+      background: #f8fafc;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .inv-card-location { font-size: 0.78rem; color: #94a3b8; display: flex; align-items: center; gap: 5px; }
+
+    /* ── Distributions ────────────────────────────────────────────────── */
+    .dist-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .dist-table th {
+      padding: 12px 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-align: left;
+      background: #f8fafc;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .dist-table td {
+      padding: 16px 20px;
+      font-size: 0.875rem;
+      color: #1a2332;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .dist-table tr:last-child td { border-bottom: none; }
+    .dist-amount { font-weight: 700; color: #16a34a; font-size: 1rem; }
+
+    /* ── Documents ────────────────────────────────────────────────────── */
+    .doc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .doc-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .doc-card:hover { border-color: #6366f1; box-shadow: 0 4px 12px rgba(99,102,241,0.1); }
+    .doc-icon {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .doc-icon.pdf   { background: #fee2e2; color: #dc2626; }
+    .doc-icon.word  { background: #dbeafe; color: #2563eb; }
+    .doc-icon.other { background: #f3f4f6; color: #6b7280; }
+    .doc-name { font-size: 0.875rem; font-weight: 600; color: #1a2332; line-height: 1.3; }
+    .doc-meta { font-size: 0.75rem; color: #94a3b8; }
+
+    /* ── Profile ──────────────────────────────────────────────────────── */
+    .profile-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      padding: 32px;
+      max-width: 560px;
+    }
+    .profile-avatar {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #6366f1, #818cf8);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 1.5rem; font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .profile-field { margin-bottom: 20px; }
+    .profile-label { font-size: 0.78rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .profile-value { font-size: 0.95rem; color: #1a2332; font-weight: 500; }
+    .accred-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #dcfce7; color: #16a34a;
+      padding: 5px 12px; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 600;
+    }
+    .accred-badge.pending { background: #fef3c7; color: #d97706; }
+
+    /* ── Empty States ─────────────────────────────────────────────────── */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #94a3b8;
+    }
+    .empty i { font-size: 2.5rem; margin-bottom: 16px; display: block; opacity: 0.4; }
+    .empty h3 { font-size: 1rem; font-weight: 600; color: #475569; margin-bottom: 8px; }
+    .empty p { font-size: 0.875rem; }
+
+    /* ── Loading overlay ──────────────────────────────────────────────── */
+    #loadingOverlay {
+      position: fixed; inset: 0;
+      background: #f0f4f8;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 1000;
+      gap: 16px;
+    }
+    #loadingOverlay .spin {
+      width: 40px; height: 40px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #loadingOverlay p { color: #94a3b8; font-size: 0.875rem; }
+
+    /* ── No-access screen ─────────────────────────────────────────────── */
+    #noAccessScreen {
+      display: none;
+      position: fixed; inset: 0;
+      background: #f0f4f8;
+      align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .noaccess-card {
+      background: white;
+      border-radius: 16px;
+      padding: 48px;
+      max-width: 440px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+    .noaccess-icon { font-size: 2.5rem; margin-bottom: 20px; }
+    .noaccess-card h2 { font-size: 1.25rem; font-weight: 700; color: #1a2332; margin-bottom: 10px; }
+    .noaccess-card p { font-size: 0.875rem; color: #64748b; line-height: 1.6; margin-bottom: 16px; }
+    .noaccess-email { font-size: 0.8rem; color: #94a3b8; margin-bottom: 24px; }
+    .btn-signout {
+      background: #6366f1; color: white;
+      padding: 10px 24px; border-radius: 8px;
+      border: none; cursor: pointer; font-family: inherit;
+      font-weight: 600; font-size: 0.875rem;
+      margin-right: 10px;
+    }
+    .btn-refresh {
+      background: white; color: #475569;
+      padding: 10px 24px; border-radius: 8px;
+      border: 1px solid #e2e8f0; cursor: pointer;
+      font-family: inherit; font-weight: 600; font-size: 0.875rem;
     }
 
-    // ── Render stats ─────────────────────────────────────────────────────────────
-    function renderStats(myDeals) {
-      const totalInvested = myDeals.reduce((s, {entry}) => s + (entry?.committed || 0), 0);
-      const avgIRR = myDeals.length
-        ? (myDeals.reduce((s, {deal}) => s + (deal.irr || 0), 0) / myDeals.length)
-        : 0;
-      const active = myDeals.filter(({deal}) => ['operating','active','funded'].includes(deal.status));
-      const dists = SP.getDistributionsForInvestor(investorRecord?.id || '');
-      const totalDists = dists.reduce((s,d) => s + (d.amount || 0), 0);
-
-      const statsGrid = document.querySelector('.stats-grid');
-      if (!statsGrid) return;
-      statsGrid.innerHTML = `
-        <div class="stat-card">
-          <div class="stat-label">Total Invested</div>
-          <div class="stat-value">${fmt$(totalInvested)}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Active Investments</div>
-          <div class="stat-value">${active.length}</div>
-          <div class="stat-change">${myDeals.length} total deals</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Lifetime Distributions</div>
-          <div class="stat-value">${fmt$(totalDists)}</div>
-          <div class="stat-change positive">${totalDists > 0 ? 'Received' : 'None yet'}</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Portfolio Avg IRR</div>
-          <div class="stat-value">${avgIRR.toFixed(1)}%</div>
-          <div class="stat-change positive">Projected</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Accreditation</div>
-          <div class="stat-value" style="font-size:1rem;">${investorRecord?.accredStatus === 'verified' ? '<span style="color:var(--success)"><i class="fas fa-check-circle"></i> Verified</span>' : '<span style="color:var(--warning)"><i class="fas fa-clock"></i> Pending</span>'}</div>
-        </div>`;
+    /* ── Responsive ───────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .topnav { padding: 0 16px; }
+      .tabnav { padding: 0; overflow-x: auto; }
+      .page { padding: 16px; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .hero-stats { flex-wrap: wrap; gap: 20px; }
+      .investments-grid { grid-template-columns: 1fr; }
     }
+  </style>
+</head>
+<body>
 
-    // ── Render investment cards ──────────────────────────────────────────────────
-    function renderInvestments(myDeals) {
-      const grid = document.querySelector('.investments-grid');
-      if (!grid) return;
+<!-- Loading overlay -->
+<div id="loadingOverlay">
+  <div class="spin"></div>
+  <p>Loading your portfolio…</p>
+</div>
 
-      if (!myDeals.length) {
-        grid.innerHTML = `
-          <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-muted);">
-            <i class="fas fa-building" style="font-size:2.5rem;opacity:0.3;display:block;margin-bottom:16px;"></i>
-            <h3 style="color:var(--text-secondary);margin-bottom:8px;">No investments yet</h3>
-            <p style="font-size:0.875rem;">Your GP will link you to deals once you're committed. Check back soon.</p>
-          </div>`;
-        return;
-      }
+<!-- No access -->
+<div id="noAccessScreen">
+  <div class="noaccess-card">
+    <div class="noaccess-icon">🔐</div>
+    <h2>Account not linked</h2>
+    <p>Your account is set up but hasn't been linked to any investments yet. Your GP needs to add you to the investor CRM.</p>
+    <p class="noaccess-email">Signed in as: <strong id="noAccessEmail">—</strong></p>
+    <button class="btn-refresh" onclick="location.reload()"><i class="fas fa-sync-alt"></i> Refresh</button>
+    <button class="btn-signout" onclick="SP.logout()">Sign Out</button>
+  </div>
+</div>
 
-      const STATUS_COLOR = { operating:'active', active:'active', funded:'active', loi:'pending', dd:'pending', sourcing:'', closed:'closed' };
-      const STATUS_LABEL = { operating:'Operating', active:'Active', funded:'Funded', loi:'LOI Stage', dd:'Due Diligence', sourcing:'Sourcing', closed:'Closed' };
+<!-- Top Nav -->
+<nav class="topnav">
+  <a class="topnav-brand" href="#">
+    <div class="brand-dot">d</div>
+    deeltrack
+    <span class="topnav-badge">INVESTOR PORTAL</span>
+  </a>
+  <div class="topnav-right">
+    <span class="topnav-name" id="navName"></span>
+    <div class="topnav-avatar" id="navAvatar" title="Your account"></div>
+    <button class="topnav-signout" onclick="SP.logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+  </div>
+</nav>
 
-      grid.innerHTML = myDeals.map(({deal, entry}) => {
-        const statusClass = STATUS_COLOR[deal.status] || '';
-        const statusLabel = STATUS_LABEL[deal.status] || deal.status;
-        return `
-          <div class="investment-card" onclick="openInvestment('${deal.id}')">
-            <div class="investment-header">
-              <div class="investment-title">${deal.name}</div>
-              <div class="investment-location"><i class="fas fa-map-marker-alt"></i> ${deal.location || '—'}</div>
-            </div>
-            <div class="investment-body">
-              <div class="investment-metrics">
-                <div class="metric">
-                  <div class="metric-value">${fmt$(entry?.committed||0)}</div>
-                  <div class="metric-label">My Investment</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value">${entry?.ownership ? entry.ownership.toFixed(2)+'%' : '—'}</div>
-                  <div class="metric-label">Ownership</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value positive">${deal.irr ? deal.irr.toFixed(1)+'%' : '—'}</div>
-                  <div class="metric-label">Target IRR</div>
-                </div>
-                <div class="metric">
-                  <div class="metric-value">${deal.equity ? deal.equity.toFixed(2)+'x' : '—'}</div>
-                  <div class="metric-label">Equity Multiple</div>
-                </div>
-              </div>
-            </div>
-            <div class="investment-footer">
-              <div class="investment-status">
-                <span class="status-dot ${statusClass}"></span>
-                ${statusLabel}
-              </div>
-              <span style="color:var(--accent);font-size:0.875rem;">View Details <i class="fas fa-arrow-right"></i></span>
-            </div>
-          </div>`;
-      }).join('');
-    }
+<!-- Tab Nav -->
+<div class="tabnav">
+  <div class="tabnav-item active" onclick="showPage('overview', this)"><i class="fas fa-th-large"></i> Overview</div>
+  <div class="tabnav-item" onclick="showPage('investments', this)"><i class="fas fa-building"></i> My Investments</div>
+  <div class="tabnav-item" onclick="showPage('distributions', this)"><i class="fas fa-wallet"></i> Distributions</div>
+  <div class="tabnav-item" onclick="showPage('documents', this)"><i class="fas fa-file-alt"></i> Documents</div>
+  <div class="tabnav-item" onclick="showPage('profile', this)"><i class="fas fa-user"></i> My Profile</div>
+</div>
 
-    // ── Render activity ──────────────────────────────────────────────────────────
-    function renderActivity(myDeals) {
-      const feed = document.querySelector('.activity-list');
-      if (!feed) return;
-      // Build activity from deal events scoped to this investor
-      const items = [];
-      myDeals.forEach(({deal, entry}) => {
-        if (entry?.linkedAt) {
-          items.push({ icon:'fa-building', cls:'deal', title:'Added to investment', desc:`${deal.name}`, date: new Date(entry.linkedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) });
-        }
-      });
-      if (!items.length) {
-        feed.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-muted);font-size:0.875rem;"><i class="fas fa-history" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:8px;"></i>No activity yet</div>`;
-        return;
-      }
-      feed.innerHTML = items.map(a => `
-        <div class="activity-item">
-          <div class="activity-icon ${a.cls}"><i class="fas ${a.icon}"></i></div>
-          <div class="activity-content"><div class="activity-title">${a.title}</div><div class="activity-desc">${a.desc}</div></div>
-          <div class="activity-date">${a.date}</div>
-        </div>`).join('');
-    }
+<!-- ── OVERVIEW PAGE ─────────────────────────────────────────────────── -->
+<div class="page active" id="page-overview">
+  <div class="hero">
+    <h1 id="heroGreeting">Good morning</h1>
+    <p id="heroSub">Here's your investment portfolio at a glance.</p>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-label">Total Invested</div>
+        <div class="hero-stat-value" id="heroTotal">—</div>
+        <div class="hero-stat-sub" id="heroDealsCount">— active investments</div>
+      </div>
+      <div>
+        <div class="hero-stat-label">Distributions Received</div>
+        <div class="hero-stat-value" id="heroDists">—</div>
+        <div class="hero-stat-sub" id="heroDistCount">— payments</div>
+      </div>
+      <div>
+        <div class="hero-stat-label">Avg. Target IRR</div>
+        <div class="hero-stat-value" id="heroIRR">—</div>
+        <div class="hero-stat-sub">across your portfolio</div>
+      </div>
+      <div>
+        <div class="hero-stat-label">Accreditation</div>
+        <div class="hero-stat-value" id="heroAccred">—</div>
+        <div class="hero-stat-sub" id="heroAccredSub">—</div>
+      </div>
+    </div>
+  </div>
 
-    // ── Render documents ─────────────────────────────────────────────────────────
-    async function renderDocuments(myDeals) {
-      const grid = document.querySelector('.documents-grid');
-      if (!grid) return;
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-card-label">Active Deals</div>
+      <div class="stat-card-value" id="statActive">—</div>
+      <div class="stat-card-sub">Currently operating</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Pending / In Progress</div>
+      <div class="stat-card-value" id="statPending">—</div>
+      <div class="stat-card-sub">Raising or due diligence</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">YTD Distributions</div>
+      <div class="stat-card-value" id="statYTD">—</div>
+      <div class="stat-card-sub">This calendar year</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Avg. Equity Multiple</div>
+      <div class="stat-card-value" id="statMultiple">—</div>
+      <div class="stat-card-sub">Target across portfolio</div>
+    </div>
+  </div>
 
-      // Try Firestore first — load docs this investor is permitted to see
-      let cloudDocs = [];
-      if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
-        const session = SP.getSession();
-        const email = session?.email || '';
-        try {
-          cloudDocs = await SPFB.getInvestorDocuments(email);
-        } catch(e) { console.warn('SPFB.getInvestorDocuments:', e.message); }
-      }
+  <div class="section-title"><i class="fas fa-clock"></i> Recent Activity</div>
+  <div id="recentActivity" style="background:white;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;"></div>
+</div>
 
-      if (cloudDocs.length) {
-        // Render real cloud documents
-        const typeIcon = { oa:'fa-file-contract', ppm:'fa-file-alt', k1:'fa-file-invoice-dollar',
-          subscription:'fa-file-signature', 'capital-call':'fa-file-invoice', other:'fa-file' };
-        grid.innerHTML = cloudDocs.map(d => {
-          const icon = typeIcon[d.type] || 'fa-file';
-          const dateStr = d.generatedAt?.toDate?.()?.toLocaleDateString() || d.uploadedAt?.toDate?.()?.toLocaleDateString() || '—';
-          const hasFile = d.fileUrl || d.htmlContent;
-          return `
-            <div class="document-card" onclick="${hasFile ? (d.fileUrl ? `window.open('${d.fileUrl}','_blank')` : `viewCloudDoc('${d.id}')`) : `requestDoc('${d.type}','${d.dealId}')`}" style="cursor:pointer;">
-              <div class="document-icon"><i class="fas ${icon}"></i></div>
-              <div class="document-name">${d.name || d.type}</div>
-              <div class="document-date">${dateStr}</div>
-              ${hasFile ? '<div style="font-size:.7rem;color:var(--accent);margin-top:4px;"><i class="fas fa-cloud"></i> Available</div>' : '<div style="font-size:.7rem;color:var(--text-muted);margin-top:4px;">Contact GP</div>'}
-            </div>`;
-        }).join('');
-      } else if (!myDeals.length) {
-        grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.875rem;">No documents yet. Your GP will upload documents once you\'re linked to a deal.</p>';
-      } else {
-        // Fallback: show placeholder tiles per deal (no Firebase)
-        const docs = [];
-        myDeals.forEach(({deal}) => {
-          docs.push({ icon:'fa-file-contract', name:'Operating Agreement', deal: deal.name, type:'oa' });
-          docs.push({ icon:'fa-file-alt', name:'PPM', deal: deal.name, type:'ppm' });
-          docs.push({ icon:'fa-file-invoice-dollar', name:'K-1 (2025)', deal: deal.name, type:'k1' });
-          docs.push({ icon:'fa-file-signature', name:'Subscription Agreement', deal: deal.name, type:'sub' });
-        });
-        grid.innerHTML = docs.slice(0,8).map(d => `
-          <div class="document-card" onclick="requestDoc('${d.type}','${d.deal}')">
-            <div class="document-icon"><i class="fas ${d.icon}"></i></div>
-            <div class="document-name">${d.name}</div>
-            <div class="document-date">${d.deal}</div>
-          </div>`).join('');
-      }
-    }
+<!-- ── INVESTMENTS PAGE ──────────────────────────────────────────────── -->
+<div class="page" id="page-investments">
+  <div class="section-title" style="margin-bottom:20px;"><i class="fas fa-building"></i> My Investments</div>
+  <div class="investments-grid" id="investmentsGrid"></div>
+</div>
 
-    async function viewCloudDoc(docId) {
-      // Fetch the specific document from Firestore by ID
-      if (typeof firebase === 'undefined') return;
-      try {
-        const snap = await firebase.firestore()
-          .collection('orgs').doc(SPFB.getOrgId())
-          .collection('documents').doc(docId).get();
-        if (!snap.exists) { alert('Document not found.'); return; }
-        const doc = snap.data();
-        if (doc.fileUrl) { window.open(doc.fileUrl, '_blank'); return; }
-        if (doc.htmlContent) {
-          const w = window.open('', '_blank');
-          w.document.write(`<!DOCTYPE html><html><head><title>${doc.name}</title><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}h1,h2,h3{font-family:sans-serif;}</style></head><body>${doc.htmlContent}</body></html>`);
-          w.document.close();
-        }
-      } catch(e) { console.warn('viewCloudDoc:', e.message); }
-    }
+<!-- ── DISTRIBUTIONS PAGE ───────────────────────────────────────────── -->
+<div class="page" id="page-distributions">
+  <div class="section-title" style="margin-bottom:20px;"><i class="fas fa-wallet"></i> Distribution History</div>
+  <div id="distributionsContent"></div>
+</div>
 
-    function requestDoc(type, dealName) {
-      const labels = {oa:'Operating Agreement',ppm:'Private Placement Memorandum',k1:'K-1 Tax Document',sub:'Subscription Agreement'};
-      const msg = `To request your ${labels[type]||type} for ${dealName}, please contact your GP directly. They will provide the document securely.`;
-      alert(msg);
-    }
+<!-- ── DOCUMENTS PAGE ───────────────────────────────────────────────── -->
+<div class="page" id="page-documents">
+  <div class="section-title" style="margin-bottom:20px;"><i class="fas fa-file-alt"></i> My Documents</div>
+  <div class="doc-grid" id="documentsGrid"></div>
+</div>
 
-    // ── Render distributions for investor ────────────────────────────────────────
-    function renderDistributionsTab(myDeals) {
-      const distSection = document.querySelector('#tab-distributions, .distributions-section');
-      if (!distSection) return;
-      const inv = investorRecord;
-      if (!inv) return;
-      const allDists = SP.getDistributions();
-      const myDists = [];
-      allDists.forEach(dist => {
-        const r = (dist.recipients||[]).find(r => r.investorId === inv.id);
-        if (r) myDists.push({ ...dist, myAmount: r.amount, myOwnership: r.ownership });
-      });
-      const totalReceived = myDists.reduce((s,d) => s+(d.myAmount||0),0);
-      const distHTML = myDists.length ? `
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
-          <div class="stat-card"><div class="stat-label">Total Received</div><div class="stat-value">$${Number(totalReceived).toLocaleString()}</div></div>
-          <div class="stat-card"><div class="stat-label"># Distributions</div><div class="stat-value">${myDists.length}</div></div>
-          <div class="stat-card"><div class="stat-label">Last Distribution</div><div class="stat-value" style="font-size:1rem;">${myDists[myDists.length-1]?.date||'—'}</div></div>
-        </div>
-        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
-          <table style="width:100%;border-collapse:collapse;">
-            <thead style="background:var(--border-light);"><tr>
-              <th style="padding:10px 16px;text-align:left;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Deal</th>
-              <th style="padding:10px 16px;text-align:left;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Period</th>
-              <th style="padding:10px 16px;text-align:left;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">Date</th>
-              <th style="padding:10px 16px;text-align:right;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);">My Share</th>
-            </tr></thead>
-            <tbody>${myDists.map(d=>`<tr style="border-bottom:1px solid var(--border-light);">
-              <td style="padding:12px 16px;font-weight:600;">${d.dealName||'—'}</td>
-              <td style="padding:12px 16px;color:var(--text-secondary);">${d.period||'—'}</td>
-              <td style="padding:12px 16px;color:var(--text-secondary);">${d.date||'—'}</td>
-              <td style="padding:12px 16px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--success);">$${Number(d.myAmount||0).toLocaleString()}</td>
-            </tr>`).join('')}</tbody>
-          </table>
-        </div>` : `<div style="text-align:center;padding:40px;color:var(--text-muted);"><i class="fas fa-wallet" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i><p>No distributions recorded yet. Your GP will record distributions here as they are paid.</p></div>`;
-      distSection.innerHTML = distHTML;
-    }
+<!-- ── PROFILE PAGE ─────────────────────────────────────────────────── -->
+<div class="page" id="page-profile">
+  <div class="section-title" style="margin-bottom:20px;"><i class="fas fa-user"></i> My Profile</div>
+  <div class="profile-card" id="profileCard"></div>
+</div>
 
-    // ── Deal detail modal ────────────────────────────────────────────────────────
-    let _currentDealId = null;
+<script>
+  SP.requireInvestor();
 
-    function openInvestment(dealId) {
-      _currentDealId = dealId;
-      const deal = SP.getDealById(dealId);
-      if (!deal) return;
-      const entry = deal.investors?.find(i => i.investorId === investorRecord?.id);
+  const session = SP.getSession();
+  let investorRecord = null;
+  let myDeals = [];
+  let myDists = [];
 
-      document.getElementById('modalDealName').textContent = deal.name;
-      document.getElementById('modalDealLocation').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${deal.location || '—'}`;
-      document.getElementById('detailInvestment').textContent = fmtFull$(entry?.committed || 0);
-      document.getElementById('detailOwnership').textContent = entry?.ownership ? entry.ownership.toFixed(2) + '%' : '—';
-      document.getElementById('detailValue').textContent = fmtFull$(entry?.committed || 0); // placeholder until valuation built
-      document.getElementById('detailGain').textContent = deal.irr ? deal.irr.toFixed(1) + '% IRR target' : '—';
+  // ── Nav ────────────────────────────────────────────────────────────────────
+  function showPage(name, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tabnav-item').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + name)?.classList.add('active');
+    if (el) el.classList.add('active');
+  }
 
-      document.getElementById('investmentModal').classList.add('active');
-    }
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function fmt$(n) {
+    if (!n && n !== 0) return '—';
+    if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+    if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
+    return '$' + Number(n).toLocaleString();
+  }
+  function fmtFull$(n) { return '$' + Number(n||0).toLocaleString(); }
 
-    function closeModal() { document.getElementById('investmentModal').classList.remove('active'); }
+  function statusLabel(s) {
+    return { operating:'Operating', closed:'Closed', raising:'Raising', dd:'Due Diligence', loi:'LOI', funded:'Funded', committed:'Committed' }[s] || s || '—';
+  }
+  function statusClass(s) {
+    return { operating:'status-operating', closed:'status-closed', raising:'status-raising', dd:'status-dd', loi:'status-loi', funded:'status-operating', committed:'status-raising' }[s] || 'status-loi';
+  }
 
-    function switchTab(tab) {
-      document.querySelectorAll('.investment-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      event.target.classList.add('active');
-      document.getElementById('tab-' + tab).classList.add('active');
-    }
+  // ── Personalize ────────────────────────────────────────────────────────────
+  function personalize() {
+    const name = session?.name || 'Investor';
+    const first = name.split(' ')[0];
+    const h = new Date().getHours();
+    const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('heroGreeting').textContent = greet + ', ' + first + '.';
+    document.getElementById('navName').textContent = first;
+    document.getElementById('navAvatar').textContent = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    document.title = `deeltrack — ${first}'s Portal`;
+  }
 
-    document.getElementById('investmentModal').addEventListener('click', function(e) {
-      if (e.target === this) closeModal();
+  // ── Render Overview ────────────────────────────────────────────────────────
+  function renderOverview() {
+    const totalInvested = myDeals.reduce((s, {entry}) => s + (entry?.committed || 0), 0);
+    const avgIRR = myDeals.length ? (myDeals.reduce((s, {deal}) => s + (deal.irr || 0), 0) / myDeals.length).toFixed(1) : '—';
+    const avgMult = myDeals.length ? (myDeals.reduce((s, {deal}) => s + (deal.equity || 0), 0) / myDeals.length).toFixed(2) : '—';
+    const active = myDeals.filter(({deal}) => ['operating','funded','active'].includes(deal.status)).length;
+    const pending = myDeals.filter(({deal}) => ['raising','dd','loi','committed'].includes(deal.status)).length;
+    const totalDist = myDists.reduce((s, d) => {
+      const rec = (d.recipients||[]).find(r => r.investorId === investorRecord.id);
+      return s + (rec?.amount || d.amount || 0);
+    }, 0);
+    const ytdDist = myDists.filter(d => new Date(d.date).getFullYear() === new Date().getFullYear())
+      .reduce((s, d) => {
+        const rec = (d.recipients||[]).find(r => r.investorId === investorRecord.id);
+        return s + (rec?.amount || d.amount || 0);
+      }, 0);
+
+    // Hero
+    document.getElementById('heroTotal').textContent = fmt$(totalInvested);
+    document.getElementById('heroDealsCount').textContent = myDeals.length + ' active investment' + (myDeals.length !== 1 ? 's' : '');
+    document.getElementById('heroDists').textContent = fmt$(totalDist);
+    document.getElementById('heroDistCount').textContent = myDists.length + ' payment' + (myDists.length !== 1 ? 's' : '');
+    document.getElementById('heroIRR').textContent = avgIRR !== '—' ? avgIRR + '%' : '—';
+
+    const verified = investorRecord?.accredStatus === 'verified';
+    document.getElementById('heroAccred').textContent = verified ? '✓ Verified' : 'Pending';
+    document.getElementById('heroAccredSub').textContent = verified ? 'Accredited investor' : 'Verification in progress';
+
+    // Stats
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statYTD').textContent = fmt$(ytdDist);
+    document.getElementById('statMultiple').textContent = avgMult !== '—' ? avgMult + 'x' : '—';
+
+    // Recent activity (most recent 5 distributions + deals)
+    const items = [];
+    myDists.slice(0, 3).forEach(d => {
+      const rec = (d.recipients||[]).find(r => r.investorId === investorRecord.id);
+      const amount = rec?.amount || d.amount || 0;
+      if (amount) items.push({ icon: 'fa-wallet', color: '#16a34a', bg: '#dcfce7', text: `Distribution received for <strong>${myDeals.find(m=>m.deal.id===d.dealId)?.deal.name || 'a deal'}</strong>`, amount: fmtFull$(amount), date: d.date });
     });
+    myDeals.slice(0, 3).forEach(({deal, entry}) => {
+      items.push({ icon: 'fa-building', color: '#6366f1', bg: '#ede9fe', text: `Committed <strong>${fmt$(entry?.committed||0)}</strong> to <strong>${deal.name}</strong>`, date: entry?.date || deal.added });
+    });
+    items.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    // ── Statement archive ─────────────────────────────────────────────────────────
-    function renderStatementArchive(myDeals) {
-      const el = document.getElementById('statementArchive');
-      if (!el) return;
-      const inv = investorRecord;
-      const dists = SP.getDistributions();
-
-      // Generate quarterly periods from deal start dates
-      const periods = [];
-      const now = new Date();
-      for (let y = now.getFullYear(); y >= now.getFullYear() - 2; y--) {
-        for (let q = 4; q >= 1; q--) {
-          periods.push({ label:`Q${q} ${y}`, year:y, quarter:q });
-        }
-      }
-
-      if (!myDeals.length) {
-        el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);"><i class="fas fa-file-alt" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i><p>No statements available yet.</p></div>';
-        return;
-      }
-
-      el.innerHTML = `
-        <div style="margin-bottom:16px;font-size:.875rem;color:var(--text-secondary);">
-          Download quarterly investor statements for any period. Statements show your capital, ownership %, and distributions received.
+    document.getElementById('recentActivity').innerHTML = items.length ? items.slice(0, 6).map(item => `
+      <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid #f1f5f9;">
+        <div style="width:36px;height:36px;border-radius:50%;background:${item.bg};color:${item.color};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i class="fas ${item.icon}" style="font-size:0.875rem;"></i>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
-          ${periods.slice(0,8).map(p => {
-            const periodDists = dists.filter(d => {
-              if (!d.date) return false;
-              const dd = new Date(d.date);
-              const qMonth = dd.getMonth();
-              const dq = Math.floor(qMonth/3) + 1;
-              return dd.getFullYear() === p.year && dq === p.quarter;
-            });
-            const myTotal = periodDists.reduce((s,d)=>{
-              const r=(d.recipients||[]).find(x=>x.investorId===inv?.id);
-              return s+(r?.amount||0);
-            },0);
-            const hasActivity = myTotal > 0 || p.year === now.getFullYear();
-            return `<div style="background:white;border:1px solid var(--border);border-radius:10px;padding:16px;${hasActivity?'':'opacity:.5'}">
-              <div style="font-weight:700;margin-bottom:4px;">${p.label}</div>
-              <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:12px;">
-                ${myTotal > 0 ? `Distribution: $${myTotal.toLocaleString()}` : 'No distributions'}
-              </div>
-              <a href="investor-statements.html?investor=${inv?.id||''}&period=${encodeURIComponent(p.label)}"
-                style="display:block;text-align:center;padding:7px;background:${hasActivity?'var(--accent-light)':'var(--border-light)'};color:${hasActivity?'var(--accent)':'var(--text-muted)'};border-radius:6px;font-size:.8rem;font-weight:600;text-decoration:none;">
-                <i class="fas fa-download"></i> Statement
-              </a>
-            </div>`;
-          }).join('')}
-        </div>`;
-    }
+        <div style="flex:1;font-size:0.875rem;color:#475569;">${item.text}</div>
+        ${item.amount ? `<div style="font-weight:700;color:#16a34a;font-size:0.9rem;">${item.amount}</div>` : ''}
+        <div style="font-size:0.75rem;color:#94a3b8;white-space:nowrap;">${item.date ? new Date(item.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''}</div>
+      </div>
+    `).join('') : '<div class="empty" style="padding:40px;"><i class="fas fa-clock" style="font-size:1.5rem;opacity:0.3;display:block;margin-bottom:10px;"></i><p style="color:#94a3b8;font-size:0.875rem;">No recent activity yet.</p></div>';
+  }
 
-    // ── No-access fallback ───────────────────────────────────────────────────────
-    function showNoAccess() {
-      const content = document.querySelector('.content');
-      if (!content) return;
-      content.innerHTML = `
-        <div style="text-align:center;padding:80px 20px;max-width:600px;margin:0 auto;">
-          <div style="font-size:3rem;margin-bottom:20px;">🔒</div>
-          <h2 style="margin-bottom:12px;">Account not linked</h2>
-          <p style="color:var(--text-secondary);margin-bottom:16px;">Your account exists but hasn't been linked to any investments yet. This usually means:</p>
-          <ul style="text-align:left;color:var(--text-secondary);margin-bottom:24px;display:inline-block;">
-            <li>Your GP is still setting up your deal access</li>
-            <li>The invite was sent but your deals haven't been linked yet</li>
-            <li>There may be a delay syncing your data</li>
-          </ul>
-          <p style="color:var(--text-secondary);margin-bottom:24px;">Try refreshing in a few minutes, or contact your GP directly.</p>
-          <p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:16px;">Signed in as: <strong>${session?.email || '—'}</strong></p>
-          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-            <button onclick="location.reload()" style="padding:10px 24px;background:var(--success);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;"><i class="fas fa-sync-alt"></i> Refresh</button>
-            <button onclick="SP.logout()" style="padding:10px 24px;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;">Sign Out</button>
+  // ── Render Investments ─────────────────────────────────────────────────────
+  function renderInvestments() {
+    const grid = document.getElementById('investmentsGrid');
+    if (!myDeals.length) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><i class="fas fa-building"></i><h3>No investments yet</h3><p>Your GP will link you to deals shortly.</p></div>';
+      return;
+    }
+    grid.innerHTML = myDeals.map(({deal, entry}) => `
+      <div class="inv-card">
+        <div class="inv-card-header">
+          <div>
+            <div class="inv-card-name">${deal.name}</div>
+            <div class="inv-card-type">${(deal.type||'').replace('-',' ').replace(/\b\w/g,l=>l.toUpperCase())}</div>
           </div>
-        </div>`;
+          <span class="inv-card-status ${statusClass(deal.status)}">${statusLabel(deal.status)}</span>
+        </div>
+        <div class="inv-card-body">
+          <div class="inv-card-metrics">
+            <div>
+              <div class="inv-metric-label">My Commitment</div>
+              <div class="inv-metric-value">${fmt$(entry?.committed)}</div>
+            </div>
+            <div>
+              <div class="inv-metric-label">Target IRR</div>
+              <div class="inv-metric-value green">${deal.irr ? deal.irr + '%' : '—'}</div>
+            </div>
+            <div>
+              <div class="inv-metric-label">Equity Multiple</div>
+              <div class="inv-metric-value">${deal.equity ? deal.equity + 'x' : '—'}</div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="inv-metric-label">Status</span>
+            <span style="font-size:0.8rem;font-weight:600;color:#475569;">${statusLabel(entry?.status || deal.status)}</span>
+          </div>
+        </div>
+        <div class="inv-card-footer">
+          <div class="inv-card-location"><i class="fas fa-map-marker-alt"></i> ${deal.location || '—'}</div>
+          <div style="font-size:0.75rem;color:#94a3b8;">${deal.raise ? fmt$(deal.raise) + ' total raise' : ''}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── Render Distributions ───────────────────────────────────────────────────
+  function renderDistributions() {
+    const el = document.getElementById('distributionsContent');
+    if (!myDists.length) {
+      el.innerHTML = '<div class="empty"><i class="fas fa-wallet"></i><h3>No distributions yet</h3><p>Distributions will appear here when your GP processes them.</p></div>';
+      return;
+    }
+    el.innerHTML = `<table class="dist-table">
+      <thead><tr>
+        <th>Deal</th><th>Date</th><th>Your Amount</th><th>Payment Total</th>
+      </tr></thead>
+      <tbody>${myDists.map(d => {
+        const rec = (d.recipients||[]).find(r => r.investorId === investorRecord.id);
+        const amount = rec?.amount || d.amount || 0;
+        const dealName = myDeals.find(m=>m.deal.id===d.dealId)?.deal.name || '—';
+        return `<tr>
+          <td><strong>${dealName}</strong></td>
+          <td>${d.date ? new Date(d.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—'}</td>
+          <td><span class="dist-amount">${fmtFull$(amount)}</span></td>
+          <td style="color:#94a3b8;">${fmtFull$(d.totalAmount || 0)}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+  }
+
+  // ── Render Documents ───────────────────────────────────────────────────────
+  async function renderDocuments() {
+    const grid = document.getElementById('documentsGrid');
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> Loading documents…</div>';
+
+    let docs = [];
+    if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
+      try { docs = await SPFB.getInvestorDocuments(session?.email || ''); } catch(e) {}
     }
 
-    // ── Init ─────────────────────────────────────────────────────────────────────
-    async function init() {
-      personalize();
+    if (!docs.length) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><i class="fas fa-file-alt"></i><h3>No documents yet</h3><p>Documents shared by your GP will appear here.</p></div>';
+      return;
+    }
+    grid.innerHTML = docs.map(doc => {
+      const ext = (doc.name||'').split('.').pop().toLowerCase();
+      const iconClass = ext === 'pdf' ? 'pdf' : (ext === 'doc' || ext === 'docx') ? 'word' : 'other';
+      const iconName = ext === 'pdf' ? 'fa-file-pdf' : (ext === 'doc' || ext === 'docx') ? 'fa-file-word' : 'fa-file';
+      return `<div class="doc-card" onclick="openDoc('${doc.id}','${doc.fileUrl||''}','${(doc.name||'').replace(/'/g,'\\\'')}')" >
+        <div class="doc-icon ${iconClass}"><i class="fas ${iconName}"></i></div>
+        <div class="doc-name">${doc.name || 'Document'}</div>
+        <div class="doc-meta">${doc.uploadedAt ? new Date(doc.uploadedAt.toDate?.() || doc.uploadedAt).toLocaleDateString() : ''}</div>
+      </div>`;
+    }).join('');
+  }
 
-      // ── Step 1: resolve investor record ──────────────────────────────────────
-      // Priority: Firebase (source of truth) → localStorage fallback
-      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
-        try {
-          const fbInvestors = await SPFB.getInvestors();
-          investorRecord = fbInvestors.find(i => i.email?.toLowerCase() === session?.email?.toLowerCase()) || null;
-        } catch(e) { console.warn('SPFB.getInvestors failed:', e.message); }
+  function openDoc(id, fileUrl, name) {
+    if (fileUrl) { window.open(fileUrl, '_blank'); return; }
+    // Fetch htmlContent from Firestore
+    if (typeof firebase === 'undefined' || !SPFB.isReady()) return;
+    firebase.firestore().collection('orgs').doc(SPFB.getOrgId()).collection('documents').doc(id).get().then(snap => {
+      if (!snap.exists) return;
+      const doc = snap.data();
+      if (doc.fileUrl) { window.open(doc.fileUrl, '_blank'); return; }
+      if (doc.htmlContent) {
+        const w = window.open('', '_blank');
+        w.document.write(`<!DOCTYPE html><html><head><title>${name}</title><style>body{font-family:Georgia,serif;max-width:820px;margin:40px auto;padding:20px;line-height:1.8;color:#1a2332;}h1,h2,h3{font-family:sans-serif;}</style></head><body>${doc.htmlContent}</body></html>`);
+        w.document.close();
       }
-      // localStorage fallback
-      if (!investorRecord) {
-        investorRecord = SP.getCurrentInvestorRecord();
-      }
+    }).catch(() => {});
+  }
 
-      if (!investorRecord) {
-        showNoAccess();
-        return;
-      }
-      // Store investor id on SPFB user so getDeals can filter correctly
-      if (typeof SPFB !== 'undefined' && SPFB.getUser()) {
-        SPFB.getUser().firestoreInvestorId = investorRecord.id;
-      }
+  // ── Render Profile ─────────────────────────────────────────────────────────
+  function renderProfile() {
+    const inv = investorRecord || {};
+    const name = `${inv.firstName||''} ${inv.lastName||''}`.trim() || session?.name || '—';
+    const initials = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const verified = inv.accredStatus === 'verified';
 
-      // ── Step 2: load ALL deals from Firebase → localStorage → empty ───────────
-      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
-        try {
-          _allDeals = await SPFB.getDeals();
-          if (_allDeals.length) SP.saveDeals(_allDeals); // cache locally
-        } catch(e) { console.warn('SPFB.getDeals failed:', e.message); }
-      }
-      if (!_allDeals.length) _allDeals = SP.getDeals(); // fallback
+    document.getElementById('profileCard').innerHTML = `
+      <div class="profile-avatar">${initials}</div>
+      <div class="profile-field"><div class="profile-label">Full Name</div><div class="profile-value">${name}</div></div>
+      <div class="profile-field"><div class="profile-label">Email</div><div class="profile-value">${inv.email || session?.email || '—'}</div></div>
+      <div class="profile-field"><div class="profile-label">Phone</div><div class="profile-value">${inv.phone || '—'}</div></div>
+      <div class="profile-field"><div class="profile-label">Address</div><div class="profile-value">${inv.address || '—'}</div></div>
+      <div class="profile-field">
+        <div class="profile-label">Accreditation Status</div>
+        <div class="profile-value" style="margin-top:6px;">
+          <span class="accred-badge ${verified ? '' : 'pending'}">
+            <i class="fas ${verified ? 'fa-check-circle' : 'fa-clock'}"></i>
+            ${verified ? 'Verified Accredited Investor' : 'Pending Verification'}
+          </span>
+        </div>
+      </div>
+      <div class="profile-field"><div class="profile-label">Active Investments</div><div class="profile-value">${myDeals.length}</div></div>
+    `;
+  }
 
-      // ── Step 3: render ────────────────────────────────────────────────────────
-      // Pre-load distributions from Firebase into localStorage so SP.getDistributions() is current
-      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
-        try {
-          const fbDists = await SPFB.getDistributions();
-          if (fbDists && fbDists.length) SP.save('distributions', fbDists);
-        } catch(e) {}
-      }
-      const myDeals = getMyDeals();
-      renderStats(myDeals);
-      renderInvestments(myDeals);
-      renderActivity(myDeals);
-      renderDocuments(myDeals);
-      renderDistributionsTab(myDeals);
-      renderStatementArchive(myDeals);
+  // ── No Access Screen ───────────────────────────────────────────────────────
+  function showNoAccess() {
+    document.getElementById('loadingOverlay').style.display = 'none';
+    const el = document.getElementById('noAccessScreen');
+    el.style.display = 'flex';
+    document.getElementById('noAccessEmail').textContent = session?.email || '—';
+  }
+
+  // ── Main Init ──────────────────────────────────────────────────────────────
+  async function init() {
+    // Resolve investor record from SPData (Firestore)
+    if (typeof SPData !== 'undefined' && SPData.isReady()) {
+      investorRecord = SPData.getInvestorByEmail(session?.email);
+    }
+    if (!investorRecord && typeof SPFB !== 'undefined' && SPFB.isReady()) {
+      try {
+        const fbInvs = await SPFB.getInvestors();
+        investorRecord = fbInvs.find(i => i.email?.toLowerCase() === session?.email?.toLowerCase()) || null;
+      } catch(e) {}
     }
 
-    // SPData fires 'spdata-ready' once Firestore cache is warm
-    window.addEventListener('spdata-ready', () => init());
-    // Also run immediately in case SPData is already ready
-    if (typeof SPData !== 'undefined' && SPData.isReady()) init();
-  </script>
+    if (!investorRecord) { showNoAccess(); return; }
+
+    // Load deals and distributions
+    const allDeals = (typeof SPData !== 'undefined' && SPData.isReady()) ? SPData.getDeals() : SP.getDeals();
+    const allDists = (typeof SPData !== 'undefined' && SPData.isReady()) ? SPData.getDistributions() : SP.getDistributions();
+
+    myDeals = allDeals
+      .filter(d => (d.investors||[]).some(i => i.investorId === investorRecord.id))
+      .map(deal => ({ deal, entry: deal.investors.find(i => i.investorId === investorRecord.id) }));
+
+    myDists = allDists.filter(d =>
+      (d.recipients||[]).some(r => r.investorId === investorRecord.id) || d.investorId === investorRecord.id
+    );
+
+    // Render everything
+    personalize();
+    renderOverview();
+    renderInvestments();
+    renderDistributions();
+    renderProfile();
+
+    // Hide loader
+    document.getElementById('loadingOverlay').style.display = 'none';
+
+    // Load documents async (doesn't block)
+    renderDocuments();
+  }
+
+  // Start: wait for SPData then init
+  window.addEventListener('spdata-ready', init);
+  if (typeof SPData !== 'undefined' && SPData.isReady()) init();
+</script>
 </body>
 </html>
