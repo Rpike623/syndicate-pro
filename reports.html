@@ -263,14 +263,6 @@ const STATUS_BADGE={operating:'badge-op',closed:'badge-cl',dd:'badge-dd',loi:'ba
 const STATUS_LABEL={operating:'Operating',closed:'Closed',dd:'Due Diligence',loi:'LOI',sourcing:'Sourcing'};
 
 
-function _syncFromFirebase(cb) {
-  if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) { cb(); return; }
-  Promise.all([SPFB.getDeals().catch(()=>[]), SPFB.getInvestors().catch(()=>[])]).then(([d,i]) => {
-    if (d.length) SP.saveDeals(d);
-    if (i.length) SP.saveInvestors(i);
-    cb();
-  }).catch(() => cb());
-}
 
 function _syncFromFirebase(cb) {
   if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) { cb && cb(); return; }

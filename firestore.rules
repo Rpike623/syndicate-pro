@@ -67,6 +67,8 @@ service cloud.firestore {
 
       match /capitalCalls/{callId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        // Investors can read capital calls for deals they are linked to
+        allow read: if ownsOrg(orgId) && isInvestorRole();
       }
 
       match /activity/{actId} {

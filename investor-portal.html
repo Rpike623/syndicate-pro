@@ -1110,17 +1110,22 @@
       }
     }
 
-    function viewCloudDoc(docId) {
-      // Open HTML document in a new window
-      if (typeof SPFB === 'undefined' || !SPFB.isReady()) return;
-      SPFB.getDealDocuments('', null).then(docs => {
-        const doc = docs.find(d => d.id === docId);
-        if (doc?.htmlContent) {
+    async function viewCloudDoc(docId) {
+      // Fetch the specific document from Firestore by ID
+      if (typeof firebase === 'undefined') return;
+      try {
+        const snap = await firebase.firestore()
+          .collection('orgs').doc(SPFB.getOrgId())
+          .collection('documents').doc(docId).get();
+        if (!snap.exists) { alert('Document not found.'); return; }
+        const doc = snap.data();
+        if (doc.fileUrl) { window.open(doc.fileUrl, '_blank'); return; }
+        if (doc.htmlContent) {
           const w = window.open('', '_blank');
           w.document.write(`<!DOCTYPE html><html><head><title>${doc.name}</title><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}h1,h2,h3{font-family:sans-serif;}</style></head><body>${doc.htmlContent}</body></html>`);
           w.document.close();
         }
-      });
+      } catch(e) { console.warn('viewCloudDoc:', e.message); }
     }
 
     function requestDoc(type, dealName) {

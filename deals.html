@@ -525,6 +525,7 @@ function saveDeal() {
 }
 
 function deleteDeal(id) {
+  if (typeof SPFB !== 'undefined' && SPFB.isReady()) SPFB.deleteDeal(id).catch(()=>{});
   const d = deals.find(x=>x.id===id);
   if (!d) return;
   if (!confirm(`Delete "${d.name}"? This cannot be undone.`)) return;

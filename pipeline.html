@@ -819,6 +819,7 @@
     }
 
     function deleteDeal(id) {
+      if (typeof SPFB !== 'undefined' && SPFB.isReady()) SPFB.deleteDeal(id).catch(()=>{});
       const deal = deals.find(d=>d.id===id);
       if (!deal || !confirm(`Delete "${deal.name}"?`)) return;
       deals = deals.filter(d => d.id !== id);

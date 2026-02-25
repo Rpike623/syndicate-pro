@@ -655,6 +655,7 @@ function saveInvestor() {
 function editInvestor(id) { openModal(id); }
 
 function deleteInvestor(id) {
+  if (typeof SPFB !== 'undefined' && SPFB.isReady()) SPFB.deleteInvestor(id).catch(()=>{});
   const inv = investors.find(i=>i.id===id);
   if (!inv) return;
   if (!confirm(`Delete ${inv.firstName} ${inv.lastName}? This cannot be undone.`)) return;

@@ -412,6 +412,10 @@
 
       distributions.push(dist);
       SP.saveDistributions(distributions);
+      // Also push to Firebase explicitly (patchSPCore may not be ready yet)
+      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
+        SPFB.saveDistribution(newDist).catch(e => console.warn('SPFB.saveDistribution:', e.message));
+      }
       SP.logActivity('fa-wallet', 'purple', `Distribution of <strong>${formatCurrency(amount)}</strong> recorded for <strong>${dist.dealName}</strong>`);
       closeModal();
       renderDistributions();
