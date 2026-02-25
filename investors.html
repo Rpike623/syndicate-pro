@@ -268,6 +268,10 @@
         </div>
       </div>
       <div class="form-row">
+        <div class="form-group"><label>Verification Date</label><input type="date" id="fAccredDate" placeholder="Date verified"></div>
+        <div class="form-group"><label>Expiry Date</label><input type="date" id="fAccredExpiry" placeholder="Expiry (usually +2 years)"></div>
+      </div>
+      <div class="form-row">
         <div class="form-group"><label>Min Investment ($)</label><input type="number" id="fMinInvest" placeholder="50000"></div>
         <div class="form-group"><label>Max Investment ($)</label><input type="number" id="fMaxInvest" placeholder="500000"></div>
       </div>
@@ -278,6 +282,14 @@
         </div>
       </div>
       <div class="form-group"><label>Notes</label><textarea id="fNotes" placeholder="Investment preferences, communication history, etc."></textarea></div>
+      <div class="form-group">
+        <label><i class="fas fa-paperclip" style="margin-right:4px;color:var(--accent);"></i>Accreditation Document</label>
+        <div id="accredDocZone" style="border:2px dashed var(--border);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:all .2s;position:relative;" onclick="document.getElementById('accredDocFile').click()">
+          <div id="accredDocLabel" style="font-size:.82rem;color:var(--text-muted);"><i class="fas fa-cloud-upload-alt" style="margin-right:6px;"></i>Click to upload CPA letter, attorney letter, or verification doc (PDF/JPG, max 5MB)</div>
+          <input type="file" id="accredDocFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleAccredDoc(event)">
+        </div>
+        <input type="hidden" id="fAccredDoc" value="">
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -489,7 +501,28 @@ function renderTable(list) {
     tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-users"></i><h3>No investors found</h3><p>Try adjusting your search or <button onclick="openModal()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:inherit;font-family:inherit;font-weight:600;">add a new investor</button></p></div></td></tr>`;
     return;
   }
-  const accBadge = { verified:'<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>', pending:'<span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>', expired:'<span class="badge badge-expired"><i class="fas fa-exclamation-triangle"></i> Expired</span>' };
+  const today = new Date();
+  // Auto-expire investors whose expiry date has passed
+  list.forEach(inv => {
+    if (inv.accredExpiry && inv.accredStatus === 'verified') {
+      const exp = new Date(inv.accredExpiry);
+      if (exp < today) {
+        inv.accredStatus = 'expired';
+        const idx = investors.findIndex(i => i.id === inv.id);
+        if (idx >= 0) { investors[idx].accredStatus = 'expired'; save(); }
+      }
+    }
+  });
+  const accBadge = {
+    verified: (inv) => {
+      if (!inv.accredExpiry) return '<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>';
+      const daysLeft = Math.ceil((new Date(inv.accredExpiry) - today) / 86400000);
+      if (daysLeft <= 30 && daysLeft > 0) return `<span class="badge" style="background:#fef3c7;color:#b45309;"><i class="fas fa-exclamation-triangle"></i> Expires in ${daysLeft}d</span>`;
+      return '<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>';
+    },
+    pending: () => '<span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>',
+    expired: () => '<span class="badge badge-expired"><i class="fas fa-times-circle"></i> Expired</span>',
+  };
   const statusBadge = { active:'<span class="badge badge-active">Active</span>', inactive:'<span class="badge badge-inactive">Inactive</span>' };
   const allDeals = SP.getDeals();
   tbody.innerHTML = list.map((inv, idx) => {
@@ -504,7 +537,7 @@ function renderTable(list) {
         </div>
       </td>
       <td style="color:var(--text-secondary);font-size:0.85rem;">${inv.phone||'—'}</td>
-      <td>${accBadge[inv.accredStatus]||'—'}</td>
+      <td>${(accBadge[inv.accredStatus]||accBadge.pending)(inv)}</td>
       <td class="money">${fmt$(inv.totalInvested||0)}</td>
       <td style="text-align:center;">
         <span style="font-weight:600;">${linkedDeals.length}</span>
@@ -515,6 +548,8 @@ function renderTable(list) {
         <div class="action-btns">
           <button class="btn-xs" onclick="editInvestor('${inv.id}')" title="Edit"><i class="fas fa-edit"></i></button>
           <button class="btn-xs" onclick="openDealLinkModal('${inv.id}')" title="Link to Deal" style="color:var(--accent);"><i class="fas fa-link"></i></button>
+          ${inv.accredDoc?`<button class="btn-xs" onclick="viewAccredDoc('${inv.id}')" title="View Accred Doc" style="color:var(--success);"><i class="fas fa-file-shield"></i></button>`:''}
+          ${(inv.accredStatus==='expired'||daysUntilExpiry(inv)<=30)?`<button class="btn-xs" onclick="sendRenewalReminder('${inv.id}')" title="Send Renewal Reminder" style="color:var(--warning);"><i class="fas fa-bell"></i></button>`:''}
           <button class="btn-xs" onclick="emailInvestor('${inv.id}')" title="Email"><i class="fas fa-envelope"></i></button>
           <button class="btn-xs danger" onclick="deleteInvestor('${inv.id}')" title="Delete"><i class="fas fa-trash"></i></button>
         </div>
@@ -538,6 +573,18 @@ function openModal(id) {
       document.getElementById('fAddress').value = inv.address||'';
       document.getElementById('fAccredMethod').value = inv.accredMethod||'';
       document.getElementById('fAccredStatus').value = inv.accredStatus||'pending';
+      document.getElementById('fAccredDate').value = inv.accredDate||'';
+      document.getElementById('fAccredExpiry').value = inv.accredExpiry||'';
+      document.getElementById('fAccredDoc').value = inv.accredDoc||'';
+      const docLabel = document.getElementById('accredDocLabel');
+      const docZone = document.getElementById('accredDocZone');
+      if (inv.accredDoc) {
+        docZone.style.borderColor='var(--success)';docZone.style.background='var(--success-light)';
+        docLabel.innerHTML='<i class="fas fa-check-circle" style="color:var(--success);margin-right:6px;"></i><strong>Document on file</strong> — upload new to replace';
+      } else {
+        docZone.style.borderColor='';docZone.style.background='';
+        docLabel.innerHTML='<i class="fas fa-cloud-upload-alt" style="margin-right:6px;"></i>Click to upload CPA letter, attorney letter, or verification doc (PDF/JPG, max 5MB)';
+      }
       document.getElementById('fMinInvest').value = inv.minInvest||'';
       document.getElementById('fMaxInvest').value = inv.maxInvest||'';
       document.getElementById('fTotalInvested').value = inv.totalInvested||'';
@@ -546,6 +593,10 @@ function openModal(id) {
     }
   } else {
     fields.forEach(f => { const el = document.getElementById(f); if (el) el.value = f==='fAccredStatus'?'pending':f==='fStatus'?'active':''; });
+    document.getElementById('fAccredDoc').value='';
+    const dz=document.getElementById('accredDocZone');const dl=document.getElementById('accredDocLabel');
+    if(dz){dz.style.borderColor='';dz.style.background='';}
+    if(dl) dl.innerHTML='<i class="fas fa-cloud-upload-alt" style="margin-right:6px;"></i>Click to upload CPA letter, attorney letter, or verification doc (PDF/JPG, max 5MB)';
   }
   document.getElementById('modalOverlay').classList.add('open');
 }
@@ -563,6 +614,9 @@ function saveInvestor() {
     address: document.getElementById('fAddress').value.trim(),
     accredMethod: document.getElementById('fAccredMethod').value,
     accredStatus: document.getElementById('fAccredStatus').value,
+    accredDate: document.getElementById('fAccredDate').value || '',
+    accredExpiry: document.getElementById('fAccredExpiry').value || '',
+    accredDoc: document.getElementById('fAccredDoc').value || '',
     minInvest: parseFloat(document.getElementById('fMinInvest').value)||0,
     maxInvest: parseFloat(document.getElementById('fMaxInvest').value)||0,
     totalInvested: parseFloat(document.getElementById('fTotalInvested').value)||0,
@@ -597,6 +651,41 @@ function deleteInvestor(id) {
 function emailInvestor(id) {
   const inv = investors.find(i=>i.id===id);
   if (inv) window.location.href = `email-templates.html?to=${encodeURIComponent(inv.email)}&name=${encodeURIComponent(inv.firstName+' '+inv.lastName)}`;
+}
+
+function daysUntilExpiry(inv) {
+  if (!inv.accredExpiry) return 999;
+  return Math.ceil((new Date(inv.accredExpiry) - new Date()) / 86400000);
+}
+
+function viewAccredDoc(id) {
+  const inv = investors.find(i=>i.id===id);
+  if (!inv?.accredDoc) return;
+  const w = window.open();
+  w.document.write(`<html><body style="margin:0;background:#000;"><img src="${inv.accredDoc}" style="max-width:100%;height:auto;"><iframe src="${inv.accredDoc}" style="width:100%;height:100vh;border:none;"></iframe></body></html>`);
+}
+
+function sendRenewalReminder(id) {
+  const inv = investors.find(i=>i.id===id);
+  if (!inv) return;
+  const settings = SP.load('settings', {});
+  const gpName = settings.gpFullName || SP.getSession()?.name || 'Your Sponsor';
+  const subject = `Accreditation Renewal Required — Action Needed`;
+  const body = `Hi ${inv.firstName},
+
+Your accredited investor status${inv.accredExpiry?' (verified '+(inv.accredDate||'previously')+', expiring '+inv.accredExpiry+')':''} requires renewal to continue participating in syndication offerings.
+
+To renew your accreditation, please provide one of the following:
+  • A letter from your CPA confirming accredited status
+  • A letter from your licensed attorney
+  • Verification through a registered broker-dealer
+
+Please reply to this email or contact us directly to arrange verification.
+
+Best regards,
+${gpName}`;
+  window.open(`mailto:${inv.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+  SP.logActivity('fa-bell','amber',`Renewal reminder sent to <strong>${inv.firstName} ${inv.lastName}</strong>`);
 }
 
 function exportCSV() {
@@ -860,6 +949,32 @@ function confirmCSVImport() {
   SP.logActivity('fa-file-import','green',`<strong>${news.length} investors</strong> imported via CSV`);
   showToast(`${news.length} investor${news.length!==1?'s':''} imported ✓`, 'success');
 }
+
+function handleAccredDoc(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { alert('File must be under 5MB'); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    document.getElementById('fAccredDoc').value = ev.target.result;
+    const zone = document.getElementById('accredDocZone');
+    const label = document.getElementById('accredDocLabel');
+    zone.style.borderColor = 'var(--success)';
+    zone.style.background = 'var(--success-light)';
+    label.innerHTML = `<i class="fas fa-check-circle" style="color:var(--success);margin-right:6px;"></i><strong>${file.name}</strong> — ready to save`;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Auto-fill expiry date when verification date is entered
+document.getElementById('fAccredDate')?.addEventListener('change', function() {
+  const expEl = document.getElementById('fAccredExpiry');
+  if (this.value && !expEl.value) {
+    const d = new Date(this.value);
+    d.setFullYear(d.getFullYear() + 2);
+    expEl.value = d.toISOString().split('T')[0];
+  }
+});
 
 load(); updateStats(); filterTable();
 </script>

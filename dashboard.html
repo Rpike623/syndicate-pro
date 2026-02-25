@@ -254,6 +254,9 @@
 
     <div class="content">
 
+      <!-- Alert banners (injected by JS) -->
+      <div id="alertBanners"></div>
+
       <!-- KPI Cards -->
       <div class="kpi-grid">
         <div class="kpi-card">
@@ -428,6 +431,59 @@ function closeSidebar() {
 }
 
 // ── Greeting ────────────────────────────────────────────────────
+function renderAlerts() {
+  const investors = SP.getInvestors();
+  const today = new Date();
+  const alerts = [];
+
+  // Accreditation expiring in 30 days
+  const expiring = investors.filter(inv => {
+    if (!inv.accredExpiry || inv.accredStatus !== 'verified') return false;
+    const days = Math.ceil((new Date(inv.accredExpiry) - today) / 86400000);
+    return days >= 0 && days <= 30;
+  });
+  const expired = investors.filter(inv => {
+    if (!inv.accredExpiry) return false;
+    return new Date(inv.accredExpiry) < today && inv.accredStatus !== 'pending';
+  });
+
+  if (expired.length) alerts.push({
+    type: 'danger', icon: 'fa-times-circle',
+    msg: `<strong>${expired.length} investor accreditation${expired.length>1?'s':''} expired.</strong> Renewal required before new investments.`,
+    link: 'investors.html', linkText: 'Review investors'
+  });
+  if (expiring.length) alerts.push({
+    type: 'warning', icon: 'fa-exclamation-triangle',
+    msg: `<strong>${expiring.length} accreditation${expiring.length>1?'s':''}</strong> expiring within 30 days: ${expiring.map(i=>`${i.firstName} ${i.lastName}`).join(', ')}.`,
+    link: 'investors.html', linkText: 'Send renewal reminders'
+  });
+
+  // Deals with upcoming LOI/close deadlines
+  const deals = SP.getDeals();
+  const urgentDeals = deals.filter(d => {
+    if (!d.due) return false;
+    const days = Math.ceil((new Date(d.due) - today) / 86400000);
+    return days >= 0 && days <= 7;
+  });
+  if (urgentDeals.length) alerts.push({
+    type: 'warning', icon: 'fa-clock',
+    msg: `<strong>${urgentDeals.length} deal deadline${urgentDeals.length>1?'s':''}</strong> within 7 days: ${urgentDeals.map(d=>d.name).join(', ')}.`,
+    link: 'pipeline.html', linkText: 'View pipeline'
+  });
+
+  const container = document.getElementById('alertBanners');
+  if (!container || !alerts.length) return;
+  const colors = { danger: '#fee2e2,#ef4444,#991b1b', warning: '#fef3c7,#f59e0b,#92400e' };
+  container.innerHTML = alerts.map(a => {
+    const [bg, border, text] = colors[a.type].split(',');
+    return `<div style="background:${bg};border:1px solid ${border};border-radius:10px;padding:12px 18px;margin-bottom:12px;display:flex;align-items:center;gap:12px;font-size:.875rem;">
+      <i class="fas ${a.icon}" style="color:${border};flex-shrink:0;"></i>
+      <span style="color:${text};flex:1;">${a.msg}</span>
+      <a href="${a.link}" style="color:${border};font-weight:600;text-decoration:none;white-space:nowrap;">${a.linkText} →</a>
+    </div>`;
+  }).join('');
+}
+
 function setGreeting() {
   const h = new Date().getHours();
   const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
@@ -507,8 +563,10 @@ function loadActivity() {
 function renderKPIs(deals, investors, distYTD) {
   const aum = deals.reduce((s, d) => s + (d.raise || 0), 0);
   const activeDeals = deals.filter(d => ['sourcing','loi','dd','operating'].includes(d.status)).length;
+  const totalCommitted = deals.reduce((s,d)=>(d.investors||[]).reduce((ss,i)=>ss+(i.committed||0),ss),0);
+  const raisePct = aum > 0 ? Math.round(totalCommitted/aum*100) : 0;
   document.getElementById('kpiAUM').textContent = fmt$(aum);
-  document.getElementById('kpiAUMChange').innerHTML = '<i class="fas fa-arrow-up"></i> ' + deals.length + ' total deals';
+  document.getElementById('kpiAUMChange').innerHTML = `<i class="fas fa-chart-line"></i> ${fmt$(totalCommitted)} raised (${raisePct}%)`;
   document.getElementById('kpiDeals').textContent = activeDeals;
   document.getElementById('kpiDealsChange').innerHTML = '<i class="fas fa-minus"></i> ' + deals.filter(d=>d.status==='closed').length + ' closed';
   document.getElementById('kpiDealsChange').className = 'kpi-change neutral';
@@ -578,18 +636,26 @@ function renderDealsTable(deals) {
   const statusLabel = { sourcing:'Sourcing', loi:'LOI', dd:'Due Diligence', closed:'Closed', operating:'Operating' };
   const typeMap = { multifamily:'badge-mf', industrial:'badge-ind', retail:'badge-ret', office:'badge-off' };
   const typeLabel = { multifamily:'Multifamily', industrial:'Industrial', retail:'Retail', office:'Office' };
-  tbody.innerHTML = deals.slice(0,6).map(d => `
-    <tr>
+  tbody.innerHTML = deals.slice(0,6).map(d => {
+    const committed = (d.investors||[]).reduce((s,i)=>s+(i.committed||0),0);
+    const pct = d.raise > 0 ? Math.min(100,Math.round(committed/d.raise*100)) : 0;
+    const barColor = pct>=75?'var(--success)':pct>=40?'var(--accent)':'var(--warning)';
+    return `<tr>
       <td><div style="font-weight:600;">${d.name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${d.location||'—'}</div></td>
       <td><span class="badge ${typeMap[d.type]||'badge-sourcing'}">${typeLabel[d.type]||d.type||'—'}</span></td>
-      <td class="money-val">${fmt$(d.raise||0)}</td>
+      <td>
+        <div class="money-val">${fmt$(d.raise||0)}</div>
+        <div style="margin-top:4px;height:4px;background:var(--border-light);border-radius:4px;overflow:hidden;width:80px;"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;"></div></div>
+        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">${fmt$(committed)} (${pct}%)</div>
+      </td>
       <td class="irr-val">${d.irr ? fmtPct(d.irr) : '—'}</td>
       <td><span class="badge ${statusMap[d.status]||'badge-sourcing'}">${statusLabel[d.status]||d.status||'—'}</span></td>
       <td><div class="action-btns">
         <a href="deal-detail.html?id=${d.id}" class="btn-xs"><i class="fas fa-eye"></i></a>
         <a href="new-deal.html?id=${d.id}" class="btn-xs"><i class="fas fa-calculator"></i></a>
       </div></td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 // ── Activity Feed ───────────────────────────────────────────────
@@ -628,6 +694,7 @@ function renderDeadlines() {
 (function init() {
   SP.requireGP();
   setGreeting();
+  renderAlerts();
   const deals = loadDeals();
   const investors = loadInvestors();
   const distYTD = loadDistributionsYTD();

@@ -781,6 +781,23 @@
       document.getElementById('lpEquity').value = Math.max(0, 100 - gp);
     });
     
+    // Pre-fill form from GP settings on load
+    (function prefillFromSettings() {
+      const s = SP.load('settings', {});
+      if (!s.firmName && !s.gpFullName) return;
+      const set = (id, val) => { const el = document.getElementById(id); if (el && !el.value && val) el.value = val; };
+      set('companyName', s.firmName || '');
+      set('gpName', s.firmName || '');
+      set('gpRep', s.gpFullName || '');
+      set('address', s.firmAddress || '');
+      const stateEl = document.getElementById('state');
+      if (stateEl && !stateEl.value && s.defState) stateEl.value = s.defState;
+      else if (stateEl && !stateEl.value && s.firmState) stateEl.value = s.firmState;
+      if (s.defPref) { const el = document.getElementById('prefReturn'); if (el && !el.value) el.value = s.defPref; }
+      if (s.defPromote) { const el = document.getElementById('gpPromote'); if (el && !el.value) el.value = s.defPromote; }
+      if (s.defGPEquity) { const el = document.getElementById('gpEquity'); if (el && !el.value) el.value = s.defGPEquity; }
+    })();
+
     function getFormData() {
       return {
         companyName: document.getElementById('companyName').value,
@@ -839,7 +856,7 @@
         <p><strong>Business License.</strong> The Company shall obtain any required state and local business licenses.</p>
         <p><strong>Series LLC.</strong> The Company may form protected series under NRS 86.296 if elected by the Managing Member.</p>`,
         
-        'WY': `<h3>Woming-Specific Provisions</h3>
+        'WY': `<h3>Wyoming-Specific Provisions</h3>
         <p><strong>Asset Protection.</strong> Wyoming provides charging order protection as sole remedy per W.S. 17-29-503.</p>
         <p><strong>Privacy.</strong> Member information is not publicly filed with the Wyoming Secretary of State.</p>
         <p><strong>Asset Charging.</strong> No judgment creditor may seize LLC assets; only a charging order is permitted.</p>
