@@ -101,7 +101,7 @@
         </div>
         <div class="form-options">
           <label class="checkbox-label"><input type="checkbox" id="remember"> Remember me</label>
-          <a href="#" class="forgot-link">Forgot password?</a>
+          <a href="#" class="forgot-link" onclick="handleForgotPassword(event)">Forgot password?</a>
         </div>
         <button type="submit" class="btn-login" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
       </form>
@@ -199,6 +199,34 @@
 
   const remembered = localStorage.getItem('sp_remember');
   if (remembered) { document.getElementById('email').value = remembered; document.getElementById('remember').checked = true; }
+
+  async function handleForgotPassword(e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value.trim();
+    if (!email) {
+      document.getElementById('errorAlert').classList.add('show');
+      document.getElementById('errorMsg').textContent = 'Enter your email address above first.';
+      return;
+    }
+    if (typeof firebase === 'undefined' || !firebase.auth) {
+      window.location.href = `mailto:admin@deeltrack.com?subject=Password Reset Request&body=Please reset the password for: ${email}`;
+      return;
+    }
+    try {
+      await firebase.auth().sendPasswordResetEmail(email);
+      document.getElementById('successAlert').classList.add('show');
+      document.getElementById('successAlert').querySelector('p,div') &&
+        (document.getElementById('successAlert').textContent = `Password reset email sent to ${email}. Check your inbox.`);
+      // Replace success alert text
+      const sa = document.getElementById('successAlert');
+      sa.innerHTML = `<i class="fas fa-check-circle"></i> Password reset email sent to <strong>${email}</strong>. Check your inbox.`;
+    } catch (err) {
+      document.getElementById('errorAlert').classList.add('show');
+      document.getElementById('errorMsg').textContent = err.code === 'auth/user-not-found'
+        ? 'No account found with that email.'
+        : 'Could not send reset email: ' + err.message;
+    }
+  }
 </script>
 </body>
 </html>

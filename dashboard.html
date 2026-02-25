@@ -929,17 +929,58 @@ function renderDeadlines() {
   setGreeting();
   renderAlerts();
   checkOnboarding();
-  const deals = loadDeals();
-  const investors = loadInvestors();
-  const distYTD = loadDistributionsYTD();
-  const activity = loadActivity();
 
-  renderKPIs(deals, investors, distYTD);
-  renderDonut(deals);
-  renderBar(deals);
-  renderDealsTable(deals);
-  renderActivity(activity);
-  renderDeadlines();
+  // Show skeleton loading state on KPI values
+  ['kpiAUM','kpiDeals','kpiInvestors','kpiDist'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.opacity = '0.3'; el.textContent = '…'; }
+  });
+
+  // Load data — if Firebase is ready pull fresh data first
+  async function loadAndRender() {
+    let deals, investors;
+    if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
+      [deals, investors] = await Promise.all([
+        SPFB.getDeals().catch(() => loadDeals()),
+        SPFB.getInvestors().catch(() => loadInvestors()),
+      ]);
+    } else {
+      deals = loadDeals();
+      investors = loadInvestors();
+    }
+    const distYTD = loadDistributionsYTD();
+    const activity = loadActivity();
+
+    // Restore opacity
+    ['kpiAUM','kpiDeals','kpiInvestors','kpiDist'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.opacity = '1';
+    });
+
+    renderKPIs(deals, investors, distYTD);
+    renderDonut(deals);
+    renderBar(deals);
+    renderDealsTable(deals);
+    renderActivity(activity);
+    renderDeadlines();
+  }
+
+  // If Firebase already ready, load immediately; else load from cache and refresh when ready
+  if (typeof SPFB !== 'undefined' && !SPFB.isReady()) {
+    // Load from cache right away so page isn't blank
+    const deals = loadDeals(); const investors = loadInvestors();
+    const distYTD = loadDistributionsYTD(); const activity = loadActivity();
+    renderKPIs(deals, investors, distYTD);
+    renderDonut(deals); renderBar(deals); renderDealsTable(deals);
+    renderActivity(activity); renderDeadlines();
+    ['kpiAUM','kpiDeals','kpiInvestors','kpiDist'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.opacity = '1';
+    });
+    // Then refresh from Firebase when ready
+    SPFB.onReady(() => loadAndRender());
+  } else {
+    loadAndRender();
+  }
 
   // Demo data already seeded via loadDeals/loadInvestors above
 

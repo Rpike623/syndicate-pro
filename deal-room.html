@@ -298,9 +298,42 @@ function init() {
   if (urlDeal) { sel.value = urlDeal; loadRoom(); }
 }
 
-function loadRoom() {
+async function loadRoom() {
   activeDealId = document.getElementById('dealSelect').value;
-  if (!activeDealId) { document.getElementById('roomsGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-size:.875rem;"><i class="fas fa-folder" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i>Select a deal to view its document room</div>'; document.getElementById('fileCard').style.display='none'; return; }
+  if (!activeDealId) {
+    document.getElementById('roomsGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-size:.875rem;"><i class="fas fa-folder" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i>Select a deal to view its document room</div>';
+    document.getElementById('fileCard').style.display = 'none';
+    return;
+  }
+
+  // Merge Firebase cloud files with localStorage files
+  if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
+    try {
+      const cloudDocs = await SPFB.getDealDocuments(activeDealId);
+      if (cloudDocs.length) {
+        const existing = SP.load('dealRoomFiles', []);
+        const existingIds = new Set(existing.map(f => f.cloudDocId).filter(Boolean));
+        const toAdd = cloudDocs
+          .filter(d => d.fileUrl && !existingIds.has(d.id))
+          .map(d => ({
+            id: 'c_' + d.id,
+            cloudDocId: d.id,
+            dealId: activeDealId,
+            name: d.name,
+            size: d.size ? Math.round(d.size / 1024) + ' KB' : '—',
+            category: d.type || 'other',
+            access: d.accessLevel === 'gp' ? 'gp' : 'all',
+            uploadedAt: d.uploadedAt?.toDate?.()?.toLocaleDateString() || '—',
+            cloudUrl: d.fileUrl,
+            isCloud: true,
+          }));
+        if (toAdd.length) {
+          SP.save('dealRoomFiles', [...existing, ...toAdd]);
+        }
+      }
+    } catch (e) { console.warn('Deal Room cloud sync:', e.message); }
+  }
+
   renderCategories();
   renderFiles('all');
   document.getElementById('fileCard').style.display = 'block';

@@ -161,6 +161,10 @@ const SPFB = (function () {
 
   function _markReady() {
     _ready = true;
+    // Auto-patch SP.* on every page as soon as Firebase is ready
+    if (typeof window !== 'undefined') {
+      window.setTimeout(() => patchSPCore(), 0);
+    }
     _readyCallbacks.forEach(cb => cb());
     _readyCallbacks = [];
   }

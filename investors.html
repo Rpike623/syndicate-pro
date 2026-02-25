@@ -9,6 +9,7 @@
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
   <script src="js/sp-billing.js"></script>
+  <script src="js/sp-email.js"></script>
   <style>
     :root {
       --primary: #0f172a; --accent: #3b82f6; --accent-hover: #2563eb; --accent-light: #dbeafe;
@@ -865,10 +866,48 @@ function copyEmailText() {
   });
 }
 
-function sendInviteEmail() {
-  const mailto = `mailto:${encodeURIComponent(_inviteEmail)}?subject=${encodeURIComponent(_inviteSubject)}&body=${encodeURIComponent(_inviteBody)}`;
-  window.open(mailto, '_blank');
-  logActivity('fa-paper-plane','blue',`Invite sent to <strong>${_inviteEmail}</strong>`);
+async function sendInviteEmail() {
+  const btn = document.querySelector('#inviteOverlay .btn-primary');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…'; }
+
+  let sent = false;
+
+  // Try Firebase Cloud Function first (sends from admin@deeltrack.com)
+  if (typeof firebase !== 'undefined' && typeof SPFB !== 'undefined' && SPFB.isReady()) {
+    try {
+      const fn = firebase.functions().httpsCallable('sendEmail');
+      const result = await fn({
+        to: _inviteEmail,
+        subject: _inviteSubject,
+        html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+          <div style="background:#6366f1;padding:24px;border-radius:8px 8px 0 0;text-align:center;">
+            <h1 style="color:white;margin:0;">You're invited to deeltrack</h1>
+          </div>
+          <div style="background:#f8fafc;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;">
+            <p style="white-space:pre-line;color:#475569;">${_inviteBody}</p>
+          </div>
+        </div>`,
+        text: _inviteBody,
+        type: 'investor_invite',
+      });
+      if (result.data.success) {
+        sent = true;
+        SP.logActivity('fa-paper-plane', 'blue', `Invite sent to <strong>${_inviteEmail}</strong>`);
+        showToast(`Invite sent to ${_inviteEmail}`);
+      }
+    } catch (e) {
+      console.warn('Cloud Function invite failed, using mailto:', e.message);
+    }
+  }
+
+  // Fallback: mailto
+  if (!sent) {
+    const mailto = `mailto:${encodeURIComponent(_inviteEmail)}?subject=${encodeURIComponent(_inviteSubject)}&body=${encodeURIComponent(_inviteBody)}`;
+    window.open(mailto, '_blank');
+    SP.logActivity('fa-paper-plane', 'blue', `Invite opened for <strong>${_inviteEmail}</strong>`);
+  }
+
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Invite'; }
   closeInviteModal();
 }
 
