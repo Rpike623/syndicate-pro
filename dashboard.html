@@ -1,1 +1,654 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard - SyndicatePro</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0a0a0f;color:#fff;min-height:100vh}.header{padding:20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.06)}.logo{font-size:24px;font-weight:700}.logo span{background:linear-gradient(135deg,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.content{padding:20px;max-width:1400px;margin:0 auto}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-bottom:40px}.stat-card{background:#1a1a24;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px}.stat-value{font-size:36px;font-weight:700;color:#8b5cf6;margin-bottom:8px}.stat-label{color:#64748b;text-transform:uppercase;font-size:14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}.card{background:#1a1a24;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:24px}.card h3{font-size:20px;margin-bottom:16px}.deal{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid rgba(255,255,255,0.06)}.deal:last-child{border-bottom:none}.deal-info h4{font-size:16px;margin-bottom:4px}.deal-info p{color:#64748b;font-size:14px}.deal-status{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(139,92,246,0.15);color:#8b5cf6}.deal-status.closed{background:rgba(34,197,94,0.15);color:#22c55e}.btn{display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border-radius:12px;color:#fff;text-decoration:none;font-weight:600}.nav{display:flex;gap:20px;margin-top:40px;padding:20px;background:#1a1a24;border-radius:16px}.nav a{color:#64748b;text-decoration:none;font-weight:500}.nav a.active{color:#fff}</style></head><body><header class="header"><div class="logo">Syndicate<span>Pro</span></div><div id="userMenu" style="display:flex;align-items:center;gap:16px"><span id="userEmail"></span><button onclick="logout()" style="padding:8px 16px;background:#1a1a24;border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fff;cursor:pointer">Logout</button></div></header><main class="content"><h1 style="margin-bottom:30px">Dashboard</h1><div class="stats"><div class="stat-card"><div class="stat-value">$12.4M</div><div class="stat-label">Total AUM</div></div><div class="stat-card"><div class="stat-value" style="color:#22c55e">$847K</div><div class="stat-label">Raised This Quarter</div></div><div class="stat-card"><div class="stat-value" style="color:#06b6d4">47</div><div class="stat-label">Active Investors</div></div><div class="stat-card"><div class="stat-value">8</div><div class="stat-label">Active Deals</div></div></div><div class="grid"><div class="card"><h3>Active Deals</h3><div class="deal"><div class="deal-info"><h4>Arlington Heights</h4><p>Dallas, TX • $2.5M raise</p></div><span class="deal-status">Fundraising</span></div><div class="deal"><div class="deal-info"><h4>River Oaks Retail</h4><p>Houston, TX • Operating</p></div><span class="deal-status closed">Operating</span></div><div class="deal"><div class="deal-info"><h4>Metro Storage</h4><p>Austin, TX • Operating</p></div><span class="deal-status closed">Operating</span></div><div style="margin-top:20px"><a href="deals.html" class="btn">View All Deals</a></div></div><div class="card"><h3>Investor Pipeline</h3><div class="deal"><div class="deal-info"><h4>Michael Chen</h4><p>$500K committed • Verified</p></div><span class="deal-status closed">Active</span></div><div class="deal"><div class="deal-info"><h4>Sarah Johnson</h4><p>$250K committed • Verified</p></div><span class="deal-status closed">Active</span></div><div class="deal"><div class="deal-info"><h4>James Wilson</h4><p>$1M capacity • New Lead</p></div><span class="deal-status">Lead</span></div><div style="margin-top:20px"><a href="investors.html" class="btn">Manage Investors</a></div></div><div class="card"><h3>Quick Actions</h3><p style="color:#64748b;margin-bottom:20px">Streamlined workflows for common tasks</p><div style="display:flex;flex-direction:column;gap:12px"><a href="new-deal.html" class="btn" style="text-align:center">Create New Deal</a><a href="distribution.html" class="btn" style="text-align:center;background:#1a1a24;border:1px solid rgba(255,255,255,0.1)">Run Distribution</a><a href="capital-call.html" class="btn" style="text-align:center;background:#1a1a24;border:1px solid rgba(255,255,255,0.1)">Send Capital Call</a></div></div></div></main><script>const auth=JSON.parse(localStorage.getItem('auth')||'{}');if(!auth.email)window.location.href='login.html';document.getElementById('userEmail').textContent=auth.email;function logout(){localStorage.removeItem('auth');window.location.href='login.html';}</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #0f172a; --primary-light: #1e293b; --secondary: #334155;
+      --accent: #3b82f6; --accent-hover: #2563eb; --accent-light: #dbeafe;
+      --success: #10b981; --success-light: #d1fae5;
+      --warning: #f59e0b; --warning-light: #fef3c7;
+      --danger: #ef4444; --danger-light: #fee2e2;
+      --purple: #8b5cf6; --purple-light: #ede9fe;
+      --text: #0f172a; --text-secondary: #64748b; --text-muted: #94a3b8;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --bg: #f8fafc; --bg-card: #ffffff; --bg-sidebar: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --radius-sm: 6px; --radius: 8px; --radius-md: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .app { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar { width: 260px; background: var(--bg-sidebar); color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: transform 0.3s; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 700; text-decoration: none; color: white; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #60a5fa); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+    .nav-section { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.4); padding: 16px 12px 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius); color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--success), #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; color: white; flex-shrink: 0; }
+    .user-details { flex: 1; min-width: 0; }
+    .user-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+
+    /* Main */
+    .main { flex: 1; margin-left: 260px; min-height: 100vh; }
+    .top-bar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .top-left { display: flex; align-items: center; gap: 16px; }
+    .mobile-menu-btn { display: none; background: none; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; cursor: pointer; align-items: center; justify-content: center; }
+    .page-title-bar h1 { font-size: 1.25rem; font-weight: 700; }
+    .page-title-bar p { font-size: 0.8rem; color: var(--text-secondary); }
+    .top-actions { display: flex; gap: 12px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border-light); }
+    .btn-icon { width: 40px; height: 40px; border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+    .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+    .notification-dot { position: relative; }
+    .notification-dot::after { content: ''; position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; border: 2px solid var(--bg-card); }
+
+    /* Content */
+    .content { padding: 32px; }
+
+    /* KPI Cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 28px; }
+    .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px; display: flex; align-items: flex-start; gap: 16px; transition: all 0.2s; }
+    .kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .kpi-icon { width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .kpi-icon.blue { background: var(--accent-light); color: var(--accent); }
+    .kpi-icon.green { background: var(--success-light); color: var(--success); }
+    .kpi-icon.amber { background: var(--warning-light); color: var(--warning); }
+    .kpi-icon.purple { background: var(--purple-light); color: var(--purple); }
+    .kpi-body { flex: 1; min-width: 0; }
+    .kpi-label { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 4px; }
+    .kpi-value { font-size: 1.75rem; font-weight: 700; color: var(--text); line-height: 1.2; font-family: 'JetBrains Mono', monospace; }
+    .kpi-change { font-size: 0.75rem; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+    .kpi-change.up { color: var(--success); }
+    .kpi-change.down { color: var(--danger); }
+    .kpi-change.neutral { color: var(--text-muted); }
+
+    /* Charts row */
+    .charts-row { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; margin-bottom: 28px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+    .card-header { padding: 20px 24px 0; display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-size: 1rem; font-weight: 700; }
+    .card-subtitle { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+    .card-body { padding: 20px 24px 24px; }
+    .chart-wrap { position: relative; }
+    .donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; }
+    .donut-center .value { font-size: 1.5rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+    .donut-center .label { font-size: 0.7rem; color: var(--text-secondary); }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-secondary); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Bottom grid */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; margin-bottom: 28px; }
+
+    /* Activity feed */
+    .activity-list { display: flex; flex-direction: column; gap: 0; }
+    .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+    .activity-icon.blue { background: var(--accent-light); color: var(--accent); }
+    .activity-icon.green { background: var(--success-light); color: var(--success); }
+    .activity-icon.amber { background: var(--warning-light); color: var(--warning); }
+    .activity-icon.purple { background: var(--purple-light); color: var(--purple); }
+    .activity-icon.red { background: var(--danger-light); color: var(--danger); }
+    .activity-body { flex: 1; }
+    .activity-text { font-size: 0.875rem; color: var(--text); }
+    .activity-text strong { font-weight: 600; }
+    .activity-time { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Deadlines */
+    .deadline-list { display: flex; flex-direction: column; gap: 0; }
+    .deadline-item { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border-light); }
+    .deadline-item:last-child { border-bottom: none; }
+    .deadline-date { text-align: center; min-width: 44px; }
+    .deadline-date .day { font-size: 1.25rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; line-height: 1; }
+    .deadline-date .month { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+    .deadline-info { flex: 1; }
+    .deadline-name { font-size: 0.875rem; font-weight: 600; }
+    .deadline-type { font-size: 0.75rem; color: var(--text-secondary); }
+    .deadline-badge { font-size: 0.7rem; padding: 3px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+    .badge-urgent { background: var(--danger-light); color: var(--danger); }
+    .badge-soon { background: var(--warning-light); color: var(--warning); }
+    .badge-ok { background: var(--success-light); color: var(--success); }
+
+    /* Quick Actions */
+    .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    .qa-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; text-decoration: none; color: var(--text); transition: all 0.2s; cursor: pointer; }
+    .qa-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); border-color: var(--accent); }
+    .qa-icon { width: 52px; height: 52px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .qa-icon.blue { background: var(--accent-light); color: var(--accent); }
+    .qa-icon.green { background: var(--success-light); color: var(--success); }
+    .qa-icon.amber { background: var(--warning-light); color: var(--warning); }
+    .qa-icon.purple { background: var(--purple-light); color: var(--purple); }
+    .qa-label { font-size: 0.9rem; font-weight: 600; }
+    .qa-desc { font-size: 0.75rem; color: var(--text-secondary); }
+
+    /* Deals Table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); padding: 12px 16px; text-align: left; background: var(--border-light); }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); font-size: 0.875rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--border-light); }
+    .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+    .badge-mf { background: var(--accent-light); color: var(--accent); }
+    .badge-ind { background: var(--success-light); color: var(--success); }
+    .badge-ret { background: var(--warning-light); color: var(--warning); }
+    .badge-off { background: var(--purple-light); color: var(--purple); }
+    .badge-sourcing { background: var(--border-light); color: var(--text-secondary); }
+    .badge-loi { background: var(--warning-light); color: var(--warning); }
+    .badge-dd { background: var(--accent-light); color: var(--accent); }
+    .badge-closed { background: var(--success-light); color: var(--success); }
+    .badge-operating { background: var(--purple-light); color: var(--purple); }
+    .irr-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--success); }
+    .money-val { font-family: 'JetBrains Mono', monospace; }
+    .action-btns { display: flex; gap: 6px; }
+    .btn-xs { padding: 5px 10px; font-size: 0.75rem; font-weight: 600; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; text-decoration: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-xs:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+    /* Section header */
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .section-title { font-size: 1rem; font-weight: 700; }
+    .view-all { font-size: 0.8rem; color: var(--accent); text-decoration: none; font-weight: 500; }
+    .view-all:hover { text-decoration: underline; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 2rem; margin-bottom: 12px; opacity: 0.4; }
+    .empty-state p { font-size: 0.875rem; }
+
+    /* Overlay */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+    .sidebar-overlay.visible { display: block; }
+
+    @media (max-width: 1200px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-row { grid-template-columns: 1fr; }
+      .bottom-grid { grid-template-columns: 1fr; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.visible { display: block; }
+      .main { margin-left: 0 !important; }
+      .mobile-menu-btn { display: flex !important; }
+      .top-bar { padding: 12px 16px; }
+      .content { padding: 16px; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+      .kpi-value { font-size: 1.4rem; }
+    }
+    @media (max-width: 480px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+      .quick-actions { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>SyndicatePro</span></a>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-item active"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Deal Pipeline</span></a>
+      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+      <div class="nav-section">Tools</div>
+      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
+      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">GP</div>
+        <div class="user-details"><div class="user-name" id="userName">General Partner</div><div class="user-role">Administrator</div></div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <main class="main">
+    <header class="top-bar">
+      <div class="top-left">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
+        <div class="page-title-bar">
+          <h1>Dashboard</h1>
+          <p id="greetingLine">Good morning — here's your portfolio overview</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn-icon notification-dot" title="Notifications"><i class="fas fa-bell"></i></button>
+        <a href="new-deal.html" class="btn btn-primary"><i class="fas fa-plus"></i> New Deal</a>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon blue"><i class="fas fa-building"></i></div>
+          <div class="kpi-body">
+            <div class="kpi-label">Total AUM</div>
+            <div class="kpi-value" id="kpiAUM">$0</div>
+            <div class="kpi-change up" id="kpiAUMChange"><i class="fas fa-arrow-up"></i> —</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon green"><i class="fas fa-stream"></i></div>
+          <div class="kpi-body">
+            <div class="kpi-label">Active Deals</div>
+            <div class="kpi-value" id="kpiDeals">0</div>
+            <div class="kpi-change neutral" id="kpiDealsChange"><i class="fas fa-minus"></i> —</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon amber"><i class="fas fa-users"></i></div>
+          <div class="kpi-body">
+            <div class="kpi-label">Total Investors</div>
+            <div class="kpi-value" id="kpiInvestors">0</div>
+            <div class="kpi-change up" id="kpiInvestorsChange"><i class="fas fa-arrow-up"></i> —</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon purple"><i class="fas fa-hand-holding-usd"></i></div>
+          <div class="kpi-body">
+            <div class="kpi-label">Distributions YTD</div>
+            <div class="kpi-value" id="kpiDist">$0</div>
+            <div class="kpi-change up" id="kpiDistChange"><i class="fas fa-arrow-up"></i> —</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <a href="new-deal.html" class="qa-card">
+          <div class="qa-icon blue"><i class="fas fa-plus-circle"></i></div>
+          <div class="qa-label">New Deal</div>
+          <div class="qa-desc">Start modeling a new acquisition</div>
+        </a>
+        <a href="investors.html" class="qa-card">
+          <div class="qa-icon green"><i class="fas fa-user-plus"></i></div>
+          <div class="qa-label">Add Investor</div>
+          <div class="qa-desc">Onboard a new LP to your CRM</div>
+        </a>
+        <a href="documents.html" class="qa-card">
+          <div class="qa-icon amber"><i class="fas fa-file-signature"></i></div>
+          <div class="qa-label">Generate Document</div>
+          <div class="qa-desc">OA, PPM, Subscription Agreement</div>
+        </a>
+        <a href="capital-calls.html" class="qa-card">
+          <div class="qa-icon purple"><i class="fas fa-bell"></i></div>
+          <div class="qa-label">Capital Call</div>
+          <div class="qa-desc">Send notices to investors</div>
+        </a>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Portfolio Mix</div>
+              <div class="card-subtitle">By property type</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-wrap" style="height:200px; position:relative;">
+              <canvas id="donutChart"></canvas>
+              <div class="donut-center">
+                <div class="value" id="donutTotal">—</div>
+                <div class="label">Total Deals</div>
+              </div>
+            </div>
+            <div class="chart-legend" id="donutLegend"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Deal Performance</div>
+              <div class="card-subtitle">Projected IRR by deal</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="height:230px; position:relative;">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Grid: Activity + Deadlines -->
+      <div class="bottom-grid">
+        <!-- Deals Table -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Active Deals</div>
+              <div class="card-subtitle">Recent deals in your portfolio</div>
+            </div>
+            <a href="pipeline.html" class="view-all">View Pipeline <i class="fas fa-arrow-right"></i></a>
+          </div>
+          <div class="card-body" style="padding-top:16px;">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Deal</th>
+                    <th>Type</th>
+                    <th>Raise</th>
+                    <th>IRR</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="dealsTableBody">
+                  <tr><td colspan="6"><div class="empty-state"><i class="fas fa-building"></i><p>No deals yet — <a href="new-deal.html" style="color:var(--accent);">add your first deal</a></p></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column: Activity + Deadlines -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Recent Activity</div>
+              <a href="#" class="view-all" style="font-size:0.75rem;">Clear</a>
+            </div>
+            <div class="card-body" style="padding-top:8px;">
+              <div class="activity-list" id="activityFeed">
+                <div class="empty-state"><i class="fas fa-history"></i><p>No activity yet</p></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upcoming Deadlines -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Upcoming Deadlines</div>
+              <a href="pipeline.html" class="view-all" style="font-size:0.75rem;">See all</a>
+            </div>
+            <div class="card-body" style="padding-top:8px;">
+              <div class="deadline-list" id="deadlineList">
+                <div class="empty-state"><i class="fas fa-calendar-check"></i><p>No upcoming deadlines</p></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+// ── Mobile sidebar ──────────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('visible');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+
+// ── Greeting ────────────────────────────────────────────────────
+function setGreeting() {
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const session = JSON.parse(localStorage.getItem('sp_session') || '{}');
+  const name = session.name ? `, ${session.name.split(' ')[0]}` : '';
+  document.getElementById('greetingLine').textContent = `${greet}${name} — here's your portfolio overview`;
+  if (session.name) document.getElementById('userName').textContent = session.name;
+}
+
+// ── Format helpers ──────────────────────────────────────────────
+function fmt$(n) {
+  if (n >= 1e9) return '$' + (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
+  return '$' + n.toFixed(0);
+}
+function fmtPct(n) { return n.toFixed(1) + '%'; }
+
+// ── Demo data ───────────────────────────────────────────────────
+const DEMO_DEALS = [
+  { id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9, status:'operating', location:'Austin, TX', added:'2025-11-10', units:96 },
+  { id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1, status:'closed', location:'Dallas, TX', added:'2025-12-01', units:0 },
+  { id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7, status:'operating', location:'Houston, TX', added:'2026-01-15', units:248 },
+  { id:'d4', name:'Parkview Commons', type:'multifamily', raise:3100000, irr:19.0, equity:1.95, status:'dd', location:'San Antonio, TX', added:'2026-02-01', units:72 },
+  { id:'d5', name:'Westgate Retail Center', type:'retail', raise:5800000, irr:14.5, equity:1.6, status:'loi', location:'Fort Worth, TX', added:'2026-02-10', units:0 },
+];
+const DEMO_INVESTORS = [
+  { id:'i1', name:'James Hartwell', email:'j.hartwell@email.com', invested:500000, deals:2, accredited:true, status:'active' },
+  { id:'i2', name:'Sarah Chen', email:'s.chen@capitalgroup.com', invested:750000, deals:3, accredited:true, status:'active' },
+  { id:'i3', name:'Marcus Williams', email:'mwilliams@invest.com', invested:250000, deals:1, accredited:true, status:'active' },
+  { id:'i4', name:'Priya Patel', email:'ppatel@wealth.com', invested:1000000, deals:2, accredited:true, status:'active' },
+  { id:'i5', name:'Robert Thompson', email:'r.thompson@gmail.com', invested:150000, deals:1, accredited:false, status:'active' },
+  { id:'i6', name:'Elena Vasquez', email:'evasquez@invest.net', invested:350000, deals:2, accredited:true, status:'active' },
+];
+const DEMO_ACTIVITY = [
+  { icon:'fa-building', color:'blue', text:'<strong>Parkview Commons</strong> moved to Due Diligence', time:'2 hours ago' },
+  { icon:'fa-user-plus', color:'green', text:'<strong>Elena Vasquez</strong> added as new investor', time:'Yesterday at 3:14 PM' },
+  { icon:'fa-file-contract', color:'amber', text:'PPM generated for <strong>Westgate Retail Center</strong>', time:'Yesterday at 11:02 AM' },
+  { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$84,200</strong> sent to 14 investors', time:'Feb 20, 2026' },
+  { icon:'fa-file-invoice-dollar', color:'blue', text:'K-1s exported for <strong>Riverside Flats</strong> (12 investors)', time:'Feb 18, 2026' },
+];
+const DEMO_DEADLINES = [
+  { day:'28', month:'FEB', name:'Parkview Commons', type:'LOI Expiration', urgency:'urgent' },
+  { day:'05', month:'MAR', name:'Westgate Retail', type:'Due Diligence Start', urgency:'soon' },
+  { day:'15', month:'MAR', name:'Hudson Portfolio', type:'Q1 Distribution', urgency:'ok' },
+  { day:'31', month:'MAR', name:'Meridian Industrial', type:'Investor Report Due', urgency:'ok' },
+];
+
+// ── Load data ───────────────────────────────────────────────────
+function loadDeals() {
+  const stored = localStorage.getItem('sp_deals');
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) {}
+  }
+  return DEMO_DEALS;
+}
+function loadInvestors() {
+  const stored = localStorage.getItem('sp_investors');
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) {}
+  }
+  return DEMO_INVESTORS;
+}
+function loadDistributionsYTD() {
+  const stored = localStorage.getItem('sp_distributions');
+  if (stored) {
+    try {
+      const dists = JSON.parse(stored);
+      const year = new Date().getFullYear();
+      return dists.filter(d => d.date && d.date.startsWith(year)).reduce((sum, d) => sum + (d.amount || 0), 0);
+    } catch(e) {}
+  }
+  return 84200; // demo
+}
+function loadActivity() {
+  const stored = localStorage.getItem('sp_activity');
+  if (stored) {
+    try { return JSON.parse(stored); } catch(e) {}
+  }
+  return DEMO_ACTIVITY;
+}
+
+// ── Render KPIs ─────────────────────────────────────────────────
+function renderKPIs(deals, investors, distYTD) {
+  const aum = deals.reduce((s, d) => s + (d.raise || 0), 0);
+  const activeDeals = deals.filter(d => ['sourcing','loi','dd','operating'].includes(d.status)).length;
+  document.getElementById('kpiAUM').textContent = fmt$(aum);
+  document.getElementById('kpiAUMChange').innerHTML = '<i class="fas fa-arrow-up"></i> ' + deals.length + ' total deals';
+  document.getElementById('kpiDeals').textContent = activeDeals;
+  document.getElementById('kpiDealsChange').innerHTML = '<i class="fas fa-minus"></i> ' + deals.filter(d=>d.status==='closed').length + ' closed';
+  document.getElementById('kpiDealsChange').className = 'kpi-change neutral';
+  document.getElementById('kpiInvestors').textContent = investors.length;
+  const accPct = Math.round(investors.filter(i=>i.accredited).length / Math.max(investors.length,1) * 100);
+  document.getElementById('kpiInvestorsChange').innerHTML = '<i class="fas fa-arrow-up"></i> ' + accPct + '% accredited';
+  document.getElementById('kpiDist').textContent = fmt$(distYTD);
+  document.getElementById('kpiDistChange').innerHTML = '<i class="fas fa-arrow-up"></i> YTD 2026';
+}
+
+// ── Donut Chart ─────────────────────────────────────────────────
+function renderDonut(deals) {
+  const types = { multifamily: 0, industrial: 0, retail: 0, office: 0, other: 0 };
+  deals.forEach(d => { const k = types.hasOwnProperty(d.type) ? d.type : 'other'; types[k]++; });
+  const labels = ['Multifamily','Industrial','Retail','Office','Other'];
+  const keys = ['multifamily','industrial','retail','office','other'];
+  const colors = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#94a3b8'];
+  const data = keys.map(k => types[k]);
+  const total = data.reduce((a,b)=>a+b,0);
+  document.getElementById('donutTotal').textContent = total;
+
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets:[{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverBorderWidth: 3 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '72%',
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ` ${c.label}: ${c.parsed}` } } }
+    }
+  });
+
+  const legend = document.getElementById('donutLegend');
+  legend.innerHTML = keys.map((k,i) => types[k] > 0 ? `<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div>${labels[i]} (${types[k]})</div>` : '').join('');
+}
+
+// ── Bar Chart ───────────────────────────────────────────────────
+function renderBar(deals) {
+  const chartDeals = deals.filter(d => d.irr).slice(0, 8);
+  const ctx = document.getElementById('barChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartDeals.map(d => d.name.length > 16 ? d.name.substring(0,14)+'…' : d.name),
+      datasets: [{
+        label: 'Projected IRR (%)',
+        data: chartDeals.map(d => d.irr),
+        backgroundColor: chartDeals.map(d => d.irr >= 20 ? '#10b981' : d.irr >= 15 ? '#3b82f6' : '#f59e0b'),
+        borderRadius: 6, borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` IRR: ${c.parsed.y.toFixed(1)}%` } } },
+      scales: {
+        y: { beginAtZero: true, max: 30, grid: { color: '#f1f5f9' }, ticks: { callback: v => v+'%', font: { size: 11 }, color: '#94a3b8' } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#64748b' } }
+      }
+    }
+  });
+}
+
+// ── Deals Table ─────────────────────────────────────────────────
+function renderDealsTable(deals) {
+  const tbody = document.getElementById('dealsTableBody');
+  if (!deals.length) return;
+  const statusMap = { sourcing:'badge-sourcing', loi:'badge-loi', dd:'badge-dd', closed:'badge-closed', operating:'badge-operating' };
+  const statusLabel = { sourcing:'Sourcing', loi:'LOI', dd:'Due Diligence', closed:'Closed', operating:'Operating' };
+  const typeMap = { multifamily:'badge-mf', industrial:'badge-ind', retail:'badge-ret', office:'badge-off' };
+  const typeLabel = { multifamily:'Multifamily', industrial:'Industrial', retail:'Retail', office:'Office' };
+  tbody.innerHTML = deals.slice(0,6).map(d => `
+    <tr>
+      <td><div style="font-weight:600;">${d.name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${d.location||'—'}</div></td>
+      <td><span class="badge ${typeMap[d.type]||'badge-sourcing'}">${typeLabel[d.type]||d.type||'—'}</span></td>
+      <td class="money-val">${fmt$(d.raise||0)}</td>
+      <td class="irr-val">${d.irr ? fmtPct(d.irr) : '—'}</td>
+      <td><span class="badge ${statusMap[d.status]||'badge-sourcing'}">${statusLabel[d.status]||d.status||'—'}</span></td>
+      <td><div class="action-btns">
+        <a href="deal-detail.html?id=${d.id}" class="btn-xs"><i class="fas fa-eye"></i></a>
+        <a href="new-deal.html?id=${d.id}" class="btn-xs"><i class="fas fa-calculator"></i></a>
+      </div></td>
+    </tr>`).join('');
+}
+
+// ── Activity Feed ───────────────────────────────────────────────
+function renderActivity(activity) {
+  const el = document.getElementById('activityFeed');
+  if (!activity.length) return;
+  el.innerHTML = activity.slice(0,5).map(a => `
+    <div class="activity-item">
+      <div class="activity-icon ${a.color}"><i class="fas ${a.icon}"></i></div>
+      <div class="activity-body">
+        <div class="activity-text">${a.text}</div>
+        <div class="activity-time">${a.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Deadlines ───────────────────────────────────────────────────
+function renderDeadlines() {
+  const el = document.getElementById('deadlineList');
+  const dl = DEMO_DEADLINES;
+  if (!dl.length) return;
+  const badgeMap = { urgent:'badge-urgent', soon:'badge-soon', ok:'badge-ok' };
+  const badgeLabel = { urgent:'Urgent', soon:'Coming up', ok:'Scheduled' };
+  el.innerHTML = dl.map(d => `
+    <div class="deadline-item">
+      <div class="deadline-date"><div class="day">${d.day}</div><div class="month">${d.month}</div></div>
+      <div class="deadline-info">
+        <div class="deadline-name">${d.name}</div>
+        <div class="deadline-type">${d.type}</div>
+      </div>
+      <span class="deadline-badge ${badgeMap[d.urgency]}">${badgeLabel[d.urgency]}</span>
+    </div>`).join('');
+}
+
+// ── Init ────────────────────────────────────────────────────────
+(function init() {
+  setGreeting();
+  const deals = loadDeals();
+  const investors = loadInvestors();
+  const distYTD = loadDistributionsYTD();
+  const activity = loadActivity();
+
+  renderKPIs(deals, investors, distYTD);
+  renderDonut(deals);
+  renderBar(deals);
+  renderDealsTable(deals);
+  renderActivity(activity);
+  renderDeadlines();
+
+  // Seed demo data if empty
+  if (!localStorage.getItem('sp_deals')) localStorage.setItem('sp_deals', JSON.stringify(DEMO_DEALS));
+  if (!localStorage.getItem('sp_investors')) localStorage.setItem('sp_investors', JSON.stringify(DEMO_INVESTORS));
+})();
+</script>
+</body>
+</html>

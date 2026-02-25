@@ -1,1 +1,475 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Investors - SyndicatePro</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#0a0a0f;color:#fff;min-height:100vh}.header{padding:20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.06)}.logo{font-size:24px;font-weight:700}.logo span{background:linear-gradient(135deg,#8b5cf6,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.content{padding:20px;max-width:1400px;margin:0 auto}.filters{display:flex;gap:12px;margin-bottom:30px}.filter-btn{padding:10px 20px;background:#1a1a24;border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;cursor:pointer}.filter-btn.active{background:#8b5cf6}.investor-card{background:#1a1a24;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:20px}.investor-avatar{width:56px;height:56px;border-radius:28px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600}.investor-info{flex:1}.investor-info h3{font-size:18px;margin-bottom:4px}.investor-info p{color:#64748b;font-size:14px;margin-bottom:4px}.investor-stats{text-align:right}.investor-amount{font-size:20px;font-weight:700;color:#8b5cf6}.investor-status{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;display:inline-block;margin-top:8px}.status-verified{background:rgba(34,197,94,0.15);color:#22c55e}.status-pending{background:rgba(245,158,11,0.15);color:#f59e0b}.status-lead{background:rgba(139,92,246,0.15);color:#8b5cf6}.btn{display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border-radius:12px;color:#fff;text-decoration:none;font-weight:600}.nav{display:flex;gap:20px;margin-bottom:30px}.nav a{color:#64748b;text-decoration:none}.nav a.active{color:#fff;font-weight:600}</style></head><body><header class="header"><div class="logo">Syndicate<span>Pro</span></div><a href="dashboard.html" style="color:#64748b;text-decoration:none">Back to Dashboard</a></header><main class="content"><h1 style="margin-bottom:20px">Investors</h1><div class="nav"><a href="dashboard.html">Dashboard</a><a href="deals.html">Deals</a><a href="investors.html" class="active">Investors</a></div><div style="margin-bottom:30px"><a href="new-investor.html" class="btn">+ Add Investor</a></div><div class="filters"><button class="filter-btn active">All</button><button class="filter-btn">Active</button><button class="filter-btn">Leads</button><button class="filter-btn">Pending</button></div><div class="investor-card"><div class="investor-avatar">MC</div><div class="investor-info"><h3>Michael Chen</h3><p>m.chen@email.com</p><p>$500K invested • 3 deals</p></div><div class="investor-stats"><div class="investor-amount">$500K</div><span class="investor-status status-verified">Verified</span></div></div><div class="investor-card"><div class="investor-avatar">SJ</div><div class="investor-info"><h3>Sarah Johnson</h3><p>sarah.j@email.com</p><p>$250K invested • 2 deals</p></div><div class="investor-stats"><div class="investor-amount">$250K</div><span class="investor-status status-verified">Verified</span></div></div><div class="investor-card"><div class="investor-avatar">DW</div><div class="investor-info"><h3>David Wilson</h3><p>dwilson@email.com</p><p>$200K invested • 1 deal</p></div><div class="investor-stats"><div class="investor-amount">$200K</div><span class="investor-status status-verified">Verified</span></div></div><div class="investor-card"><div class="investor-avatar">JW</div><div class="investor-info"><h3>James Wilson</h3><p>j.wilson@techcorp.com</p><p>Capacity: $1M • New Lead</p></div><div class="investor-stats"><div style="font-size:20px;font-weight:700;color:#8b5cf6">Lead</div><span class="investor-status status-lead">Contacted</span></div></div><div class="investor-card"><div class="investor-avatar">AB</div><div class="investor-info"><h3>Amanda Brooks</h3><p>amanda.b@invest.net</p><p>Capacity: $500K • Pending</p></div><div class="investor-stats"><div style="font-size:20px;font-weight:700;color:#f59e0b">Pending</div><span class="investor-status status-pending">Verification</span></div></div></main><script>const auth=JSON.parse(localStorage.getItem('auth')||'{}');if(!auth.email)window.location.href='login.html';</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Investors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0f172a; --accent: #3b82f6; --accent-hover: #2563eb; --accent-light: #dbeafe;
+      --success: #10b981; --success-light: #d1fae5;
+      --warning: #f59e0b; --warning-light: #fef3c7;
+      --danger: #ef4444; --danger-light: #fee2e2;
+      --purple: #8b5cf6; --purple-light: #ede9fe;
+      --text: #0f172a; --text-secondary: #64748b; --text-muted: #94a3b8;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --bg: #f8fafc; --bg-card: #ffffff; --bg-sidebar: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0/0.05); --shadow: 0 1px 3px 0 rgb(0 0 0/0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0/0.1); --shadow-lg: 0 10px 15px -3px rgb(0 0 0/0.1);
+      --radius-sm: 6px; --radius: 8px; --radius-md: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .app { display: flex; min-height: 100vh; }
+    .sidebar { width: 260px; background: var(--bg-sidebar); color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: transform 0.3s; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 700; text-decoration: none; color: white; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #60a5fa); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+    .nav-section { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.4); padding: 16px 12px 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius); color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--success), #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; color: white; flex-shrink: 0; }
+    .user-details { flex: 1; }
+    .user-name { font-size: 0.9rem; font-weight: 600; }
+    .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+    .main { flex: 1; margin-left: 260px; min-height: 100vh; }
+    .top-bar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .top-left { display: flex; align-items: center; gap: 16px; }
+    .mobile-menu-btn { display: none; background: none; border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; cursor: pointer; }
+    .page-title-bar h1 { font-size: 1.25rem; font-weight: 700; }
+    .page-title-bar p { font-size: 0.8rem; color: var(--text-secondary); }
+    .top-actions { display: flex; gap: 10px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; font-family: 'Inter', sans-serif; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border-light); }
+    .content { padding: 32px; }
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; gap: 14px; }
+    .stat-icon { width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .stat-icon.blue { background: var(--accent-light); color: var(--accent); }
+    .stat-icon.green { background: var(--success-light); color: var(--success); }
+    .stat-icon.amber { background: var(--warning-light); color: var(--warning); }
+    .stat-icon.purple { background: var(--purple-light); color: var(--purple); }
+    .stat-body .val { font-size: 1.5rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+    .stat-body .lbl { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+    /* Toolbar */
+    .toolbar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.875rem; }
+    .search-input { width: 100%; padding: 10px 12px 10px 36px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.875rem; background: var(--bg-card); color: var(--text); outline: none; transition: all 0.15s; font-family: 'Inter', sans-serif; }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    select { padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.875rem; background: var(--bg-card); color: var(--text); outline: none; cursor: pointer; font-family: 'Inter', sans-serif; }
+    /* Table */
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--border-light); }
+    th { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); padding: 12px 16px; text-align: left; white-space: nowrap; }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); font-size: 0.875rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(59,130,246,0.02); }
+    .investor-name { font-weight: 600; }
+    .investor-email { font-size: 0.8rem; color: var(--text-secondary); }
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+    .badge-verified { background: var(--success-light); color: var(--success); }
+    .badge-pending { background: var(--warning-light); color: var(--warning); }
+    .badge-expired { background: var(--danger-light); color: var(--danger); }
+    .badge-active { background: var(--success-light); color: var(--success); }
+    .badge-inactive { background: var(--border-light); color: var(--text-secondary); }
+    .money { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+    .action-btns { display: flex; gap: 6px; }
+    .btn-xs { padding: 5px 10px; font-size: 0.75rem; font-weight: 600; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; font-family: 'Inter', sans-serif; }
+    .btn-xs:hover { background: var(--accent); color: white; border-color: var(--accent); }
+    .btn-xs.danger:hover { background: var(--danger); border-color: var(--danger); }
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 16px; display: block; opacity: 0.3; }
+    .empty-state h3 { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 8px; }
+    .empty-state p { font-size: 0.875rem; }
+    .table-footer { padding: 14px 20px; border-top: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: var(--border-light); }
+    .table-footer-info { font-size: 0.8rem; color: var(--text-secondary); }
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--bg-card); border-radius: var(--radius-md); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+    .modal-header { padding: 24px 28px 0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 1.2rem; font-weight: 700; }
+    .modal-close { width: 32px; height: 32px; border: none; background: var(--border-light); border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 0.9rem; }
+    .modal-close:hover { background: var(--danger-light); color: var(--danger); }
+    .modal-body { padding: 24px 28px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem; color: var(--text); background: var(--bg-card); outline: none; transition: all 0.15s; font-family: 'Inter', sans-serif; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .modal-footer { padding: 0 28px 24px; display: flex; justify-content: flex-end; gap: 10px; }
+    /* Avatar colors */
+    .investor-av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: white; flex-shrink: 0; }
+    .av-0 { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .av-1 { background: linear-gradient(135deg, #10b981, #34d399); }
+    .av-2 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+    .av-3 { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .av-4 { background: linear-gradient(135deg, #ef4444, #f87171); }
+    .av-5 { background: linear-gradient(135deg, #06b6d4, #22d3ee); }
+    .investor-cell { display: flex; align-items: center; gap: 10px; }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+    .sidebar-overlay.visible { display: block; }
+    @media (max-width: 1100px) { .stats-row { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0 !important; }
+      .mobile-menu-btn { display: flex !important; }
+      .top-bar { padding: 12px 16px; }
+      .content { padding: 16px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>SyndicatePro</span></a>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Deal Pipeline</span></a>
+      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+      <a href="investors.html" class="nav-item active"><i class="fas fa-users"></i><span>Investors</span></a>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+      <div class="nav-section">Tools</div>
+      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
+      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">GP</div>
+        <div class="user-details"><div class="user-name">General Partner</div><div class="user-role">Administrator</div></div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <main class="main">
+    <header class="top-bar">
+      <div class="top-left">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
+        <div class="page-title-bar"><h1>Investors</h1><p>Manage your limited partners and track commitments</p></div>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-user-plus"></i> Add Investor</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div class="stat-body"><div class="val" id="statTotal">0</div><div class="lbl">Total Investors</div></div></div>
+        <div class="stat-card"><div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div><div class="stat-body"><div class="val" id="statCapital">$0</div><div class="lbl">Total Committed</div></div></div>
+        <div class="stat-card"><div class="stat-icon amber"><i class="fas fa-shield-alt"></i></div><div class="stat-body"><div class="val" id="statAccredited">0%</div><div class="lbl">Accredited</div></div></div>
+        <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-chart-line"></i></div><div class="stat-body"><div class="val" id="statAvg">$0</div><div class="lbl">Avg Investment</div></div></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap"><i class="fas fa-search"></i><input type="text" class="search-input" id="searchInput" placeholder="Search investors…" oninput="filterTable()"></div>
+        <select id="filterAccreditation" onchange="filterTable()">
+          <option value="">All Accreditation</option>
+          <option value="verified">Verified</option>
+          <option value="pending">Pending</option>
+          <option value="expired">Expired</option>
+        </select>
+        <select id="filterStatus" onchange="filterTable()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <button class="btn btn-secondary" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
+      </div>
+
+      <div class="card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Investor</th>
+                <th>Phone</th>
+                <th>Accreditation</th>
+                <th>Total Invested</th>
+                <th># Deals</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="investorTableBody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="table-footer-info" id="tableInfo">Showing 0 investors</div>
+          <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.8rem;" onclick="openModal()"><i class="fas fa-plus"></i> Add Investor</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Add Investor</h2>
+      <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId">
+      <div class="form-row">
+        <div class="form-group"><label>First Name *</label><input type="text" id="fFirstName" placeholder="James"></div>
+        <div class="form-group"><label>Last Name *</label><input type="text" id="fLastName" placeholder="Hartwell"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Email *</label><input type="email" id="fEmail" placeholder="james@email.com"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="fPhone" placeholder="(555) 000-0000"></div>
+      </div>
+      <div class="form-group"><label>Address</label><input type="text" id="fAddress" placeholder="123 Main St, City, State 00000"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Accreditation Method</label>
+          <select id="fAccredMethod">
+            <option value="">Select method</option>
+            <option value="cpa">CPA Letter</option>
+            <option value="attorney">Attorney Letter</option>
+            <option value="broker">Licensed Broker Verification</option>
+            <option value="self">Self-Certification</option>
+            <option value="entity">Entity Accreditation</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Accreditation Status</label>
+          <select id="fAccredStatus">
+            <option value="verified">Verified</option>
+            <option value="pending">Pending</option>
+            <option value="expired">Expired</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Min Investment ($)</label><input type="number" id="fMinInvest" placeholder="50000"></div>
+        <div class="form-group"><label>Max Investment ($)</label><input type="number" id="fMaxInvest" placeholder="500000"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Total Invested ($)</label><input type="number" id="fTotalInvested" placeholder="0"></div>
+        <div class="form-group"><label>Status</label>
+          <select id="fStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="fNotes" placeholder="Investment preferences, communication history, etc."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveInvestor()"><i class="fas fa-save"></i> Save Investor</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('visible');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('visible');
+}
+
+const DEMO_INVESTORS = [
+  { id:'i1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@email.com', phone:'(214) 555-0101', address:'4521 Oak Blvd, Dallas, TX 75201', accredMethod:'cpa', accredStatus:'verified', minInvest:100000, maxInvest:500000, totalInvested:500000, deals:2, status:'active', notes:'High net worth individual. Prefers multifamily in Texas markets.' },
+  { id:'i2', firstName:'Sarah', lastName:'Chen', email:'s.chen@capitalgroup.com', phone:'(713) 555-0202', address:'1800 Post Oak Blvd, Houston, TX 77056', accredMethod:'entity', accredStatus:'verified', minInvest:250000, maxInvest:1000000, totalInvested:750000, deals:3, status:'active', notes:'Represents a family office. Very responsive.' },
+  { id:'i3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@invest.com', phone:'(512) 555-0303', address:'200 W Cesar Chavez, Austin, TX 78701', accredMethod:'attorney', accredStatus:'verified', minInvest:50000, maxInvest:250000, totalInvested:250000, deals:1, status:'active', notes:'First-time syndication investor. Prefers conservative deals.' },
+  { id:'i4', firstName:'Priya', lastName:'Patel', email:'ppatel@wealth.com', phone:'(469) 555-0404', address:'5000 Granite Pkwy, Plano, TX 75024', accredMethod:'cpa', accredStatus:'verified', minInvest:500000, maxInvest:2000000, totalInvested:1000000, deals:2, status:'active', notes:'Prefers industrial and multifamily. Long-term hold strategy.' },
+  { id:'i5', firstName:'Robert', lastName:'Thompson', email:'r.thompson@gmail.com', phone:'(817) 555-0505', address:'3500 Camp Bowie, Fort Worth, TX 76107', accredMethod:'self', accredStatus:'pending', minInvest:25000, maxInvest:100000, totalInvested:150000, deals:1, status:'active', notes:'Accreditation renewal pending. Follow up end of Q1.' },
+  { id:'i6', firstName:'Elena', lastName:'Vasquez', email:'evasquez@invest.net', phone:'(210) 555-0606', address:'115 E Travis, San Antonio, TX 78205', accredMethod:'broker', accredStatus:'verified', minInvest:100000, maxInvest:500000, totalInvested:350000, deals:2, status:'active', notes:'Interested in deals near San Antonio.' },
+];
+
+let investors = [];
+let editingId = null;
+
+function load() {
+  const stored = localStorage.getItem('sp_investors');
+  if (stored) { try { investors = JSON.parse(stored); } catch(e) { investors = [...DEMO_INVESTORS]; } }
+  else { investors = [...DEMO_INVESTORS]; localStorage.setItem('sp_investors', JSON.stringify(investors)); }
+}
+
+function save() { localStorage.setItem('sp_investors', JSON.stringify(investors)); }
+
+function fmt$(n) {
+  if (!n) return '$0';
+  if (n >= 1e6) return '$'+(n/1e6).toFixed(1)+'M';
+  if (n >= 1e3) return '$'+(n/1e3).toFixed(0)+'K';
+  return '$'+n.toFixed(0);
+}
+
+function initials(inv) { return (inv.firstName[0]||'') + (inv.lastName[0]||''); }
+
+function updateStats() {
+  const total = investors.length;
+  const capital = investors.reduce((s,i)=>s+(i.totalInvested||0),0);
+  const accredited = investors.filter(i=>i.accredStatus==='verified').length;
+  const avg = total ? Math.round(capital/total) : 0;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statCapital').textContent = fmt$(capital);
+  document.getElementById('statAccredited').textContent = total ? Math.round(accredited/total*100)+'%' : '0%';
+  document.getElementById('statAvg').textContent = fmt$(avg);
+}
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const accFilter = document.getElementById('filterAccreditation').value;
+  const statusFilter = document.getElementById('filterStatus').value;
+  let filtered = investors.filter(inv => {
+    const name = `${inv.firstName} ${inv.lastName}`.toLowerCase();
+    const matchQ = !q || name.includes(q) || (inv.email||'').toLowerCase().includes(q) || (inv.phone||'').includes(q);
+    const matchAcc = !accFilter || inv.accredStatus === accFilter;
+    const matchStatus = !statusFilter || inv.status === statusFilter;
+    return matchQ && matchAcc && matchStatus;
+  });
+  renderTable(filtered);
+}
+
+function renderTable(list) {
+  const tbody = document.getElementById('investorTableBody');
+  document.getElementById('tableInfo').textContent = `Showing ${list.length} of ${investors.length} investor${investors.length!==1?'s':''}`;
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><i class="fas fa-users"></i><h3>No investors found</h3><p>Try adjusting your search or <button onclick="openModal()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:inherit;font-family:inherit;font-weight:600;">add a new investor</button></p></div></td></tr>`;
+    return;
+  }
+  const accBadge = { verified:'<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>', pending:'<span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>', expired:'<span class="badge badge-expired"><i class="fas fa-exclamation-triangle"></i> Expired</span>' };
+  const statusBadge = { active:'<span class="badge badge-active">Active</span>', inactive:'<span class="badge badge-inactive">Inactive</span>' };
+  tbody.innerHTML = list.map((inv, idx) => `
+    <tr>
+      <td>
+        <div class="investor-cell">
+          <div class="investor-av av-${idx%6}">${initials(inv)}</div>
+          <div><div class="investor-name">${inv.firstName} ${inv.lastName}</div><div class="investor-email">${inv.email}</div></div>
+        </div>
+      </td>
+      <td style="color:var(--text-secondary);font-size:0.85rem;">${inv.phone||'—'}</td>
+      <td>${accBadge[inv.accredStatus]||'—'}</td>
+      <td class="money">${fmt$(inv.totalInvested||0)}</td>
+      <td style="font-weight:600;text-align:center;">${inv.deals||0}</td>
+      <td>${statusBadge[inv.status]||'—'}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-xs" onclick="editInvestor('${inv.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+          <button class="btn-xs" onclick="emailInvestor('${inv.id}')" title="Email"><i class="fas fa-envelope"></i></button>
+          <button class="btn-xs danger" onclick="deleteInvestor('${inv.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function openModal(id) {
+  editingId = id || null;
+  document.getElementById('modalTitle').textContent = id ? 'Edit Investor' : 'Add Investor';
+  const fields = ['editId','fFirstName','fLastName','fEmail','fPhone','fAddress','fAccredMethod','fAccredStatus','fMinInvest','fMaxInvest','fTotalInvested','fStatus','fNotes'];
+  if (id) {
+    const inv = investors.find(i=>i.id===id);
+    if (inv) {
+      document.getElementById('editId').value = id;
+      document.getElementById('fFirstName').value = inv.firstName||'';
+      document.getElementById('fLastName').value = inv.lastName||'';
+      document.getElementById('fEmail').value = inv.email||'';
+      document.getElementById('fPhone').value = inv.phone||'';
+      document.getElementById('fAddress').value = inv.address||'';
+      document.getElementById('fAccredMethod').value = inv.accredMethod||'';
+      document.getElementById('fAccredStatus').value = inv.accredStatus||'pending';
+      document.getElementById('fMinInvest').value = inv.minInvest||'';
+      document.getElementById('fMaxInvest').value = inv.maxInvest||'';
+      document.getElementById('fTotalInvested').value = inv.totalInvested||'';
+      document.getElementById('fStatus').value = inv.status||'active';
+      document.getElementById('fNotes').value = inv.notes||'';
+    }
+  } else {
+    fields.forEach(f => { const el = document.getElementById(f); if (el) el.value = f==='fAccredStatus'?'pending':f==='fStatus'?'active':''; });
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+function saveInvestor() {
+  const firstName = document.getElementById('fFirstName').value.trim();
+  const lastName = document.getElementById('fLastName').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+  if (!firstName || !lastName || !email) { alert('First name, last name, and email are required.'); return; }
+  const data = {
+    firstName, lastName, email,
+    phone: document.getElementById('fPhone').value.trim(),
+    address: document.getElementById('fAddress').value.trim(),
+    accredMethod: document.getElementById('fAccredMethod').value,
+    accredStatus: document.getElementById('fAccredStatus').value,
+    minInvest: parseFloat(document.getElementById('fMinInvest').value)||0,
+    maxInvest: parseFloat(document.getElementById('fMaxInvest').value)||0,
+    totalInvested: parseFloat(document.getElementById('fTotalInvested').value)||0,
+    deals: 0,
+    status: document.getElementById('fStatus').value,
+    notes: document.getElementById('fNotes').value.trim(),
+  };
+  if (editingId) {
+    const idx = investors.findIndex(i=>i.id===editingId);
+    if (idx>=0) { data.id=editingId; data.deals=investors[idx].deals||0; investors[idx]={...investors[idx],...data}; }
+  } else {
+    data.id = 'i' + Date.now();
+    investors.unshift(data);
+    logActivity('fa-user-plus','green',`<strong>${firstName} ${lastName}</strong> added as new investor`);
+  }
+  save(); updateStats(); filterTable(); closeModal();
+}
+
+function editInvestor(id) { openModal(id); }
+
+function deleteInvestor(id) {
+  const inv = investors.find(i=>i.id===id);
+  if (!inv) return;
+  if (!confirm(`Delete ${inv.firstName} ${inv.lastName}? This cannot be undone.`)) return;
+  investors = investors.filter(i=>i.id!==id);
+  save(); updateStats(); filterTable();
+}
+
+function emailInvestor(id) {
+  const inv = investors.find(i=>i.id===id);
+  if (inv) window.location.href = `email-templates.html?to=${encodeURIComponent(inv.email)}&name=${encodeURIComponent(inv.firstName+' '+inv.lastName)}`;
+}
+
+function exportCSV() {
+  const headers = ['First Name','Last Name','Email','Phone','Accreditation','Total Invested','Deals','Status'];
+  const rows = investors.map(i => [i.firstName,i.lastName,i.email,i.phone||'',i.accredStatus,i.totalInvested||0,i.deals||0,i.status]);
+  const csv = [headers,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'investors.csv';
+  a.click();
+}
+
+function logActivity(icon, color, text) {
+  const activity = JSON.parse(localStorage.getItem('sp_activity')||'[]');
+  activity.unshift({ icon:'fa-'+icon.replace('fa-',''), color, text, time:'Just now' });
+  localStorage.setItem('sp_activity', JSON.stringify(activity.slice(0,20)));
+}
+
+load(); updateStats(); filterTable();
+</script>
+</body>
+</html>
