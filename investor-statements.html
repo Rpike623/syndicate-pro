@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyndicatePro - Investor Statements</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-core.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root{--primary:#0f172a;--accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#dbeafe;
+      --success:#10b981;--success-light:#d1fae5;--warning:#f59e0b;--warning-light:#fef3c7;
+      --danger:#ef4444;--text:#0f172a;--text-secondary:#64748b;--border:#e2e8f0;--bg:#f8fafc;--radius:8px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+    .app{display:flex;min-height:100vh;}
+    .main{flex:1;margin-left:260px;min-height:100vh;}
+    .sidebar{width:260px;background:#0f172a;color:white;position:fixed;height:100vh;z-index:100;}
+    .top-bar{background:#fff;border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+    .content{padding:32px;max-width:1200px;}
+    .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+    .statement-preview{background:white;border:1px solid var(--border);padding:40px;max-width:800px;margin:0 auto;box-shadow:0 10px 30px rgba(0,0,0,0.05);font-family:'Inter',serif;}
+    .header-logo{font-size:1.5rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    .form-group{margin-bottom:16px;}
+    label{display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
+    select,input{width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;}
+    .btn{padding:10px 20px;border-radius:var(--radius);font-weight:600;cursor:pointer;border:none;}
+    .btn-primary{background:var(--accent);color:white;}
+    .btn-secondary{background:white;border:1px solid var(--border);}
+    .table{width:100%;border-collapse:collapse;margin:20px 0;}
+    .table th{text-align:left;font-size:.75rem;text-transform:uppercase;color:var(--text-secondary);padding:10px;border-bottom:2px solid var(--border);}
+    .table td{padding:12px 10px;border-bottom:1px solid var(--border-light);font-size:.9rem;}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside> <!-- sidebar injected by sp-core -->
+  <main class="main">
+    <header class="top-bar">
+      <div class="page-title"><h1>Investor Statements</h1></div>
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+        <button class="btn btn-primary" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
+      </div>
+    </header>
+    <div class="content">
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;">
+          <div class="form-group"><label>Investor</label><select id="investorSel" onchange="updatePreview()"><option value="">Select Investor</option></select></div>
+          <div class="form-group"><label>Deal</label><select id="dealSel" onchange="updatePreview()"><option value="">Select Deal</option></select></div>
+          <div class="form-group"><label>Period</label><select id="periodSel" onchange="updatePreview()"><option value="Q1 2026">Q1 2026</option><option value="Q4 2025">Q4 2025</option><option value="Annual 2025">Annual 2025</option></select></div>
+        </div>
+      </div>
+      
+      <div id="statementBody" class="statement-preview">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+SP.requireGP();
+function init() {
+  const invs = SP.getInvestors();
+  const deals = SP.getDeals();
+  const iSel = document.getElementById('investorSel');
+  const dSel = document.getElementById('dealSel');
+  invs.forEach(i=>iSel.add(new Option(`${i.firstName} ${i.lastName}`,i.id)));
+  deals.forEach(d=>dSel.add(new Option(d.name,d.id)));
+  updatePreview();
+}
+
+function updatePreview() {
+  const invId = document.getElementById('investorSel').value;
+  const dealId = document.getElementById('dealSel').value;
+  const period = document.getElementById('periodSel').value;
+  const el = document.getElementById('statementBody');
+  if(!invId || !dealId) { el.innerHTML = '<div style="text-align:center;padding:100px;color:var(--text-muted);">Select investor and deal to generate statement</div>'; return; }
+  
+  const inv = SP.getInvestorById(invId);
+  const deal = SP.getDealById(dealId);
+  const entry = deal.investors?.find(i=>i.investorId===invId) || {committed:0,ownership:0};
+  const dists = SP.getDistributions().filter(d=>d.dealId===dealId);
+  const myDists = dists.map(d=>({date:d.date,amount:(d.totalAmount*(entry.ownership/100))}));
+  const totalReceived = myDists.reduce((s,d)=>s+d.amount,0);
+  
+  const settings = SP.load('settings',{});
+  const firm = settings.firmName || 'SyndicatePro Partner';
+
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:40px;">
+      <div><div class="header-logo">◆ ${firm}</div><div style="font-size:.85rem;color:var(--text-secondary);">${settings.firmAddress||''}</div></div>
+      <div style="text-align:right;"><h2 style="font-size:1.5rem;text-transform:uppercase;letter-spacing:.1em;">Investor Statement</h2><div style="font-weight:600;margin-top:4px;">${period}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:40px;font-size:.9rem;">
+      <div><div style="color:var(--text-secondary);text-transform:uppercase;font-size:.7rem;margin-bottom:8px;font-weight:700;">Investor</div><strong>${inv.firstName} ${inv.lastName}</strong><br>${inv.email}</div>
+      <div><div style="color:var(--text-secondary);text-transform:uppercase;font-size:.7rem;margin-bottom:8px;font-weight:700;">Property / Deal</div><strong>${deal.name}</strong><br>${deal.location}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;background:var(--bg);padding:20px;border-radius:var(--radius);margin-bottom:40px;">
+      <div><div style="font-size:.7rem;color:var(--text-secondary);margin-bottom:4px;">Capital Commitment</div><div style="font-size:1.2rem;font-weight:700;">$${entry.committed.toLocaleString()}</div></div>
+      <div><div style="font-size:.7rem;color:var(--text-secondary);margin-bottom:4px;">Ownership %</div><div style="font-size:1.2rem;font-weight:700;">${entry.ownership.toFixed(2)}%</div></div>
+      <div><div style="font-size:.7rem;color:var(--text-secondary);margin-bottom:4px;">Distributions to Date</div><div style="font-size:1.2rem;font-weight:700;color:var(--success);">$${totalReceived.toLocaleString()}</div></div>
+    </div>
+    <h3 style="font-size:.9rem;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:10px;">Activity Details</h3>
+    <table class="table">
+      <thead><tr><th>Date</th><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
+      <tbody>
+        <tr><td>${deal.added}</td><td>Initial Investment</td><td style="text-align:right;">($${entry.committed.toLocaleString()})</td></tr>
+        ${myDists.map(d=>`<tr><td>${d.date}</td><td>Distribution</td><td style="text-align:right;color:var(--success);">+$${d.amount.toLocaleString()}</td></tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:60px;font-size:.7rem;color:var(--text-muted);text-align:center;">This statement is for informational purposes only. Please refer to your K-1 for tax reporting.</div>`;
+}
+
+function exportPDF() {
+  const {jsPDF}=window.jspdf; 
+  const doc=new jsPDF(); 
+  doc.html(document.getElementById('statementBody'),{callback:d=>d.save('investor-statement.pdf'),x:10,y:10,width:190,windowWidth:800});
+}
+init();
+</script>
+</body>
+</html>

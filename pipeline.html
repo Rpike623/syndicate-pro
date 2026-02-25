@@ -636,10 +636,10 @@
 
     // Stage mapping: pipeline stages → sp-core status values
     const STAGE_TO_STATUS = { sourcing:'sourcing', loi:'loi', dd:'dd', financing:'operating', closed:'closed' };
-    const STATUS_TO_STAGE = { sourcing:'sourcing', loi:'loi', dd:'dd', operating:'financing', closed:'closed' };
+    const STATUS_TO_STAGE = { sourcing:'sourcing', loi:'loi', dd:'dd', operating:'financing', closed:'closed', archived:'archived' };
 
     function loadDeals() {
-      deals = SP.getDeals();
+      deals = SP.getDeals().filter(d => d.status !== 'archived');
       if (!deals.length) {
         deals = [
           { id:'p1', name:'Sunset Gardens', location:'Austin, TX', type:'multifamily', raise:5200000, irr:18.5, equity:1.9, status:'sourcing', priority:'high', due: new Date(Date.now()+3*86400000).toISOString().split('T')[0], added: new Date().toISOString().split('T')[0], investors:[], documents:[] },
@@ -743,6 +743,7 @@
       menu.innerHTML = `
         <a href="deal-detail.html?id=${id}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;text-decoration:none;color:#0f172a;border-bottom:1px solid #f1f5f9;"><i class="fas fa-eye" style="color:#3b82f6;width:16px;"></i> View Detail</a>
         <a href="new-deal.html?id=${id}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;text-decoration:none;color:#0f172a;border-bottom:1px solid #f1f5f9;"><i class="fas fa-calculator" style="color:#10b981;width:16px;"></i> Model Deal</a>
+        <button onclick="archiveDeal('${id}')" style="display:flex;align-items:center;gap:10px;padding:10px 16px;width:100%;background:none;border:none;cursor:pointer;color:#64748b;font-family:inherit;font-size:inherit;border-bottom:1px solid #f1f5f9;"><i class="fas fa-archive" style="width:16px;"></i> Archive</button>
         <button onclick="deleteDeal('${id}')" style="display:flex;align-items:center;gap:10px;padding:10px 16px;width:100%;background:none;border:none;cursor:pointer;color:#ef4444;font-family:inherit;font-size:inherit;"><i class="fas fa-trash" style="width:16px;"></i> Delete</button>`;
       document.body.appendChild(menu);
       const rect = e.target.getBoundingClientRect();
@@ -788,6 +789,12 @@
       SP.logActivity('fa-building','blue',`<strong>${name}</strong> added to pipeline`);
       closeModal();
       renderPipeline();
+    }
+
+    function archiveDeal(id) {
+      const allDeals = SP.getDeals();
+      const d = allDeals.find(x=>x.id===id);
+      if(d) { d.status = 'archived'; SP.saveDeals(allDeals); SP.logActivity('fa-archive','amber',`<strong>${d.name}</strong> archived`); loadDeals(); renderPipeline(); }
     }
 
     function deleteDeal(id) {

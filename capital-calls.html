@@ -386,6 +386,23 @@
       saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Record';
       saveBtn.onclick = saveCall;
       genBtn.parentElement.insertBefore(saveBtn, genBtn.nextSibling);
+
+      const batchBtn = document.createElement('button');
+      batchBtn.className = 'btn btn-secondary';
+      batchBtn.innerHTML = '<i class="fas fa-mail-bulk"></i> Send to All';
+      batchBtn.onclick = sendBatchCalls;
+      genBtn.parentElement.insertBefore(batchBtn, saveBtn.nextSibling);
+    }
+
+    function sendBatchCalls() {
+      const dealId = document.getElementById('callDeal').value;
+      const deal = SP.getDealById(dealId);
+      if(!deal || !deal.investors?.length) { alert('No investors linked to this deal.'); return; }
+      const subj = `Capital Call Notice - ${deal.name}`;
+      const emails = deal.investors.map(i=>SP.getInvestorById(i.investorId)?.email).filter(Boolean);
+      const body = document.getElementById('noticeContent')?.innerText || 'Please find your capital call notice attached.';
+      window.open(`mailto:${emails.join(',')}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`, '_blank');
+      SP.logActivity('fa-mail-bulk','blue',`Batch capital call email sent to ${emails.length} investors for <strong>${deal.name}</strong>`);
     }
 
     renderStats();

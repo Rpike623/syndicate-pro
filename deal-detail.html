@@ -271,6 +271,7 @@ function render() {
   document.getElementById('topActions').innerHTML = `
     <a href="pipeline.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Pipeline</a>
     <a href="new-deal.html?id=${deal.id}" class="btn btn-secondary"><i class="fas fa-calculator"></i> Model</a>
+    <button class="btn btn-secondary" onclick="duplicateDeal('${deal.id}')" title="Duplicate Deal"><i class="fas fa-copy"></i> Duplicate</button>
     <button class="btn btn-secondary" onclick="shareTeaserLink('${deal.id}')" title="Share public teaser"><i class="fas fa-share-alt"></i> Share</button>
     <button class="btn btn-primary" onclick="openAddInvModal()"><i class="fas fa-user-plus"></i> Add Investor</button>
     <button class="btn btn-danger" onclick="confirmDelete()"><i class="fas fa-trash"></i></button>`;
@@ -599,6 +600,17 @@ function saveAddInv() {
   SP.logActivity('fa-link','blue',`<strong>${inv?.firstName} ${inv?.lastName}</strong> linked to <strong>${deal?.name}</strong>`);
   closeAddInvModal();
   render();
+}
+
+function duplicateDeal(id) {
+  const allDeals = SP.getDeals();
+  const d = allDeals.find(x=>x.id===id);
+  if(!d) return;
+  const copy = {...d, id:'d'+Date.now(), name:d.name + ' (Copy)', investors:[], added:new Date().toISOString().split('T')[0]};
+  allDeals.unshift(copy);
+  SP.saveDeals(allDeals);
+  SP.logActivity('fa-copy','blue',`<strong>${copy.name}</strong> duplicated from ${d.name}`);
+  window.location.href = `deal-detail.html?id=${copy.id}`;
 }
 
 function shareTeaserLink(dId) {

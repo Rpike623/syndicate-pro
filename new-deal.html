@@ -905,6 +905,55 @@
                   <!-- Dynamically populated -->
                 </div>
               </div>
+
+              <!-- Cash Flow Waterfall Chart -->
+              <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-top:20px;">
+                <div style="font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><i class="fas fa-chart-bar" style="color:var(--accent);"></i>Projected Cash Flow Waterfall (Hold Period)</div>
+                <div id="cashFlowChart" style="height:200px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:2px solid var(--border);border-left:2px solid var(--border);"></div>
+                <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:.7rem;color:var(--text-muted);">
+                  <span>Year 1</span><span>Year 2</span><span>Year 3</span><span>Year 4</span><span>Year 5</span>
+                </div>
+                <div style="display:flex;gap:16px;margin-top:12px;font-size:.75rem;">
+                  <div style="display:flex;align-items:center;gap:6px;"><div style="width:12px;height:12px;background:#3b82f6;border-radius:2px;"></div>LP Distribution</div>
+                  <div style="display:flex;align-items:center;gap:6px;"><div style="width:12px;height:12px;background:#10b981;border-radius:2px;"></div>GP Distribution</div>
+                  <div style="display:flex;align-items:center;gap:6px;"><div style="width:12px;height:12px;background:#f59e0b;border-radius:2px;"></div>Pref Return</div>
+                </div>
+              </div>
+
+              <script>
+                (function initCashFlowChart() {
+                  function updateChart() {
+                    const equity = parseFloat(document.getElementById('totalEquity')?.value?.replace(/,/g,'')) || 1000000;
+                    const pref = parseFloat(document.getElementById('prefReturn')?.value) || 8;
+                    const gpPct = parseFloat(document.getElementById('gpPromote')?.value) || 20;
+                    const chart = document.getElementById('cashFlowChart');
+                    if (!chart) return;
+                    const annualPref = equity * (pref/100);
+                    const exitValue = equity * 1.5;
+                    const totalProfit = exitValue - equity;
+                    const gpPromote = totalProfit * (gpPct/100);
+                    const lpProceeds = totalProfit - gpPromote;
+                    const bars = [];
+                    for (let y=1; y<=5; y++) {
+                      const isExit = y === 5;
+                      const lpAmount = isExit ? (annualPref + lpProceeds) : annualPref;
+                      const gpAmount = isExit ? gpPromote : 0;
+                      const prefAmount = isExit ? 0 : annualPref;
+                      const maxVal = Math.max(lpAmount + gpAmount + prefAmount, equity * 0.15);
+                      const lpH = Math.round((lpAmount/maxVal)*180);
+                      const gpH = Math.round((gpAmount/maxVal)*180);
+                      const prefH = Math.round((prefAmount/maxVal)*180);
+                      bars.push(`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;display:flex;flex-direction:column-reverse;gap:1px;">${prefH?`<div style="height:${prefH}px;background:#f59e0b;border-radius:2px 2px 0 0;" title="Pref: $${Math.round(prefAmount).toLocaleString()}"></div>`:''}${gpH?`<div style="height:${gpH}px;background:#10b981;border-radius:2px;" title="GP: $${Math.round(gpAmount).toLocaleString()}"></div>`:''}${lpH?`<div style="height:${lpH}px;background:#3b82f6;border-radius:2px;" title="LP: $${Math.round(lpAmount).toLocaleString()}"></div>`:''}</div></div>`);
+                    }
+                    chart.innerHTML = bars.join('');
+                  }
+                  ['prefReturn','gpPromote','totalEquity'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('input', updateChart);
+                  });
+                  setTimeout(updateChart, 500);
+                })();
+              </script>
             </div>
             
             <div class="form-section">
