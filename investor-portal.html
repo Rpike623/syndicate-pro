@@ -896,7 +896,8 @@
     SP.requireInvestor();
 
     const session = SP.getSession();
-    const investorRecord = SP.getCurrentInvestorRecord();
+    // investorRecord starts null — init() resolves it from Firebase or localStorage
+    let investorRecord = null;
 
     // ── Helpers ─────────────────────────────────────────────────────────────────
     function fmt$(n) {
@@ -925,13 +926,16 @@
       if (av) av.textContent = name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
     }
 
-    // ── Load investor's deals ────────────────────────────────────────────────────
+    // ── Load investor's deals (always from the loaded allDeals array) ────────────
+    let _allDeals = [];
     function getMyDeals() {
       if (!investorRecord) return [];
-      return SP.getDealsForInvestor(investorRecord.id).map(deal => {
-        const entry = deal.investors.find(i => i.investorId === investorRecord.id);
-        return { deal, entry };
-      });
+      return _allDeals
+        .filter(deal => (deal.investors || []).some(i => i.investorId === investorRecord.id))
+        .map(deal => {
+          const entry = deal.investors.find(i => i.investorId === investorRecord.id);
+          return { deal, entry };
+        });
     }
 
     // ── Render stats ─────────────────────────────────────────────────────────────
@@ -1272,41 +1276,35 @@
     // ── Init ─────────────────────────────────────────────────────────────────────
     async function init() {
       personalize();
-      
-      // Try to load investor data from Firebase if available
-      let inv = investorRecord;
-      if (!inv && typeof SPFB !== 'undefined' && SPFB.isReady()) {
+
+      // ── Step 1: resolve investor record ──────────────────────────────────────
+      // Priority: Firebase (source of truth) → localStorage fallback
+      if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
         try {
-          // Check if there's an investor with this email in Firebase
           const fbInvestors = await SPFB.getInvestors();
-          inv = fbInvestors.find(i => i.email.toLowerCase() === session?.email?.toLowerCase());
-          if (inv) {
-            // Save to localStorage for future loads
-            const localInvs = SP.getInvestors();
-            if (!localInvs.find(i => i.id === inv.id)) {
-              localInvs.push(inv);
-              SP.saveInvestors(localInvs);
-            }
-          }
-        } catch(e) { console.warn('Firebase investor load failed:', e.message); }
+          investorRecord = fbInvestors.find(i => i.email?.toLowerCase() === session?.email?.toLowerCase()) || null;
+        } catch(e) { console.warn('SPFB.getInvestors failed:', e.message); }
       }
-      
-      // If still no investor record, show friendly message with option to contact GP
-      if (!inv) {
+      // localStorage fallback
+      if (!investorRecord) {
+        investorRecord = SP.getCurrentInvestorRecord();
+      }
+
+      if (!investorRecord) {
         showNoAccess();
         return;
       }
-      
-      // Load deals from Firebase if available
+
+      // ── Step 2: load ALL deals from Firebase → localStorage → empty ───────────
       if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
         try {
-          const fbDeals = await SPFB.getDeals();
-          if (fbDeals && fbDeals.length) {
-            SP.saveDeals(fbDeals);
-          }
-        } catch(e) { console.warn('Firebase deals load failed:', e.message); }
+          _allDeals = await SPFB.getDeals();
+          if (_allDeals.length) SP.saveDeals(_allDeals); // cache locally
+        } catch(e) { console.warn('SPFB.getDeals failed:', e.message); }
       }
-      
+      if (!_allDeals.length) _allDeals = SP.getDeals(); // fallback
+
+      // ── Step 3: render ────────────────────────────────────────────────────────
       const myDeals = getMyDeals();
       renderStats(myDeals);
       renderInvestments(myDeals);
@@ -1315,8 +1313,13 @@
       renderDistributionsTab(myDeals);
       renderStatementArchive(myDeals);
     }
-    
-    init();
+
+    // Wait for SPFB if it's still initializing, then run
+    if (typeof SPFB !== 'undefined' && !SPFB.isReady()) {
+      SPFB.onReady(() => init());
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>
