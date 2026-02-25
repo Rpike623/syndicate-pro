@@ -866,3 +866,9 @@ const SPFB = (function () {
     patchSPCore,
   };
 })();
+
+// Auto-init: if Firebase is already loaded when this script runs, init immediately
+// This covers the case where firebase-config.js is loaded before sp-firebase.js
+if (typeof firebase !== 'undefined' && firebase.apps && typeof SPFB !== 'undefined') {
+  SPFB.init();
+}
