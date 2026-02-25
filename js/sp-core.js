@@ -574,6 +574,40 @@ const SP = (function () {
   };
 })();
 
+// ─── Legal footer + disclaimer banner ────────────────────────────────────────
+(function injectLegalFooter() {
+  if (typeof document === 'undefined') return;
+  document.addEventListener('DOMContentLoaded', function () {
+    // Don't inject on legal pages themselves
+    const path = window.location.pathname;
+    if (['/terms.html','/privacy.html','/disclaimer.html','/login.html','/signup.html'].some(p => path.endsWith(p))) return;
+
+    // Footer disclaimer bar at bottom of every app page
+    if (!document.getElementById('dt-legal-footer')) {
+      const footer = document.createElement('div');
+      footer.id = 'dt-legal-footer';
+      footer.style.cssText = 'background:#0f172a;color:rgba(255,255,255,0.45);font-size:.7rem;padding:12px 32px;text-align:center;line-height:1.6;font-family:Inter,sans-serif;margin-top:auto;';
+      footer.innerHTML = `deeltrack is a software tool, not a registered broker-dealer, investment adviser, or placement agent. Nothing on this platform constitutes investment advice or a solicitation to buy or sell securities. Financial projections are estimates only — not guarantees. All generated documents are templates requiring attorney review before use. &nbsp;·&nbsp; <a href="terms.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Terms</a> &nbsp;·&nbsp; <a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Privacy</a> &nbsp;·&nbsp; <a href="disclaimer.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Disclaimer</a>`;
+      document.body.appendChild(footer);
+    }
+
+    // One-time localStorage notice (shows once, dismissed permanently)
+    const dismissed = localStorage.getItem('dt_notice_dismissed');
+    if (!dismissed && !document.getElementById('dt-notice-banner')) {
+      const banner = document.createElement('div');
+      banner.id = 'dt-notice-banner';
+      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1e293b;color:rgba(255,255,255,.85);padding:14px 24px;display:flex;align-items:center;gap:16px;z-index:9000;font-family:Inter,sans-serif;font-size:.8rem;box-shadow:0 -4px 20px rgba(0,0,0,.3);flex-wrap:wrap;';
+      banner.innerHTML = `
+        <div style="flex:1;min-width:200px;">
+          <strong style="color:white;">Platform Notice:</strong> deeltrack is organizational software — not a broker-dealer or investment adviser. Financial projections and generated documents require independent professional review. Your data is stored in your browser.
+          <a href="disclaimer.html" style="color:#60a5fa;margin-left:8px;">Full Disclaimer</a>
+        </div>
+        <button onclick="localStorage.setItem('dt_notice_dismissed','1');document.getElementById('dt-notice-banner').remove()" style="background:#3b82f6;color:white;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600;white-space:nowrap;flex-shrink:0;">Got it</button>`;
+      document.body.appendChild(banner);
+    }
+  });
+})();
+
 // ─── PWA: Register service worker ────────────────────────────────────────────
 (function registerSW() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
