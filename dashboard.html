@@ -247,6 +247,11 @@
         </div>
       </div>
       <div class="top-actions">
+        <!-- Cloud sync indicator -->
+        <div id="syncIndicator" title="Cloud sync status" style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text-muted);padding:6px 10px;border-radius:var(--radius);background:var(--border-light);cursor:default;user-select:none;">
+          <i class="fas fa-circle" id="syncDot" style="font-size:.55rem;color:var(--text-muted);"></i>
+          <span id="syncLabel">Connecting…</span>
+        </div>
         <button class="btn-icon notification-dot" title="Notifications"><i class="fas fa-bell"></i></button>
         <a href="new-deal.html" class="btn btn-primary"><i class="fas fa-plus"></i> New Deal</a>
       </div>
@@ -934,6 +939,34 @@ function renderDeadlines() {
   renderDeadlines();
 
   // Demo data already seeded via loadDeals/loadInvestors above
+
+  // ── Cloud sync indicator ────────────────────────────────────────────────────
+  function updateSyncIndicator() {
+    const dot = document.getElementById('syncDot');
+    const label = document.getElementById('syncLabel');
+    if (!dot || !label) return;
+    if (typeof SPFB === 'undefined') {
+      dot.style.color = '#6b7280'; label.textContent = 'Local only';
+    } else if (SPFB.isOffline()) {
+      dot.style.color = '#ef4444'; label.textContent = 'Offline';
+    } else if (SPFB.isReady()) {
+      dot.style.color = '#10b981'; label.textContent = 'Cloud synced';
+      // Patch SP.* once ready so all saves go to Firestore
+      if (typeof SPFB.patchSPCore === 'function') SPFB.patchSPCore();
+    } else {
+      dot.style.color = '#f59e0b'; label.textContent = 'Syncing…';
+      setTimeout(updateSyncIndicator, 1500);
+    }
+  }
+
+  // Poll once immediately, then again when SPFB is ready
+  updateSyncIndicator();
+  if (typeof SPFB !== 'undefined') {
+    SPFB.onReady(() => {
+      updateSyncIndicator();
+      if (typeof SPFB.patchSPCore === 'function') SPFB.patchSPCore();
+    });
+  }
 })();
 </script>
 </body>

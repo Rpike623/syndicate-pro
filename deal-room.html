@@ -360,11 +360,11 @@ function renderFiles(categoryId) {
       <div class="file-icon ${fileIconClass(f.name)}"><i class="fas ${fileIconFA(f.name)}"></i></div>
       <div class="file-info">
         <div class="file-name">${f.name}</div>
-        <div class="file-meta">${f.size||'—'} · Uploaded ${f.uploadedAt||'—'} · ${f.category||'other'}</div>
+        <div class="file-meta">${f.size||'—'} · Uploaded ${f.uploadedAt||'—'} · ${f.category||'other'}${f.isCloud?` · <span style="color:var(--accent);font-size:.75rem;"><i class="fas fa-cloud"></i> Cloud</span>`:''}</div>
       </div>
       <span class="file-access ${f.access==='all'?'access-all':'access-restricted'}">${f.access==='all'?'All Investors':'GP Only'}</span>
       <div class="file-actions">
-        ${f.dataUrl?`<button class="btn-xs" onclick="downloadFile('${f.id}')"><i class="fas fa-download"></i></button>`:''}
+        ${(f.dataUrl||f.cloudUrl)?`<button class="btn-xs" onclick="downloadFile('${f.id}')"><i class="fas fa-${f.cloudUrl?'external-link-alt':'download'}"></i></button>`:''}
         <button class="btn-xs" onclick="toggleAccess('${f.id}')" title="Toggle access"><i class="fas fa-lock${f.access==='all'?'-open':''}"></i></button>
         <button class="btn-xs danger" onclick="deleteFile('${f.id}')"><i class="fas fa-trash"></i></button>
       </div>
@@ -403,25 +403,79 @@ function saveFile(fileObj) {
 
 function processFiles(fileList, dealId, category, access) {
   Array.from(fileList).forEach(file => {
-    if (file.size > 10 * 1024 * 1024) { alert(`${file.name} is too large (max 10MB)`); return; }
-    const reader = new FileReader();
-    reader.onload = ev => {
-      saveFile({
-        id: 'f' + Date.now() + Math.random().toString(36).slice(2,5),
-        dealId,
-        name: file.name,
-        size: (file.size/1024).toFixed(0) + ' KB',
-        category: category || 'other',
-        access: access || 'all',
-        uploadedAt: new Date().toLocaleDateString(),
-        dataUrl: ev.target.result,
-        mimeType: file.type,
-      });
+    if (file.size > 25 * 1024 * 1024) { alert(`${file.name} is too large (max 25MB)`); return; }
+
+    // Show upload progress indicator
+    const progressId = 'prog_' + Date.now();
+    const progressEl = document.createElement('div');
+    progressEl.id = progressId;
+    progressEl.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;font-size:.85rem;z-index:9999;min-width:240px;box-shadow:var(--shadow-lg);';
+    progressEl.innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><i class="fas fa-cloud-upload-alt" style="color:var(--accent);"></i><div><div style="font-weight:600;">${file.name}</div><div id="${progressId}_pct" style="color:var(--text-secondary);">Uploading…</div></div></div><div style="height:4px;background:var(--border-light);border-radius:2px;margin-top:10px;"><div id="${progressId}_bar" style="height:4px;background:var(--accent);border-radius:2px;width:0;transition:width .2s;"></div></div>`;
+    document.body.appendChild(progressEl);
+
+    const fileEntry = {
+      id: 'f' + Date.now() + Math.random().toString(36).slice(2,5),
+      dealId,
+      name: file.name,
+      size: (file.size/1024).toFixed(0) + ' KB',
+      category: category || 'other',
+      access: access || 'all',
+      uploadedAt: new Date().toLocaleDateString(),
+      mimeType: file.type,
+      cloudUrl: null,
+      cloudDocId: null,
+      isCloud: false,
+    };
+
+    // Listen for SPFB upload progress events
+    const onProgress = (ev) => {
+      if (ev.detail.name !== file.name) return;
+      const pct = ev.detail.pct;
+      const barEl = document.getElementById(progressId + '_bar');
+      const pctEl = document.getElementById(progressId + '_pct');
+      if (barEl) barEl.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = `${pct}% uploaded`;
+    };
+    window.addEventListener('spfb-upload-progress', onProgress);
+
+    const finish = (url, docId) => {
+      window.removeEventListener('spfb-upload-progress', onProgress);
+      setTimeout(() => { document.getElementById(progressId)?.remove(); }, 2500);
+      if (url) { fileEntry.cloudUrl = url; fileEntry.cloudDocId = docId; fileEntry.isCloud = true; }
+      saveFile(fileEntry);
       renderFiles(activeCategory);
       renderCategories();
-      SP.logActivity('fa-folder-open','blue',`<strong>${file.name}</strong> uploaded to deal room`);
+      SP.logActivity('fa-cloud-upload-alt', 'blue', `<strong>${file.name}</strong> uploaded${url ? ' to cloud' : ''}`);
+      // Show success toast
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--success);color:#fff;border-radius:var(--radius);padding:12px 20px;font-size:.85rem;z-index:9999;box-shadow:var(--shadow-lg);';
+      toast.innerHTML = `<i class="fas fa-check-circle"></i> ${file.name} uploaded${url ? ' to cloud' : ''}`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
     };
-    reader.readAsDataURL(file);
+
+    if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
+      // Upload to Firebase Storage
+      SPFB.uploadFile(file, dealId, category || 'other', access === 'gp' ? 'gp' : 'all_investors')
+        .then(({ docId, fileUrl }) => { finish(fileUrl, docId); })
+        .catch(err => {
+          console.warn('SPFB upload failed, falling back to local:', err.message);
+          // Fallback: read as DataURL and save locally
+          const reader = new FileReader();
+          reader.onload = ev => { fileEntry.dataUrl = ev.target.result; finish(null, null); };
+          reader.readAsDataURL(file);
+        });
+    } else {
+      // Offline: use DataURL in localStorage (existing behavior, 10MB cap)
+      if (file.size > 10 * 1024 * 1024) {
+        document.getElementById(progressId)?.remove();
+        alert(`${file.name}: Firebase not connected. Files >10MB require cloud upload. Connect Firebase to upload large files.`);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = ev => { fileEntry.dataUrl = ev.target.result; finish(null, null); };
+      reader.readAsDataURL(file);
+    }
   });
 }
 
@@ -431,9 +485,12 @@ function handleDrop(e) { e.preventDefault(); if (!activeDealId) { alert('Select 
 function downloadFile(id) {
   const all = SP.load('dealRoomFiles', []);
   const f = all.find(x=>x.id===id);
-  if (!f?.dataUrl) return;
-  const a = document.createElement('a');
-  a.href = f.dataUrl; a.download = f.name; a.click();
+  if (!f) return;
+  // Cloud file — open in new tab (Firebase Storage signed URL)
+  if (f.cloudUrl) { window.open(f.cloudUrl, '_blank'); return; }
+  // Local file — DataURL download
+  if (f.dataUrl) { const a = document.createElement('a'); a.href = f.dataUrl; a.download = f.name; a.click(); return; }
+  alert('File not available. It may have been stored in a previous session.');
 }
 
 function toggleAccess(id) {

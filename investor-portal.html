@@ -1049,23 +1049,67 @@
     }
 
     // ── Render documents ─────────────────────────────────────────────────────────
-    function renderDocuments(myDeals) {
+    async function renderDocuments(myDeals) {
       const grid = document.querySelector('.documents-grid');
       if (!grid) return;
-      if (!myDeals.length) { grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.875rem;">No documents yet. Your GP will upload documents once you\'re linked to a deal.</p>'; return; }
-      const docs = [];
-      myDeals.forEach(({deal}) => {
-        docs.push({ icon:'fa-file-contract', name:'Operating Agreement', deal: deal.name, type:'oa' });
-        docs.push({ icon:'fa-file-alt', name:'PPM', deal: deal.name, type:'ppm' });
-        docs.push({ icon:'fa-file-invoice-dollar', name:'K-1 (2025)', deal: deal.name, type:'k1' });
-        docs.push({ icon:'fa-file-signature', name:'Subscription Agreement', deal: deal.name, type:'sub' });
+
+      // Try Firestore first — load docs this investor is permitted to see
+      let cloudDocs = [];
+      if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
+        const session = SP.getSession();
+        const email = session?.email || '';
+        try {
+          cloudDocs = await SPFB.getInvestorDocuments(email);
+        } catch(e) { console.warn('SPFB.getInvestorDocuments:', e.message); }
+      }
+
+      if (cloudDocs.length) {
+        // Render real cloud documents
+        const typeIcon = { oa:'fa-file-contract', ppm:'fa-file-alt', k1:'fa-file-invoice-dollar',
+          subscription:'fa-file-signature', 'capital-call':'fa-file-invoice', other:'fa-file' };
+        grid.innerHTML = cloudDocs.map(d => {
+          const icon = typeIcon[d.type] || 'fa-file';
+          const dateStr = d.generatedAt?.toDate?.()?.toLocaleDateString() || d.uploadedAt?.toDate?.()?.toLocaleDateString() || '—';
+          const hasFile = d.fileUrl || d.htmlContent;
+          return `
+            <div class="document-card" onclick="${hasFile ? (d.fileUrl ? `window.open('${d.fileUrl}','_blank')` : `viewCloudDoc('${d.id}')`) : `requestDoc('${d.type}','${d.dealId}')`}" style="cursor:pointer;">
+              <div class="document-icon"><i class="fas ${icon}"></i></div>
+              <div class="document-name">${d.name || d.type}</div>
+              <div class="document-date">${dateStr}</div>
+              ${hasFile ? '<div style="font-size:.7rem;color:var(--accent);margin-top:4px;"><i class="fas fa-cloud"></i> Available</div>' : '<div style="font-size:.7rem;color:var(--text-muted);margin-top:4px;">Contact GP</div>'}
+            </div>`;
+        }).join('');
+      } else if (!myDeals.length) {
+        grid.innerHTML = '<p style="color:var(--text-muted);font-size:0.875rem;">No documents yet. Your GP will upload documents once you\'re linked to a deal.</p>';
+      } else {
+        // Fallback: show placeholder tiles per deal (no Firebase)
+        const docs = [];
+        myDeals.forEach(({deal}) => {
+          docs.push({ icon:'fa-file-contract', name:'Operating Agreement', deal: deal.name, type:'oa' });
+          docs.push({ icon:'fa-file-alt', name:'PPM', deal: deal.name, type:'ppm' });
+          docs.push({ icon:'fa-file-invoice-dollar', name:'K-1 (2025)', deal: deal.name, type:'k1' });
+          docs.push({ icon:'fa-file-signature', name:'Subscription Agreement', deal: deal.name, type:'sub' });
+        });
+        grid.innerHTML = docs.slice(0,8).map(d => `
+          <div class="document-card" onclick="requestDoc('${d.type}','${d.deal}')">
+            <div class="document-icon"><i class="fas ${d.icon}"></i></div>
+            <div class="document-name">${d.name}</div>
+            <div class="document-date">${d.deal}</div>
+          </div>`).join('');
+      }
+    }
+
+    function viewCloudDoc(docId) {
+      // Open HTML document in a new window
+      if (typeof SPFB === 'undefined' || !SPFB.isReady()) return;
+      SPFB.getDealDocuments('', null).then(docs => {
+        const doc = docs.find(d => d.id === docId);
+        if (doc?.htmlContent) {
+          const w = window.open('', '_blank');
+          w.document.write(`<!DOCTYPE html><html><head><title>${doc.name}</title><style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}h1,h2,h3{font-family:sans-serif;}</style></head><body>${doc.htmlContent}</body></html>`);
+          w.document.close();
+        }
       });
-      grid.innerHTML = docs.slice(0,8).map(d => `
-        <div class="document-card" onclick="requestDoc('${d.type}','${d.deal}')">
-          <div class="document-icon"><i class="fas ${d.icon}"></i></div>
-          <div class="document-name">${d.name}</div>
-          <div class="document-date">${d.deal}</div>
-        </div>`).join('');
     }
 
     function requestDoc(type, dealName) {

@@ -676,6 +676,68 @@ const SPFB = (function () {
     }
   }
 
+  // ── Patch SP.* to transparently write to Firestore ───────────────────────────
+  // Called once after SP and SPFB are both loaded and user is authenticated.
+  function patchSPCore() {
+    if (!window.SP) return;
+
+    // Patch SP.saveDeals
+    const _origSaveDeals = SP.saveDeals.bind(SP);
+    SP.saveDeals = function(deals) {
+      _origSaveDeals(deals); // always save locally first
+      if (SPFB.isReady() && !SPFB.isOffline()) {
+        SPFB.saveDeals(deals).catch(e => console.warn('SPFB.saveDeals bg:', e.message));
+      }
+    };
+
+    // Patch SP.saveInvestors
+    const _origSaveInvestors = SP.saveInvestors.bind(SP);
+    SP.saveInvestors = function(investors) {
+      _origSaveInvestors(investors);
+      if (SPFB.isReady() && !SPFB.isOffline()) {
+        SPFB.saveInvestors(investors).catch(e => console.warn('SPFB.saveInvestors bg:', e.message));
+      }
+    };
+
+    // Patch SP.saveDistributions
+    const _origSaveDist = SP.saveDistributions.bind(SP);
+    SP.saveDistributions = function(dists) {
+      _origSaveDist(dists);
+      if (SPFB.isReady() && !SPFB.isOffline()) {
+        // Write each new/changed distribution
+        dists.forEach(d => {
+          SPFB.saveDistribution(d).catch(e => console.warn('SPFB.saveDistribution bg:', e.message));
+        });
+      }
+    };
+
+    // Patch SP.logActivity to also write to Firestore
+    const _origLog = SP.logActivity.bind(SP);
+    SP.logActivity = function(icon, color, text) {
+      _origLog(icon, color, text);
+      if (SPFB.isReady() && !SPFB.isOffline()) {
+        SPFB.logActivity(icon, color, text).catch(() => {});
+      }
+    };
+
+    // Patch SP.save for capitalCalls key
+    const _origSave = SP.save.bind(SP);
+    SP.save = function(key, value) {
+      _origSave(key, value);
+      if (key === 'capitalCalls' && SPFB.isReady() && !SPFB.isOffline()) {
+        const calls = Array.isArray(value) ? value : [value];
+        calls.forEach(c => {
+          if (c && c.id) SPFB.saveCapitalCall(c).catch(() => {});
+        });
+      }
+      if (key === 'settings' && SPFB.isReady() && !SPFB.isOffline()) {
+        SPFB.saveSettings(value).catch(() => {});
+      }
+    };
+
+    console.log('SPFB: SP.* patched — all saves now write to Firestore');
+  }
+
   // ── Public API ───────────────────────────────────────────────────────────────
   return {
     init,
@@ -732,5 +794,8 @@ const SPFB = (function () {
 
     // Migration
     migrateFromLocalStorage,
+
+    // Patch SP core methods to write to Firestore
+    patchSPCore,
   };
 })();

@@ -282,6 +282,7 @@
   </div>
 
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-firebase.js"></script>
   <script>
     // Parse URL params
     const urlParams = new URLSearchParams(window.location.search);
@@ -350,9 +351,32 @@
         role = 'General Partner';
       }
 
-      SP.createUser(email, password, name, role, orgId);
-
-      const session = SP.authenticate(email, password);
+      if (typeof SPFB !== 'undefined' && !SPFB.isOffline()) {
+        // Create Firebase user
+        SPFB.signUp(email, password, name, role, orgId).then(fbUser => {
+          if (fbUser) {
+            // Firebase user created — now authenticate locally (for demo account fallback)
+            SP.authenticate(email, password);
+            // Redirect based on role
+            window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+          } else {
+            // Firebase signup failed — fall back to local
+            SP.createUser(email, password, name, role, orgId);
+            const session = SP.authenticate(email, password);
+            window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+          }
+        }).catch(fbErr => {
+          console.warn('Firebase signup failed, using local:', fbErr.message);
+          SP.createUser(email, password, name, role, orgId);
+          const session = SP.authenticate(email, password);
+          window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+        });
+      } else {
+        // Offline mode — use local auth
+        SP.createUser(email, password, name, role, orgId);
+        const session = SP.authenticate(email, password);
+        window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+      }
       // Redirect based on role
       window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
     }
