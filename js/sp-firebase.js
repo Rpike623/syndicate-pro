@@ -57,19 +57,14 @@ const SPFB = (function () {
           else if (err.code === 'unimplemented') console.warn('SPFB: persistence not supported');
         });
 
-      // Watch auth state — auto sign-in anonymously if no session
+      // Watch auth state
       _auth.onAuthStateChanged(fbUser => {
         if (fbUser) {
           _user = fbUser;
           _initUserProfile(fbUser);
         } else {
-          // No Firebase session — silently sign in anonymously
-          // This requires Anonymous Auth enabled in Firebase Console
-          _auth.signInAnonymously().catch(err => {
-            console.warn('SPFB: Anonymous auth failed:', err.message);
-            // Still work — derive orgId from localStorage session
-            _bootstrapFromLocalSession();
-          });
+          // No Firebase session yet — try auto sign-in from localStorage session
+          _tryAutoSignIn();
         }
       });
     } catch (e) {
@@ -123,15 +118,45 @@ const SPFB = (function () {
     });
   }
 
-  // Last resort: bootstrap from localStorage session without Firebase Auth
-  function _bootstrapFromLocalSession() {
+  // Try to auto sign-in using the localStorage session credentials
+  // Works silently for the demo account and any previously-signed-in user
+  async function _tryAutoSignIn() {
     const localSession = (typeof SP !== 'undefined') ? SP.getSession() : null;
-    if (localSession?.email) {
-      _spUser = { ...localSession, orgId: _hashEmail(localSession.email) };
-      _orgId  = _spUser.orgId;
-      _offlineMode = true; // can't write to Firestore without auth
+    if (!localSession?.email) {
+      // No local session at all — nothing to do, stay logged out
+      return;
     }
+
+    // Demo accounts have known passwords — sign in automatically
+    const DEMO_PASSWORDS = {
+      'gp@deeltrack.com':       'Demo1234!',
+      'investor@deeltrack.com': 'Demo1234!',
+    };
+    const email = localSession.email.toLowerCase();
+    const demoPassword = DEMO_PASSWORDS[email];
+
+    if (demoPassword) {
+      try {
+        await _auth.signInWithEmailAndPassword(email, demoPassword);
+        // onAuthStateChanged will fire again with the user
+        return;
+      } catch (e) {
+        console.warn('SPFB: auto sign-in failed:', e.message);
+      }
+    }
+
+    // Non-demo user with a local session but no Firebase token
+    // (e.g. signed up before Firebase was integrated)
+    // Bootstrap locally so the app works, mark as needing upgrade
+    _spUser = {
+      ...localSession,
+      orgId: _hashEmail(email),
+      needsFirebaseUpgrade: true,
+    };
+    _orgId = _spUser.orgId;
+    _offlineMode = true; // no Firebase Auth token — read-only Firestore
     _markReady();
+    console.info('SPFB: running in local mode — sign out and back in to enable cloud sync');
   }
 
   function _markReady() {
