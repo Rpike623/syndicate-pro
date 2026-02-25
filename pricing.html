@@ -378,6 +378,8 @@
       font-size: 0.875rem;
     }
   </style>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-billing.js"></script>
 </head>
 <body>
   <header class="header">
@@ -427,7 +429,7 @@
           <li class="disabled"><i class="fas fa-times"></i> Pro Forma Builder</li>
           <li class="disabled"><i class="fas fa-times"></i> White-label Documents</li>
         </ul>
-        <a href="signup.html?plan=starter" class="btn btn-secondary" style="width: 100%;">Start Free Trial</a>
+        <button onclick="SPBilling.checkout('starter')" class="btn btn-secondary" style="width: 100%;">Start Free Trial</button>
       </div>
 
       <!-- Pro Plan -->
@@ -449,7 +451,7 @@
           <li><i class="fas fa-check"></i> Priority Support</li>
           <li class="disabled"><i class="fas fa-times"></i> White-label Documents</li>
         </ul>
-        <a href="signup.html?plan=pro" class="btn btn-primary btn-lg" style="width: 100%;">Start Free Trial</a>
+        <button onclick="SPBilling.checkout('pro')" class="btn btn-primary btn-lg" style="width: 100%;">Start Free Trial</button>
       </div>
 
       <!-- Enterprise Plan -->
