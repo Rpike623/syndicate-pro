@@ -1084,6 +1084,54 @@ function renderDeadlines() {
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sync Demo Data to Cloud'; }
   }
 
+  // Auto-sync demo data to Firebase on first load
+  async function autoSyncDemoData() {
+    const syncKey = 'sp_demo_synced_v1';
+    if (localStorage.getItem(syncKey)) return; // Already synced
+    
+    if (typeof SPFB === 'undefined' || !SPFB.isReady() || SPFB.isOffline()) return;
+    
+    try {
+      console.log('Auto-syncing demo data to Firebase...');
+      
+      // Push all demo investors
+      const investors = DEMO_INVESTORS.map(i => ({...i}));
+      await SPFB.saveInvestors(investors);
+      SP.saveInvestors(investors); // Also save locally
+      console.log('✅ Auto-synced', investors.length, 'investors');
+      
+      // Push all demo deals
+      const deals = DEMO_DEALS.map(d => ({...d}));
+      for (const deal of deals) {
+        await SPFB.saveDeal(deal);
+      }
+      SP.saveDeals(deals); // Also save locally
+      console.log('✅ Auto-synced', deals.length, 'deals');
+      
+      // Push demo distributions
+      const dists = [
+        { id: 'dist_1', dealId: 'd1', date: '2025-12-15', totalAmount: 42000, recipients: [{investorId: 'i1', amount: 10000}, {investorId: 'i2', amount: 20000}, {investorId: 'i4', amount: 12000}] },
+        { id: 'dist_2', dealId: 'd1', date: '2026-03-15', totalAmount: 45000, recipients: [{investorId: 'i1', amount: 11000}, {investorId: 'i2', amount: 21000}, {investorId: 'i4', amount: 13000}] },
+        { id: 'dist_3', dealId: 'd3', date: '2026-02-28', totalAmount: 85000, recipients: [{investorId: 'i1', amount: 8000}, {investorId: 'i2', amount: 32000}, {investorId: 'i4', amount: 22000}, {investorId: 'i6', amount: 11000}, {investorId: 'i7', amount: 12000}] },
+      ];
+      for (const dist of dists) {
+        await SPFB.saveDistribution(dist);
+      }
+      SP.save('distributions', dists);
+      console.log('✅ Auto-synced', dists.length, 'distributions');
+      
+      localStorage.setItem(syncKey, Date.now().toString());
+      console.log('✅ Demo data auto-sync complete!');
+      SP.logActivity('fa-cloud-upload-alt', 'blue', 'Demo data auto-synced to Firebase');
+      
+      // Refresh the page to show synced data
+      setTimeout(() => location.reload(), 500);
+      
+    } catch (err) {
+      console.error('Auto-sync failed:', err);
+    }
+  }
+
   // Add button after SPFB is ready
   SPFB.onReady(() => {
     const topBar = document.querySelector('.top-bar');
@@ -1096,6 +1144,9 @@ function renderDeadlines() {
       btn.onclick = pushDemoDataToFirebase;
       topBar.insertBefore(btn, topBar.querySelector('.user-menu'));
     }
+    
+    // Trigger auto-sync
+    autoSyncDemoData();
   });
 })();
 </script>
