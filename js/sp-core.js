@@ -512,6 +512,14 @@ const SP = (function () {
       nav.appendChild(section);
       nav.appendChild(link);
 
+      // Deal Compare link
+      const compareLink = document.createElement('a');
+      compareLink.href = 'deal-compare.html';
+      compareLink.className = 'nav-item';
+      compareLink.innerHTML = '<i class="fas fa-balance-scale"></i><span>Compare Deals</span>';
+      if (window.location.pathname.endsWith('deal-compare.html')) compareLink.classList.add('active');
+      nav.insertBefore(compareLink, link); // Insert before Settings
+
       // Theme toggle Link
       const themeLink = document.createElement('a');
       themeLink.href = '#';

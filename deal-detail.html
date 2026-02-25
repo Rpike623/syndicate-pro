@@ -497,9 +497,68 @@ function sendSubDoc(investorId) {
   if (!inv?.email) return;
   const settings = SP.load('settings',{});
   const gpName = settings.gpFullName || SP.getSession()?.name || 'Your Sponsor';
+  const firmName = settings.firmName || gpName;
+
+  // Generate printable sub doc
+  const subDocHtml = `<!DOCTYPE html><html><head><style>
+    body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:40px;line-height:1.7;}
+    h1{font-size:1.4rem;text-align:center;text-transform:uppercase;margin-bottom:4px;}
+    .subtitle{text-align:center;color:#666;margin-bottom:40px;}
+    h2{font-size:1rem;margin:28px 0 12px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;}
+    .field{border-bottom:1px solid #333;display:inline-block;min-width:200px;margin:0 8px;}
+    .sig-block{margin-top:60px;display:grid;grid-template-columns:1fr 1fr;gap:60px;}
+    .sig-line{border-top:1px solid #333;margin-top:40px;padding-top:8px;font-size:.85rem;}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:5rem;color:rgba(0,0,0,.04);font-weight:700;pointer-events:none;}
+    @media print{.no-print{display:none;}}
+  </style></head><body>
+    <div class="watermark">DRAFT</div>
+    <div class="no-print" style="background:#fef3c7;padding:12px 20px;margin-bottom:24px;border-radius:8px;font-family:sans-serif;font-size:.9rem;">
+      ⚠️ <strong>Draft Document</strong> — This is a placeholder template. Have your attorney review before use.
+      <button onclick="window.print()" style="float:right;padding:6px 14px;background:#3b82f6;color:white;border:none;border-radius:6px;cursor:pointer;font-size:.85rem;">🖨 Print / PDF</button>
+    </div>
+    <h1>Subscription Agreement</h1>
+    <div class="subtitle">${firmName} | ${deal.name}</div>
+    <p>This Subscription Agreement ("Agreement") is entered into as of <span class="field"></span>, 2026, by and between <strong>${firmName}</strong> (the "Company") and the undersigned subscriber ("Subscriber").</p>
+    <h2>1. Subscription</h2>
+    <p>The Subscriber hereby subscribes for membership interests in ${deal.name} in the amount of $<span class="field"></span>, representing approximately <span class="field"></span>% of total equity.</p>
+    <h2>2. Investor Information</h2>
+    <p><strong>Name:</strong> ${inv.firstName} ${inv.lastName}<br>
+    <strong>Email:</strong> ${inv.email}<br>
+    <strong>Address:</strong> ${inv.address||'_________________________'}</p>
+    <h2>3. Accredited Investor Representation</h2>
+    <p>Subscriber represents and warrants that they are an "accredited investor" as defined in Rule 501 of Regulation D by virtue of:</p>
+    <p>☐ Net worth exceeding $1,000,000 (excluding primary residence)<br>
+    ☐ Individual income exceeding $200,000 in each of the prior two years<br>
+    ☐ Joint income with spouse exceeding $300,000<br>
+    ☐ Entity with assets exceeding $5,000,000</p>
+    <h2>4. Risk Acknowledgment</h2>
+    <p>Subscriber acknowledges that investment involves significant risks including potential loss of the entire investment, illiquidity, and reliance on the expertise of the Managing Member.</p>
+    <h2>5. Wire Instructions</h2>
+    <p>Upon execution, please wire funds to: <strong>${settings.firmName||'[COMPANY]'}</strong> Escrow Account (contact GP for wire details).</p>
+    <div class="sig-block">
+      <div>
+        <div class="sig-line">Subscriber Signature</div>
+        <div class="sig-line">Printed Name</div>
+        <div class="sig-line">Date</div>
+      </div>
+      <div>
+        <div class="sig-line">Managing Member, ${gpName}</div>
+        <div class="sig-line">${firmName}</div>
+        <div class="sig-line">Date</div>
+      </div>
+    </div>
+  </body></html>`;
+
+  // Open in new window for printing
+  const w = window.open('', '_blank');
+  w.document.write(subDocHtml);
+  w.document.close();
+
+  // Send mailto
   const subj = `Subscription Agreement — ${deal.name}`;
-  const body = `Hi ${inv.firstName},\n\nPlease find attached your Subscription Agreement for ${deal.name}.\n\nPlease review, sign, and return at your earliest convenience.\n\nBest,\n${gpName}`;
-  window.open(`mailto:${inv.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`, '_blank');
+  const body = `Hi ${inv.firstName},\n\nPlease find your Subscription Agreement for ${deal.name} attached.\n\nPlease review, sign, and return.\n\nBest,\n${gpName}`;
+  setTimeout(() => window.open(`mailto:${inv.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(body)}`, '_blank'), 300);
+
   updateSubStatus(investorId, 'sent');
 }
 
@@ -516,7 +575,10 @@ function renderInvestorsTable(linked) {
         <td class="money">${fmtFull$(entry.committed||0)}</td>
         <td class="pct">${entry.ownership?entry.ownership.toFixed(2)+'%':'—'}</td>
         <td><span class="badge ${BADGE[entry.status]||'badge-committed'}">${entry.status||'committed'}</span></td>
-        <td><button class="btn-xs danger" onclick="removeInvestor('${entry.investorId}')"><i class="fas fa-unlink"></i></button></td>
+        <td><div style="display:flex;gap:6px;">
+          ${!SP.getInvestorById(entry.investorId)?`<button class="btn-xs" onclick="importInvestorToCRM('${entry.investorId}')" title="Add to CRM" style="color:var(--success);"><i class="fas fa-user-plus"></i></button>`:''}
+          <button class="btn-xs danger" onclick="removeInvestor('${entry.investorId}')"><i class="fas fa-unlink"></i></button>
+        </div></td>
       </tr>`;
     }).join('')}</tbody>
   </table></div>`;
@@ -555,6 +617,23 @@ function saveEdit() {
   };
   SP.saveDeals(deals);
   SP.logActivity('fa-edit','amber',`<strong>${deals[idx].name}</strong> deal details updated`);
+  render();
+}
+
+function importInvestorToCRM(invId) {
+  const name = prompt('Add this investor to CRM. Enter their full name:');
+  if (!name) return;
+  const email = prompt('Email address:');
+  if (!email) return;
+  const parts = name.trim().split(' ');
+  const inv = {
+    id: invId, firstName: parts[0]||'', lastName: parts.slice(1).join(' ')||'',
+    email, phone:'', address:'', accredMethod:'', accredStatus:'pending',
+    totalInvested:0, deals:1, status:'active', notes:`Imported from deal: ${deal.name}`
+  };
+  const investors = SP.getInvestors();
+  if (!investors.find(i=>i.id===invId)) { investors.unshift(inv); SP.saveInvestors(investors); }
+  SP.logActivity('fa-user-plus','green',`<strong>${name}</strong> added to CRM from deal`);
   render();
 }
 

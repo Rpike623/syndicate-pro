@@ -487,6 +487,46 @@ function closeSidebar() {
 }
 
 // ── Greeting ────────────────────────────────────────────────────
+function checkOnboarding() {
+  const deals = SP.getDeals();
+  const investors = SP.getInvestors();
+  const settings = SP.load('settings', {});
+  const realDeals = deals.filter(d => !['d1','d2','d3','d4','d5'].includes(d.id));
+  const realInvestors = investors.filter(i => !['i1','i2','i3','i4','i5','i6'].includes(i.id));
+
+  const steps = [
+    { done: !!settings.firmName, label:'Set up your firm profile', link:'settings.html', icon:'fa-building' },
+    { done: realDeals.length > 0, label:'Add your first real deal', link:'new-deal.html', icon:'fa-stream' },
+    { done: realInvestors.length > 0, label:'Add your first investor', link:'investors.html', icon:'fa-user-plus' },
+    { done: realDeals.some(d=>(d.investors||[]).length>0), label:'Link an investor to a deal', link:'investors.html', icon:'fa-link' },
+  ];
+
+  const incomplete = steps.filter(s => !s.done);
+  if (!incomplete.length) return; // All done, no onboarding needed
+
+  const container = document.getElementById('alertBanners');
+  const banner = document.createElement('div');
+  banner.style.cssText = 'background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;padding:20px 24px;margin-bottom:16px;';
+  banner.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div style="color:white;font-weight:700;font-size:1rem;"><i class="fas fa-rocket" style="color:#60a5fa;margin-right:8px;"></i>Getting Started — ${steps.filter(s=>s.done).length}/${steps.length} steps complete</div>
+      <button onclick="this.closest('div[style]').remove()" style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+    <div style="height:4px;background:rgba(255,255,255,.1);border-radius:4px;margin-bottom:16px;overflow:hidden;">
+      <div style="height:100%;width:${Math.round(steps.filter(s=>s.done).length/steps.length*100)}%;background:linear-gradient(90deg,#3b82f6,#10b981);border-radius:4px;transition:width .6s;"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
+      ${steps.map(s => `
+        <a href="${s.link}" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:${s.done?'rgba(16,185,129,.15)':'rgba(255,255,255,.07)'};border-radius:8px;text-decoration:none;transition:background .15s;">
+          <div style="width:28px;height:28px;border-radius:50%;background:${s.done?'#10b981':'rgba(255,255,255,.15)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas ${s.done?'fa-check':s.icon}" style="color:white;font-size:.75rem;"></i>
+          </div>
+          <span style="font-size:.82rem;color:${s.done?'#6ee7b7':'rgba(255,255,255,.7)'};font-weight:${s.done?'400':'600'};">${s.label}</span>
+        </a>`).join('')}
+    </div>`;
+  if (container) container.insertBefore(banner, container.firstChild);
+}
+
 function renderAlerts() {
   const investors = SP.getInvestors();
   const today = new Date();
@@ -772,6 +812,7 @@ function renderDeadlines() {
   SP.requireGP();
   setGreeting();
   renderAlerts();
+  checkOnboarding();
   const deals = loadDeals();
   const investors = loadInvestors();
   const distYTD = loadDistributionsYTD();

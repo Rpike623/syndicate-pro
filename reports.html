@@ -180,6 +180,14 @@
         </div>
       </div>
 
+      <!-- GP Performance Summary -->
+      <div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,#0f172a,#1e293b);border:none;">
+        <div class="card-header" style="border-color:rgba(255,255,255,.1);">
+          <div><div class="card-title" style="color:white;">My Performance Summary</div><div class="card-sub" style="color:rgba(255,255,255,.5);">Overall portfolio health</div></div>
+        </div>
+        <div class="card-body" id="gpPerfBody" style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;"></div>
+      </div>
+
       <!-- LTV Sensitivity Section -->
       <div class="card" style="margin-bottom:20px;">
         <div class="card-header">
@@ -273,6 +281,7 @@ function init(){
   buildDealTable(deals);
   buildInvestorTable(investors,deals);
   populateDealSelects(deals);
+  buildGPPerformance(deals, investors);
 }
 
 function buildIRRChart(deals){
@@ -393,6 +402,33 @@ function exportCSV(){
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='syndicatepro-report.csv';
   a.click();
+}
+
+// ── GP Performance ────────────────────────────────────────────────────────────
+function buildGPPerformance(deals, investors) {
+  const el = document.getElementById('gpPerfBody');
+  if (!el) return;
+  const closed = deals.filter(d=>d.status==='closed');
+  const active = deals.filter(d=>['operating','dd','loi','sourcing'].includes(d.status));
+  const avgIRR = closed.length ? (closed.reduce((s,d)=>s+(d.irr||0),0)/closed.length).toFixed(1) : '—';
+  const targetAvg = deals.length ? (deals.reduce((s,d)=>s+(d.irr||0),0)/deals.length).toFixed(1) : '—';
+  const totalDist = SP.getDistributions().reduce((s,d)=>s+(d.totalAmount||0),0);
+  const totalAUM = deals.reduce((s,d)=>s+(d.raise||0),0);
+  const committed = deals.reduce((s,d)=>s+(d.investors||[]).reduce((ss,i)=>ss+(i.committed||0),ss),0);
+
+  const kpi = (label, value, sub, color) => `
+    <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:16px;">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);margin-bottom:8px;">${label}</div>
+      <div style="font-size:1.3rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:${color};">${value}</div>
+      <div style="font-size:.72rem;color:rgba(255,255,255,.4);margin-top:4px;">${sub}</div>
+    </div>`;
+
+  el.innerHTML =
+    kpi('Total AUM', fmt$(totalAUM), deals.length+' deals', 'white') +
+    kpi('Capital Committed', fmt$(committed), Math.round(committed/Math.max(totalAUM,1)*100)+'% of target', '#60a5fa') +
+    kpi('Avg Target IRR', targetAvg+'%', closed.length+' deals closed', '#34d399') +
+    kpi('Total Distributions', fmt$(totalDist), 'Paid to LPs', '#fbbf24') +
+    kpi('Active Investors', investors.filter(i=>i.status==='active').length, investors.filter(i=>i.accredStatus==='verified').length+' accredited', '#a78bfa');
 }
 
 // ── LTV Sensitivity Chart ─────────────────────────────────────────────────────
