@@ -50,50 +50,88 @@ const SPFB = (function () {
       _storage = firebase.storage();
       _auth    = firebase.auth();
 
-      // Enable offline persistence (Firestore will cache locally)
+      // Enable offline persistence
       _db.enablePersistence({ synchronizeTabs: true })
         .catch(err => {
-          if (err.code === 'failed-precondition') {
-            console.warn('SPFB: Multiple tabs open — persistence only in one tab');
-          } else if (err.code === 'unimplemented') {
-            console.warn('SPFB: Offline persistence not supported in this browser');
-          }
+          if (err.code === 'failed-precondition') console.warn('SPFB: persistence limited to one tab');
+          else if (err.code === 'unimplemented') console.warn('SPFB: persistence not supported');
         });
 
-      // Watch auth state
+      // Watch auth state — auto sign-in anonymously if no session
       _auth.onAuthStateChanged(fbUser => {
         if (fbUser) {
           _user = fbUser;
-          // Load user profile from Firestore
-          _db.collection('users').doc(fbUser.uid).get().then(doc => {
-            if (doc.exists) {
-              _spUser = doc.data();
-              _orgId  = _spUser.orgId;
-            } else {
-              // First login — create user profile
-              _spUser = {
-                uid: fbUser.uid,
-                email: fbUser.email,
-                name: fbUser.displayName || fbUser.email,
-                role: 'General Partner',
-                orgId: _hashEmail(fbUser.email),
-              };
-              _orgId = _spUser.orgId;
-              _db.collection('users').doc(fbUser.uid).set(_spUser);
-            }
-            _markReady();
-          });
+          _initUserProfile(fbUser);
         } else {
-          _user   = null;
-          _spUser = null;
-          _orgId  = null;
-          _ready  = false;
+          // No Firebase session — silently sign in anonymously
+          // This requires Anonymous Auth enabled in Firebase Console
+          _auth.signInAnonymously().catch(err => {
+            console.warn('SPFB: Anonymous auth failed:', err.message);
+            // Still work — derive orgId from localStorage session
+            _bootstrapFromLocalSession();
+          });
         }
       });
     } catch (e) {
       console.error('SPFB init error:', e);
       _offlineMode = true;
     }
+  }
+
+  // Build user profile from Firebase Auth user
+  function _initUserProfile(fbUser) {
+    // Pull the current localStorage session to get name/role/email
+    const localSession = (typeof SP !== 'undefined') ? SP.getSession() : null;
+    const localEmail   = localSession?.email || fbUser.email || '';
+    const localName    = localSession?.name  || fbUser.displayName || localEmail;
+    const localRole    = localSession?.role  || 'General Partner';
+
+    // OrgId: prefer localStorage org (so existing data maps correctly), else hash email
+    const derivedOrgId = localEmail ? _hashEmail(localEmail) : fbUser.uid;
+
+    _db.collection('users').doc(fbUser.uid).get().then(doc => {
+      if (doc.exists) {
+        _spUser = doc.data();
+        // If user upgraded from anonymous to real account, update email/name
+        if (fbUser.email && (!_spUser.email || _spUser.isAnonymous)) {
+          const update = { email: fbUser.email, name: fbUser.displayName || _spUser.name, isAnonymous: false };
+          _db.collection('users').doc(fbUser.uid).update(update);
+          _spUser = { ..._spUser, ...update };
+        }
+        _orgId = _spUser.orgId;
+      } else {
+        // New user (anonymous or first real signup) — create profile
+        _spUser = {
+          uid:         fbUser.uid,
+          email:       localEmail,
+          name:        localName,
+          role:        localRole,
+          orgId:       derivedOrgId,
+          isAnonymous: fbUser.isAnonymous,
+          createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
+        };
+        _orgId = _spUser.orgId;
+        _db.collection('users').doc(fbUser.uid).set(_spUser);
+      }
+      _markReady();
+    }).catch(err => {
+      // Firestore read failed (rules not deployed yet?) — still go ready with local data
+      console.warn('SPFB: could not read user profile, using local session:', err.message);
+      _spUser = { uid: fbUser.uid, email: localEmail, name: localName, role: localRole, orgId: derivedOrgId };
+      _orgId  = derivedOrgId;
+      _markReady();
+    });
+  }
+
+  // Last resort: bootstrap from localStorage session without Firebase Auth
+  function _bootstrapFromLocalSession() {
+    const localSession = (typeof SP !== 'undefined') ? SP.getSession() : null;
+    if (localSession?.email) {
+      _spUser = { ...localSession, orgId: _hashEmail(localSession.email) };
+      _orgId  = _spUser.orgId;
+      _offlineMode = true; // can't write to Firestore without auth
+    }
+    _markReady();
   }
 
   function _markReady() {
