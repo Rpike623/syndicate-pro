@@ -14,7 +14,7 @@ const SPDocs = (function() {
 
   // ─── OPERATING AGREEMENT ───────────────────────────────────────────────────
 
-  function generateOA(deal, gpName, gpRep, firmAddress, state, minInvest) {
+  function generateOA(deal, gpName, gpRep, firmAddress, state, minInvest, linkedInvestors) {
     const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     const equity = deal.raise || deal.totalEquity || 0;
     const gpPct = deal.gpEquity || 10;
@@ -143,11 +143,19 @@ ${stateSection}
         <td style="border: 1px solid #ccc; padding: 10px; text-align: center;">${fmtMoney(equity * gpPct / 100)}</td>
         <td style="border: 1px solid #ccc; padding: 10px; text-align: center;">Managing Member</td>
       </tr>
+      ${linkedInvestors && linkedInvestors.length > 0
+        ? linkedInvestors.map(inv => `
       <tr>
-        <td style="border: 1px solid #ccc; padding: 10px; font-style: italic; color: #666;">[Limited Partners aggregated]</td>
+        <td style="border: 1px solid #ccc; padding: 10px;">${inv.firstName || ''} ${inv.lastName || ''}<br><span style="font-size:9pt;color:#666;">${inv.email || ''}</span></td>
+        <td style="border: 1px solid #ccc; padding: 10px; text-align: center;">${fmtMoney(inv._committed || 0)}</td>
+        <td style="border: 1px solid #ccc; padding: 10px; text-align: center;">Limited Member</td>
+      </tr>`).join('')
+        : `<tr>
+        <td style="border: 1px solid #ccc; padding: 10px; font-style: italic; color: #666;">[Limited Partners — added as they subscribe]</td>
         <td style="border: 1px solid #ccc; padding: 10px; text-align: center;">${fmtMoney(equity * lpPct / 100)}</td>
         <td style="border: 1px solid #ccc; padding: 10px; text-align: center;">Limited Member</td>
-      </tr>
+      </tr>`
+      }
       <tr style="background: #f8fafc; font-weight: bold;">
         <td style="border: 1px solid #ccc; padding: 10px; text-align: right;">TOTAL:</td>
         <td style="border: 1px solid #ccc; padding: 10px; text-align: center;">${fmtMoney(equity)}</td>
@@ -241,5 +249,169 @@ ${stateSection}
     `;
   }
 
-  return { generateOA, generateSubDoc };
+  // ─── PRIVATE PLACEMENT MEMORANDUM ─────────────────────────────────────────
+
+  function generatePPM(deal, gpName, gpRep, firmAddress, state, minInvest, settings) {
+    const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const equity   = deal.raise || deal.totalEquity || 0;
+    const gpPct    = deal.gpEquity  || 10;
+    const lpPct    = deal.lpEquity  || 90;
+    const pref     = deal.prefReturn || 8;
+    const promote  = deal.gpPromote  || 20;
+    const acqFee   = deal.acqFee     || 3;
+    const mgmtFee  = deal.assetMgmtFee || 2;
+    const dealName = safe(deal.name, '[PROPERTY NAME]');
+    const loc      = safe(deal.location, '[PROPERTY LOCATION]');
+    const company  = safe(deal.companyName || gpName, '[COMPANY NAME]');
+    const min      = minInvest || 50000;
+    const gpBio    = settings?.gpBio || '[Managing Member biography to be inserted here.]';
+    const secExemption = settings?.defSEC === '506c' ? 'Rule 506(c)' : 'Rule 506(b)';
+    const counsel  = settings?.defCounsel || '[Legal Counsel Name, Firm]';
+
+    return `
+<div style="font-family: 'Times New Roman', Times, serif; font-size: 10.5pt; line-height: 1.55; color: #000; background: #fff; padding: 48px; max-width: 900px; margin: 0 auto;">
+
+<!-- Cover Page -->
+<div style="text-align:center; page-break-after: always; min-height:700px; display:flex; flex-direction:column; justify-content:center; border: 3px double #000; padding: 60px 40px;">
+  <p style="font-size:9pt; font-weight:bold; letter-spacing:3px; text-transform:uppercase;">CONFIDENTIAL PRIVATE PLACEMENT MEMORANDUM</p>
+  <h1 style="font-size:20pt; margin:20px 0 10px; font-weight:bold;">${company}</h1>
+  <p style="font-size:12pt; margin:0 0 5px;">A ${state} Limited Liability Company</p>
+  <p style="font-size:12pt; margin-bottom:30px;">Formed to Acquire: <strong>${dealName}</strong></p>
+  <div style="border:2px solid #000; padding:16px; margin:20px auto; max-width:500px;">
+    <p style="font-size:10pt; font-weight:bold; margin-bottom:8px;">MAXIMUM OFFERING: ${fmtMoney(equity)}</p>
+    <p style="font-size:9pt;">Interests in ${company} available only to <strong>Accredited Investors</strong><br>pursuant to ${secExemption} of Regulation D<br>under the Securities Act of 1933, as amended.</p>
+  </div>
+  <p style="font-size:9pt; margin-top:20px;">Minimum Investment: ${fmtMoney(min)}</p>
+  <p style="font-size:9pt;">Preferred Return: ${pref}% &nbsp;·&nbsp; GP Promote: ${promote}%</p>
+  <p style="font-size:9pt; margin-top:40px;">Presented by: <strong>${gpName}</strong></p>
+  <p style="font-size:9pt;">Managing Member: ${gpRep}</p>
+  <p style="font-size:9pt;">${firmAddress}</p>
+  <div style="margin-top:40px; font-size:8pt; color:#555; text-align:left; border-top:1px solid #ccc; padding-top:12px;">
+    THE SECURITIES OFFERED HEREBY HAVE NOT BEEN REGISTERED UNDER THE SECURITIES ACT OF 1933, AS AMENDED (THE "ACT"), OR UNDER ANY STATE SECURITIES LAWS. THESE SECURITIES ARE OFFERED PURSUANT TO AN EXEMPTION FROM REGISTRATION UNDER SECTION 4(a)(2) OF THE ACT AND THE RULES AND REGULATIONS PROMULGATED THEREUNDER. THESE SECURITIES MAY NOT BE SOLD, TRANSFERRED, OR OTHERWISE DISPOSED OF WITHOUT REGISTRATION UNDER THE ACT OR AN APPLICABLE EXEMPTION THEREFROM. INVESTING IN REAL ESTATE INVOLVES SIGNIFICANT RISKS. SEE "RISK FACTORS."<br><br>
+    THIS MEMORANDUM WAS PREPARED BY SOFTWARE AND IS A TEMPLATE. IT MUST BE REVIEWED AND REVISED BY LICENSED SECURITIES COUNSEL BEFORE USE.
+  </div>
+  <p style="font-size:8pt; margin-top:12px;"><strong>Date:</strong> ${today} &nbsp;·&nbsp; <strong>Legal Counsel:</strong> ${counsel}</p>
+</div>
+
+<!-- Table of Contents -->
+<h2 style="font-size:13pt; text-align:center; margin-top:40px; text-decoration:underline;">TABLE OF CONTENTS</h2>
+<table style="width:100%; border-collapse:collapse; margin:16px 0 40px;">
+  ${[['OFFERING SUMMARY','3'],['THE COMPANY','4'],['THE PROPERTY','4'],['USE OF PROCEEDS','5'],['STRUCTURE OF THE OFFERING','5'],['DISTRIBUTION WATERFALL','6'],['MANAGEMENT COMPENSATION','6'],['RISK FACTORS','7'],['INVESTOR SUITABILITY STANDARDS','8'],['CONFLICTS OF INTEREST','9'],['TAX CONSIDERATIONS','9'],['FINANCIAL PROJECTIONS','10'],['LEGAL MATTERS','11'],['HOW TO SUBSCRIBE','11']].map(([t,p])=>`<tr><td style="padding:5px 0; border-bottom:1px dotted #ccc;">${t}</td><td style="padding:5px 0; border-bottom:1px dotted #ccc; text-align:right;">${p}</td></tr>`).join('')}
+</table>
+
+<!-- Section 1: Offering Summary -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 1 — OFFERING SUMMARY</h2>
+<table style="width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:20px;">
+  ${[
+    ['Issuer', company],
+    ['Managing Member', gpName],
+    ['Property', dealName],
+    ['Location', loc],
+    ['Property Type', (deal.type||'Real Estate').replace(/\b\w/g,c=>c.toUpperCase())],
+    ['Total Offering Size', fmtMoney(equity)],
+    ['GP Equity Contribution', `${gpPct}% of total equity (${fmtMoney(equity*gpPct/100)})`],
+    ['LP Equity Raise', `${lpPct}% of total equity (${fmtMoney(equity*lpPct/100)})`],
+    ['Minimum Investment', fmtMoney(min)],
+    ['Preferred Return', `${pref}% per annum, non-compounding`],
+    ['GP Promote', `${promote}% of profits above the preferred return`],
+    ['Acquisition Fee', `${acqFee}% of purchase price, paid at closing`],
+    ['Asset Management Fee', `${mgmtFee}% of gross revenues, paid monthly`],
+    ['Offering Exemption', `${secExemption} of Regulation D`],
+    ['Investor Eligibility', 'Accredited Investors only (Rule 501(a))'],
+    ['Expected Hold Period', `${deal.holdPeriod||5} years`],
+    ['Target IRR', deal.irr ? `${deal.irr.toFixed(1)}%` : 'To be determined'],
+    ['Target Equity Multiple', deal.equity ? `${deal.equity.toFixed(2)}x` : 'To be determined'],
+  ].map(([k,v])=>`<tr style="border-bottom:1px solid #f0f0f0;"><td style="padding:7px 10px; font-weight:bold; width:40%; background:#fafafa;">${k}</td><td style="padding:7px 10px;">${v}</td></tr>`).join('')}
+</table>
+
+<!-- Section 2: The Company -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 2 — THE COMPANY</h2>
+<p>${company} (the "Company") is a ${state} limited liability company formed for the sole purpose of acquiring, owning, operating, and ultimately disposing of ${dealName}, located at ${loc} (the "Property"). The Company will be managed exclusively by ${gpName} as the Managing Member.</p>
+<p>The Company is not a publicly traded entity. Interests in the Company are illiquid and subject to substantial restrictions on transfer. This offering is made only to accredited investors who can afford to bear the complete loss of their investment.</p>
+
+<!-- Section 3: The Property -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 3 — THE PROPERTY</h2>
+<p><strong>Name/Address:</strong> ${dealName}, ${loc}</p>
+<p><strong>Property Type:</strong> ${(deal.type||'Real Estate').replace(/\b\w/g,c=>c.toUpperCase())}${deal.units ? ` · ${deal.units} units` : ''}</p>
+<p><strong>Business Plan:</strong> ${deal.notes || '[Description of the property acquisition strategy, value-add plan, and exit strategy to be completed by the Managing Member.]'}</p>
+<p><strong>Purchase Price:</strong> ${deal.purchasePrice ? fmtMoney(deal.purchasePrice) : '[Purchase price to be inserted]'}</p>
+<p><strong>Debt Financing:</strong> ${deal.loanAmount ? fmtMoney(deal.loanAmount) : '[Loan amount to be inserted]'}${deal.interestRate ? ` at approximately ${deal.interestRate}% interest` : ''}</p>
+<p><strong>Total Equity Required:</strong> ${fmtMoney(equity)}</p>
+
+<!-- Section 4: Use of Proceeds -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 4 — USE OF PROCEEDS</h2>
+<table style="width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:20px;">
+  <thead><tr style="background:#f1f5f9;"><th style="border:1px solid #ddd; padding:8px; text-align:left;">Use</th><th style="border:1px solid #ddd; padding:8px; text-align:right;">Estimated Amount</th></tr></thead>
+  <tbody>
+    <tr><td style="border:1px solid #ddd; padding:8px;">Property Acquisition (Equity Portion)</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(Math.round(equity*0.78))}</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;">Acquisition Fee (${acqFee}%)</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${deal.purchasePrice ? fmtMoney(Math.round(deal.purchasePrice*acqFee/100)) : '[Amount]'}</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;">Closing Costs & Legal</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(Math.round(equity*0.04))}</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;">Capital Expenditure Reserve</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(Math.round(equity*0.06))}</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;">Operating Reserves</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(Math.round(equity*0.04))}</td></tr>
+    <tr style="background:#f8fafc; font-weight:bold;"><td style="border:1px solid #ddd; padding:8px;">TOTAL</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(equity)}</td></tr>
+  </tbody>
+</table>
+
+<!-- Section 5: Distribution Waterfall -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 5 — DISTRIBUTION WATERFALL</h2>
+<p>All Distributable Cash (as defined in the Operating Agreement) shall be distributed in the following order:</p>
+<ol style="padding-left:24px;">
+  <li style="margin-bottom:8px;"><strong>Return of Capital:</strong> 100% to all Members, pro-rata, until each Member has received a full return of their capital contribution.</li>
+  <li style="margin-bottom:8px;"><strong>Preferred Return:</strong> 100% to the Limited Members until they have received a cumulative, non-compounding preferred return of <strong>${pref}% per annum</strong> on their invested capital.</li>
+  <li style="margin-bottom:8px;"><strong>GP Catch-Up:</strong> 100% to the Managing Member until it has received <strong>${promote}%</strong> of all amounts distributed in tier (2) and (3) combined.</li>
+  <li style="margin-bottom:8px;"><strong>Residual Split:</strong> ${promote}% to the Managing Member / ${100-promote}% to the Limited Members on all remaining cash.</li>
+</ol>
+
+<!-- Section 6: Risk Factors -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 6 — RISK FACTORS</h2>
+<p><em>This investment involves significant risk. You may lose your entire investment. The following is not an exhaustive list.</em></p>
+<p><strong>Illiquidity Risk.</strong> There is no public market for the Interests. Investors may not be able to liquidate their investment and should be prepared to hold for the full expected hold period of ${deal.holdPeriod||5} years or longer.</p>
+<p><strong>Real Estate Market Risk.</strong> The value of the Property may decline due to changes in local market conditions, interest rates, employment, or supply and demand imbalances.</p>
+<p><strong>Financing Risk.</strong> The Company will use mortgage financing. Rising interest rates, changes in lender requirements, or the inability to refinance could adversely affect returns.</p>
+<p><strong>Management Risk.</strong> The success of this investment depends substantially on the skill and judgment of ${gpName}. Loss of key personnel could adversely impact the investment.</p>
+<p><strong>Projection Risk.</strong> The financial projections in this memorandum are estimates based on assumptions. Actual results may differ materially. Projections are not guarantees.</p>
+<p><strong>Regulatory Risk.</strong> Changes in tax laws, zoning regulations, rent control laws, environmental requirements, or other regulations may adversely impact the investment.</p>
+<p><strong>Concentration Risk.</strong> The Company will invest in a single property, providing no diversification.</p>
+<p><strong>No Independent Manager.</strong> The Managing Member has significant discretion and control. Limited Members have limited rights to participate in management decisions.</p>
+<p><strong>Tax Risk.</strong> Investors should consult their own tax advisors regarding the tax consequences of this investment. Tax laws are subject to change.</p>
+
+<!-- Section 7: Suitability Standards -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 7 — INVESTOR SUITABILITY</h2>
+<p>This offering is available only to "Accredited Investors" as defined in Rule 501(a) of Regulation D. An Accredited Investor includes:</p>
+<ul style="padding-left:20px;">
+  <li>An individual with net worth (excluding primary residence) exceeding $1,000,000;</li>
+  <li>An individual with annual income exceeding $200,000 (or $300,000 jointly with spouse) in each of the prior two years;</li>
+  <li>A trust with assets exceeding $5,000,000 not formed for the specific purpose of acquiring these interests;</li>
+  <li>An entity in which all equity owners are accredited investors;</li>
+  <li>A licensed investment professional holding a valid Series 7, Series 65, or Series 82 license.</li>
+</ul>
+<p>By subscribing, investors represent that they meet at least one of the above criteria and have the financial sophistication to evaluate this investment.</p>
+
+<!-- Section 8: Tax -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 8 — TAX CONSIDERATIONS</h2>
+<p>The Company intends to be treated as a partnership for U.S. federal income tax purposes. Each Member will receive a Schedule K-1 reporting their distributive share of income, gains, losses, deductions, and credits for each tax year. Prospective investors should consult with their own tax counsel regarding the tax consequences of an investment in the Company, including depreciation benefits and passive activity rules.</p>
+
+<!-- Section 9: Legal Matters -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 9 — LEGAL MATTERS AND SEC NOTICE</h2>
+<p>This offering is being made in reliance upon the exemption from registration provided by ${secExemption} of Regulation D under the Securities Act of 1933. A Form D notice will be filed with the Securities and Exchange Commission within 15 days of the first sale. State notice filings will be made as required.</p>
+<p><strong>Legal Counsel:</strong> ${counsel}</p>
+<p>No sale will be made to a resident of any state in which the offer is not exempt or does not qualify under applicable state securities laws.</p>
+
+<!-- Section 10: How to Subscribe -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 10 — HOW TO SUBSCRIBE</h2>
+<ol style="padding-left:24px;">
+  <li style="margin-bottom:8px;">Complete, sign, and return the Subscription Agreement and Investor Questionnaire.</li>
+  <li style="margin-bottom:8px;">Provide documentation evidencing accredited investor status as requested by the Managing Member.</li>
+  <li style="margin-bottom:8px;">Wire your subscription funds per the wire instructions provided by the Managing Member upon acceptance.</li>
+  <li style="margin-bottom:8px;">Upon acceptance, you will receive a countersigned copy of the Subscription Agreement and will be added to the Operating Agreement as a Member.</li>
+</ol>
+<p>Subscriptions are subject to acceptance by the Managing Member in its sole discretion. The Managing Member reserves the right to close this offering at any time.</p>
+
+<div style="margin-top:60px; border-top:2px solid #000; padding-top:20px; font-size:8.5pt; color:#444;">
+  <strong>CONFIDENTIALITY NOTICE:</strong> This Private Placement Memorandum is confidential and has been prepared solely for the benefit of prospective investors in ${company}. Any reproduction or distribution without prior written consent of ${gpName} is strictly prohibited. This document is not an offer to sell or a solicitation of an offer to buy securities in any jurisdiction in which such offer or solicitation is unlawful.
+</div>
+</div>`;
+  }
+
+  return { generateOA, generateSubDoc, generatePPM };
 })();

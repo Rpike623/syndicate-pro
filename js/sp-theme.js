@@ -633,3 +633,24 @@ input[type="checkbox"], input[type="radio"] {
     Chart.defaults.scale.ticks.color = '#64748b';
   });
 })();
+
+// ── Print styles ─────────────────────────────────────────────────────────────
+(function injectPrintStyles() {
+  if (typeof document === 'undefined') return;
+  const s = document.createElement('style');
+  s.textContent = `
+    @media print {
+      .sidebar, .top-bar, .mobile-menu-btn, #dt-legal-footer,
+      #dt-notice-banner, .btn, .action-btns, .tab, .tabs,
+      .top-actions, .toolbar, #sp-notif-panel, #sp-notif-overlay { display: none !important; }
+      .main { margin-left: 0 !important; }
+      .content { padding: 0 !important; }
+      .card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; }
+      body { background: white !important; color: black !important; font-size: 10pt !important; }
+      h1, h2, h3, h4 { color: black !important; }
+      .deal-hero { background: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      a { color: black !important; text-decoration: none !important; }
+      .kpi-grid, .chart-grid, .bottom-grid, .quick-actions { break-inside: avoid; }
+    }`;
+  document.head.appendChild(s);
+})();

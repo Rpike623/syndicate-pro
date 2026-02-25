@@ -719,7 +719,22 @@
       });
       // Pre-select from URL
       const urlDeal = new URLSearchParams(window.location.search).get('deal');
-      if (urlDeal) { select.value = urlDeal; importDealData(); }
+      const urlType = new URLSearchParams(window.location.search).get('type');
+      if (urlDeal) {
+        select.value = urlDeal;
+        importDealData();
+        // Auto-select document type from URL param
+        if (urlType) {
+          currentDocType = urlType;
+          document.querySelectorAll('.doc-type').forEach(t => {
+            t.classList.toggle('selected', t.dataset.type === urlType);
+          });
+        }
+        // Auto-generate preview after a short delay to let import settle
+        setTimeout(() => {
+          if (typeof generatePreview === 'function') generatePreview();
+        }, 150);
+      }
     }
 
     function importDealData() {
@@ -1032,7 +1047,9 @@
             : generateOperatingAgreement(data);
           break;
         case 'ppm':
-          content = generatePPM(data);
+          content = (typeof SPDocs !== 'undefined')
+            ? SPDocs.generatePPM(_dealObj, _gpN, _gpR, _addr, _st, _min, _sett)
+            : generatePPM(data);
           break;
         case 'subscription':
           // Build a dummy investor from form data for the sub doc

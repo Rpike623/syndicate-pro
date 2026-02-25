@@ -1168,26 +1168,32 @@
           <!-- Success State -->
           <div class="step-panel" id="step-success">
             <div class="success-panel">
-              <div class="success-icon">
-                <i class="fas fa-check"></i>
+              <div class="success-icon"><i class="fas fa-check"></i></div>
+              <h2 class="success-title">Deal Created!</h2>
+              <p class="success-desc" id="successDealName" style="font-weight:700;font-size:1.15rem;color:var(--text);margin-bottom:6px;"></p>
+              <p class="success-desc" id="successOAStatus" style="color:var(--success);font-size:.9rem;"></p>
+            </div>
+
+            <!-- OA inline preview on success screen -->
+            <div id="successOASection" style="display:none;margin:24px 0;border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+              <div style="background:var(--surface-2);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
+                <div>
+                  <div style="font-weight:700;font-size:.95rem;">Operating Agreement</div>
+                  <div style="font-size:.78rem;color:var(--text-secondary);">Auto-generated from your deal terms — review before use</div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button class="btn btn-secondary" style="padding:7px 12px;font-size:.8rem;" onclick="toggleSuccessOA()"><i class="fas fa-eye"></i> <span id="successOAToggleLabel">View</span></button>
+                  <button class="btn btn-secondary" style="padding:7px 12px;font-size:.8rem;" onclick="printSuccessOA()"><i class="fas fa-print"></i> Print</button>
+                  <button class="btn btn-secondary" style="padding:7px 12px;font-size:.8rem;" onclick="downloadSuccessOA()"><i class="fas fa-download"></i> Word</button>
+                </div>
               </div>
-              <h2 class="success-title">Deal Saved!</h2>
-              <p class="success-desc" id="successDealName" style="font-weight:600;font-size:1.1rem;color:var(--text);"></p>
-              <p class="success-desc">Your deal is saved and ready. What would you like to do next?</p>
-              <div class="success-actions">
-                <button class="btn btn-primary" onclick="viewDeal()">
-                  <i class="fas fa-eye"></i> View Deal Detail
-                </button>
-                <button class="btn btn-secondary" onclick="downloadDocuments()">
-                  <i class="fas fa-file-contract"></i> Generate Documents
-                </button>
-                <button class="btn btn-secondary" onclick="window.location.href='investors.html'">
-                  <i class="fas fa-users"></i> Add Investors
-                </button>
-                <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'">
-                  <i class="fas fa-th-large"></i> Dashboard
-                </button>
-              </div>
+              <div id="successOAContent" style="display:none;max-height:500px;overflow-y:auto;background:white;padding:0;"></div>
+            </div>
+
+            <div class="success-actions" style="margin-top:16px;">
+              <button class="btn btn-primary" onclick="viewDeal()"><i class="fas fa-eye"></i> View Deal Detail</button>
+              <button class="btn btn-secondary" onclick="window.location.href='investors.html'"><i class="fas fa-users"></i> Add Investors</button>
+              <button class="btn btn-secondary" onclick="window.location.href='dashboard.html'"><i class="fas fa-th-large"></i> Dashboard</button>
             </div>
           </div>
           
@@ -1199,6 +1205,33 @@
   <script>
     SP.requireGP();
     let currentStep = 1;
+
+    // On page load: pre-fill from settings, then restore any draft
+    document.addEventListener('DOMContentLoaded', function() {
+      // Pre-fill from GP settings (Sprint 1 item 5)
+      const s = SP.load('settings', {});
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val && !el.value) el.value = val; };
+      set('companyName', s.firmName || '');
+      const stateEl = document.getElementById('state');
+      if (stateEl && (s.defState || s.firmState) && !stateEl.value) stateEl.value = s.defState || s.firmState;
+      set('prefReturn', s.defPref || '8');
+      set('gpPromote', s.defPromote || '20');
+      set('gpEquity', s.defGPEquity || '10');
+      if (document.getElementById('lpEquity')) updateLP();
+
+      // Restore draft if exists
+      const urlId = new URLSearchParams(window.location.search).get('id');
+      if (!urlId) loadDraft(); // don't overwrite when editing existing deal
+
+      // Auto-save on any input change
+      document.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('change', saveDraftAuto);
+        el.addEventListener('input', saveDraftAuto);
+      });
+
+      // Clear draft on successful creation
+    });
+
     const totalSteps = 5;
     
     function updateStepIndicators() {
@@ -1217,6 +1250,35 @@
       });
     }
     
+    // Auto-save draft to localStorage so fields survive refresh
+    function saveDraftAuto() {
+      const fields = ['dealName','propertyAddress','propertyType','companyName','state','propertySize',
+        'purchasePrice','closingCosts','capexReserve','loanAmount','interestRate','loanTerm',
+        'gpEquity','lpEquity','prefReturn','gpPromote','waterfallType','acqFee','assetMgmtFee','minInvestment'];
+      const data = {};
+      fields.forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.value; });
+      localStorage.setItem('dt_wizard_draft', JSON.stringify(data));
+    }
+
+    function loadDraft() {
+      const saved = localStorage.getItem('dt_wizard_draft');
+      if (!saved) return;
+      try {
+        const data = JSON.parse(saved);
+        Object.entries(data).forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          if (el && val) { el.value = val; }
+        });
+        calculateCapital();
+        updateWaterfallPreview();
+        updateLP();
+      } catch(e) {}
+    }
+
+    function clearDraft() {
+      localStorage.removeItem('dt_wizard_draft');
+    }
+
     function showStep(step) {
       document.querySelectorAll('.step-panel').forEach(panel => {
         panel.classList.remove('active');
@@ -1480,7 +1542,7 @@
       const _state = spDeal.state || _settings.defState || _settings.firmState || 'DE';
       const _minInv = spDeal.minInvestment || 50000;
       if (typeof SPDocs !== 'undefined') {
-        spDeal.generatedOA = SPDocs.generateOA(spDeal, _gpName, _gpRep, _settings.firmAddress || '', _state, _minInv);
+        spDeal.generatedOA = SPDocs.generateOA(spDeal, _gpName, _gpRep, _settings.firmAddress || '', _state, _minInv, []);
       } else {
         spDeal.generatedOA = autoGenerateOA(spDeal);
       }
@@ -1489,13 +1551,26 @@
       SP.saveDeals(spDeals);
       SP.logActivity('fa-file-contract', 'green', `Operating Agreement auto-generated for <strong>${deal.name}</strong>`);
 
-      // Store current deal for document generation (legacy compat)
-      localStorage.setItem('currentDeal', JSON.stringify(deal));
+      // Store current deal id for viewDeal()
+      localStorage.setItem('currentDeal', JSON.stringify({ id: spDeal.id, name: deal.name }));
+      window._savedDealId = spDeal.id;
 
-      // Show deal name on success screen
+      // Populate success screen
       const nameEl = document.getElementById('successDealName');
       if (nameEl) nameEl.textContent = deal.name;
 
+      const statusEl = document.getElementById('successOAStatus');
+      if (statusEl) statusEl.innerHTML = '<i class="fas fa-file-contract"></i> Operating Agreement generated and ready';
+
+      // Show OA inline on success screen
+      const oaSection = document.getElementById('successOASection');
+      const oaContent = document.getElementById('successOAContent');
+      if (oaSection && oaContent && spDeal.generatedOA) {
+        oaSection.style.display = 'block';
+        oaContent.innerHTML = spDeal.generatedOA;
+      }
+
+      clearDraft(); // Remove wizard draft after successful save
       showStep('success');
     }
     
@@ -1618,14 +1693,39 @@
     }
     
     function viewDeal() {
-      const deal = JSON.parse(localStorage.getItem('currentDeal') || '{}');
-      window.location.href = deal.id ? `deal-detail.html?id=${deal.id}` : 'pipeline.html';
+      const id = window._savedDealId || JSON.parse(localStorage.getItem('currentDeal') || '{}').id;
+      window.location.href = id ? `deal-detail.html?id=${id}` : 'pipeline.html';
     }
-    
-    function downloadDocuments() {
-      const deal = JSON.parse(localStorage.getItem('currentDeal') || '{}');
-      const id = deal.id || (new URLSearchParams(window.location.search).get('id'));
-      window.location.href = id ? `documents.html?deal=${id}` : 'documents.html';
+
+    function toggleSuccessOA() {
+      const content = document.getElementById('successOAContent');
+      const label = document.getElementById('successOAToggleLabel');
+      const isHidden = content.style.display === 'none';
+      content.style.display = isHidden ? 'block' : 'none';
+      if (label) label.textContent = isHidden ? 'Hide' : 'View';
+    }
+
+    function printSuccessOA() {
+      const id = window._savedDealId;
+      const deal = id ? SP.getDealById(id) : null;
+      const oa = deal?.generatedOA || document.getElementById('successOAContent')?.innerHTML;
+      if (!oa) return;
+      const w = window.open('', '_blank');
+      w.document.write(`<!DOCTYPE html><html><head><title>Operating Agreement</title><style>body{font-family:Georgia,serif;margin:40px;}</style></head><body>${oa}</body></html>`);
+      w.document.close();
+      setTimeout(() => w.print(), 500);
+    }
+
+    function downloadSuccessOA() {
+      const id = window._savedDealId;
+      const deal = id ? SP.getDealById(id) : null;
+      const oa = deal?.generatedOA || document.getElementById('successOAContent')?.innerHTML;
+      if (!oa) return;
+      const blob = new Blob([`<html><body>${oa}</body></html>`], {type:'application/msword'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${deal?.name || 'Operating-Agreement'}.doc`;
+      a.click();
     }
     
     function updatePreview() {

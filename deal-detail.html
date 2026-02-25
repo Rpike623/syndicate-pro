@@ -492,55 +492,40 @@ function downloadOAWord() {
 }
 
 function generateOANow() {
-  // Re-run the OA generator using deal data (same logic as new-deal.html)
   const settings = SP.load('settings', {});
   const gpName = settings.firmName || deal.companyName || deal.name + ' GP, LLC';
   const gpRep = settings.gpFullName || SP.getSession()?.name || 'Managing Member';
   const state = deal.state || settings.defState || settings.firmState || 'DE';
-  const stateProvisions = {
-    TX: '<p><strong>Tax Treatment.</strong> The Company elects to be taxed as a partnership under Texas Tax Code § 171.0002.</p><p><strong>Community Property.</strong> If any member is married, their spouse consents per Texas Family Code § 3.104.</p>',
-    DE: '<p><strong>Series LLC.</strong> The Company may establish separate series pursuant to Section 18-215 of the Delaware LLC Act.</p><p><strong>Charging Order.</strong> Sole remedy per Section 18-703.</p>',
-    FL: '<p><strong>Annual Report.</strong> The Company shall file annual reports with the Florida Division of Corporations.</p>',
-    CA: '<p><strong>Franchise Tax.</strong> The Company shall pay the annual $800 minimum franchise tax under California Revenue and Taxation Code § 17941.</p>',
-    NV: '<p><strong>Charging Order.</strong> Sole remedy per NRS 86.401.</p><p><strong>Asset Protection.</strong> Nevada law provides strong asset protection per NRS Chapter 86.</p>',
-    WY: '<p><strong>Asset Protection.</strong> Wyoming provides charging order protection per W.S. 17-29-503.</p>',
-    NY: '<p><strong>Publication.</strong> NY LLC Law § 206 publication requirements satisfied.</p>',
-  };
-  const sc = stateProvisions[state] || stateProvisions['DE'];
-  const equity = deal.totalEquity || deal.raise || 0;
-  const gpPct = deal.gpEquity || 10;
-  const lpPct = deal.lpEquity || 90;
-  const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const minInv = deal.minInvestment || settings.defMin || 50000;
 
-  const oa = `<div style="font-family:Georgia,serif;line-height:1.8;">
-    <div style="background:#fef9c3;border:1px solid #fbbf24;border-radius:6px;padding:12px 16px;margin-bottom:24px;font-size:.8rem;font-family:sans-serif;color:#78350f;"><strong>⚠ PLACEHOLDER DOCUMENT</strong> — Auto-generated for reference. Have your attorney review before use.</div>
-    <h1 style="text-align:center;font-size:1.4rem;">${gpName}</h1>
-    <p style="text-align:center;color:#64748b;">A ${state} Limited Liability Company — Operating Agreement</p>
-    <p style="text-align:center;">${today}</p>
-    <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE I — FORMATION</h2>
-    <p><strong>1.1 Name.</strong> ${gpName}.</p>
-    <p><strong>1.2 Purpose.</strong> Acquire, own, and operate <strong>${deal.name}</strong> at ${deal.location||'[Property Address]'}.</p>
-    <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE II — CAPITAL</h2>
-    <p><strong>2.1 Total Equity:</strong> $${equity.toLocaleString()} (GP: ${gpPct}% / LP: ${lpPct}%)</p>
-    <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE III — DISTRIBUTIONS</h2>
-    <p><strong>Waterfall:</strong> (a) Return of capital; (b) ${deal.prefReturn||8}% preferred return to LPs; (c) GP catch-up to ${deal.gpPromote||20}%; (d) ${deal.gpPromote||20}/${100-(deal.gpPromote||20)} split.</p>
-    <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">STATE-SPECIFIC PROVISIONS (${state})</h2>
-    ${sc}
-    <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;">
-      <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:40px;"></div><div>${gpRep}, Managing Member</div><div style="color:#94a3b8;font-size:.85rem;">Date: ___________</div></div>
-      <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:40px;"></div><div>Limited Partners (See Schedule A)</div></div>
-    </div>
-  </div>`;
+  // Build linked investors list for Schedule A
+  const linkedInvestors = (deal.investors || []).map(entry => {
+    const inv = SP.getInvestorById(entry.investorId) || {};
+    return { ...inv, _committed: entry.committed || 0, _ownership: entry.ownership || 0 };
+  });
+
+  let oa;
+  if (typeof SPDocs !== 'undefined') {
+    oa = SPDocs.generateOA(deal, gpName, gpRep, settings.firmAddress || '', state, minInv, linkedInvestors);
+  } else {
+    oa = '<p>sp-documents.js not loaded.</p>';
+  }
 
   const allDeals = SP.getDeals();
-  const idx = allDeals.findIndex(d=>d.id===dealId);
-  if (idx>=0) { allDeals[idx].generatedOA = oa; allDeals[idx].oaGeneratedAt = new Date().toISOString(); SP.saveDeals(allDeals); }
-  SP.logActivity('fa-file-contract','green',`OA generated for <strong>${deal.name}</strong>`);
+  const idx = allDeals.findIndex(d => d.id === dealId);
+  if (idx >= 0) {
+    allDeals[idx].generatedOA = oa;
+    allDeals[idx].oaGeneratedAt = new Date().toISOString();
+    SP.saveDeals(allDeals);
+  }
+  SP.logActivity('fa-file-contract', 'green', `Operating Agreement generated for <strong>${deal.name}</strong>`);
+  if (window._spNotif) window._spNotif.addNotification('doc', 'fa-file-contract', 'green', 'OA Ready', `Operating Agreement generated for ${deal.name}`, `deal-detail.html?id=${dealId}`);
   render();
   // Switch to docs tab
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab')[2]?.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const docTabBtn = Array.from(document.querySelectorAll('.tab')).find(t => t.textContent.includes('Documents'));
+  if (docTabBtn) docTabBtn.classList.add('active');
   document.getElementById('tab-documents')?.classList.add('active');
 }
 
@@ -585,7 +570,8 @@ function renderSubTracker() {
         <td style="padding:12px 14px;">
           <div style="display:flex;gap:6px;">
             ${STATUS_STEPS.map(s=>s!==subStatus?`<button onclick="updateSubStatus('${entry.investorId}','${s}')" style="padding:4px 8px;background:${STATUS_COLORS[s]?.split(',')[0]||'#f1f5f9'};color:${STATUS_COLORS[s]?.split(',')[1]||'#64748b'};border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;">${STATUS_LABELS[s]}</button>`:null).filter(Boolean).join('')}
-            <button onclick="sendSubDoc('${entry.investorId}')" style="padding:4px 8px;background:var(--accent-light);color:var(--accent);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-paper-plane"></i></button>
+            <button onclick="viewSubDoc('${entry.investorId}')" title="View subscription agreement" style="padding:4px 8px;background:var(--purple-light);color:var(--purple);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-file-signature"></i></button>
+            <button onclick="sendSubDoc('${entry.investorId}')" title="Email sub doc to investor" style="padding:4px 8px;background:var(--accent-light);color:var(--accent);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-paper-plane"></i></button>
           </div>
         </td>
       </tr>`;
@@ -608,6 +594,72 @@ function updateSubStatus(investorId, status) {
   document.querySelectorAll('.tab')[3]?.classList.add('active');
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-subscriptions')?.classList.add('active');
+}
+
+function viewSubDoc(investorId) {
+  const inv = SP.getInvestorById(investorId) || {};
+  const settings = SP.load('settings', {});
+  const gpName = settings.firmName || SP.getSession()?.name || 'Managing Member';
+  const gpRep = settings.gpFullName || SP.getSession()?.name || 'Managing Member';
+
+  let html;
+  if (typeof SPDocs !== 'undefined') {
+    const invEntry = (deal.investors || []).find(i => i.investorId === investorId) || {};
+    const invWithAmount = { ...inv, committed: invEntry.committed || 0 };
+    html = SPDocs.generateSubDoc(deal, invWithAmount, gpName, gpRep);
+  } else {
+    html = `<p style="padding:20px;">Install sp-documents.js to generate subscription agreements.</p>`;
+  }
+
+  // Show in a full-screen modal
+  let modal = document.getElementById('subDocModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'subDocModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;';
+    modal.onclick = e => { if(e.target===modal) modal.remove(); };
+    document.body.appendChild(modal);
+  }
+  const invName = inv.firstName ? `${inv.firstName} ${inv.lastName}` : 'Investor';
+  modal.innerHTML = `
+    <div style="background:white;border-radius:12px;width:100%;max-width:860px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 64px rgba(0,0,0,.5);">
+      <div style="background:#0f172a;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+        <div>
+          <div style="color:white;font-weight:700;font-family:'Sora',sans-serif;">Subscription Agreement</div>
+          <div style="color:rgba(255,255,255,.5);font-size:.8rem;">${invName} · ${deal.name}</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="printSubDoc('subDocBody')" style="padding:7px 14px;background:rgba(255,255,255,.1);color:white;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;"><i class="fas fa-print"></i> Print</button>
+          <button onclick="downloadSubDoc('${investorId}')" style="padding:7px 14px;background:rgba(255,255,255,.1);color:white;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;"><i class="fas fa-download"></i> Word</button>
+          <button onclick="sendSubDoc('${investorId}')" style="padding:7px 14px;background:#6366f1;color:white;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;"><i class="fas fa-paper-plane"></i> Email to LP</button>
+          <button onclick="document.getElementById('subDocModal').remove()" style="padding:7px 12px;background:rgba(239,68,68,.2);color:#f87171;border:none;border-radius:6px;cursor:pointer;font-size:.9rem;">✕</button>
+        </div>
+      </div>
+      <div id="subDocBody" style="overflow-y:auto;flex:1;">${html}</div>
+    </div>`;
+}
+
+function printSubDoc(contentId) {
+  const content = document.getElementById(contentId)?.innerHTML;
+  if (!content) return;
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><style>body{font-family:Georgia,serif;margin:0;} @media print{@page{margin:1in}}</style></head><body>${content}</body></html>`);
+  w.document.close(); setTimeout(() => w.print(), 400);
+}
+
+function downloadSubDoc(investorId) {
+  const inv = SP.getInvestorById(investorId) || {};
+  const settings = SP.load('settings', {});
+  const gpName = settings.firmName || SP.getSession()?.name || 'GP';
+  const gpRep = settings.gpFullName || SP.getSession()?.name || 'GP';
+  if (typeof SPDocs === 'undefined') return;
+  const invEntry = (deal.investors||[]).find(i=>i.investorId===investorId)||{};
+  const html = SPDocs.generateSubDoc(deal, {...inv, committed: invEntry.committed||0}, gpName, gpRep);
+  const blob = new Blob([`<html><body>${html}</body></html>`], {type:'application/msword'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${inv.firstName||'Investor'}-${inv.lastName||''}-SubDoc.doc`;
+  a.click();
 }
 
 function sendSubDoc(investorId) {
