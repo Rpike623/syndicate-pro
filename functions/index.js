@@ -167,19 +167,49 @@ exports.onDistributionCreated = onDocumentCreated(
   async (event) => {
     const dist  = event.data.data();
     const orgId = event.params.orgId;
+
+    // Resolve deal name — dist may have dealName directly or only dealId
+    let dealName = dist.dealName || null;
+    if (!dealName && dist.dealId) {
+      const dealDoc = await db.collection('orgs').doc(orgId).collection('deals').doc(dist.dealId).get();
+      dealName = dealDoc.exists ? (dealDoc.data().name || `Deal ${dist.dealId}`) : `Deal ${dist.dealId}`;
+    }
+    dealName = dealName || 'your investment';
+
     const token = await getGraphToken();
 
     for (const recipient of (dist.recipients || [])) {
+      if (!recipient.investorId) continue;
       const invDoc = await db.collection('orgs').doc(orgId).collection('investors').doc(recipient.investorId).get();
       if (!invDoc.exists) continue;
       const inv = invDoc.data();
       if (!inv.email) continue;
 
-      await graphSendMail(inv.email,
-        `💰 Distribution — ${dist.dealName} | ${dist.period || ''}`,
-        `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#10b981;padding:24px;border-radius:8px 8px 0 0;text-align:center;"><h1 style="color:white;margin:0;">💰 Distribution Notice</h1></div><div style="background:#f8fafc;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;"><p>Dear ${inv.firstName || inv.email},</p><p>A distribution of <strong style="color:#10b981;font-size:1.5rem;">$${Number(recipient.amount || 0).toLocaleString()}</strong> has been issued for <strong>${dist.dealName}</strong>.</p><p style="color:#64748b;">Period: ${dist.period || '—'} · Date: ${dist.date || 'Today'}</p><p>Funds will be processed within 3–5 business days.</p><p style="color:#94a3b8;font-size:.8rem;text-align:center;margin-top:24px;">deeltrack — Real estate syndication platform</p></div></div>`,
+      const firstName = inv.firstName || inv.name || inv.email;
+      const amount = Number(recipient.amount || 0);
+      const subject = dist.period
+        ? `💰 Distribution — ${dealName} | ${dist.period}`
+        : `💰 Distribution — ${dealName} | ${dist.date || 'New'}`;
+
+      await graphSendMail(inv.email, subject,
+        `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+          <div style="background:#10b981;padding:24px;border-radius:8px 8px 0 0;text-align:center;">
+            <h1 style="color:white;margin:0;">💰 Distribution Notice</h1>
+          </div>
+          <div style="background:#f8fafc;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;">
+            <p>Dear ${firstName},</p>
+            <p>A distribution has been issued for <strong>${dealName}</strong>.</p>
+            <div style="background:white;border:2px solid #10b981;border-radius:8px;padding:20px;margin:20px 0;text-align:center;">
+              <p style="margin:0;font-size:1.75rem;font-weight:700;color:#10b981;">$${amount.toLocaleString()}</p>
+              <p style="margin:4px 0 0;color:#64748b;">Your distribution amount</p>
+            </div>
+            <p style="color:#64748b;">Period: ${dist.period || '—'} · Date: ${dist.date || 'Today'}</p>
+            <p>Funds will be processed within 3–5 business days via your registered payment method.</p>
+            <p style="color:#94a3b8;font-size:.8rem;text-align:center;margin-top:24px;">deeltrack — Real estate syndication platform</p>
+          </div>
+        </div>`,
         token
-      ).catch(e => console.error('Distribution email error:', e.message));
+      ).catch(e => console.error('Distribution email error to', inv.email, ':', e.message));
     }
     return null;
   }
