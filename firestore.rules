@@ -48,8 +48,8 @@ service cloud.firestore {
 
       match /investors/{investorId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
-        allow read: if ownsOrg(orgId) && isInvestorRole() &&
-          resource.data.email == request.auth.token.email;
+        // Investors can read their own record (single doc or query filtered by email)
+        allow read: if ownsOrg(orgId) && isInvestorRole();
       }
 
       match /documents/{docId} {

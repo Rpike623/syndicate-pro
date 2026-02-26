@@ -77,9 +77,16 @@ const SPData = (() => {
     _email = email || '';
 
     // Load all collections in parallel
+    // For Investor role, only load their own investor record (security rule compliance)
+    const investorLoad = (_role === 'Investor' && _email)
+      ? _col('investors').where('email', '==', _email).get().then(snap => {
+          _cache.investors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }).catch(e => { console.warn('SPData: load investors (investor role) failed:', e.message); _cache.investors = []; })
+      : _load('investors');
+
     await Promise.all([
       _load('deals'),
-      _load('investors'),
+      investorLoad,
       _load('distributions'),
       _load('capitalCalls'),
       _load('activity'),

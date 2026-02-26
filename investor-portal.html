@@ -571,7 +571,7 @@
 <script>
   SP.requireInvestor();
 
-  const session = SP.getSession();
+  let session = SP.getSession(); // refreshed in init() after SPFB ready
   let investorRecord = null;
   let myDeals = [];
   let myDists = [];
@@ -944,18 +944,25 @@
 
   // ── Main Init ──────────────────────────────────────────────────────────────
   async function init() {
+    // Re-read session — it's been updated by SPFB._markReady since page load
+    session = SP.getSession();
+    const email = session?.email || (typeof SPFB !== 'undefined' && SPFB.getUser()?.email) || '';
+    console.log('investor-portal init: email=' + email, 'SPData.isReady=' + (typeof SPData !== 'undefined' && SPData.isReady()));
+
     // Resolve investor record from SPData (Firestore)
     if (typeof SPData !== 'undefined' && SPData.isReady()) {
-      investorRecord = SPData.getInvestorByEmail(session?.email);
+      investorRecord = SPData.getInvestorByEmail(email);
+      console.log('investor-portal: SPData lookup result:', investorRecord?.id || 'null', 'cache size:', SPData.getInvestors?.()?.length);
     }
     if (!investorRecord && typeof SPFB !== 'undefined' && SPFB.isReady()) {
       try {
         const fbInvs = await SPFB.getInvestors();
-        investorRecord = fbInvs.find(i => i.email?.toLowerCase() === session?.email?.toLowerCase()) || null;
-      } catch(e) {}
+        investorRecord = fbInvs.find(i => i.email?.toLowerCase() === email?.toLowerCase()) || null;
+        console.log('investor-portal: SPFB fallback result:', investorRecord?.id || 'null');
+      } catch(e) { console.warn('SPFB.getInvestors failed:', e.message); }
     }
 
-    if (!investorRecord) { showNoAccess(); return; }
+    if (!investorRecord) { console.error('investor-portal: no investor record found for', email); showNoAccess(); return; }
 
     // Load deals and distributions
     const allDeals = (typeof SPData !== 'undefined' && SPData.isReady()) ? SPData.getDeals() : SP.getDeals();
