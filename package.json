@@ -1,0 +1,12 @@
+{
+  "name": "deeltrack-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "qa-deeltrack": "node scripts/qa-deeltrack.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.6.1",
+    "node-fetch": "^3.3.2"
+  }
+}

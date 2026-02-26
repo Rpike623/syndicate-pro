@@ -113,10 +113,13 @@ const SP = (function () {
         if (isGP()) { window.location.href = 'dashboard.html'; return false; }
         return true;
       }
-      if (Date.now() - start > 3000) { window.location.href = 'login.html'; return false; }
-      setTimeout(check, 100);
+      // If Firebase is still loading (SPFB exists but not ready), wait longer
+      const spfbLoading = typeof SPFB !== 'undefined' && !SPFB.isReady();
+      const timeout = spfbLoading ? 12000 : 8000;
+      if (Date.now() - start > timeout) { window.location.href = 'login.html'; return false; }
+      setTimeout(check, 150);
     }
-    setTimeout(check, 100);
+    setTimeout(check, 150);
     return true;
   }
 

@@ -989,7 +989,28 @@
   let _initCalled = false;
   function _safeInit() { if (_initCalled) return; _initCalled = true; init(); }
   window.addEventListener('spdata-ready', _safeInit);
-  if (typeof SPData !== 'undefined' && SPData.isReady()) _safeInit();
+  // Catch case where spdata-ready already fired before listener attached
+  if (typeof SPData !== 'undefined' && SPData.isReady()) { _safeInit(); }
+  // Fallback: if SPFB fires but SPData.init() never dispatches (e.g. offline), still init after 5s
+  setTimeout(() => {
+    if (!_initCalled && typeof SPFB !== 'undefined' && SPFB.isReady()) {
+      console.warn('spdata-ready never fired — forcing init via SPFB fallback');
+      _safeInit();
+    }
+  }, 5000);
+  // Hard fallback: after 12s, hide loading and show error
+  setTimeout(() => {
+    if (!_initCalled) {
+      document.getElementById('loadingOverlay').style.display = 'none';
+      console.error('Portal failed to initialize after 12s — check Firebase auth');
+      // Show a user-friendly error
+      const el = document.querySelector('.content-area') || document.body;
+      const err = document.createElement('div');
+      err.style.cssText = 'padding:40px;text-align:center;color:#64748b;';
+      err.innerHTML = '<h2 style="margin-bottom:12px">Unable to load portal</h2><p>Please <a href="login.html">sign in again</a> or contact support.</p>';
+      el.prepend(err);
+    }
+  }, 12000);
 </script>
 </body>
 </html>
