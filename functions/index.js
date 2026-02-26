@@ -3,10 +3,11 @@
  * Email via Microsoft Graph API (OAuth2) — admin@deeltrack.com
  */
 
-const { onCall, HttpsError } = require('firebase-functions/v2/https');
+const { onCall, HttpsError, onRequest } = require('firebase-functions/v2/https');
 const { onDocumentCreated }  = require('firebase-functions/v2/firestore');
 const { initializeApp }      = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
+const Stripe = require('stripe');
 const { ConfidentialClientApplication } = require('@azure/msal-node');
 const https = require('https');
 
@@ -212,5 +213,378 @@ exports.onDistributionCreated = onDocumentCreated(
       ).catch(e => console.error('Distribution email error to', inv.email, ':', e.message));
     }
     return null;
+  }
+);
+
+// ── Stripe Webhook ─────────────────────────────────────────────────────────────
+/**
+ * stripeWebhook — HTTP endpoint for Stripe webhook events
+ *
+ * Setup in Stripe Dashboard:
+ *   Endpoint URL: https://us-central1-deeltrack.cloudfunctions.net/stripeWebhook
+ *   Events to listen for:
+ *     - checkout.session.completed
+ *     - customer.subscription.created
+ *     - customer.subscription.updated
+ *     - customer.subscription.deleted
+ *     - invoice.paid
+ *     - invoice.payment_failed
+ *
+ * Stripe webhook signing secret stored in Firestore:
+ *   _config/stripe → { secretKey, webhookSecret }
+ *
+ * client_reference_id on Payment Links = Firebase UID (set in sp-billing.js)
+ */
+
+async function getStripeConfig() {
+  const doc = await db.collection('_config').doc('stripe').get();
+  if (!doc.exists) throw new Error('Stripe config not found in Firestore/_config/stripe');
+  return doc.data();
+}
+
+// Map Stripe price IDs → plan names (also stored in _config/stripe)
+const PRICE_PLAN_MAP = {
+  // Populated dynamically from _config/stripe.plans at runtime
+};
+
+async function getPriceMap(stripeConfig) {
+  const plans = stripeConfig.plans || {};
+  // plans = { starter: { priceId: 'price_xxx', priceIdAnnual: 'price_yyy' }, ... }
+  const map = {};
+  for (const [planName, planCfg] of Object.entries(plans)) {
+    if (planCfg.priceId)       map[planCfg.priceId]       = planName;
+    if (planCfg.priceIdAnnual) map[planCfg.priceIdAnnual] = planName;
+  }
+  return map;
+}
+
+async function activateSubscription(uid, orgId, plan, stripeData) {
+  const now = FieldValue.serverTimestamp();
+  const subData = {
+    plan,
+    status:              'active',
+    stripeCustomerId:    stripeData.customerId    || null,
+    stripeSubscriptionId:stripeData.subscriptionId|| null,
+    stripePriceId:       stripeData.priceId       || null,
+    currentPeriodEnd:    stripeData.currentPeriodEnd || null,
+    cancelAtPeriodEnd:   stripeData.cancelAtPeriodEnd || false,
+    activatedAt:         now,
+    updatedAt:           now,
+  };
+
+  const batch = db.batch();
+
+  // Update user record
+  batch.set(db.collection('users').doc(uid), { subscription: subData }, { merge: true });
+
+  // Update org record
+  if (orgId) {
+    batch.set(db.collection('orgs').doc(orgId), { subscription: subData }, { merge: true });
+  }
+
+  // Log the event
+  batch.set(db.collection('_stripe_events').doc(), {
+    type:      'subscription_activated',
+    uid, orgId, plan,
+    stripeData,
+    processedAt: now,
+  });
+
+  await batch.commit();
+  console.log(`✅ Subscription activated: uid=${uid} org=${orgId} plan=${plan}`);
+}
+
+async function deactivateSubscription(uid, orgId, reason) {
+  const now = FieldValue.serverTimestamp();
+  const batch = db.batch();
+
+  const subData = {
+    plan:      'free',
+    status:    reason || 'canceled',
+    updatedAt: now,
+    canceledAt: now,
+  };
+
+  batch.set(db.collection('users').doc(uid), { subscription: subData }, { merge: true });
+  if (orgId) {
+    batch.set(db.collection('orgs').doc(orgId), { subscription: subData }, { merge: true });
+  }
+  batch.set(db.collection('_stripe_events').doc(), {
+    type: 'subscription_deactivated', uid, orgId, reason, processedAt: now,
+  });
+
+  await batch.commit();
+  console.log(`⚠️ Subscription deactivated: uid=${uid} reason=${reason}`);
+}
+
+async function findUidByStripeCustomer(customerId) {
+  // Try users collection first
+  const snap = await db.collection('users')
+    .where('subscription.stripeCustomerId', '==', customerId)
+    .limit(1).get();
+  if (!snap.empty) {
+    const doc = snap.docs[0];
+    return { uid: doc.id, orgId: doc.data().orgId };
+  }
+  return null;
+}
+
+exports.stripeWebhook = onRequest(
+  { region: 'us-central1', timeoutSeconds: 60 },
+  async (req, res) => {
+    if (req.method !== 'POST') {
+      res.status(405).send('Method Not Allowed');
+      return;
+    }
+
+    let stripeConfig;
+    try {
+      stripeConfig = await getStripeConfig();
+    } catch (e) {
+      console.error('Stripe config error:', e.message);
+      res.status(500).send('Stripe not configured');
+      return;
+    }
+
+    const stripe = Stripe(stripeConfig.secretKey);
+    const webhookSecret = stripeConfig.webhookSecret;
+
+    // Verify webhook signature
+    let event;
+    try {
+      const sig = req.headers['stripe-signature'];
+      // req.rawBody is available in Firebase Functions v2 for onRequest
+      event = stripe.webhooks.constructEvent(req.rawBody, sig, webhookSecret);
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err.message);
+      res.status(400).send(`Webhook Error: ${err.message}`);
+      return;
+    }
+
+    // Log raw event to Firestore for debugging
+    await db.collection('_stripe_events').add({
+      eventId:   event.id,
+      type:      event.type,
+      livemode:  event.livemode,
+      createdAt: FieldValue.serverTimestamp(),
+      processed: false,
+    }).catch(() => {});
+
+    console.log(`📩 Stripe event: ${event.type} (${event.id})`);
+
+    const priceMap = await getPriceMap(stripeConfig);
+
+    try {
+      switch (event.type) {
+
+        // ── Checkout completed ─────────────────────────────────────────────
+        case 'checkout.session.completed': {
+          const session = event.data.object;
+          // client_reference_id = Firebase UID (set by sp-billing.js on Payment Link)
+          const uid = session.client_reference_id;
+          if (!uid) { console.warn('checkout.session.completed: no client_reference_id'); break; }
+
+          const customerId    = session.customer;
+          const subscriptionId= session.subscription;
+
+          // Get the subscription to find the price/plan
+          let plan = 'starter';
+          let priceId = null;
+          let currentPeriodEnd = null;
+          let cancelAtPeriodEnd = false;
+
+          if (subscriptionId) {
+            try {
+              const sub = await stripe.subscriptions.retrieve(subscriptionId);
+              priceId    = sub.items.data[0]?.price?.id;
+              plan       = priceMap[priceId] || 'starter';
+              currentPeriodEnd  = sub.current_period_end
+                ? new Date(sub.current_period_end * 1000).toISOString()
+                : null;
+              cancelAtPeriodEnd = sub.cancel_at_period_end || false;
+            } catch (e) {
+              console.error('Could not retrieve subscription:', e.message);
+            }
+          }
+
+          // Look up orgId from user record
+          const userDoc = await db.collection('users').doc(uid).get();
+          const orgId   = userDoc.exists ? userDoc.data().orgId : null;
+
+          await activateSubscription(uid, orgId, plan, {
+            customerId, subscriptionId, priceId, currentPeriodEnd, cancelAtPeriodEnd,
+          });
+
+          // Send welcome email
+          try {
+            const token = await getGraphToken();
+            const userData = userDoc.exists ? userDoc.data() : {};
+            const name = userData.name || userData.email || 'there';
+            const email = userData.email || session.customer_details?.email;
+            if (email) {
+              await graphSendMail(email,
+                `✅ Your deeltrack ${plan.charAt(0).toUpperCase() + plan.slice(1)} subscription is active!`,
+                `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+                  <div style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);padding:32px;border-radius:8px 8px 0 0;text-align:center;">
+                    <h1 style="color:white;margin:0;font-size:1.5rem;">Welcome to deeltrack ${plan.charAt(0).toUpperCase() + plan.slice(1)}! 🎉</h1>
+                  </div>
+                  <div style="background:#f8fafc;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;">
+                    <p style="font-size:1rem;color:#1e293b;">Hi ${name},</p>
+                    <p>Your subscription is now active. You have full access to all ${plan} features.</p>
+                    <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0;text-align:center;">
+                      <p style="margin:0;font-size:0.8rem;color:#64748b;font-weight:600;text-transform:uppercase;">Active Plan</p>
+                      <p style="margin:8px 0 0;font-size:1.5rem;font-weight:700;color:#3b82f6;">${plan.charAt(0).toUpperCase() + plan.slice(1)}</p>
+                      ${currentPeriodEnd ? `<p style="margin:4px 0 0;font-size:0.8rem;color:#94a3b8;">Next renewal: ${new Date(currentPeriodEnd).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</p>` : ''}
+                    </div>
+                    <div style="text-align:center;margin:24px 0;">
+                      <a href="https://rpike623.github.io/syndicate-pro/dashboard.html" style="background:#3b82f6;color:white;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;font-size:.95rem;">Go to Dashboard →</a>
+                    </div>
+                    <p style="color:#94a3b8;font-size:.8rem;text-align:center;">Questions? Reply to this email or visit your billing settings.</p>
+                  </div>
+                </div>`,
+                token
+              );
+            }
+          } catch (emailErr) {
+            console.error('Welcome email error:', emailErr.message);
+          }
+          break;
+        }
+
+        // ── Subscription created / updated ─────────────────────────────────
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated': {
+          const sub = event.data.object;
+          const customerId = sub.customer;
+          const priceId    = sub.items.data[0]?.price?.id;
+          const plan       = priceMap[priceId] || 'starter';
+          const status     = sub.status; // active, trialing, past_due, canceled, etc.
+
+          const found = await findUidByStripeCustomer(customerId);
+          if (!found) { console.warn('No user found for customer:', customerId); break; }
+          const { uid, orgId } = found;
+
+          if (status === 'active' || status === 'trialing') {
+            await activateSubscription(uid, orgId, plan, {
+              customerId,
+              subscriptionId:   sub.id,
+              priceId,
+              currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+              cancelAtPeriodEnd: sub.cancel_at_period_end,
+            });
+          } else if (status === 'canceled' || status === 'unpaid') {
+            await deactivateSubscription(uid, orgId, status);
+          } else {
+            // past_due, incomplete, etc — update status but keep plan
+            await db.collection('users').doc(uid).set(
+              { subscription: { status, updatedAt: FieldValue.serverTimestamp() } },
+              { merge: true }
+            );
+            if (orgId) {
+              await db.collection('orgs').doc(orgId).set(
+                { subscription: { status, updatedAt: FieldValue.serverTimestamp() } },
+                { merge: true }
+              );
+            }
+          }
+          break;
+        }
+
+        // ── Subscription canceled / deleted ────────────────────────────────
+        case 'customer.subscription.deleted': {
+          const sub = event.data.object;
+          const found = await findUidByStripeCustomer(sub.customer);
+          if (!found) { console.warn('No user for customer:', sub.customer); break; }
+          await deactivateSubscription(found.uid, found.orgId, 'canceled');
+          break;
+        }
+
+        // ── Invoice paid — renewal ─────────────────────────────────────────
+        case 'invoice.paid': {
+          const invoice = event.data.object;
+          if (invoice.billing_reason !== 'subscription_cycle') break;
+          const sub = await stripe.subscriptions.retrieve(invoice.subscription);
+          const priceId = sub.items.data[0]?.price?.id;
+          const plan    = priceMap[priceId] || 'starter';
+          const found   = await findUidByStripeCustomer(invoice.customer);
+          if (!found) break;
+
+          await activateSubscription(found.uid, found.orgId, plan, {
+            customerId:       invoice.customer,
+            subscriptionId:   invoice.subscription,
+            priceId,
+            currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+            cancelAtPeriodEnd: sub.cancel_at_period_end,
+          });
+          console.log(`🔄 Subscription renewed: uid=${found.uid} plan=${plan}`);
+          break;
+        }
+
+        // ── Invoice payment failed ─────────────────────────────────────────
+        case 'invoice.payment_failed': {
+          const invoice = event.data.object;
+          const found   = await findUidByStripeCustomer(invoice.customer);
+          if (!found) break;
+
+          // Mark as past_due but don't fully deactivate yet (Stripe retries)
+          await db.collection('users').doc(found.uid).set(
+            { subscription: { status: 'past_due', updatedAt: FieldValue.serverTimestamp() } },
+            { merge: true }
+          );
+          if (found.orgId) {
+            await db.collection('orgs').doc(found.orgId).set(
+              { subscription: { status: 'past_due', updatedAt: FieldValue.serverTimestamp() } },
+              { merge: true }
+            );
+          }
+
+          // Send payment failure email
+          try {
+            const userDoc = await db.collection('users').doc(found.uid).get();
+            const userData = userDoc.exists ? userDoc.data() : {};
+            if (userData.email) {
+              const token = await getGraphToken();
+              await graphSendMail(userData.email,
+                '⚠️ deeltrack — Payment failed, action required',
+                `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+                  <div style="background:#ef4444;padding:24px;border-radius:8px 8px 0 0;text-align:center;">
+                    <h1 style="color:white;margin:0;">Payment Failed</h1>
+                  </div>
+                  <div style="background:#f8fafc;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;">
+                    <p>Hi ${userData.name || 'there'},</p>
+                    <p>We were unable to process your deeltrack subscription payment. Please update your payment method to keep your account active.</p>
+                    <p>Amount due: <strong>$${(invoice.amount_due / 100).toFixed(2)}</strong></p>
+                    <div style="text-align:center;margin:24px 0;">
+                      <a href="https://rpike623.github.io/syndicate-pro/settings.html#billing" style="background:#ef4444;color:white;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Update Payment Method →</a>
+                    </div>
+                    <p style="color:#94a3b8;font-size:.8rem;">We'll retry your payment automatically. If payment continues to fail, your account will be downgraded to the free plan.</p>
+                  </div>
+                </div>`,
+                token
+              );
+            }
+          } catch (emailErr) {
+            console.error('Payment failure email error:', emailErr.message);
+          }
+          break;
+        }
+
+        default:
+          console.log(`Unhandled event type: ${event.type}`);
+      }
+
+      // Mark event as processed
+      const eventSnap = await db.collection('_stripe_events')
+        .where('eventId', '==', event.id).limit(1).get();
+      if (!eventSnap.empty) {
+        await eventSnap.docs[0].ref.update({ processed: true, processedAt: FieldValue.serverTimestamp() });
+      }
+
+      res.status(200).json({ received: true, type: event.type });
+
+    } catch (err) {
+      console.error(`Error processing ${event.type}:`, err);
+      res.status(500).send(`Processing error: ${err.message}`);
+    }
   }
 );

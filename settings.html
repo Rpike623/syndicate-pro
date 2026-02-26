@@ -430,9 +430,57 @@
               <div style="margin-top:16px;padding:12px 16px;background:var(--border-light);border-radius:var(--radius);font-size:.8rem;color:var(--text-secondary);">
                 <strong>Setup steps:</strong><br>
                 1. Stripe Dashboard → Products → Create product for each plan<br>
-                2. Payment Links → Create link for each product<br>
+                2. Payment Links → Create link for each product → enable <code>client_reference_id</code><br>
                 3. Customer Portal → Activate and copy the link<br>
                 4. Paste links above → Save
+              </div>
+            </div>
+
+            <!-- Stripe Webhook Config -->
+            <div class="card" style="margin-bottom:16px;">
+              <div class="section-title"><i class="fas fa-bolt" style="color:var(--accent);margin-right:6px;"></i>Stripe Webhook (Auto-Activation)</div>
+              <p style="font-size:.875rem;color:var(--text-secondary);margin:0 0 16px;">
+                The webhook automatically activates subscriptions when payment succeeds. Configure in Stripe Dashboard → Developers → Webhooks.
+              </p>
+              <div style="background:var(--border-light);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;font-size:.82rem;">
+                <div style="font-weight:600;margin-bottom:6px;color:var(--text);">Webhook Endpoint URL</div>
+                <div style="font-family:monospace;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;padding:8px 12px;word-break:break-all;user-select:all;cursor:text;">https://us-central1-deeltrack.cloudfunctions.net/stripeWebhook</div>
+                <div style="margin-top:10px;font-weight:600;color:var(--text);">Events to enable:</div>
+                <div style="font-family:monospace;font-size:.78rem;color:var(--text-secondary);margin-top:4px;line-height:1.8;">
+                  checkout.session.completed<br>
+                  customer.subscription.created<br>
+                  customer.subscription.updated<br>
+                  customer.subscription.deleted<br>
+                  invoice.paid<br>
+                  invoice.payment_failed
+                </div>
+              </div>
+              <div style="display:grid;gap:12px;">
+                <div>
+                  <label style="font-size:.8rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Stripe Secret Key <span style="color:var(--danger)">*</span> <span style="color:var(--text-muted)">(sk_live_... or sk_test_...)</span></label>
+                  <input type="password" id="stripeSecretKey" class="form-control" placeholder="sk_live_...">
+                </div>
+                <div>
+                  <label style="font-size:.8rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Webhook Signing Secret <span style="color:var(--danger)">*</span> <span style="color:var(--text-muted)">(whsec_...)</span></label>
+                  <input type="password" id="stripeWebhookSecret" class="form-control" placeholder="whsec_...">
+                  <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">Found in Stripe Dashboard → Developers → Webhooks → [your endpoint] → Signing secret</div>
+                </div>
+                <div>
+                  <label style="font-size:.8rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Starter Price ID <span style="color:var(--text-muted)">(price_...)</span></label>
+                  <input type="text" id="stripePriceStarter" class="form-control" placeholder="price_xxx">
+                </div>
+                <div>
+                  <label style="font-size:.8rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Pro Price ID <span style="color:var(--text-muted)">(price_...)</span></label>
+                  <input type="text" id="stripePricePro" class="form-control" placeholder="price_xxx">
+                </div>
+                <div>
+                  <label style="font-size:.8rem;color:var(--text-secondary);display:block;margin-bottom:4px;">Enterprise Price ID <span style="color:var(--text-muted)">(price_...)</span></label>
+                  <input type="text" id="stripePriceEnterprise" class="form-control" placeholder="price_xxx">
+                </div>
+                <button class="btn btn-primary" onclick="saveStripeWebhookConfig()"><i class="fas fa-save"></i> Save Webhook Config to Firebase</button>
+              </div>
+              <div style="margin-top:12px;padding:10px 14px;background:#fef3c7;border:1px solid #f59e0b;border-radius:var(--radius);font-size:.78rem;color:#92400e;">
+                <strong>⚠ Security:</strong> Your Stripe secret key is stored in Firestore <code>_config/stripe</code> (not client-side). Only Cloud Functions can read this collection. Never expose your secret key in client-side code.
               </div>
             </div>
 
@@ -601,21 +649,61 @@ function handleLogoUpload(e) {
 }
 
 // ── Password change ───────────────────────────────────────────────────────────
-function changePassword() {
+async function changePassword() {
   const current = document.getElementById('pwCurrent').value;
-  const newPw = document.getElementById('pwNew').value;
-  const confirm = document.getElementById('pwConfirm').value;
-  if (!current || !newPw) { alert('Please fill in current and new password.'); return; }
-  if (newPw !== confirm) { alert('New passwords do not match.'); return; }
-  if (newPw.length < 8) { alert('Password must be at least 8 characters.'); return; }
+  const newPw   = document.getElementById('pwNew').value;
+  const conf    = document.getElementById('pwConfirm').value;
+  const btn     = document.querySelector('#panel-account .btn-secondary');
+
+  if (!current || !newPw) { showToast('Fill in current and new password.', 'error'); return; }
+  if (newPw !== conf)     { showToast('New passwords do not match.', 'error'); return; }
+  if (newPw.length < 8)  { showToast('Password must be at least 8 characters.', 'error'); return; }
+
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating…'; }
+
+  // Try Firebase Auth (primary path)
+  if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+    const user = firebase.auth().currentUser;
+    const credential = firebase.auth.EmailAuthProvider.credential(user.email, current);
+    try {
+      await user.reauthenticateWithCredential(credential);
+      await user.updatePassword(newPw);
+      document.getElementById('pwCurrent').value = '';
+      document.getElementById('pwNew').value = '';
+      document.getElementById('pwConfirm').value = '';
+      showToast('Password updated!');
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Update Password'; }
+      return;
+    } catch (fbErr) {
+      if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Update Password'; }
+      if (fbErr.code === 'auth/wrong-password' || fbErr.code === 'auth/invalid-credential') {
+        showToast('Current password is incorrect.', 'error'); return;
+      }
+      if (fbErr.code === 'auth/weak-password') {
+        showToast('New password is too weak. Use at least 8 characters.', 'error'); return;
+      }
+      if (fbErr.code === 'auth/requires-recent-login') {
+        showToast('Session expired. Please sign out and sign back in, then try again.', 'error'); return;
+      }
+      console.warn('Firebase password update failed:', fbErr.message);
+      // Fall through to localStorage fallback
+    }
+  }
+
+  // Fallback: localStorage auth (demo/offline accounts)
   const users = SP.getUsers();
   const idx = users.findIndex(u => u.email === session?.email);
-  if (idx < 0 || users[idx].password !== current) { alert('Current password is incorrect.'); return; }
+  if (idx < 0 || users[idx].password !== current) {
+    showToast('Current password is incorrect.', 'error');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Update Password'; }
+    return;
+  }
   users[idx].password = newPw;
   SP.saveUsers(users);
   document.getElementById('pwCurrent').value = '';
   document.getElementById('pwNew').value = '';
   document.getElementById('pwConfirm').value = '';
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Update Password'; }
   showToast('Password updated!');
 }
 

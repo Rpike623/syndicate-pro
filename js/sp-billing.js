@@ -221,14 +221,17 @@ const SPBilling = (function () {
       return;
     }
 
-    // Append org/user info as client_reference_id
-    const orgId = (typeof SPFB !== 'undefined' && SPFB.getOrgId()) ||
-                  (typeof SP !== 'undefined' && SP.load('settings', {}).orgId) || 'unknown';
-    const email = (typeof SPFB !== 'undefined' && SPFB.getUser()?.email) ||
+    // Append Firebase UID as client_reference_id (webhook uses this to identify user)
+    const firebaseUser = (typeof firebase !== 'undefined') ? firebase.auth().currentUser : null;
+    const uid   = firebaseUser?.uid ||
+                  (typeof SPFB !== 'undefined' && SPFB.getUser()?.uid) || 'unknown';
+    const email = firebaseUser?.email ||
+                  (typeof SPFB !== 'undefined' && SPFB.getUser()?.email) ||
                   (typeof SP !== 'undefined' && SP.getSession()?.email) || '';
 
     const url = new URL(link);
-    url.searchParams.set('client_reference_id', orgId);
+    // client_reference_id = Firebase UID — parsed by stripeWebhook Cloud Function
+    url.searchParams.set('client_reference_id', uid);
     if (email) url.searchParams.set('prefilled_email', email);
     // Add success/cancel redirect back to billing settings
     const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');

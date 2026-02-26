@@ -931,7 +931,82 @@
         </div>
       </div>
       <div class="profile-field"><div class="profile-label">Active Investments</div><div class="profile-value">${myDeals.length}</div></div>
+
+      <div style="margin-top:28px;padding-top:24px;border-top:1px solid #e2e8f0;">
+        <div class="profile-label" style="margin-bottom:16px;font-size:0.85rem;">Change Password</div>
+        <div id="pwChangeAlert" style="display:none;padding:10px 14px;border-radius:8px;font-size:0.85rem;margin-bottom:14px;"></div>
+        <div style="display:flex;flex-direction:column;gap:12px;max-width:380px;">
+          <div>
+            <label style="font-size:0.75rem;color:#94a3b8;font-weight:600;display:block;margin-bottom:4px;">Current Password</label>
+            <input type="password" id="invPwCurrent" placeholder="••••••••" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;outline:none;font-family:inherit;" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:#94a3b8;font-weight:600;display:block;margin-bottom:4px;">New Password</label>
+            <input type="password" id="invPwNew" placeholder="Min 8 characters" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;outline:none;font-family:inherit;" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:#94a3b8;font-weight:600;display:block;margin-bottom:4px;">Confirm New Password</label>
+            <input type="password" id="invPwConfirm" placeholder="Repeat new password" style="width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:0.9rem;outline:none;font-family:inherit;" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'">
+          </div>
+          <button onclick="changeInvestorPassword()" id="invPwBtn" style="padding:10px 20px;background:linear-gradient(135deg,#6366f1,#818cf8);color:white;border:none;border-radius:8px;font-size:0.875rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;width:fit-content;">
+            <i class="fas fa-lock"></i> Update Password
+          </button>
+        </div>
+      </div>
     `;
+  }
+
+  async function changeInvestorPassword() {
+    const current = document.getElementById('invPwCurrent')?.value;
+    const newPw   = document.getElementById('invPwNew')?.value;
+    const conf    = document.getElementById('invPwConfirm')?.value;
+    const btn     = document.getElementById('invPwBtn');
+    const alertEl = document.getElementById('pwChangeAlert');
+
+    function showPwAlert(msg, type) {
+      alertEl.style.display = 'block';
+      alertEl.style.background = type === 'success' ? '#d1fae5' : '#fee2e2';
+      alertEl.style.border = `1px solid ${type === 'success' ? '#6ee7b7' : '#fca5a5'}`;
+      alertEl.style.color = type === 'success' ? '#065f46' : '#991b1b';
+      alertEl.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${msg}`;
+    }
+
+    if (!current || !newPw) { showPwAlert('Please fill in all fields.', 'error'); return; }
+    if (newPw !== conf)     { showPwAlert('New passwords do not match.', 'error'); return; }
+    if (newPw.length < 8)  { showPwAlert('Password must be at least 8 characters.', 'error'); return; }
+
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating…'; }
+
+    if (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) {
+      const user = firebase.auth().currentUser;
+      const credential = firebase.auth.EmailAuthProvider.credential(user.email, current);
+      try {
+        await user.reauthenticateWithCredential(credential);
+        await user.updatePassword(newPw);
+        document.getElementById('invPwCurrent').value = '';
+        document.getElementById('invPwNew').value = '';
+        document.getElementById('invPwConfirm').value = '';
+        showPwAlert('Password updated successfully!', 'success');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Update Password'; }
+        return;
+      } catch (fbErr) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Update Password'; }
+        if (fbErr.code === 'auth/wrong-password' || fbErr.code === 'auth/invalid-credential') {
+          showPwAlert('Current password is incorrect.', 'error'); return;
+        }
+        if (fbErr.code === 'auth/weak-password') {
+          showPwAlert('New password is too weak. Use at least 8 characters.', 'error'); return;
+        }
+        if (fbErr.code === 'auth/requires-recent-login') {
+          showPwAlert('Session expired. Please sign out and sign back in, then try again.', 'error'); return;
+        }
+        showPwAlert('Could not update password: ' + fbErr.message, 'error'); return;
+      }
+    }
+
+    // Fallback: localStorage
+    showPwAlert('Password update requires Firebase. Please use "Forgot password?" on the login page.', 'error');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-lock"></i> Update Password'; }
   }
 
   // ── No Access Screen ───────────────────────────────────────────────────────
