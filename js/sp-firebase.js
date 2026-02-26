@@ -265,6 +265,45 @@ const SPFB = (function () {
     }
   }
 
+  // ── ensureUserRecord — for OAuth (Google) sign-ins ──────────────────────────
+  // Creates or merges a Firestore user record without creating a new Firebase
+  // Auth credential (OAuth users are already authenticated by Firebase).
+  async function ensureUserRecord(uid, email, name, role, orgId) {
+    if (_offlineMode || !_db) return null;
+    try {
+      const ref = _db.collection('users').doc(uid);
+      const snap = await ref.get();
+      if (snap.exists) {
+        // User already has a record — refresh local session from Firestore
+        const data = snap.data();
+        _user = data;
+        return data;
+      }
+      // New user — create record
+      const profile = {
+        uid,
+        email,
+        name: name || email,
+        role: role || 'General Partner',
+        orgId: orgId || _hashEmail(email),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        provider: 'google',
+      };
+      await ref.set(profile);
+      // Also create org record if it doesn't exist
+      const orgRef = _db.collection('orgs').doc(profile.orgId);
+      const orgSnap = await orgRef.get();
+      if (!orgSnap.exists) {
+        await orgRef.set({ orgId: profile.orgId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+      _user = profile;
+      return profile;
+    } catch (e) {
+      console.error('SPFB ensureUserRecord error:', e);
+      return null;
+    }
+  }
+
   async function signOut() {
     if (_offlineMode) { SP.logout(); return; }
     await _auth.signOut();
@@ -901,6 +940,7 @@ const SPFB = (function () {
     signIn,
     signUp,
     signOut,
+    ensureUserRecord,
 
     // Deals
     getDeals,

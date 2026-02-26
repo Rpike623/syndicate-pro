@@ -386,8 +386,55 @@
       window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
     }
 
-    function googleAuth() {
-      alert('Google OAuth integration coming soon');
+    async function googleAuth() {
+      if (typeof firebase === 'undefined' || !firebase.auth) {
+        alert('Google sign-in is not available in offline mode.');
+        return;
+      }
+
+      const btn = document.querySelector('.btn-outline');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting…'; }
+
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('email');
+        provider.addScope('profile');
+
+        const result = await firebase.auth().signInWithPopup(provider);
+        const fbUser = result.user;
+
+        // Determine role + orgId
+        let orgId, role;
+        if (inviteToken) {
+          const decoded = SP.decodeInviteToken(inviteToken);
+          orgId = decoded ? decoded.orgId : SP.simpleHash(fbUser.email);
+          role = 'Investor';
+        } else {
+          orgId = SP.simpleHash(fbUser.email.toLowerCase());
+          role = 'General Partner';
+        }
+
+        const nameParts = (fbUser.displayName || fbUser.email).split(' ');
+        const name = fbUser.displayName || fbUser.email;
+
+        // Save/merge user record in Firestore via SPFB
+        if (typeof SPFB !== 'undefined' && !SPFB.isOffline()) {
+          await SPFB.ensureUserRecord(fbUser.uid, fbUser.email, name, role, orgId);
+        }
+
+        // Set SP session
+        SP.setSession({ email: fbUser.email, name, role, orgId, loggedIn: true, loginTime: Date.now() });
+        window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fab fa-google"></i> Continue with Google'; }
+        if (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request') return;
+        if (err.code === 'auth/popup-blocked') {
+          alert('Pop-up was blocked by your browser. Please allow pop-ups for this site and try again.');
+          return;
+        }
+        alert('Google sign-in failed: ' + (err.message || err.code));
+      }
     }
   </script>
 </body>
