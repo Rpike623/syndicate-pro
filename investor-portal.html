@@ -964,13 +964,22 @@
 
     if (!investorRecord) { console.error('investor-portal: no investor record found for', email); showNoAccess(); return; }
 
-    // Load deals and distributions
-    const allDeals = (typeof SPData !== 'undefined' && SPData.isReady()) ? SPData.getDeals() : SP.getDeals();
+    // Load deals — get ALL deals, filter ourselves (don't rely on SPData.getDeals investor filter)
+    let allDeals = [];
+    if (typeof SPData !== 'undefined' && SPData.isReady()) {
+      // Get raw deal cache directly to avoid double-filtering
+      allDeals = SPData._cache?.deals || SPData.getDeals() || [];
+    }
+    if (!allDeals.length) allDeals = SP.getDeals() || [];
     const allDists = (typeof SPData !== 'undefined' && SPData.isReady()) ? SPData.getDistributions() : SP.getDistributions();
+
+    console.log('investor-portal: allDeals=' + allDeals.length, 'allDists=' + (allDists||[]).length, 'investorId=' + investorRecord.id);
 
     myDeals = allDeals
       .filter(d => (d.investors||[]).some(i => i.investorId === investorRecord.id))
       .map(deal => ({ deal, entry: deal.investors.find(i => i.investorId === investorRecord.id) }));
+    
+    console.log('investor-portal: myDeals=' + myDeals.length);
 
     myDists = allDists.filter(d =>
       (d.recipients||[]).some(r => r.investorId === investorRecord.id) || d.investorId === investorRecord.id

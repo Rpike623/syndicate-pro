@@ -332,7 +332,7 @@ const SPData = (() => {
   }
 
   return {
-    init, onReady, isReady, getOrgId,
+    _cache, init, onReady, isReady, getOrgId,
     getDeals, getDealById, getDealsForInvestor, saveDeal, saveDeals, deleteDeal,
     getInvestors, getInvestorById, getInvestorByEmail, getCurrentInvestorRecord, saveInvestors, deleteInvestor,
     getDistributions, getDistributionsForInvestor, saveDistribution, saveDistributions,
