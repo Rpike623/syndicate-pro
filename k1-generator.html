@@ -3,361 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack - K-1 Placeholder Generator</title>
+  <title>deeltrack - K-1 Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --primary: #0f172a;
-      --primary-light: #1e293b;
-      --secondary: #334155;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --accent-light: #dbeafe;
-      --success: #10b981;
-      --success-light: #d1fae5;
-      --warning: #f59e0b;
-      --warning-light: #fef3c7;
-      --danger: #ef4444;
-      --danger-light: #fee2e2;
-      --text: #0f172a;
-      --text-secondary: #64748b;
-      --text-muted: #94a3b8;
-      --border: #e2e8f0;
-      --border-light: #f1f5f9;
-      --bg: #f8fafc;
-      --bg-card: #ffffff;
-      --bg-sidebar: #0f172a;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --radius-sm: 6px;
-      --radius: 8px;
-      --radius-md: 12px;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      min-height: 100vh;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 260px;
-      background: var(--bg-sidebar);
-      color: white;
-      position: fixed;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar-header {
-      padding: 24px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: var(--accent);
-      border-radius: var(--radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .nav { padding: 16px 12px; flex: 1; }
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      color: #94a3b8;
-      text-decoration: none;
-      border-radius: var(--radius);
-      transition: 0.2s;
-      margin-bottom: 4px;
-    }
-
-    .nav-item:hover, .nav-item.active {
-      background: rgba(255,255,255,0.05);
-      color: white;
-    }
-
-    .nav-item i { width: 20px; text-align: center; }
-
-    /* Main Content */
-    .main {
-      flex: 1;
-      margin-left: 260px;
-      padding: 40px;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-
-    .title h1 { font-size: 1.875rem; font-weight: 700; color: var(--primary); }
-    .title p { color: var(--text-secondary); margin-top: 4px; }
-
-    .card {
-      background: white;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-    }
-
-    .form-group { display: flex; flex-direction: column; gap: 8px; }
-
-    label { font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); }
-
-    select, input {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      font-size: 0.95rem;
-      transition: 0.2s;
-    }
-
-    select:focus, input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-light);
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: var(--radius);
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: 0.2s;
-      border: none;
-      font-size: 0.95rem;
-    }
-
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: var(--accent-hover); }
-
-    .table-container { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-
-    th {
-      padding: 12px 16px;
-      background: var(--bg-card);
-      border-bottom: 2px solid var(--border-light);
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    td {
-      padding: 16px;
-      border-bottom: 1px solid var(--border-light);
-      font-size: 0.95rem;
-    }
-
-    .status-badge {
-      padding: 4px 10px;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-
-    .status-pending { background: var(--warning-light); color: var(--warning); }
-    .status-generated { background: var(--success-light); color: var(--success); }
-
-    /* Placeholder Preview */
-    .preview-container {
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 40px;
-      background: white;
-      max-width: 800px;
-      margin: 0 auto;
-      box-shadow: var(--shadow-lg);
-    }
-
-    .k1-header {
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 2px solid var(--primary);
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-
-    .k1-id { text-align: right; }
-    .k1-id h2 { font-size: 2rem; }
-
-    .k1-body { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-
-    .k1-section { margin-bottom: 30px; }
-    .k1-section h3 {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      background: var(--primary);
-      color: white;
-      padding: 4px 8px;
-      margin-bottom: 12px;
-    }
-
-    .k1-box { border: 1px solid #000; padding: 10px; min-height: 100px; }
-
-    .k1-line {
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px solid #eee;
-      padding: 8px 0;
-      font-size: 0.9rem;
-    }
-
-    .k1-line span:last-child { font-weight: 600; }
-  </style>
-</head>
-<body>
-
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-icon"><i class="fas fa-bolt"></i></div>
-        <span>deeltrack</span>
-      </div>
-    </div>
-    <div class="nav">
-      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i> Calculator</a>
-      <a href="pipeline.html" class="nav-item"><i class="fas fa-layer-group"></i> Deal Pipeline</a>
-      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i> Investors</a>
-      <a href="distributions.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Distributions</a>
-      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i> Documents</a>
-      <a href="#" class="nav-item active"><i class="fas fa-file-invoice-dollar"></i> K-1 Generator</a>
-      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i> Email Templates</a>
-      <a href="reports.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
-      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
-      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
-      <a href="deal-room.html" class="nav-item"><i class="fas fa-folder-open"></i><span>Deal Room</span></a>
-      <a href="teaser-generator.html" class="nav-item"><i class="fas fa-file-image"></i><span>Teaser</span></a>
-      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
-    </div>
-  </div>
-
-  <div class="main">
-    <div class="header">
-      <div class="title">
-        <h1>K-1 Placeholder Generator</h1>
-        <p>Generate unofficial tax summary placeholders for your limited partners.</p>
-      </div>
-      <div class="actions">
-        <button class="btn btn-primary" onclick="exportBatch()"><i class="fas fa-file-export"></i> Export All (ZIP)</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><i class="fas fa-filter"></i> Batch Selection</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Select Deal</label>
-          <select id="deal-select" onchange="loadInvestors()">
-            <option value="">-- Choose a Deal --</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Tax Year</label>
-          <input type="number" id="tax-year" value="2024">
-        </div>
-        <div class="form-group">
-          <label>Estimated Total Ordinary Income</label>
-          <input type="number" id="total-income" placeholder="$ 0.00" oninput="recalculate()">
-        </div>
-        <div class="form-group">
-          <label>Estimated Total Depreciation</label>
-          <input type="number" id="total-depreciation" placeholder="$ 0.00" oninput="recalculate()">
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><i class="fas fa-list"></i> Investor K-1 List</div>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Investor</th>
-              <th>Ownership %</th>
-              <th>Ordinary Income</th>
-              <th>Depreciation</th>
-              <th>Distribution</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="investor-list">
-            <!-- Dynamically populated -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Preview Modal-style container -->
-    <div id="preview-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow-y: auto; padding: 40px;">
-      <div style="display: flex; justify-content: flex-end; max-width: 800px; margin: 0 auto 20px;">
-        <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Print PDF</button>
-        <button class="btn" style="background:white; margin-left:10px;" onclick="closePreview()">Close</button>
-      </div>
-      <div id="k1-preview" class="preview-container">
-        <!-- K-1 content here -->
-      </div>
-    </div>
-  </div>
-
-  <script src="js/database.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
@@ -367,165 +16,702 @@
   <script src="js/sp-data.js"></script>
   <script src="js/sp-firebase.js"></script>
   <script src="js/sp-billing.js"></script>
-  <script>
-    SP.requireGP();
+  <style>
+    :root {
+      --primary: #0f172a; --primary-light: #1e293b; --secondary: #334155;
+      --accent: #3b82f6; --accent-hover: #2563eb; --accent-light: #dbeafe;
+      --success: #10b981; --success-light: #d1fae5;
+      --warning: #f59e0b; --warning-light: #fef3c7;
+      --danger: #ef4444; --danger-light: #fee2e2;
+      --purple: #8b5cf6; --purple-light: #ede9fe;
+      --text: #0f172a; --text-secondary: #64748b; --text-muted: #94a3b8;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --bg: #f8fafc; --bg-card: #ffffff; --bg-sidebar: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --radius-sm: 6px; --radius: 8px; --radius-md: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .app { display: flex; min-height: 100vh; }
 
-    let currentDeal = null;
-    let investors = [];
-    let allocations = [];
+    /* Sidebar */
+    .sidebar { width: 260px; background: var(--bg-sidebar); color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 700; text-decoration: none; color: white; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #60a5fa); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+    .nav-section { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.4); padding: 16px 12px 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius); color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--success), #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; color: white; flex-shrink: 0; }
+    .user-details { flex: 1; min-width: 0; }
+    .user-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
 
-      // Sync from Firebase before reading localStorage
+    /* Main */
+    .main { flex: 1; margin-left: 260px; min-height: 100vh; }
+    .top-bar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .page-title-bar h1 { font-size: 1.25rem; font-weight: 700; }
+    .page-title-bar p { font-size: 0.8rem; color: var(--text-secondary); }
+    .top-actions { display: flex; gap: 10px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border-light); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+    .btn-xs { padding: 5px 10px; font-size: 0.75rem; border-radius: var(--radius-sm); }
 
-  async function init() {
-      const deals = SP.getDeals();
-      const select = document.getElementById('deal-select');
-      select.innerHTML = '<option value="">Select a deal...</option>';
-      deals.forEach(deal => {
-        const opt = document.createElement('option');
-        opt.value = deal.id;
-        opt.textContent = deal.name || 'Untitled Deal';
-        select.appendChild(opt);
-      });
-      // Pre-select from URL param
-      const urlDeal = new URLSearchParams(window.location.search).get('deal');
-      if (urlDeal) { select.value = urlDeal; loadInvestors(); }
+    .content { padding: 32px; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+    .card-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .card-body { padding: 24px; }
+
+    /* Config grid */
+    .config-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .income-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
+    .form-input { padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.875rem; font-family: inherit; background: var(--bg-card); color: var(--text); transition: border-color 0.15s; }
+    .form-input:focus { outline: none; border-color: var(--accent); }
+    .form-select { padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.875rem; font-family: inherit; background: var(--bg-card); color: var(--text); cursor: pointer; }
+    .form-select:focus { outline: none; border-color: var(--accent); }
+    .input-prefix { position: relative; }
+    .input-prefix span { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.875rem; pointer-events: none; }
+    .input-prefix input { padding-left: 22px; }
+
+    /* Investor table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); padding: 11px 14px; text-align: left; background: var(--border-light); border-bottom: 1px solid var(--border); }
+    td { padding: 13px 14px; border-bottom: 1px solid var(--border-light); font-size: 0.875rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--border-light); }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; }
+    .text-green { color: var(--success); }
+    .text-red { color: var(--danger); }
+    .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+    .badge-draft { background: var(--warning-light); color: var(--warning); }
+    .badge-ready { background: var(--success-light); color: var(--success); }
+    .badge-sent { background: var(--accent-light); color: var(--accent); }
+
+    /* ──────────────────── PRINT K-1 MODAL ──────────────────── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 500; overflow-y: auto; padding: 32px 20px; }
+    .modal-overlay.open { display: block; }
+    .modal-toolbar { display: flex; justify-content: flex-end; gap: 10px; max-width: 760px; margin: 0 auto 16px; }
+
+    /* The K-1 document itself */
+    .k1-doc { background: white; max-width: 760px; margin: 0 auto; padding: 32px; font-family: Arial, Helvetica, sans-serif; font-size: 10pt; color: #000; box-shadow: 0 20px 60px rgba(0,0,0,0.4); border-radius: 4px; }
+    .k1-top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
+    .k1-top-left h2 { font-size: 14pt; font-weight: bold; margin-bottom: 2px; }
+    .k1-top-left p { font-size: 8pt; color: #555; }
+    .k1-top-right { text-align: right; }
+    .k1-top-right .tax-year { font-size: 28pt; font-weight: 900; line-height: 1; }
+    .k1-top-right .form-ref { font-size: 8pt; color: #555; }
+    .k1-warning { background: #fff3cd; border: 1.5px solid #f59e0b; border-radius: 4px; padding: 6px 12px; font-size: 8pt; font-weight: bold; text-align: center; color: #92400e; margin-bottom: 14px; letter-spacing: 0.05em; }
+    .k1-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .k1-box { border: 1px solid #aaa; padding: 10px; border-radius: 2px; }
+    .k1-box-title { font-size: 7.5pt; font-weight: bold; text-transform: uppercase; background: #0f172a; color: white; padding: 3px 6px; margin: -10px -10px 8px; letter-spacing: 0.08em; }
+    .k1-box p { font-size: 9pt; line-height: 1.7; }
+    .k1-box strong { font-weight: bold; }
+    .k1-section-title { font-size: 8pt; font-weight: bold; text-transform: uppercase; background: #0f172a; color: white; padding: 3px 8px; letter-spacing: 0.08em; margin-bottom: 0; }
+    .k1-lines { border: 1px solid #aaa; border-top: none; margin-bottom: 14px; }
+    .k1-line { display: flex; align-items: center; border-bottom: 1px solid #ddd; min-height: 22px; }
+    .k1-line:last-child { border-bottom: none; }
+    .k1-line-num { width: 28px; min-width: 28px; text-align: center; font-size: 8pt; font-weight: bold; border-right: 1px solid #ddd; padding: 3px 4px; background: #f8fafc; flex-shrink: 0; }
+    .k1-line-desc { flex: 1; font-size: 8.5pt; padding: 3px 8px; }
+    .k1-line-val { min-width: 90px; text-align: right; font-weight: bold; font-size: 9pt; padding: 3px 8px; font-family: 'Courier New', monospace; border-left: 1px solid #ddd; color: #0f172a; }
+    .k1-line-val.neg { color: #ef4444; }
+    .k1-line-val.pos { color: #059669; }
+    .k1-line-val.blank { color: #94a3b8; }
+    .k1-line-sub { font-size: 7.5pt; color: #64748b; display: block; }
+    .k1-footer { border-top: 2px solid #000; padding-top: 10px; font-size: 7.5pt; color: #555; line-height: 1.5; }
+    .k1-footer strong { color: #000; }
+
+    @media print {
+      .modal-toolbar { display: none !important; }
+      .modal-overlay { padding: 0; background: white; }
+      .k1-doc { box-shadow: none; max-width: 100%; border-radius: 0; }
+      body > .app { display: none; }
     }
 
-    function loadInvestors() {
-      const dealId = document.getElementById('deal-select').value;
-      if (!dealId) return;
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: white; padding: 12px 20px; border-radius: var(--radius); font-size: 0.875rem; font-weight: 500; z-index: 600; display: none; align-items: center; gap: 10px; box-shadow: var(--shadow-lg); }
+    .toast.show { display: flex; animation: slideUp 0.3s ease; }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-      currentDeal = SP.getDealById(dealId);
-      if (!currentDeal) return;
+    .loading-spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-      // Get investors linked to this deal
-      const linked = currentDeal.investors || [];
-      investors = linked.map(entry => {
-        const inv = SP.getInvestorById(entry.investorId) || {};
-        return { ...inv, ...entry, name: `${inv.firstName||''} ${inv.lastName||''}`.trim() || inv.email || 'Unknown' };
-      });
+    .empty-state { text-align: center; padding: 48px; color: var(--text-muted); }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: 0.3; }
+    .empty-state h3 { font-size: 1rem; color: var(--text-secondary); margin-bottom: 6px; }
+    .empty-state p { font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+<div class="app">
 
-      recalculate();
-    }
-
-    function fmtC(n) { return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0}).format(n||0); }
-
-    function recalculate() {
-      const tbody = document.getElementById('investor-list');
-      if (!currentDeal || !investors.length) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted);">Select a deal with linked investors to generate K-1s</td></tr>`;
-        return;
-      }
-
-      const totalIncome = parseFloat(document.getElementById('total-income').value) || 0;
-      const totalDep = parseFloat(document.getElementById('total-depreciation').value) || 0;
-
-      // Pull actual distributions for this deal from sp-core
-      const dists = SP.getDistributions().filter(d => d.dealId === currentDeal.id);
-
-      allocations = investors.map(inv => {
-        const ownership = inv.ownership || 0; // real % from deal link
-        const committed = inv.committed || 0;
-        const ordinaryIncome = parseFloat((totalIncome * ownership / 100).toFixed(2));
-        const depreciation = parseFloat((totalDep * ownership / 100).toFixed(2));
-        // Sum distributions this investor received
-        const distribution = dists.reduce((s, d) => {
-          const r = (d.recipients||[]).find(r => r.investorId === inv.investorId);
-          return s + (r?.amount || 0);
-        }, 0);
-
-        return { id: inv.investorId, name: inv.name, email: inv.email||'', ownership, committed, ordinaryIncome, depreciation, distribution };
-      });
-
-      tbody.innerHTML = allocations.map((alloc, i) => `
-        <tr>
-          <td>
-            <div style="font-weight:600">${alloc.name}</div>
-            <div style="font-size:0.8rem;color:var(--text-muted)">${alloc.email}</div>
-          </td>
-          <td style="font-family:'JetBrains Mono',monospace;">${alloc.ownership.toFixed(2)}%</td>
-          <td style="font-family:'JetBrains Mono',monospace;">${fmtC(alloc.ordinaryIncome)}</td>
-          <td style="font-family:'JetBrains Mono',monospace;">(${fmtC(alloc.depreciation)})</td>
-          <td style="font-family:'JetBrains Mono',monospace;color:var(--success);">${fmtC(alloc.distribution)}</td>
-          <td><span class="status-badge status-pending">Draft</span></td>
-          <td>
-            <button class="btn btn-primary" style="padding:6px 12px;font-size:.8rem;" onclick="previewK1('${alloc.id}')">
-              <i class="fas fa-eye"></i> Preview
-            </button>
-          </td>
-        </tr>`).join('');
-    }
-
-    function previewK1(investorId) {
-      const alloc = allocations.find(a => a.id === investorId || String(a.id) === String(investorId));
-      const year = document.getElementById('tax-year').value;
-      const preview = document.getElementById('k1-preview');
-      const session = SP.getSession();
-      const gpName = session?.name || 'General Partner';
-
-      preview.innerHTML = `
-        <div class="k1-header">
-          <div class="k1-title">
-            <h3 style="background:none;color:black;font-size:1.2rem;padding:0;">Schedule K-1 (Form 1065)</h3>
-            <p>Partner's Share of Income, Deductions, Credits, etc.</p>
-            <p style="font-weight:700;color:var(--danger);border:2px solid var(--danger);display:inline-block;padding:5px 10px;margin-top:10px;">UNOFFICIAL PLACEHOLDER — DO NOT FILE</p>
-          </div>
-          <div class="k1-id"><h2>${year}</h2></div>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>deeltrack</span></a>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Deal Pipeline</span></a>
+      <a href="deals.html" class="nav-item"><i class="fas fa-building"></i><span>Deals</span></a>
+      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+      <div class="nav-section">Investors</div>
+      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+      <a href="inbox.html" class="nav-item"><i class="fas fa-inbox"></i><span>Inbox</span></a>
+      <div class="nav-section">Operations</div>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
+      <a href="deal-room.html" class="nav-item"><i class="fas fa-folder-open"></i><span>Deal Room</span></a>
+      <a href="teaser-generator.html" class="nav-item"><i class="fas fa-file-image"></i><span>Teaser</span></a>
+      <a href="k1-generator.html" class="nav-item active"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">GP</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarName">Loading…</div>
+          <div class="user-role">General Partner</div>
         </div>
-        <div class="k1-body">
-          <div class="k1-col">
-            <div class="k1-section">
-              <h3>Part I: Partnership Info</h3>
-              <div class="k1-box">
-                <strong>${currentDeal.name}</strong><br>
-                ${currentDeal.location||'Address on file'}<br>
-                Managing Member: ${gpName}<br>
-                EIN: XX-XXXXXXX (contact GP)
-              </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="top-bar">
+      <div>
+        <div class="page-title-bar">
+          <h1><i class="fas fa-file-invoice-dollar" style="color:var(--accent);margin-right:8px;"></i>K-1 Generator</h1>
+          <p>Generate Schedule K-1 (Form 1065) placeholders for your limited partners</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-secondary btn-sm" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+        <button class="btn btn-success btn-sm" id="batchPrintBtn" onclick="batchPrint()" disabled><i class="fas fa-print"></i> Print All K-1s</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Step 1: Deal & Year -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title"><i class="fas fa-cog" style="color:var(--accent)"></i> Step 1 — Deal & Tax Year</div>
+        </div>
+        <div class="card-body">
+          <div class="config-grid">
+            <div class="form-group">
+              <label class="form-label">Select Deal</label>
+              <select class="form-select" id="dealSelect" onchange="onDealChange()">
+                <option value="">— Choose a deal —</option>
+              </select>
             </div>
-            <div class="k1-section">
-              <h3>Part II: Partner Info</h3>
-              <div class="k1-box">
-                <strong>${alloc.name}</strong><br>
-                ${alloc.email}<br>
-                Initial Capital: ${fmtC(alloc.committed)}<br>
-                SSN/TIN: XXX-XX-XXXX
-              </div>
+            <div class="form-group">
+              <label class="form-label">Tax Year</label>
+              <select class="form-select" id="taxYear" onchange="recalc()">
+                <option value="2025">2025</option>
+                <option value="2024" selected>2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+              </select>
             </div>
-            <div class="k1-section">
-              <h3>Partner's Share of Profit/Loss</h3>
-              <div class="k1-line"><span>Beginning</span><span>${alloc.ownership.toFixed(2)}%</span></div>
-              <div class="k1-line"><span>Ending</span><span>${alloc.ownership.toFixed(2)}%</span></div>
-              <div class="k1-line"><span>Capital</span><span>${alloc.ownership.toFixed(2)}%</span></div>
+            <div class="form-group">
+              <label class="form-label">Partnership EIN</label>
+              <input class="form-input" type="text" id="partnershipEIN" placeholder="XX-XXXXXXX" oninput="recalc()">
             </div>
           </div>
-          <div class="k1-col">
-            <div class="k1-section">
-              <h3>Part III: Share of Current Year Income</h3>
-              <div class="k1-line"><span>1. Ordinary Business Income</span><span>${fmtC(alloc.ordinaryIncome)}</span></div>
-              <div class="k1-line"><span>2. Net Rental Real Estate Income</span><span>$0</span></div>
-              <div class="k1-line"><span>12. Section 179 Deduction</span><span>$0</span></div>
-              <div class="k1-line"><span>13. Other Deductions (Depreciation)</span><span>(${fmtC(alloc.depreciation)})</span></div>
-              <div class="k1-line" style="font-weight:700;border-top:2px solid #000;margin-top:8px;padding-top:8px;">
-                <span>19. Distributions Received</span><span style="color:var(--success);">${fmtC(alloc.distribution)}</span>
-              </div>
-              <div style="margin-top:20px;font-size:.7rem;font-style:italic;border-top:1px solid #000;padding-top:10px;line-height:1.6;">
-                This is an <strong>estimate for planning purposes only</strong>. It is NOT your official IRS Schedule K-1. 
-                Your CPA will provide the official K-1 after the partnership files Form 1065. Do not file this document with your tax return.
-              </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Income & Deductions -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title"><i class="fas fa-dollar-sign" style="color:var(--success)"></i> Step 2 — Partnership-Level Income & Deductions</div>
+          <span style="font-size:0.78rem;color:var(--text-muted);">Allocated pro-rata to each LP by ownership %</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;">
+            <div class="form-group">
+              <label class="form-label">Ordinary Business Income (Loss)</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f1_ordinary" placeholder="0" oninput="recalc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Net Rental Real Estate Income</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f2_rental" placeholder="0" oninput="recalc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Net Short-Term Capital Gain</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f8_stcg" placeholder="0" oninput="recalc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Net Long-Term Capital Gain</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f9a_ltcg" placeholder="0" oninput="recalc()"></div>
             </div>
           </div>
-        </div>`;
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;">
+            <div class="form-group">
+              <label class="form-label">Sec. 1231 Gain (Loss)</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f10_1231" placeholder="0" oninput="recalc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bonus Depreciation / Sec. 179</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f12_sec179" placeholder="0" oninput="recalc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cost Segregation / Other Deductions</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f13_otherdep" placeholder="0" oninput="recalc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Distributions (Year)</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f19_dist" placeholder="0" oninput="recalc()"></div>
+              <span style="font-size:0.7rem;color:var(--text-muted);">Auto-filled from Distributions if 0</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+            <div class="form-group">
+              <label class="form-label">Beginning Capital (All LPs)</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="capBegin" placeholder="0" oninput="recalc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Capital Contributed (Year)</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="capContrib" placeholder="0" oninput="recalc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ending Capital Basis Method</label>
+              <select class="form-select" id="capMethod" onchange="recalc()">
+                <option value="tax">Tax Basis</option>
+                <option value="gaap">GAAP</option>
+                <option value="section704">Section 704(b)</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      document.getElementById('preview-modal').style.display = 'block';
-    }
+      <!-- Investor table -->
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header">
+          <div class="card-title"><i class="fas fa-users" style="color:var(--purple)"></i> Step 3 — Investor Allocations</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span id="investorCount" style="font-size:0.8rem;color:var(--text-muted);">0 investors</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Investor</th>
+                <th>Ownership %</th>
+                <th>Ordinary Inc.</th>
+                <th>Rental Inc.</th>
+                <th>LT Cap. Gain</th>
+                <th>Depreciation</th>
+                <th>Distributions</th>
+                <th>End. Capital</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="k1TableBody">
+              <tr><td colspan="10" class="empty-state"><i class="fas fa-file-invoice-dollar"></i><h3>Select a deal above</h3><p>K-1 allocations will appear here once you choose a deal.</p></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-    function closePreview() {
-      document.getElementById('preview-modal').style.display = 'none';
-    }
+      <!-- Summary card -->
+      <div id="summaryCard" style="display:none;" class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fas fa-check-circle" style="color:var(--success)"></i> Partnership Totals (Form 1065 Sanity Check)</div>
+        </div>
+        <div class="card-body">
+          <div id="summaryGrid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;"></div>
+        </div>
+      </div>
 
-    window.onload = init;
-    window.addEventListener('spdata-ready', function() { if (document.readyState !== 'loading') init(); else window.addEventListener('DOMContentLoaded', init); });
-  </script>
+    </div>
+  </div>
+</div>
+
+<!-- Print Modal -->
+<div class="modal-overlay" id="k1Modal">
+  <div class="modal-toolbar">
+    <button class="btn btn-success btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Print / Save PDF</button>
+    <button class="btn btn-secondary btn-sm" onclick="closeModal()"><i class="fas fa-times"></i> Close</button>
+  </div>
+  <div id="k1PrintArea"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="fas fa-info-circle"></i><span id="toastMsg"></span></div>
+
+<script>
+// ── Auth ──────────────────────────────────────────────────────────────────────
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  const n = user.displayName || user.email || 'GP';
+  document.getElementById('sidebarName').textContent = n;
+  document.getElementById('sidebarAvatar').textContent = n.charAt(0).toUpperCase();
+  init();
+});
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentDeal = null;
+let allocations  = [];
+
+function init() {
+  const deals = SP.getDeals ? SP.getDeals() : (SP.get('deals') || []);
+  const sel = document.getElementById('dealSelect');
+  deals.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d.id;
+    o.textContent = d.name || 'Untitled Deal';
+    sel.appendChild(o);
+  });
+  const urlDeal = new URLSearchParams(location.search).get('deal');
+  if (urlDeal) { sel.value = urlDeal; onDealChange(); }
+}
+
+window.addEventListener('spdata-ready', () => init());
+
+function onDealChange() {
+  const id = document.getElementById('dealSelect').value;
+  if (!id) { currentDeal = null; renderTable([]); return; }
+  currentDeal = (SP.getDealById ? SP.getDealById(id) : (SP.get('deals')||[]).find(d=>d.id===id)) || null;
+  if (!currentDeal) return;
+
+  // Auto-fill distributions total from sp-core
+  const dists = (SP.getDistributions ? SP.getDistributions() : (SP.get('distributions')||[]))
+    .filter(d => d.dealId === id);
+  const totalDist = dists.reduce((s, d) => {
+    const rs = d.recipients || d.amounts || [];
+    return s + rs.reduce((ss, r) => ss + (r.amount || r.value || 0), 0);
+  }, 0);
+  if (totalDist > 0) document.getElementById('f19_dist').value = totalDist;
+
+  recalc();
+}
+
+// ── Recalculate allocations ───────────────────────────────────────────────────
+function recalc() {
+  if (!currentDeal) return;
+
+  const year       = parseInt(document.getElementById('taxYear').value);
+  const f1         = parseFloat(document.getElementById('f1_ordinary').value) || 0;
+  const f2         = parseFloat(document.getElementById('f2_rental').value)   || 0;
+  const f8         = parseFloat(document.getElementById('f8_stcg').value)     || 0;
+  const f9a        = parseFloat(document.getElementById('f9a_ltcg').value)    || 0;
+  const f10        = parseFloat(document.getElementById('f10_1231').value)    || 0;
+  const f12        = parseFloat(document.getElementById('f12_sec179').value)  || 0;
+  const f13        = parseFloat(document.getElementById('f13_otherdep').value)|| 0;
+  const f19_total  = parseFloat(document.getElementById('f19_dist').value)   || 0;
+  const capBegin   = parseFloat(document.getElementById('capBegin').value)   || 0;
+  const capContrib = parseFloat(document.getElementById('capContrib').value) || 0;
+
+  const linked = currentDeal.investors || [];
+  const invList = linked.map(entry => {
+    const inv = (SP.getInvestorById ? SP.getInvestorById(entry.investorId) : null) ||
+      (SP.get('investors')||[]).find(i => i.id === entry.investorId) || {};
+    const name = [inv.firstName, inv.lastName].filter(Boolean).join(' ') || inv.name || inv.email || 'Unknown';
+    return { ...inv, ...entry, name };
+  });
+
+  // Per-investor distributions from actual distribution records
+  const dists = (SP.getDistributions ? SP.getDistributions() : (SP.get('distributions')||[]))
+    .filter(d => d.dealId === currentDeal.id);
+
+  allocations = invList.map(inv => {
+    const pct = parseFloat(inv.ownership || inv.pct || 0);
+    const ratio = pct / 100;
+
+    // Allocate each line item
+    const line1   = round2(f1   * ratio);
+    const line2   = round2(f2   * ratio);
+    const line8   = round2(f8   * ratio);
+    const line9a  = round2(f9a  * ratio);
+    const line10  = round2(f10  * ratio);
+    const line12  = round2(f12  * ratio);
+    const line13  = round2(f13  * ratio);
+    const line19  = round2(f19_total * ratio);
+
+    // Capital account
+    const capBeg   = round2(capBegin  * ratio);
+    const contrib  = round2(capContrib * ratio);
+    const income   = line1 + line2;
+    const deducted = line12 + line13;
+    const capEnd   = round2(capBeg + contrib + income - deducted - line19);
+
+    // Actual distributions from records
+    const actualDist = dists.reduce((s, d) => {
+      const rs = d.recipients || d.amounts || [];
+      const r = rs.find(r => r.investorId === inv.investorId || r.investorId === inv.id);
+      return s + (r ? (r.amount || r.value || 0) : 0);
+    }, 0);
+
+    return {
+      id: inv.investorId || inv.id,
+      name: inv.name, email: inv.email || '',
+      ssn: inv.taxId || inv.ssn || '',
+      address: inv.address || '',
+      pct,
+      committed: inv.committed || inv.amount || 0,
+      line1, line2, line8, line9a, line10, line12, line13,
+      line19: actualDist > 0 ? actualDist : line19,
+      capBeg, contrib, capEnd,
+      method: document.getElementById('capMethod').value,
+      year,
+    };
+  });
+
+  renderTable(allocations);
+  renderSummary(allocations, { f1, f2, f8, f9a, f10, f12, f13 });
+  document.getElementById('batchPrintBtn').disabled = !allocations.length;
+}
+
+function round2(n) { return Math.round(n * 100) / 100; }
+function fmtC(n) {
+  if (n === 0) return '—';
+  const abs = Math.abs(n);
+  const s = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0}).format(abs);
+  return n < 0 ? `(${s})` : s;
+}
+function fmtPct(n) { return n.toFixed(4) + '%'; }
+
+// ── Render table ──────────────────────────────────────────────────────────────
+function renderTable(rows) {
+  const tbody = document.getElementById('k1TableBody');
+  document.getElementById('investorCount').textContent = rows.length + ' investor' + (rows.length !== 1 ? 's' : '');
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fas fa-users"></i><h3>No linked investors</h3><p>Add investors to this deal first in the Investors section.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map((r, i) => {
+    const totalDeductions = r.line12 + r.line13;
+    const netIncome = r.line1 + r.line2 - totalDeductions;
+    const netClass = netIncome >= 0 ? 'text-green' : 'text-red';
+
+    return `<tr>
+      <td>
+        <div style="font-weight:600;font-size:0.875rem;">${escH(r.name)}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);">${escH(r.email)}</div>
+      </td>
+      <td class="mono">${fmtPct(r.pct)}</td>
+      <td class="mono ${r.line1 < 0 ? 'text-red' : r.line1 > 0 ? 'text-green' : ''}">${fmtC(r.line1)}</td>
+      <td class="mono ${r.line2 < 0 ? 'text-red' : r.line2 > 0 ? 'text-green' : ''}">${fmtC(r.line2)}</td>
+      <td class="mono ${r.line9a > 0 ? 'text-green' : ''}">${fmtC(r.line9a)}</td>
+      <td class="mono text-red">${r.line12 + r.line13 !== 0 ? fmtC(-(r.line12 + r.line13)) : '—'}</td>
+      <td class="mono text-green">${fmtC(r.line19)}</td>
+      <td class="mono">${fmtC(r.capEnd)}</td>
+      <td><span class="badge badge-ready"><i class="fas fa-check" style="margin-right:4px;"></i>Ready</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-primary btn-xs" onclick="previewOne(${i})"><i class="fas fa-eye"></i> Preview</button>
+          <button class="btn btn-secondary btn-xs" onclick="printOne(${i})"><i class="fas fa-print"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Render summary ────────────────────────────────────────────────────────────
+function renderSummary(rows, totals) {
+  const card = document.getElementById('summaryCard');
+  if (!rows.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  const sumLine1 = rows.reduce((s,r)=>s+r.line1, 0);
+  const sumLine2 = rows.reduce((s,r)=>s+r.line2, 0);
+  const sumLine19 = rows.reduce((s,r)=>s+r.line19, 0);
+  const sumDep = rows.reduce((s,r)=>s+r.line12+r.line13, 0);
+
+  document.getElementById('summaryGrid').innerHTML = [
+    { label: 'Ord. Income Allocated', val: fmtC(sumLine1), check: Math.abs(sumLine1 - totals.f1) < 1 },
+    { label: 'Rental Inc. Allocated',  val: fmtC(sumLine2), check: Math.abs(sumLine2 - totals.f2) < 1 },
+    { label: 'Deductions Allocated',   val: fmtC(-sumDep),  check: Math.abs(sumDep - (totals.f12 + totals.f13)) < 1 },
+    { label: 'Distributions Allocated', val: fmtC(sumLine19), check: true },
+  ].map(item => `
+    <div style="background:${item.check?'var(--success-light)':'var(--warning-light)'};border:1px solid ${item.check?'var(--success)':'var(--warning)'};border-radius:var(--radius-sm);padding:14px;">
+      <div style="font-size:0.75rem;font-weight:600;color:${item.check?'var(--success)':'var(--warning)'};">${item.label}</div>
+      <div style="font-size:1.2rem;font-weight:700;font-family:'JetBrains Mono',monospace;margin-top:4px;">${item.val}</div>
+      <div style="font-size:0.7rem;color:${item.check?'var(--success)':'var(--warning)'};margin-top:4px;">${item.check ? '✓ Balances' : '⚠ Check totals'}</div>
+    </div>`
+  ).join('');
+}
+
+// ── Build K-1 document HTML ───────────────────────────────────────────────────
+function buildK1Html(r) {
+  const ein = document.getElementById('partnershipEIN').value || 'XX-XXXXXXX';
+  const sess = SP.getSession ? SP.getSession() : null;
+  const gpName = sess?.name || sess?.email || 'General Partner';
+  const dealName = currentDeal.name || 'Partnership';
+  const dealAddr = currentDeal.location || currentDeal.address || 'Address on file';
+
+  const line = (num, desc, val, sub='') => {
+    const cls = val === null ? 'blank' : val < 0 ? 'neg' : val > 0 ? 'pos' : 'blank';
+    const display = val === null || val === 0 ? '' : fmtC(val);
+    return `<div class="k1-line">
+      <div class="k1-line-num">${num}</div>
+      <div class="k1-line-desc">${desc}${sub ? `<span class="k1-line-sub">${sub}</span>` : ''}</div>
+      <div class="k1-line-val ${cls}">${display || '—'}</div>
+    </div>`;
+  };
+
+  return `<div class="k1-doc" id="k1doc_${r.id}">
+    <div class="k1-top">
+      <div class="k1-top-left">
+        <h2>Schedule K-1 (Form 1065)</h2>
+        <p>Partner's Share of Income, Deductions, Credits, etc.</p>
+        <p>Department of the Treasury — Internal Revenue Service</p>
+      </div>
+      <div class="k1-top-right">
+        <div class="tax-year">${r.year}</div>
+        <div class="form-ref">For calendar year ${r.year} or tax year<br>beginning ______ , ${r.year}, ending ______ , ______</div>
+      </div>
+    </div>
+
+    <div class="k1-warning">⚠ UNOFFICIAL PLACEHOLDER — FOR PLANNING PURPOSES ONLY — DO NOT FILE WITH YOUR TAX RETURN ⚠</div>
+
+    <div class="k1-cols">
+      <div>
+        <div class="k1-box">
+          <div class="k1-box-title">Part I — Information About the Partnership</div>
+          <p><strong>A. Partnership's EIN:</strong> ${escH(ein)}</p>
+          <p><strong>B. Partnership's name:</strong><br>${escH(dealName)}</p>
+          <p><strong>C. Address:</strong> ${escH(dealAddr)}</p>
+          <p><strong>D. Managing Member / GP:</strong> ${escH(gpName)}</p>
+          <p><strong>IRS Center:</strong> Where filed (see instructions)</p>
+        </div>
+      </div>
+      <div>
+        <div class="k1-box">
+          <div class="k1-box-title">Part II — Information About the Partner</div>
+          <p><strong>F. Partner's SSN/TIN:</strong> ${r.ssn ? escH(r.ssn) : 'XXX-XX-XXXX'}</p>
+          <p><strong>G. Partner's name:</strong><br>${escH(r.name)}</p>
+          <p><strong>H. Address:</strong> ${escH(r.address || 'Address on file')}</p>
+          <p><strong>I. Limited partner:</strong> ☑ Yes &nbsp; <strong>J. Domestic partner:</strong> ☑ Yes</p>
+          <p><strong>K. Partner's share:</strong> Profit ${fmtPct(r.pct)} &nbsp; Loss ${fmtPct(r.pct)} &nbsp; Capital ${fmtPct(r.pct)}</p>
+          <p><strong>L. Partner's capital account:</strong><br>
+            Beginning: ${fmtC(r.capBeg)} &nbsp; Contributed: ${fmtC(r.contrib)}<br>
+            Withdrawals/Dist: (${fmtC(r.line19)}) &nbsp; Ending: ${fmtC(r.capEnd)}<br>
+            Method: ${r.method.toUpperCase()}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="k1-section-title">Part III — Partner's Share of Current Year Income, Deductions, Credits, and Other Items</div>
+    <div class="k1-lines">
+      ${line(1,  'Ordinary business income (loss)', r.line1)}
+      ${line(2,  'Net rental real estate income (loss)', r.line2)}
+      ${line(3,  'Other net rental income (loss)', null)}
+      ${line(4,  'Guaranteed payments for services', null)}
+      ${line(5,  'Guaranteed payments for capital', null)}
+      ${line(6a, 'Net section 1231 gain (loss)', r.line10)}
+      ${line(7,  'Other income (loss)', null)}
+      ${line(8,  'Net short-term capital gain (loss)', r.line8)}
+      ${line('9a','Net long-term capital gain (loss)', r.line9a)}
+      ${line('9b','Collectibles (28%) gain (loss)', null)}
+      ${line('9c','Unrecaptured section 1250 gain', null)}
+      ${line(11, 'Other income (loss)', null)}
+      ${line(12, 'Section 179 deduction', r.line12 ? -r.line12 : null)}
+      ${line(13, 'Other deductions (depreciation/cost seg)', r.line13 ? -r.line13 : null, 'May include bonus depreciation, cost segregation')}
+      ${line(16, 'Schedule K-3 available', null, 'Contact GP if you have foreign activities')}
+      ${line(17, 'Alternative minimum tax (AMT) items', null)}
+      ${line(18, 'Tax-exempt income and nondeductible expenses', null)}
+      ${line(19, 'Distributions', r.line19, 'Cash distributions received during the year')}
+      ${line(20, 'Other information', null)}
+    </div>
+
+    <div class="k1-footer">
+      <strong>Important Disclaimer:</strong> This is an <strong>unofficial placeholder K-1 generated by deeltrack for planning purposes only.</strong>
+      It is <strong>NOT your official IRS Schedule K-1</strong> and must <strong>NOT be filed with your federal, state, or local tax return.</strong>
+      Your actual Schedule K-1 will be issued by the partnership after the Form 1065 is filed, typically by March 15 (or September 15 with extension).
+      Consult your CPA or tax advisor for the official document and for any tax filing decisions.
+      All figures shown are estimates based on data provided by the General Partner and are subject to change.
+    </div>
+  </div>`;
+}
+
+// ── Preview / print ───────────────────────────────────────────────────────────
+function previewOne(idx) {
+  const r = allocations[idx];
+  if (!r) return;
+  document.getElementById('k1PrintArea').innerHTML = buildK1Html(r);
+  document.getElementById('k1Modal').classList.add('open');
+}
+
+function printOne(idx) {
+  previewOne(idx);
+  setTimeout(() => window.print(), 400);
+}
+
+function batchPrint() {
+  if (!allocations.length) return;
+  const html = allocations.map(r => buildK1Html(r) + '<div style="page-break-after:always;"></div>').join('');
+  document.getElementById('k1PrintArea').innerHTML = html;
+  document.getElementById('k1Modal').classList.add('open');
+  setTimeout(() => window.print(), 500);
+}
+
+function closeModal() {
+  document.getElementById('k1Modal').classList.remove('open');
+}
+
+// ── CSV export ────────────────────────────────────────────────────────────────
+function exportCSV() {
+  if (!allocations.length) { showToast('Select a deal and calculate first.', 'error'); return; }
+  const year = document.getElementById('taxYear').value;
+  const headers = ['Investor','Email','Ownership%','OrdinaryIncome','RentalIncome','LT_CapGain','ST_CapGain','Sec1231','Sec179','OtherDeductions','Distributions','EndingCapital'];
+  const rows = allocations.map(r => [
+    r.name, r.email, r.pct, r.line1, r.line2, r.line9a, r.line8, r.line10, r.line12, r.line13, r.line19, r.capEnd
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `k1-allocations-${currentDeal?.name?.replace(/\s+/g,'-')||'deal'}-${year}.csv`;
+  a.click();
+  showToast('CSV exported!', 'success');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.querySelector('#toastMsg').textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Close modal on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
 </body>
 </html>
