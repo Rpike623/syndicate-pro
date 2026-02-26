@@ -1,1 +1,6 @@
-functions/node_modules/
+node_modules/
+package-lock.json
+.env
+*.env
+.inbox-state.json
+.login-state.json
