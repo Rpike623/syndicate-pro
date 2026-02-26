@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack - Inbox</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-billing.js"></script>
+  <style>
+    :root {
+      --primary: #0f172a; --primary-light: #1e293b; --secondary: #334155;
+      --accent: #3b82f6; --accent-hover: #2563eb; --accent-light: #dbeafe;
+      --success: #10b981; --success-light: #d1fae5;
+      --warning: #f59e0b; --warning-light: #fef3c7;
+      --danger: #ef4444; --danger-light: #fee2e2;
+      --purple: #8b5cf6; --purple-light: #ede9fe;
+      --text: #0f172a; --text-secondary: #64748b; --text-muted: #94a3b8;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --bg: #f8fafc; --bg-card: #ffffff; --bg-sidebar: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --radius-sm: 6px; --radius: 8px; --radius-md: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .app { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar { width: 260px; background: var(--bg-sidebar); color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: transform 0.3s; }
+    .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 700; text-decoration: none; color: white; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #60a5fa); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+    .nav-section { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.4); padding: 16px 12px 8px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius); color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: var(--accent); color: white; }
+    .nav-item i { width: 20px; text-align: center; }
+    .nav-badge { margin-left: auto; background: var(--danger); color: white; font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 20px; min-width: 18px; text-align: center; }
+    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--success), #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; color: white; flex-shrink: 0; }
+    .user-details { flex: 1; min-width: 0; }
+    .user-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+
+    /* Main */
+    .main { flex: 1; margin-left: 260px; min-height: 100vh; }
+    .top-bar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .top-left { display: flex; align-items: center; gap: 16px; }
+    .page-title-bar h1 { font-size: 1.25rem; font-weight: 700; }
+    .page-title-bar p { font-size: 0.8rem; color: var(--text-secondary); }
+    .top-actions { display: flex; gap: 12px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border-light); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+
+    .content { padding: 32px; }
+
+    /* Inbox layout */
+    .inbox-layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; height: calc(100vh - 130px); }
+    .inbox-list-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; }
+    .inbox-detail-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; overflow: hidden; }
+
+    /* List panel */
+    .inbox-list-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .inbox-list-header h3 { font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .unread-count { background: var(--danger); color: white; font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; }
+    .inbox-filters { display: flex; gap: 4px; padding: 10px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .filter-btn { padding: 4px 10px; font-size: 0.75rem; font-weight: 600; border-radius: 20px; border: 1px solid transparent; cursor: pointer; background: none; color: var(--text-secondary); transition: all 0.15s; }
+    .filter-btn.active { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
+    .filter-btn:hover:not(.active) { background: var(--border-light); color: var(--text); }
+    .inbox-list { flex: 1; overflow-y: auto; }
+    .inbox-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border-light); cursor: pointer; transition: background 0.1s; position: relative; }
+    .inbox-item:hover { background: var(--border-light); }
+    .inbox-item.selected { background: var(--accent-light); border-left: 3px solid var(--accent); }
+    .inbox-item.unread .inbox-item-subject { font-weight: 700; color: var(--text); }
+    .inbox-item.unread::after { content: ''; position: absolute; left: 6px; top: 50%; transform: translateY(-50%); width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+    .inbox-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: white; flex-shrink: 0; }
+    .inbox-item-body { flex: 1; min-width: 0; }
+    .inbox-item-from { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .inbox-item-subject { font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); }
+    .inbox-item-preview { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .inbox-item-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .inbox-item-time { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; }
+    .priority-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .priority-dot.high { background: var(--danger); }
+    .priority-dot.medium { background: var(--warning); }
+    .priority-dot.low { background: var(--success); }
+
+    /* Detail panel */
+    .inbox-detail-header { padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .inbox-detail-subject { font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; }
+    .inbox-detail-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .meta-from { display: flex; align-items: center; gap: 8px; }
+    .meta-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: white; flex-shrink: 0; }
+    .meta-name { font-size: 0.875rem; font-weight: 600; }
+    .meta-email { font-size: 0.75rem; color: var(--text-secondary); }
+    .meta-time { font-size: 0.8rem; color: var(--text-muted); margin-left: auto; }
+    .inbox-detail-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .inbox-detail-body { flex: 1; overflow-y: auto; padding: 24px; }
+    .email-body { font-size: 0.9rem; line-height: 1.7; color: var(--text); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; white-space: pre-wrap; }
+    .type-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+    .type-investor_reply { background: var(--accent-light); color: var(--accent); }
+    .type-bounce { background: var(--danger-light); color: var(--danger); }
+    .type-investor_inquiry { background: var(--purple-light); color: var(--purple); }
+    .type-general { background: var(--border-light); color: var(--text-secondary); }
+    .type-automated { background: var(--border-light); color: var(--text-muted); }
+
+    /* Reply composer */
+    .reply-composer { border-top: 1px solid var(--border); padding: 16px 20px; flex-shrink: 0; background: var(--bg); }
+    .reply-composer-header { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .reply-to-field { font-size: 0.8rem; color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 12px; margin-bottom: 8px; }
+    .reply-subject-field { font-size: 0.8rem; color: var(--text-secondary); background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 12px; margin-bottom: 8px; width: 100%; font-family: inherit; }
+    .reply-subject-field:focus { outline: none; border-color: var(--accent); }
+    .reply-textarea { width: 100%; height: 90px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 0.875rem; resize: vertical; background: var(--bg-card); color: var(--text); transition: border-color 0.15s; }
+    .reply-textarea:focus { outline: none; border-color: var(--accent); }
+    .reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+
+    /* Empty state */
+    .empty-inbox { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); text-align: center; padding: 40px; }
+    .empty-inbox i { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
+    .empty-inbox h3 { font-size: 1rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+    .empty-inbox p { font-size: 0.85rem; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: white; padding: 12px 20px; border-radius: var(--radius); font-size: 0.875rem; font-weight: 500; z-index: 999; display: none; align-items: center; gap: 10px; box-shadow: var(--shadow-lg); }
+    .toast.show { display: flex; animation: slideUp 0.3s ease; }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* Loading */
+    .loading-spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .investor-match { background: var(--success-light); border: 1px solid var(--success); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.8rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .investor-match i { color: var(--success); }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>deeltrack</span></a>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Overview</div>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Deal Pipeline</span></a>
+      <a href="deals.html" class="nav-item"><i class="fas fa-building"></i><span>Deals</span></a>
+      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+      <div class="nav-section">Investors</div>
+      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+      <a href="inbox.html" class="nav-item active"><i class="fas fa-inbox"></i><span>Inbox</span><span class="nav-badge" id="sidebarUnreadBadge" style="display:none">0</span></a>
+      <div class="nav-section">Operations</div>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
+      <a href="deal-room.html" class="nav-item"><i class="fas fa-folder-open"></i><span>Deal Room</span></a>
+      <a href="teaser-generator.html" class="nav-item"><i class="fas fa-file-image"></i><span>Teaser</span></a>
+      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">GP</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarName">Loading…</div>
+          <div class="user-role">General Partner</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="top-bar">
+      <div class="top-left">
+        <div class="page-title-bar">
+          <h1><i class="fas fa-inbox" style="color:var(--accent);margin-right:8px;"></i>Investor Inbox</h1>
+          <p>Replies and inquiries from admin@deeltrack.com</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-secondary btn-sm" onclick="refreshInbox()"><i class="fas fa-sync-alt"></i> Refresh</button>
+        <button class="btn btn-primary btn-sm" onclick="markAllRead()"><i class="fas fa-check-double"></i> Mark All Read</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;display:flex;align-items:center;gap:14px;">
+          <div style="width:42px;height:42px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:1.1rem;"><i class="fas fa-envelope"></i></div>
+          <div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);font-weight:500;">Total Messages</div>
+            <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;" id="statTotal">—</div>
+          </div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;display:flex;align-items:center;gap:14px;">
+          <div style="width:42px;height:42px;background:var(--danger-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--danger);font-size:1.1rem;"><i class="fas fa-exclamation-circle"></i></div>
+          <div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);font-weight:500;">High Priority</div>
+            <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;" id="statHigh">—</div>
+          </div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;display:flex;align-items:center;gap:14px;">
+          <div style="width:42px;height:42px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:1.1rem;"><i class="fas fa-comments"></i></div>
+          <div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);font-weight:500;">Investor Replies</div>
+            <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;" id="statReplies">—</div>
+          </div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;display:flex;align-items:center;gap:14px;">
+          <div style="width:42px;height:42px;background:var(--warning-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--warning);font-size:1.1rem;"><i class="fas fa-exclamation-triangle"></i></div>
+          <div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);font-weight:500;">Bounces</div>
+            <div style="font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;" id="statBounces">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inbox layout -->
+      <div class="inbox-layout">
+
+        <!-- Left: message list -->
+        <div class="inbox-list-panel">
+          <div class="inbox-list-header">
+            <h3><i class="fas fa-inbox" style="color:var(--accent)"></i> Messages <span class="unread-count" id="unreadCount" style="display:none">0</span></h3>
+            <span style="font-size:0.75rem;color:var(--text-muted);" id="lastRefreshed">—</span>
+          </div>
+          <div class="inbox-filters">
+            <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">All</button>
+            <button class="filter-btn" data-filter="high" onclick="setFilter('high',this)">🔴 High</button>
+            <button class="filter-btn" data-filter="investor_reply" onclick="setFilter('investor_reply',this)">💬 Replies</button>
+            <button class="filter-btn" data-filter="bounce" onclick="setFilter('bounce',this)">⚠️ Bounces</button>
+          </div>
+          <div class="inbox-list" id="inboxList">
+            <div class="empty-inbox">
+              <i class="fas fa-inbox"></i>
+              <h3>Loading inbox…</h3>
+              <div class="loading-spinner" style="margin-top:12px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: detail view -->
+        <div class="inbox-detail-panel" id="detailPanel">
+          <div class="empty-inbox" style="height:100%;">
+            <i class="fas fa-envelope-open-text"></i>
+            <h3>Select a message</h3>
+            <p>Click any message in the list to read it here.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let allMessages = [];
+let selectedId  = null;
+let currentFilter = 'all';
+
+// ── Auth guard ────────────────────────────────────────────────────────────────
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) { window.location.href = 'login.html'; return; }
+  const name = user.displayName || user.email || 'GP';
+  document.getElementById('sidebarName').textContent = name;
+  document.getElementById('sidebarAvatar').textContent = name.charAt(0).toUpperCase();
+  loadInbox();
+});
+
+// ── Load messages from Firestore _inbox collection ────────────────────────────
+async function loadInbox() {
+  try {
+    const db = firebase.firestore();
+    const snap = await db.collection('_inbox')
+      .orderBy('receivedAt', 'desc')
+      .limit(100)
+      .get();
+
+    allMessages = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    updateStats();
+    renderList();
+    updateLastRefreshed();
+  } catch (e) {
+    console.error('Inbox load error:', e);
+    document.getElementById('inboxList').innerHTML = `
+      <div class="empty-inbox">
+        <i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i>
+        <h3>Could not load inbox</h3>
+        <p>${e.message}</p>
+      </div>`;
+  }
+}
+
+function updateStats() {
+  const total   = allMessages.length;
+  const high    = allMessages.filter(m => m.priority === 'high').length;
+  const replies = allMessages.filter(m => m.type === 'investor_reply').length;
+  const bounces = allMessages.filter(m => m.type === 'bounce').length;
+  const unread  = allMessages.filter(m => !m.readAt).length;
+
+  document.getElementById('statTotal').textContent   = total;
+  document.getElementById('statHigh').textContent    = high;
+  document.getElementById('statReplies').textContent = replies;
+  document.getElementById('statBounces').textContent = bounces;
+
+  const unreadEl = document.getElementById('unreadCount');
+  const badgeEl  = document.getElementById('sidebarUnreadBadge');
+  if (unread > 0) {
+    unreadEl.textContent = unread; unreadEl.style.display = '';
+    badgeEl.textContent  = unread; badgeEl.style.display  = '';
+  } else {
+    unreadEl.style.display = 'none';
+    badgeEl.style.display  = 'none';
+  }
+}
+
+function getFilteredMessages() {
+  if (currentFilter === 'all') return allMessages;
+  if (currentFilter === 'high') return allMessages.filter(m => m.priority === 'high');
+  return allMessages.filter(m => m.type === currentFilter);
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+// ── Avatar color ──────────────────────────────────────────────────────────────
+const AVATAR_COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899'];
+function avatarColor(str) {
+  let h = 0;
+  for (let i = 0; i < (str||'').length; i++) h = (h * 31 + str.charCodeAt(i)) & 0xffffffff;
+  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
+}
+function initials(name) {
+  return (name||'?').split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+}
+
+// ── Render list ───────────────────────────────────────────────────────────────
+function renderList() {
+  const msgs = getFilteredMessages();
+  const el   = document.getElementById('inboxList');
+
+  if (!msgs.length) {
+    el.innerHTML = `<div class="empty-inbox"><i class="fas fa-inbox"></i><h3>No messages</h3><p>Nothing to show for this filter.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = msgs.map(m => {
+    const isUnread  = !m.readAt;
+    const isSelected = m.id === selectedId;
+    const color      = avatarColor(m.from || m.name);
+    const init       = initials(m.name || m.from);
+    const time       = formatTime(m.receivedAt);
+    const typeLabel  = typeEmoji(m.type);
+
+    return `
+      <div class="inbox-item${isUnread?' unread':''}${isSelected?' selected':''}" onclick="selectMessage('${m.id}')">
+        <div class="inbox-avatar" style="background:${color}">${init}</div>
+        <div class="inbox-item-body">
+          <div class="inbox-item-from">${escHtml(m.name || m.from || 'Unknown')}</div>
+          <div class="inbox-item-subject">${typeLabel} ${escHtml(m.subject || '(no subject)')}</div>
+          <div class="inbox-item-preview">${escHtml((m.preview||'').slice(0,80))}</div>
+        </div>
+        <div class="inbox-item-meta">
+          <div class="inbox-item-time">${time}</div>
+          <div class="priority-dot ${m.priority||'low'}" title="${m.priority} priority"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Select message ────────────────────────────────────────────────────────────
+async function selectMessage(id) {
+  selectedId = id;
+  const msg = allMessages.find(m => m.id === id);
+  if (!msg) return;
+
+  // Mark as read in Firestore
+  if (!msg.readAt) {
+    msg.readAt = new Date().toISOString();
+    try {
+      await firebase.firestore().collection('_inbox').doc(id).update({ readAt: msg.readAt });
+      updateStats();
+    } catch(e) { console.warn('Mark read failed:', e); }
+  }
+
+  renderList();
+  renderDetail(msg);
+}
+
+// ── Look up matching investor ─────────────────────────────────────────────────
+function findInvestorMatch(msg) {
+  try {
+    const investors = SP.get('investors') || [];
+    const from = (msg.from || '').toLowerCase();
+    return investors.find(inv => (inv.email||'').toLowerCase() === from);
+  } catch { return null; }
+}
+
+// ── Render detail ─────────────────────────────────────────────────────────────
+function renderDetail(msg) {
+  const panel  = document.getElementById('detailPanel');
+  const color  = avatarColor(msg.from || msg.name);
+  const init   = initials(msg.name || msg.from);
+  const time   = msg.receivedAt?.toDate ? msg.receivedAt.toDate().toLocaleString('en-US',{timeZone:'America/Chicago'}) : (msg.time || '—');
+  const investor = findInvestorMatch(msg);
+
+  const investorBanner = investor ? `
+    <div class="investor-match">
+      <i class="fas fa-user-check"></i>
+      <span>Matched investor: <strong><a href="investor-detail.html?id=${escHtml(investor.id)}" style="color:var(--success)">${escHtml(investor.name)}</a></strong> — ${escHtml(investor.dealName||'')}</span>
+    </div>` : '';
+
+  panel.innerHTML = `
+    <div class="inbox-detail-header">
+      <div class="inbox-detail-subject">${escHtml(msg.subject || '(no subject)')}</div>
+      <div class="inbox-detail-meta">
+        <div class="meta-from">
+          <div class="meta-avatar" style="background:${color}">${init}</div>
+          <div>
+            <div class="meta-name">${escHtml(msg.name || msg.from || 'Unknown')}</div>
+            <div class="meta-email">${escHtml(msg.from || '')}</div>
+          </div>
+        </div>
+        <span class="type-badge type-${msg.type||'general'}">${typeEmoji(msg.type)} ${typeLabel(msg.type)}</span>
+        <span class="type-badge" style="background:var(--border-light);color:var(--text-secondary);">${msg.priority||'low'} priority</span>
+        <div class="meta-time"><i class="fas fa-clock" style="margin-right:4px;"></i>${time} CT</div>
+      </div>
+      <div class="inbox-detail-actions">
+        <button class="btn btn-secondary btn-sm" onclick="composeReply()"><i class="fas fa-reply"></i> Reply</button>
+        ${investor ? `<a href="investor-detail.html?id=${escHtml(investor.id)}" class="btn btn-secondary btn-sm"><i class="fas fa-user"></i> View Investor</a>` : ''}
+        <button class="btn btn-secondary btn-sm" onclick="archiveMessage('${msg.id}')"><i class="fas fa-archive"></i> Archive</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteMessage('${msg.id}')"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+    <div class="inbox-detail-body" id="detailBody">
+      ${investorBanner}
+      <div class="email-body">${escHtml(msg.preview || msg.body || '(No preview available — full message in admin@deeltrack.com mailbox)')}</div>
+    </div>
+    <div class="reply-composer" id="replyComposer" style="display:none">
+      <div class="reply-composer-header"><i class="fas fa-reply" style="color:var(--accent)"></i> Reply to ${escHtml(msg.name || msg.from || 'sender')}</div>
+      <div class="reply-to-field"><strong>To:</strong> ${escHtml(msg.from || '')}</div>
+      <input class="reply-subject-field" id="replySubject" type="text" value="Re: ${escHtml(msg.subject || '')}" />
+      <textarea class="reply-textarea" id="replyBody" placeholder="Type your reply here…"></textarea>
+      <div class="reply-actions">
+        <button class="btn btn-secondary btn-sm" onclick="cancelReply()"><i class="fas fa-times"></i> Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="sendReply('${escHtml(msg.from||'')}','${msg.id}')"><i class="fas fa-paper-plane"></i> Send Reply</button>
+      </div>
+    </div>`;
+}
+
+// ── Reply handling ────────────────────────────────────────────────────────────
+function composeReply() {
+  document.getElementById('replyComposer').style.display = '';
+  document.getElementById('replyBody').focus();
+}
+function cancelReply() {
+  document.getElementById('replyComposer').style.display = 'none';
+}
+
+async function sendReply(toEmail, msgId) {
+  const subject = document.getElementById('replySubject').value.trim();
+  const body    = document.getElementById('replyBody').value.trim();
+  if (!body) { showToast('Please type a reply first.', 'error'); return; }
+  if (!toEmail) { showToast('No recipient email address.', 'error'); return; }
+
+  const btn = document.querySelector('#replyComposer .btn-primary');
+  btn.innerHTML = '<div class="loading-spinner"></div> Sending…';
+  btn.disabled = true;
+
+  try {
+    // Call Cloud Function: sendEmail
+    const fn = firebase.functions();
+    const sendEmail = fn.httpsCallable('sendEmail');
+    await sendEmail({ to: toEmail, subject, html: body.replace(/\n/g,'<br>'), text: body });
+
+    // Log the reply in Firestore
+    await firebase.firestore().collection('_inbox').doc(msgId).update({
+      repliedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      repliedBody: body,
+    });
+
+    // Update local state
+    const m = allMessages.find(m => m.id === msgId);
+    if (m) m.repliedAt = new Date().toISOString();
+
+    cancelReply();
+    showToast('Reply sent!', 'success');
+  } catch (e) {
+    console.error('Send reply failed:', e);
+    // Fallback: open mailto
+    const mailto = `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailto);
+    showToast('Cloud Function unavailable — opened mailto fallback.', 'error');
+  } finally {
+    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Reply';
+    btn.disabled = false;
+  }
+}
+
+// ── Archive / Delete ──────────────────────────────────────────────────────────
+async function archiveMessage(id) {
+  if (!confirm('Archive this message?')) return;
+  try {
+    await firebase.firestore().collection('_inbox').doc(id).update({ archived: true });
+    allMessages = allMessages.filter(m => m.id !== id);
+    selectedId = null;
+    updateStats();
+    renderList();
+    document.getElementById('detailPanel').innerHTML = `<div class="empty-inbox" style="height:100%;"><i class="fas fa-archive"></i><h3>Archived</h3><p>Message moved to archive.</p></div>`;
+    showToast('Message archived.');
+  } catch (e) { showToast('Archive failed: ' + e.message, 'error'); }
+}
+
+async function deleteMessage(id) {
+  if (!confirm('Permanently delete this message?')) return;
+  try {
+    await firebase.firestore().collection('_inbox').doc(id).delete();
+    allMessages = allMessages.filter(m => m.id !== id);
+    selectedId = null;
+    updateStats();
+    renderList();
+    document.getElementById('detailPanel').innerHTML = `<div class="empty-inbox" style="height:100%;"><i class="fas fa-trash"></i><h3>Deleted</h3><p>Message permanently removed.</p></div>`;
+    showToast('Message deleted.');
+  } catch (e) { showToast('Delete failed: ' + e.message, 'error'); }
+}
+
+// ── Mark all read ─────────────────────────────────────────────────────────────
+async function markAllRead() {
+  const unread = allMessages.filter(m => !m.readAt);
+  if (!unread.length) { showToast('All messages already read.'); return; }
+  const db = firebase.firestore();
+  const batch = db.batch();
+  const now   = new Date().toISOString();
+  unread.forEach(m => {
+    m.readAt = now;
+    batch.update(db.collection('_inbox').doc(m.id), { readAt: now });
+  });
+  try {
+    await batch.commit();
+    updateStats();
+    renderList();
+    showToast(`Marked ${unread.length} messages as read.`);
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+// ── Refresh ───────────────────────────────────────────────────────────────────
+function refreshInbox() { loadInbox(); }
+
+function updateLastRefreshed() {
+  document.getElementById('lastRefreshed').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatTime(ts) {
+  if (!ts) return '—';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  if (isNaN(d)) return '—';
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000)   return 'Just now';
+  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function typeEmoji(type) {
+  const map = { investor_reply:'💬', bounce:'⚠️', investor_inquiry:'💼', automated:'🤖', general:'📧' };
+  return map[type] || '📧';
+}
+function typeLabel(type) {
+  const map = { investor_reply:'Investor Reply', bounce:'Bounce', investor_inquiry:'Inquiry', automated:'Automated', general:'General' };
+  return map[type] || 'General';
+}
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.querySelector('#toastMsg').textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
