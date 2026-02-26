@@ -213,19 +213,29 @@
       return;
     }
     try {
-      await firebase.auth().sendPasswordResetEmail(email);
-      document.getElementById('successAlert').classList.add('show');
-      document.getElementById('successAlert').querySelector('p,div') &&
-        (document.getElementById('successAlert').textContent = `Password reset email sent to ${email}. Check your inbox.`);
-      // Replace success alert text
+      // Point Firebase reset links at our branded reset-password page
+      const actionCodeSettings = {
+        url: window.location.origin + window.location.pathname.replace('login.html', '') + 'reset-password.html',
+        handleCodeInApp: false,
+      };
+      await firebase.auth().sendPasswordResetEmail(email, actionCodeSettings);
       const sa = document.getElementById('successAlert');
       sa.innerHTML = `<i class="fas fa-check-circle"></i> Password reset email sent to <strong>${email}</strong>. Check your inbox.`;
+      sa.classList.add('show');
     } catch (err) {
       document.getElementById('errorAlert').classList.add('show');
       document.getElementById('errorMsg').textContent = err.code === 'auth/user-not-found'
         ? 'No account found with that email.'
         : 'Could not send reset email: ' + err.message;
     }
+  }
+
+  // Pre-fill email from reset_hint param (set by reset-password.html on expired link redirect)
+  const resetHint = new URLSearchParams(window.location.search).get('reset_hint');
+  if (resetHint) {
+    document.getElementById('email').value = resetHint;
+    document.getElementById('errorAlert').classList.add('show');
+    document.getElementById('errorMsg').textContent = 'Your reset link expired. Enter your email and click "Forgot password?" to get a new one.';
   }
 </script>
 </body>
