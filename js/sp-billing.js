@@ -254,19 +254,34 @@ const SPBilling = (function () {
 
   function _handleCheckoutSuccess(params) {
     const plan = params.get('plan') || 'starter';
+
+    // Optimistically set local state (webhook may arrive seconds later)
     _sub.plan   = plan;
     _sub.status = 'active';
-    _sub.currentPeriodEnd = Date.now() + (30 * 24 * 60 * 60 * 1000);
+    _sub.currentPeriodEnd = new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString();
     _saveSub();
 
-    // Show success banner
+    // Show success banner immediately
     setTimeout(() => {
       const banner = document.createElement('div');
       banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:14px 28px;border-radius:8px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);';
       banner.innerHTML = `<i class="fas fa-check-circle"></i> 🎉 Welcome to deeltrack ${PLANS[plan]?.name || plan}! Your subscription is active.`;
       document.body.appendChild(banner);
-      setTimeout(() => banner.remove(), 6000);
-    }, 500);
+      setTimeout(() => banner.remove(), 8000);
+    }, 300);
+
+    // After short delay, re-sync from Firebase (webhook should have written by now)
+    // Retry up to 3x with 3s intervals in case webhook is slow
+    let retries = 0;
+    const syncFromWebhook = async () => {
+      try {
+        await loadFromFirebase();
+        // If Firebase shows active (real webhook data), stop retrying
+        if (_sub.status === 'active' && _sub.stripeSubscriptionId) return;
+      } catch (_) { /* ignore */ }
+      if (++retries < 3) setTimeout(syncFromWebhook, 3000);
+    };
+    setTimeout(syncFromWebhook, 3000);
 
     // Clean URL
     window.history.replaceState({}, '', window.location.pathname);

@@ -812,27 +812,87 @@ function exportAllJSON() {
 }
 
 // Billing functions
-function loadBillingPanel() {
+async function loadBillingPanel() {
   if (typeof SPBilling === 'undefined') return;
-  const sub   = SPBilling.getSubscription();
-  const plan  = SPBilling.getCurrentPlan();
-  const el    = document.getElementById('billingStatus');
+  const el = document.getElementById('billingStatus');
   if (!el) return;
 
-  const statusColor = { active:'var(--success)', trialing:'var(--accent)', expired:'var(--danger)', canceled:'var(--danger)' };
-  const trialDays = SPBilling.trialDaysLeft();
-  const statusLabel = SPBilling.isPaid() ? 'Active' : SPBilling.isTrialing() ? `Trial — ${trialDays} days left` : 'Expired';
+  // Show loading spinner while syncing from Firebase
+  el.innerHTML = `<div style="color:var(--text-secondary);font-size:.875rem;padding:8px 0;"><i class="fas fa-spinner fa-spin"></i> Checking subscription status…</div>`;
+
+  // Sync from Firebase (source of truth — webhook writes here)
+  if (typeof SPBilling.loadFromFirebase === 'function') {
+    await SPBilling.loadFromFirebase().catch(() => {});
+  }
+
+  const sub   = SPBilling.getSubscription();
+  const plan  = SPBilling.getCurrentPlan();
+
+  const statusColor = {
+    active:   'var(--success)',
+    trialing: 'var(--accent)',
+    past_due: '#f59e0b',
+    expired:  'var(--danger)',
+    canceled: 'var(--danger)',
+  };
+  const trialDays   = SPBilling.trialDaysLeft();
+  const isPaid      = SPBilling.isPaid();
+  const isTrialing  = SPBilling.isTrialing();
+  const statusLabel = isPaid
+    ? 'Active'
+    : isTrialing
+      ? `Trial — ${trialDays} day${trialDays !== 1 ? 's' : ''} left`
+      : sub.status === 'past_due'
+        ? '⚠ Payment past due'
+        : sub.status === 'canceled'
+          ? 'Canceled'
+          : 'Expired';
+
+  const renewalLine = (() => {
+    if (!isPaid) return '';
+    if (sub.cancelAtPeriodEnd && sub.currentPeriodEnd) {
+      return `<div style="font-size:.8rem;color:var(--danger);">Cancels ${new Date(sub.currentPeriodEnd).toLocaleDateString()} — access until then</div>`;
+    }
+    if (sub.currentPeriodEnd) {
+      return `<div style="font-size:.8rem;color:var(--text-muted);">Renews ${new Date(sub.currentPeriodEnd).toLocaleDateString()}</div>`;
+    }
+    return '';
+  })();
+
+  const stripeIdBadge = sub.stripeSubscriptionId
+    ? `<div style="font-size:.72rem;color:var(--text-muted);font-family:monospace;margin-top:4px;">Stripe: ${sub.stripeSubscriptionId}</div>`
+    : '';
+
+  // Cancel-at-period-end warning banner
+  const cancelBanner = sub.cancelAtPeriodEnd
+    ? `<div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.85rem;color:#92400e;">
+        <strong>⚠ Subscription ending:</strong> Your plan will cancel on ${sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString() : 'period end'}.
+        Reactivate anytime from the Stripe billing portal.
+       </div>`
+    : '';
+
+  // Past due warning banner
+  const pastDueBanner = sub.status === 'past_due'
+    ? `<div style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.85rem;color:#92400e;">
+        <strong>⚠ Payment past due:</strong> Please update your payment method to avoid service interruption.
+        <a href="#" onclick="SPBilling.openCustomerPortal();return false;" style="color:#b45309;font-weight:600;margin-left:8px;">Update now →</a>
+       </div>`
+    : '';
 
   el.innerHTML = `
+    ${cancelBanner}${pastDueBanner}
     <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
       <div>
         <div style="font-size:.8rem;color:var(--text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;">Current Plan</div>
         <div style="font-size:1.5rem;font-weight:700;">${plan.name}</div>
         <div style="font-size:.875rem;color:${statusColor[sub.status]||'var(--text-secondary)'};">${statusLabel}</div>
+        ${stripeIdBadge}
       </div>
       <div style="text-align:right;">
-        ${plan.price > 0 ? `<div style="font-size:2rem;font-weight:700;color:var(--accent);">$${plan.price}<span style="font-size:.9rem;color:var(--text-secondary);">/mo</span></div>` : '<div style="font-size:1.25rem;font-weight:600;color:var(--text-secondary);">Free</div>'}
-        ${SPBilling.isPaid() ? `<div style="font-size:.8rem;color:var(--text-muted);">Renews ${sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString() : '—'}</div>` : ''}
+        ${plan.price > 0
+          ? `<div style="font-size:2rem;font-weight:700;color:var(--accent);">$${plan.price}<span style="font-size:.9rem;color:var(--text-secondary);">/mo</span></div>`
+          : '<div style="font-size:1.25rem;font-weight:600;color:var(--text-secondary);">Free</div>'}
+        ${renewalLine}
       </div>
     </div>
     <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light);">
@@ -840,7 +900,12 @@ function loadBillingPanel() {
       <div style="display:flex;flex-wrap:wrap;gap:8px;">
         ${plan.features.map(f => `<span style="font-size:.78rem;background:var(--border-light);padding:3px 10px;border-radius:20px;">${f}</span>`).join('')}
       </div>
-    </div>`;
+    </div>
+    ${isPaid ? `<div style="margin-top:16px;">
+      <button class="btn btn-secondary" onclick="SPBilling.openCustomerPortal()" style="font-size:.875rem;">
+        <i class="fas fa-external-link-alt"></i> Manage Subscription (Stripe Portal)
+      </button>
+    </div>` : ''}`;
 
   // Pre-fill Stripe links
   const settings = SP.load('settings', {});
