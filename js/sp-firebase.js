@@ -146,18 +146,19 @@ const SPFB = (function () {
       }
     }
 
-    // Non-demo user with a local session but no Firebase token
-    // (e.g. signed up before Firebase was integrated)
-    // Bootstrap locally so the app works, mark as needing upgrade
+    // Non-demo user with a local session but no Firebase token.
+    // Don't force offline mode — this blocks real Firebase users from signing in.
+    // Instead, mark ready with a minimal profile so the login page can proceed.
+    // The user will authenticate normally via the login form.
     _spUser = {
       ...localSession,
       orgId: _hashEmail(email),
-      needsFirebaseUpgrade: true,
+      needsFirebaseUpgrade: false,
     };
     _orgId = _spUser.orgId;
-    _offlineMode = true; // no Firebase Auth token — read-only Firestore
+    // NOTE: do NOT set _offlineMode = true here — that prevents Firebase sign-in
     _markReady();
-    console.info('SPFB: running in local mode — sign out and back in to enable cloud sync');
+    console.info('SPFB: local session found but no Firebase token — awaiting login form');
   }
 
   function _markReady() {
