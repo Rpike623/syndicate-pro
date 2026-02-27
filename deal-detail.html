@@ -35,7 +35,7 @@
     .logo{display:flex;align-items:center;gap:12px;font-size:1.25rem;font-weight:700;text-decoration:none;color:white;}
     .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#60a5fa);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
     .nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
-    .nav-section{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);padding:16px 12px 8px;}
+    .nav-section{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.6);padding:16px 12px 8px;}
     .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);color:rgba(255,255,255,.7);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .15s;}
     .nav-item:hover{background:rgba(255,255,255,.05);color:white;}
     .nav-item.active{background:var(--accent);color:white;}
@@ -43,7 +43,7 @@
     .sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1);}
     .user-info{display:flex;align-items:center;gap:12px;}
     .user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--success),#34d399);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;color:white;flex-shrink:0;}
-    .user-details{flex:1;}.user-name{font-size:.9rem;font-weight:600;}.user-role{font-size:.75rem;color:rgba(255,255,255,.5);}
+    .user-details{flex:1;}.user-name{font-size:.9rem;font-weight:600;}.user-role{font-size:.75rem;color:rgba(255,255,255,.65);}
     .main{flex:1;margin-left:260px;min-height:100vh;}
     .top-bar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
     .top-left{display:flex;align-items:center;gap:16px;}
@@ -75,7 +75,7 @@
     .deal-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
     .deal-metric{background:rgba(255,255,255,.07);border-radius:var(--radius);padding:16px;}
     .deal-metric .val{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
-    .deal-metric .lbl{font-size:.72rem;color:rgba(255,255,255,.5);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
+    .deal-metric .lbl{font-size:.72rem;color:rgba(255,255,255,.65);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
     /* Tabs */
     .tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px;}
     .tab{padding:12px 20px;font-size:.9rem;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;}
@@ -639,7 +639,7 @@ function viewSubDoc(investorId) {
       <div style="background:#0f172a;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
         <div>
           <div style="color:white;font-weight:700;font-family:'Sora',sans-serif;">Subscription Agreement</div>
-          <div style="color:rgba(255,255,255,.5);font-size:.8rem;">${invName} · ${deal.name}</div>
+          <div style="color:rgba(255,255,255,.65);font-size:.8rem;">${invName} · ${deal.name}</div>
         </div>
         <div style="display:flex;gap:8px;">
           <button onclick="printSubDoc('subDocBody')" style="padding:7px 14px;background:rgba(255,255,255,.1);color:white;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;"><i class="fas fa-print"></i> Print</button>
@@ -686,7 +686,7 @@ function sendSubDoc(investorId) {
   const subDocHtml = `<!DOCTYPE html><html><head><style>
     body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:40px;line-height:1.7;}
     h1{font-size:1.4rem;text-align:center;text-transform:uppercase;margin-bottom:4px;}
-    .subtitle{text-align:center;color:#666;margin-bottom:40px;}
+    .subtitle{text-align:center;color:#94a3b8;margin-bottom:40px;}
     h2{font-size:1rem;margin:28px 0 12px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;}
     .field{border-bottom:1px solid #333;display:inline-block;min-width:200px;margin:0 8px;}
     .sig-block{margin-top:60px;display:grid;grid-template-columns:1fr 1fr;gap:60px;}

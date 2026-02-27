@@ -43,8 +43,8 @@
   --purple-light:  rgba(167,139,250,0.12);
 
   --text:          #e8eaf0;
-  --text-secondary:#94a3b8;
-  --text-muted:    #4e5a72;
+  --text-secondary:#b0bdd0;
+  --text-muted:    #6b7a99;
 
   --border:        rgba(255,255,255,0.07);
   --border-light:  rgba(255,255,255,0.04);
@@ -374,7 +374,7 @@ tr:hover td { background: var(--bg-hover) !important; }
   border-radius: var(--radius) !important;
 }
 .deal-metric .val { color: white !important; }
-.deal-metric .lbl { color: rgba(255,255,255,0.45) !important; }
+.deal-metric .lbl { color: rgba(255,255,255,0.62) !important; }
 
 /* ── Modal ───────────────────────────────────────────────── */
 .modal-overlay { background: rgba(0,0,0,0.7) !important; backdrop-filter: blur(4px) !important; }
@@ -500,6 +500,79 @@ a:hover { color: #818cf8 !important; }
 
 /* ── Selection color ─────────────────────────────────────── */
 ::selection { background: rgba(99,102,241,0.3); color: white; }
+
+/* ── Inline light-bg context menus / dropdowns (dark theme override) ── */
+[style*="background:white"][style*="border:1px solid #e2e8f0"],
+[style*="background: white"][style*="border:1px solid #e2e8f0"],
+[style*="background:white"][style*="box-shadow"] {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+[style*="background:white"][style*="border:1px solid #e2e8f0"] a,
+[style*="background:white"][style*="border:1px solid #e2e8f0"] button,
+[style*="background: white"][style*="border:1px solid #e2e8f0"] a,
+[style*="background: white"][style*="border:1px solid #e2e8f0"] button {
+  color: var(--text) !important;
+  border-bottom-color: var(--border) !important;
+}
+
+/* ── Inline stat boxes with light pastel backgrounds ─────── */
+/* Light-bg coloured stat boxes: keep their bg but darken the value text */
+[style*="background:#dbeafe"] [style*="color:#0f172a"],
+[style*="background:#d1fae5"] [style*="color:#0f172a"],
+[style*="background:#ede9fe"] [style*="color:#0f172a"],
+[style*="background:#fef3c7"] [style*="color:#0f172a"],
+[style*="background: #f1f5f9"] [style*="color:#0f172a"],
+[style*="background:#f1f5f9"] [style*="color:#0f172a"] {
+  color: #1e293b !important;
+}
+
+/* ── Inline success notification text (dark green on dark bg) ─ */
+[style*="color:#065f46"],
+[style*="color:#047857"],
+[style*="color: #065f46"],
+[style*="color: #047857"] {
+  color: var(--success) !important;
+}
+
+/* ── Capital call / status badge overrides for dark bg ──── */
+[style*="background:#dbeafe"][style*="color:#1d4ed8"],
+[style*="background:#d1fae5"][style*="color:#065f46"],
+[style*="background:#fef3c7"][style*="color:#92400e"] {
+  /* Keep light pastel bg but use more visible text */
+  color: #1e293b !important;
+  font-weight: 700 !important;
+}
+
+/* ── Inline report/modal buttons with light bg ───────────── */
+[style*="background:#f1f5f9"][style*="color:#0f172a"] {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+}
+
+/* ── Ensure text-secondary is always readable ────────────── */
+.text-secondary, .text-muted,
+[class*="secondary"], [class*="muted"] {
+  opacity: 1 !important;
+}
+
+/* ── Sub-labels / small descriptions inside cards ────────── */
+small, .small, .caption, .hint, .help-text, .form-hint {
+  color: var(--text-secondary) !important;
+}
+
+/* ── Ensure all paragraph text in cards is readable ──────── */
+.card p, .card span, .card div {
+  color: inherit;
+}
+
+/* ── Override any remaining near-invisible colors ────────── */
+[style*="color: rgba(255,255,255,0.3)"],
+[style*="color:rgba(255,255,255,.3)"],
+[style*="color: rgba(255,255,255,0.25)"],
+[style*="color:rgba(255,255,255,.25)"] {
+  color: rgba(255,255,255,0.55) !important;
+}
 
 /* ── Chart.js canvases ───────────────────────────────────── */
 canvas { border-radius: var(--radius) !important; }

@@ -25,11 +25,11 @@
     .hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(59,130,246,.2),transparent 70%);}
     .hero-label{display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.2);border:1px solid rgba(59,130,246,.4);color:#93c5fd;padding:5px 14px;border-radius:20px;font-size:.78rem;font-weight:600;margin-bottom:20px;}
     .hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;margin-bottom:12px;position:relative;}
-    .hero-location{display:flex;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,.6);font-size:1rem;margin-bottom:32px;}
+    .hero-location{display:flex;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,.75);font-size:1rem;margin-bottom:32px;}
     .hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:800px;margin:0 auto;}
     .hero-metric{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-md);padding:20px;text-align:center;}
     .hero-metric .val{font-size:1.6rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:white;}
-    .hero-metric .lbl{font-size:.72rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.05em;margin-top:4px;}
+    .hero-metric .lbl{font-size:.72rem;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.05em;margin-top:4px;}
 
     /* Content */
     .container{max-width:960px;margin:0 auto;padding:48px 32px;}
@@ -52,18 +52,18 @@
     /* Sticky CTA sidebar */
     .cta-card{background:#0f172a;border-radius:var(--radius-md);padding:28px;color:white;position:sticky;top:24px;}
     .cta-card h3{font-size:1.1rem;font-weight:700;margin-bottom:8px;}
-    .cta-card p{font-size:.85rem;color:rgba(255,255,255,.6);margin-bottom:20px;}
+    .cta-card p{font-size:.85rem;color:rgba(255,255,255,.75);margin-bottom:20px;}
     .cta-form-group{margin-bottom:14px;}
-    .cta-form-group label{display:block;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.5);margin-bottom:6px;}
+    .cta-form-group label{display:block;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.65);margin-bottom:6px;}
     .cta-form-group input,.cta-form-group select,.cta-form-group textarea{width:100%;padding:10px 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);color:white;font-size:.875rem;font-family:'Inter',sans-serif;outline:none;transition:all .2s;}
-    .cta-form-group input::placeholder,.cta-form-group textarea::placeholder{color:rgba(255,255,255,.3);}
+    .cta-form-group input::placeholder,.cta-form-group textarea::placeholder{color:rgba(255,255,255,.65);}
     .cta-form-group input:focus,.cta-form-group textarea:focus{border-color:var(--accent);background:rgba(59,130,246,.1);}
     .cta-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),#1d4ed8);color:white;border:none;border-radius:var(--radius);font-size:1rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
     .cta-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(59,130,246,.35);}
     .cta-success{display:none;text-align:center;padding:20px 0;}
     .cta-success i{font-size:2.5rem;color:var(--success);display:block;margin-bottom:12px;}
     .cta-success h4{color:white;margin-bottom:6px;}
-    .cta-success p{font-size:.82rem;color:rgba(255,255,255,.5);}
+    .cta-success p{font-size:.82rem;color:rgba(255,255,255,.65);}
     /* Firm info */
     .firm-info{display:flex;align-items:center;gap:12px;padding:16px 24px;border-top:1px solid var(--border-light);}
     .firm-logo-circle{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),#60a5fa);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.9rem;flex-shrink:0;}
@@ -220,7 +220,7 @@ function render(deal, settings, gpName) {
               </div>
               <div class="cta-form-group"><label>Message (optional)</label><textarea id="reqMessage" rows="2" placeholder="Any questions or notes for the sponsor..."></textarea></div>
               <button class="cta-btn" onclick="submitRequest()"><i class="fas fa-paper-plane"></i> Request Access</button>
-              <div style="font-size:.72rem;color:rgba(255,255,255,.3);text-align:center;margin-top:10px;">Your information is kept strictly confidential.</div>
+              <div style="font-size:.72rem;color:rgba(255,255,255,.65);text-align:center;margin-top:10px;">Your information is kept strictly confidential.</div>
             </div>
             <div class="cta-success" id="ctaSuccess">
               <i class="fas fa-check-circle"></i>

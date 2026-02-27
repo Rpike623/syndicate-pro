@@ -44,7 +44,7 @@
     .logo { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 700; text-decoration: none; color: white; }
     .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #60a5fa); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
     .nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
-    .nav-section { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.4); padding: 16px 12px 8px; }
+    .nav-section { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.6); padding: 16px 12px 8px; }
     .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius); color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; }
     .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
     .nav-item.active { background: var(--accent); color: white; }
@@ -54,7 +54,7 @@
     .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--success), #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; color: white; flex-shrink: 0; }
     .user-details { flex: 1; min-width: 0; }
     .user-name { font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+    .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.65); }
 
     /* Main */
     .main { flex: 1; margin-left: 260px; min-height: 100vh; }
@@ -636,7 +636,7 @@ function checkOnboarding() {
   banner.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="color:white;font-weight:700;font-size:1rem;"><i class="fas fa-rocket" style="color:#60a5fa;margin-right:8px;"></i>Getting Started — ${steps.filter(s=>s.done).length}/${steps.length} steps complete</div>
-      <button onclick="this.closest('div[style]').remove()" style="background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:1rem;">✕</button>
+      <button onclick="this.closest('div[style]').remove()" style="background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:1rem;">✕</button>
     </div>
     <div style="height:4px;background:rgba(255,255,255,.1);border-radius:4px;margin-bottom:16px;overflow:hidden;">
       <div style="height:100%;width:${Math.round(steps.filter(s=>s.done).length/steps.length*100)}%;background:linear-gradient(90deg,#3b82f6,#10b981);border-radius:4px;transition:width .6s;"></div>
