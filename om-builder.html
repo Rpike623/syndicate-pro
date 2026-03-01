@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OM Builder — deeltrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-theme.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-billing.js"></script>
+  <style>
+    :root {
+      --accent:#3b82f6;--accent-hover:#2563eb;--success:#10b981;--warning:#f59e0b;
+      --danger:#ef4444;--purple:#8b5cf6;--bg:#f8fafc;--bg-card:#ffffff;
+      --bg-sidebar:#0f172a;--text:#1e293b;--text-secondary:#64748b;
+      --border:#e2e8f0;--border-light:#f1f5f9;--radius:8px;--radius-md:12px;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.05);--shadow:0 1px 3px rgba(0,0,0,.1);
+    }
+    [data-theme="dark"]{--bg:#0f172a;--bg-card:#1e293b;--bg-sidebar:#020617;--text:#f1f5f9;--text-secondary:#94a3b8;--border:#334155;--border-light:#1e293b;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+    /* Sidebar */
+    .sidebar{width:260px;background:var(--bg-sidebar);color:white;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;}
+    .sidebar-header{padding:24px;border-bottom:1px solid rgba(255,255,255,.1);}
+    .logo{display:flex;align-items:center;gap:12px;font-size:1.25rem;font-weight:700;text-decoration:none;color:white;}
+    .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#60a5fa);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+    .nav-section{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);padding:16px 12px 8px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);color:rgba(255,255,255,.7);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .15s;}
+    .nav-item:hover{background:rgba(255,255,255,.05);color:white;}
+    .nav-item.active{background:var(--accent);color:white;}
+    .nav-item i{width:20px;text-align:center;}
+    .sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1);}
+    .user-info{display:flex;align-items:center;gap:12px;}
+    .user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--success),#34d399);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;color:white;flex-shrink:0;}
+    .user-name{font-size:.875rem;font-weight:600;color:white;}
+    .user-role{font-size:.75rem;color:rgba(255,255,255,.5);}
+
+    /* Main */
+    .main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .page-title{font-size:1.1rem;font-weight:700;}
+    .content{padding:32px;flex:1;}
+
+    /* Layout */
+    .builder-layout{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start;}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:22px;margin-bottom:16px;}
+    .card-title{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+
+    /* Form */
+    .fg{margin-bottom:12px;}
+    .fl{font-size:.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:5px;display:block;}
+    input[type=text],input[type=number],input[type=url],select,textarea{
+      width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius);
+      font-size:.84rem;font-family:'Inter',sans-serif;background:var(--bg-card);color:var(--text);
+      transition:border-color .15s;
+    }
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+    textarea{resize:vertical;min-height:70px;}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+    .sec-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);margin-bottom:10px;}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:var(--radius);font-size:.875rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit;text-decoration:none;}
+    .btn-primary{background:var(--accent);color:white;}
+    .btn-primary:hover{background:var(--accent-hover);}
+    .btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border);}
+    .btn-secondary:hover{background:var(--border-light);}
+    .btn-success{background:var(--success);color:white;}
+    .btn-success:hover{background:#059669;}
+    .btn-sm{padding:6px 13px;font-size:.8rem;}
+
+    /* Section nav tabs */
+    .section-nav{display:flex;flex-direction:column;gap:2px;margin-bottom:20px;}
+    .snav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius);cursor:pointer;font-size:.84rem;color:var(--text-secondary);transition:all .15s;border:none;background:none;font-family:inherit;width:100%;text-align:left;}
+    .snav-item:hover{background:var(--border-light);color:var(--text);}
+    .snav-item.active{background:rgba(59,130,246,.1);color:var(--accent);font-weight:600;}
+    .snav-item .snav-num{width:20px;height:20px;border-radius:50%;background:var(--border);color:var(--text-secondary);font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .snav-item.active .snav-num{background:var(--accent);color:white;}
+
+    /* Section panels */
+    .section-panel{display:none;}
+    .section-panel.active{display:block;}
+
+    /* ── OM Preview ── */
+    .om-preview{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+    .om-preview-bar{background:var(--border-light);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
+    .om-preview-label{font-size:.75rem;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+    .om-doc{padding:0;}
+
+    /* OM document styles */
+    .om-cover{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 60%,#1e40af 100%);padding:60px 48px;color:white;min-height:380px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;}
+    .om-cover::before{content:'';position:absolute;top:-40px;right:-40px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none;}
+    .om-cover::after{content:'';position:absolute;bottom:-60px;right:60px;width:180px;height:180px;border-radius:50%;background:rgba(59,130,246,.12);pointer-events:none;}
+    .om-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.45);margin-bottom:12px;}
+    .om-deal-name{font-size:2rem;font-weight:800;line-height:1.15;margin-bottom:8px;}
+    .om-tagline{font-size:.95rem;color:rgba(255,255,255,.65);margin-bottom:28px;}
+    .om-cover-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;}
+    .om-chip{padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);font-size:.72rem;font-weight:600;color:rgba(255,255,255,.85);}
+    .om-cover-meta{display:flex;gap:32px;padding-top:24px;border-top:1px solid rgba(255,255,255,.12);}
+    .om-cover-meta-item{display:flex;flex-direction:column;gap:2px;}
+    .om-cover-meta-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);}
+    .om-cover-meta-value{font-size:1rem;font-weight:700;color:white;}
+
+    .om-body{padding:32px 40px;}
+    .om-section{margin-bottom:36px;}
+    .om-section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    .om-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+    .om-h2{font-size:1.1rem;font-weight:700;color:var(--text);margin-bottom:8px;}
+    .om-p{font-size:.875rem;line-height:1.75;color:var(--text-secondary);margin-bottom:10px;white-space:pre-wrap;}
+
+    .om-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+    .om-kpi{background:var(--border-light);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;}
+    .om-kpi-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);}
+    .om-kpi-value{font-size:1.3rem;font-weight:800;color:var(--text);margin-top:4px;}
+
+    .om-highlights{list-style:none;display:flex;flex-direction:column;gap:8px;}
+    .om-highlights li{display:flex;gap:10px;font-size:.875rem;color:var(--text-secondary);line-height:1.5;}
+    .om-highlights li::before{content:'✓';color:var(--success);font-weight:700;flex-shrink:0;margin-top:1px;}
+
+    .om-fin-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+    .om-fin-table th{text-align:left;padding:8px 10px;background:var(--border-light);color:var(--text-secondary);font-size:.7rem;font-weight:700;text-transform:uppercase;}
+    .om-fin-table td{padding:9px 10px;border-bottom:1px solid var(--border-light);color:var(--text);}
+    .om-fin-table td:last-child,.om-fin-table th:last-child{text-align:right;}
+    .om-fin-table tr:last-child td{font-weight:700;border-bottom:none;}
+
+    .om-team-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    .om-team-card{background:var(--border-light);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+    .om-team-name{font-size:.9rem;font-weight:700;color:var(--text);}
+    .om-team-title{font-size:.75rem;color:var(--accent);font-weight:600;margin-bottom:6px;}
+    .om-team-bio{font-size:.8rem;color:var(--text-secondary);line-height:1.55;}
+
+    .om-risk-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+    .om-risk-list li{display:flex;gap:10px;font-size:.82rem;color:var(--text-secondary);line-height:1.55;}
+    .om-risk-list li::before{content:'⚠';flex-shrink:0;}
+
+    .om-disclaimer{background:var(--border-light);border:1px solid var(--border);border-radius:var(--radius);padding:16px;font-size:.72rem;color:var(--text-secondary);line-height:1.65;margin-top:32px;}
+
+    @media(max-width:1100px){.builder-layout{grid-template-columns:1fr;} .om-kpi-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:768px){.sidebar{display:none;}.main{margin-left:0;}}
+
+    /* Print */
+    @media print{
+      .sidebar,.topbar,.om-preview-bar,.builder-layout > *:first-child{display:none!important;}
+      .main{margin-left:0;}
+      .om-preview{box-shadow:none;border:none;}
+      .om-cover{min-height:auto;}
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>deeltrack</span></a>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Deal Pipeline</span></a>
+      <a href="deals.html" class="nav-item"><i class="fas fa-building"></i><span>Deals</span></a>
+      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+      <a href="inbox.html" class="nav-item"><i class="fas fa-inbox"></i><span>Inbox</span></a>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+      <div class="nav-section">Tools</div>
+      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
+      <a href="debt-tracker.html" class="nav-item"><i class="fas fa-landmark"></i><span>Debt Tracker</span></a>
+      <a href="exit-calc.html" class="nav-item"><i class="fas fa-sign-out-alt"></i><span>Exit Calculator</span></a>
+      <a href="om-builder.html" class="nav-item active"><i class="fas fa-file-alt"></i><span>OM Builder</span></a>
+      <a href="deal-room.html" class="nav-item"><i class="fas fa-folder-open"></i><span>Deal Room</span></a>
+      <a href="teaser-generator.html" class="nav-item"><i class="fas fa-file-image"></i><span>Teaser</span></a>
+      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+      <div class="nav-section">Settings</div>
+      <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+      <a href="pricing.html" class="nav-item"><i class="fas fa-star"></i><span>Upgrade</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">G</div>
+        <div><div class="user-name" id="userName">Loading…</div><div class="user-role">General Partner</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <i class="fas fa-file-alt" style="color:var(--accent);font-size:1.1rem;"></i>
+        <span class="page-title">Offering Memorandum Builder</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="saveOM()"><i class="fas fa-save"></i> Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Print / PDF</button>
+        <button class="btn btn-primary btn-sm" onclick="updatePreview()"><i class="fas fa-sync-alt"></i> Refresh Preview</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="builder-layout">
+
+        <!-- Left: inputs -->
+        <div>
+          <!-- Section nav -->
+          <div class="card" style="padding:14px;">
+            <div class="section-nav">
+              <button class="snav-item active" onclick="goSection(0,this)"><span class="snav-num">1</span> Cover &amp; Overview</button>
+              <button class="snav-item" onclick="goSection(1,this)"><span class="snav-num">2</span> Investment Highlights</button>
+              <button class="snav-item" onclick="goSection(2,this)"><span class="snav-num">3</span> Market &amp; Location</button>
+              <button class="snav-item" onclick="goSection(3,this)"><span class="snav-num">4</span> Financials</button>
+              <button class="snav-item" onclick="goSection(4,this)"><span class="snav-num">5</span> Deal Structure</button>
+              <button class="snav-item" onclick="goSection(5,this)"><span class="snav-num">6</span> Sponsor Team</button>
+              <button class="snav-item" onclick="goSection(6,this)"><span class="snav-num">7</span> Risk Factors</button>
+            </div>
+          </div>
+
+          <!-- Section 0: Cover -->
+          <div class="section-panel active" id="sec0">
+            <div class="card">
+              <div class="card-title"><i class="fas fa-star" style="color:var(--warning)"></i> Cover &amp; Overview</div>
+              <div class="fg"><label class="fl">Property / Deal Name</label><input type="text" id="omName" value="Oakwood Multifamily Portfolio" oninput="updatePreview()"></div>
+              <div class="fg"><label class="fl">Tagline / Subtitle</label><input type="text" id="omTagline" value="Value-add multifamily in Fort Worth, TX" oninput="updatePreview()"></div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Asset Class</label>
+                  <select id="omAssetClass" onchange="updatePreview()">
+                    <option>Multifamily</option><option>Industrial</option><option>Office</option>
+                    <option>Retail</option><option>Self-Storage</option><option>Hospitality</option>
+                    <option>Mixed-Use</option><option>Land</option>
+                  </select>
+                </div>
+                <div class="fg"><label class="fl">Location</label><input type="text" id="omLocation" value="Fort Worth, TX" oninput="updatePreview()"></div>
+              </div>
+              <div class="row3">
+                <div class="fg"><label class="fl">Units / SF</label><input type="text" id="omSize" value="148 units" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Year Built</label><input type="text" id="omYearBuilt" value="1987" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Offering Date</label><input type="text" id="omDate" value="Q1 2026" oninput="updatePreview()"></div>
+              </div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Raise Amount</label><input type="text" id="omRaise" value="$4,500,000" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Min. Investment</label><input type="text" id="omMinInvest" value="$50,000" oninput="updatePreview()"></div>
+              </div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Target IRR</label><input type="text" id="omTargetIRR" value="16–19%" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Target Equity Multiple</label><input type="text" id="omEM" value="1.85×" oninput="updatePreview()"></div>
+              </div>
+              <div class="fg"><label class="fl">Executive Summary</label>
+                <textarea id="omSummary" oninput="updatePreview()">Oakwood Multifamily Portfolio is a 148-unit value-add opportunity in Fort Worth's rapidly growing Westside submarket. The sponsor will execute a targeted renovation program to close the $180/unit rent gap versus Class A comparables, driving NOI growth of 34% over a projected 5-year hold.</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 1: Highlights -->
+          <div class="section-panel" id="sec1">
+            <div class="card">
+              <div class="card-title"><i class="fas fa-check-circle" style="color:var(--success)"></i> Investment Highlights</div>
+              <p style="font-size:.8rem;color:var(--text-secondary);margin-bottom:12px;">Enter one highlight per line. These appear as bullet points in the OM.</p>
+              <textarea id="omHighlights" rows="10" oninput="updatePreview()">Strong submarket fundamentals — Fort Worth ranked #3 fastest-growing MSA (2024)
+$180/unit rent gap to Class A peers — significant upside from light renovation
+87% occupancy at acquisition — immediate value-add opportunity
+Assumable 4.75% agency debt — reduces capital requirements and interest cost
+5-minute drive to Lockheed Martin campus (12,000+ employees)
+High barrier-to-entry market with low new supply in 3-mile radius
+Experienced sponsor with $180M AUM across 12 multifamily assets
+Projected 8% preferred return with 20% GP promote on profits above pref</textarea>
+            </div>
+          </div>
+
+          <!-- Section 2: Market -->
+          <div class="section-panel" id="sec2">
+            <div class="card">
+              <div class="card-title"><i class="fas fa-map-marker-alt" style="color:var(--danger)"></i> Market &amp; Location</div>
+              <div class="fg"><label class="fl">Market Overview</label>
+                <textarea id="omMarket" rows="5" oninput="updatePreview()">The Dallas–Fort Worth metroplex is one of the most dynamic apartment markets in the nation, adding over 150,000 net new residents annually. Fort Worth's Westside submarket has seen 14.2% rent growth over the past 24 months driven by tech and aerospace employment.</textarea>
+              </div>
+              <div class="row3">
+                <div class="fg"><label class="fl">Market Vacancy</label><input type="text" id="omVacancy" value="4.8%" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Rent Growth (YoY)</label><input type="text" id="omRentGrowth" value="6.2%" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Submarket Avg Rent</label><input type="text" id="omAvgRent" value="$1,420/mo" oninput="updatePreview()"></div>
+              </div>
+              <div class="fg"><label class="fl">Demand Drivers (one per line)</label>
+                <textarea id="omDrivers" rows="5" oninput="updatePreview()">Lockheed Martin — 12,000 employees, 2.5mi
+Amazon Fulfillment Center — 3,000 jobs, 4mi
+Texas Christian University — 12,000 students, 2mi
+I-30 corridor expansion — $2.4B infrastructure investment
+New HEB grocery anchored retail at 5mi radius</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Financials -->
+          <div class="section-panel" id="sec3">
+            <div class="card">
+              <div class="card-title"><i class="fas fa-chart-line" style="color:var(--accent)"></i> Financial Summary</div>
+              <div class="sec-label">Acquisition</div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Purchase Price</label><input type="text" id="omPurchasePrice" value="$12,000,000" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Price Per Unit/SF</label><input type="text" id="omPPU" value="$81,081/unit" oninput="updatePreview()"></div>
+              </div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Loan Amount</label><input type="text" id="omLoan" value="$8,400,000" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">LTV</label><input type="text" id="omLTV" value="70%" oninput="updatePreview()"></div>
+              </div>
+              <hr class="divider">
+              <div class="sec-label">Income &amp; Returns</div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Current Gross Income</label><input type="text" id="omGrossIncome" value="$2,210,000" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Stabilized Gross Income</label><input type="text" id="omStabIncome" value="$2,960,000" oninput="updatePreview()"></div>
+              </div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Current NOI</label><input type="text" id="omNOI" value="$660,000" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Stabilized NOI</label><input type="text" id="omStabNOI" value="$970,000" oninput="updatePreview()"></div>
+              </div>
+              <div class="row3">
+                <div class="fg"><label class="fl">Going-In Cap Rate</label><input type="text" id="omGoingInCap" value="5.50%" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Exit Cap Rate</label><input type="text" id="omExitCap" value="5.75%" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Hold Period</label><input type="text" id="omHold" value="5 years" oninput="updatePreview()"></div>
+              </div>
+              <div class="row3">
+                <div class="fg"><label class="fl">Projected IRR</label><input type="text" id="omIRR" value="17.3%" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Equity Multiple</label><input type="text" id="omEquityMult" value="1.89×" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">CoC Return (Yr 1)</label><input type="text" id="omCoC" value="6.2%" oninput="updatePreview()"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Structure -->
+          <div class="section-panel" id="sec4">
+            <div class="card">
+              <div class="card-title"><i class="fas fa-sitemap" style="color:var(--purple)"></i> Deal Structure</div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Entity Type</label><input type="text" id="omEntity" value="Delaware LLC" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Offering Type</label><input type="text" id="omOffering" value="Reg D 506(b)" oninput="updatePreview()"></div>
+              </div>
+              <div class="row2">
+                <div class="fg"><label class="fl">LP / GP Split</label><input type="text" id="omSplit" value="80% LP / 20% GP" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Preferred Return</label><input type="text" id="omPref" value="8% (non-compounding)" oninput="updatePreview()"></div>
+              </div>
+              <div class="row2">
+                <div class="fg"><label class="fl">GP Promote</label><input type="text" id="omPromote" value="20% above pref" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Distribution Frequency</label><input type="text" id="omDistFreq" value="Quarterly" oninput="updatePreview()"></div>
+              </div>
+              <div class="fg"><label class="fl">Use of Proceeds</label>
+                <textarea id="omUseOfProceeds" rows="5" oninput="updatePreview()">Acquisition: $12,000,000
+Renovation Reserves: $1,480,000 ($10,000/unit)
+Closing Costs & Fees: $380,000
+Operating Reserves: $320,000
+Total Equity Raise: $4,500,000</textarea>
+              </div>
+              <div class="fg"><label class="fl">Fees</label>
+                <textarea id="omFees" rows="4" oninput="updatePreview()">Acquisition Fee: 1.5% of purchase price
+Asset Management Fee: 1.5% of gross revenues
+Disposition Fee: 1.0% of sale price
+Construction Management: 5% of renovation costs</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: Team -->
+          <div class="section-panel" id="sec5">
+            <div class="card">
+              <div class="card-title"><i class="fas fa-users" style="color:var(--success)"></i> Sponsor Team</div>
+              <div class="sec-label">Team Member 1</div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Name</label><input type="text" id="omT1Name" value="Robert Pike" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Title</label><input type="text" id="omT1Title" value="Managing Partner" oninput="updatePreview()"></div>
+              </div>
+              <div class="fg"><label class="fl">Bio</label><textarea id="omT1Bio" rows="3" oninput="updatePreview()">10+ years in real estate private equity with $180M+ in transactions across multifamily and industrial assets in TX, FL, and AZ. Former acquisitions director at Greystar.</textarea></div>
+              <hr class="divider">
+              <div class="sec-label">Team Member 2</div>
+              <div class="row2">
+                <div class="fg"><label class="fl">Name</label><input type="text" id="omT2Name" value="Sarah Chen" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Title</label><input type="text" id="omT2Title" value="Director of Asset Management" oninput="updatePreview()"></div>
+              </div>
+              <div class="fg"><label class="fl">Bio</label><textarea id="omT2Bio" rows="3" oninput="updatePreview()">Former portfolio manager at Cortland with oversight of 4,200 units. Expert in operational improvement, lease-up execution, and vendor management across Texas markets.</textarea></div>
+              <hr class="divider">
+              <div class="sec-label">Track Record</div>
+              <div class="fg">
+                <textarea id="omTrackRecord" rows="4" oninput="updatePreview()">12 assets acquired | $180M+ total capitalization | $42M investor equity deployed
+Average LP IRR: 18.4% | Average equity multiple: 1.92× | 4 full-cycle exits
+Current AUM: $136M across 8 active assets in TX, FL, and AZ</textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 6: Risks -->
+          <div class="section-panel" id="sec6">
+            <div class="card">
+              <div class="card-title"><i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i> Risk Factors</div>
+              <p style="font-size:.8rem;color:var(--text-secondary);margin-bottom:12px;">One risk factor per line. Be honest — investors appreciate transparency.</p>
+              <textarea id="omRisks" rows="10" oninput="updatePreview()">Real estate investments are illiquid and subject to loss of principal
+Renovation timelines and costs may exceed projections
+Interest rate increases may affect refinancing and exit valuations
+Market softening may delay lease-up or compress exit cap rates
+Property insurance costs have risen significantly in Texas markets
+Tenant non-payment and eviction proceedings may affect cash flow
+Forward-looking financial projections are not guaranteed
+This investment is suitable only for accredited investors under Reg D 506(b)</textarea>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: Live preview -->
+        <div>
+          <div class="om-preview">
+            <div class="om-preview-bar">
+              <span class="om-preview-label"><i class="fas fa-eye"></i> Live Preview — Updates as you type</span>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-success btn-sm" onclick="window.print()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+              </div>
+            </div>
+            <div class="om-doc" id="omDoc">
+              <!-- rendered by updatePreview() -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Auth guard
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof SP !== 'undefined') {
+        const sess = SP.getSession();
+        if (!sess?.loggedIn) { window.location.href = 'login.html'; return; }
+        const initials = (sess.name || sess.email || 'G').charAt(0).toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+        document.getElementById('userName').textContent = sess.name || sess.email || 'GP';
+      }
+      loadOM();
+      updatePreview();
+    });
+
+    // Section nav
+    function goSection(idx, btn) {
+      document.querySelectorAll('.snav-item').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('sec' + idx).classList.add('active');
+    }
+
+    // Save / load
+    const STORE_KEY = 'dt_om_v1';
+    function saveOM() {
+      const data = {};
+      document.querySelectorAll('[id^="om"]').forEach(el => { data[el.id] = el.value; });
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      showToast('OM saved!');
+    }
+    function loadOM() {
+      try {
+        const data = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+        Object.entries(data).forEach(([k, v]) => {
+          const el = document.getElementById(k);
+          if (el) el.value = v;
+        });
+      } catch(e) {}
+    }
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      Object.assign(t.style, {position:'fixed',bottom:'24px',right:'24px',background:'#1e293b',color:'white',
+        padding:'10px 18px',borderRadius:'8px',fontSize:'.85rem',fontWeight:'600',zIndex:'9999',
+        boxShadow:'0 4px 12px rgba(0,0,0,.3)'});
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
+
+    // Live preview renderer
+    function updatePreview() {
+      const g = id => (document.getElementById(id)?.value || '').trim();
+      const highlights = g('omHighlights').split('\n').filter(l => l.trim());
+      const drivers    = g('omDrivers').split('\n').filter(l => l.trim());
+      const risks      = g('omRisks').split('\n').filter(l => l.trim());
+      const fees       = g('omFees').split('\n').filter(l => l.trim());
+      const uop        = g('omUseOfProceeds').split('\n').filter(l => l.trim());
+      const tr         = g('omTrackRecord').split('\n').filter(l => l.trim());
+
+      document.getElementById('omDoc').innerHTML = `
+
+        <!-- Cover -->
+        <div class="om-cover">
+          <div class="om-label">Confidential Offering Memorandum</div>
+          <div class="om-deal-name">${esc(g('omName'))}</div>
+          <div class="om-tagline">${esc(g('omTagline'))}</div>
+          <div class="om-cover-chips">
+            <span class="om-chip">${esc(g('omAssetClass'))}</span>
+            <span class="om-chip">${esc(g('omLocation'))}</span>
+            <span class="om-chip">${esc(g('omSize'))}</span>
+            <span class="om-chip">Built ${esc(g('omYearBuilt'))}</span>
+            <span class="om-chip">${esc(g('omOffering') || 'Reg D 506(b)')}</span>
+          </div>
+          <div class="om-cover-meta">
+            <div class="om-cover-meta-item">
+              <span class="om-cover-meta-label">Total Raise</span>
+              <span class="om-cover-meta-value">${esc(g('omRaise'))}</span>
+            </div>
+            <div class="om-cover-meta-item">
+              <span class="om-cover-meta-label">Min Investment</span>
+              <span class="om-cover-meta-value">${esc(g('omMinInvest'))}</span>
+            </div>
+            <div class="om-cover-meta-item">
+              <span class="om-cover-meta-label">Target IRR</span>
+              <span class="om-cover-meta-value">${esc(g('omTargetIRR'))}</span>
+            </div>
+            <div class="om-cover-meta-item">
+              <span class="om-cover-meta-label">Equity Multiple</span>
+              <span class="om-cover-meta-value">${esc(g('omEM'))}</span>
+            </div>
+            <div class="om-cover-meta-item">
+              <span class="om-cover-meta-label">Offering Date</span>
+              <span class="om-cover-meta-value">${esc(g('omDate'))}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="om-body">
+
+          <!-- Executive Summary -->
+          <div class="om-section">
+            <div class="om-section-title">01 &nbsp; Executive Summary</div>
+            <div class="om-p">${esc(g('omSummary'))}</div>
+
+            <!-- KPI bar -->
+            <div class="om-kpi-grid">
+              <div class="om-kpi"><div class="om-kpi-label">Purchase Price</div><div class="om-kpi-value">${esc(g('omPurchasePrice'))}</div></div>
+              <div class="om-kpi"><div class="om-kpi-label">Total Equity Raise</div><div class="om-kpi-value">${esc(g('omRaise'))}</div></div>
+              <div class="om-kpi"><div class="om-kpi-label">Target IRR</div><div class="om-kpi-value">${esc(g('omTargetIRR'))}</div></div>
+              <div class="om-kpi"><div class="om-kpi-label">Equity Multiple</div><div class="om-kpi-value">${esc(g('omEM'))}</div></div>
+              <div class="om-kpi"><div class="om-kpi-label">Preferred Return</div><div class="om-kpi-value">${esc(g('omPref') || '8%')}</div></div>
+              <div class="om-kpi"><div class="om-kpi-label">Hold Period</div><div class="om-kpi-value">${esc(g('omHold'))}</div></div>
+            </div>
+          </div>
+
+          <!-- Highlights -->
+          ${highlights.length ? `
+          <div class="om-section">
+            <div class="om-section-title">02 &nbsp; Investment Highlights</div>
+            <ul class="om-highlights">${highlights.map(h => `<li>${esc(h)}</li>`).join('')}</ul>
+          </div>` : ''}
+
+          <!-- Market -->
+          <div class="om-section">
+            <div class="om-section-title">03 &nbsp; Market &amp; Location</div>
+            <div class="om-p">${esc(g('omMarket'))}</div>
+            <div class="om-kpi-grid">
+              <div class="om-kpi"><div class="om-kpi-label">Market Vacancy</div><div class="om-kpi-value">${esc(g('omVacancy'))}</div></div>
+              <div class="om-kpi"><div class="om-kpi-label">Rent Growth (YoY)</div><div class="om-kpi-value">${esc(g('omRentGrowth'))}</div></div>
+              <div class="om-kpi"><div class="om-kpi-label">Avg Submarket Rent</div><div class="om-kpi-value">${esc(g('omAvgRent'))}</div></div>
+            </div>
+            ${drivers.length ? `<div class="om-h2" style="margin-top:16px;font-size:.85rem;">Key Demand Drivers</div>
+            <ul class="om-highlights">${drivers.map(d => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}
+          </div>
+
+          <!-- Financials -->
+          <div class="om-section">
+            <div class="om-section-title">04 &nbsp; Financial Summary</div>
+            <table class="om-fin-table">
+              <thead><tr><th>Metric</th><th>Current</th><th>Stabilized</th></tr></thead>
+              <tbody>
+                <tr><td>Gross Income</td><td>${esc(g('omGrossIncome'))}</td><td>${esc(g('omStabIncome'))}</td></tr>
+                <tr><td>Net Operating Income</td><td>${esc(g('omNOI'))}</td><td>${esc(g('omStabNOI'))}</td></tr>
+                <tr><td>Cap Rate</td><td>${esc(g('omGoingInCap'))}</td><td>${esc(g('omExitCap'))} (exit)</td></tr>
+                <tr><td>Purchase Price / Loan</td><td colspan="2">${esc(g('omPurchasePrice'))} / ${esc(g('omLoan'))} @ ${esc(g('omLTV'))} LTV</td></tr>
+                <tr><td><strong>Projected Returns</strong></td><td colspan="2"><strong>IRR ${esc(g('omIRR'))} &nbsp;|&nbsp; ${esc(g('omEquityMult'))} EM &nbsp;|&nbsp; ${esc(g('omCoC'))} CoC Yr1</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Structure -->
+          <div class="om-section">
+            <div class="om-section-title">05 &nbsp; Deal Structure</div>
+            <div class="om-kpi-grid">
+              <div class="om-kpi"><div class="om-kpi-label">Entity</div><div class="om-kpi-value" style="font-size:.95rem;">${esc(g('omEntity'))}</div></div>
+              <div class="om-kpi"><div class="om-kpi-label">LP / GP Split</div><div class="om-kpi-value" style="font-size:.95rem;">${esc(g('omSplit'))}</div></div>
+              <div class="om-kpi"><div class="om-kpi-label">Distributions</div><div class="om-kpi-value" style="font-size:.95rem;">${esc(g('omDistFreq'))}</div></div>
+            </div>
+            ${uop.length ? `
+            <div class="om-h2" style="margin-top:16px;font-size:.85rem;">Use of Proceeds</div>
+            <ul class="om-highlights">${uop.map(u => `<li>${esc(u)}</li>`).join('')}</ul>` : ''}
+            ${fees.length ? `
+            <div class="om-h2" style="margin-top:16px;font-size:.85rem;">Fee Schedule</div>
+            <ul class="om-highlights">${fees.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}
+          </div>
+
+          <!-- Team -->
+          <div class="om-section">
+            <div class="om-section-title">06 &nbsp; Sponsor Team</div>
+            <div class="om-team-grid">
+              ${g('omT1Name') ? `<div class="om-team-card">
+                <div class="om-team-name">${esc(g('omT1Name'))}</div>
+                <div class="om-team-title">${esc(g('omT1Title'))}</div>
+                <div class="om-team-bio">${esc(g('omT1Bio'))}</div>
+              </div>` : ''}
+              ${g('omT2Name') ? `<div class="om-team-card">
+                <div class="om-team-name">${esc(g('omT2Name'))}</div>
+                <div class="om-team-title">${esc(g('omT2Title'))}</div>
+                <div class="om-team-bio">${esc(g('omT2Bio'))}</div>
+              </div>` : ''}
+            </div>
+            ${tr.length ? `<div style="margin-top:16px;background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.15);border-radius:var(--radius);padding:14px;">
+              <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--accent);margin-bottom:8px;">Track Record</div>
+              ${tr.map(t => `<div style="font-size:.82rem;color:var(--text-secondary);padding:3px 0;">${esc(t)}</div>`).join('')}
+            </div>` : ''}
+          </div>
+
+          <!-- Risks -->
+          ${risks.length ? `
+          <div class="om-section">
+            <div class="om-section-title">07 &nbsp; Risk Factors</div>
+            <ul class="om-risk-list">${risks.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+          </div>` : ''}
+
+          <!-- Disclaimer -->
+          <div class="om-disclaimer">
+            <strong>CONFIDENTIAL — FOR ACCREDITED INVESTORS ONLY.</strong> This Offering Memorandum is intended solely for the use of the person to whom it has been delivered and does not constitute an offer to sell or a solicitation of an offer to buy securities. This document contains forward-looking statements and projections that are subject to risks and uncertainties. Past performance is not indicative of future results. This offering is made pursuant to Regulation D, Rule 506(b) of the Securities Act of 1933, as amended. Prospective investors should consult with their own legal, tax, and financial advisors before making any investment decision. Securities offered through the Sponsor are not registered with the SEC or any state securities authority.
+          </div>
+
+        </div>`;
+    }
+
+    function esc(s) {
+      return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>
