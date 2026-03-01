@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exit Calculator — deeltrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-theme.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-billing.js"></script>
+  <style>
+    :root {
+      --accent:#3b82f6; --accent-hover:#2563eb; --success:#10b981; --warning:#f59e0b;
+      --danger:#ef4444; --purple:#8b5cf6; --bg:#f8fafc; --bg-card:#ffffff;
+      --bg-sidebar:#0f172a; --text:#1e293b; --text-secondary:#64748b;
+      --border:#e2e8f0; --border-light:#f1f5f9; --radius:8px; --radius-md:12px;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.05); --shadow:0 1px 3px rgba(0,0,0,.1);
+      --shadow-md:0 4px 6px rgba(0,0,0,.07);
+    }
+    [data-theme="dark"] {
+      --bg:#0f172a; --bg-card:#1e293b; --bg-sidebar:#020617; --text:#f1f5f9;
+      --text-secondary:#94a3b8; --border:#334155; --border-light:#1e293b;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+    /* Sidebar */
+    .sidebar{width:260px;background:var(--bg-sidebar);color:white;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;}
+    .sidebar-header{padding:24px;border-bottom:1px solid rgba(255,255,255,.1);}
+    .logo{display:flex;align-items:center;gap:12px;font-size:1.25rem;font-weight:700;text-decoration:none;color:white;}
+    .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#60a5fa);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+    .nav-section{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);padding:16px 12px 8px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);color:rgba(255,255,255,.7);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .15s;}
+    .nav-item:hover{background:rgba(255,255,255,.05);color:white;}
+    .nav-item.active{background:var(--accent);color:white;}
+    .nav-item i{width:20px;text-align:center;}
+    .sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1);}
+    .user-info{display:flex;align-items:center;gap:12px;}
+    .user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--success),#34d399);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;color:white;flex-shrink:0;}
+    .user-name{font-size:.875rem;font-weight:600;color:white;}
+    .user-role{font-size:.75rem;color:rgba(255,255,255,.5);}
+
+    /* Main */
+    .main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .page-title{font-size:1.1rem;font-weight:700;color:var(--text);}
+    .content{padding:32px;flex:1;}
+
+    /* Layout */
+    .two-col{display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start;}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:24px;}
+    .card-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+
+    /* Form */
+    .form-group{margin-bottom:14px;}
+    .form-label{font-size:.78rem;font-weight:600;color:var(--text-secondary);margin-bottom:5px;display:block;}
+    .input-row{display:flex;align-items:center;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .15s;}
+    .input-row:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+    .input-row input,.input-row select{flex:1;padding:9px 12px;border:none;background:transparent;font-size:.875rem;font-family:'Inter',sans-serif;color:var(--text);outline:none;}
+    .input-pfx,.input-sfx{padding:9px 10px;font-size:.8rem;font-weight:600;color:var(--text-secondary);background:var(--border-light);white-space:nowrap;}
+    .form-hint{font-size:.72rem;color:var(--text-secondary);margin-top:4px;}
+    .divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+    .section-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);margin-bottom:10px;}
+
+    /* Results */
+    .result-hero{background:linear-gradient(135deg,#1e3a5f,#1e40af);border-radius:var(--radius-md);padding:24px;color:white;margin-bottom:20px;text-align:center;}
+    .result-hero-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.6);margin-bottom:8px;}
+    .result-hero-value{font-size:2.8rem;font-weight:800;line-height:1;}
+    .result-hero-sub{font-size:.82rem;color:rgba(255,255,255,.65);margin-top:8px;}
+
+    .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+    .result-card{background:var(--border-light);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+    .result-card.accent{border-left:3px solid var(--accent);}
+    .result-card.success{border-left:3px solid var(--success);}
+    .result-card.warning{border-left:3px solid var(--warning);}
+    .result-card.purple{border-left:3px solid var(--purple);}
+    .rc-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text-secondary);margin-bottom:4px;}
+    .rc-value{font-size:1.2rem;font-weight:700;color:var(--text);}
+    .rc-sub{font-size:.72rem;color:var(--text-secondary);margin-top:2px;}
+
+    /* Waterfall table */
+    .wf-table{width:100%;border-collapse:collapse;font-size:.85rem;}
+    .wf-table th{text-align:left;padding:8px 10px;background:var(--border-light);color:var(--text-secondary);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+    .wf-table td{padding:9px 10px;border-bottom:1px solid var(--border-light);}
+    .wf-table tr:last-child td{border-bottom:none;font-weight:700;background:var(--border-light);}
+    .wf-table .num{text-align:right;font-variant-numeric:tabular-nums;}
+    .wf-table .pos{color:var(--success);}
+    .wf-table .neg{color:var(--danger);}
+
+    /* Sensitivity table */
+    .sens-wrap{overflow-x:auto;}
+    .sens-table{border-collapse:collapse;font-size:.78rem;width:100%;}
+    .sens-table th,.sens-table td{padding:7px 10px;text-align:right;border:1px solid var(--border);white-space:nowrap;}
+    .sens-table th{background:var(--border-light);font-weight:700;color:var(--text-secondary);font-size:.7rem;text-transform:uppercase;}
+    .sens-table th:first-child,.sens-table td:first-child{text-align:left;font-weight:600;background:var(--border-light);color:var(--text-secondary);}
+    .sens-table .base{background:rgba(59,130,246,.1);font-weight:700;}
+    .sens-table .good{background:rgba(16,185,129,.08);color:#059669;}
+    .sens-table .bad{background:rgba(239,68,68,.08);color:#dc2626;}
+
+    /* Chart */
+    .bar-chart{display:flex;flex-direction:column;gap:8px;}
+    .bar-row{display:flex;align-items:center;gap:10px;}
+    .bar-label{font-size:.78rem;color:var(--text-secondary);width:90px;flex-shrink:0;text-align:right;}
+    .bar-track{flex:1;height:22px;background:var(--border-light);border-radius:4px;overflow:hidden;position:relative;}
+    .bar-fill{height:100%;border-radius:4px;transition:width .4s;}
+    .bar-val{font-size:.78rem;font-weight:700;color:var(--text);width:80px;flex-shrink:0;}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:var(--radius);font-size:.875rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit;}
+    .btn-primary{background:var(--accent);color:white;}
+    .btn-primary:hover{background:var(--accent-hover);}
+    .btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border);}
+    .btn-secondary:hover{background:var(--border-light);}
+    .btn-sm{padding:6px 14px;font-size:.8rem;}
+
+    /* Tabs */
+    .tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--border-light);padding:4px;border-radius:var(--radius);}
+    .tab{flex:1;padding:8px 12px;border-radius:6px;border:none;background:none;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--text-secondary);font-family:inherit;transition:all .15s;text-align:center;}
+    .tab.active{background:var(--bg-card);color:var(--text);box-shadow:var(--shadow-sm);}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+
+    @media(max-width:1100px){.two-col{grid-template-columns:1fr;} .result-grid{grid-template-columns:1fr 1fr;}}
+    @media(max-width:768px){.sidebar{display:none;}.main{margin-left:0;}.result-grid{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>deeltrack</span></a>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Deal Pipeline</span></a>
+      <a href="deals.html" class="nav-item"><i class="fas fa-building"></i><span>Deals</span></a>
+      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+      <a href="inbox.html" class="nav-item"><i class="fas fa-inbox"></i><span>Inbox</span></a>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+      <div class="nav-section">Tools</div>
+      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
+      <a href="debt-tracker.html" class="nav-item"><i class="fas fa-landmark"></i><span>Debt Tracker</span></a>
+      <a href="exit-calc.html" class="nav-item active"><i class="fas fa-sign-out-alt"></i><span>Exit Calculator</span></a>
+      <a href="deal-room.html" class="nav-item"><i class="fas fa-folder-open"></i><span>Deal Room</span></a>
+      <a href="teaser-generator.html" class="nav-item"><i class="fas fa-file-image"></i><span>Teaser</span></a>
+      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+      <div class="nav-section">Settings</div>
+      <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+      <a href="pricing.html" class="nav-item"><i class="fas fa-star"></i><span>Upgrade</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">G</div>
+        <div>
+          <div class="user-name" id="userName">Loading…</div>
+          <div class="user-role">General Partner</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <i class="fas fa-sign-out-alt" style="color:var(--accent);font-size:1.1rem;"></i>
+        <span class="page-title">Exit &amp; Disposition Calculator</span>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-secondary btn-sm" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+        <button class="btn btn-secondary btn-sm" onclick="resetForm()"><i class="fas fa-redo"></i> Reset</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="two-col">
+
+        <!-- ── Inputs ── -->
+        <div>
+          <div class="card">
+            <div class="card-title"><i class="fas fa-building" style="color:var(--accent)"></i> Deal Info</div>
+            <div class="form-group">
+              <label class="form-label">Deal / Property Name</label>
+              <div class="input-row"><input type="text" id="dealName" value="Oakwood Apartments" oninput="calc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Asset Class</label>
+              <div class="input-row">
+                <select id="assetClass" onchange="calc()">
+                  <option value="Multifamily">Multifamily</option>
+                  <option value="Industrial">Industrial</option>
+                  <option value="Office">Office</option>
+                  <option value="Retail">Retail</option>
+                  <option value="Self-Storage">Self-Storage</option>
+                  <option value="Hospitality">Hospitality</option>
+                  <option value="Mixed-Use">Mixed-Use</option>
+                  <option value="Land">Land</option>
+                </select>
+              </div>
+            </div>
+
+            <hr class="divider">
+            <div class="section-label">Acquisition</div>
+            <div class="form-group">
+              <label class="form-label">Purchase Price</label>
+              <div class="input-row"><span class="input-pfx">$</span><input type="number" id="purchasePrice" value="12000000" oninput="calc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Equity Invested (LP + GP)</label>
+              <div class="input-row"><span class="input-pfx">$</span><input type="number" id="equityIn" value="4500000" oninput="calc()"></div>
+              <div class="form-hint">Including syndication costs, reserves, capex funded at close</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Acquisition Date</label>
+              <div class="input-row"><input type="date" id="acqDate" value="2022-01-01" oninput="calc()"></div>
+            </div>
+
+            <hr class="divider">
+            <div class="section-label">Debt at Exit</div>
+            <div class="form-group">
+              <label class="form-label">Loan Balance at Sale</label>
+              <div class="input-row"><span class="input-pfx">$</span><input type="number" id="loanBalance" value="7800000" oninput="calc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prepayment / Defeasance Cost</label>
+              <div class="input-row"><span class="input-pfx">$</span><input type="number" id="prepayPenalty" value="0" oninput="calc()"></div>
+            </div>
+
+            <hr class="divider">
+            <div class="section-label">Exit Assumptions</div>
+            <div class="form-group">
+              <label class="form-label">Exit NOI (Trailing 12 or Projected)</label>
+              <div class="input-row"><span class="input-pfx">$</span><input type="number" id="exitNOI" value="780000" oninput="calc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Exit Cap Rate</label>
+              <div class="input-row"><input type="number" id="exitCap" value="5.50" step="0.05" oninput="calc()"><span class="input-sfx">%</span></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Selling Costs (broker, legal, transfer tax)</label>
+              <div class="input-row"><input type="number" id="sellingCosts" value="2.50" step="0.1" oninput="calc()"><span class="input-sfx">%</span></div>
+              <div class="form-hint">% of sale price</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sale Date</label>
+              <div class="input-row"><input type="date" id="saleDate" value="2026-06-01" oninput="calc()"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Cash Distributions to Date</label>
+              <div class="input-row"><span class="input-pfx">$</span><input type="number" id="cashDistributed" value="900000" oninput="calc()"></div>
+              <div class="form-hint">All LP + GP distributions paid during hold</div>
+            </div>
+
+            <hr class="divider">
+            <div class="section-label">Waterfall Structure</div>
+            <div class="form-group">
+              <label class="form-label">LP Ownership %</label>
+              <div class="input-row"><input type="number" id="lpPct" value="80" step="1" oninput="calc()"><span class="input-sfx">%</span></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Preferred Return (Pref)</label>
+              <div class="input-row"><input type="number" id="prefReturn" value="8" step="0.5" oninput="calc()"><span class="input-sfx">%</span></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">GP Promote (above pref)</label>
+              <div class="input-row"><input type="number" id="gpPromote" value="20" step="5" oninput="calc()"><span class="input-sfx">%</span></div>
+              <div class="form-hint">GP's share of profits above preferred return</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Promote Structure</label>
+              <div class="input-row">
+                <select id="promoteType" onchange="calc()">
+                  <option value="simple">Simple Split (LP/GP after pref)</option>
+                  <option value="catchup">GP Catch-up then Split</option>
+                  <option value="irr">IRR Hurdle Tiers</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Results ── -->
+        <div>
+          <!-- Hero -->
+          <div class="result-hero" id="heroCard">
+            <div class="result-hero-label">Net Sale Proceeds to Equity</div>
+            <div class="result-hero-value" id="heroValue">$—</div>
+            <div class="result-hero-sub" id="heroSub">After debt payoff &amp; selling costs</div>
+          </div>
+
+          <!-- Key metrics -->
+          <div class="result-grid">
+            <div class="result-card accent">
+              <div class="rc-label">Gross Sale Price</div>
+              <div class="rc-value" id="rcSalePrice">—</div>
+              <div class="rc-sub" id="rcCapRate">at —% cap</div>
+            </div>
+            <div class="result-card success">
+              <div class="rc-label">Total Return (Equity)</div>
+              <div class="rc-value" id="rcTotalReturn">—</div>
+              <div class="rc-sub" id="rcEquityMultiple">—× equity multiple</div>
+            </div>
+            <div class="result-card warning">
+              <div class="rc-label">Project IRR</div>
+              <div class="rc-value" id="rcIRR">—</div>
+              <div class="rc-sub" id="rcHoldPeriod">— year hold</div>
+            </div>
+            <div class="result-card purple">
+              <div class="rc-label">LP IRR</div>
+              <div class="rc-value" id="rcLpIRR">—</div>
+              <div class="rc-sub" id="rcLpMoic">—× LP MOIC</div>
+            </div>
+          </div>
+
+          <!-- Tabs: Waterfall / Sensitivity / Breakdown -->
+          <div class="card">
+            <div class="tabs">
+              <button class="tab active" onclick="showTab('wf',this)">💧 Waterfall</button>
+              <button class="tab" onclick="showTab('sens',this)">📊 Cap Rate Sensitivity</button>
+              <button class="tab" onclick="showTab('breakdown',this)">🥧 Proceeds Breakdown</button>
+            </div>
+
+            <!-- Waterfall -->
+            <div class="tab-panel active" id="tab-wf">
+              <table class="wf-table" id="wfTable">
+                <thead><tr><th>Tier</th><th class="num">Amount</th><th class="num">LP</th><th class="num">GP</th></tr></thead>
+                <tbody id="wfBody"></tbody>
+              </table>
+            </div>
+
+            <!-- Cap Rate Sensitivity -->
+            <div class="tab-panel" id="tab-sens">
+              <div class="sens-wrap">
+                <table class="sens-table" id="sensTable">
+                  <thead id="sensHead"></thead>
+                  <tbody id="sensBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Breakdown bar chart -->
+            <div class="tab-panel" id="tab-breakdown">
+              <div class="bar-chart" id="breakdownChart"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Auth guard
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof SP !== 'undefined') {
+        const sess = SP.getSession();
+        if (!sess?.loggedIn) { window.location.href = 'login.html'; return; }
+        const initials = (sess.name || sess.email || 'G').charAt(0).toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+        document.getElementById('userName').textContent = sess.name || sess.email || 'GP';
+      }
+      calc();
+    });
+
+    function showTab(id, btn) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + id).classList.add('active');
+    }
+
+    // ── Core calculation ─────────────────────────────────────────────────────
+    function calc() {
+      const v = getInputs();
+      if (!v) return;
+
+      const salePrice    = v.exitNOI / (v.exitCap / 100);
+      const sellingCostAmt = salePrice * (v.sellingCosts / 100);
+      const netToEquity  = salePrice - sellingCostAmt - v.loanBalance - v.prepayPenalty;
+      const holdYears    = holdPeriod(v.acqDate, v.saleDate);
+      const totalCashIn  = netToEquity + v.cashDistributed;   // total cash returned to equity
+      const totalProfit  = totalCashIn - v.equityIn;
+      const equityMultiple = v.equityIn > 0 ? totalCashIn / v.equityIn : 0;
+      const irr          = calcIRR(v.equityIn, totalCashIn, holdYears);
+
+      // Waterfall
+      const wf = waterfall(netToEquity, v.cashDistributed, v.equityIn, v.lpPct, v.prefReturn, v.gpPromote, v.promoteType, holdYears);
+
+      const lpTotalCash  = wf.lpProceeds + wf.lpDistributions;
+      const lpEquityIn   = v.equityIn * (v.lpPct / 100);
+      const lpMultiple   = lpEquityIn > 0 ? lpTotalCash / lpEquityIn : 0;
+      const lpIrr        = calcIRR(lpEquityIn, lpTotalCash, holdYears);
+
+      // Update hero
+      document.getElementById('heroValue').textContent = '$' + fmt(netToEquity);
+      document.getElementById('heroSub').textContent =
+        `${fmt2(salePrice)} sale · ${fmt2(sellingCostAmt)} costs · ${fmt2(v.loanBalance)} debt payoff`;
+
+      // Key metrics
+      document.getElementById('rcSalePrice').textContent = '$' + fmt(salePrice);
+      document.getElementById('rcCapRate').textContent   = `at ${v.exitCap}% cap rate`;
+      document.getElementById('rcTotalReturn').textContent = '$' + fmt(totalProfit);
+      document.getElementById('rcEquityMultiple').textContent = equityMultiple.toFixed(2) + '× equity multiple';
+      document.getElementById('rcIRR').textContent       = irr ? irr.toFixed(1) + '%' : 'N/A';
+      document.getElementById('rcHoldPeriod').textContent = holdYears.toFixed(1) + ' year hold';
+      document.getElementById('rcLpIRR').textContent     = lpIrr ? lpIrr.toFixed(1) + '%' : 'N/A';
+      document.getElementById('rcLpMoic').textContent    = lpMultiple.toFixed(2) + '× LP MOIC';
+
+      // Waterfall table
+      renderWaterfall(wf, v.lpPct);
+
+      // Sensitivity table
+      renderSensitivity(v, holdYears);
+
+      // Breakdown chart
+      renderBreakdown(salePrice, sellingCostAmt, v.loanBalance, v.prepayPenalty, wf, v.lpPct);
+    }
+
+    // ── Waterfall ────────────────────────────────────────────────────────────
+    function waterfall(netProceeds, cashDistributed, equityIn, lpPct, prefRate, gpPromote, promoteType, holdYears) {
+      const gpPct = 100 - lpPct;
+      const lpEquity = equityIn * (lpPct / 100);
+      const gpEquity = equityIn * (gpPct / 100);
+
+      // Pref accrued on equity (simple interest, annual)
+      const lpPrefAccrued = lpEquity * (prefRate / 100) * holdYears;
+      const gpPrefAccrued = gpEquity * (prefRate / 100) * holdYears;
+      const totalPrefAccrued = lpPrefAccrued + gpPrefAccrued;
+
+      // Assume cash distributions during hold paid to pref first
+      const lpDistributions = cashDistributed * (lpPct / 100);
+      const gpDistributions = cashDistributed * (gpPct / 100);
+
+      // Remaining pref owed at exit
+      const lpPrefOwed = Math.max(0, lpPrefAccrued - lpDistributions);
+      const gpPrefOwed = Math.max(0, gpPrefAccrued - gpDistributions);
+      const totalPrefOwed = lpPrefOwed + gpPrefOwed;
+
+      let remaining = netProceeds;
+      const tiers = [];
+
+      // Tier 1: Return of capital
+      const roc = Math.min(remaining, equityIn);
+      const lpROC = roc * (lpPct / 100);
+      const gpROC = roc * (gpPct / 100);
+      tiers.push({ label: '① Return of Capital', total: roc, lp: lpROC, gp: gpROC });
+      remaining -= roc;
+
+      // Tier 2: Unpaid preferred return
+      const prefPay = Math.min(remaining, totalPrefOwed);
+      const lpPref = totalPrefOwed > 0 ? prefPay * (lpPrefOwed / totalPrefOwed) : 0;
+      const gpPref = totalPrefOwed > 0 ? prefPay * (gpPrefOwed / totalPrefOwed) : 0;
+      tiers.push({ label: `② Preferred Return (${prefRate}% accrued)`, total: prefPay, lp: lpPref, gp: gpPref });
+      remaining -= prefPay;
+
+      // Tier 3: GP catch-up (if selected)
+      let lpPromote = 0, gpPromoteAmt = 0;
+      if (remaining > 0) {
+        if (promoteType === 'catchup' && remaining > 0) {
+          // GP catches up to receive gpPromote% of all profits so far
+          const totalProfitSoFar = (equityIn - equityIn) + prefPay; // simplified
+          const catchup = Math.min(remaining, (gpPromote / 100) / (1 - gpPromote / 100) * prefPay);
+          tiers.push({ label: `③ GP Catch-Up (${gpPromote}% of pref)`, total: catchup, lp: 0, gp: catchup });
+          remaining -= catchup;
+        }
+        // Final split
+        if (remaining > 0) {
+          const lpSplit = remaining * ((100 - gpPromote) / 100) * (lpPct / 100) + remaining * ((100 - gpPromote) / 100) * (gpPct / 100);
+          lpPromote  = remaining * ((100 - gpPromote) / 100);
+          gpPromoteAmt = remaining * (gpPromote / 100);
+          tiers.push({ label: `③ Profit Split (LP ${100 - gpPromote}% / GP ${gpPromote}% promote)`, total: remaining, lp: lpPromote, gp: gpPromoteAmt });
+          remaining = 0;
+        }
+      }
+
+      // Totals
+      const lpProceeds = tiers.reduce((s, t) => s + t.lp, 0);
+      const gpProceeds = tiers.reduce((s, t) => s + t.gp, 0);
+
+      return { tiers, lpProceeds, gpProceeds, lpDistributions, gpDistributions };
+    }
+
+    function renderWaterfall(wf, lpPct) {
+      const gpPct = 100 - lpPct;
+      const body = document.getElementById('wfBody');
+      body.innerHTML = wf.tiers.map(t => `
+        <tr>
+          <td>${t.label}</td>
+          <td class="num">$${fmt(t.total)}</td>
+          <td class="num ${t.lp > 0 ? 'pos' : ''}">$${fmt(t.lp)}</td>
+          <td class="num ${t.gp > 0 ? 'pos' : ''}">$${fmt(t.gp)}</td>
+        </tr>`).join('') + `
+        <tr>
+          <td>TOTAL EXIT PROCEEDS</td>
+          <td class="num">$${fmt(wf.tiers.reduce((s,t)=>s+t.total,0))}</td>
+          <td class="num pos">$${fmt(wf.lpProceeds)}</td>
+          <td class="num pos">$${fmt(wf.gpProceeds)}</td>
+        </tr>`;
+    }
+
+    // ── Sensitivity ──────────────────────────────────────────────────────────
+    function renderSensitivity(v, holdYears) {
+      const caps  = [v.exitCap - 1, v.exitCap - 0.5, v.exitCap, v.exitCap + 0.5, v.exitCap + 1];
+      const nois  = [v.exitNOI * 0.90, v.exitNOI * 0.95, v.exitNOI, v.exitNOI * 1.05, v.exitNOI * 1.10];
+      const labels = ['NOI -10%', 'NOI -5%', 'NOI Base', 'NOI +5%', 'NOI +10%'];
+
+      const baseIRR = calcIRR(v.equityIn, netProceeds(v.exitNOI, v.exitCap, v) + v.cashDistributed, holdYears) || 0;
+
+      let head = '<tr><th>Cap \\ NOI</th>' + caps.map(c => `<th>${c.toFixed(2)}%</th>`).join('') + '</tr>';
+      document.getElementById('sensHead').innerHTML = head;
+
+      let rows = '';
+      nois.forEach((noi, ni) => {
+        rows += `<tr><th>${labels[ni]}</th>`;
+        caps.forEach(cap => {
+          const sp   = noi / (cap / 100);
+          const costs = sp * (v.sellingCosts / 100);
+          const net   = sp - costs - v.loanBalance - v.prepayPenalty;
+          const irr   = calcIRR(v.equityIn, net + v.cashDistributed, holdYears);
+          const irrVal = irr ? irr.toFixed(1) + '%' : 'N/A';
+          const isBase = Math.abs(cap - v.exitCap) < 0.01 && Math.abs(noi - v.exitNOI) < 1;
+          const cls = isBase ? 'base' : (irr && irr > baseIRR + 0.5 ? 'good' : irr && irr < baseIRR - 0.5 ? 'bad' : '');
+          rows += `<td class="${cls}">${irrVal}</td>`;
+        });
+        rows += '</tr>';
+      });
+      document.getElementById('sensBody').innerHTML = rows;
+    }
+
+    function netProceeds(noi, cap, v) {
+      const sp = noi / (cap / 100);
+      return sp - sp * (v.sellingCosts / 100) - v.loanBalance - v.prepayPenalty;
+    }
+
+    // ── Breakdown chart ──────────────────────────────────────────────────────
+    function renderBreakdown(salePrice, sellingCostAmt, loanBalance, prepay, wf, lpPct) {
+      const items = [
+        { label: 'Gross Sale Price', val: salePrice, color: '#3b82f6' },
+        { label: 'Loan Payoff',      val: -loanBalance, color: '#ef4444' },
+        { label: 'Selling Costs',    val: -sellingCostAmt, color: '#f59e0b' },
+        { label: 'Prepay Penalty',   val: -prepay, color: '#f97316' },
+        { label: 'LP Proceeds',      val: wf.lpProceeds, color: '#10b981' },
+        { label: 'GP Proceeds',      val: wf.gpProceeds, color: '#8b5cf6' },
+      ].filter(i => Math.abs(i.val) > 0);
+
+      const maxVal = Math.max(...items.map(i => Math.abs(i.val)));
+      const chart  = document.getElementById('breakdownChart');
+      chart.innerHTML = items.map(i => {
+        const pct = maxVal > 0 ? (Math.abs(i.val) / maxVal * 100) : 0;
+        const sign = i.val < 0 ? '−' : '';
+        return `<div class="bar-row">
+          <div class="bar-label">${i.label}</div>
+          <div class="bar-track">
+            <div class="bar-fill" style="width:${pct}%;background:${i.color};opacity:${i.val < 0 ? 0.6 : 1}"></div>
+          </div>
+          <div class="bar-val">${sign}$${fmt(Math.abs(i.val))}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── IRR (Newton-Raphson) ─────────────────────────────────────────────────
+    function calcIRR(invested, totalReturn, years) {
+      if (!invested || invested <= 0 || years <= 0) return null;
+      // Simplified: assume single outflow at t=0, single inflow at t=years
+      // IRR = (totalReturn / invested)^(1/years) - 1
+      if (totalReturn <= 0) return null;
+      return (Math.pow(totalReturn / invested, 1 / years) - 1) * 100;
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function getInputs() {
+      return {
+        equityIn:      parseFloat(document.getElementById('equityIn').value) || 0,
+        purchasePrice: parseFloat(document.getElementById('purchasePrice').value) || 0,
+        loanBalance:   parseFloat(document.getElementById('loanBalance').value) || 0,
+        prepayPenalty: parseFloat(document.getElementById('prepayPenalty').value) || 0,
+        exitNOI:       parseFloat(document.getElementById('exitNOI').value) || 0,
+        exitCap:       parseFloat(document.getElementById('exitCap').value) || 5.5,
+        sellingCosts:  parseFloat(document.getElementById('sellingCosts').value) || 2.5,
+        cashDistributed: parseFloat(document.getElementById('cashDistributed').value) || 0,
+        lpPct:         parseFloat(document.getElementById('lpPct').value) || 80,
+        prefReturn:    parseFloat(document.getElementById('prefReturn').value) || 8,
+        gpPromote:     parseFloat(document.getElementById('gpPromote').value) || 20,
+        promoteType:   document.getElementById('promoteType').value,
+        acqDate:       document.getElementById('acqDate').value,
+        saleDate:      document.getElementById('saleDate').value,
+      };
+    }
+
+    function holdPeriod(acqDate, saleDate) {
+      if (!acqDate || !saleDate) return 3;
+      const a = new Date(acqDate), s = new Date(saleDate);
+      return Math.max(0.1, (s - a) / (365.25 * 24 * 3600 * 1000));
+    }
+
+    function fmt(n) {
+      if (n === undefined || n === null || isNaN(n)) return '—';
+      if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M';
+      if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(0) + 'K';
+      return Math.round(n).toLocaleString();
+    }
+    function fmt2(n) { return '$' + fmt(n); }
+
+    function resetForm() {
+      document.getElementById('dealName').value = 'Oakwood Apartments';
+      document.getElementById('purchasePrice').value = 12000000;
+      document.getElementById('equityIn').value = 4500000;
+      document.getElementById('acqDate').value = '2022-01-01';
+      document.getElementById('loanBalance').value = 7800000;
+      document.getElementById('prepayPenalty').value = 0;
+      document.getElementById('exitNOI').value = 780000;
+      document.getElementById('exitCap').value = 5.50;
+      document.getElementById('sellingCosts').value = 2.50;
+      document.getElementById('saleDate').value = '2026-06-01';
+      document.getElementById('cashDistributed').value = 900000;
+      document.getElementById('lpPct').value = 80;
+      document.getElementById('prefReturn').value = 8;
+      document.getElementById('gpPromote').value = 20;
+      document.getElementById('promoteType').value = 'simple';
+      calc();
+    }
+
+    function exportPDF() {
+      const name = document.getElementById('dealName').value || 'Exit Analysis';
+      window.print();
+    }
+  </script>
+</body>
+</html>
