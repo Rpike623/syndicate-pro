@@ -475,7 +475,6 @@
         }
         // Final split
         if (remaining > 0) {
-          const lpSplit = remaining * ((100 - gpPromote) / 100) * (lpPct / 100) + remaining * ((100 - gpPromote) / 100) * (gpPct / 100);
           lpPromote  = remaining * ((100 - gpPromote) / 100);
           gpPromoteAmt = remaining * (gpPromote / 100);
           tiers.push({ label: `③ Profit Split (LP ${100 - gpPromote}% / GP ${gpPromote}% promote)`, total: remaining, lp: lpPromote, gp: gpPromoteAmt });
