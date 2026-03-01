@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investor Update Builder — deeltrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="js/sp-theme.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-billing.js"></script>
+  <style>
+    :root{--accent:#3b82f6;--accent-hover:#2563eb;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--purple:#8b5cf6;--bg:#f8fafc;--bg-card:#ffffff;--bg-sidebar:#0f172a;--text:#1e293b;--text-secondary:#64748b;--border:#e2e8f0;--border-light:#f1f5f9;--radius:8px;--radius-md:12px;}
+    [data-theme="dark"]{--bg:#0f172a;--bg-card:#1e293b;--bg-sidebar:#020617;--text:#f1f5f9;--text-secondary:#94a3b8;--border:#334155;--border-light:#1e293b;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+
+    .sidebar{width:260px;background:var(--bg-sidebar);color:white;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;}
+    .sidebar-header{padding:24px;border-bottom:1px solid rgba(255,255,255,.1);}
+    .logo{display:flex;align-items:center;gap:12px;font-size:1.25rem;font-weight:700;text-decoration:none;color:white;}
+    .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#60a5fa);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
+    .nav-section{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:rgba(255,255,255,.4);padding:16px 12px 8px;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius);color:rgba(255,255,255,.7);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .15s;}
+    .nav-item:hover{background:rgba(255,255,255,.05);color:white;}
+    .nav-item.active{background:var(--accent);color:white;}
+    .nav-item i{width:20px;text-align:center;}
+    .sidebar-footer{padding:16px;border-top:1px solid rgba(255,255,255,.1);}
+    .user-info{display:flex;align-items:center;gap:12px;}
+    .user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--success),#34d399);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;color:white;flex-shrink:0;}
+    .user-name{font-size:.875rem;font-weight:600;color:white;}
+    .user-role{font-size:.75rem;color:rgba(255,255,255,.5);}
+
+    .main{margin-left:260px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .page-title{font-size:1.1rem;font-weight:700;}
+    .content{padding:32px;flex:1;}
+
+    /* Layout */
+    .layout{display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start;}
+
+    /* Cards / Forms */
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:22px;margin-bottom:16px;}
+    .card-title{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    .fg{margin-bottom:12px;}
+    .fl{font-size:.75rem;font-weight:600;color:var(--text-secondary);margin-bottom:5px;display:block;}
+    input,select,textarea{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius);font-size:.84rem;font-family:'Inter',sans-serif;background:var(--bg-card);color:var(--text);transition:border-color .15s;}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+    textarea{resize:vertical;}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
+    .sec-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);margin-bottom:10px;}
+    .trend-select{display:flex;gap:6px;}
+    .trend-btn{flex:1;padding:7px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-card);color:var(--text-secondary);font-size:.75rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;}
+    .trend-btn.active-up{background:rgba(16,185,129,.1);border-color:var(--success);color:var(--success);}
+    .trend-btn.active-flat{background:rgba(100,116,139,.1);border-color:#94a3b8;color:#64748b;}
+    .trend-btn.active-down{background:rgba(239,68,68,.1);border-color:var(--danger);color:var(--danger);}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:var(--radius);font-size:.875rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:inherit;}
+    .btn-primary{background:var(--accent);color:white;}
+    .btn-primary:hover{background:var(--accent-hover);}
+    .btn-secondary{background:var(--bg);color:var(--text);border:1px solid var(--border);}
+    .btn-secondary:hover{background:var(--border-light);}
+    .btn-success{background:var(--success);color:white;}
+    .btn-success:hover{background:#059669;}
+    .btn-sm{padding:6px 13px;font-size:.8rem;}
+
+    /* Tabs */
+    .tabs{display:flex;gap:4px;background:var(--border-light);padding:4px;border-radius:var(--radius);margin-bottom:20px;}
+    .tab{flex:1;padding:8px;border-radius:6px;border:none;background:none;font-size:.8rem;font-weight:600;cursor:pointer;color:var(--text-secondary);font-family:inherit;transition:all .15s;}
+    .tab.active{background:var(--bg-card);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.05);}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+
+    /* Preview pane */
+    .preview-bar{background:var(--border-light);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-radius:var(--radius-md) var(--radius-md) 0 0;}
+    .preview-wrap{border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;}
+    .preview-label{font-size:.75rem;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+
+    /* Email preview */
+    .email-preview{background:#f1f5f9;padding:24px;}
+    .email-card{max-width:620px;margin:0 auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);font-family:Arial,Helvetica,sans-serif;}
+    .ep-header{padding:32px 36px 24px;color:white;}
+    .ep-header-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.7;margin-bottom:8px;}
+    .ep-deal-name{font-size:22px;font-weight:800;margin-bottom:4px;}
+    .ep-period{font-size:13px;opacity:.75;}
+    .ep-body{padding:28px 36px;}
+    .ep-greeting{font-size:15px;color:#1e293b;margin-bottom:16px;line-height:1.6;}
+    .ep-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0;}
+    .ep-kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;text-align:center;}
+    .ep-kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;margin-bottom:4px;}
+    .ep-kpi-value{font-size:20px;font-weight:800;color:#1e293b;}
+    .ep-kpi-trend{font-size:11px;margin-top:2px;}
+    .trend-up{color:#10b981;}
+    .trend-flat{color:#64748b;}
+    .trend-down{color:#ef4444;}
+    .ep-section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#3b82f6;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin:24px 0 14px;}
+    .ep-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .ep-table td{padding:9px 10px;border-bottom:1px solid #f1f5f9;color:#1e293b;}
+    .ep-table td:last-child{text-align:right;font-weight:600;}
+    .ep-table tr:last-child td{border-bottom:none;}
+    .ep-bullets{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+    .ep-bullets li{display:flex;gap:10px;font-size:13px;color:#475569;line-height:1.5;}
+    .ep-bullets li::before{content:'→';color:#3b82f6;font-weight:700;flex-shrink:0;}
+    .ep-outlook{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:8px;padding:16px;margin:20px 0;font-size:13px;color:#1e3a8a;line-height:1.65;}
+    .ep-dist-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin:16px 0;display:flex;align-items:center;gap:16px;}
+    .ep-dist-icon{font-size:28px;}
+    .ep-dist-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#16a34a;margin-bottom:4px;}
+    .ep-dist-amount{font-size:20px;font-weight:800;color:#15803d;}
+    .ep-capex-bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin:8px 0;}
+    .ep-capex-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:4px;}
+    .ep-footer{background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 36px;font-size:12px;color:#94a3b8;text-align:center;line-height:1.7;}
+    .ep-sign{padding:20px 36px 24px;font-size:14px;color:#1e293b;line-height:1.7;}
+
+    /* Copy HTML area */
+    .html-area{width:100%;height:180px;font-size:.75rem;font-family:'Courier New',monospace;border:1px solid var(--border);border-radius:var(--radius);padding:10px;background:var(--border-light);color:var(--text-secondary);resize:vertical;}
+
+    @media(max-width:1100px){.layout{grid-template-columns:1fr;}}
+    @media(max-width:768px){.sidebar{display:none;}.main{margin-left:0;}}
+    @media print{.sidebar,.topbar{display:none!important;}.main{margin-left:0;}.preview-bar{display:none;}.email-preview{padding:0;background:white;}}
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="dashboard.html" class="logo"><div class="logo-icon">◆</div><span>deeltrack</span></a>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Main</div>
+      <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i><span>Dashboard</span></a>
+      <a href="pipeline.html" class="nav-item"><i class="fas fa-stream"></i><span>Deal Pipeline</span></a>
+      <a href="deals.html" class="nav-item"><i class="fas fa-building"></i><span>Deals</span></a>
+      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
+      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i><span>Investors</span></a>
+      <a href="inbox.html" class="nav-item"><i class="fas fa-inbox"></i><span>Inbox</span></a>
+      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i><span>Documents</span></a>
+      <a href="reports.html" class="nav-item"><i class="fas fa-chart-bar"></i><span>Reports</span></a>
+      <div class="nav-section">Tools</div>
+      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
+      <a href="distributions.html" class="nav-item"><i class="fas fa-wallet"></i><span>Distributions</span></a>
+      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
+      <a href="debt-tracker.html" class="nav-item"><i class="fas fa-landmark"></i><span>Debt Tracker</span></a>
+      <a href="exit-calc.html" class="nav-item"><i class="fas fa-sign-out-alt"></i><span>Exit Calculator</span></a>
+      <a href="om-builder.html" class="nav-item"><i class="fas fa-file-alt"></i><span>OM Builder</span></a>
+      <a href="investor-update.html" class="nav-item active"><i class="fas fa-paper-plane"></i><span>Investor Updates</span></a>
+      <a href="deal-room.html" class="nav-item"><i class="fas fa-folder-open"></i><span>Deal Room</span></a>
+      <a href="teaser-generator.html" class="nav-item"><i class="fas fa-file-image"></i><span>Teaser</span></a>
+      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i><span>K-1 Generator</span></a>
+      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
+      <div class="nav-section">Settings</div>
+      <a href="settings.html" class="nav-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+      <a href="pricing.html" class="nav-item"><i class="fas fa-star"></i><span>Upgrade</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">G</div>
+        <div><div class="user-name" id="userName">Loading…</div><div class="user-role">General Partner</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <i class="fas fa-paper-plane" style="color:var(--accent);font-size:1.1rem;"></i>
+        <span class="page-title">Investor Update Builder</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="saveUpdate()"><i class="fas fa-save"></i> Save Draft</button>
+        <button class="btn btn-secondary btn-sm" onclick="copyHTML()"><i class="fas fa-copy"></i> Copy HTML</button>
+        <button class="btn btn-primary btn-sm" onclick="window.print()"><i class="fas fa-print"></i> Print / PDF</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="layout">
+
+        <!-- Left: Inputs -->
+        <div>
+
+          <!-- Header info -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-building" style="color:var(--accent)"></i> Deal &amp; Period</div>
+            <div class="fg"><label class="fl">Deal / Property Name</label><input type="text" id="upDeal" value="Oakwood Multifamily Portfolio" oninput="render()"></div>
+            <div class="row2">
+              <div class="fg"><label class="fl">Reporting Period</label><input type="text" id="upPeriod" value="Q4 2025" oninput="render()"></div>
+              <div class="fg"><label class="fl">Update Type</label>
+                <select id="upType" onchange="render()">
+                  <option value="quarterly">Quarterly Update</option>
+                  <option value="monthly">Monthly Update</option>
+                  <option value="annual">Annual Update</option>
+                  <option value="construction">Construction Update</option>
+                  <option value="lease-up">Lease-Up Update</option>
+                </select>
+              </div>
+            </div>
+            <div class="fg"><label class="fl">Greeting / Opening</label>
+              <textarea id="upGreeting" rows="3" oninput="render()">We are pleased to share the Q4 2025 update for Oakwood Multifamily Portfolio. The quarter delivered strong operational results, and we remain on track with our value-add business plan.</textarea>
+            </div>
+          </div>
+
+          <!-- KPIs -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-tachometer-alt" style="color:var(--success)"></i> Key Performance Metrics</div>
+
+            <div class="sec-label">Occupancy</div>
+            <div class="row2">
+              <div class="fg"><label class="fl">Current Occupancy</label><input type="text" id="upOcc" value="94.6%" oninput="render()"></div>
+              <div class="fg"><label class="fl">vs Prior Period</label><input type="text" id="upOccVs" value="↑ from 91.2%" oninput="render()"></div>
+            </div>
+            <div class="fg"><label class="fl">Occupancy Trend</label>
+              <div class="trend-select" id="trendOcc">
+                <button class="trend-btn active-up" onclick="setTrend('trendOcc','up',this)">▲ Up</button>
+                <button class="trend-btn" onclick="setTrend('trendOcc','flat',this)">→ Flat</button>
+                <button class="trend-btn" onclick="setTrend('trendOcc','down',this)">▼ Down</button>
+              </div>
+            </div>
+
+            <hr class="divider">
+            <div class="sec-label">Revenue &amp; NOI</div>
+            <div class="row2">
+              <div class="fg"><label class="fl">Gross Revenue (Period)</label><input type="text" id="upRevenue" value="$548,200" oninput="render()"></div>
+              <div class="fg"><label class="fl">vs Budget</label><input type="text" id="upRevVsBudget" value="+3.1% above budget" oninput="render()"></div>
+            </div>
+            <div class="row2">
+              <div class="fg"><label class="fl">Net Operating Income</label><input type="text" id="upNOI" value="$241,500" oninput="render()"></div>
+              <div class="fg"><label class="fl">NOI Trend</label>
+                <div class="trend-select" id="trendNOI">
+                  <button class="trend-btn active-up" onclick="setTrend('trendNOI','up',this)">▲ Up</button>
+                  <button class="trend-btn" onclick="setTrend('trendNOI','flat',this)">→ Flat</button>
+                  <button class="trend-btn" onclick="setTrend('trendNOI','down',this)">▼ Down</button>
+                </div>
+              </div>
+            </div>
+            <div class="row2">
+              <div class="fg"><label class="fl">Average Effective Rent</label><input type="text" id="upAvgRent" value="$1,318/mo" oninput="render()"></div>
+              <div class="fg"><label class="fl">vs Prior Period</label><input type="text" id="upRentVs" value="↑ $42/mo" oninput="render()"></div>
+            </div>
+            <div class="row2">
+              <div class="fg"><label class="fl">DSCR</label><input type="text" id="upDSCR" value="1.38×" oninput="render()"></div>
+              <div class="fg"><label class="fl">Cash-on-Cash Return</label><input type="text" id="upCoC" value="7.8%" oninput="render()"></div>
+            </div>
+          </div>
+
+          <!-- Distribution -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-dollar-sign" style="color:var(--warning)"></i> Distribution</div>
+            <div class="fg">
+              <label class="fl">Distribution This Period</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <select id="upDistYN" onchange="render()" style="width:140px;">
+                  <option value="yes">Yes — Paying</option>
+                  <option value="no">No Distribution</option>
+                  <option value="defer">Deferred</option>
+                </select>
+                <input type="text" id="upDistAmt" value="$162,000 total ($1,080/unit)" oninput="render()" placeholder="Amount">
+              </div>
+            </div>
+            <div class="row2">
+              <div class="fg"><label class="fl">Distribution Date</label><input type="text" id="upDistDate" value="January 15, 2026" oninput="render()"></div>
+              <div class="fg"><label class="fl">Annualized Pref Rate</label><input type="text" id="upPrefRate" value="8.0%" oninput="render()"></div>
+            </div>
+            <div class="fg"><label class="fl">Distribution Note</label><input type="text" id="upDistNote" value="Distributions remain consistent with our 8% preferred return target." oninput="render()"></div>
+          </div>
+
+          <!-- Capex / Renovations -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-hard-hat" style="color:var(--purple)"></i> Renovations &amp; CapEx</div>
+            <div class="row3">
+              <div class="fg"><label class="fl">Units Renovated</label><input type="number" id="upUnitsReno" value="22" oninput="render()"></div>
+              <div class="fg"><label class="fl">Total Units</label><input type="number" id="upUnitsTotal" value="148" oninput="render()"></div>
+              <div class="fg"><label class="fl">Budget Spent %</label><input type="number" id="upCapexPct" value="42" min="0" max="100" oninput="render()"></div>
+            </div>
+            <div class="fg"><label class="fl">Renovation Premium Achieved</label><input type="text" id="upRenoPremium" value="$147/mo avg rent premium on renovated units" oninput="render()"></div>
+            <div class="fg"><label class="fl">CapEx Highlights (one per line)</label>
+              <textarea id="upCapexNotes" rows="4" oninput="render()">22 units fully renovated — new LVP flooring, quartz countertops, SS appliances
+Exterior paint and parking lot reseal complete
+Pool deck renovation underway — expected completion Feb 2026
+HVAC replacements: 8 units completed this quarter</textarea>
+            </div>
+          </div>
+
+          <!-- Operations -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-cogs" style="color:var(--text-secondary)"></i> Operations &amp; Milestones</div>
+            <div class="fg"><label class="fl">Operational Updates (one per line)</label>
+              <textarea id="upOpsNotes" rows="5" oninput="render()">Property tax protest resulted in $18,400 annual reduction (effective Q1 2026)
+New property management software deployed — improving collections and maintenance response
+Delinquency rate at 1.2%, down from 2.8% prior quarter
+7 new leases signed at post-renovation asking rents
+Utility RUBS program launch increased reimbursement revenue by $12,400/quarter</textarea>
+            </div>
+          </div>
+
+          <!-- Outlook -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-binoculars" style="color:var(--accent)"></i> Outlook &amp; Next Quarter</div>
+            <div class="fg"><label class="fl">Forward Outlook</label>
+              <textarea id="upOutlook" rows="5" oninput="render()">Q1 2026 priorities: complete pool deck renovation, renovate 18 additional units, and push occupancy toward 96%+. The DFW market continues to show strong absorption with submarket vacancy at 4.8%. We remain on track with our business plan and expect to hit stabilized NOI by Q3 2026.</textarea>
+            </div>
+            <div class="fg"><label class="fl">Upcoming Milestones (one per line)</label>
+              <textarea id="upMilestones" rows="4" oninput="render()">Pool deck renovation complete — February 2026
+18 additional unit renovations — Q1 2026
+Refinance exploration begins — Q2 2026
+Target stabilized occupancy (96%) — Q3 2026</textarea>
+            </div>
+          </div>
+
+          <!-- Sign-off -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-signature" style="color:var(--text-secondary)"></i> Sign-off</div>
+            <div class="fg"><label class="fl">Closing Message</label>
+              <textarea id="upClosing" rows="3" oninput="render()">Thank you for your continued trust and partnership. Please don't hesitate to reach out with any questions — we are always available to discuss the portfolio.</textarea>
+            </div>
+            <div class="row2">
+              <div class="fg"><label class="fl">GP Name / Firm</label><input type="text" id="upGPName" value="Robert Pike" oninput="render()"></div>
+              <div class="fg"><label class="fl">Title</label><input type="text" id="upGPTitle" value="Managing Partner" oninput="render()"></div>
+            </div>
+            <div class="fg"><label class="fl">Contact Email</label><input type="text" id="upGPEmail" value="robert@deeltrack.com" oninput="render()"></div>
+          </div>
+        </div>
+
+        <!-- Right: Preview -->
+        <div>
+          <div class="preview-wrap" style="margin-bottom:16px;">
+            <div class="preview-bar">
+              <span class="preview-label"><i class="fas fa-eye"></i> Live Email Preview</span>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-secondary btn-sm" onclick="copyHTML()"><i class="fas fa-copy"></i> Copy HTML</button>
+                <button class="btn btn-success btn-sm" onclick="window.print()"><i class="fas fa-print"></i> PDF</button>
+              </div>
+            </div>
+            <div class="email-preview" id="emailPreview"></div>
+          </div>
+
+          <!-- Copy HTML panel -->
+          <div class="card">
+            <div class="card-title"><i class="fas fa-code"></i> Email HTML (paste into your email client)</div>
+            <textarea class="html-area" id="htmlArea" readonly placeholder="HTML will appear here after you build the update…"></textarea>
+            <button class="btn btn-secondary btn-sm" style="margin-top:10px;" onclick="copyHTML()"><i class="fas fa-copy"></i> Copy to Clipboard</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Auth
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof SP !== 'undefined') {
+        const sess = SP.getSession();
+        if (!sess?.loggedIn) { window.location.href = 'login.html'; return; }
+        const initials = (sess.name || sess.email || 'G').charAt(0).toUpperCase();
+        document.getElementById('userAvatar').textContent = initials;
+        document.getElementById('userName').textContent = sess.name || sess.email || 'GP';
+      }
+      loadUpdate();
+      render();
+    });
+
+    // Trend state
+    const trends = { trendOcc: 'up', trendNOI: 'up' };
+    function setTrend(id, val, btn) {
+      trends[id] = val;
+      document.querySelectorAll(`#${id} .trend-btn`).forEach(b => {
+        b.className = 'trend-btn';
+        if (b === btn) b.classList.add(val === 'up' ? 'active-up' : val === 'flat' ? 'active-flat' : 'active-down');
+      });
+      render();
+    }
+    function trendIcon(id) {
+      const t = trends[id];
+      if (t === 'up')   return '<span class="trend-up">▲ Improving</span>';
+      if (t === 'down') return '<span class="trend-down">▼ Declining</span>';
+      return '<span class="trend-flat">→ Stable</span>';
+    }
+
+    // Save/load
+    const SK = 'dt_investor_update_v1';
+    function saveUpdate() {
+      const data = {};
+      document.querySelectorAll('[id^="up"]').forEach(el => { data[el.id] = el.value; });
+      data._trends = trends;
+      localStorage.setItem(SK, JSON.stringify(data));
+      toast('Draft saved!');
+    }
+    function loadUpdate() {
+      try {
+        const d = JSON.parse(localStorage.getItem(SK) || '{}');
+        Object.entries(d).forEach(([k, v]) => {
+          if (k === '_trends') return;
+          const el = document.getElementById(k);
+          if (el) el.value = v;
+        });
+        if (d._trends) Object.assign(trends, d._trends);
+      } catch(e) {}
+    }
+    function toast(msg) {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      Object.assign(t.style, {position:'fixed',bottom:'24px',right:'24px',background:'#1e293b',color:'white',padding:'10px 18px',borderRadius:'8px',fontSize:'.85rem',fontWeight:'600',zIndex:'9999',boxShadow:'0 4px 12px rgba(0,0,0,.3)'});
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
+
+    // Copy HTML
+    function copyHTML() {
+      const html = document.getElementById('htmlArea').value;
+      navigator.clipboard?.writeText(html).then(() => toast('HTML copied!')).catch(() => {
+        document.getElementById('htmlArea').select();
+        document.execCommand('copy');
+        toast('Copied!');
+      });
+    }
+
+    // ── Renderer ──────────────────────────────────────────────────────────────
+    function g(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+    function render() {
+      const distYN       = g('upDistYN') || 'yes';
+      const capexPct     = Math.min(100, Math.max(0, parseFloat(g('upCapexPct')) || 0));
+      const unitsReno    = parseInt(g('upUnitsReno')) || 0;
+      const unitsTotal   = parseInt(g('upUnitsTotal')) || 1;
+      const capexLines   = g('upCapexNotes').split('\n').filter(l => l.trim());
+      const opsLines     = g('upOpsNotes').split('\n').filter(l => l.trim());
+      const milestones   = g('upMilestones').split('\n').filter(l => l.trim());
+
+      // Color theme based on type
+      const typeColors = {
+        quarterly:    ['#1e3a5f','#1e40af'],
+        monthly:      ['#0f4c3a','#065f46'],
+        annual:       ['#3b0764','#6b21a8'],
+        construction: ['#431407','#c2410c'],
+        'lease-up':   ['#1a2e05','#3f6212'],
+      };
+      const [c1, c2] = typeColors[g('upType')] || typeColors.quarterly;
+
+      const distBlock = distYN === 'yes' ? `
+        <div class="ep-dist-box">
+          <div class="ep-dist-icon">💰</div>
+          <div>
+            <div class="ep-dist-label">Distribution — ${esc(g('upDistDate'))}</div>
+            <div class="ep-dist-amount">${esc(g('upDistAmt'))}</div>
+            <div style="font-size:12px;color:#166534;margin-top:3px;">${esc(g('upDistNote'))}</div>
+          </div>
+        </div>` :
+        distYN === 'defer' ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:14px;margin:14px 0;font-size:13px;color:#92400e;">⏸ Distribution deferred this period. ${esc(g('upDistNote'))}</div>` :
+        `<div style="background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:14px;margin:14px 0;font-size:13px;color:#475569;">No distribution this period. ${esc(g('upDistNote'))}</div>`;
+
+      const html = `<div class="email-card">
+  <div class="ep-header" style="background:linear-gradient(135deg,${c1},${c2})">
+    <div class="ep-header-label">Investor Update · ${esc(g('upType').replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()))}</div>
+    <div class="ep-deal-name">${esc(g('upDeal'))}</div>
+    <div class="ep-period">${esc(g('upPeriod'))}</div>
+  </div>
+  <div class="ep-body">
+    <div class="ep-greeting">${esc(g('upGreeting'))}</div>
+
+    <div class="ep-section-title">Performance Snapshot</div>
+    <div class="ep-kpi-grid">
+      <div class="ep-kpi">
+        <div class="ep-kpi-label">Occupancy</div>
+        <div class="ep-kpi-value">${esc(g('upOcc'))}</div>
+        <div class="ep-kpi-trend">${trendIcon('trendOcc')}</div>
+      </div>
+      <div class="ep-kpi">
+        <div class="ep-kpi-label">NOI (Period)</div>
+        <div class="ep-kpi-value">${esc(g('upNOI'))}</div>
+        <div class="ep-kpi-trend">${trendIcon('trendNOI')}</div>
+      </div>
+      <div class="ep-kpi">
+        <div class="ep-kpi-label">Avg Rent</div>
+        <div class="ep-kpi-value">${esc(g('upAvgRent'))}</div>
+        <div class="ep-kpi-trend">${esc(g('upRentVs'))}</div>
+      </div>
+    </div>
+
+    <table class="ep-table">
+      <tr><td>Gross Revenue</td><td>${esc(g('upRevenue'))} <span style="font-size:11px;color:#10b981;">${esc(g('upRevVsBudget'))}</span></td></tr>
+      <tr><td>Debt Service Coverage</td><td>${esc(g('upDSCR'))}</td></tr>
+      <tr><td>Cash-on-Cash Return</td><td>${esc(g('upCoC'))}</td></tr>
+      <tr><td>Preferred Return Rate</td><td>${esc(g('upPrefRate'))}</td></tr>
+    </table>
+
+    ${distBlock}
+
+    ${capexLines.length ? `
+    <div class="ep-section-title">Renovations &amp; CapEx</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:8px;">${unitsReno} of ${unitsTotal} units renovated · Budget: ${capexPct}% deployed</div>
+    <div class="ep-capex-bar"><div class="ep-capex-fill" style="width:${capexPct}%"></div></div>
+    ${g('upRenoPremium') ? `<div style="font-size:12px;color:#7c3aed;margin:8px 0;font-weight:600;">📈 ${esc(g('upRenoPremium'))}</div>` : ''}
+    <ul class="ep-bullets" style="margin-top:12px;">${capexLines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>` : ''}
+
+    ${opsLines.length ? `
+    <div class="ep-section-title">Operations &amp; Highlights</div>
+    <ul class="ep-bullets">${opsLines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>` : ''}
+
+    ${g('upOutlook') ? `
+    <div class="ep-section-title">Outlook</div>
+    <div class="ep-outlook">${esc(g('upOutlook'))}</div>` : ''}
+
+    ${milestones.length ? `
+    <div class="ep-section-title">Upcoming Milestones</div>
+    <ul class="ep-bullets">${milestones.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>` : ''}
+  </div>
+
+  <div class="ep-sign">
+    ${esc(g('upClosing'))}<br><br>
+    <strong>${esc(g('upGPName'))}</strong><br>
+    ${esc(g('upGPTitle'))}<br>
+    <a href="mailto:${esc(g('upGPEmail'))}" style="color:#3b82f6;">${esc(g('upGPEmail'))}</a>
+  </div>
+
+  <div class="ep-footer">
+    This update is intended solely for existing investors in ${esc(g('upDeal'))}. Past performance is not indicative of future results. All financial projections are estimates and subject to change. This communication does not constitute an offer to sell or solicitation of an offer to buy any security. Confidential — do not forward.
+  </div>
+</div>`;
+
+      document.getElementById('emailPreview').innerHTML = html;
+      document.getElementById('htmlArea').value = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+body{font-family:Arial,Helvetica,sans-serif;background:#f1f5f9;padding:24px;}
+.email-card{max-width:620px;margin:0 auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+.ep-header{padding:32px 36px 24px;color:white;background:linear-gradient(135deg,${c1},${c2});}
+.ep-header-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.7;margin-bottom:8px;}
+.ep-deal-name{font-size:22px;font-weight:800;margin-bottom:4px;}
+.ep-period{font-size:13px;opacity:.75;}
+.ep-body{padding:28px 36px;}
+.ep-greeting{font-size:15px;color:#1e293b;margin-bottom:16px;line-height:1.6;}
+.ep-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0;}
+.ep-kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;text-align:center;}
+.ep-kpi-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;margin-bottom:4px;}
+.ep-kpi-value{font-size:20px;font-weight:800;color:#1e293b;}
+.ep-kpi-trend{font-size:11px;margin-top:2px;}
+.ep-section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#3b82f6;border-bottom:2px solid #e2e8f0;padding-bottom:6px;margin:24px 0 14px;}
+.ep-table{width:100%;border-collapse:collapse;font-size:13px;}
+.ep-table td{padding:9px 10px;border-bottom:1px solid #f1f5f9;color:#1e293b;}
+.ep-table td:last-child{text-align:right;font-weight:600;}
+.ep-table tr:last-child td{border-bottom:none;}
+.ep-bullets{list-style:none;margin:0;padding:0;}
+.ep-bullets li{display:flex;gap:10px;font-size:13px;color:#475569;line-height:1.5;margin-bottom:8px;}
+.ep-bullets li::before{content:'→';color:#3b82f6;font-weight:700;flex-shrink:0;}
+.ep-outlook{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:8px;padding:16px;margin:20px 0;font-size:13px;color:#1e3a8a;line-height:1.65;}
+.ep-dist-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin:16px 0;display:flex;align-items:center;gap:16px;}
+.ep-dist-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#16a34a;margin-bottom:4px;}
+.ep-dist-amount{font-size:20px;font-weight:800;color:#15803d;}
+.ep-capex-bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin:8px 0;}
+.ep-capex-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:4px;}
+.ep-footer{background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 36px;font-size:12px;color:#94a3b8;text-align:center;line-height:1.7;}
+.ep-sign{padding:20px 36px 24px;font-size:14px;color:#1e293b;line-height:1.7;}
+</style></head><body>${html}</body></html>`;
+    }
+
+    function esc(s) {
+      return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>
