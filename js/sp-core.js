@@ -434,8 +434,14 @@ const SP = (function () {
     const oa1 = makeOA({name:'Riverside Flats',location:'Austin, TX',state:'TX',raise:4200000,totalEquity:4200000,gpEquity:10,lpEquity:90,prefReturn:8,gpPromote:20,acqFee:3,assetMgmtFee:2,minInvestment:100000,companyName:'Riverside Flats Capital LLC'}, 'Pike Capital Management LLC', 'Robert Pike');
     const oa2 = makeOA({name:'The Hudson Portfolio',location:'Houston, TX',state:'TX',raise:12000000,totalEquity:12000000,gpEquity:10,lpEquity:90,prefReturn:8,gpPromote:20,acqFee:3,assetMgmtFee:2,minInvestment:250000,companyName:'Hudson Portfolio Capital LLC'}, 'Pike Capital Management LLC', 'Robert Pike');
 
-    // Deals with investors linked, OAs pre-generated
     const deals = [
+      {
+        id:'live_d1', name:'Pecan Hollow Apartments', type:'multifamily', raise:5500000, irr:19.4, equity:2.1,
+        status:'raising', location:'Fort Worth, TX', added:new Date().toISOString().split('T')[0], units:128, state:'TX',
+        companyName:'Pecan Hollow Partners LLC', purchasePrice:24500000, loanAmount:19000000,
+        totalEquity:5500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
+        notes:'128-unit B+ value-add opportunity. 1980s build. Under market rents by $175/unit. Plans for $1.2M renovation cap-ex.'
+      },
       {
         id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9,
         status:'operating', location:'Austin, TX', added:'2025-11-10', units:96, state:'TX',
