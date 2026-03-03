@@ -648,7 +648,7 @@
     // Stats
     document.getElementById('statActive').textContent = active;
     document.getElementById('statPending').textContent = pending;
-    document.getElementById('statYTD').textContent = ytdDist > 0 ? fmt$(ytdDist) : fmt$(projectedDist / 4) + ' (est)';
+    document.getElementById('statYTD').textContent = ytdDist > 0 ? fmt$(ytdDist) : fmt$(projectedDist / 4) + ' (non-binding est)';
     document.getElementById('statMultiple').textContent = avgMult !== '—' ? avgMult + 'x' : '—';
 
     // Recent activity (most recent 5 distributions + deals)

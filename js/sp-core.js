@@ -704,8 +704,8 @@ const SP = (function () {
     if (!document.getElementById('dt-legal-footer')) {
       const footer = document.createElement('div');
       footer.id = 'dt-legal-footer';
-      footer.style.cssText = 'background:#0f172a;color:rgba(255,255,255,0.45);font-size:.7rem;padding:12px 32px;text-align:center;line-height:1.6;font-family:Inter,sans-serif;margin-top:auto;';
-      footer.innerHTML = `deeltrack is a software tool, not a registered broker-dealer, investment adviser, or placement agent. Nothing on this platform constitutes investment advice or a solicitation to buy or sell securities. Financial projections are estimates only — not guarantees. All generated documents are templates requiring attorney review before use. &nbsp;·&nbsp; <a href="terms.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Terms</a> &nbsp;·&nbsp; <a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Privacy</a> &nbsp;·&nbsp; <a href="disclaimer.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Disclaimer</a>`;
+      footer.style.cssText = 'background:#0f172a;color:rgba(255,255,255,0.45);font-size:.7rem;padding:12px 32px;text-align:center;line-height:1.6;font-family:Inter,sans-serif;margin-top:auto;border-top:1px solid rgba(255,255,255,0.1);';
+      footer.innerHTML = `<strong style="color:var(--danger)">LEGAL DISCLAIMER:</strong> deeltrack is a software tool, not a registered broker-dealer, investment adviser, or placement agent. Nothing on this platform constitutes investment advice or a solicitation to buy or sell securities. Financial targets are estimates only — not guarantees. All generated documents are templates requiring independent legal counsel review before execution. &nbsp;·&nbsp; <a href="terms.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Terms</a> &nbsp;·&nbsp; <a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Privacy</a> &nbsp;·&nbsp; <a href="disclaimer.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Disclaimer</a>`;
       document.body.appendChild(footer);
     }
 

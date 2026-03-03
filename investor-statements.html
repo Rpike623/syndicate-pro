@@ -131,6 +131,11 @@ function exportPDF() {
   const doc=new jsPDF(); 
   const invName = document.getElementById('investorSel').options[document.getElementById('investorSel').selectedIndex].text.replace(/\s+/g,'_');
   const dealName = document.getElementById('dealSel').options[document.getElementById('dealSel').selectedIndex].text.replace(/\s+/g,'_');
+  
+  if(typeof SPAudit !== 'undefined') {
+    SPAudit.log('export', 'statement', dealId, dealName, { investor: invName });
+  }
+
   doc.html(document.getElementById('statementBody'),{callback:d=>d.save(`Statement_${invName}_${dealName}.pdf`),x:10,y:10,width:190,windowWidth:800});
 }
 
