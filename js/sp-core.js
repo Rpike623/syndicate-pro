@@ -668,6 +668,13 @@ const SP = (function () {
   });
 })();
 
+    const s = document.createElement('script');
+    s.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-audit.js';
+    if (!s.src || s.src === 'sp-audit.js') s.src = 'js/sp-audit.js';
+    document.head.appendChild(s);
+  });
+})();
+
 // ─── Theme: inject sp-theme.js on every page ─────────────────────────────────
 (function loadTheme() {
   if (typeof document === 'undefined') return;
@@ -849,6 +856,7 @@ const SP = (function () {
         { href: 'capital-calls.html', icon: 'fa-hand-holding-usd', label: 'Capital Calls' },
         { href: 'k1-generator.html', icon: 'fa-file-invoice-dollar', label: 'K-1 Generator' },
         { href: 'email-templates.html', icon: 'fa-envelope', label: 'Email Templates' },
+        { href: 'audit-logs.html', icon: 'fa-fingerprint', label: 'Audit Logs' },
         { href: 'deal-room.html', icon: 'fa-folder-open', label: 'Deal Room' },
         { href: 'deal-compare.html', icon: 'fa-balance-scale', label: 'Compare Deals' },
         { section: 'Account' },

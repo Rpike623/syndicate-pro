@@ -147,10 +147,13 @@ const SPData = (() => {
   async function saveDeal(deal) {
     if (!deal.id) deal.id = _id('deal');
     const idx = (_cache.deals || []).findIndex(d => d.id === deal.id);
+    const action = idx >= 0 ? 'update' : 'create';
     if (idx >= 0) _cache.deals[idx] = deal; else (_cache.deals = _cache.deals || []).unshift(deal);
     if (_db) await _col('deals').doc(deal.id)
       .set({ ...deal, orgId: _orgId, updatedAt: _ts() }, { merge: true })
       .catch(e => console.warn('SPData.saveDeal:', e.message));
+    
+    if(typeof SPAudit !== 'undefined') SPAudit.log(action, 'deal', deal.id, deal.name, {});
     return deal;
   }
   async function saveDeals(deals) {
@@ -160,8 +163,10 @@ const SPData = (() => {
       .catch(e => console.warn('SPData.saveDeals:', e.message));
   }
   async function deleteDeal(id) {
+    const deal = getDealById(id);
     _cache.deals = (_cache.deals || []).filter(d => d.id !== id);
     if (_db) await _col('deals').doc(id).delete().catch(() => {});
+    if(typeof SPAudit !== 'undefined') SPAudit.log('delete', 'deal', id, deal?.name || 'Unknown', {});
   }
 
   // ── INVESTORS ──────────────────────────────────────────────────────────────
@@ -186,10 +191,13 @@ const SPData = (() => {
     if (!_db || !_orgId) return;
     await _batchWrite(investors, item => _col('investors').doc(item.id || _id('inv')))
       .catch(e => console.warn('SPData.saveInvestors:', e.message));
+    if(typeof SPAudit !== 'undefined') SPAudit.log('update', 'investor_group', 'multiple', 'Bulk Investor Sync', { count: investors.length });
   }
   async function deleteInvestor(id) {
+    const inv = getInvestorById(id);
     _cache.investors = (_cache.investors || []).filter(i => i.id !== id);
     if (_db) await _col('investors').doc(id).delete().catch(() => {});
+    if(typeof SPAudit !== 'undefined') SPAudit.log('delete', 'investor', id, `${inv?.firstName} ${inv?.lastName}`, {});
   }
 
   // ── DISTRIBUTIONS ──────────────────────────────────────────────────────────
