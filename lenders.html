@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack - Lenders</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <style>
+    :root{--primary:#0f172a;--accent:#3b82f6;--border:#e2e8f0;--bg:#f8fafc;--radius:8px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);line-height:1.5;}
+    .app{display:flex;min-height:100vh;}
+    .sidebar{width:260px;background:#0f172a;color:white;position:fixed;height:100vh;z-index:100;}
+    .main{flex:1;margin-left:260px;min-height:100vh;}
+    .top-bar{background:#fff;border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+    .content{padding:32px;}
+    .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
+    .lender-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:20px;}
+    .lender-card{background:white;border:1px solid var(--border);border-radius:12px;padding:24px;transition:all 0.2s;}
+    .lender-card:hover{box-shadow:0 10px 25px rgba(0,0,0,0.05);transform:translateY(-2px);}
+    .lender-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+    .lender-name{font-size:1.1rem;font-weight:700;color:var(--primary);}
+    .lender-type{font-size:0.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;}
+    .contact-info{font-size:0.875rem;color:#475569;margin-bottom:12px;}
+    .contact-info i{width:20px;color:var(--accent);}
+    .lender-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:16px;border-top:1px solid #f1f5f9;}
+    .stat-label{font-size:0.7rem;color:#94a3b8;text-transform:uppercase;margin-bottom:2px;}
+    .stat-value{font-weight:700;font-size:0.95rem;}
+    .btn{padding:10px 20px;border-radius:var(--radius);font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px;}
+    .btn-primary{background:var(--accent);color:white;}
+    .btn-secondary{background:white;border:1px solid var(--border);}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <header class="top-bar">
+      <h1>Lender CRM</h1>
+      <button class="btn btn-primary" onclick="alert('Lender addition coming in next patch')"><i class="fas fa-plus"></i> Add Lender</button>
+    </header>
+    <div class="content">
+      <div class="lender-grid" id="lenderGrid">
+        <!-- Seed Data -->
+        <div class="lender-card">
+          <div class="lender-header">
+            <div>
+              <div class="lender-name">First National Bank</div>
+              <div class="lender-type">Bridge / Senior Debt</div>
+            </div>
+            <span style="padding:4px 10px;background:#dcfce7;color:#16a34a;border-radius:99px;font-size:0.7rem;font-weight:700;">ACTIVE</span>
+          </div>
+          <div class="contact-info"><i class="fas fa-user"></i> Mark Stevens</div>
+          <div class="contact-info"><i class="fas fa-envelope"></i> m.stevens@firstnat.com</div>
+          <div class="contact-info"><i class="fas fa-phone"></i> (214) 555-0812</div>
+          <div class="lender-stats">
+            <div><div class="stat-label">Deals Closed</div><div class="stat-value">4</div></div>
+            <div><div class="stat-label">Total Debt</div><div class="stat-value">$12.4M</div></div>
+          </div>
+        </div>
+
+        <div class="lender-card">
+          <div class="lender-header">
+            <div>
+              <div class="lender-name">Capital One CRE</div>
+              <div class="lender-type">Agency / Life Co</div>
+            </div>
+            <span style="padding:4px 10px;background:#f3f4f6;color:#6b7280;border-radius:99px;font-size:0.7rem;font-weight:700;">PROSPECT</span>
+          </div>
+          <div class="contact-info"><i class="fas fa-user"></i> Sarah Jenkins</div>
+          <div class="contact-info"><i class="fas fa-envelope"></i> sarah.j@capone.com</div>
+          <div class="contact-info"><i class="fas fa-phone"></i> (713) 555-9921</div>
+          <div class="lender-stats">
+            <div><div class="stat-label">Deals Closed</div><div class="stat-value">1</div></div>
+            <div><div class="stat-label">Total Debt</div><div class="stat-value">$4.2M</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+  SP.requireGP();
+</script>
+</body>
+</html>

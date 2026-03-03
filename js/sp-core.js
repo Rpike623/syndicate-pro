@@ -853,6 +853,7 @@ const SP = (function () {
         { section: 'OPERATIONS' },
         { href: 'investors.html', icon: 'fa-users', label: 'CRM: Investors' },
         { href: 'pipeline.html', icon: 'fa-stream', label: 'CRM: Pipeline' },
+        { href: 'lenders.html', icon: 'fa-landmark', label: 'CRM: Lenders' },
         { href: 'deals.html', icon: 'fa-building', label: 'Portfolio' },
         { href: 'new-deal.html', icon: 'fa-plus', label: 'Underwriting' },
         { section: 'ADMIN' },
