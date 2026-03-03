@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>deeltrack - Portfolio & LP Explorer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0f172a; --accent: #3b82f6; --success: #10b981;
+            --border: #e2e8f0; --bg: #f8fafc; --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; }
+        .main { flex: 1; margin-left: 260px; padding: 32px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        
+        .explorer-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+        .card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        /* Interactive Deals Table */
+        .deal-list { display: flex; flex-direction: column; gap: 12px; }
+        .deal-item { display: flex; align-items: center; padding: 16px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+        .deal-item:hover, .deal-item.active { border-color: var(--accent); background: #f0f7ff; }
+        .deal-dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 12px; }
+        .deal-name { font-weight: 600; flex: 1; }
+        .deal-val { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--success); font-weight: 600; }
+
+        /* Cap Table Side Panel */
+        .cap-panel { position: sticky; top: 32px; }
+        .lp-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--bg); }
+        .lp-row:last-child { border-bottom: none; }
+        .lp-name { font-size: 0.85rem; font-weight: 500; }
+        .lp-pct { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; background: var(--bg); padding: 2px 6px; border-radius: 4px; }
+
+        /* Chart Area */
+        .viz-header { display: flex; gap: 16px; margin-bottom: 24px; }
+        .viz-stat { flex: 1; background: #fff; padding: 16px; border-radius: 8px; border: 1px solid var(--border); }
+        .viz-stat-val { font-size: 1.25rem; font-weight: 700; font-family: 'JetBrains Mono'; }
+        .viz-stat-lbl { font-size: 0.7rem; text-transform: uppercase; color: #64748b; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div class="top-bar">
+            <div>
+                <h1 style="font-size: 1.5rem; font-weight: 800;">Portfolio Explorer</h1>
+                <p style="color: #64748b; font-size: 0.9rem;">Deep dive into deal capitalization and LP concentrations</p>
+            </div>
+            <div id="syncStatus"></div>
+        </div>
+
+        <div class="explorer-grid">
+            <div class="left-col">
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-title"><i class="fas fa-chart-pie" style="color: var(--accent);"></i> Equity Distribution</div>
+                    <div style="height: 300px;"><canvas id="portfolioChart"></canvas></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-building" style="color: var(--accent);"></i> Select Deal to Inspect Cap Table</div>
+                    <div class="deal-list" id="dealList">
+                        <!-- Injected -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-col">
+                <div class="cap-panel">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-users" style="color: var(--accent);"></i> Cap Table: <span id="activeDealName">All Deals</span></div>
+                        
+                        <div class="viz-header">
+                            <div class="viz-stat">
+                                <div class="viz-stat-val" id="vTotalEquity">$0</div>
+                                <div class="viz-stat-lbl">Total Equity</div>
+                            </div>
+                            <div class="viz-stat">
+                                <div class="viz-stat-val" id="vLPCount">0</div>
+                                <div class="viz-stat-lbl">LPs</div>
+                            </div>
+                        </div>
+
+                        <div id="capTableRows">
+                            <div style="text-align: center; color: #94a3b8; padding: 40px 0;">Select a deal to view partners</div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="card-title"><i class="fas fa-fingerprint" style="color: var(--accent);"></i> LP Concentration</div>
+                        <div id="concentrationViz" style="height: 180px;"><canvas id="lpChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let pChart = null;
+        let lChart = null;
+
+        function init() {
+            const deals = SP.getDeals();
+            const list = document.getElementById('dealList');
+            
+            list.innerHTML = deals.map(d => `
+                <div class="deal-item" onclick="inspectDeal('${d.id}', this)">
+                    <div class="deal-dot" style="background: ${getStatusColor(d.status)}"></div>
+                    <div class="deal-name">${d.name}</div>
+                    <div class="deal-val">$${(d.raise / 1e6).toFixed(1)}M</div>
+                    <i class="fas fa-chevron-right" style="margin-left: 12px; color: #cbd5e1; font-size: 0.8rem;"></i>
+                </div>
+            `).join('');
+
+            renderPortfolioViz(deals);
+            inspectDeal(null); // Show aggregate
+        }
+
+        function getStatusColor(s) {
+            return { operating: '#10b981', closed: '#3b82f6', sourcing: '#94a3b8' }[s] || '#e2e8f0';
+        }
+
+        function renderPortfolioViz(deals) {
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            if(pChart) pChart.destroy();
+
+            pChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: deals.map(d => d.name),
+                    datasets: [{
+                        label: 'Equity Raised ($)',
+                        data: deals.map(d => d.raise),
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { display: false } } }
+                }
+            });
+        }
+
+        function inspectDeal(id, el) {
+            if(el) {
+                document.querySelectorAll('.deal-item').forEach(i => i.classList.remove('active'));
+                el.classList.add('active');
+            }
+
+            const deals = SP.getDeals();
+            const deal = id ? SP.getDealById(id) : null;
+            const activeName = document.getElementById('activeDealName');
+            const rowContainer = document.getElementById('capTableRows');
+            
+            if(!deal) {
+                activeName.textContent = "All Deals";
+                rowContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 40px 0;">Portfolio-wide LP view coming in next build. Select a deal above.</div>';
+                return;
+            }
+
+            activeName.textContent = deal.name;
+            document.getElementById('vTotalEquity').textContent = '$' + (deal.raise / 1e6).toFixed(2) + 'M';
+            document.getElementById('vLPCount').textContent = (deal.investors || []).length;
+
+            const linkedInvs = (deal.investors || []).map(entry => {
+                const inv = SP.getInvestorById(entry.investorId) || { firstName: 'Unknown LP' };
+                return { name: `${inv.firstName} ${inv.lastName || ''}`, committed: entry.committed, ownership: entry.ownership };
+            });
+
+            rowContainer.innerHTML = linkedInvs.map(li => `
+                <div class="lp-row">
+                    <div class="lp-name">${li.name}</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 0.75rem; color: #64748b;">$${li.committed.toLocaleString()}</span>
+                        <div class="lp-pct">${li.ownership.toFixed(2)}%</div>
+                    </div>
+                </div>
+            `).join('');
+
+            renderLPConcentration(linkedInvs);
+        }
+
+        function renderLPConcentration(invs) {
+            const ctx = document.getElementById('lpChart').getContext('2d');
+            if(lChart) lChart.destroy();
+            lChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: invs.map(i => i.name),
+                    datasets: [{
+                        data: invs.map(i => i.ownership),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        window.addEventListener('spdata-ready', init);
+        if(typeof SPData !== 'undefined' && SPData.isReady()) init();
+    </script>
+</body>
+</html>
