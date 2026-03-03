@@ -40,6 +40,7 @@
     <header class="top-bar">
       <div class="page-title"><h1>Investor Statements</h1></div>
       <div class="actions">
+        <button class="btn btn-secondary" onclick="batchGenerate()"><i class="fas fa-layer-group"></i> Batch Download</button>
         <button class="btn btn-secondary" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
         <button class="btn btn-primary" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
       </div>
@@ -55,6 +56,17 @@
       
       <div id="statementBody" class="statement-preview">
         <!-- Rendered by JS -->
+      </div>
+
+      <!-- Batch Generation Stats (Hidden by default) -->
+      <div id="batchProgress" class="card" style="display:none; margin-top:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div style="font-weight:600; font-size:0.9rem;">Batch generating PDFs...</div>
+          <div id="batchCount" style="font-family:monospace; font-size:0.8rem;">0/0</div>
+        </div>
+        <div style="height:8px; background:var(--border-light); border-radius:4px; overflow:hidden;">
+          <div id="batchBar" style="height:100%; width:0%; background:var(--accent); transition:width 0.3s;"></div>
+        </div>
       </div>
     </div>
   </main>
@@ -117,7 +129,57 @@ function updatePreview() {
 function exportPDF() {
   const {jsPDF}=window.jspdf; 
   const doc=new jsPDF(); 
-  doc.html(document.getElementById('statementBody'),{callback:d=>d.save('investor-statement.pdf'),x:10,y:10,width:190,windowWidth:800});
+  const invName = document.getElementById('investorSel').options[document.getElementById('investorSel').selectedIndex].text.replace(/\s+/g,'_');
+  const dealName = document.getElementById('dealSel').options[document.getElementById('dealSel').selectedIndex].text.replace(/\s+/g,'_');
+  doc.html(document.getElementById('statementBody'),{callback:d=>d.save(`Statement_${invName}_${dealName}.pdf`),x:10,y:10,width:190,windowWidth:800});
+}
+
+async function batchGenerate() {
+  const dealId = document.getElementById('dealSel').value;
+  const period = document.getElementById('periodSel').value;
+  if(!dealId) { alert('Please select a deal first.'); return; }
+  
+  const deal = SP.getDealById(dealId);
+  const eligibleInvs = (deal.investors || []).map(i => i.investorId);
+  
+  if(!eligibleInvs.length) { alert('No investors found for this deal.'); return; }
+  if(!confirm(`Generate and download statements for all ${eligibleInvs.length} investors in ${deal.name}?`)) return;
+
+  const prog = document.getElementById('batchProgress');
+  const bar = document.getElementById('batchBar');
+  const count = document.getElementById('batchCount');
+  prog.style.display = 'block';
+  
+  for(let i=0; i < eligibleInvs.length; i++) {
+    const invId = eligibleInvs[i];
+    document.getElementById('investorSel').value = invId;
+    updatePreview();
+    
+    // Tiny delay to ensure DOM update
+    await new Promise(r => setTimeout(r, 100));
+    
+    await new Promise((resolve) => {
+      const {jsPDF} = window.jspdf;
+      const doc = new jsPDF();
+      const inv = SP.getInvestorById(invId);
+      const invName = `${inv.firstName}_${inv.lastName}`;
+      const dealName = deal.name.replace(/\s+/g,'_');
+      
+      doc.html(document.getElementById('statementBody'), {
+        callback: (d) => {
+          d.save(`Statement_${invName}_${dealName}.pdf`);
+          resolve();
+        },
+        x:10, y:10, width:190, windowWidth:800
+      });
+    });
+    
+    const pct = Math.round(((i+1) / eligibleInvs.length) * 100);
+    bar.style.width = pct + '%';
+    count.textContent = `${i+1}/${eligibleInvs.length}`;
+  }
+  
+  setTimeout(() => { prog.style.display = 'none'; bar.style.width = '0%'; }, 2000);
 }
 init();
 </script>
