@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Investment Opportunity - deeltrack</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="js/sp-core.js"></script>
-  <style>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
+      <style>
     :root{--accent:#3b82f6;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--purple:#8b5cf6;
       --text:#0f172a;--text-secondary:#64748b;--text-muted:#94a3b8;--border:#e2e8f0;--border-light:#f1f5f9;
       --bg:#f8fafc;--bg-card:#fff;--radius:8px;--radius-md:12px;--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);}
@@ -233,20 +238,40 @@ function render(deal, settings, gpName) {
     </div>`;
 }
 
-function submitRequest() {
+async function submitRequest() {
   const name = document.getElementById('reqName').value.trim();
   const email = document.getElementById('reqEmail').value.trim();
   if (!name || !email) { alert('Please enter your name and email.'); return; }
-  // Save lead to sp-core (will be visible to GP in investors page)
+  
+  const leadData = { 
+    name, 
+    email, 
+    phone: document.getElementById('reqPhone').value, 
+    amount: document.getElementById('reqAmount').value, 
+    message: document.getElementById('reqMessage').value, 
+    dealId: window._activeDealId || dealId || token, 
+    ts: Date.now(),
+    source: 'public_teaser'
+  };
+
+  // Push to Firebase if global org context is available
+  if (typeof firebase !== 'undefined' && window._activeOrgId) {
+    try {
+      await firebase.firestore().collection('orgs').doc(window._activeOrgId).collection('teaser_leads').add(leadData);
+    } catch(e) { console.error('Firebase lead capture failed:', e); }
+  }
+
+  // Backup to localStorage
   const leads = JSON.parse(localStorage.getItem('sp_teaser_leads') || '[]');
-  leads.push({ name, email, phone: document.getElementById('reqPhone').value, amount: document.getElementById('reqAmount').value, message: document.getElementById('reqMessage').value, dealId: dealId||token, ts: Date.now() });
+  leads.push(leadData);
   localStorage.setItem('sp_teaser_leads', JSON.stringify(leads));
+  
   document.getElementById('ctaForm').style.display = 'none';
   document.getElementById('ctaSuccess').style.display = 'block';
 }
 
 // Load deal — supports both ?deal=ID (GP preview) and ?t=TOKEN (shared link)
-(function load() {
+const _load = (async function load() {
   let deal = null;
   let settings = {};
   let gpName = 'The Sponsor';
@@ -257,20 +282,39 @@ function submitRequest() {
     settings = SP.load('settings', {});
     const s = SP.getSession();
     gpName = s?.name || gpName;
+    window._activeOrgId = SP.getOrgId();
+    window._activeDealId = dealId;
   } else if (token) {
     // Shared link — token encodes orgId + dealId
     try {
       const padded = token + '=='.slice(0, (4 - token.length % 4) % 4);
-      const decoded = atob(padded);
+      const decoded = atob(padded.replace(/-/g,'+').replace(/_/g,'/'));
       const [orgId, dId] = decoded.split('|');
-      // Load data from that org's namespace
-      const orgDealsKey = `sp_org_${orgId}_deals`;
-      const orgSettingsKey = `sp_org_${orgId}_settings`;
-      const deals = JSON.parse(localStorage.getItem(orgDealsKey) || '[]');
-      deal = deals.find(d => d.id === dId) || null;
-      settings = JSON.parse(localStorage.getItem(orgSettingsKey) || '{}');
+      window._activeOrgId = orgId;
+      window._activeDealId = dId;
+
+      // Try Firebase fetch first for public teaser
+      if (typeof firebase !== 'undefined') {
+        try {
+          // Note: Public Firestore access needs specific rules for teaser_deals or equivalent
+          const db = firebase.firestore();
+          const dSnap = await db.collection('orgs').doc(orgId).collection('deals').doc(dId).get();
+          if (dSnap.exists) deal = dSnap.data();
+          const sSnap = await db.collection('orgs').doc(orgId).collection('settings').doc('main').get();
+          if (sSnap.exists) settings = sSnap.data();
+        } catch(e) { console.warn('Firebase public fetch failed, using local fallback'); }
+      }
+
+      if (!deal) {
+        // Load data from that org's namespace (local fallback)
+        const orgDealsKey = `sp_org_${orgId}_deals`;
+        const orgSettingsKey = `sp_org_${orgId}_settings`;
+        const deals = JSON.parse(localStorage.getItem(orgDealsKey) || '[]');
+        deal = deals.find(d => d.id === dId) || null;
+        settings = JSON.parse(localStorage.getItem(orgSettingsKey) || '{}');
+      }
       gpName = settings.gpFullName || settings.firmName || 'The Sponsor';
-    } catch(e) {}
+    } catch(e) { console.error('Token decode fail', e); }
   }
 
   if (!deal) { notFound('Deal not found or link has expired.'); return; }
