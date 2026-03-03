@@ -1,137 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Waterfall Structures - deeltrack</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --bg-panel: #13131a;
-      --bg-card: #1a1a24;
-      --bg-hover: #252533;
-      --accent: #8b5cf6;
-      --accent-2: #06b6d4;
-      --success: #22c55e;
-      --text: #f8fafc;
-      --text-muted: #64748b;
-      --border: rgba(255,255,255,0.06);
-      --radius: 16px;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 40px 24px 100px; }
-    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
-    .container { max-width: 1000px; margin: 0 auto; }
-    
-    .header { text-align: center; margin-bottom: 48px; }
-    .header h1 { font-size: 2rem; margin-bottom: 12px; }
-    .header p { color: var(--text-muted); }
-    
-    .structure { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 20px; overflow: hidden; }
-    .structure.selected { border-color: var(--accent); }
-    .structure-header { padding: 20px 24px; display: flex; align-items: center; gap: 16px; cursor: pointer; }
-    .structure-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: rgba(139,92,246,0.15); color: var(--accent); }
-    .structure-info { flex: 1; }
-    .structure-name { font-size: 1.1rem; font-weight: 600; }
-    .structure-desc { color: var(--text-muted); font-size: 13px; }
-    .structure-select { padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; }
-    .structure.selected .structure-select { background: var(--accent); border-color: var(--accent); }
-    
-    .structure-visual { padding: 0 24px 24px; display: none; }
-    .structure.expanded .structure-visual { display: block; }
-    
-    .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; }
-    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
-    .btn-secondary { background: var(--bg-hover); border: 1px solid var(--border); color: var(--text); }
-    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-panel); border-top: 1px solid var(--border); padding: 16px; display: flex; justify-content: center; gap: 12px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waterfall Visualizer & LP Education - deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0f172a; --accent: #3b82f6; --success: #10b981;
+            --border: #e2e8f0; --bg: #020617; --card-bg: #1e293b;
+            --investor: #3b82f6; --sponsor: #f59e0b;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #f8fafc; min-height: 100vh; overflow-x: hidden; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; border-right: 1px solid rgba(255,255,255,0.05); }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .viz-header { text-align: center; margin-bottom: 40px; }
+        .viz-header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .waterfall-container { display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start; }
+        
+        /* The Animation Track */
+        .track { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; position: relative; overflow: hidden; }
+        .tier { margin-bottom: 60px; position: relative; z-index: 2; opacity: 0.3; transition: all 0.5s ease; padding: 20px; border-radius: 12px; background: rgba(255,255,255,0.03); }
+        .tier.active { opacity: 1; background: rgba(59,130,246,0.1); border: 1px solid var(--accent); transform: scale(1.02); }
+        .tier-label { font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+        .tier-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+        .tier-desc { font-size: 0.9rem; color: #94a3b8; max-width: 500px; }
+        
+        /* Flow Animation */
+        .flow-line { position: absolute; left: 40px; top: 0; width: 4px; height: 100%; background: rgba(255,255,255,0.05); z-index: 1; }
+        .cash-drop { position: absolute; left: 38px; width: 8px; height: 40px; background: var(--success); border-radius: 4px; box-shadow: 0 0 15px var(--success); animation: drop 3s infinite linear; }
+        @keyframes drop { 0% { top: -50px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+        /* Distribution Splits */
+        .split-bar { height: 48px; border-radius: 8px; background: #0f172a; margin-top: 20px; display: flex; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .split-inv { background: var(--investor); width: 80%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
+        .split-gp { background: var(--sponsor); width: 20%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #000; }
+
+        /* Control Panel */
+        .controls { position: sticky; top: 40px; }
+        .card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 24px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; }
+        .input-group select, .input-group input { width: 100%; padding: 12px; border-radius: 8px; background: #0f172a; border: 1px solid rgba(255,255,255,0.2); color: #fff; outline: none; }
+        
+        .math-card { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+        .math-row { display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .math-val { color: var(--success); font-weight: 600; }
+
+        .btn-play { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
+        .btn-play:hover { background: #2563eb; }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Choose Your Waterfall Structure</h1>
-      <p>Select how cash flows between Limited Partners (LPs) and General Partners (GPs)</p>
-    </div>
-    
-    <div class="structure expanded" id="structure-simple">
-      <div class="structure-header" onclick="toggleStructure('simple')">
-        <div class="structure-icon"><i class="fas fa-percentage"></i></div>
-        <div class="structure-info">
-          <div class="structure-name">Simple Split (Parri Passu)</div>
-          <div class="structure-desc">All cash distributed proportionally between LPs and GP</div>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div class="viz-header">
+            <div style="font-size: 0.8rem; color: var(--accent); font-weight: 700; letter-spacing: 0.2em; margin-bottom: 12px;">DEELTRACK CORE // ENGINE 01</div>
+            <h1>The Waterfall Explainer</h1>
+            <p style="color: #94a3b8; margin-top: 10px;">Animated real-time distribution modeling for LP education</p>
         </div>
-        <button class="structure-select" onclick="selectStructure('simple', event)">Select</button>
-      </div>
-    </div>
-    
-    <div class="structure" id="structure-pref">
-      <div class="structure-header" onclick="toggleStructure('pref')">
-        <div class="structure-icon"><i class="fas fa-layer-group"></i></div>
-        <div class="structure-info">
-          <div class="structure-name">Preferred Return + Split</div>
-          <div class="structure-desc">LPs get their preferred return first, then remaining cash is split</div>
+
+        <div class="waterfall-container">
+            <!-- Animated Column -->
+            <div class="track" id="waterfallTrack">
+                <div class="flow-line"><div class="cash-drop"></div></div>
+                
+                <div class="tier" id="tier-1">
+                    <div class="tier-label">Tier 1</div>
+                    <div class="tier-title">Return of Capital (100% LP)</div>
+                    <div class="tier-desc">Investors receive 100% of available cash flow until their initial capital contribution is fully recovered.</div>
+                    <div class="split-bar"><div class="split-inv" style="width: 100%">100% INVESTOR</div></div>
+                </div>
+
+                <div class="tier" id="tier-2">
+                    <div class="tier-label">Tier 2</div>
+                    <div class="tier-title">Preferred Return (<span id="prefVal">8</span>%)</div>
+                    <div class="tier-desc">Commonly called the "Hurdle". LPs receive all cash flow until a compounded annual return threshold is met.</div>
+                    <div class="split-bar"><div class="split-inv" style="width: 100%">100% INVESTOR</div></div>
+                </div>
+
+                <div class="tier" id="tier-3">
+                    <div class="tier-label">Tier 3</div>
+                    <div class="tier-title">The Catch-Up</div>
+                    <div class="tier-desc">The Sponsor "catches up" to their agreed promote percentage based on the profits already paid out to LPs.</div>
+                    <div class="split-bar"><div class="split-gp" style="width: 100%">100% SPONSOR</div></div>
+                </div>
+
+                <div class="tier" id="tier-4">
+                    <div class="tier-label">Tier 4</div>
+                    <div class="tier-title">Carried Interest (<span id="promoteVal">20</span>/80)</div>
+                    <div class="tier-desc">Remaining profits are split between the Sponsor (Promote) and Investors based on the partnership agreement.</div>
+                    <div class="split-bar"><div class="split-gp" style="width: 20%" id="promoteBar">20%</div><div class="split-inv" style="width: 80%" id="lpBar">80%</div></div>
+                </div>
+            </div>
+
+            <!-- Controls Column -->
+            <div class="controls">
+                <div class="card">
+                    <div class="input-group">
+                        <label>Select Deal to Model</label>
+                        <select id="dealSelect" onchange="syncDealSettings()"></select>
+                    </div>
+                    <div class="input-group">
+                        <label>Distribution Amount ($)</label>
+                        <input type="number" id="distAmount" value="500000" oninput="calculate()">
+                    </div>
+                    <div class="input-group">
+                        <label>LP Preference (%)</label>
+                        <input type="number" id="prefInput" value="8" oninput="calculate()">
+                    </div>
+                    <div class="input-group">
+                        <label>GP Promote (%)</label>
+                        <input type="number" id="promoteInput" value="20" oninput="calculate()">
+                    </div>
+                    <button class="btn-play" onclick="startAnimation()">
+                        <i class="fas fa-play"></i> Run Simulation
+                    </button>
+                </div>
+
+                <div class="card math-card">
+                    <h3 style="font-size: 0.8rem; margin-bottom: 16px; color: #94a3b8;">DISTRIBUTION SUMMARY</h3>
+                    <div class="math-row"><span>Total Available:</span> <span class="math-val" id="mTotal">$0</span></div>
+                    <div class="math-row"><span>Paid to LPs:</span> <span class="math-val" id="mLP">$0</span></div>
+                    <div class="math-row"><span>Paid to GP:</span> <span class="math-val" id="mGP">$0</span></div>
+                    <div style="height: 150px; margin-top: 20px;"><canvas id="splitChart"></canvas></div>
+                </div>
+            </div>
         </div>
-        <button class="structure-select" onclick="selectStructure('pref', event)">Select</button>
-      </div>
-    </div>
-    
-    <div class="structure" id="structure-catchup">
-      <div class="structure-header" onclick="toggleStructure('catchup')">
-        <div class="structure-icon"><i class="fas fa-chart-line"></i></div>
-        <div class="structure-info">
-          <div class="structure-name">Preferred Return + GP Catch-Up</div>
-          <div class="structure-desc">LPs get pref, then GP catches up to full promote, then split</div>
-        </div>
-        <button class="structure-select" onclick="selectStructure('catchup', event)">Select</button>
-      </div>
-    </div>
-  </div>
-  
-  <div class="bottom-bar">
-    <button class="btn btn-secondary" onclick="history.back()">← Back</button>
-    <button class="btn btn-primary" id="continue-btn" disabled onclick="continueToDeal()">Continue →</button>
-  </div>
-  
-  <script>
-    let selectedStructure = null;
-    
-    function toggleStructure(id) {
-      const el = document.getElementById('structure-' + id);
-      el.classList.toggle('expanded');
-    }
-    
-    function selectStructure(type, event) {
-      event.stopPropagation();
-      selectedStructure = type;
-      document.querySelectorAll('.structure').forEach(s => s.classList.remove('selected'));
-      document.getElementById('structure-' + type).classList.add('selected');
-      document.getElementById('continue-btn').disabled = false;
-      const names = { simple: 'Simple Split', pref: 'Preferred Return', catchup: 'Catch-Up' };
-      document.getElementById('continue-btn').textContent = `Continue with ${names[type]} →`;
-    }
-    
-    function continueToDeal() {
-      if (selectedStructure) {
-        // Get values from inputs if they exist
-        const prefRate = document.getElementById('pref-rate') ? document.getElementById('pref-rate').value : 8;
-        const lpSplit = document.getElementById('pref-split') ? document.getElementById('pref-split').value : 80;
-        
-        // Save comprehensive deal settings
-        const dealSettings = {
-          waterfallType: selectedStructure,
-          prefRate: parseFloat(prefRate),
-          lpSplit: parseFloat(lpSplit),
-          gpSplit: 100 - parseFloat(lpSplit),
-          selectedAt: new Date().toISOString()
-        };
-        
-        localStorage.setItem('currentDeal', JSON.stringify(dealSettings));
-        localStorage.setItem('waterfallType', selectedStructure);
-        window.location.href = 'new-deal.html';
-      }
-    }
-  </script>
+    </main>
+
+    <script>
+        let myChart = null;
+
+        function init() {
+            const deals = SP.getDeals();
+            const sel = document.getElementById('dealSelect');
+            deals.forEach(d => sel.add(new Option(d.name, d.id)));
+            
+            initChart();
+            calculate();
+        }
+
+        function syncDealSettings() {
+            const d = SP.getDealById(document.getElementById('dealSelect').value);
+            if(!d) return;
+            document.getElementById('prefInput').value = d.prefReturn || 8;
+            document.getElementById('promoteInput').value = d.gpPromote || 20;
+            calculate();
+        }
+
+        function calculate() {
+            const total = parseFloat(document.getElementById('distAmount').value) || 0;
+            const pref = parseFloat(document.getElementById('prefInput').value) / 100;
+            const promote = parseFloat(document.getElementById('promoteInput').value) / 100;
+
+            document.getElementById('prefVal').textContent = (pref * 100).toFixed(0);
+            document.getElementById('promoteVal').textContent = (promote * 100).toFixed(0);
+            document.getElementById('promoteBar').style.width = (promote * 100) + '%';
+            document.getElementById('promoteBar').textContent = (promote * 100) + '%';
+            document.getElementById('lpBar').style.width = (100 - (promote * 100)) + '%';
+            document.getElementById('lpBar').textContent = (100 - (promote * 100)) + '%';
+
+            // Simple Waterfall Logic for Viz
+            let remaining = total;
+            let paidLP = 0;
+            let paidGP = 0;
+
+            // Tier 1 & 2 (LP Priority)
+            const lpThreshold = total * 0.7; // Mock hurdle for viz
+            const lpPayment = Math.min(remaining, lpThreshold);
+            paidLP += lpPayment;
+            remaining -= lpPayment;
+
+            // Tier 3 & 4 (Split)
+            paidGP += remaining * promote;
+            paidLP += remaining * (1 - promote);
+
+            document.getElementById('mTotal').textContent = '$' + total.toLocaleString();
+            document.getElementById('mLP').textContent = '$' + paidLP.toLocaleString();
+            document.getElementById('mGP').textContent = '$' + paidGP.toLocaleString();
+
+            updateChart(paidLP, paidGP);
+        }
+
+        function startAnimation() {
+            const tiers = ['tier-1', 'tier-2', 'tier-3', 'tier-4'];
+            let current = 0;
+
+            const interval = setInterval(() => {
+                document.querySelectorAll('.tier').forEach(t => t.classList.remove('active'));
+                document.getElementById(tiers[current]).classList.add('active');
+                
+                current++;
+                if(current >= tiers.length) clearInterval(interval);
+            }, 1000);
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('splitChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Investors', 'Sponsor'],
+                    datasets: [{
+                        data: [80, 20],
+                        backgroundColor: ['#3b82f6', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } } }
+                }
+            });
+        }
+
+        function updateChart(lp, gp) {
+            if(!myChart) return;
+            myChart.data.datasets[0].data = [lp, gp];
+            myChart.update();
+        }
+
+        window.addEventListener('spdata-ready', init);
+        if(typeof SPData !== 'undefined' && SPData.isReady()) init();
+    </script>
 </body>
 </html>

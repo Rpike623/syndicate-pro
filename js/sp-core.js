@@ -863,6 +863,7 @@ const SP = (function () {
         { href: 'reports.html', icon: 'fa-chart-bar', label: 'Reports' },
         { section: 'Tools' },
         { href: 'proforma.html', icon: 'fa-table', label: 'Pro Forma' },
+        { href: 'waterfall-explainer.html', icon: 'fa-water', label: 'Waterfall Explainer' },
         { href: 'distributions.html', icon: 'fa-wallet', label: 'Distributions' },
         { href: 'capital-calls.html', icon: 'fa-hand-holding-usd', label: 'Capital Calls' },
         { href: 'k1-generator.html', icon: 'fa-file-invoice-dollar', label: 'Tax Center' },
