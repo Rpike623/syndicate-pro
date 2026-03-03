@@ -62,61 +62,39 @@ A complete "do-everything" platform for real estate syndicators — from deal so
 
 ---
 
-## Phase 4: Enhanced Documents 🔄 CURRENT
+## Phase 4: Operations & Operations Hub 🔄 CURRENT
 
-**Goal:** Professional-grade document generation.
+**Goal:** Professional-grade deal operations and investor success.
 
-- [ ] State-specific operating agreements
-  - [ ] Delaware (default - done)
-  - [ ] Texas
-  - [ ] California
-  - [ ] New York
-  - [ ] Florida
-  - [ ] Nevada
-  - [ ] Wyoming
-- [ ] Custom clause library
-- [ ] Document versioning
+- [x] State-specific operating agreements (CA, TX, NY, FL, NV, WY, DE)
+- [x] Distribution tracking module
+- [x] K-1 placeholder generator
+- [x] Investor Inbox (Email/Messaging)
+- [ ] Document versioning & E-sign integration
 - [ ] Amendment generator
-- [ ] Side letter templates
 
----
-
-## Phase 5: Deal Management
+## Phase 5: Deal & Pipeline Management 🔄 CURRENT
 
 **Goal:** Track deals from sourcing to close.
 
-### Deal Sourcing Pipeline
-- [ ] Property tracking (address, price, assumptions)
-- [ ] Due diligence checklist
-- [ ] Offer/LOI management
-- [ ] Document storage per deal
-- [ ] Deal stages (sourcing, LOI, DD, closing, operating)
-
-### Underwriting Tools
-- [ ] Rent roll analyzer
-- [ ] Pro forma builder
-- [ ] Sensitivity analysis
-- [ ] Market comp tracker
+- [x] Deal Sourcing Pipeline UI
+- [x] Underwriting: Debt & Loan Tracker
+- [x] Underwriting: Exit & Disposition Calculator
+- [x] IC Memo / Teaser Builder
+- [ ] Sensitivity analysis matrix
 - [ ] Cap rate calculator
+- [ ] Rent roll analyzer
 
----
+## Phase 6: Service & Continuity (Production Ready) 🔄 CURRENT
 
-## Phase 6: Distribution & Tax Operations
+**Goal:** Final cloud hardening and SaaS reliability.
 
-**Goal:** Handle ongoing operations and tax reporting.
-
-### Distribution Management
-- [ ] Quarterly distribution calculations
-- [ ] Distribution notices generator
-- [ ] Distribution history per investor
-- [ ] Waterfall tracking over time
-- [ ] Preferred return accrual tracking
-
-### Tax Preparation
-- [ ] K-1 placeholder generator
-- [ ] 1065 partnership return prep checklist
-- [ ] Depreciation schedule tracker
-- [ ] Investor tax packet assembly
+- [x] Firebase Firestore + Storage cloud backend
+- [x] Stripe Billing Integration (Plans/Subscriptons)
+- [x] Automated Email System (Graph API)
+- [x] Inbox / IMAP Monitoring
+- [ ] Audit Logging
+- [ ] Team/Collaborator Roles
 
 ---
 
