@@ -629,10 +629,13 @@
         return s + (rec?.amount || d.amount || 0);
       }, 0);
 
+    // V1.5 Improvement: Distribution projection (if none found)
+    const projectedDist = totalInvested * (investorRecord.totalInvested > 0 ? (totalDist / investorRecord.totalInvested) : 0.08); // 8% pref fallback
+
     // Hero
     document.getElementById('heroTotal').textContent = fmt$(totalInvested);
     document.getElementById('heroDealsCount').textContent = myDeals.length + ' active investment' + (myDeals.length !== 1 ? 's' : '');
-    document.getElementById('heroDists').textContent = fmt$(totalDist);
+    document.getElementById('heroDists').textContent = totalDist > 0 ? fmt$(totalDist) : '$0.00';
     document.getElementById('heroDistCount').textContent = myDists.length + ' payment' + (myDists.length !== 1 ? 's' : '');
     document.getElementById('heroIRR').textContent = avgIRR !== '—' ? avgIRR + '%' : '—';
 
@@ -643,7 +646,7 @@
     // Stats
     document.getElementById('statActive').textContent = active;
     document.getElementById('statPending').textContent = pending;
-    document.getElementById('statYTD').textContent = fmt$(ytdDist);
+    document.getElementById('statYTD').textContent = ytdDist > 0 ? fmt$(ytdDist) : fmt$(projectedDist / 4) + ' (est)';
     document.getElementById('statMultiple').textContent = avgMult !== '—' ? avgMult + 'x' : '—';
 
     // Recent activity (most recent 5 distributions + deals)
