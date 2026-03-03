@@ -668,9 +668,16 @@ const SP = (function () {
   });
 })();
 
+    // Load order: sp-audit.js -> sp-esign.js
     const s = document.createElement('script');
     s.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-audit.js';
     if (!s.src || s.src === 'sp-audit.js') s.src = 'js/sp-audit.js';
+    s.onload = () => {
+      const e = document.createElement('script');
+      e.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-esign.js';
+      if (!e.src || e.src === 'sp-esign.js') e.src = 'js/sp-esign.js';
+      document.head.appendChild(e);
+    };
     document.head.appendChild(s);
   });
 })();

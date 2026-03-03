@@ -619,7 +619,8 @@ function renderSubTracker() {
           <div style="display:flex;gap:6px;">
             ${STATUS_STEPS.map(s=>s!==subStatus?`<button onclick="updateSubStatus('${entry.investorId}','${s}')" style="padding:4px 8px;background:${STATUS_COLORS[s]?.split(',')[0]||'#f1f5f9'};color:${STATUS_COLORS[s]?.split(',')[1]||'#64748b'};border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;">${STATUS_LABELS[s]}</button>`:null).filter(Boolean).join('')}
             <button onclick="viewSubDoc('${entry.investorId}')" title="View subscription agreement" style="padding:4px 8px;background:var(--purple-light);color:var(--purple);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-file-signature"></i></button>
-            <button onclick="sendSubDoc('${entry.investorId}')" title="Email sub doc to investor" style="padding:4px 8px;background:var(--accent-light);color:var(--accent);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-paper-plane"></i></button>
+            <button onclick="requestESignature('${entry.investorId}')" title="Request Digital Signature (E-sign)" style="padding:4px 8px;background:#ede9fe;color:#9333ea;border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-pen-nib"></i> E-sign</button>
+            <button onclick="sendSubDoc('${entry.investorId}')" title="Email pdf sub doc to investor" style="padding:4px 8px;background:var(--accent-light);color:var(--accent);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-paper-plane"></i></button>
           </div>
         </td>
       </tr>`;
@@ -708,6 +709,32 @@ function downloadSubDoc(investorId) {
   a.href = URL.createObjectURL(blob);
   a.download = `${inv.firstName||'Investor'}-${inv.lastName||''}-SubDoc.doc`;
   a.click();
+}
+
+async function requestESignature(investorId) {
+  if (typeof SPEsign === 'undefined') { alert('E-signature module not loaded.'); return; }
+  const inv = SP.getInvestorById(investorId);
+  if (!confirm(`Initiate official digital signature request for ${inv.firstName} ${inv.lastName}?`)) return;
+  
+  const originalBtn = event.currentTarget;
+  const originalHtml = originalBtn.innerHTML;
+  originalBtn.disabled = true;
+  originalBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+
+  try {
+    const result = await SPEsign.sendForSignature(dealId, investorId, 'subscription_agreement');
+    if (result.success) {
+      showToast('E-signature request sent successfully!', 'success');
+      render();
+    } else {
+      showToast('E-signature failed: ' + result.error, 'error');
+    }
+  } catch (e) {
+    showToast('Internal error initiating e-sign.', 'error');
+  } finally {
+    originalBtn.disabled = false;
+    originalBtn.innerHTML = originalHtml;
+  }
 }
 
 function sendSubDoc(investorId) {
