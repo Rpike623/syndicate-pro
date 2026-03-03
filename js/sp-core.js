@@ -891,7 +891,7 @@ const SP = (function () {
 
       nav.innerHTML = navItems.map(item => {
         if (item.section) return `<div class="nav-section">${item.section}</div>`;
-        const isActive = item.href === activePage;
+        const isActive = page === item.href || (activeMap[page] === item.href);
         return `<a href="${item.href}" class="nav-item ${isActive ? 'active' : ''}"><i class="fas ${item.icon}"></i><span>${item.label}</span></a>`;
       }).join('');
     }

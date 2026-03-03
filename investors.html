@@ -662,10 +662,14 @@ function saveInvestor() {
 function editInvestor(id) { openModal(id); }
 
 function deleteInvestor(id) {
-  SP.deleteInvestor(id); // Remove from Firestore + cache
   const inv = investors.find(i=>i.id===id);
   if (!inv) return;
   if (!confirm(`Delete ${inv.firstName} ${inv.lastName}? This cannot be undone.`)) return;
+  if (typeof SPData !== "undefined" && SPData.isReady()) {
+    SPData.deleteInvestor(id);
+  } else {
+    // legacy path
+  }
   investors = investors.filter(i=>i.id!==id);
   save(); updateStats(); filterTable();
 }

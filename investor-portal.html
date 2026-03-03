@@ -640,8 +640,10 @@
     document.getElementById('heroIRR').textContent = avgIRR !== '—' ? avgIRR + '%' : '—';
 
     const verified = investorRecord?.accredStatus === 'verified';
-    document.getElementById('heroAccred').textContent = verified ? '✓ Verified' : 'Pending';
-    document.getElementById('heroAccredSub').textContent = verified ? 'Accredited investor' : 'Verification in progress';
+    const heroAccredValue = document.getElementById('heroAccred');
+    const heroAccredSubValue = document.getElementById('heroAccredSub');
+    if(heroAccredValue) heroAccredValue.textContent = verified ? '✓ Verified' : 'Pending';
+    if(heroAccredSubValue) heroAccredSubValue.textContent = verified ? 'Accredited investor' : 'Verification in progress';
 
     // Stats
     document.getElementById('statActive').textContent = active;
