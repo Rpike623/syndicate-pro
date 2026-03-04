@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global FX & Transaction Center — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/sp-core.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 12px; }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        
+        .fx-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .fx-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .fx-pair { font-weight: 700; font-size: 0.9rem; color: #64748b; }
+        .fx-rate { font-family: 'JetBrains Mono'; font-weight: 600; color: var(--primary); }
+        .fx-delta { font-size: 0.75rem; font-weight: 600; }
+        .delta-up { color: #10b981; }
+        .delta-down { color: #ef4444; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-family: 'Inter'; font-size: 0.9rem; }
+        
+        .result-box { background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; }
+        .result-val { font-size: 2rem; font-weight: 800; color: var(--accent); font-family: 'JetBrains Mono'; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div style="margin-bottom: 32px;">
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Currency & Transaction Center</h1>
+            <p style="color: #64748b;">Managing offshore capital flows and real-time exchange sensitization</p>
+        </div>
+
+        <div class="fx-grid">
+            <div class="fx-card"><div class="fx-pair">EUR / USD</div><div><div class="fx-rate">1.084</div><div class="fx-delta delta-up">+0.2%</div></div></div>
+            <div class="fx-card"><div class="fx-pair">GBP / USD</div><div><div class="fx-rate">1.267</div><div class="fx-delta delta-down">-0.1%</div></div></div>
+            <div class="fx-card"><div class="fx-pair">CAD / USD</div><div><div class="fx-rate">0.738</div><div class="fx-delta delta-up">+0.4%</div></div></div>
+            <div class="fx-card"><div class="fx-pair">AUD / USD</div><div><div class="fx-rate">0.652</div><div class="fx-delta delta-down">-0.3%</div></div></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <!-- Conversion Calculator -->
+            <div class="card">
+                <h3>Offshore Capital Calculator</h3>
+                <div style="margin-top: 24px;">
+                    <div class="form-group">
+                        <label>Investment Amount</label>
+                        <input type="number" id="foreignAmount" value="100000" oninput="convert()">
+                    </div>
+                    <div class="form-group">
+                        <label>Base Currency</label>
+                        <select id="currencySel" onchange="convert()">
+                            <option value="1.084">EUR (€)</option>
+                            <option value="1.267">GBP (£)</option>
+                            <option value="0.738">CAD ($)</option>
+                        </select>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-val" id="usdResult">$108,400</div>
+                        <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; margin-top: 4px;">Equivalent USD Position</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tax Treaties Card -->
+            <div class="card">
+                <h3>Foreign LP Tax Withholding</h3>
+                <p style="font-size: 0.85rem; color: #64748b; margin-top: 8px;">Automated treaty analysis for international members.</p>
+                <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="padding: 12px; background: #dcfce7; border-radius: 8px; border: 1px solid #10b981; font-size: 0.8rem; color: #16a34a; font-weight: 600;"><i class="fas fa-certificate"></i> UK-US Treaty Active (0.0% Withholding)</div>
+                    <div style="padding: 12px; background: #fffbeb; border-radius: 8px; border: 1px solid #f59e0b; font-size: 0.8rem; color: #92400e; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> German Treaty Review Required (15% Default)</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+        function convert() {
+            const amt = parseFloat(document.getElementById('foreignAmount').value) || 0;
+            const rate = parseFloat(document.getElementById('currencySel').value);
+            document.getElementById('usdResult').textContent = '$' + (amt * rate).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+        }
+    </script>
+</body>
+</html>
