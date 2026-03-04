@@ -637,6 +637,12 @@ const SP = (function () {
     },
     // Settings
     getSettings: () => { try { return JSON.parse(localStorage.getItem(SP.makeOrgKey('settings')) || '{}'); } catch(e) { return {}; } },
+    // v2.0 Global Routing: Multi-role home redirect
+    goHome: () => {
+      const s = SP.getSession();
+      if (!s) { window.location.href = 'index.html'; return; }
+      window.location.href = (s.role === 'Investor') ? 'investor-portal.html' : 'dashboard.html';
+    }
   };
 })();
 
