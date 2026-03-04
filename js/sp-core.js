@@ -326,7 +326,7 @@ const SP = (function () {
   function authenticate(email, password) {
     const users = getUsers();
     // Seed demo GP — accept both old and new demo emails
-    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'philip@jchapmancpa.com'];
+    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'gp@deeltrack.com', 'philip@jchapmancpa.com'];
     demoEmails.forEach(demoEmail => {
       if (!users.find(u => u.email === demoEmail)) {
         const orgId = simpleHash('demo@deeltrack.com'); // same orgId for both so data is shared
@@ -350,7 +350,7 @@ const SP = (function () {
     setSession(session);
 
     // Seed rich demo data for the demo account on first login
-    if (['demo@deeltrack.com','demo@syndicatepro.com'].includes(email.toLowerCase())) {
+    if (['demo@deeltrack.com','demo@syndicatepro.com','gp@deeltrack.com'].includes(email.toLowerCase())) {
       seedDemoData(session);
     }
 
