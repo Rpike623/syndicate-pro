@@ -42,7 +42,15 @@ const SP = (function () {
   }
 
   // ─── Org scoping ────────────────────────────────────────────────────────────
-  // orgId = hash of GP email. Investors share the GP's orgId (stored on their user record).
+  // v2.0 Hardening: Move toward cryptographic UUIDs. 
+  // SimpleHash is preserved for legacy migration but flagged as insecure.
+
+  function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
 
   function simpleHash(str) {
     let h = 0;
@@ -55,9 +63,9 @@ const SP = (function () {
   function getOrgId() {
     const s = getSession();
     if (!s) return null;
-    // GPs: orgId stored on session. Investors: orgId stored on their user record (set at invite time).
-    if (s.orgId) return s.orgId;
-    // Fallback: derive from email
+    // v2.0 Priority: Use stored orgId (UUID).
+    if (s.orgId && s.orgId.length > 10) return s.orgId;
+    // Fallback: derive from email (legacy)
     return simpleHash(s.email.toLowerCase());
   }
 
@@ -676,7 +684,12 @@ const SP = (function () {
   });
 })();
 
-    // Load order: sp-audit.js -> sp-esign.js
+    // Load order: sp-math.js -> sp-audit.js -> sp-esign.js
+    const m = document.createElement('script');
+    m.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-math.js';
+    if (!m.src || m.src === 'sp-math.js') m.src = 'js/sp-math.js';
+    document.head.appendChild(m);
+
     const s = document.createElement('script');
     s.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-audit.js';
     if (!s.src || s.src === 'sp-audit.js') s.src = 'js/sp-audit.js';

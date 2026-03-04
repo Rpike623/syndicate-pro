@@ -201,7 +201,14 @@ const SPData = (() => {
   }
 
   // ── DISTRIBUTIONS ──────────────────────────────────────────────────────────
-  function getDistributions() { return _cache.distributions || []; }
+  function getDistributions() { 
+    const dists = _cache.distributions || []; 
+    // v2.0 Schema Normalization: Ensure all dists have totalAmount
+    return dists.map(d => ({
+      ...d,
+      totalAmount: d.totalAmount || d.amount || 0
+    }));
+  }
   function getDistributionsForInvestor(investorId) {
     return getDistributions().filter(d =>
       Array.isArray(d.recipients)

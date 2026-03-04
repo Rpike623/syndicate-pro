@@ -124,7 +124,9 @@
 <script>
   // Redirect if already logged in
   if (SP.isLoggedIn()) {
-    window.location.href = SP.isInvestor() ? 'investor-portal.html' : 'dashboard.html';
+      // v2.0 Hardening: Handle role-based Skeleton transitions
+      document.body.classList.add('authenticating');
+      window.location.href = SP.isInvestor() ? 'investor-portal.html' : 'dashboard.html';
   }
 
   function togglePw() {
