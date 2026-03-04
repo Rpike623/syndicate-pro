@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wire Confirmation Center — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/sp-core.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        
+        .wire-table { width: 100%; border-collapse: collapse; }
+        .wire-table th { text-align: left; font-size: 0.7rem; color: #64748b; padding: 12px 16px; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
+        .wire-table td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        
+        .status-pill { padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+        .status-pending { background: #fffbeb; color: #92400e; }
+        .status-confirmed { background: #dcfce7; color: #16a34a; }
+        
+        .btn-confirm { padding: 6px 12px; background: var(--success); color: white; border: none; border-radius: 6px; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 800;">Wire Confirmation Center</h1>
+                <p style="color: #64748b;">Verifying Proof of Funds and reconciled bank wires for active offerings</p>
+            </div>
+            <div style="background: #f1f5f9; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;">
+                Raise Reconciled: <span style="color: var(--accent);">84%</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 1rem; margin-bottom: 20px;">Pending Incoming Wires</h3>
+            <table class="wire-table">
+                <thead>
+                    <tr>
+                        <th>Investor</th>
+                        <th>Amount</th>
+                        <th>POF Upload</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Phil Chapman</strong><br><span style="font-size: 0.7rem; color: #64748b;">philip@jchapmancpa.com</span></td>
+                        <td style="font-family: 'JetBrains Mono'; font-weight: 700;">$250,000</td>
+                        <td><a href="#" style="color: var(--accent); text-decoration: none;"><i class="fas fa-file-pdf"></i> wire_receipt.pdf</a></td>
+                        <td><span class="status-pill status-pending">Awaiting Verify</span></td>
+                        <td style="text-align: right;"><button class="btn-confirm">Confirm Receipt</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sarah Chen</strong><br><span style="font-size: 0.7rem; color: #64748b;">s.chen@capital.com</span></td>
+                        <td style="font-family: 'JetBrains Mono'; font-weight: 700;">$500,000</td>
+                        <td><a href="#" style="color: var(--accent); text-decoration: none;"><i class="fas fa-file-pdf"></i> citybank_wire.pdf</a></td>
+                        <td><span class="status-pill status-confirmed">Confirmed</span></td>
+                        <td style="text-align: right;"><span style="color: #94a3b8; font-size: 0.7rem;">Mar 03, 4:12 PM</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div class="card" style="background: var(--primary); color: white; border: none;">
+                <h3>Automatic LP Notification</h3>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 10px;">
+                    When you click "Confirm Receipt," the LP is instantly emailed a branded confirmation and their portal HUD is updated to <strong>"FUNDED"</strong>.
+                </p>
+            </div>
+            <div class="card">
+                <h3>Escrow Account Snapshot</h3>
+                <div style="margin-top: 16px;">
+                    <div style="font-size: 1.5rem; font-weight: 800; font-family: 'JetBrains Mono';">$1,450,000</div>
+                    <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-top: 4px;">Total Received vs. $5.5M Target</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+    </script>
+</body>
+</html>

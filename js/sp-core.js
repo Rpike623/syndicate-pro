@@ -967,6 +967,7 @@ const SP = (function () {
         { section: 'Tools' },
         { href: 'proforma.html', icon: 'fa-table', label: 'Pro Forma' },
         { href: 'market-comps.html', icon: 'fa-city', label: 'Market Comps' },
+        { href: 'wire-confirm.html', icon: 'fa-bank', label: 'Wire Confirmation' },
         { href: 'waterfall-explainer.html', icon: 'fa-water', label: 'Waterfall Explainer' },
         { href: 'distributions.html', icon: 'fa-wallet', label: 'Distributions' },
         { href: 'capital-calls.html', icon: 'fa-hand-holding-usd', label: 'Capital Calls' },
