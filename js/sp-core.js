@@ -13,10 +13,14 @@ const SP = (function () {
 
   function setSession(s) {
     localStorage.setItem('sp_session', JSON.stringify(s));
+    // v2.0 Cross-tab notify
+    window.dispatchEvent(new StorageEvent('storage', { key: 'sp_session', newValue: JSON.stringify(s) }));
   }
 
   function clearSession() {
     localStorage.removeItem('sp_session');
+    // v2.0 Cross-tab logout eject
+    window.dispatchEvent(new StorageEvent('storage', { key: 'sp_session', newValue: null }));
   }
 
   function isLoggedIn() {
@@ -874,6 +878,13 @@ const SP = (function () {
         </a>`;
       }
     }
+
+    // v2.0 Tab Sync Listener
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'sp_session' && !e.newValue) {
+        window.location.href = 'login.html?reason=session_signed_out';
+      }
+    });
 
     // Rebuild sidebar nav completely — ensures every page has the correct full nav
     const nav = document.querySelector('.sidebar .nav');
