@@ -326,11 +326,13 @@ const SP = (function () {
   function authenticate(email, password) {
     const users = getUsers();
     // Seed demo GP — accept both old and new demo emails
-    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com'];
+    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'philip@jchapmancpa.com'];
     demoEmails.forEach(demoEmail => {
       if (!users.find(u => u.email === demoEmail)) {
         const orgId = simpleHash('demo@deeltrack.com'); // same orgId for both so data is shared
-        users.push({ email: demoEmail, password: 'demo123', name: 'Robert Pike', role: 'General Partner', orgId });
+        const name = demoEmail.includes('philip') ? 'Phil Chapman' : 'Robert Pike';
+        const role = demoEmail.includes('philip') ? 'Investor' : 'General Partner';
+        users.push({ email: demoEmail, password: 'Demo1234!', name, role, orgId });
       }
     });
     localStorage.setItem('sp_users', JSON.stringify(users));
