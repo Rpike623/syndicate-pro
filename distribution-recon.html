@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Distribution Reconciliation — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        
+        .recon-table { width: 100%; border-collapse: collapse; }
+        .recon-table th { text-align: left; padding: 12px 16px; font-size: 0.75rem; color: #64748b; background: #f8fafc; border-bottom: 2px solid #e2e8f0; }
+        .recon-table td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; vertical-align: middle; }
+        
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .dot-match { background: #10b981; box-shadow: 0 0 8px #10b981; }
+        .dot-mismatch { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
+        .recon-val { font-family: 'JetBrains Mono'; font-weight: 600; }
+        .btn-confirm { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 800;">Distribution Reconciliation</h1>
+                <p style="color: #64748b;">Verify calculated LP payments against external bank ledger exports</p>
+            </div>
+            <button class="btn btn-primary" onclick="alert('Import CSV from Bank...')"><i class="fas fa-file-import"></i> Sync Bank Data</button>
+        </div>
+
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <table class="recon-table">
+                <thead>
+                    <tr>
+                        <th>Investor</th>
+                        <th>Projected Payout</th>
+                        <th>Actual Distributed</th>
+                        <th>Variance</th>
+                        <th>Verification</th>
+                    </tr>
+                </thead>
+                <tbody id="reconBody">
+                    <!-- Seed Data -->
+                    <tr>
+                        <td><strong>Phil Chapman</strong><br><span style="font-size: 0.72rem; color: #64748b;">philip@jchapmancpa.com</span></td>
+                        <td class="recon-val">$14,875.00</td>
+                        <td class="recon-val">$14,875.00</td>
+                        <td><span style="color: var(--success); font-weight: 700;">$0.00</span></td>
+                        <td><div style="display:flex; align-items:center;"><div class="status-dot dot-match"></div><span style="font-size:0.75rem; font-weight:700; color:var(--success);">MATCHED</span></div></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sarah Chen</strong><br><span style="font-size: 0.72rem; color: #64748b;">s.chen@capital.com</span></td>
+                        <td class="recon-val">$29,750.00</td>
+                        <td class="recon-val">$29,250.00</td>
+                        <td><span style="color: #ef4444; font-weight: 700;">($500.00)</span></td>
+                        <td style="display:flex; gap:10px; align-items:center;"><div class="status-dot dot-mismatch"></div> <button class="btn-confirm">Adjust Ledger</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>James Hartwell</strong><br><span style="font-size: 0.72rem; color: #64748b;">j.hartwell@email.com</span></td>
+                        <td class="recon-val">$14,875.00</td>
+                        <td class="recon-val">$14,875.00</td>
+                        <td><span style="color: var(--success); font-weight: 700;">$0.00</span></td>
+                        <td><div style="display:flex; align-items:center;"><div class="status-dot dot-match"></div><span style="font-size:0.75rem; font-weight:700; color:var(--success);">MATCHED</span></div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Reconciled</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--success);">$59,500</div>
+            </div>
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Unresolved Variance</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #ef4444;">($500)</div>
+            </div>
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Audit Readiness</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">94%</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+    </script>
+</body>
+</html>
