@@ -972,7 +972,7 @@ const SP = (function () {
         { href: 'waterfall-explainer.html', icon: 'fa-water', label: 'Waterfall Explainer' },
         { href: 'distributions.html', icon: 'fa-wallet', label: 'Distributions' },
         { href: 'capital-calls.html', icon: 'fa-hand-holding-usd', label: 'Capital Calls' },
-        { href: 'k1-generator.html', icon: 'fa-file-invoice-dollar', label: 'Tax Center' },
+        { href: 'tax-center.html', icon: 'fa-file-invoice-dollar', label: 'Tax Center' },
         { href: 'email-templates.html', icon: 'fa-envelope', label: 'Email Hub' },
         { href: 'investor-chat.html', icon: 'fa-comments', label: 'LP Messenger' },
         { href: 'audit-logs.html', icon: 'fa-fingerprint', label: 'Audit View' },
