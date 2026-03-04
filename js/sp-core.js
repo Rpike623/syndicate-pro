@@ -953,6 +953,7 @@ const SP = (function () {
         { href: 'scenario-planner.html', icon: 'fa-project-diagram', label: 'Scenario Planner' },
         { href: 'sensitivity-matrix.html', icon: 'fa-table', label: 'Sensitivity Matrix' },
         { href: 'risk-matrix.html', icon: 'fa-table-cells', label: 'Risk Matrix' },
+        { href: 'deal-approvals.html', icon: 'fa-check-double', label: 'Approval Pipeline' },
         { href: 'new-deal.html', icon: 'fa-plus', label: 'Underwriting' },
         { section: 'ADMIN' },
         { href: 'dashboard.html', icon: 'fa-th-large', label: 'Main' },

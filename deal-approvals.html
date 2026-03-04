@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Approval Center — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/sp-core.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 12px; }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        
+        .workflow-step { display: flex; gap: 20px; align-items: flex-start; padding: 20px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; margin-bottom: 12px; position: relative; }
+        .workflow-step.completed { border-left: 4px solid var(--success); background: #f0fdf4; }
+        .workflow-step.active { border-left: 4px solid var(--accent); background: #eff6ff; }
+        
+        .step-icon { width: 40px; height: 40px; border-radius: 50%; background: white; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .workflow-step.completed .step-icon { color: var(--success); border-color: var(--success); }
+        .workflow-step.active .step-icon { color: var(--accent); border-color: var(--accent); }
+
+        .step-content { flex: 1; }
+        .step-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+        .step-meta { font-size: 0.75rem; color: #64748b; }
+        
+        .btn-approve { padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 800;">Investment Approval Center</h1>
+                <p style="color: #64748b;">Managing the 'Underwriting to Close' workflow for internal stakeholders</p>
+            </div>
+            <select style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; font-weight: 600;">
+                <option>Pecan Hollow — Series A</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 1rem; margin-bottom: 24px;">Underwriting Approval Pipeline</h3>
+            
+            <div class="workflow-step completed">
+                <div class="step-icon"><i class="fas fa-calculator"></i></div>
+                <div class="step-content">
+                    <div class="step-title">Initial Pro Forma Verification</div>
+                    <div class="step-meta">Completed by Robert Pike • Jan 28, 2026</div>
+                </div>
+                <div style="color: var(--success); font-size: 0.8rem; font-weight: 700;"><i class="fas fa-circle-check"></i> VERIFIED</div>
+            </div>
+
+            <div class="workflow-step active">
+                <div class="step-icon"><i class="fas fa-file-shield"></i></div>
+                <div class="step-content">
+                    <div class="step-title">Due Diligence Audit (T12/RR)</div>
+                    <div class="step-meta">Awaiting review from Philip Chapman (CPA)</div>
+                </div>
+                <button class="btn-approve">Approve Milestone</button>
+            </div>
+
+            <div class="workflow-step">
+                <div class="step-icon"><i class="fas fa-landmark"></i></div>
+                <div class="step-content">
+                    <div class="step-title">Funding & Loan Commitment</div>
+                    <div class="step-meta">Requires final Term Sheet executed</div>
+                </div>
+                <div style="color: #94a3b8; font-size: 0.7rem; font-weight: 700;">LOCKED</div>
+            </div>
+
+            <div class="workflow-step">
+                <div class="step-icon"><i class="fas fa-signature"></i></div>
+                <div class="step-content">
+                    <div class="step-title">General Counsel PPM Sign-off</div>
+                    <div class="step-meta">Legal review of Operating Agreement</div>
+                </div>
+                <div style="color: #94a3b8; font-size: 0.7rem; font-weight: 700;">LOCKED</div>
+            </div>
+        </div>
+
+        <div class="card" style="background: #0f172a; color: white; border: none;">
+            <h3>Strategic Compliance Note</h3>
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 10px; line-height: 1.6;">
+                Closing cannot occur until 100% of "Initial Pro Forma" and "PPM Sign-off" milestones are digitally stamped. This provides a clear audit trail for the eventual Form D filing.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+    </script>
+</body>
+</html>
