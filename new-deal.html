@@ -609,7 +609,6 @@
 <body>
   <div class="app"><aside class="sidebar" id="sidebar"></aside>
     <!-- Sidebar with Progress -->
-    <aside id="sidebar" class="sidebar">
       <div class="sidebar-header">
     <nav class="nav"></nav>
         <a href="javascript:void(0)" onclick="SP.goHome()" class="logo" style="text-decoration:none;color:white;">
@@ -1733,7 +1732,6 @@
       const oa = deal?.generatedOA || document.getElementById('successOAContent')?.innerHTML;
       if (!oa) return;
       const w = window.open('', '_blank');
-      w.document.write(`<!DOCTYPE html><html><head><title>Operating Agreement</title><style>body{font-family:Georgia,serif;margin:40px;}</style></head><body>${oa}</body></html>`);
       w.document.close();
       setTimeout(() => w.print(), 500);
     }
@@ -1743,7 +1741,6 @@
       const deal = id ? SP.getDealById(id) : null;
       const oa = deal?.generatedOA || document.getElementById('successOAContent')?.innerHTML;
       if (!oa) return;
-      const blob = new Blob([`<html><body>${oa}</body></html>`], {type:'application/msword'});
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = `${deal?.name || 'Operating-Agreement'}.doc`;

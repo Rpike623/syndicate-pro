@@ -385,7 +385,6 @@
 </head>
 <body>
   <div class="app"><aside class="sidebar" id="sidebar"></aside>
-    <aside id="sidebar" class="sidebar">
       <div class="sidebar-header">
     <nav class="nav"></nav>
         <div class="logo">
@@ -1179,7 +1178,6 @@
     
     function exportWord() {
       const content = document.getElementById('documentPreview').innerHTML;
-      const blob = new Blob(['<html><head><meta charset="UTF-8"></head><body>' + content + '</body></html>'], { type: 'application/msword' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
