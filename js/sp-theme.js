@@ -34,49 +34,45 @@ const SPTheme = (() => {
       
       /* Institutional Typography & Spacing */
       body { letter-spacing: -0.011em; font-feature-settings: "cv02", "cv03", "cv04", "ss01"; }
+      /* 8px Golden Baseline Grid & Type Scale */
+      h1, h2, h3, h4 { font-family: 'Inter', sans-serif; font-weight: 800; letter-spacing: -0.025em; line-height: 1.2; }
+      h1 { font-size: 2.25rem !important; margin-bottom: 24px !important; }
+      h2 { font-size: 1.5rem !important; margin-bottom: 16px !important; }
+      h3 { font-size: 1.125rem !important; margin-bottom: 12px !important; }
+      p { margin-bottom: 16px; color: #475569; }
+
+      /* Institutional Data Rows (Consistent 8px multiples) */
+      .deal-row, .lp-row, .activity-item, .dist-item { 
+        padding: 16px 24px !important; 
+        border-bottom: 1px solid rgba(226, 232, 240, 0.4) !important;
+      }
+
+      /* High-End Skeleton Shimmer (v2.3) */
+      .skeleton {
+        position: relative; overflow: hidden; background: #f1f5f9; border-radius: 4px;
+      }
+      .skeleton::after {
+        content: ""; position: absolute; inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+        animation: shimmer 2s infinite;
+      }
+
+      /* Unified Selection Logic */
+      ::selection { background: var(--accent-light); color: var(--accent); }
+      
       /* High-Precision Data Rendering */
-      .money-val, .currency, .math-val, .res-val { 
+      .money-val, .currency, .math-val, .res-val, .hero-num, .kpi-value { 
         font-family: 'JetBrains Mono', monospace !important; 
         font-variant-numeric: tabular-nums; 
         letter-spacing: -0.02em;
       }
       
-      /* Global Card Polish */
-      .card {
-        border: 1px solid rgba(226, 232, 240, 0.6) !important;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+      /* Global UI Controls Transitions */
+      .btn, .nav-item, .action-btn, .card, .kpi-card {
+        transition: all 0.25s cubic-bezier(0.2, 0, 0, 1) !important;
       }
-      .card:hover {
-        border-color: rgba(59, 130, 246, 0.3) !important;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-      }
-
-      /* Animated Transitions for Actions */
-      .btn, .nav-item, .action-btn {
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      }
-      .btn:active { transform: scale(0.98); }
-
-      /* Table Header Polish */
-      th {
-        letter-spacing: 0.05em !important;
-        color: #475569 !important;
-        font-weight: 700 !important;
-      }
-      
-      /* Scrollbar Hardening */
-      ::-webkit-scrollbar { width: 8px; height: 8px; }
-      ::-webkit-scrollbar-track { background: transparent; }
-      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
-      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-      /* Global Loading State */
-      .loading-shimmer {
-        background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
-      }
-      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+      .btn:active { transform: scale(0.96); }
     `;
     document.head.appendChild(style);
   }
