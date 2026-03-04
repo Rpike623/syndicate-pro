@@ -899,6 +899,7 @@ const SP = (function () {
       const navItems = [
         { section: 'OPERATIONS' },
         { href: 'investors.html', icon: 'fa-users', label: 'CRM: Investors' },
+        { href: 'investor-sentiment.html', icon: 'fa-brain', label: 'Investor Sentiment' },
         { href: 'pipeline.html', icon: 'fa-stream', label: 'CRM: Pipeline' },
         { href: 'lenders.html', icon: 'fa-landmark', label: 'CRM: Lenders' },
         { href: 'deals.html', icon: 'fa-building', label: 'Portfolio' },

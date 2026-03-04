@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investor Sentiment Dashboard - deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #0f172a; --accent: #3b82f6; --success: #10b981;
+            --border: #e2e8f0; --bg: #f8fafc; --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+        .card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .sentiment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .viz-box { height: 250px; position: relative; }
+        
+        .heat-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+        .heat-cell { padding: 16px; border-radius: 8px; border: 1px solid var(--border); }
+        .heat-val { font-size: 1.25rem; font-weight: 700; font-family: 'JetBrains Mono'; margin-bottom: 4px; }
+        .heat-lbl { font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
+        
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+        .badge-hot { background: #fee2e2; color: #ef4444; }
+        .badge-warm { background: #ffedd5; color: #f97316; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 800;">Investor Sentiment Dashboard</h1>
+                <p style="color: #64748b;">Telemetry-driven insights on LP behavior and intent</p>
+            </div>
+        </div>
+
+        <div class="sentiment-grid">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-eye" style="color: var(--accent);"></i> Document Open Velocity</div>
+                <div class="viz-box"><canvas id="openChart"></canvas></div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-fire" style="color: #ef4444;"></i> Hot Leads (Intent Detection)</div>
+                <div class="heat-map">
+                    <div class="heat-cell"><div class="badge badge-hot">High Intent</div><div class="heat-val">Phil Chapman</div><div class="heat-lbl">Opened PPM 12x</div></div>
+                    <div class="heat-cell"><div class="badge badge-warm">Watching</div><div class="heat-val">Sarah Chen</div><div class="heat-lbl">Opened Teaser 4x</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-hand-holding-usd" style="color: var(--success);"></i> Portfolio Allocation Appetite</div>
+            <div style="height: 300px;"><canvas id="appetiteChart"></canvas></div>
+        </div>
+    </main>
+
+    <script>
+        function init() {
+            renderOpenChart();
+            renderAppetiteChart();
+        }
+
+        function renderOpenChart() {
+            const ctx = document.getElementById('openChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Total Doc Views',
+                        data: [12, 19, 45, 82, 34, 12, 10], // Simulated velocity
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function renderAppetiteChart() {
+            const ctx = document.getElementById('appetiteChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Multifamily', 'Industrial', 'Retail', 'Self-Storage', 'Hospitality'],
+                    datasets: [{
+                        label: 'LP Interest (Survey Data)',
+                        data: [85, 62, 21, 45, 12],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        window.addEventListener('spdata-ready', init);
+        if(typeof SPData !== 'undefined' && SPData.isReady()) init();
+    </script>
+</body>
+</html>
