@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Health HUD — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/sp-core.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --bg: #f8fafc; --radius: 12px; }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .health-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+        .property-card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; position: relative; overflow: hidden; }
+        
+        .health-score { position: absolute; top: 20px; right: 24px; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; font-weight: 800; font-size: 1.1rem; }
+        .score-good { background: #f0fdf4; color: var(--success); border: 2px solid var(--success); }
+        .score-warn { background: #fffbeb; color: var(--warning); border: 2px solid var(--warning); }
+        .score-bad { background: #fef2f2; color: var(--danger); border: 2px solid var(--danger); }
+
+        .metric-row { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
+        .m-lbl { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .m-val { font-size: 0.9rem; font-weight: 700; font-family: 'JetBrains Mono'; }
+        
+        .progress-bar { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        .progress-fill { height: 100%; background: var(--accent); }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div style="margin-bottom: 32px;">
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Portfolio Health Dashboard</h1>
+            <p style="color: #64748b;">Mark-to-market performance assessment across active assets</p>
+        </div>
+
+        <div class="health-grid">
+            <!-- Asset 1 -->
+            <div class="property-card">
+                <div class="health-score score-good">94</div>
+                <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 4px;">The Hudson Portfolio</div>
+                <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 24px;">Houston, TX • 248 Units</div>
+                
+                <div class="metric-row">
+                    <span class="m-lbl">Occupancy</span>
+                    <span class="m-val">96.4%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 96%; background: var(--success);"></div></div>
+                
+                <div class="metric-row" style="margin-top: 16px;">
+                    <span class="m-lbl">DSCR</span>
+                    <span class="m-val">1.45x</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 80%; background: var(--accent);"></div></div>
+            </div>
+
+            <!-- Asset 2 -->
+            <div class="property-card">
+                <div class="health-score score-warn">72</div>
+                <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 4px;">Riverside Flats</div>
+                <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 24px;">Austin, TX • 96 Units</div>
+                
+                <div class="metric-row">
+                    <span class="m-lbl">Occupancy</span>
+                    <span class="m-val">88.2%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 88%; background: var(--warning);"></div></div>
+                
+                <div class="metric-row" style="margin-top: 16px;">
+                    <span class="m-lbl">DSCR</span>
+                    <span class="m-val">1.18x</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 60%; background: var(--warning);"></div></div>
+            </div>
+
+            <!-- Asset 3 -->
+            <div class="property-card">
+                <div class="health-score score-good">88</div>
+                <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 4px;">Meridian Industrial</div>
+                <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 24px;">Dallas, TX • 750k SF</div>
+                
+                <div class="metric-row">
+                    <span class="m-lbl">Occupancy</span>
+                    <span class="m-val">100%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 100%; background: var(--success);"></div></div>
+                
+                <div class="metric-row" style="margin-top: 16px;">
+                    <span class="m-lbl">DSCR</span>
+                    <span class="m-val">1.62x</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 90%; background: var(--accent);"></div></div>
+            </div>
+        </div>
+
+        <div class="card" style="background: var(--primary); color: white; border: none; padding: 32px;">
+            <div style="display: flex; gap: 40px; align-items: center;">
+                <div>
+                    <h3 style="color: var(--accent); font-size: 0.8rem; text-transform: uppercase;">Portfolio DSCR Avg</h3>
+                    <div style="font-size: 2.5rem; font-weight: 800; font-family: 'JetBrains Mono'; margin-top: 4px;">1.42x</div>
+                </div>
+                <div style="height: 60px; width: 2px; background: rgba(255,255,255,0.1);"></div>
+                <p style="font-size: 0.9rem; color: #94a3b8; line-height: 1.6; max-width: 500px;">
+                    <strong>Institutional Insight:</strong> Weighted portfolio health is "Green." Riverside Flats (Austin) is currently under-performing on occupancy (88.2%) due to the ongoing phase 2 renovation. No lender covenant breaches projected for 2026.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+    </script>
+</body>
+</html>
