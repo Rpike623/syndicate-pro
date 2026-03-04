@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investor Activity Heatmap — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .grid-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
+        .heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 20px; }
+        .day-label { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; text-align: center; margin-bottom: 8px; }
+        .hour-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 10px; }
+        .heat-cell { height: 40px; border-radius: 6px; background: #e2e8f0; transition: all 0.2s; position: relative; cursor: help; }
+        .heat-cell:hover { transform: scale(1.1); z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        
+        .level-0 { background: #f1f5f9; }
+        .level-1 { background: #dbeafe; }
+        .level-2 { background: #93c5fd; }
+        .level-3 { background: #3b82f6; }
+        .level-4 { background: #1e40af; }
+
+        .legend { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: #64748b; margin-top: 20px; }
+        .legend-box { width: 12px; height: 12px; border-radius: 2px; }
+        
+        .insight-card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-top: 32px; }
+        .insight-title { font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: var(--accent); }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div class="grid-header">
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 800;">Activity Heatmap</h1>
+                <p style="color: #64748b;">Identify optimal windows for capital calls and deal announcements</p>
+            </div>
+            <div style="font-size: 0.85rem; background: #fff; padding: 10px 16px; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: 600;">
+                Peak Window: <span style="color: var(--accent);">Tue @ 10:00 AM CST</span>
+            </div>
+        </div>
+
+        <div class="card" style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px;">
+            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;">
+                <div class="day-label">Mon</div><div class="day-label">Tue</div><div class="day-label">Wed</div>
+                <div class="day-label">Thu</div><div class="day-label">Fri</div><div class="day-label">Sat</div><div class="day-label">Sun</div>
+            </div>
+            
+            <!-- Generate 24 rows for hours -->
+            <div id="heatmapContainer"></div>
+
+            <div class="legend">
+                <span>Less Active</span>
+                <div class="legend-box level-0"></div><div class="legend-box level-1"></div>
+                <div class="legend-box level-2"></div><div class="legend-box level-3"></div>
+                <div class="legend-box level-4"></div>
+                <span>More Active</span>
+            </div>
+        </div>
+
+        <div class="insight-card">
+            <div class="insight-title"><i class="fas fa-lightbulb"></i> Institutional Insight</div>
+            <p style="font-size: 0.95rem; color: #475569; line-height: 1.6;">
+                Based on document open velocity and portal logins, your investor base is most engaged <strong>Tuesday mornings between 9:00 AM and 11:30 AM</strong>. 
+                We recommend scheduling your next <strong>Capital Call</strong> for this window to minimize funding lag.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+        
+        function renderHeatmap() {
+            const container = document.getElementById('heatmapContainer');
+            // Simplified mock data generator based on "Business Hours" logic
+            let html = '';
+            for(let h=0; h<24; h++) {
+                html += '<div class="hour-row">';
+                for(let d=0; d<7; d++) {
+                    let level = 0;
+                    if(d < 5 && h >= 9 && h <= 17) level = Math.floor(Math.random() * 3) + 2;
+                    else if(d < 5 && (h == 8 || h == 18)) level = 1;
+                    else if(d >= 5 && h >= 10 && h <= 14) level = 1;
+
+                    // Specifically peak Tue morning
+                    if(d === 1 && h === 10) level = 4;
+
+                    html += `<div class="heat-cell level-${level}" title="${h}:00 - ${level === 4 ? 'Peak Intensity' : level === 0 ? 'Low' : 'Moderate'} activity"></div>`;
+                }
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        }
+        
+        renderHeatmap();
+    </script>
+</body>
+</html>
