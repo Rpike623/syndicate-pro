@@ -876,6 +876,7 @@ const SP = (function () {
         { href: 'email-templates.html', icon: 'fa-envelope', label: 'Email Hub' },
         { href: 'audit-logs.html', icon: 'fa-fingerprint', label: 'Audit View' },
         { href: 'deal-room.html', icon: 'fa-folder-open', label: 'Deal Room' },
+        { href: 'teaser-generator.html', icon: 'fa-bullhorn', label: 'Marketing Teaser' },
         { href: 'deal-compare.html', icon: 'fa-balance-scale', label: 'Compare Deals' },
         { section: 'Account' },
         { href: 'settings.html', icon: 'fa-cog', label: 'Settings' },
