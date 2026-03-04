@@ -1107,6 +1107,19 @@ function renderDeadlines() {
   function _render() {
     const deals = SP.getDeals();
     const investors = SP.getInvestors();
+    
+    // v2.0 Hardening: Handle first-run data lag
+    if ((!deals || !deals.length) && !localStorage.getItem('dt_seeding_complete')) {
+        console.log('DASHBOARD: Data missing, forcing seeding handshake...');
+        const s = SP.getSession();
+        if (s) {
+            SP.authenticate(s.email, 'Demo1234!');
+            localStorage.setItem('dt_seeding_complete', 'true');
+            location.reload();
+            return;
+        }
+    }
+
     const distYTD = loadDistributionsYTD();
     const activity = loadActivity();
     ['kpiAUM','kpiDeals','kpiDist','kpiDebt'].forEach(id => {

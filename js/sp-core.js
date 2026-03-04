@@ -903,6 +903,25 @@ const SP = (function () {
           <span style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.3px;">deel<span style="color:#60a5fa;">track</span></span>
         </a>`;
       }
+    } else {
+      // v2.0 Hardening: If sidebar-header is missing from HTML but sidebar is present, create it
+      const sb = document.getElementById('sidebar');
+      if (sb) {
+        const header = document.createElement('div');
+        header.className = 'sidebar-header';
+        header.innerHTML = `<a href="dashboard.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="34" height="34" style="flex-shrink:0;">
+            <circle cx="16" cy="16" r="15" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
+            <rect x="7" y="5" width="3.5" height="22" rx="1.5" fill="#3b82f6"/>
+            <path d="M 13 11 L 23 16 L 13 21" stroke="#3b82f6" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.3px;">deel<span style="color:#60a5fa;">track</span></span>
+        </a>`;
+        const innerNav = document.createElement('nav');
+        innerNav.className = 'nav';
+        sb.appendChild(header);
+        sb.appendChild(innerNav);
+      }
     }
 
     // v2.0 Tab Sync Listener
