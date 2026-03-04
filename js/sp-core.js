@@ -697,11 +697,16 @@ const SP = (function () {
 (function loadModules() {
     if (typeof document === 'undefined') return;
     document.addEventListener('DOMContentLoaded', function () {
-    // Load order: sp-math.js -> sp-ai.js -> sp-reit.js -> sp-chat.js -> sp-audit.js -> sp-esign.js
+    // Load order: sp-math.js -> sp-ai.js -> sp-theme.js -> sp-reit.js -> sp-chat.js -> sp-audit.js -> sp-esign.js
     const m = document.createElement('script');
     m.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-math.js';
     if (!m.src || m.src === 'sp-math.js') m.src = 'js/sp-math.js';
     m.onload = () => {
+      const t = document.createElement('script');
+      t.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-theme.js';
+      if (!t.src || t.src === 'sp-theme.js') t.src = 'js/sp-theme.js';
+      document.head.appendChild(t);
+
       const a = document.createElement('script');
       a.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-ai.js';
       if (!a.src || a.src === 'sp-ai.js') a.src = 'js/sp-ai.js';
