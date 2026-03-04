@@ -697,7 +697,7 @@ const SP = (function () {
 (function loadModules() {
     if (typeof document === 'undefined') return;
     document.addEventListener('DOMContentLoaded', function () {
-    // Load order: sp-math.js -> sp-ai.js -> sp-audit.js -> sp-esign.js
+    // Load order: sp-math.js -> sp-ai.js -> sp-reit.js -> sp-audit.js -> sp-esign.js
     const m = document.createElement('script');
     m.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-math.js';
     if (!m.src || m.src === 'sp-math.js') m.src = 'js/sp-math.js';
@@ -705,6 +705,12 @@ const SP = (function () {
       const a = document.createElement('script');
       a.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-ai.js';
       if (!a.src || a.src === 'sp-ai.js') a.src = 'js/sp-ai.js';
+      
+      const r = document.createElement('script');
+      r.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-reit.js';
+      if (!r.src || r.src === 'sp-reit.js') r.src = 'js/sp-reit.js';
+      document.head.appendChild(r);
+      
       document.head.appendChild(a);
     };
     document.head.appendChild(m);
@@ -904,6 +910,7 @@ const SP = (function () {
         { href: 'lenders.html', icon: 'fa-landmark', label: 'CRM: Lenders' },
         { href: 'deals.html', icon: 'fa-building', label: 'Portfolio' },
         { href: 'portfolio-explorer.html', icon: 'fa-chart-pie', label: 'Portfolio Explorer' },
+        { href: 'reit-rollup.html', icon: 'fa-layer-group', label: 'Fund/REIT Rollup' },
         { href: 'scenario-planner.html', icon: 'fa-project-diagram', label: 'Scenario Planner' },
         { href: 'new-deal.html', icon: 'fa-plus', label: 'Underwriting' },
         { section: 'ADMIN' },
