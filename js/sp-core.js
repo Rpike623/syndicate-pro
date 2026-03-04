@@ -980,6 +980,7 @@ const SP = (function () {
         { href: 'investor-chat.html', icon: 'fa-comments', label: 'LP Messenger' },
         { href: 'audit-logs.html', icon: 'fa-fingerprint', label: 'Audit View' },
         { href: 'deal-room.html', icon: 'fa-folder-open', label: 'Deal Room' },
+        { href: 'deal-room-log.html', icon: 'fa-file-magnifying-glass', label: 'Deal Room Scrutiny' },
         { href: 'om-builder.html', icon: 'fa-file-pdf', label: 'OM Generator' },
         { href: 'om-v2.html', icon: 'fa-clapperboard', label: 'Interactive Offering' },
         { href: 'investor-update.html', icon: 'fa-bullhorn', label: 'Update Builder' },

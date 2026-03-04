@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deal Room Scrutiny Log — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/sp-core.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 12px; }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        
+        .access-table { width: 100%; border-collapse: collapse; }
+        .access-table th { text-align: left; font-size: 0.7rem; color: #64748b; padding: 12px 16px; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
+        .access-table td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        
+        .activity-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .chip-view { background: #eff6ff; color: #2563eb; }
+        .chip-download { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+        .chip-time { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 800;">Deal Room Scrutiny Log</h1>
+                <p style="color: #64748b;">Monitoring LP engagement and document download frequency for active offerings</p>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px;">Engagement Velocity</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--accent); margin-top: 4px;">14 Downloads Today</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 1rem; margin-bottom: 20px;">Live Data-Room Access Feed</h3>
+            <table class="access-table">
+                <thead>
+                    <tr>
+                        <th>Limited Partner</th>
+                        <th>File / Document</th>
+                        <th>Activity</th>
+                        <th style="text-align: right;">Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Phil Chapman</strong><br><span style="font-size: 0.7rem; color: #64748b;">CPA / High Net Worth</span></td>
+                        <td><i class="fas fa-file-pdf" style="color: #ef4444;"></i> Pecan_Hollow_T12.xlsx</td>
+                        <td><span class="activity-chip chip-download"><i class="fas fa-download"></i> Downloaded</span></td>
+                        <td style="text-align: right;"><span class="activity-chip chip-time">12m ago</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sarah Chen</strong><br><span style="font-size: 0.7rem; color: #64748b;">Family Office Rep</span></td>
+                        <td><i class="fas fa-file-contract"></i> Riverside_Operating_Agreement.pdf</td>
+                        <td><span class="activity-chip chip-view"><i class="fas fa-eye"></i> Viewed</span></td>
+                        <td style="text-align: right;"><span class="activity-chip chip-time">2h ago</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Marcus Williams</strong><br><span style="font-size: 0.7rem; color: #64748b;">Individual LP</span></td>
+                        <td><i class="fas fa-file-image"></i> Property_Photos_Exterior.zip</td>
+                        <td><span class="activity-chip chip-view"><i class="fas fa-eye"></i> Viewed</span></td>
+                        <td style="text-align: right;"><span class="activity-chip chip-time">Yesterday</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="background: var(--primary); color: white; border: none;">
+            <h3>Institutional Lead Scoring</h3>
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 10px; line-height: 1.6;">
+                <strong>Detected Scrutiny:</strong> Phil Chapman is currently performing deep-dive diligence on the "Pecan Hollow T12." This correlates with a 94% subscription likelihood. We recommend a proactive wire instruction follow-up by tomorrow morning.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+    </script>
+</body>
+</html>
