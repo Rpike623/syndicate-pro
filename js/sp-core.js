@@ -415,6 +415,7 @@ const SP = (function () {
       { id:'di2', firstName:'Sarah', lastName:'Chen', email:'s.chen@capitalgroup.com', phone:'(713) 555-0202', address:'1800 Post Oak Blvd, Houston, TX 77056', accredMethod:'entity', accredStatus:'verified', accredDate:'2024-01-10', accredExpiry:'2026-01-10', minInvest:250000, maxInvest:1000000, totalInvested:1000000, deals:2, status:'active', notes:'Family office rep. Very responsive.' },
       { id:'di3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@invest.com', phone:'(512) 555-0303', address:'200 W Cesar Chavez, Austin, TX 78701', accredMethod:'attorney', accredStatus:'verified', accredDate:'2024-06-01', accredExpiry:'2026-06-01', minInvest:50000, maxInvest:250000, totalInvested:250000, deals:1, status:'active', notes:'First-time syndication investor.' },
       { id:'di4', firstName:'Priya', lastName:'Patel', email:'ppatel@wealth.com', phone:'(469) 555-0404', address:'5000 Granite Pkwy, Plano, TX 75024', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-01-15', accredExpiry:'2027-01-15', minInvest:500000, maxInvest:2000000, totalInvested:1000000, deals:1, status:'active', notes:'Prefers industrial. Long-term hold.' },
+      { id:'i7', firstName:'Phil', lastName:'Chapman', email:'philip@jchapmancpa.com', phone:'(817) 555-9000', address:'Fort Worth, TX', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-01-01', accredExpiry:'2027-01-01', minInvest:50000, maxInvest:500000, totalInvested:1075000, deals:8, status:'active', notes:'High-level CPA investor.' },
     ];
     save('investors', investors);
 
@@ -454,7 +455,10 @@ const SP = (function () {
         status:'raising', location:'Fort Worth, TX', added:new Date().toISOString().split('T')[0], units:128, state:'TX',
         companyName:'Pecan Hollow Partners LLC', purchasePrice:24500000, loanAmount:19000000,
         totalEquity:5500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
-        notes:'128-unit B+ value-add opportunity. 1980s build. Under market rents by $175/unit. Plans for $1.2M renovation cap-ex.'
+        investors:[
+          {investorId:'i7',committed:250000,ownership:4.54,status:'active',linkedAt:new Date().toISOString(),subStatus:'signed'},
+        ],
+        documents:[], notes:'128-unit B+ value-add opportunity. 1980s build. Under market rents by $175/unit. Plans for $1.2M renovation cap-ex.'
       },
       {
         id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9,
