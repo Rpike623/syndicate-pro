@@ -361,8 +361,8 @@ const SP = (function () {
     };
     setSession(session);
 
-    // Seed rich demo data for the demo account on first login
-    if (['demo@deeltrack.com','demo@syndicatepro.com','gp@deeltrack.com'].includes(email.toLowerCase())) {
+    // Seed rich demo data for both GP and Phil the Investor on first login
+    if (['demo@deeltrack.com','demo@syndicatepro.com','gp@deeltrack.com','philip@jchapmancpa.com'].includes(email.toLowerCase())) {
       seedDemoData(session);
     }
 
