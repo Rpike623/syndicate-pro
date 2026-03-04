@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cap Rate Analysis & Risk HUD — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <script src="js/sp-math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .sens-table { width: 100%; border-collapse: collapse; text-align: center; }
+        .sens-table th { padding: 12px; font-size: 0.75rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; }
+        .sens-table td { padding: 12px; font-family: 'JetBrains Mono'; font-size: 0.85rem; border: 1px solid #e2e8f0; }
+        .sens-val { font-weight: 700; }
+        .sens-positive { color: #10b981; }
+        .sens-negative { color: #ef4444; }
+        .sens-neutral { background: #f1f5f9; font-weight: 800; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 800;">Market Sensitivity Analysis</h1>
+                <p style="color: #64748b;">Underwriting stress-test across varying Cap Rate and Rent Growth scenarios</p>
+            </div>
+            <select id="dealSelect" onchange="generateMatrix()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; font-weight: 600;">
+                <option value="">— Select Deal —</option>
+            </select>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-th" style="color: var(--accent);"></i> Exit Price Sensitivity ($M)</div>
+                <div id="priceMatrixContainer"></div>
+            </div>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-percentage" style="color: var(--accent);"></i> LP IRR Sensitivity (%)</div>
+                <div id="irrMatrixContainer"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-info-circle" style="color: #64748b;"></i> Dynamic Basis Analysis</div>
+            <p style="font-size: 0.85rem; color: #475569; line-height: 1.6;">
+                This matrix shows the impact of changing market conditions on deal performance. The center column represents your <strong>Base Case Underwriting</strong>. Shifts to the left assume tighter market conditions (lower cap rates/higher growth), while shifts to the right model expansion and stress.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        function init() {
+            const deals = SP.getDeals();
+            const sel = document.getElementById('dealSelect');
+            deals.forEach(d => sel.add(new Option(d.name, d.id)));
+            if(deals.length > 0) { sel.value = deals[0].id; generateMatrix(); }
+        }
+
+        function generateMatrix() {
+            const deal = SP.getDealById(document.getElementById('dealSelect').value) || { raise: 5000000, purchasePrice: 20000000, irr: 18.4 };
+            const baseCap = 5.25;
+            const caps = [baseCap - 0.5, baseCap - 0.25, baseCap, baseCap + 0.25, baseCap + 0.5];
+            const grow = [-2, -1, 0, 1, 2];
+
+            // Render Price Matrix
+            let pHtml = '<table class="sens-table"><thead><tr><th>Grow / Cap</th>';
+            caps.forEach(c => pHtml += `<th>${c.toFixed(2)}%</th>`);
+            pHtml += '</tr></thead><tbody>';
+            
+            grow.forEach(g => {
+                pHtml += `<tr><td style="font-weight:700; color:#64748b;">${g > 0 ? '+' : ''}${g}%</td>`;
+                caps.forEach(c => {
+                    const price = ((deal.raise * 4) * (1 + (g/100))) / (c/100);
+                    const isBase = (g === 0 && c === baseCap);
+                    pHtml += `<td class="${isBase ? 'sens-neutral' : ''}">$${(price / 1e6).toFixed(1)}M</td>`;
+                });
+                pHtml += '</tr>';
+            });
+            pHtml += '</tbody></table>';
+            document.getElementById('priceMatrixContainer').innerHTML = pHtml;
+
+            // Render IRR Matrix
+            let iHtml = '<table class="sens-table"><thead><tr><th>Grow / Cap</th>';
+            caps.forEach(c => iHtml += `<th>${c.toFixed(2)}%</th>`);
+            iHtml += '</tr></thead><tbody>';
+            
+            grow.forEach(g => {
+                iHtml += `<tr><td style="font-weight:700; color:#64748b;">${g > 0 ? '+' : ''}${g}%</td>`;
+                caps.forEach(c => {
+                    const baseIrr = deal.irr || 18.4;
+                    const delta = (baseCap - c) * 4 + (g * 1.5);
+                    const irr = baseIrr + delta;
+                    const isBase = (g === 0 && c === baseCap);
+                    iHtml += `<td class="sens-val ${isBase ? 'sens-neutral' : (irr >= baseIrr ? 'sens-positive' : 'sens-negative')}">${irr.toFixed(1)}%</td>`;
+                });
+                iHtml += '</tr>';
+            });
+            iHtml += '</tbody></table>';
+            document.getElementById('irrMatrixContainer').innerHTML = iHtml;
+        }
+
+        window.addEventListener('spdata-ready', init);
+        if(typeof SPData !== 'undefined' && SPData.isReady()) init();
+    </script>
+</body>
+</html>
