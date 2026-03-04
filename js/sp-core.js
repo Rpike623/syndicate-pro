@@ -951,6 +951,7 @@ const SP = (function () {
         { href: 'reit-rollup.html', icon: 'fa-layer-group', label: 'Fund/REIT Rollup' },
         { href: 'gp-benchmarks.html', icon: 'fa-gauge-high', label: 'GP Benchmarks' },
         { href: 'gp-pl.html', icon: 'fa-money-bill-trend-up', label: 'GP P&L Dashboard' },
+        { href: 'carry-tracker.html', icon: 'fa-hand-holding-dollar', label: 'GP Carry Tracker' },
         { href: 'executive-summary.html', icon: 'fa-file-invoice', label: 'GP Executive PDF' },
         { href: 'scenario-planner.html', icon: 'fa-project-diagram', label: 'Scenario Planner' },
         { href: 'sensitivity-matrix.html', icon: 'fa-table', label: 'Sensitivity Matrix' },

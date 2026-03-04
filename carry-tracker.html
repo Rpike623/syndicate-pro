@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carry & Promote Tracker — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/sp-core.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; position: relative; overflow: hidden; }
+        
+        .carry-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+        .carry-card { padding: 24px; border-radius: 12px; background: white; border: 1px solid #e2e8f0; text-align: center; }
+        .carry-val { font-size: 1.75rem; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary); }
+        .carry-lbl { font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em; }
+
+        .asset-list { display: flex; flex-direction: column; gap: 12px; }
+        .asset-row { display: flex; justify-content: space-between; padding: 16px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; align-items: center; }
+        
+        .progress-rail { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 8px; width: 200px; }
+        .progress-fill { height: 100%; background: var(--success); }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div style="margin-bottom: 32px;">
+            <h1 style="font-size: 1.6rem; font-weight: 800;">GP Carry & Promote Tracker</h1>
+            <p style="color: #64748b;">Monitoring un-realized sponsor equity and promote participation across the portfolio</p>
+        </div>
+
+        <div class="carry-grid">
+            <div class="carry-card">
+                <div class="carry-val">$18.2M</div>
+                <div class="carry-lbl">Total Un-realized Carry</div>
+            </div>
+            <div class="carry-card">
+                <div class="carry-val" style="color: var(--success);">$1.2M</div>
+                <div class="carry-lbl">Realized Promote to Date</div>
+            </div>
+            <div class="carry-card">
+                <div class="carry-val" style="color: var(--accent);">$4.8M</div>
+                <div class="carry-lbl">GP Skin in the Game</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 1rem; margin-bottom: 24px;">Asset-Level Promote Thresholds</h3>
+            <div class="asset-list">
+                <div class="asset-row">
+                    <div>
+                        <div style="font-weight: 700;">The Hudson Portfolio (Tier 1 Carry)</div>
+                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">8% Pref Distributed • Promoted Tier 1 Active (20%)</div>
+                    </div>
+                    <div>
+                        <div class="carry-lbl" style="text-align: right;">Distance to Tier 2 (15% IRR)</div>
+                        <div class="progress-rail"><div class="progress-fill" style="width: 82%;"></div></div>
+                    </div>
+                    <div style="text-align: right; font-family: 'JetBrains Mono'; font-weight: 800; color: var(--success);">+$840,000 Est.</div>
+                </div>
+
+                <div class="asset-row">
+                    <div>
+                        <div style="font-weight: 700;">Riverside Flats (Pref Deficiency)</div>
+                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 2px;">Awaiting 8% Pref hurdle crossing</div>
+                    </div>
+                    <div>
+                        <div class="carry-lbl" style="text-align: right;">Distance to Promote</div>
+                        <div class="progress-rail"><div class="progress-fill" style="width: 45%; background: var(--accent);"></div></div>
+                    </div>
+                    <div style="text-align: right; font-family: 'JetBrains Mono'; font-weight: 800; color: #94a3b8;">$0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="background: var(--primary); color: white; border: none;">
+            <h3>Institutional Wealth Calculation</h3>
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 10px; line-height: 1.6;">
+                Based on current "Base Case" exit assumptions across 3 active assets, your projected net liquidation value (Carry + LP Equity) at Year 5 is <strong>$23.4M</strong>.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+    </script>
+</body>
+</html>
