@@ -24,8 +24,29 @@ const SPTheme = (() => {
       
       /* Institutional Typography & Spacing */
       body { letter-spacing: -0.011em; font-feature-settings: "cv02", "cv03", "cv04", "ss01"; }
-      .card { transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease; }
-      .card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -8px rgba(0,0,0,0.1); }
+      /* Glassmorphism & High-Fidelity Layers */
+      .card, .kpi-card { 
+        backdrop-filter: blur(8px); 
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+      }
+      
+      /* Active Navigation Polish */
+      .nav-item.active {
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        background: linear-gradient(135deg, var(--accent), #2563eb) !important;
+      }
+
+      /* Unified Form Focus States */
+      input:focus, select:focus, textarea:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1) !important;
+        outline: none !important;
+      }
+
+      /* Consistent Layout Spacing */
+      .content { padding: 40px !important; }
+      @media (max-width: 768px) { .content { padding: 20px !important; } }
       
       /* Scrollbar Hardening */
       ::-webkit-scrollbar { width: 8px; height: 8px; }
