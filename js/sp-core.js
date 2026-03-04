@@ -697,7 +697,7 @@ const SP = (function () {
 (function loadModules() {
     if (typeof document === 'undefined') return;
     document.addEventListener('DOMContentLoaded', function () {
-    // Load order: sp-math.js -> sp-ai.js -> sp-reit.js -> sp-audit.js -> sp-esign.js
+    // Load order: sp-math.js -> sp-ai.js -> sp-reit.js -> sp-chat.js -> sp-audit.js -> sp-esign.js
     const m = document.createElement('script');
     m.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-math.js';
     if (!m.src || m.src === 'sp-math.js') m.src = 'js/sp-math.js';
@@ -710,6 +710,11 @@ const SP = (function () {
       r.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-reit.js';
       if (!r.src || r.src === 'sp-reit.js') r.src = 'js/sp-reit.js';
       document.head.appendChild(r);
+
+      const c = document.createElement('script');
+      c.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-chat.js';
+      if (!c.src || c.src === 'sp-chat.js') c.src = 'js/sp-chat.js';
+      document.head.appendChild(c);
       
       document.head.appendChild(a);
     };
@@ -919,6 +924,7 @@ const SP = (function () {
         { href: 'reports.html', icon: 'fa-chart-bar', label: 'Reports' },
         { section: 'Tools' },
         { href: 'proforma.html', icon: 'fa-table', label: 'Pro Forma' },
+        { href: 'market-comps.html', icon: 'fa-city', label: 'Market Comps' },
         { href: 'waterfall-explainer.html', icon: 'fa-water', label: 'Waterfall Explainer' },
         { href: 'distributions.html', icon: 'fa-wallet', label: 'Distributions' },
         { href: 'capital-calls.html', icon: 'fa-hand-holding-usd', label: 'Capital Calls' },

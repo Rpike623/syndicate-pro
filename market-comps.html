@@ -1,201 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Market Comps - deeltrack</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="js/sp-core.js"></script>
-  <style>
-    :root { --bg: #0a0a0f; --bg-panel: #13131a; --bg-card: #1a1a24; --bg-hover: #252533; --accent: #8b5cf6; --accent-2: #06b6d4; --success: #22c55e; --warning: #f59e0b; --text: #f8fafc; --text-muted: #64748b; --border: rgba(255,255,255,0.06); --radius: 16px; }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
-    .app { display: flex; min-height: 100vh; }
-    .sidebar { width: 260px; background: var(--bg-panel); border-right: 1px solid var(--border); position: fixed; height: 100vh; }
-    .sidebar-header { padding: 24px; border-bottom: 1px solid var(--border); }
-    .logo { display: flex; align-items: center; gap: 12px; }
-    .logo-mark { width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-radius: 10px; }
-    .nav { padding: 16px 12px; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 10px; font-size: 14px; margin: 2px 0; }
-    .nav-item.active { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(6,182,212,0.1)); color: var(--text); border: 1px solid rgba(139,92,246,0.3); }
-    .main { flex: 1; margin-left: 260px; }
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--bg-panel); }
-    .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
-    .content { padding: 32px; }
-    .filters { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-    .filter-select { padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 14px; }
-    .comps-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    .comps-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 120px; padding: 16px 24px; border-bottom: 1px solid var(--border); font-size: 12px; text-transform: uppercase; color: var(--text-muted); }
-    .comp-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 120px; padding: 20px 24px; border-bottom: 1px solid var(--border); align-items: center; }
-    .comp-row:hover { background: var(--bg-hover); }
-    .comp-row.target { border-left: 3px solid var(--accent); background: rgba(139,92,246,0.05); }
-    .comp-info h4 { font-weight: 600; margin-bottom: 4px; }
-    .comp-info p { font-size: 13px; color: var(--text-muted); }
-    .comp-metric { font-family: 'Space Grotesk'; font-weight: 600; }
-    .comp-metric.positive { color: var(--success); }
-    .comp-metric.negative { color: var(--danger); }
-    .comp-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; text-transform: uppercase; }
-    .comp-badge.sold { background: rgba(34,197,94,0.15); color: var(--success); }
-    .comp-badge.active { background: rgba(6,182,212,0.15); color: var(--accent-2); }
-    .comp-badge.target { background: rgba(139,92,246,0.15); color: var(--accent); }
-    @media (max-width: 1200px) { .sidebar { display: none; } .main { margin-left: 0; } .comps-header, .comp-row { grid-template-columns: 2fr 1fr 1fr 120px; } .comps-header > :nth-child(3), .comps-header > :nth-child(4), .comps-header > :nth-child(5), .comp-row > :nth-child(3), .comp-row > :nth-child(4), .comp-row > :nth-child(5) { display: none; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investable Market Comps - deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/sp-core.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 16px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .comp-card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.2s; margin-bottom: 16px; }
+        .comp-card:hover { transform: scale(1.01); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .comp-img { width: 120px; height: 80px; background: #f1f5f9; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #cbd5e1; }
+        .comp-info { flex: 1; }
+        .comp-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 4px; }
+        .comp-metrics { display: flex; gap: 16px; font-size: 0.85rem; color: #64748b; }
+        .comp-val { color: var(--accent); font-weight: 700; }
+    </style>
 </head>
 <body>
-  <div class="app"><aside class="sidebar" id="sidebar"></aside>
-    <aside id="sidebar" class="sidebar">
-      <div class="sidebar-header">
-    <nav class="nav"></nav>
-        <div class="logo">
-          <div class="logo-mark"><i class="fas fa-building"></i></div>
-          <span>deeltrack</span>
-        </div>
-      </div>
-    </aside>
-    
+    <aside class="sidebar" id="sidebar"></aside>
     <main class="main">
-      <header class="header">
-        <div>
-          <h1 style="font-size:1.4rem">Market Comps</h1>
-          <p style="font-size:14px;color:var(--text-muted)">Compare deals in your target market</p>
+        <h1 style="font-family: 'Space Grotesk'; font-size: 2rem; margin-bottom: 12px;">Market Comp Library</h1>
+        <p style="color: #64748b; margin-bottom: 32px;">Validate your underwriting entries against recently traded assets.</p>
+
+        <div id="compsList">
+            <!-- Seed Comps -->
+            <div class="comp-card">
+                <div class="comp-img"><i class="fas fa-building"></i></div>
+                <div class="comp-info">
+                    <div class="comp-name">The Standard at Fort Worth</div>
+                    <div class="comp-metrics">
+                        <span>Sale: <strong class="comp-val">$32.4M</strong></span>
+                        <span>Price/Unit: <strong class="comp-val">$215K</strong></span>
+                        <span>Cap Rate: <strong class="comp-val">5.2%</strong></span>
+                    </div>
+                </div>
+                <button class="btn-xs">View Photos</button>
+            </div>
+            
+            <div class="comp-card">
+                <div class="comp-img"><i class="fas fa-building"></i></div>
+                <div class="comp-info">
+                    <div class="comp-name">Willow Creek Garden Apts</div>
+                    <div class="comp-metrics">
+                        <span>Sale: <strong class="comp-val">$18.1M</strong></span>
+                        <span>Price/Unit: <strong class="comp-val">$142K</strong></span>
+                        <span>Cap Rate: <strong class="comp-val">6.1%</strong></span>
+                    </div>
+                </div>
+                <button class="btn-xs">View Photos</button>
+            </div>
         </div>
-        <button class="btn"><i class="fas fa-plus"></i> Add Comp</button>
-      </header>
-      
-      <div class="content">
-        <div class="filters">
-          <select class="filter-select">
-            <option>All Markets</option>
-            <option>Dallas, TX</option>
-            <option>Houston, TX</option>
-            <option>Austin, TX</option>
-          </select>
-          <select class="filter-select">
-            <option>All Property Types</option>
-            <option>Multifamily</option>
-            <option>Retail</option>
-            <option>Office</option>
-          </select>
-          <select class="filter-select">
-            <option>Last 12 Months</option>
-            <option>Last 6 Months</option>
-            <option>Last 3 Months</option>
-          </select>
-        </div>
-        
-        <div class="comps-table">
-          <div class="comps-header">
-            <span>Property</span>
-            <span>Price</span>
-            <span>Price/Unit</span>
-            <span>CAP Rate</span>
-            <span>Rent/SF</span>
-            <span>Status</span>
-            <span>Actions</span>
-          </div>
-          
-          <div class="comp-row target">
-            <div class="comp-info">
-              <h4>Arlington Heights (Target)</h4>
-              <p>Dallas, TX • 84 units • 2024</p>
-            </div>
-            <div class="comp-metric">$3.2M</div>
-            <div class="comp-metric positive">$38,095</div>
-            <div class="comp-metric positive">7.2%</div>
-            <div>$1.45</div>
-            <span class="comp-badge target">Under Contract</span>
-            <button class="btn" style="padding:6px 12px;font-size:12px">Analyze</button>
-          </div>
-          
-          <div class="comp-row">
-            <div class="comp-info">
-              <h4>Midtown Commons</h4>
-              <p>Dallas, TX • 96 units • 2024</p>
-            </div>
-            <div class="comp-metric">$4.8M</div>
-            <div class="comp-metric negative">$50,000</div>
-            <div class="comp-metric">6.8%</div>
-            <div>$1.52</div>
-            <span class="comp-badge sold">Sold</span>
-            <button class="btn" style="padding:6px 12px;font-size:12px">View</button>
-          </div>
-          
-          <div class="comp-row">
-            <div class="comp-info">
-              <h4>Oak Ridge Apartments</h4>
-              <p>Plano, TX • 72 units • 2024</p>
-            </div>
-            <div class="comp-metric">$3.6M</div>
-            <div class="comp-metric negative">$50,000</div>
-            <div class="comp-metric">6.5%</div>
-            <div>$1.48</div>
-            <span class="comp-badge sold
-    </div>
-  </div>
-  <script src="js/sp-core.js"></script>
-  <script>
-    SP.requireGP();
-
-    const DEMO_COMPS = [
-      {id:'c1',address:'1234 Oak St, Austin, TX',type:'Multifamily',units:48,price:5200000,pricePerUnit:108333,capRate:5.2,noi:270400,sqft:38400,status:'sold',date:'2025-11-01',notes:'Value-add play, C+ location'},
-      {id:'c2',address:'5678 Elm Ave, Dallas, TX',type:'Multifamily',units:72,price:8100000,pricePerUnit:112500,capRate:5.8,noi:469800,sqft:62000,status:'sold',date:'2025-09-15',notes:'Similar vintage, stabilized'},
-      {id:'c3',address:'910 Pine Rd, Houston, TX',type:'Multifamily',units:96,price:10500000,pricePerUnit:109375,capRate:5.5,noi:577500,sqft:84000,status:'listed',date:'2026-01-10',notes:'Currently listed, competing'},
-    ];
-
-    let comps = JSON.parse(SP.load('marketComps','null') || JSON.stringify(DEMO_COMPS));
-
-    function fmtC(n){if(!n)return'—';if(n>=1e6)return'$'+(n/1e6).toFixed(2)+'M';if(n>=1e3)return'$'+(n/1e3).toFixed(0)+'K';return'$'+n;}
-
-    function renderComps() {
-      const avgPPU = comps.length ? Math.round(comps.reduce((s,c)=>s+(c.pricePerUnit||0),0)/comps.length) : 0;
-      const avgCap = comps.length ? (comps.reduce((s,c)=>s+(c.capRate||0),0)/comps.length).toFixed(2) : 0;
-      const sold = comps.filter(c=>c.status==='sold');
-
-      // Update grid if exists
-      const grid = document.querySelector('.comps-grid, .comp-table');
-      if (grid) {
-        grid.innerHTML = comps.map(c => `
-          <div style="background:white;border:1px solid #e2e8f0;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:8px;">
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-              <div style="font-weight:700;font-size:.95rem;">${c.address}</div>
-              <span style="background:${c.status==='sold'?'#d1fae5':'#dbeafe'};color:${c.status==='sold'?'#065f46':'#1e40af'};padding:2px 10px;border-radius:12px;font-size:.72rem;font-weight:600;">${c.status}</span>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px;">
-              <div style="background:#f8fafc;padding:10px;border-radius:6px;text-align:center;"><div style="font-size:.65rem;color:#64748b;text-transform:uppercase;font-weight:700;">Price/Unit</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;">${fmtC(c.pricePerUnit)}</div></div>
-              <div style="background:#f8fafc;padding:10px;border-radius:6px;text-align:center;"><div style="font-size:.65rem;color:#64748b;text-transform:uppercase;font-weight:700;">Cap Rate</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;">${c.capRate}%</div></div>
-              <div style="background:#f8fafc;padding:10px;border-radius:6px;text-align:center;"><div style="font-size:.65rem;color:#64748b;text-transform:uppercase;font-weight:700;">Units</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.9rem;">${c.units}</div></div>
-            </div>
-            <div style="font-size:.78rem;color:#94a3b8;">${c.notes||''}</div>
-          </div>`).join('');
-      }
-
-      // Update summary stats
-      ['avgPPU','avgCap','compCount'].forEach(id=>{
-        const el=document.getElementById(id);
-        if(!el) return;
-        if(id==='avgPPU') el.textContent=fmtC(avgPPU);
-        if(id==='avgCap') el.textContent=avgCap+'%';
-        if(id==='compCount') el.textContent=comps.length;
-      });
-    }
-
-    function addComp() {
-      const addr = prompt('Property address:'); if(!addr) return;
-      const units = parseInt(prompt('Number of units:'))||0;
-      const price = parseFloat(prompt('Sale/list price ($):'))||0;
-      const capRate = parseFloat(prompt('Cap rate (%):'))||0;
-      const comp = { id:'c'+Date.now(), address:addr, type:'Multifamily', units, price, pricePerUnit:units?Math.round(price/units):0, capRate, noi:price*capRate/100, sqft:0, status:'sold', date:new Date().toISOString().split('T')[0], notes:'' };
-      comps.push(comp); SP.save('marketComps', comps); renderComps();
-    }
-
-    // Wire "Add Comp" button
-    document.querySelectorAll('button').forEach(btn => {
-      if(btn.textContent.toLowerCase().includes('add')) btn.onclick = addComp;
-    });
-
-    renderComps();
-  </script>
+    </main>
 </body>
 </html>
