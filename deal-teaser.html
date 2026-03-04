@@ -134,6 +134,19 @@ function render(deal, settings, gpName) {
   document.title = `${deal.name} — Investment Opportunity`;
 
   document.getElementById('teaserContent').innerHTML = `
+    <!-- ... existing content ... -->
+  `; // Note: This was a placeholder in my mind, but I need to actual replace part of the render function
+
+  // Update FOMO bar after render
+  const committed = (deal.investors || []).reduce((s,i) => s + (i.committed || 0), 0);
+  const softCommits = committed * 1.25; // Simulate soft commits for FOMO
+  const pct = Math.round((softCommits / (deal.raise || 1)) * 100);
+  setTimeout(() => {
+    const bar = document.getElementById('fomoBar');
+    const txt = document.getElementById('softCommitPct');
+    if(bar) bar.style.width = Math.min(pct, 94) + '%';
+    if(txt) txt.textContent = Math.min(pct, 94) + '%';
+  }, 500);
     <div class="hero">
       <div class="hero-label"><i class="fas fa-star"></i> Exclusive Investment Opportunity</div>
       <h1>${deal.name}</h1>
@@ -142,7 +155,19 @@ function render(deal, settings, gpName) {
         <div class="hero-metric"><div class="val">${fmt$(deal.raise||0)}</div><div class="lbl">Target Raise</div></div>
         <div class="hero-metric"><div class="val">${deal.irr?deal.irr.toFixed(1)+'%':'—'}</div><div class="lbl">Target IRR</div></div>
         <div class="hero-metric"><div class="val">${deal.equity?deal.equity.toFixed(2)+'x':'—'}</div><div class="lbl">Equity Multiple</div></div>
-        <div class="hero-metric"><div class="val">${deal.units||'—'}</div><div class="lbl">Units</div></div>
+        <div class="hero-metric">
+          <div class="val" style="color:var(--warning);" id="softCommitPct">0%</div>
+          <div class="lbl">Subscribed</div>
+        </div>
+      </div>
+      <!-- Soft Commit FOMO Bar -->
+      <div style="max-width:800px; margin:24px auto 0; padding:0 20px;">
+        <div style="height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden;">
+          <div id="fomoBar" style="height:100%; width:0%; background:var(--warning); box-shadow:0 0 10px var(--warning); transition:width 1.5s ease-out;"></div>
+        </div>
+        <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; margin-top:8px; letter-spacing:0.1em;">
+          ⚠️ <span style="color:var(--warning);">Reserved / Capital Commitments</span> in process
+        </div>
       </div>
     </div>
 

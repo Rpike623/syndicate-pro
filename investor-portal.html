@@ -479,6 +479,15 @@
   <div class="hero">
     <h1 id="heroGreeting">Good morning</h1>
     <p id="heroSub">Here's your investment portfolio at a glance.</p>
+    
+    <!-- NEXT DEAL REINVESTMENT TARGET -->
+    <div id="reinvestBanner" style="display:none; margin-top:20px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:12px; padding:16px 20px; text-align:left; animation: text-pulse 3s infinite;">
+        <div style="font-size:0.75rem; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">Exclusive Pre-Access</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+            <div style="font-size:0.9rem; color:rgba(255,255,255,0.9);">Interested in reinvesting your pending distribution into <strong>Pecan Hollow Apartments</strong> (Fort Worth)? <strong>19.4% Build Target.</strong></div>
+            <a href="deal-teaser.html?deal=live_d1" style="background:white; color:var(--accent); padding:8px 16px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.8rem; white-space:nowrap;">View Opportunity</a>
+        </div>
+    </div>
     <div class="hero-stats">
       <div>
         <div class="hero-stat-label">Total Invested</div>
@@ -1068,6 +1077,12 @@
     // Render everything
     personalize();
     renderOverview();
+    
+    // FOMO: Show reinvestment banner if they have a decent total invested
+    if (investorRecord.totalInvested > 50000) {
+        document.getElementById('reinvestBanner').style.display = 'block';
+    }
+
     renderInvestments();
     renderDistributions();
     renderCapitalCalls();

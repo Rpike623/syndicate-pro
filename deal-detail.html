@@ -181,7 +181,19 @@
     </header>
 
     <div class="content" id="mainContent">
-      <!-- Populated by JS -->
+      <!-- Injected by JS -->
+    </div>
+    
+    <!-- AI ASSISTANT PITCH CONTAINER -->
+    <div id="aiAssistant" style="position:fixed; bottom:80px; right:32px; width:400px; background:#0f172a; border:1px solid #3b82f6; border-radius:12px; padding:20px; box-shadow:var(--shadow-lg); display:none; z-index:100;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-weight:700; color:white; display:flex; align-items:center; gap:8px; font-size:0.9rem;">
+                <i class="fas fa-robot" style="color:#3b82f6;"></i> AI Pitch Generator
+            </div>
+            <button class="btn-xs" onclick="document.getElementById('aiAssistant').style.display='none'">✕</button>
+        </div>
+        <pre id="pitchScript" style="background:rgba(0,0,0,0.3); padding:12px; border-radius:8px; color:#93c5fd; font-family:'JetBrains Mono'; font-size:0.75rem; white-space:pre-wrap; max-height:300px; overflow-y:auto;"></pre>
+        <button class="btn btn-primary" style="width:100%; margin-top:12px; font-size:0.8rem;" onclick="copyPitch()"><i class="fas fa-copy"></i> Copy Script</button>
     </div>
   </main>
 </div>
@@ -259,6 +271,7 @@ function render() {
     <button class="btn btn-secondary" onclick="duplicateDeal('${deal.id}')" title="Duplicate Deal"><i class="fas fa-copy"></i> Duplicate</button>
     <button class="btn btn-secondary" onclick="shareTeaserLink('${deal.id}')" title="Share public teaser"><i class="fas fa-share-alt"></i> Share</button>
     <button class="btn btn-primary" onclick="openAddInvModal()"><i class="fas fa-user-plus"></i> Add Investor</button>
+    <button class="btn btn-secondary" onclick="generateAI()"><i class="fas fa-robot"></i> AI Pitch</button>
     <button class="btn btn-danger" onclick="confirmDelete()"><i class="fas fa-trash"></i></button>`;
 
   const linked = deal.investors || [];
@@ -908,7 +921,19 @@ function markFormDFiled(dealId) {
   render();
 }
 
-function duplicateDeal(id) {
+async function generateAI() {
+  const aiBox = document.getElementById('aiAssistant');
+  aiBox.style.display = 'block';
+  aiBox.scrollIntoView({ behavior: 'smooth' });
+  const script = await SPAI.generatePitchSystem(dealId);
+  document.getElementById('pitchScript').textContent = script;
+}
+
+function copyPitch() {
+  const text = document.getElementById('pitchScript').textContent;
+  navigator.clipboard.writeText(text);
+  showToast('Pitch copied to clipboard!', 'success');
+}
   const allDeals = SP.getDeals();
   const d = allDeals.find(x=>x.id===id);
   if(!d) return;
