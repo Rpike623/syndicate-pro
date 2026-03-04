@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GP Performance Benchmarking — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <script src="js/sp-math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .metric-hero { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+        .metric-val { font-size: 2.5rem; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary); }
+        .metric-delta { font-size: 0.9rem; font-weight: 600; color: var(--success); }
+        .metric-label { font-size: 0.8rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.05em; }
+
+        .benchmark-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .benchmark-row:last-child { border-bottom: none; }
+        .bm-label { font-size: 0.9rem; font-weight: 500; }
+        .bm-val { font-family: 'JetBrains Mono'; font-weight: 600; font-size: 0.85rem; }
+        .percentile-tag { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: #dcfce7; color: #16a34a; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div style="margin-bottom: 32px;">
+            <h1 style="font-size: 1.6rem; font-weight: 800;">GP Performance Benchmarks</h1>
+            <p style="color: #64748b;">Internal performance metrics compared to regional market averages</p>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-line" style="color: var(--accent);"></i> Realized Portfolio IRR</div>
+                <div class="metric-hero">
+                    <div class="metric-val" id="totalIRR">18.4%</div>
+                    <div class="metric-delta"><i class="fas fa-caret-up"></i> 2.1% top quintile</div>
+                </div>
+                <div class="metric-label">Weighted Average across exits</div>
+                <div style="height: 200px; margin-top: 20px;"><canvas id="irrChart"></canvas></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fas fa-users-viewfinder" style="color: var(--success);"></i> LP Retention Rate</div>
+                <div class="metric-hero">
+                    <div class="metric-val">92%</div>
+                    <div class="metric-delta"><i class="fas fa-caret-up"></i> +15% vs industry</div>
+                </div>
+                <div class="metric-label">Repeat LP investment velocity</div>
+                
+                <div style="margin-top: 24px;">
+                    <div class="benchmark-row">
+                        <span class="bm-label">Avg. Reinvestment Time</span>
+                        <span class="bm-val">4.2 Months</span>
+                    </div>
+                    <div class="benchmark-row">
+                        <span class="bm-label">Capital Retention (Year 2)</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="bm-val">88%</span>
+                            <span class="percentile-tag">Top 5%</span>
+                        </div>
+                    </div>
+                    <div class="benchmark-row">
+                        <span class="bm-label">Member NPS Score</span>
+                        <span class="bm-val">74 (Excellent)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><i class="fas fa-balance-scale" style="color: var(--accent);"></i> Efficiency Ratios</div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                <div style="padding: 16px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div class="metric-label" style="font-size: 0.65rem;">Capex Yield On Cost</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; margin-top: 4px;">14.2%</div>
+                </div>
+                <div style="padding: 16px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div class="metric-label" style="font-size: 0.65rem;">Investor Acquisition Cost</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; margin-top: 4px;">$1,420</div>
+                </div>
+                <div style="padding: 16px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div class="metric-label" style="font-size: 0.65rem;">Days to Fundraise (Avg)</div>
+                    <div style="font-size: 1.25rem; font-weight: 700; margin-top: 4px;">18 Days</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function init() {
+            const ctx = document.getElementById('irrChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Pecan Hollow', 'Riverside', 'Hudson', 'Meridian'],
+                    datasets: [{
+                        label: 'Realized IRR %',
+                        data: [19.4, 18.2, 16.8, 21.2],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }, {
+                        label: 'Market Average',
+                        data: [14.0, 14.0, 14.0, 14.0],
+                        type: 'line',
+                        borderColor: 'rgba(0,0,0,0.1)',
+                        borderDash: [5, 5],
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { display: false } } }
+                }
+            });
+        }
+
+        window.addEventListener('spdata-ready', init);
+        if(typeof SPData !== 'undefined' && SPData.isReady()) init();
+    </script>
+</body>
+</html>
