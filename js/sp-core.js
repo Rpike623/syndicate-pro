@@ -952,6 +952,7 @@ const SP = (function () {
         { href: 'documents.html', icon: 'fa-file-contract', label: 'Documents' },
         { href: 'investor-statements.html', icon: 'fa-file-invoice', label: 'Investor Statements' },
         { href: 'capital-account.html', icon: 'fa-list-ol', label: 'Capital Accounts' },
+        { href: 'compliance-hud.html', icon: 'fa-shield-halved', label: 'Compliance HUD' },
         { href: 'reports.html', icon: 'fa-chart-bar', label: 'Reports' },
         { section: 'Tools' },
         { href: 'proforma.html', icon: 'fa-table', label: 'Pro Forma' },
