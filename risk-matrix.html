@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Risk Matrix — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .matrix { display: grid; grid-template-columns: 120px repeat(3, 1fr); gap: 12px; margin-top: 32px; }
+        .matrix-header { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; text-align: center; padding: 12px; }
+        .matrix-side { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; display: flex; align-items: center; justify-content: flex-end; padding-right: 16px; }
+        
+        .matrix-cell { height: 140px; background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; overflow-y: auto; }
+        .matrix-cell.high-risk { background: #fee2e2; border-color: #fca5a5; }
+        .matrix-cell.med-risk { background: #ffedd5; border-color: #fdba74; }
+        .matrix-cell.low-risk { background: #dcfce7; border-color: #86efac; }
+        
+        .deal-tag { font-size: 0.72rem; background: rgba(255,255,255,0.8); border: 1px solid rgba(0,0,0,0.05); padding: 4px 8px; border-radius: 4px; margin-bottom: 6px; display: block; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        
+        .risk-lbl { font-size: 0.65rem; font-weight: 700; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div style="margin-bottom: 32px;">
+            <h1 style="font-size: 1.6rem; font-weight: 800;">Portfolio Risk Matrix</h1>
+            <p style="color: #64748b;">Visualizing deal concentration across Leverage and Market volatility</p>
+        </div>
+
+        <div class="card" style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 32px;">
+            <div class="matrix">
+                <!-- Headers -->
+                <div></div>
+                <div class="matrix-header">Stabilized</div>
+                <div class="matrix-header">Value-Add</div>
+                <div class="matrix-header">Opportunistic</div>
+
+                <!-- Row 1: Low LTV -->
+                <div class="matrix-side">Low LTV (<65%)</div>
+                <div class="matrix-cell low-risk"><span class="risk-lbl">Tier 1 // Core</span><div class="deal-tag">The Hudson Portfolio</div></div>
+                <div class="matrix-cell low-risk"><span class="risk-lbl">Tier 2 // Growth</span><div class="deal-tag">Meridian Industrial</div></div>
+                <div class="matrix-cell med-risk"><span class="risk-lbl">Tier 3 // Strategic</span></div>
+
+                <!-- Row 2: Mid LTV -->
+                <div class="matrix-side">Mid LTV (65-75%)</div>
+                <div class="matrix-cell low-risk"><span class="risk-lbl">Tier 2 // Stable</span></div>
+                <div class="matrix-cell med-risk"><span class="risk-lbl">Tier 3 // Targeted</span><div class="deal-tag">Riverside Flats</div></div>
+                <div class="matrix-cell high-risk"><span class="risk-lbl">Tier 4 // Aggressive</span><div class="deal-tag">Pecan Hollow</div></div>
+
+                <!-- Row 3: High LTV -->
+                <div class="matrix-side">High LTV (>75%)</div>
+                <div class="matrix-cell med-risk"><span class="risk-lbl">Tier 3 // Leverage</span></div>
+                <div class="matrix-cell high-risk"><span class="risk-lbl">Tier 4 // High Yield</span></div>
+                <div class="matrix-cell high-risk"><span class="risk-lbl">Tier 5 // Distressed</span></div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div>
+                <h3 style="font-size: 1rem; margin-bottom: 12px;">Concentration Analysis</h3>
+                <p style="font-size: 0.85rem; color: #64748b; line-height: 1.6;">
+                    Your portfolio currently has a <strong>25% concentration</strong> in high-leverage value-add assets (Pecan Hollow). We recommend targeting core-plus acquisitions for the next two quarters to rebalance the risk profile.
+                </p>
+            </div>
+            <div style="background: #f8fafc; border-radius: 8px; padding: 16px; border: 1px solid #e2e8f0;">
+                <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">Weighted Avg Portfolio LTV</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">68.4%</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+    </script>
+</body>
+</html>

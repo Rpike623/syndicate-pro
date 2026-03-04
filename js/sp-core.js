@@ -949,6 +949,7 @@ const SP = (function () {
         { href: 'reit-rollup.html', icon: 'fa-layer-group', label: 'Fund/REIT Rollup' },
         { href: 'gp-benchmarks.html', icon: 'fa-gauge-high', label: 'GP Benchmarks' },
         { href: 'scenario-planner.html', icon: 'fa-project-diagram', label: 'Scenario Planner' },
+        { href: 'risk-matrix.html', icon: 'fa-table-cells', label: 'Risk Matrix' },
         { href: 'new-deal.html', icon: 'fa-plus', label: 'Underwriting' },
         { section: 'ADMIN' },
         { href: 'dashboard.html', icon: 'fa-th-large', label: 'Main' },
