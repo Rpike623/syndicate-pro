@@ -684,6 +684,9 @@ const SP = (function () {
   });
 })();
 
+(function loadModules() {
+    if (typeof document === 'undefined') return;
+    document.addEventListener('DOMContentLoaded', function () {
     // Load order: sp-math.js -> sp-audit.js -> sp-esign.js
     const m = document.createElement('script');
     m.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-math.js';
