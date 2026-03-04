@@ -252,41 +252,44 @@
       </div>
 
       <div id="portfolioListView">
-        <!-- KPI Cards -->
+        <!-- KPI Grid: Key Operational Metrics (v2.0) -->
         <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-icon blue"><i class="fas fa-building"></i></div>
-          <div class="kpi-body">
-            <div class="kpi-label">Total AUM</div>
-            <div class="kpi-value" id="kpiAUM">$0</div>
-            <div class="kpi-change up" id="kpiAUMChange"><i class="fas fa-arrow-up"></i> —</div>
+          <div class="kpi-card">
+            <div class="kpi-icon blue"><i class="fas fa-building"></i></div>
+            <div class="kpi-body">
+              <div class="kpi-label">AUM</div>
+              <div class="kpi-value" id="kpiAUM">$0</div>
+              <div class="kpi-change up" id="kpiAUMChange"><i class="fas fa-chart-line"></i> —</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon green"><i class="fas fa-stream"></i></div>
+            <div class="kpi-body">
+              <div class="kpi-label">Active Portfolio</div>
+              <div class="kpi-value" id="kpiDeals">0</div>
+              <div class="kpi-change neutral" id="kpiDealsChange"><i class="fas fa-minus"></i> —</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon purple"><i class="fas fa-hand-holding-usd"></i></div>
+            <div class="kpi-body">
+              <div class="kpi-label">YTD Distributions</div>
+              <div class="kpi-value" id="kpiDist">$0</div>
+              <div class="kpi-change up" id="kpiDistChange"><i class="fas fa-arrow-up"></i> —</div>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon amber" id="kpiDebtIcon"><i class="fas fa-landmark"></i></div>
+            <div class="kpi-body">
+              <div class="kpi-label">Debt Maturity (365d)</div>
+              <div class="kpi-value" id="kpiDebt">0</div>
+              <div class="kpi-change neutral" id="kpiDebtChange"><i class="fas fa-bell"></i> —</div>
+            </div>
           </div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-icon green"><i class="fas fa-stream"></i></div>
-          <div class="kpi-body">
-            <div class="kpi-label">Active Deals</div>
-            <div class="kpi-value" id="kpiDeals">0</div>
-            <div class="kpi-change neutral" id="kpiDealsChange"><i class="fas fa-minus"></i> —</div>
-          </div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon amber"><i class="fas fa-users"></i></div>
-          <div class="kpi-body">
-            <div class="kpi-label">Total Investors</div>
-            <div class="kpi-value" id="kpiInvestors">0</div>
-            <div class="kpi-change up" id="kpiInvestorsChange"><i class="fas fa-arrow-up"></i> —</div>
-          </div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-icon purple"><i class="fas fa-hand-holding-usd"></i></div>
-          <div class="kpi-body">
-            <div class="kpi-label">Distributions YTD</div>
-            <div class="kpi-value" id="kpiDist">$0</div>
-            <div class="kpi-change up" id="kpiDistChange"><i class="fas fa-arrow-up"></i> —</div>
-          </div>
-        </div>
-      </div>
+
+        <!-- System Alerts / Health -->
+        <div id="healthAlerts" style="margin-bottom: 28px;"></div>
 
       </div> <!-- end portfolioListView -->
 
@@ -887,19 +890,90 @@ function loadActivity() {
 // ── Render KPIs ─────────────────────────────────────────────────
 function renderKPIs(deals, investors, distYTD) {
   const aum = deals.reduce((s, d) => s + (d.raise || 0), 0);
-  const activeDeals = deals.filter(d => ['sourcing','loi','dd','operating'].includes(d.status)).length;
+  const activeDeals = deals.filter(d => ['sourcing','loi','dd','operating','raising'].includes(d.status)).length;
   const totalCommitted = deals.reduce((s,d)=>(d.investors||[]).reduce((ss,i)=>ss+(i.committed||0),ss),0);
   const raisePct = aum > 0 ? Math.round(totalCommitted/aum*100) : 0;
+  
+  // v2.0 Debt Calculation
+  const loans = SP.load('loans', []); // Use the debt-tracker key
+  const today = new Date();
+  const nextYear = new Date(today.getTime() + (365 * 24 * 60 * 60 * 1000));
+  const maturingSoon = loans.filter(l => {
+    const d = new Date(l.maturityDate);
+    return d > today && d < nextYear;
+  });
+
   document.getElementById('kpiAUM').textContent = fmt$(aum);
   document.getElementById('kpiAUMChange').innerHTML = `<i class="fas fa-chart-line"></i> ${fmt$(totalCommitted)} raised (${raisePct}%)`;
   document.getElementById('kpiDeals').textContent = activeDeals;
   document.getElementById('kpiDealsChange').innerHTML = '<i class="fas fa-minus"></i> ' + deals.filter(d=>d.status==='closed').length + ' closed';
-  document.getElementById('kpiDealsChange').className = 'kpi-change neutral';
-  document.getElementById('kpiInvestors').textContent = investors.length;
-  const accPct = Math.round(investors.filter(i=>i.accredStatus==='verified'||i.accredited===true).length / Math.max(investors.length,1) * 100);
-  document.getElementById('kpiInvestorsChange').innerHTML = '<i class="fas fa-arrow-up"></i> ' + accPct + '% accredited';
   document.getElementById('kpiDist').textContent = fmt$(distYTD);
   document.getElementById('kpiDistChange').innerHTML = '<i class="fas fa-arrow-up"></i> YTD 2026';
+
+  // Render Debt KPI
+  const debtEl = document.getElementById('kpiDebt');
+  if (debtEl) {
+    debtEl.textContent = maturingSoon.length;
+    const changeEl = document.getElementById('kpiDebtChange');
+    if (maturingSoon.length > 0) {
+      changeEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Action required`;
+      changeEl.className = 'kpi-change down';
+      document.getElementById('kpiDebtIcon').className = 'kpi-icon amber';
+    } else {
+      changeEl.innerHTML = `<i class="fas fa-check-circle"></i> Clean timeline`;
+      changeEl.className = 'kpi-change up';
+    }
+  }
+
+  // System Health Alerts
+  renderHealthAlerts(deals, maturingSoon);
+}
+
+function renderHealthAlerts(deals, maturingSoon) {
+  const alertsDiv = document.getElementById('healthAlerts');
+  if (!alertsDiv) return;
+  const alerts = [];
+
+  // Critical: Form D 
+  const today = new Date();
+  deals.forEach(d => {
+    if (d.investors?.length > 0 && !d.formDFiled) {
+      const firstSale = new Date((d.investors || []).sort((a,b) => new Date(a.linkedAt) - new Date(b.linkedAt))[0].linkedAt);
+      const daysSince = Math.floor((today - firstSale) / (86400000));
+      if (daysSince > 10) {
+        alerts.push({
+          type: 'danger', 
+          title: 'SEC Compliance: Form D Overdue',
+          msg: `${d.name} is ${daysSince} days past first capital receipt. Form D must be filed within 15 days.`
+        });
+      }
+    }
+  });
+
+  // Debt MATURITY
+  maturingSoon.forEach(l => {
+    alerts.push({
+      type: 'warning',
+      title: 'Debt Maturity Warning',
+      msg: `${l.lenderName || 'Loan'} for ${l.projectName || 'deal'} matures on ${l.maturityDate}.`
+    });
+  });
+
+  if (alerts.length === 0) {
+    alertsDiv.innerHTML = '';
+    return;
+  }
+
+  alertsDiv.innerHTML = alerts.map(a => `
+    <div style="background:${a.type === 'danger' ? 'var(--danger-light)' : 'var(--warning-light)'}; border:1px solid ${a.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}; border-radius:12px; padding:16px 20px; margin-bottom:12px; display:flex; align-items:center; gap:16px;">
+      <i class="fas ${a.type === 'danger' ? 'fa-exclamation-circle' : 'fa-bell'}" style="color:${a.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}; font-size:1.2rem;"></i>
+      <div style="flex:1;">
+        <div style="font-weight:700; font-size:0.9rem; color:var(--text);">${a.title}</div>
+        <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">${a.msg}</div>
+      </div>
+      <button class="btn btn-xs" style="background:white; border-color:${a.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}; color:${a.type === 'danger' ? 'var(--danger)' : 'var(--warning)'};">Resolve</button>
+    </div>
+  `).join('');
 }
 
 // ── Donut Chart ─────────────────────────────────────────────────
@@ -1024,12 +1098,10 @@ function renderDeadlines() {
   checkOnboarding();
 
   // Show skeleton loading state on KPI values
-  ['kpiAUM','kpiDeals','kpiInvestors','kpiDist'].forEach(id => {
+  ['kpiAUM','kpiDeals','kpiDist','kpiDebt'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.style.opacity = '0.3'; el.textContent = '…'; }
   });
-
-  // Load data — if Firebase is ready pull fresh data first
 
   // SPData fires 'spdata-ready' when Firestore cache is warm — re-render with live data
   function _render() {
@@ -1037,7 +1109,7 @@ function renderDeadlines() {
     const investors = SP.getInvestors();
     const distYTD = loadDistributionsYTD();
     const activity = loadActivity();
-    ['kpiAUM','kpiDeals','kpiInvestors','kpiDist'].forEach(id => {
+    ['kpiAUM','kpiDeals','kpiDist','kpiDebt'].forEach(id => {
       const el = document.getElementById(id); if (el) el.style.opacity = '1';
     });
     renderKPIs(deals, investors, distYTD);
