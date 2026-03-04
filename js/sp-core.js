@@ -964,6 +964,7 @@ const SP = (function () {
         { href: 'inbox.html', icon: 'fa-inbox', label: 'Investor Inbox' },
         { href: 'deal-compare.html', icon: 'fa-balance-scale', label: 'Compare Deals' },
         { section: 'Account' },
+        { href: 'team.html', icon: 'fa-user-shield', label: 'Team Management' },
         { href: 'settings.html', icon: 'fa-cog', label: 'Settings' },
       ];
 
