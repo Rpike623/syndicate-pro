@@ -939,6 +939,7 @@ const SP = (function () {
         'proforma.html': 'proforma.html',
         'lenders.html': 'lenders.html',
         'portfolio-explorer.html': 'portfolio-explorer.html',
+        'scenario-planner.html': 'scenario-planner.html',
       };
       const activePage = activeMap[page] || page;
 
