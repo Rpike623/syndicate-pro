@@ -945,6 +945,7 @@ const SP = (function () {
         { href: 'lenders.html', icon: 'fa-landmark', label: 'CRM: Lenders' },
         { href: 'deals.html', icon: 'fa-building', label: 'Portfolio' },
         { href: 'portfolio-explorer.html', icon: 'fa-chart-pie', label: 'Portfolio Explorer' },
+        { href: 'dynamic-valuation.html', icon: 'fa-sync-alt', label: 'Dynamic Valuation' },
         { href: 'reit-rollup.html', icon: 'fa-layer-group', label: 'Fund/REIT Rollup' },
         { href: 'gp-benchmarks.html', icon: 'fa-gauge-high', label: 'GP Benchmarks' },
         { href: 'scenario-planner.html', icon: 'fa-project-diagram', label: 'Scenario Planner' },

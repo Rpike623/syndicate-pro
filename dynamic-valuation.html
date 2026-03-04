@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Asset Valuation — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <script src="js/sp-math.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        
+        .val-hero { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; }
+        .val-price { font-size: 2.2rem; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary); }
+        .val-delta { font-size: 0.9rem; font-weight: 700; color: var(--success); }
+
+        .slider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+        .slider-group { margin-bottom: 24px; }
+        .slider-group label { display: flex; justify-content: space-between; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 12px; }
+        .slider-group input { width: 100%; height: 6px; border-radius: 3px; background: #e2e8f0; appearance: none; outline: none; }
+        .slider-group input::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .viz-box { height: 280px; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 800;">Dynamic Asset Valuation</h1>
+                <p style="color: #64748b;">Mark-to-market modeling based on live NOI and market Cap Rates</p>
+            </div>
+            <select id="dealSelect" onchange="loadDeal()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; font-weight: 600;">
+                <option value="">— Select Asset —</option>
+            </select>
+        </div>
+
+        <div class="card">
+            <div class="val-hero">
+                <div class="val-price" id="vCurrentVal">$0.00</div>
+                <div class="val-delta" id="vEquityGain">+0.0% Equity Lift</div>
+            </div>
+
+            <div class="slider-grid">
+                <div class="left-sliders">
+                    <div class="slider-group">
+                        <label><span>Active TTM NOI</span> <span id="noiTxt">$1,200,000</span></label>
+                        <input type="range" id="noiRange" min="500000" max="3000000" step="10000" value="1200000" oninput="calculate()">
+                    </div>
+                    <div class="slider-group">
+                        <label><span>Market Cap Rate</span> <span id="capTxt">5.25%</span></label>
+                        <input type="range" id="capRange" min="3" max="10" step="0.05" value="5.25" oninput="calculate()">
+                    </div>
+                </div>
+                <div class="right-data">
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                        <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Implied Unit Price</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; margin-top: 4px;" id="vUnitPrice">$0</div>
+                        
+                        <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 20px;">Net Equity Position</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; margin-top: 4px; color: var(--success);" id="vNetEquity">$0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="viz-box"><canvas id="valuationChart"></canvas></div>
+        </div>
+    </main>
+
+    <script>
+        let vChart = null;
+        let activeDeal = null;
+
+        function init() {
+            const deals = SP.getDeals();
+            const sel = document.getElementById('dealSelect');
+            deals.forEach(d => sel.add(new Option(d.name, d.id)));
+            initChart();
+        }
+
+        function loadDeal() {
+            const id = document.getElementById('dealSelect').value;
+            activeDeal = SP.getDealById(id);
+            if(!activeDeal) return;
+
+            // Mock live baseline
+            const baseNOI = (activeDeal.purchasePrice || 10000000) * 0.055;
+            document.getElementById('noiRange').value = baseNOI;
+            document.getElementById('capRange').value = 5.5;
+            calculate();
+        }
+
+        function calculate() {
+            const noi = parseFloat(document.getElementById('noiRange').value);
+            const cap = parseFloat(document.getElementById('capRange').value) / 100;
+            const valuation = noi / cap;
+            
+            document.getElementById('noiTxt').textContent = '$' + noi.toLocaleString();
+            document.getElementById('capTxt').textContent = (cap * 100).toFixed(2) + '%';
+            document.getElementById('vCurrentVal').textContent = '$' + (valuation / 1e6).toFixed(2) + 'M';
+            
+            if(activeDeal) {
+                const loan = activeDeal.loanAmount || 0;
+                const netEquity = valuation - loan;
+                const originalEquity = (activeDeal.purchasePrice || valuation) - loan;
+                const lift = originalEquity > 0 ? ((netEquity / originalEquity) - 1) * 100 : 0;
+                
+                document.getElementById('vNetEquity').textContent = '$' + (netEquity / 1e6).toFixed(2) + 'M';
+                document.getElementById('vUnitPrice').textContent = '$' + Math.round(valuation / (activeDeal.units || 1)).toLocaleString();
+                document.getElementById('vEquityGain').textContent = (lift >= 0 ? '+' : '') + lift.toFixed(1) + '% Equity Lift';
+                document.getElementById('vEquityGain').style.color = lift >= 0 ? 'var(--success)' : 'var(--accent)';
+            }
+
+            updateChart(valuation);
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('valuationChart').getContext('2d');
+            vChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Purchase', 'Year 1', 'Year 2', 'Current Implied'],
+                    datasets: [{
+                        label: 'Asset Valuation',
+                        data: [10, 11, 11.5, 12],
+                        borderColor: '#3b82f6',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(59, 130, 246, 0.05)'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function updateChart(current) {
+            if(!vChart) return;
+            vChart.data.datasets[0].data[3] = current / 1e6;
+            if(activeDeal) vChart.data.datasets[0].data[0] = (activeDeal.purchasePrice || 0) / 1e6;
+            vChart.update();
+        }
+
+        window.addEventListener('spdata-ready', init);
+        if(typeof SPData !== 'undefined' && SPData.isReady()) init();
+    </script>
+</body>
+</html>
