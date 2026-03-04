@@ -218,7 +218,6 @@
 </head>
 <body>
 <div class="app"><aside class="sidebar" id="sidebar"></aside>
-  <aside class="sidebar" id="sidebar"></aside>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
   <main class="main">
@@ -763,7 +762,10 @@ function setGreeting() {
   const session = JSON.parse(localStorage.getItem('sp_session') || '{}');
   const name = session.name ? `, ${session.name.split(' ')[0]}` : '';
   document.getElementById('greetingLine').textContent = `${greet}${name} — here's your portfolio overview`;
-  if (session.name) document.getElementById('userName').textContent = session.name;
+  if (session.name) {
+    const el = document.getElementById('userName') || document.querySelector('.sidebar .user-name');
+    if (el) el.textContent = session.name;
+  }
 }
 
 // ── Format helpers ──────────────────────────────────────────────
