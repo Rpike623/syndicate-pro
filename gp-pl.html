@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GP Profit & Loss Center — deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/sp-core.js"></script>
+    <style>
+        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; position: relative; overflow: hidden; }
+        
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+        .stat-card { padding: 20px; border-radius: 10px; background: white; border: 1px solid #e2e8f0; }
+        .stat-lbl { font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-val { font-size: 1.5rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono'; margin-top: 4px; }
+        
+        .revenue-row { display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; align-items: center; }
+        .revenue-row:last-child { border-bottom: none; }
+        .rev-label { font-size: 0.85rem; font-weight: 600; }
+        .rev-amt { font-family: 'JetBrains Mono'; font-weight: 700; color: var(--success); }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div style="margin-bottom: 32px;">
+            <h1 style="font-size: 1.6rem; font-weight: 800;">GP Profit & Loss Statement</h1>
+            <p style="color: #64748b;">Internal tracking for Sponsor Fees, Carry Distributions, and Operating Overhead</p>
+        </div>
+
+        <div class="grid">
+            <div class="stat-card">
+                <div class="stat-lbl">Total Admin Fees</div>
+                <div class="stat-val">$245,600</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-lbl">Earned Promote / Carry</div>
+                <div class="stat-val" style="color: var(--accent);">$1.2M</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-lbl">Net Sponsor Cash Flow</div>
+                <div class="stat-val" style="color: var(--success);">$1.18M</div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+            <div class="card">
+                <h3 style="font-size: 1rem; margin-bottom: 20px;">Fee & Distribution Breakdown</h3>
+                <div class="revenue-row">
+                    <span class="rev-label">Asset Management Fee (Pecan Hollow)</span>
+                    <span class="rev-amt">+$12,500</span>
+                </div>
+                <div class="revenue-row">
+                    <span class="rev-label">Disposition Fee (Hudson Portfolio)</span>
+                    <span class="rev-amt">+$185,000</span>
+                </div>
+                <div class="revenue-row">
+                    <span class="rev-label">Acquisition Fee (Riverside Flats)</span>
+                    <span class="rev-amt">+$42,000</span>
+                </div>
+                <div class="revenue-row">
+                    <span class="rev-label">GP Promote (Meridian Exit)</span>
+                    <span class="rev-amt">+$824,000</span>
+                </div>
+                <div class="revenue-row" style="background:#fff1f2; margin-top:20px; border-radius:6px;">
+                    <span class="rev-label" style="color:#e11d48">Platform Overhead (deeltrack SaaS)</span>
+                    <span class="rev-amt" style="color:#e11d48">-$149</span>
+                </div>
+            </div>
+
+            <div class="card" style="background: var(--primary); color: white;">
+                <h3>Sponsor Liquidity</h3>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 8px;">Net cash position across all sponsor entities.</p>
+                <div style="margin-top: 32px;">
+                    <div style="font-size: 2.2rem; font-weight: 800; font-family: 'JetBrains Mono';">$842,500</div>
+                    <div style="font-size: 0.7rem; font-weight: 700; color: var(--success); text-transform: uppercase; margin-top: 10px;">
+                        <i class="fas fa-circle-check"></i> Capital Calls Ready
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        SP.requireGP();
+    </script>
+</body>
+</html>
