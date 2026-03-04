@@ -938,7 +938,7 @@ const SP = (function () {
       const navItems = [
         { section: 'OPERATIONS' },
         { href: 'investors.html', icon: 'fa-users', label: 'CRM: Investors' },
-        { href: 'investor-sentiment.html', icon: 'fa-brain', label: 'Investor Sentiment' },
+        { href: 'investor-sentiment-v2.html', icon: 'fa-brain', label: 'Investor Sentiment' },
         { href: 'investor-retention.html', icon: 'fa-user-clock', label: 'Investor Retention' },
         { href: 'network-map.html', icon: 'fa-project-diagram', label: 'Network Map' },
         { href: 'investor-heatmap.html', icon: 'fa-th', label: 'Activity Heatmap' },
