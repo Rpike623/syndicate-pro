@@ -879,6 +879,7 @@ const SP = (function () {
         { href: 'audit-logs.html', icon: 'fa-fingerprint', label: 'Audit View' },
         { href: 'deal-room.html', icon: 'fa-folder-open', label: 'Deal Room' },
         { href: 'teaser-generator.html', icon: 'fa-bullhorn', label: 'Marketing Teaser' },
+        { href: 'inbox.html', icon: 'fa-inbox', label: 'Investor Inbox' },
         { href: 'deal-compare.html', icon: 'fa-balance-scale', label: 'Compare Deals' },
         { section: 'Account' },
         { href: 'settings.html', icon: 'fa-cog', label: 'Settings' },
@@ -896,6 +897,14 @@ const SP = (function () {
         'rent-roll-analyzer.html': 'proforma.html',
         'market-comps.html': 'reports.html',
         'ic-memo-builder.html': 'documents.html',
+        'ic-memo-builder.html': 'documents.html',
+        'teaser-generator.html': 'teaser-generator.html',
+        'inbox.html': 'inbox.html',
+        'capital-calls.html': 'capital-calls.html',
+        'k1-generator.html': 'k1-generator.html',
+        'proforma.html': 'proforma.html',
+        'lenders.html': 'lenders.html',
+        'portfolio-explorer.html': 'portfolio-explorer.html',
       };
       const activePage = activeMap[page] || page;
 
