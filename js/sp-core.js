@@ -940,6 +940,7 @@ const SP = (function () {
         { href: 'investors.html', icon: 'fa-users', label: 'CRM: Investors' },
         { href: 'investor-sentiment.html', icon: 'fa-brain', label: 'Investor Sentiment' },
         { href: 'investor-retention.html', icon: 'fa-user-clock', label: 'Investor Retention' },
+        { href: 'network-map.html', icon: 'fa-project-diagram', label: 'Network Map' },
         { href: 'investor-heatmap.html', icon: 'fa-th', label: 'Activity Heatmap' },
         { href: 'pipeline.html', icon: 'fa-stream', label: 'CRM: Pipeline' },
         { href: 'lenders.html', icon: 'fa-landmark', label: 'CRM: Lenders' },
