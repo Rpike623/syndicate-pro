@@ -897,6 +897,7 @@ const SP = (function () {
         { href: 'lenders.html', icon: 'fa-landmark', label: 'CRM: Lenders' },
         { href: 'deals.html', icon: 'fa-building', label: 'Portfolio' },
         { href: 'portfolio-explorer.html', icon: 'fa-chart-pie', label: 'Portfolio Explorer' },
+        { href: 'scenario-planner.html', icon: 'fa-project-diagram', label: 'Scenario Planner' },
         { href: 'new-deal.html', icon: 'fa-plus', label: 'Underwriting' },
         { section: 'ADMIN' },
         { href: 'dashboard.html', icon: 'fa-th-large', label: 'Main' },

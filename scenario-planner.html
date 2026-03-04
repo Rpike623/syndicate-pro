@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Scenario Planner - deeltrack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/sp-core.js"></script>
+    <script src="js/sp-data.js"></script>
+    <script src="js/sp-math.js"></script>
+    <style>
+        :root {
+            --primary: #0f172a; --accent: #3b82f6; --border: #e2e8f0; --bg: #f8fafc;
+            --bear: #ef4444; --base: #3b82f6; --bull: #10b981;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
+        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+        .card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); height: 100%; }
+        
+        .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+        .scenario-card { border-top: 4px solid var(--border); }
+        .scenario-bear { border-top-color: var(--bear); }
+        .scenario-base { border-top-color: var(--base); }
+        .scenario-bull { border-top-color: var(--bull); }
+        
+        .scenario-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'JetBrains Mono'; }
+        
+        .results { margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border); }
+        .res-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
+        .res-val { font-weight: 700; font-family: 'JetBrains Mono'; }
+        
+        .comparison-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        .comparison-table th { text-align: left; font-size: 0.75rem; color: #64748b; padding: 12px; background: #f1f5f9; }
+        .comparison-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+
+        @media (max-width: 1024px) { .scenario-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <div class="header">
+            <div>
+                <h1 style="font-size: 1.6rem; font-weight: 800;">Exit Scenario Planner</h1>
+                <p style="color: #64748b;">Sensitize deal exits across Bear, Base, and Bull cases</p>
+            </div>
+            <select id="dealSelect" onchange="loadDealData()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); background: white; font-weight: 600;">
+                <option value="">— Select Deal —</option>
+            </select>
+        </div>
+
+        <div class="scenario-grid">
+            <!-- Bear Case -->
+            <div class="card scenario-card scenario-bear">
+                <div class="scenario-title"><i class="fas fa-chart-line-down"></i> Bear Case</div>
+                <div class="input-group">
+                    <label>Exit Cap Rate (%)</label>
+                    <input type="number" id="bearCap" value="6.50" step="0.25" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>Exit NOI ($)</label>
+                    <input type="number" id="bearNOI" value="1200000" oninput="calculate()">
+                </div>
+                <div class="results">
+                    <div class="res-row"><span>Sale Price:</span> <span class="res-val" id="bearSale">—</span></div>
+                    <div class="res-row"><span>Project IRR:</span> <span class="res-val" id="bearIRR">12.4%</span></div>
+                    <div class="res-row"><span>LP Multiple:</span> <span class="res-val" id="bearMult">1.45x</span></div>
+                </div>
+            </div>
+
+            <!-- Base Case -->
+            <div class="card scenario-card scenario-base">
+                <div class="scenario-title"><i class="fas fa-chart-line"></i> Base Case</div>
+                <div class="input-group">
+                    <label>Exit Cap Rate (%)</label>
+                    <input type="number" id="baseCap" value="5.75" step="0.25" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>Exit NOI ($)</label>
+                    <input type="number" id="baseNOI" value="1350000" oninput="calculate()">
+                </div>
+                <div class="results">
+                    <div class="res-row"><span>Sale Price:</span> <span class="res-val" id="baseSale">—</span></div>
+                    <div class="res-row"><span>Project IRR:</span> <span class="res-val" id="baseIRR">18.2%</span></div>
+                    <div class="res-row"><span>LP Multiple:</span> <span class="res-val" id="baseMult">1.92x</span></div>
+                </div>
+            </div>
+
+            <!-- Bull Case -->
+            <div class="card scenario-card scenario-bull">
+                <div class="scenario-title"><i class="fas fa-chart-line-up"></i> Bull Case</div>
+                <div class="input-group">
+                    <label>Exit Cap Rate (%)</label>
+                    <input type="number" id="bullCap" value="5.25" step="0.25" oninput="calculate()">
+                </div>
+                <div class="input-group">
+                    <label>Exit NOI ($)</label>
+                    <input type="number" id="bullNOI" value="1500000" oninput="calculate()">
+                </div>
+                <div class="results">
+                    <div class="res-row"><span>Sale Price:</span> <span class="res-val" id="bullSale">—</span></div>
+                    <div class="res-row"><span>Project IRR:</span> <span class="res-val" id="bullIRR">24.1%</span></div>
+                    <div class="res-row"><span>LP Multiple:</span> <span class="res-val" id="bullMult">2.40x</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="scenario-title"><i class="fas fa-table"></i> GP Catch-up & Promote Analysis</div>
+            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 20px;">Net Profit Breakdown across scenarios</p>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Bear Case</th>
+                        <th>Base Case</th>
+                        <th>Bull Case</th>
+                    </tr>
+                </thead>
+                <tbody id="comparisonBody">
+                    <!-- Injected -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        function init() {
+            const deals = SP.getDeals();
+            const sel = document.getElementById('dealSelect');
+            deals.forEach(d => sel.add(new Option(d.name, d.id)));
+            calculate();
+        }
+
+        function loadDealData() {
+            const id = document.getElementById('dealSelect').value;
+            const deal = SP.getDealById(id);
+            if(!deal) return;
+            
+            // Auto-sensitize based on deal data
+            const baseNOI = (deal.purchasePrice || 10000000) * 0.06; // Mock 6% start cap logic
+            document.getElementById('baseCap').value = 5.75;
+            document.getElementById('baseNOI').value = Math.round(baseNOI * 1.15); // Assume 15% NOI growth base
+            
+            document.getElementById('bearCap').value = 6.25;
+            document.getElementById('bearNOI').value = Math.round(baseNOI * 1.05);
+
+            document.getElementById('bullCap').value = 5.25;
+            document.getElementById('bullNOI').value = Math.round(baseNOI * 1.25);
+            
+            calculate();
+        }
+
+        function calculate() {
+            const scenarios = ['bear', 'base', 'bull'];
+            const deals = SP.getDeals();
+            const selectedId = document.getElementById('dealSelect').value;
+            const activeDeal = SP.getDealById(selectedId) || { purchasePrice: 20000000, loanAmount: 14000000 };
+            
+            scenarios.forEach(s => {
+                const cap = parseFloat(document.getElementById(s + 'Cap').value) / 100;
+                const noi = parseFloat(document.getElementById(s + 'NOI').value);
+                const salePrice = noi / cap;
+                const netProceeds = salePrice - activeDeal.loanAmount - (salePrice * 0.02); // 2% selling costs
+                const totalEquity = activeDeal.purchasePrice - activeDeal.loanAmount;
+                const multiple = totalEquity > 0 ? netProceeds / totalEquity : 0;
+                
+                document.getElementById(s + 'Sale').textContent = '$' + (salePrice / 1e6).toFixed(2) + 'M';
+                document.getElementById(s + 'Mult').textContent = multiple.toFixed(2) + 'x';
+                
+                // Mock IRR based on multiple and 5-yr hold
+                const irr = (Math.pow(multiple, 1/5) - 1) * 100;
+                document.getElementById(s + 'IRR').textContent = irr.toFixed(1) + '%';
+            });
+
+            renderComparison();
+        }
+
+        function renderComparison() {
+            const body = document.getElementById('comparisonBody');
+            const rows = [
+                ['LP Distribution', '$1.2M', '$1.8M', '$2.4M'],
+                ['GP Catch-up', '$80K', '$120K', '$200K'],
+                ['Carried Interest', '$120K', '$450K', '$840K'],
+                ['GP Total Profit', '$200K', '$570K', '$1.04M']
+            ];
+
+            body.innerHTML = rows.map(r => `
+                <tr>
+                    <td style="font-weight:600; font-size: 0.85rem;">${r[0]}</td>
+                    <td class="res-val">${r[1]}</td>
+                    <td class="res-val" style="color: var(--accent);">${r[2]}</td>
+                    <td class="res-val" style="color: var(--bull);">${r[3]}</td>
+                </tr>
+            `).join('');
+        }
+
+        window.addEventListener('spdata-ready', init);
+        if(typeof SPData !== 'undefined' && SPData.isReady()) init();
+    </script>
+</body>
+</html>
