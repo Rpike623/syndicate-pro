@@ -967,6 +967,7 @@ const SP = (function () {
         { href: 'capital-calls.html', icon: 'fa-hand-holding-usd', label: 'Capital Calls' },
         { href: 'k1-generator.html', icon: 'fa-file-invoice-dollar', label: 'Tax Center' },
         { href: 'email-templates.html', icon: 'fa-envelope', label: 'Email Hub' },
+        { href: 'investor-chat.html', icon: 'fa-comments', label: 'LP Messenger' },
         { href: 'audit-logs.html', icon: 'fa-fingerprint', label: 'Audit View' },
         { href: 'deal-room.html', icon: 'fa-folder-open', label: 'Deal Room' },
         { href: 'teaser-generator.html', icon: 'fa-bullhorn', label: 'Marketing Teaser' },
