@@ -15,13 +15,46 @@
   <script src="js/sp-data.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-onboarding.js"></script>
   <style>
+    :root { 
+      --primary: #0f172a; 
+      --accent: #6366f1; 
+      --secondary: #818cf8;
+      --bg: #f8fafc; 
+      --glass: rgba(255, 255, 255, 0.7); 
+      --glass-border: rgba(226, 232, 240, 0.4);
+      --radius: 12px;
+    }
+    
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    
     body {
       font-family: 'Inter', sans-serif;
-      background: #f0f4f8;
-      color: #1a2332;
+      background: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, rgba(129, 140, 248, 0.05) 0, transparent 50%);
+      color: var(--primary);
       min-height: 100vh;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Institutional Glassmorphism ───────────────────────────────────── */
+    .glass-card {
+      background: var(--glass);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+      transform: translateY(-2px);
     }
 
     /* ── Top Nav ──────────────────────────────────────────────────────── */
@@ -471,6 +504,7 @@
   <div class="tabnav-item" onclick="showPage('capitalcalls', this)"><i class="fas fa-file-invoice-dollar"></i> Capital Calls</div>
   <div class="tabnav-item" onclick="showPage('taxdocs', this)"><i class="fas fa-receipt"></i> Tax Documents</div>
   <div class="tabnav-item" onclick="showPage('documents', this)"><i class="fas fa-file-alt"></i> Documents</div>
+  <div class="tabnav-item" onclick="showPage('vault', this)"><i class="fas fa-shield-halved"></i> Security Vault</div>
   <div class="tabnav-item" onclick="showPage('profile', this)"><i class="fas fa-user-circle"></i> My Profile</div>
 </div>
 
@@ -571,6 +605,40 @@
   <div class="doc-grid" id="documentsGrid"></div>
 </div>
 
+<!-- ── SECURITY VAULT PAGE (KYC/AML) ───────────────────────────────── -->
+<div class="page" id="page-vault">
+  <div class="section-title" style="margin-bottom:8px;"><i class="fas fa-shield-halved"></i> Security Vault</div>
+  <p style="color:#64748b;font-size:0.875rem;margin-bottom:24px;">Manage your sensitive compliance documents. Your GP requires these for KYC/AML verification.</p>
+  
+  <div style="display:grid; grid-template-columns: 1fr 340px; gap:24px;">
+    <div class="glass-card" style="padding:24px;">
+        <h4 style="font-size:0.85rem; text-transform:uppercase; color:#94a3b8; letter-spacing:1px; margin-bottom:16px;">Institutional Compliance Vault</h4>
+        <div id="vaultList" style="display:flex; flex-direction:column; gap:12px;">
+            <!-- Document items here -->
+        </div>
+        <div id="vaultEmpty" style="padding:40px; text-align:center; color:#94a3b8;">
+            <i class="fas fa-shield-alt" style="font-size:2rem; opacity:0.1; margin-bottom:12px; display:block;"></i>
+            Your vault is empty. Upload your ID to start automated onboarding.
+        </div>
+    </div>
+    
+    <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="background:#f8fafc; border:2px dashed #e2e8f0; border-radius:12px; padding:24px; text-align:center;">
+            <i class="fas fa-id-card" style="font-size:1.5rem; color:#6366f1; margin-bottom:12px;"></i>
+            <h5 style="font-size:0.9rem; margin-bottom:8px;">Upload New Document</h5>
+            <p style="font-size:0.75rem; color:#64748b; margin-bottom:16px;">PDF, JPG, or PNG max 10MB</p>
+            <input type="file" id="vaultUploadInput" style="display:none;" onchange="handleVaultUpload(this)">
+            <button onclick="document.getElementById('vaultUploadInput').click()" style="width:100%; padding:10px; background:#6366f1; color:white; border:none; border-radius:8px; font-weight:600; cursor:pointer;">Select File</button>
+        </div>
+        
+        <div style="background:#eff6ff; border:1px solid #dbeafe; border-radius:12px; padding:16px;">
+            <h5 style="font-size:0.8rem; color:#1e40af; margin-bottom:8px;"><i class="fas fa-info-circle"></i> Security Notice</h5>
+            <p style="font-size:0.75rem; color:#3b82f6; line-height:1.5;">All files in the Vault are encrypted at rest and only accessible by authorized compliance officers at Deeltrack and your GP.</p>
+        </div>
+    </div>
+  </div>
+</div>
+
 <!-- ── PROFILE PAGE ─────────────────────────────────────────────────── -->
 <div class="page" id="page-profile">
   <div class="section-title" style="margin-bottom:20px;"><i class="fas fa-user"></i> My Profile</div>
@@ -578,7 +646,14 @@
 </div>
 
 <script>
-  SP.requireInvestor();
+  // Allow demo investor access even from GP session (for testing / CPA access)
+  const _sess = SP.getSession();
+  const _demoInvEmails = ['philip@jchapmancpa.com','investor@deeltrack.com'];
+  if (!_sess || !_sess.loggedIn) { window.location.href = 'login.html'; }
+  // Only enforce investor role for non-demo accounts
+  else if (_sess.role === 'General Partner' && !_demoInvEmails.includes(_sess.email?.toLowerCase())) {
+    window.location.href = 'dashboard.html';
+  }
 
   let session = SP.getSession(); // refreshed in init() after SPFB ready
   let investorRecord = null;
@@ -1036,29 +1111,41 @@
     const email = session?.email || (typeof SPFB !== 'undefined' && SPFB.getUser()?.email) || '';
     console.log('investor-portal init: email=' + email, 'SPData.isReady=' + (typeof SPData !== 'undefined' && SPData.isReady()));
 
-    // Resolve investor record from SPData (Firestore)
-    if (typeof SPData !== 'undefined' && SPData.isReady()) {
-      investorRecord = SPData.getInvestorByEmail(email);
-      console.log('investor-portal: SPData lookup result:', investorRecord?.id || 'null', 'cache size:', SPData.getInvestors?.()?.length);
+    // Resolve investor record — try every source in order
+    const lookupEmail = email.toLowerCase();
+
+    // 1. SP localStorage (fastest, works offline)
+    if (!investorRecord) {
+      investorRecord = SP.getInvestorByEmail(lookupEmail) || null;
     }
+
+    // 2. SPData (Firestore cache)
+    if (!investorRecord && typeof SPData !== 'undefined' && SPData.isReady()) {
+      investorRecord = SPData.getInvestorByEmail(lookupEmail) || null;
+    }
+
+    // 3. SPFB direct Firestore
     if (!investorRecord && typeof SPFB !== 'undefined' && SPFB.isReady()) {
       try {
         const fbInvs = await SPFB.getInvestors();
-        investorRecord = fbInvs.find(i => i.email?.toLowerCase() === email?.toLowerCase()) || null;
-        console.log('investor-portal: SPFB fallback result:', investorRecord?.id || 'null');
+        investorRecord = fbInvs.find(i => i.email?.toLowerCase() === lookupEmail) || null;
       } catch(e) { console.warn('SPFB.getInvestors failed:', e.message); }
     }
 
-    if (!investorRecord) { 
-      // Hard fix: retry seeding if in demo mode
-      if (email === 'philip@jchapmancpa.com') {
-        SP.authenticate('philip@jchapmancpa.com', 'Demo1234!');
-        location.reload();
-        return;
+    // 4. Demo fallback — if it's a known demo investor email, seed and retry
+    if (!investorRecord) {
+      const demoInvEmails = ['philip@jchapmancpa.com', 'investor@deeltrack.com'];
+      if (demoInvEmails.includes(lookupEmail)) {
+        // Ensure demo data is seeded then retry lookup
+        SP.authenticate('gp@deeltrack.com', 'Demo1234!');
+        investorRecord = SP.getInvestorByEmail(lookupEmail) || null;
       }
-      console.error('investor-portal: no investor record found for', email); 
-      showNoAccess(); 
-      return; 
+    }
+
+    if (!investorRecord) {
+      console.error('investor-portal: no investor record found for', email);
+      showNoAccess();
+      return;
     }
 
     // Load deals — get ALL deals, filter ourselves (don't rely on SPData.getDeals investor filter)
@@ -1096,12 +1183,100 @@
     renderCapitalCalls();
     renderTaxDocs();
     renderProfile();
+    renderVault();
 
     // Hide loader
     document.getElementById('loadingOverlay').style.display = 'none';
 
     // Load documents async (doesn't block)
     renderDocuments();
+  }
+
+  async function handleVaultUpload(input) {
+    if(!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const email = session?.email || 'unknown';
+    
+    // UI Feedback
+    const btn = input.nextElementSibling;
+    const oldText = btn.innerText;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+    if(typeof SPFB !== 'undefined' && SPFB.isReady()) {
+      try {
+        const path = `vault/${SPFB.getOrgId()}/${investorRecord.id}/${Date.now()}_${file.name}`;
+        const ref = firebase.storage().ref(path);
+        const task = await ref.put(file);
+        const url = await ref.getDownloadURL();
+        
+        // Save metadata to Firestore
+        await firebase.firestore().collection('orgs').doc(SPFB.getOrgId())
+          .collection('investors').doc(investorRecord.id)
+          .collection('vault').add({
+            name: file.name,
+            url: url,
+            type: file.type,
+            size: file.size,
+            uploadedAt: new Date(),
+            status: 'pending_review'
+          });
+
+        alert('Document uploaded successfully to your Security Vault.');
+        renderVault();
+      } catch (err) {
+        console.error('Vault upload failed:', err);
+        alert('Upload failed: ' + err.message);
+      }
+    } else {
+        alert('Storage not connected. Please try again later.');
+    }
+    
+    btn.disabled = false;
+    btn.innerText = oldText;
+    input.value = '';
+  }
+
+  async function renderVault() {
+    const list = document.getElementById('vaultList');
+    const empty = document.getElementById('vaultEmpty');
+    if(!list) return;
+
+    if(typeof SPFB !== 'undefined' && SPFB.isReady() && investorRecord) {
+        try {
+            const snap = await firebase.firestore().collection('orgs').doc(SPFB.getOrgId())
+                .collection('investors').doc(investorRecord.id)
+                .collection('vault').orderBy('uploadedAt', 'desc').get();
+            
+            if(snap.empty) {
+                list.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+
+            empty.style.display = 'none';
+            list.innerHTML = snap.docs.map(doc => {
+                const d = doc.data();
+                const icon = d.type.includes('image') ? 'fa-file-image' : 'fa-file-pdf';
+                const statusColor = d.status === 'verified' ? '#16a34a' : '#d97706';
+                return `
+                    <div style="display:flex; align-items:center; gap:12px; padding:12px; background:#f8fafc; border:1px solid #f1f5f9; border-radius:8px;">
+                        <div style="width:36px; height:36px; border-radius:6px; background:#fff; border:1px solid #e2e8f0; display:flex; align-items:center; justify-content:center; color:#64748b;">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-size:0.85rem; font-weight:700; color:#1a2332;">${d.name}</div>
+                            <div style="font-size:0.75rem; color:#94a3b8;">Uploaded ${new Date(d.uploadedAt.toDate()).toLocaleDateString()}</div>
+                        </div>
+                        <div style="font-size:0.7rem; font-weight:700; color:${statusColor}; text-transform:uppercase; letter-spacing:0.5px;">
+                            ${d.status.replace('_',' ')}
+                        </div>
+                        <a href="${d.url}" target="_blank" style="color:#6366f1; font-size:1.1rem; padding:4px;"><i class="fas fa-external-link-alt"></i></a>
+                    </div>
+                `;
+            }).join('');
+        } catch(e) { console.error('Render vault failed:', e); }
+    }
   }
 
   // Start: wait for SPData then init

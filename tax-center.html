@@ -11,8 +11,8 @@
         :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
-        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; z-index: 100; }
-        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; display: flex; flex-direction: column; z-index: 100; left: 0; top: 0; }
+        .main { flex: 1; margin-left: 260px; position: relative; padding: 40px; }
         .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         
         .k1-table { width: 100%; border-collapse: collapse; }

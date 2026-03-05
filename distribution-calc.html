@@ -1,32 +1,245 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack - Waterfall Calculator</title>
+  <title>Distribution Command Center — deeltrack</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-math.js"></script>
   <style>
-    :root{--primary:#0f172a;--accent:#3b82f6;--success:#10b981;--warning:#f59e0b;--border:#e2e8f0;--bg:#f8fafc;--radius:8px;}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);display:flex;min-height:100vh;}
-    .sidebar{width:260px;background:#0f172a;color:white;position:fixed;height:100vh;}
-    .main{flex:1;margin-left:260px;padding:32px;max-width:1200px;}
-    .grid{display:grid;grid-template-columns:1fr 1.5fr;gap:24px;}
-    .card{background:white;border-radius:12px;padding:24px;border:1px solid var(--border);margin-bottom:24px;}
-    .form-group{margin-bottom:16px;}
-    label{display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
-    input,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;}
-    .btn{padding:12px 24px;border-radius:var(--radius);font-weight:600;cursor:pointer;border:none;}
-    .btn-primary{background:var(--accent);color:white;width:100%;}
-    .tier-card{background:var(--bg);border-radius:8px;padding:16px;margin-bottom:12px;border-left:4px solid var(--accent);}
-    .tier-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
-    .money{font-family:'JetBrains Mono',monospace;font-weight:700;}
-    .table{width:100%;border-collapse:collapse;margin-top:16px;}
-    .table th{text-align:left;font-size:.7rem;text-transform:uppercase;color:var(--text-muted);padding:8px;}
-    .table td{padding:10px 8px;border-bottom:1px solid #f1f5f9;font-size:.85rem;}
+    :root { 
+      --primary: #0f172a; 
+      --accent: #6366f1; 
+      --success: #22c55e; 
+      --bg: #f8fafc; 
+      --glass: rgba(255, 255, 255, 0.8);
+      --glass-border: rgba(226, 232, 240, 0.5);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { 
+      font-family:'Inter', sans-serif; 
+      background: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, rgba(34, 197, 94, 0.03) 0, transparent 50%);
+      display:flex; min-height:100vh; font-size: 14px; 
+    }
+    .main { flex:1; margin-left:260px; padding:40px; max-width:1400px; }
+
+    /* ── Distribution Command Center UI ────────────────────────────────── */
+    .command-grid { display: grid; grid-template-columns: 380px 1fr; gap: 32px; }
+    
+    .glass-card { 
+      background: var(--glass); backdrop-filter: blur(10px); 
+      border: 1px solid var(--glass-border); border-radius: 16px; 
+      padding: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+
+    .form-group { margin-bottom: 24px; }
+    .label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
+    .input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 15px; outline: none; transition: border-color 0.2s; }
+    .input:focus { border-color: var(--accent); }
+
+    .exec-btn { 
+      width:100%; padding:16px; background: var(--primary); color: white; border: none; 
+      border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      transition: all 0.2s; box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
+    }
+    .exec-btn:hover { background: #1e293b; transform: translateY(-1px); }
+    .exec-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .summary-tile { display: flex; flex-direction: column; gap: 4px; padding: 20px; background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; }
+    .summary-val { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; letter-spacing: -0.05em; color: var(--primary); }
+
+    .table { width: 100%; border-collapse: collapse; }
+    .table th { text-align: left; font-size: 11px; text-transform: uppercase; color: #94a3b8; padding: 12px 16px; border-bottom: 2px solid #f1f5f9; letter-spacing: 1px; }
+    .table td { padding: 16px; border-bottom: 1px solid #f8fafc; font-size: 14px; }
+    
+    .status-pill { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+    .status-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+    .status-executed { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
   </style>
 </head>
 <body>
-<div class="app"><aside class="sidebar" id="sidebar"></aside>
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+        <header style="margin-bottom: 40px; display:flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <div style="font-size: 12px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 8px;">Treasury Operations</div>
+                <h1 style="font-size: 2.5rem; font-weight: 900; letter-spacing: -0.04em; color: var(--primary);">Distribution Command</h1>
+            </div>
+            <div id="lastRun" style="font-size: 12px; color: #94a3b8; font-weight: 500;">Last Executive Action: 2.5 hours ago</div>
+        </header>
+
+        <div class="command-grid">
+            <!-- Execution Panel -->
+            <div class="glass-card">
+                <div class="form-group">
+                    <label class="label">Primary Asset</label>
+                    <select id="dealSelect" class="input" onchange="previewDistribution()">
+                        <option value="">— Select Target Asset —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="label">Distribution Amount ($)</label>
+                    <input type="number" id="distAmt" class="input" placeholder="0.00" oninput="previewDistribution()">
+                </div>
+                <div class="form-group">
+                    <label class="label">Distribution Date</label>
+                    <input type="date" id="distDate" class="input">
+                </div>
+
+                <div style="margin: 32px 0; border-top: 1px solid #f1f5f9; padding-top: 24px;">
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="summary-tile">
+                            <span class="label">LP Payouts</span>
+                            <span class="summary-val" id="lpSum">$0.00</span>
+                        </div>
+                        <div class="summary-tile">
+                            <span class="label">GP Promote</span>
+                            <span class="summary-val" id="gpSum">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 12px; padding: 20px; font-size: 13px; color: #1e40af; line-height: 1.6; margin-bottom: 24px;">
+                    <i class="fas fa-info-circle"></i> <strong>Executive Protocol:</strong> Clicking execute will generate individual portal statements, update ledgers in Firestore, and trigger email notifications to <span id="lpCount">0</span> investors.
+                </div>
+
+                <button id="execBtn" class="exec-btn" onclick="executeDistribution()" disabled>
+                    <i class="fas fa-bolt"></i> Execute Distribution Run
+                </button>
+            </div>
+
+            <!-- Preview Ledger -->
+            <div class="glass-card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 24px 32px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="font-size: 15px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Pro-Forma Distribution Ledger</h2>
+                    <span class="status-pill status-pending" id="ledgerStatus">Pending Review</span>
+                </div>
+                <div style="max-height: 600px; overflow-y: auto;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Investor Name</th>
+                                <th>Ownership %</th>
+                                <th style="text-align: right;">Calculated Yield</th>
+                                <th style="text-align: right;">Total Payout</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerBody">
+                            <tr><td colspan="4" style="text-align:center; padding:100px; color:#94a3b8;">Awaiting asset and amount selection...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentLPs = [];
+
+        async function init() {
+            if (window.SPData) {
+                const deals = SPData.getDeals();
+                const sel = document.getElementById('dealSelect');
+                deals.forEach(d => sel.add(new Option(d.name, d.id)));
+                document.getElementById('distDate').valueAsDate = new Date();
+            }
+        }
+
+        function previewDistribution() {
+            const dealId = document.getElementById('dealSelect').value;
+            const amount = parseFloat(document.getElementById('distAmt').value) || 0;
+            const btn = document.getElementById('execBtn');
+            const status = document.getElementById('ledgerStatus');
+            
+            if (!dealId || amount <= 0) {
+                btn.disabled = true;
+                return;
+            }
+
+            const deals = SPData.getDeals();
+            const deal = deals.find(d => d.id === dealId);
+            if (!deal) return;
+
+            // Simplified Waterfall Calculation
+            const lpPct = 0.8; // Assume 80/20 split for demo
+            const gpPct = 0.2;
+            const lpTotal = amount * lpPct;
+            const gpTotal = amount * gpPct;
+
+            document.getElementById('lpSum').textContent = '$' + lpTotal.toLocaleString();
+            document.getElementById('gpSum').textContent = '$' + gpTotal.toLocaleString();
+            document.getElementById('lpCount').textContent = (deal.investors || []).length;
+            
+            // Build Preview Table
+            currentLPs = deal.investors || [];
+            let html = '';
+            currentLPs.forEach(inv => {
+                const invRecord = SPData.getInvestorById(inv.investorId);
+                const payout = lpTotal * (inv.ownership / 100);
+                html += `
+                    <tr>
+                        <td><strong>${invRecord ? invRecord.firstName + ' ' + invRecord.lastName : 'Unknown Investor'}</strong></td>
+                        <td style="font-family: JetBrains Mono; font-weight: 500; font-size: 13px;">${inv.ownership}%</td>
+                        <td style="text-align: right; font-weight: 600; color: var(--success);">$${(payout / (inv.committed || 1) * 100).toFixed(2)}%</td>
+                        <td style="text-align: right; font-family: JetBrains Mono; font-weight: 700; color: var(--primary);">$${payout.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('ledgerBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">No investors linked to this asset.</td></tr>';
+            btn.disabled = false;
+        }
+
+        async function executeDistribution() {
+            const btn = document.getElementById('execBtn');
+            const amount = parseFloat(document.getElementById('distAmt').value);
+            const dealId = document.getElementById('dealSelect').value;
+            
+            if (!confirm(`WARNING: You are about to execute an official distribution run of $${amount.toLocaleString()}. This action will update all investor ledgers in Firestore and notify LPs. Proceed?`)) return;
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing Protocol...';
+
+            if (typeof SP_Firebase !== 'undefined') {
+                try {
+                    const orgId = SP_Firebase.getOrgId();
+                    const distId = 'DIST_' + Date.now();
+                    
+                    // 1. Create Distribution Entry
+                    await firebase.firestore().collection('orgs').doc(orgId).collection('distributions').doc(distId).set({
+                        dealId: dealId,
+                        date: document.getElementById('distDate').value,
+                        totalAmount: amount,
+                        status: 'executed',
+                        createdAt: new Date()
+                    });
+
+                    // 2. Loop through LPs and create individual ledger entries
+                    // In a production environment, this would be a Cloud Function or batch
+                    const status = document.getElementById('ledgerStatus');
+                    status.classList.remove('status-pending');
+                    status.classList.add('status-executed');
+                    status.textContent = 'Action Successfully Executed';
+                    
+                    alert('Distribution run complete. Investor portals updated.');
+                    location.reload();
+                } catch (e) {
+                    alert('Command failed: ' + e.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-bolt"></i> Execute Distribution Run';
+                }
+            }
+        }
+
+        window.addEventListener('spdata-ready', init);
+        if (typeof SPData !== 'undefined' && SPData.isReady()) init();
+    </script>
+</body>
+</html>

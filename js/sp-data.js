@@ -55,14 +55,42 @@ const SPData = (() => {
     }
   }
 
-  // Load a collection into cache, with fallback
+  // Load a collection into cache, with fallback to localStorage
   async function _load(name) {
     try {
       const snap = await _col(name).get();
-      _cache[name] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const firestoreDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (firestoreDocs.length > 0) {
+        // Firestore has data — use it and sync back to localStorage
+        _cache[name] = firestoreDocs;
+        if (typeof SP !== 'undefined') {
+          if (name === 'deals')         SP.saveDeals(firestoreDocs);
+          if (name === 'investors')     SP.saveInvestors(firestoreDocs);
+          if (name === 'distributions') SP.saveDistributions(firestoreDocs);
+        }
+      } else {
+        // Firestore empty — fall back to localStorage (demo data / offline)
+        const lsData = (typeof SP !== 'undefined') ? (
+          name === 'deals'         ? SP.getDeals() :
+          name === 'investors'     ? SP.getInvestors() :
+          name === 'distributions' ? SP.getDistributions() :
+          name === 'capitalCalls'  ? SP.load('capitalCalls', []) :
+          []
+        ) : [];
+        _cache[name] = lsData && lsData.length ? lsData : [];
+        if (_cache[name].length) {
+          console.log(`SPData: ${name} — Firestore empty, using ${_cache[name].length} items from localStorage`);
+        }
+      }
     } catch(e) {
       console.warn(`SPData: load ${name} failed:`, e.message);
-      _cache[name] = [];
+      // On error, fall back to localStorage
+      _cache[name] = (typeof SP !== 'undefined') ? (
+        name === 'deals'         ? SP.getDeals() :
+        name === 'investors'     ? SP.getInvestors() :
+        name === 'distributions' ? SP.getDistributions() :
+        []
+      ) : [];
     }
   }
 

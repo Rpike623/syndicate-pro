@@ -3,6 +3,35 @@
  * Include this on every page: <script src="js/sp-core.js"></script>
  */
 
+// ─── Inject Global Design System CSS immediately ──────────────────────────
+(function injectGlobalCSS() {
+  if (document.getElementById('dt-global-css')) return;
+  const link = document.createElement('link');
+  link.id   = 'dt-global-css';
+  link.rel  = 'stylesheet';
+  // Resolve path — works whether page is at root or in subdir
+  const scriptSrc = (document.currentScript || {}).src || '';
+  let base = '';
+  if (scriptSrc.includes('js/sp-core.js')) {
+    base = scriptSrc.replace(/js\/sp-core\.js.*/, '');
+  } else {
+    // Fallback: derive from current page URL
+    const loc = window.location.pathname;
+    const dir = loc.endsWith('/') ? loc : loc.substring(0, loc.lastIndexOf('/') + 1);
+    base = window.location.origin + dir;
+  }
+  link.href = base + 'css/dt-global.css';
+  document.head.prepend(link);
+
+  // Also inject Font Awesome if not present
+  if (!document.querySelector('link[href*="font-awesome"]')) {
+    const fa = document.createElement('link');
+    fa.rel = 'stylesheet';
+    fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+    document.head.appendChild(fa);
+  }
+})();
+
 const SP = (function () {
 
   // ─── Session ────────────────────────────────────────────────────────────────
@@ -64,12 +93,18 @@ const SP = (function () {
     return Math.abs(h).toString(36);
   }
 
+  // All demo accounts share one org so data flows freely between GP and LP views
+  const DEMO_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com'];
+  const DEMO_ORG_ID = 'deeltrack_demo';
+
   function getOrgId() {
     const s = getSession();
     if (!s) return null;
-    // v2.0 Priority: Use stored orgId (UUID).
-    if (s.orgId && s.orgId.length > 10) return s.orgId;
-    // Fallback: derive from email (legacy)
+    // Demo accounts always share the same org
+    if (s.email && DEMO_EMAILS.includes(s.email.toLowerCase())) return DEMO_ORG_ID;
+    // v2.0 Priority: Use stored orgId
+    if (s.orgId) return s.orgId;
+    // Fallback: derive from email
     return simpleHash(s.email.toLowerCase());
   }
 
@@ -338,13 +373,18 @@ const SP = (function () {
   function authenticate(email, password) {
     const users = getUsers();
     // Seed demo GP — accept both old and new demo emails
-    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'gp@deeltrack.com', 'philip@jchapmancpa.com'];
+    // ALL demo accounts share ONE org so data is visible across sessions
+    const DEMO_ORG_ID = 'deeltrack_demo';
+    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'gp@deeltrack.com', 'philip@jchapmancpa.com', 'investor@deeltrack.com'];
     demoEmails.forEach(demoEmail => {
-      if (!users.find(u => u.email === demoEmail)) {
-        const orgId = simpleHash('demo@deeltrack.com'); // same orgId for both so data is shared
-        const name = demoEmail.includes('philip') ? 'Phil Chapman' : 'Robert Pike';
-        const role = demoEmail.includes('philip') ? 'Investor' : 'General Partner';
-        users.push({ email: demoEmail, password: 'Demo1234!', name, role, orgId });
+      const existing = users.find(u => u.email === demoEmail);
+      if (!existing) {
+        const name = demoEmail.includes('philip') ? 'Phil Chapman' : demoEmail.includes('investor') ? 'Demo Investor' : 'Robert Pike';
+        const role = (demoEmail.includes('philip') || demoEmail.includes('investor@')) ? 'Investor' : 'General Partner';
+        users.push({ email: demoEmail, password: 'Demo1234!', name, role, orgId: DEMO_ORG_ID });
+      } else if (existing.orgId !== DEMO_ORG_ID) {
+        // Migrate existing demo user to shared org
+        existing.orgId = DEMO_ORG_ID;
       }
     });
     localStorage.setItem('sp_users', JSON.stringify(users));
@@ -383,8 +423,9 @@ const SP = (function () {
 
   // ─── Demo data seeding ──────────────────────────────────────────────────────
   function seedDemoData(session) {
-    const orgKey = makeOrgKey('deals');
-    if (localStorage.getItem(orgKey)) return; // already seeded
+    // Always seed under the shared demo org key
+    const demoOrgKey = `sp_org_${DEMO_ORG_ID}_deals`;
+    if (localStorage.getItem(demoOrgKey)) return; // already seeded
 
     // Settings
     save('settings', {
@@ -931,8 +972,54 @@ const SP = (function () {
       }
     });
 
+    // ── FORCE FULL SIDEBAR BUILD on every page ────────────────────────────
+    // If sidebar exists but is empty, inject the full structure now
+    const sb = document.getElementById('sidebar');
+    if (sb) {
+      // Always ensure sidebar-header exists
+      if (!sb.querySelector('.sidebar-header')) {
+        const hdr = document.createElement('div');
+        hdr.className = 'sidebar-header';
+        hdr.innerHTML = `<a href="dashboard.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" style="flex-shrink:0;">
+            <circle cx="16" cy="16" r="16" fill="#1e3a5f"/>
+            <rect x="7" y="5" width="3.5" height="22" rx="1.75" fill="#6366f1"/>
+            <path d="M 13 11 L 23 16 L 13 21" stroke="#818cf8" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span style="font-size:1.15rem;font-weight:800;color:white;letter-spacing:-0.02em;">deel<span style="color:#818cf8;">track</span></span>
+        </a>`;
+        sb.insertBefore(hdr, sb.firstChild);
+      }
+      // Ensure nav container exists
+      if (!sb.querySelector('.nav')) {
+        const nav = document.createElement('nav');
+        nav.className = 'nav';
+        const footer = sb.querySelector('.sidebar-footer');
+        if (footer) sb.insertBefore(nav, footer);
+        else sb.appendChild(nav);
+      }
+      // Ensure sidebar-footer exists
+      if (!sb.querySelector('.sidebar-footer')) {
+        const footer = document.createElement('div');
+        footer.className = 'sidebar-footer';
+        const initials = (s?.name || 'U').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+        footer.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;">${initials}</div>
+            <div style="flex:1;min-width:0;">
+              <div class="user-name" style="font-size:13px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s?.name || 'User'}</div>
+              <div class="user-role" style="font-size:11px;color:rgba(255,255,255,0.45);">${s?.role || 'GP'}</div>
+            </div>
+          </div>
+          <button onclick="SP.logout()" style="width:100%;padding:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;color:#f87171;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:all 0.15s;" onmouseenter="this.style.background='rgba(239,68,68,0.2)'" onmouseleave="this.style.background='rgba(239,68,68,0.1)'">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>`;
+        sb.appendChild(footer);
+      }
+    }
+
     // Rebuild sidebar nav completely — ensures every page has the correct full nav
-    const nav = document.querySelector('.sidebar .nav');
+    const nav = document.querySelector('#sidebar .nav, .sidebar .nav');
     if (nav) {
       const page = window.location.pathname.split('/').pop() || 'dashboard.html';
       const navItems = [
@@ -943,7 +1030,7 @@ const SP = (function () {
         { href: 'network-map.html', icon: 'fa-project-diagram', label: 'Network Map' },
         { href: 'anchor-map.html', icon: 'fa-anchor', label: 'Anchor Referral Map' },
         { href: 'investor-heatmap.html', icon: 'fa-th', label: 'Activity Heatmap' },
-        { href: 'pipeline.html', icon: 'fa-stream', label: 'CRM: Pipeline' },
+        { href: 'sourcing-crm.html', icon: 'fa-stream', label: 'CRM: Pipeline' },
         { href: 'lenders.html', icon: 'fa-landmark', label: 'CRM: Lenders' },
         { href: 'deals.html', icon: 'fa-building', label: 'Portfolio' },
         { href: 'portfolio-health.html', icon: 'fa-heart-pulse', label: 'Portfolio Health' },
@@ -965,6 +1052,7 @@ const SP = (function () {
         { href: 'documents.html', icon: 'fa-file-contract', label: 'Documents' },
         { href: 'investor-statements.html', icon: 'fa-file-invoice', label: 'Investor Statements' },
         { href: 'capital-account-statement.html', icon: 'fa-file-contract', label: 'Account Ledger' },
+        { href: 'distribution-calc.html', icon: 'fa-bolt', label: 'Distribution Command' },
         { href: 'capital-account.html', icon: 'fa-list-ol', label: 'Capital Accounts' },
         { href: 'compliance-hud.html', icon: 'fa-shield-halved', label: 'Compliance HUD' },
         { href: 'currency-center.html', icon: 'fa-globe-americas', label: 'Currency Center' },
