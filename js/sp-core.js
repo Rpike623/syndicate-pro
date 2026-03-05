@@ -941,6 +941,7 @@ const SP = (function () {
         { href: 'investor-sentiment-v2.html', icon: 'fa-brain', label: 'Investor Sentiment' },
         { href: 'investor-retention.html', icon: 'fa-user-clock', label: 'Investor Retention' },
         { href: 'network-map.html', icon: 'fa-project-diagram', label: 'Network Map' },
+        { href: 'anchor-map.html', icon: 'fa-anchor', label: 'Anchor Referral Map' },
         { href: 'investor-heatmap.html', icon: 'fa-th', label: 'Activity Heatmap' },
         { href: 'pipeline.html', icon: 'fa-stream', label: 'CRM: Pipeline' },
         { href: 'lenders.html', icon: 'fa-landmark', label: 'CRM: Lenders' },
