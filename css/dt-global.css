@@ -175,10 +175,12 @@ aside.sidebar,
 /* ── MAIN CONTENT ─────────────────────────────────────────────────────────── */
 .main,
 main.main,
+main,
 #main {
   margin-left: var(--dt-sidebar-width) !important;
   min-height: 100vh !important;
   background: var(--dt-bg) !important;
+  flex: 1 !important;
 }
 
 /* ── TOP BAR ──────────────────────────────────────────────────────────────── */
@@ -412,5 +414,8 @@ input:focus, select:focus, textarea:focus {
   flex-direction: column !important;
 }
 
-/* Ensure main never gets position:relative which breaks sticky positioning */
-.main { position: unset !important; }
+/* Ensure main has correct layout */
+.main, main.main, main, #main { 
+  margin-left: var(--dt-sidebar-width) !important; 
+  position: relative !important;
+}

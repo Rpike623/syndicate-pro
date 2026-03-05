@@ -1,87 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waterfall Visualizer & LP Education - deeltrack</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="js/sp-core.js"></script>
-    <script src="js/sp-data.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --primary: #0f172a; --accent: #3b82f6; --success: #10b981;
-            --border: #e2e8f0; --bg: #020617; --card-bg: #1e293b;
-            --investor: #3b82f6; --sponsor: #f59e0b;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #f8fafc; min-height: 100vh; overflow-x: hidden; }
-        .sidebar { width: 260px; background: #0f172a; color: white; position: fixed; height: 100vh; display: flex; flex-direction: column; z-index: 100; left: 0; top: 0; border-right: 1px solid rgba(255,255,255,0.05); }
-        .main { flex: 1; margin-left: 260px; position: relative; padding: 40px; }
-        
-        .viz-header { text-align: center; margin-bottom: 40px; }
-        .viz-header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        .waterfall-container { display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start; }
-
-        /* ── MOBILE RESPONSIVE FIXES ── */
-        @media (max-width: 1100px) {
-            .waterfall-container { grid-template-columns: 1fr; }
-            .track { order: 2; padding: 20px; }
-            .controls { order: 1; position: static; }
-            .main { padding: 20px; }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
-            .sidebar.open { transform: translateX(0); }
-            .main { margin-left: 0; padding: 16px; width: 100%; }
-            .viz-header h1 { font-size: 1.8rem; }
-            .hero-metrics { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .tier-title { font-size: 1.1rem; }
-            .split-inv, .split-gp { font-size: 0.65rem; }
-            .flow-line { left: 20px; }
-            .cash-drop { left: 18px; }
-            .tier { padding-left: 45px; } /* Offset for flow line */
-        }
-        
-        /* The Animation Track */
-        .track { background: rgba(30,41,59,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 40px; position: relative; overflow: hidden; }
-        .tier { margin-bottom: 60px; position: relative; z-index: 2; opacity: 0.3; transition: all 0.5s ease; padding: 20px; border-radius: 12px; background: rgba(255,255,255,0.03); }
-        .tier.active { opacity: 1; background: rgba(59,130,246,0.1); border: 1px solid var(--accent); transform: scale(1.02); }
-        .tier-label { font-size: 0.75rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-        .tier-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
-        .tier-desc { font-size: 0.9rem; color: #94a3b8; max-width: 500px; }
-        
-        /* Flow Animation */
-        .flow-line { position: absolute; left: 40px; top: 0; width: 4px; height: 100%; background: rgba(255,255,255,0.05); z-index: 1; }
-        .cash-drop { position: absolute; left: 38px; width: 8px; height: 40px; background: var(--success); border-radius: 4px; box-shadow: 0 0 15px var(--success); animation: drop 3s infinite linear; }
-        @keyframes drop { 0% { top: -50px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
-
-        /* Distribution Splits */
-        .split-bar { height: 48px; border-radius: 8px; background: #0f172a; margin-top: 20px; display: flex; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-        .split-inv { background: var(--investor); width: 80%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
-        .split-gp { background: var(--sponsor); width: 20%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #000; }
-
-        /* Control Panel */
-        .controls { position: sticky; top: 40px; }
-        .card { background: var(--card-bg); border-radius: var(--radius); padding: 24px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 24px; }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; }
-        .input-group select, .input-group input { width: 100%; padding: 12px; border-radius: 8px; background: #0f172a; border: 1px solid rgba(255,255,255,0.2); color: #fff; outline: none; }
-        
-        .math-card { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
-        .math-row { display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .math-val { color: var(--success); font-weight: 600; }
-
-        .btn-play { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
-        .btn-play:hover { background: #2563eb; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waterfall Explainer — deeltrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
 </head>
-<body><aside class="sidebar" id="sidebar"></aside>
-<script>SP.requireGP();</script></body></html>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <div style="padding:40px;max-width:1200px;margin:0 auto;">
+      <div style="margin-bottom:32px;">
+        <div style="font-size:12px;font-weight:800;color:#6366f1;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Investor Education</div>
+        <h1 style="font-size:2rem;font-weight:800;margin:0;">Waterfall Explainer</h1>
+        <p style="color:#64748b;margin-top:8px;">Interactive visualization to help LPs understand distribution waterfalls.</p>
+      </div>
+      <div style="background:#f8fafc;border:2px dashed #e2e8f0;border-radius:16px;padding:60px;text-align:center;">
+        <i class="fas fa-chart-waterfall" style="font-size:3rem;color:#cbd5e1;margin-bottom:20px;display:block;"></i>
+        <h3 style="font-size:1.25rem;font-weight:700;color:#475569;margin-bottom:8px;">Coming Soon</h3>
+        <p style="color:#64748b;max-width:400px;margin:0 auto;">Animated waterfall walkthrough with interactive tier breakdowns and preferred return calculators is in development.</p>
+      </div>
+    </div>
+  </main>
+  <script>SP.requireGP();</script>
+</body>
+</html>

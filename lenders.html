@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack - Lenders</title>
+  <title>Lender CRM — deeltrack</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -12,31 +12,23 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-data.js"></script>
-  <style>
-    :root{--primary:#0f172a;--accent:#3b82f6;--border:#e2e8f0;--bg:#f8fafc;--radius:8px;}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);line-height:1.5;}
-    .app{display:flex;min-height:100vh;}
-    .sidebar{width:260px;background:#0f172a;color:white;position:fixed;height:100vh;z-index:100;}
-    .main{flex:1;margin-left:260px;min-height:100vh;}
-    .top-bar{background:#fff;border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
-    .content{padding:32px;}
-    .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
-    .lender-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));gap:20px;}
-    .lender-card{background:white;border:1px solid var(--border);border-radius:12px;padding:24px;transition:all 0.2s;}
-    .lender-card:hover{box-shadow:0 10px 25px rgba(0,0,0,0.05);transform:translateY(-2px);}
-    .lender-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
-    .lender-name{font-size:1.1rem;font-weight:700;color:var(--primary);}
-    .lender-type{font-size:0.75rem;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;}
-    .contact-info{font-size:0.875rem;color:#475569;margin-bottom:12px;}
-    .contact-info i{width:20px;color:var(--accent);}
-    .lender-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:16px;border-top:1px solid #f1f5f9;}
-    .stat-label{font-size:0.7rem;color:#94a3b8;text-transform:uppercase;margin-bottom:2px;}
-    .stat-value{font-weight:700;font-size:0.95rem;}
-    .btn{padding:10px 20px;border-radius:var(--radius);font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px;}
-    .btn-primary{background:var(--accent);color:white;}
-    .btn-secondary{background:white;border:1px solid var(--border);}
-  </style>
 </head>
-<body><aside class="sidebar" id="sidebar"></aside>
-<script>SP.requireGP();</script></body></html>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <div style="padding:40px;max-width:1200px;margin:0 auto;">
+      <div style="margin-bottom:32px;">
+        <div style="font-size:12px;font-weight:800;color:#6366f1;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Capital Markets</div>
+        <h1 style="font-size:2rem;font-weight:800;margin:0;">Lender Relationship CRM</h1>
+        <p style="color:#64748b;margin-top:8px;">Track lenders, term sheets, and preferred products for your portfolio.</p>
+      </div>
+      <div style="background:#f8fafc;border:2px dashed #e2e8f0;border-radius:16px;padding:60px;text-align:center;">
+        <i class="fas fa-landmark" style="font-size:3rem;color:#cbd5e1;margin-bottom:20px;display:block;"></i>
+        <h3 style="font-size:1.25rem;font-weight:700;color:#475569;margin-bottom:8px;">Coming Soon</h3>
+        <p style="color:#64748b;max-width:400px;margin:0 auto;">Full lender CRM with term sheet tracking, rate comparison tools, and relationship scoring is in active development.</p>
+      </div>
+    </div>
+  </main>
+  <script>SP.requireGP();</script>
+</body>
+</html>

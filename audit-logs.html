@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack - Audit Logs</title>
+  <title>Audit Logs — deeltrack</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -12,27 +12,23 @@
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
   <script src="js/sp-data.js"></script>
-  <script src="js/sp-audit.js"></script>
-  <style>
-    :root{--primary:#0f172a;--accent:#3b82f6;--border:#e2e8f0;--bg:#f8fafc;--radius:8px;}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);line-height:1.5;}
-    .app{display:flex;min-height:100vh;}
-    .sidebar{width:260px;background:#0f172a;color:white;position:fixed;height:100vh;z-index:100;}
-    .main{flex:1;margin-left:260px;min-height:100vh;}
-    .top-bar{background:#fff;border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
-    .content{padding:32px;}
-    .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-    table{width:100%;border-collapse:collapse;}
-    th{text-align:left;font-size:.7rem;text-transform:uppercase;color:#64748b;padding:12px 20px;background:#f8fafc;border-bottom:1px solid var(--border);}
-    td{padding:14px 20px;font-size:.85rem;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
-    .timestamp{font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#94a3b8;}
-    .action-badge{padding:3px 8px;border-radius:4px;font-size:0.7rem;font-weight:700;text-transform:uppercase;}
-    .action-create{background:#dcfce7;color:#16a34a;}
-    .action-update{background:#dbeafe;color:#2563eb;}
-    .action-delete{background:#fee2e2;color:#dc2626;}
-    .action-export{background:#f3e8ff;color:#9333ea;}
-  </style>
 </head>
-<body><aside class="sidebar" id="sidebar"></aside>
-<script>SP.requireGP();</script></body></html>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <div style="padding:40px;max-width:1200px;margin:0 auto;">
+      <div style="margin-bottom:32px;">
+        <div style="font-size:12px;font-weight:800;color:#6366f1;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Compliance</div>
+        <h1 style="font-size:2rem;font-weight:800;margin:0;">Audit Logs</h1>
+        <p style="color:#64748b;margin-top:8px;">Comprehensive activity tracking for regulatory compliance and internal review.</p>
+      </div>
+      <div style="background:#f8fafc;border:2px dashed #e2e8f0;border-radius:16px;padding:60px;text-align:center;">
+        <i class="fas fa-shield-alt" style="font-size:3rem;color:#cbd5e1;margin-bottom:20px;display:block;"></i>
+        <h3 style="font-size:1.25rem;font-weight:700;color:#475569;margin-bottom:8px;">Coming Soon</h3>
+        <p style="color:#64748b;max-width:400px;margin:0 auto;">Full audit trail with user actions, document access logs, and SEC-compliant activity recording is in development.</p>
+      </div>
+    </div>
+  </main>
+  <script>SP.requireGP();</script>
+</body>
+</html>

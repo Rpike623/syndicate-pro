@@ -10,11 +10,11 @@
     :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --text: #0f172a; --text-secondary: #64748b; --border: #e2e8f0; --bg: #f8fafc; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
-    .sidebar { width: 260px; background: var(--primary); color: white; position: fixed; height: 100vh; }
+    /* sidebar CSS moved to dt-global.css */
     .nav { padding: 24px 12px; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; color: #94a3b8; text-decoration: none; }
-    .nav-item.active { background: var(--accent); color: white; }
-    .main { flex: 1; margin-left: 260px; position: relative; padding: 32px; }
+    /* .nav-item CSS moved to dt-global.css */
+    /* .nav-item.active CSS moved to dt-global.css */
+    .main { flex: 1; margin-left: 260px; padding: 32px; }
     .alert-banner { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
     .alert-banner i { font-size: 1.5rem; color: #d97706; }
     .compliance-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }

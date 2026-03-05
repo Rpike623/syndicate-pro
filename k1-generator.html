@@ -38,17 +38,17 @@
     .app { display: flex; min-height: 100vh; }
 
     /* Sidebar */
-    .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; position: fixed; height: 100vh; display: flex; flex-direction: column; z-index: 100; left: 0; top: 0; }
-    .sidebar-header { padding: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    /* sidebar CSS moved to dt-global.css */
+    /* .sidebar-header CSS moved to dt-global.css */
     .logo { display: flex; align-items: center; gap: 12px; font-size: 1.25rem; font-weight: 700; text-decoration: none; color: white; }
     .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #60a5fa); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
     .nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
-    .nav-section { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(255,255,255,0.6); padding: 16px 12px 8px; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius); color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; }
-    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
-    .nav-item.active { background: var(--accent); color: white; }
+    /* .nav-section CSS moved to dt-global.css */
+    /* .nav-item CSS moved to dt-global.css */
+    /* .nav-item:hover CSS moved to dt-global.css */
+    /* .nav-item.active CSS moved to dt-global.css */
     .nav-item i { width: 20px; text-align: center; }
-    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+    /* .sidebar-footer CSS moved to dt-global.css */
     .user-info { display: flex; align-items: center; gap: 12px; }
     .user-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, var(--success), #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; color: white; flex-shrink: 0; }
     .user-details { flex: 1; min-width: 0; }
@@ -56,7 +56,7 @@
     .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.65); }
 
     /* Main */
-    .main { flex: 1; margin-left: 260px; position: relative; min-height: 100vh; }
+    .main { flex: 1; margin-left: 260px; min-height: 100vh; }
     .top-bar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
     .page-title-bar h1 { font-size: 1.25rem; font-weight: 700; }
     .page-title-bar p { font-size: 0.8rem; color: var(--text-secondary); }

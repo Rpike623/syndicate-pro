@@ -12,12 +12,12 @@
     :root{--primary:#0f172a;--accent:#3b82f6;--accent-light:#dbeafe;--success:#10b981;--success-light:#d1fae5;
       --warning:#f59e0b;--warning-light:#fef3c7;--danger:#ef4444;--purple:#8b5cf6;
       --text:#0f172a;--text-secondary:#64748b;--text-muted:#94a3b8;
-      --border:#e2e8f0;--border-light:#f1f5f9;--bg:#f8fafc;--bg-card:#fff;--bg-sidebar:#0f172a;
+      --border:#e2e8f0;--border-light:#f1f5f9;--bg:#f8fafc;--bg-card:#fff;--bg-sidebar: #0f172a;
       --radius:8px;--radius-md:12px;}
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
     .app{display:flex;min-height:100vh;}
-    .sidebar{width:260px;background:var(--bg-sidebar);color:white;position:fixed;height:100vh;z-index:100;}
+    /* sidebar CSS moved to dt-global.css */
     .main{flex:1;margin-left:260px;}
     .top-bar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
     .content{padding:32px;}

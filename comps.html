@@ -11,11 +11,11 @@
     :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --text: #0f172a; --text-secondary: #64748b; --border: #e2e8f0; --bg: #f8fafc; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
-    .sidebar { width: 260px; background: var(--primary); color: white; position: fixed; height: 100vh; }
+    /* sidebar CSS moved to dt-global.css */
     .nav { padding: 24px 12px; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; color: #94a3b8; text-decoration: none; margin-bottom: 4px; }
-    .nav-item.active { background: var(--accent); color: white; }
-    .main { flex: 1; margin-left: 260px; position: relative; padding: 32px; }
+    /* .nav-item CSS moved to dt-global.css */
+    /* .nav-item.active CSS moved to dt-global.css */
+    .main { flex: 1; margin-left: 260px; padding: 32px; }
     .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; }
     .comp-form { background: white; border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
     .form-group { margin-bottom: 16px; }
