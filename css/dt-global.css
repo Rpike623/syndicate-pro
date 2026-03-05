@@ -31,7 +31,13 @@
 /* ── Reset ────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--dt-bg); color: var(--dt-text); }
+body { 
+  font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+  background: var(--dt-bg); 
+  color: var(--dt-text); 
+  display: block !important;
+  min-height: 100vh;
+}
 
 /* ── SIDEBAR — forced correct layout ─────────────────────────────────────── */
 .sidebar,
@@ -180,7 +186,8 @@ main,
   margin-left: var(--dt-sidebar-width) !important;
   min-height: 100vh !important;
   background: var(--dt-bg) !important;
-  flex: 1 !important;
+  width: calc(100% - var(--dt-sidebar-width)) !important;
+  padding: 32px 40px !important;
 }
 
 /* ── TOP BAR ──────────────────────────────────────────────────────────────── */
@@ -384,11 +391,13 @@ input:focus, select:focus, textarea:focus {
   background: #0f172a !important;
   color: rgba(255,255,255,0.4) !important;
   font-size: 11px !important;
-  padding: 16px 32px !important;
+  padding: 16px 32px 16px calc(var(--dt-sidebar-width) + 32px) !important;
   text-align: center !important;
   line-height: 1.6 !important;
   font-family: 'Inter', sans-serif !important;
   border-top: 1px solid rgba(255,255,255,0.08) !important;
+  position: relative !important;
+  width: 100% !important;
 }
 
 /* ── PLATFORM NOTICE BANNER ───────────────────────────────────────────────── */
