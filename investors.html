@@ -439,12 +439,26 @@ SP.requireGP();
 let investors = [];
 let editingId = null;
 
-function load() {
+async function load() {
+  // Wait for SPData if available
+  if (typeof SPData !== 'undefined' && SPData.init) {
+    await new Promise(resolve => {
+      if (SPData.isReady()) resolve();
+      else window.addEventListener('spdata-ready', resolve, { once: true });
+    });
+  }
+  
   investors = SP.getInvestors();
+  console.log('load(): SP.getInvestors() returned', investors.length, 'investors');
+  
   if (!investors.length) {
+    console.log('load(): seeding demo investors');
     investors = DEMO_INVESTORS.map(i => ({...i}));
     SP.saveInvestors(investors);
   }
+  
+  updateStats();
+  filterTable();
 }
 
 function save() { SP.saveInvestors(investors); }
@@ -912,7 +926,7 @@ async function sendInviteViaDeeltrack() {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Kill any service worker immediately before anything else loads -->
-  <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if(window.caches)caches.keys().then(k=>k.forEach(c=>caches.delete(c)));}</script>
+  <scr'+'ipt>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if(window.caches)caches.keys().then(k=>k.forEach(c=>caches.delete(c)));}</scr'+'ipt>
   <title>You're invited to deeltrack</title>
 </head>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
