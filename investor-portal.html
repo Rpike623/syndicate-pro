@@ -651,9 +651,13 @@
   // Allow demo investor access even from GP session (for testing / CPA access)
   const _sess = SP.getSession();
   const _demoInvEmails = ['philip@jchapmancpa.com','investor@deeltrack.com'];
+  // For testing: add ?test=1 to URL to force LP view while logged in as GP
+  const urlParams = new URLSearchParams(window.location.search);
+  const _forceLP = urlParams.get('test') === '1';
+  
   if (!_sess || !_sess.loggedIn) { window.location.href = 'login.html'; }
-  // Only enforce investor role for non-demo accounts
-  else if (_sess.role === 'General Partner' && !_demoInvEmails.includes(_sess.email?.toLowerCase())) {
+  // Allow GP to test investor portal with ?test=1 param, or if email is in demo list
+  else if (_sess.role === 'General Partner' && !_demoInvEmails.includes(_sess.email?.toLowerCase()) && !_forceLP) {
     window.location.href = 'dashboard.html';
   }
 
@@ -1140,7 +1144,14 @@
   async function init() {
     // Re-read session — it's been updated by SPFB._markReady since page load
     session = SP.getSession();
-    const email = session?.email || (typeof SPFB !== 'undefined' && SPFB.getUser()?.email) || '';
+    let email = session?.email || (typeof SPFB !== 'undefined' && SPFB.getUser()?.email) || '';
+    
+    // For testing: if _forceLP is set, use a demo investor email
+    if (_forceLP && email) {
+      email = 'philip@jchapmancpa.com'; // Default to a demo investor for testing
+      console.log('investor-portal test mode: forcing email=' + email);
+    }
+    
     console.log('investor-portal init: email=' + email, 'SPData.isReady=' + (typeof SPData !== 'undefined' && SPData.isReady()));
 
     // Resolve investor record — try every source in order
