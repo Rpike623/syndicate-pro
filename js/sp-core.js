@@ -1151,7 +1151,7 @@ window.SP = (function () {
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
           { href:'gp-vesting.html', icon:'fa-award', label:'GP Vesting' },
           { href:'audit-logs.html', icon:'fa-fingerprint', label:'Audit Log' },
-          { href:'lenders.html', icon:'fa-landmark', label:'Lenders' },
+          { href:'lenders-crm.html', icon:'fa-university', label:'Lender CRM' },
         ]},
         { id:'ops', title:'OPERATIONS', items:[
           { href:'insurance.html', icon:'fa-shield-cat', label:'Insurance' },
@@ -1168,7 +1168,7 @@ window.SP = (function () {
           { href:'proforma.html', icon:'fa-table', label:'Pro Forma' },
         ], overflow:[
           { href:'om-v2.html', icon:'fa-clapperboard', label:'Interactive Offering' },
-          { href:'waterfall-explainer.html', icon:'fa-water', label:'Waterfall Calculator' },
+          { href:'waterfall-explainer.html', icon:'fa-play-circle', label:'Waterfall Animator' },
           { href:'waterfall-guide.html', icon:'fa-book-open', label:'Waterfall Guide' },
           { href:'market-comps.html', icon:'fa-city', label:'Market Comps' },
           { href:'email-templates.html', icon:'fa-envelope', label:'Email Hub' },

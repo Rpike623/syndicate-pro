@@ -3,117 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Waterfall Explainer — deeltrack</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/dt-global.css">
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
+  <title>Waterfall Explained | Deeltrack</title>
   <script src="js/sp-core.js"></script>
-  <script src="js/sp-data.js"></script>
 </head>
 <body>
-  <aside class="sidebar" id="sidebar"></aside>
-  <main class="main">
-    <section class="waterfall-explainer">
-      <div class="waterfall-hero">
-        <div>
-          <div class="eyebrow">Investor Education</div>
-          <h1>Waterfall Explainer</h1>
-          <p class="subhead">See how proceeds flow through every hurdle, catch-up, and split so LPs understand when they get paid.</p>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-water"></i> How Equity Waterfalls Work</h1>
+    </div>
+    <div class="content">
+      <div class="waterfall-explainer">
+        <div class="intro-section">
+          <h2>Understanding Real Estate Investment Waterfalls</h2>
+          <p>A waterfall distribution structure determines how profits are split between GPs (sponsors) and LPs (investors). Watch the animation below to see how money flows through each tier.</p>
         </div>
-        <div class="hero-summary" id="hero-summary">
-          <div>
-            <span>Total Proceeds</span>
-            <strong id="total-proceeds">$0</strong>
-          </div>
-          <div>
-            <span>GP Multiple</span>
-            <strong id="gp-multiple">0.00x</strong>
-          </div>
-          <div>
-            <span>LP Multiple</span>
-            <strong id="lp-multiple">0.00x</strong>
-          </div>
-        </div>
-      </div>
 
-      <div class="waterfall-grid">
-        <div class="panel controls">
-          <h2>Deal inputs</h2>
-          <p>Adjust the assumptions and watch the waterfall rearrange in real-time.</p>
-          <div class="control">
-            <label>Total equity</label>
-            <div class="input-group">
-              <span>$</span>
-              <input type="number" id="total-equity" value="2000000" min="100000" step="50000">
+        <div class="animation-container">
+          <div class="waterfall-visual">
+            <div class="gross-revenue" id="tier0">
+              <div class="tier-bar">
+                <span class="tier-label">Gross Sale Proceeds</span>
+                <span class="tier-amount">$15,000,000</span>
+              </div>
+            </div>
+            
+            <div class="tier" id="tier1">
+              <div class="tier-bar">
+                <span class="tier-label">1. Return of Capital (100%)</span>
+                <span class="tier-amount" id="tier1amount">$10,000,000</span>
+                <div class="tier-fill" style="width:100%"></div>
+              </div>
+              <div class="tier-arrow"><i class="fas fa-arrow-down"></i></div>
+            </div>
+
+            <div class="tier lp-tier" id="tier2">
+              <div class="tier-bar">
+                <span class="tier-label">2. LP Preferred Return (6%)</span>
+                <span class="tier-amount" id="tier2amount">$600,000</span>
+                <div class="tier-fill" style="width:80%"></div>
+              </div>
+              <div class="tier-arrow"><i class="fas fa-arrow-down"></i></div>
+            </div>
+
+            <div class="tier" id="tier3">
+              <div class="tier-bar">
+                <span class="tier-label">3. LP Catch-Up (50%)</span>
+                <span class="tier-amount" id="tier3amount">$300,000</span>
+                <div class="tier-fill" style="width:60%"></div>
+              </div>
+              <div class="tier-arrow"><i class="fas fa-arrow-down"></i></div>
+            </div>
+
+            <div class="tier gp-tier" id="tier4">
+              <div class="tier-bar">
+                <span class="tier-label">4. GP Promote (20-80 split)</span>
+                <span class="tier-amount" id="tier4amount">$820,000</span>
+                <div class="tier-fill" style="width:40%"></div>
+              </div>
+              <div class="tier-arrow"><i class="fas fa-arrow-down"></i></div>
+            </div>
+
+            <div class="tier final" id="tier5">
+              <div class="tier-bar">
+                <span class="tier-label">Remaining LP Profits</span>
+                <span class="tier-amount" id="tier5amount">$3,280,000</span>
+                <div class="tier-fill" style="width:25%"></div>
+              </div>
             </div>
           </div>
-          <div class="control">
-            <label>Exit multiple</label>
-            <input type="number" id="exit-multiple" value="1.8" step="0.1" min="1">
+
+          <div class="animation-controls">
+            <button class="btn btn-primary" id="playBtn" onclick="Waterfall.animate()"><i class="fas fa-play"></i> Play Animation</button>
+            <button class="btn btn-secondary" id="resetBtn" onclick="Waterfall.reset()"><i class="fas fa-redo"></i> Reset</button>
           </div>
-          <div class="control">
-            <label>Preferred return (%)</label>
-            <input type="number" id="pref-return" value="8" step="0.25" min="0">
-          </div>
-          <div class="control">
-            <label>Holding period (years)</label>
-            <input type="number" id="hold-period" value="5" min="1" max="20">
-          </div>
-          <div class="control">
-            <label>Waterfall type</label>
-            <select id="waterfall-type">
-              <option value="simple">Simple</option>
-              <option value="pref">Preferred + residual</option>
-              <option value="catchup">Preferred + Catch-up</option>
-            </select>
-          </div>
-          <div class="control">
-            <label>GP promote (%)</label>
-            <input type="number" id="gp-promote" value="20" min="0" max="100" step="1">
-          </div>
-          <div class="control">
-            <label>Catch-up rate (%)</label>
-            <input type="number" id="catchup-rate" value="50" min="0" max="100" step="1">
+
+          <div class="current-tier-info" id="tierInfo">
+            <div class="info-box">
+              <h3 id="infoTitle">Click Play to Start</h3>
+              <p id="infoDesc">See how distributions flow from gross proceeds to investors and sponsors.</p>
+              <div class="info-stats" id="infoStats"></div>
+            </div>
           </div>
         </div>
 
-        <div class="panel chart-panel">
-          <h2>Waterfall tiers</h2>
-          <div class="chart" id="tier-chart"></div>
-          <div class="tier-legend" id="tier-legend"></div>
+        <div class="tier-explanations">
+          <div class="tier-explain" data-tier="1">
+            <h3><span class="tier-num">1</span> Return of Capital</h3>
+            <p>First, investors get their original investment back. This is "return of capital" - your principal is returned 100% before any profits are distributed.</p>
+          </div>
+          <div class="tier-explain" data-tier="2">
+            <h3><span class="tier-num">2</span> LP Preferred Return</h3>
+            <p>Next, LPs receive their preferred return (typically 6-8% annually). This is like interest on your investment - a guaranteed return before the GP receives any promote.</p>
+          </div>
+          <div class="tier-explain" data-tier="3">
+            <h3><span class="tier-num">3</span> LP Catch-Up</h3>
+            <p>The GP "catches up" to receive 50% of distributions until they've also earned their proportional share of the preferred return. This ensures fairness.</p>
+          </div>
+          <div class="tier-explain" data-tier="4">
+            <h3><span class="tier-num">4</span> GP Promote / Carried Interest</h3>
+            <p>After the catch-up, profits are split according to the waterfall (typically 80/20 or 70/30). The GP "promote" rewards them for outperforming.</p>
+          </div>
+          <div class="tier-explain" data-tier="5">
+            <h3><span class="tier-num">5</span> Remaining LP Profits</h3>
+            <p>The remaining profits after GP promote go to LPs. In a 80/20 split, LPs get 80% of all profits above the catch-up tier.</p>
+          </div>
+        </div>
+
+        <div class="example-calculator">
+          <h3>Try It Yourself</h3>
+          <div class="calc-inputs">
+            <div class="form-group"><label>Sale Price</label><input type="number" id="calcPrice" value="15000000" onchange="Waterfall.calculate()"></div>
+            <div class="form-group"><label>Total Equity</label><input type="number" id="calcEquity" value="10000000" onchange="Waterfall.calculate()"></div>
+            <div class="form-group"><label>Pref Return %</label><input type="number" id="calcPref" value="6" step="0.5" onchange="Waterfall.calculate()"></div>
+            <div class="form-group"><label>GP Promote %</label><input type="number" id="calcPromote" value="20" onchange="Waterfall.calculate()"></div>
+          </div>
+          <div class="calc-results" id="calcResults"></div>
         </div>
       </div>
-
-      <div class="panel split-summary">
-        <div>
-          <h3>Cash allocation</h3>
-          <p>Each tier shows GP and LP portions based on the assumptions above. Hover or tap to see amounts.</p>
-        </div>
-        <div class="summary-hint">
-          <div>
-            <span>GP IRR</span>
-            <strong id="gp-irr">0%</strong>
-          </div>
-          <div>
-            <span>LP IRR</span>
-            <strong id="lp-irr">0%</strong>
-          </div>
-          <div>
-            <span>Residual split</span>
-            <strong id="residual-split">0% / 0%</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel explainer-cards" id="explainer-cards"></div>
-    </section>
+    </div>
   </main>
-
-  <script src="js/database.js"></script>
-  <script src="js/waterfall-explainer.js"></script>
-  <script>SP.requireGP();</script>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Waterfall.init();}</script>
+  <script src="js/sp-waterfall-explainer.js"></script>
 </body>
 </html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lender CRM | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-university"></i> Lender CRM</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick=" Lenders.showModal()"><i class="fas fa-plus"></i> Add Lender</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">Total Lenders</span><span class="stat-value" id="statTotal">0</span></div>
+        <div class="stat-card"><span class="stat-label">Active Relationships</span><span class="stat-value text-success" id="statActive">0</span></div>
+        <div class="stat-card"><span class="stat-label">Pipeline Value</span><span class="stat-value" id="statPipeline">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Avg Rate</span><span class="stat-value" id="statRate">0%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-list"></i> Lender Directory</h2>
+          <div class="filter-group">
+            <select id="typeFilter" class="form-select form-select-sm" onchange="Lenders.render()">
+              <option value="">All Types</option>
+              <option value="bank">Bank</option>
+              <option value="cmbs">CMBS</option>
+              <option value="life">Life Insurance</option>
+              <option value="mezz">Mezzanine</option>
+              <option value="hard">Hard Money</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead><tr><th>Lender</th><th>Type</th><th>Contact</th><th>Products</th><th>Deals Funded</th><th>Total Volume</th><th>Avg Rate</th><th>Status</th><th class="text-center">Actions</th></tr></thead>
+            <tbody id="lenderTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2><i class="fas fa-handshake"></i> Active Term Sheets</h2></div>
+        <div class="card-body" id="termSheetList"></div>
+      </div>
+    </div>
+  </main>
+  <div id="lenderModal" class="modal" style="display:none;">
+    <div class="modal-content modal-lg">
+      <div class="modal-header"><h2>Add Lender</h2><button class="close" onclick="Lenders.closeModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group"><label>Lender Name</label><input type="text" id="lName" class="form-input"></div>
+          <div class="form-group"><label>Type</label><select id="lType" class="form-select"><option value="bank">Bank</option><option value="cmbs">CMBS</option><option value="life">Life Insurance</option><option value="mezz">Mezzanine</option><option value="hard">Hard Money</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Contact Name</label><input type="text" id="lContact" class="form-input"></div>
+          <div class="form-group"><label>Contact Email</label><input type="email" id="lEmail" class="form-input"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Phone</label><input type="tel" id="lPhone" class="form-input"></div>
+          <div class="form-group"><label>Website</label><input type="url" id="lWebsite" class="form-input" placeholder="https://"></div>
+        </div>
+        <div class="form-group"><label>Loan Products</label><textarea id="lProducts" class="form-input" rows="2" placeholder="e.g., Multifamily 5-50M, Industrial, Value-add..."></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Min Loan</label><input type="number" id="lMin" class="form-input" placeholder="1000000"></div>
+          <div class="form-group"><label>Max Loan</label><input type="number" id="lMax" class="form-input" placeholder="50000000"></div>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea id="lNotes" class="form-input" rows="2"></textarea></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="Lenders.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Lenders.save()">Save Lender</button></div>
+    </div>
+  </div>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Lenders.init();}</script>
+  <script src="js/sp-lenders.js"></script>
+</body>
+</html>
