@@ -1,91 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investor Tax Center — deeltrack</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="js/sp-core.js"></script>
-    <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
-        /* sidebar CSS moved to dt-global.css */
-        .main { flex: 1; margin-left: 260px; padding: 40px; }
-    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
-        
-        .k1-table { width: 100%; border-collapse: collapse; }
-        .k1-table th { text-align: left; font-size: 0.7rem; color: #64748b; padding: 12px 16px; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
-        .k1-table td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
-        
-        .status-pill { padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
-        .status-ready { background: #dcfce7; color: #16a34a; }
-        .status-missing { background: #fee2e2; color: #dc2626; }
-        
-        .btn-upload { padding: 6px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Center | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-firebase.js"></script>
 </head>
 <body>
-    <aside class="sidebar" id="sidebar"></aside>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1><i class="fas fa-file-invoice-dollar"></i> Tax Center</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="TaxCenter.exportAll()">
+          <i class="fas fa-download"></i> Export All
+        </button>
+      </div>
+    </div>
 
-    <main class="main">
-        <div style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h1 style="font-size: 1.6rem; font-weight: 800;">Investor Tax Package Center</h1>
-                <p style="color: #64748b;">Managing Schedule K-1 distribution and Tax Identification (EIN/SSN) verification</p>
-            </div>
-            <div style="background: #f1f5f9; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;">
-                Tax Docs Released: <span style="color: var(--success);">100%</span>
-            </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-label">K-1s Generated</span>
+          <span class="stat-value" id="statK1s">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total Income Reported</span>
+          <span class="stat-value text-success" id="statIncome">$0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total Deductions</span>
+          <span class="stat-value" id="statDeductions">$0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Tax Due</span>
+          <span class="stat-value text-warning" id="statTaxDue">$0</span>
+        </div>
+      </div>
+
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab active" data-tab="k1s" onclick="TaxCenter.switchTab('k1s')">K-1 Forms</button>
+          <button class="tab" data-tab="1099s" onclick="TaxCenter.switchTab('1099s')">1099s</button>
+          <button class="tab" data-tab="depreciation" onclick="TaxCenter.switchTab('depreciation')">Depreciation</button>
+          <button class="tab" data-tab="estimates" onclick="TaxCenter.switchTab('estimates')">Tax Estimates</button>
         </div>
 
-        <div class="card">
-            <h3 style="font-size: 1rem; margin-bottom: 20px;">Tax Documentation Status (TY 2025)</h3>
-            <table class="k1-table">
+        <div class="tab-content" id="tab-k1s">
+          <div class="card">
+            <div class="card-header">
+              <h2>Form 1065 K-1s</h2>
+              <button class="btn btn-primary" onclick="TaxCenter.generateK1s()">
+                <i class="fas fa-magic"></i> Generate All K-1s
+              </button>
+            </div>
+            <div class="card-body">
+              <table class="data-table">
                 <thead>
-                    <tr>
-                        <th>Investor</th>
-                        <th>Tax ID Status</th>
-                        <th>K-1 Status</th>
-                        <th style="text-align: right;">Portal View</th>
-                    </tr>
+                  <tr>
+                    <th>Investor</th>
+                    <th>Deal</th>
+                    <th>ordinaryIncome</th>
+                    <th>Interest</th>
+                    <th>Dividends</th>
+                    <th>Capital Gains</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                  </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Phil Chapman</strong><br><span style="font-size: 0.7rem; color: #64748b;">philip@jchapmancpa.com</span></td>
-                        <td><span style="color: var(--success); font-size: 0.75rem;"><i class="fas fa-circle-check"></i> SSN VERIFIED</span></td>
-                        <td><span class="status-pill status-ready">RELEASED</span></td>
-                        <td style="text-align: right;"><button class="btn-xs"><i class="fas fa-eye"></i> View as LP</button></td>
-                    </tr>
-                    <tr>
-                        <td><strong>Sarah Chen</strong><br><span style="font-size: 0.7rem; color: #64748b;">s.chen@capital.com</span></td>
-                        <td><span style="color: var(--success); font-size: 0.75rem;"><i class="fas fa-circle-check"></i> EIN VERIFIED</span></td>
-                        <td><span class="status-pill status-ready">RELEASED</span></td>
-                        <td style="text-align: right;"><button class="btn-xs"><i class="fas fa-eye"></i> View as LP</button></td>
-                    </tr>
-                </tbody>
-            </table>
+                <tbody id="k1TableBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
-            <div class="card">
-                <h3>Bulk K-1 Distribution</h3>
-                <p style="font-size: 0.85rem; color: #64748b; margin-top: 8px;">Upload your CPA's generated K-1 zip file. The platform will automatically map files to investors based on SSN/EIN matches.</p>
-                <button class="btn-upload" style="margin-top: 24px; width: 100%;"><i class="fas fa-upload"></i> Upload & Sync K-1s</button>
+        <div class="tab-content" id="tab-1099s" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h2>Form 1099s Received</h2>
             </div>
-            <div class="card" style="background: var(--primary); color: white; border: none;">
-                <h3>Deadline Awareness</h3>
-                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 10px;">
-                    March 15th is the deadline for S-Corp/Partnership returns. 100% of your LPs currently have their K-1s available in their portal for <strong>Pecan Hollow</strong> and <strong>Riverside</strong>.
-                </p>
+            <div class="card-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Payer</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="b表Body"></tbody>
+              </table>
             </div>
+          </div>
         </div>
-    </main>
 
-    <script>
-        SP.requireGP();
-    </script>
+        <div class="tab-content" id="tab-depreciation" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h2>Depreciation Schedule</h2>
+            </div>
+            <div class="card-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Property</th>
+                    <th>Cost Basis</th>
+                    <th>Method</th>
+                    <th>Annual Depreciation</th>
+                    <th>Accumulated</th>
+                    <th>Remaining</th>
+                  </tr>
+                </thead>
+                <tbody id="deprecTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-estimates" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h2>Quarterly Tax Estimates</h2>
+            </div>
+            <div class="card-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Quarter</th>
+                    <th>Due Date</th>
+                    <th>Estimated Tax</th>
+                    <th>Paid</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="estTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.SP && SP.isLoggedIn) initPage();
+      else document.addEventListener('sp-ready', initPage);
+    });
+    function initPage() {
+      if (!SP.isLoggedIn()) { window.location.href = 'login.html'; return; }
+      TaxCenter.init();
+    }
+  </script>
+  <script src="js/sp-tax-center.js"></script>
 </body>
 </html>

@@ -1146,8 +1146,15 @@ window.SP = (function () {
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
+          { href:'gp-vesting.html', icon:'fa-award', label:'GP Vesting' },
           { href:'audit-logs.html', icon:'fa-fingerprint', label:'Audit Log' },
           { href:'lenders.html', icon:'fa-landmark', label:'Lenders' },
+        ]},
+        { id:'ops', title:'OPERATIONS', items:[
+          { href:'insurance.html', icon:'fa-shield-cat', label:'Insurance' },
+          { href:'reservations.html', icon:'fa-hand-pointer', label:'Reservations' },
+          { href:'tax-center.html', icon:'fa-file-invoice-dollar', label:'Tax Center' },
+        ], overflow:[
         ]},
         { id:'docs', title:'DOCUMENTS', items:[
           { href:'documents.html', icon:'fa-file-contract', label:'Documents' },
