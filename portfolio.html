@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Overview | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-firebase.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1><i class="fas fa-chart-pie"></i> Portfolio Overview</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="Portfolio.exportReport()">
+          <i class="fas fa-download"></i> Export
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Portfolio KPIs -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-primary">
+          <div class="kpi-icon"><i class="fas fa-building"></i></div>
+          <div class="kpi-content">
+            <span class="kpi-label">Total AUM</span>
+            <span class="kpi-value" id="kpiAum">$0</span>
+            <span class="kpi-change positive">+12.4% YoY</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon"><i class="fas fa-users"></i></div>
+          <div class="kpi-content">
+            <span class="kpi-label">Active Investors</span>
+            <span class="kpi-value" id="kpiInvestors">0</span>
+            <span class="kpi-change">Across all deals</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon"><i class="fas fa-percentage"></i></div>
+          <div class="kpi-content">
+            <span class="kpi-label">Blended IRR</span>
+            <span class="kpi-value" id="kpiIrr">0%</span>
+            <span class="kpi-change positive">+2.1% vs target</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon"><i class="fas fa-hand-holding-dollar"></i></div>
+          <div class="kpi-content">
+            <span class="kpi-label">Total Distributions</span>
+            <span class="kpi-value" id="kpiDistributions">$0</span>
+            <span class="kpi-change positive">This year</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon"><i class="fas fa-arrow-trend-up"></i></div>
+          <div class="kpi-content">
+            <span class="kpi-label">Avg. MOIC</span>
+            <span class="kpi-value" id="kpiMoic">0x</span>
+            <span class="kpi-change">Multiple on equity</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="card chart-card">
+          <div class="card-header">
+            <h2>AUM Over Time</h2>
+          </div>
+          <div class="card-body">
+            <canvas id="aumChart"></canvas>
+          </div>
+        </div>
+        <div class="card chart-card">
+          <div class="card-header">
+            <h2>Deal Allocation</h2>
+          </div>
+          <div class="card-body">
+            <canvas id="allocationChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio P&L -->
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-wallet"></i> Portfolio P&L</h2>
+          <select id="periodSelect" class="form-select form-select-sm" style="width:auto;" onchange="Portfolio.renderPL()">
+            <option value="ytd">Year to Date</option>
+            <option value="q1">Q1 2026</option>
+            <option value="last12">Last 12 Months</option>
+            <option value="all">All Time</option>
+          </select>
+        </div>
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Deal</th>
+                <th>NOI</th>
+                <th>Expenses</th>
+                <th>Debt Service</th>
+                <th>Distributions</th>
+                <th>Net Cash Flow</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="plTableBody">
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td><strong>TOTAL</strong></td>
+                <td id="totalNoi">$0</td>
+                <td id="totalExpenses">$0</td>
+                <td id="totalDebt">$0</td>
+                <td id="totalDist">$0</td>
+                <td id="totalCashFlow">$0</td>
+                <td id="totalValue">$0</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Deal Performance -->
+      <div class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-trophy"></i> Deal Performance</h2>
+        </div>
+        <div class="card-body">
+          <div class="performance-grid" id="performanceGrid">
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.SP && SP.isLoggedIn) {
+        initPage();
+      } else {
+        document.addEventListener('sp-ready', initPage);
+      }
+    });
+
+    function initPage() {
+      if (!SP.isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+      }
+      Portfolio.init();
+    }
+  </script>
+  <script src="js/sp-portfolio.js"></script>
+</body>
+</html>

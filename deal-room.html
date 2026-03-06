@@ -3,558 +3,193 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack — Deal Room</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
-  <script src="firebase-config.js"></script>
+  <title>Deal Room | Deeltrack</title>
   <script src="js/sp-core.js"></script>
-  <script src="js/sp-data.js"></script>
   <script src="js/sp-firebase.js"></script>
-  <script src="js/sp-billing.js"></script>
-  <style>
-    :root{--primary:#0f172a;--accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#dbeafe;
-      --success:#10b981;--success-light:#d1fae5;--warning:#f59e0b;--warning-light:#fef3c7;
-      --danger:#ef4444;--danger-light:#fee2e2;--purple:#8b5cf6;--purple-light:#ede9fe;
-      --text:#0f172a;--text-secondary:#64748b;--text-muted:#94a3b8;
-      --border:#e2e8f0;--border-light:#f1f5f9;--bg:#f8fafc;--bg-card:#fff;--bg-sidebar: #0f172a;
-      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--radius-sm:6px;--radius:8px;--radius-md:12px;}
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;}
-    .app{display:flex;min-height:100vh;}
-    /* sidebar CSS moved to dt-global.css */
-    /* .sidebar-header CSS moved to dt-global.css */
-    .logo{display:flex;align-items:center;gap:12px;font-size:1.25rem;font-weight:700;text-decoration:none;color:white;}
-    .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#60a5fa);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
-    .nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;}
-    /* .nav-section CSS moved to dt-global.css */
-    /* .nav-item CSS moved to dt-global.css */
-    /* .nav-item:hover CSS moved to dt-global.css */
-    /* .nav-item.active CSS moved to dt-global.css */
-    .nav-item i{width:20px;text-align:center;}
-    /* .sidebar-footer CSS moved to dt-global.css */
-    .user-info{display:flex;align-items:center;gap:12px;}
-    .user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--success),#34d399);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;color:white;flex-shrink:0;}
-    .user-name{font-size:.9rem;font-weight:600;}.user-role{font-size:.75rem;color:rgba(255,255,255,.65);}
-    .main{flex:1;margin-left:260px;min-height:100vh;}
-    .top-bar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
-    .top-left{display:flex;align-items:center;gap:16px;}
-    .mobile-menu-btn{display:none;background:none;border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;cursor:pointer;}
-    .page-title-bar h1{font-size:1.25rem;font-weight:700;}
-    .page-title-bar p{font-size:.8rem;color:var(--text-secondary);}
-    .top-actions{display:flex;gap:10px;}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-size:.875rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;font-family:'Inter',sans-serif;}
-    .btn-primary{background:var(--accent);color:white;}.btn-primary:hover{background:var(--accent-hover);}
-    .btn-secondary{background:var(--bg-card);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border-light);}
-    .content{padding:32px;}
-    /* Deal selector */
-    .deal-selector{display:flex;align-items:center;gap:12px;margin-bottom:24px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px 20px;}
-    .deal-selector label{font-weight:600;font-size:.9rem;white-space:nowrap;}
-    .deal-selector select{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;}
-    /* Rooms grid */
-    .rooms-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:28px;}
-    .room-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;cursor:pointer;transition:all .2s;}
-    .room-card:hover{box-shadow:var(--shadow-md);border-color:var(--accent);transform:translateY(-2px);}
-    .room-card.active{border-color:var(--accent);background:var(--accent-light);}
-    .room-icon{width:44px;height:44px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:12px;}
-    .room-icon.blue{background:var(--accent-light);color:var(--accent);}
-    .room-icon.green{background:var(--success-light);color:var(--success);}
-    .room-icon.amber{background:var(--warning-light);color:var(--warning);}
-    .room-icon.purple{background:var(--purple-light);color:var(--purple);}
-    .room-title{font-weight:700;margin-bottom:4px;}
-    .room-count{font-size:.8rem;color:var(--text-secondary);}
-    /* File list */
-    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);}
-    .card-header{padding:16px 20px;border-bottom:1px solid var(--border-light);display:flex;justify-content:space-between;align-items:center;}
-    .card-title{font-size:.95rem;font-weight:700;}
-    .upload-zone{border:2px dashed var(--border);border-radius:var(--radius-md);padding:32px;text-align:center;cursor:pointer;transition:all .2s;margin:16px 20px;}
-    .upload-zone:hover{border-color:var(--accent);background:var(--accent-light);}
-    .upload-zone i{font-size:2rem;color:var(--text-muted);display:block;margin-bottom:10px;}
-    .upload-zone p{font-size:.875rem;color:var(--text-secondary);}
-    .upload-zone input{display:none;}
-    .file-list{padding:0 20px 20px;}
-    .file-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-light);}
-    .file-item:last-child{border-bottom:none;}
-    .file-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
-    .file-icon.pdf{background:#fee2e2;color:#dc2626;}
-    .file-icon.doc{background:#dbeafe;color:#2563eb;}
-    .file-icon.img{background:#d1fae5;color:#059669;}
-    .file-icon.other{background:var(--border-light);color:var(--text-muted);}
-    .file-info{flex:1;min-width:0;}
-    .file-name{font-weight:600;font-size:.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .file-meta{font-size:.75rem;color:var(--text-muted);margin-top:2px;}
-    .file-access{font-size:.72rem;padding:2px 8px;border-radius:4px;font-weight:600;}
-    .access-all{background:var(--success-light);color:var(--success);}
-    .access-restricted{background:var(--warning-light);color:var(--warning);}
-    .file-actions{display:flex;gap:6px;}
-    .btn-xs{padding:5px 10px;font-size:.75rem;font-weight:600;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;}
-    .btn-xs:hover{background:var(--accent);color:white;border-color:var(--accent);}
-    .btn-xs.danger:hover{background:var(--danger);border-color:var(--danger);}
-    .empty-state{text-align:center;padding:40px;color:var(--text-muted);}
-    .empty-state i{font-size:2rem;opacity:.3;display:block;margin-bottom:12px;}
-    /* Modal */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
-    .modal-overlay.open{display:flex;}
-    .modal{background:var(--bg-card);border-radius:var(--radius-md);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,.25);}
-    .modal-header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center;}
-    .modal-title{font-size:1.1rem;font-weight:700;}
-    .modal-close{width:32px;height:32px;border:none;background:var(--border-light);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
-    .modal-close:hover{background:var(--danger-light);color:var(--danger);}
-    .modal-body{padding:20px 24px;}
-    .modal-footer{padding:0 24px 20px;display:flex;justify-content:flex-end;gap:10px;}
-    .form-group{margin-bottom:16px;}
-    .form-group label{display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
-    .form-group input,.form-group select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;font-family:'Inter',sans-serif;outline:none;transition:all .15s;}
-    .form-group input:focus,.form-group select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
-    /* .sidebar-overlay CSS moved to dt-global.css */
-    .sidebar-overlay.visible{display:block;}
-    @media(max-width:768px){
-      /* sidebar CSS moved to dt-global.css */
-      /* .sidebar.open CSS moved to dt-global.css */
-      .main{margin-left:0!important;}
-      .mobile-menu-btn{display:flex!important;}
-      .top-bar,.content{padding:12px 16px;}
-      .rooms-grid{grid-template-columns:1fr 1fr;}
-    }
-  </style>
 </head>
 <body>
-<div class="app"><aside class="sidebar" id="sidebar"></aside>
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-  <main class="main">
-    <header class="top-bar">
-      <div class="top-left">
-        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
-        <div class="page-title-bar"><h1>Deal Room</h1><p>Secure document storage and sharing per deal</p></div>
-      </div>
-      <div class="top-actions">
-        <button class="btn btn-primary" onclick="openUploadModal()"><i class="fas fa-upload"></i> Upload File</button>
-      </div>
-    </header>
-
-    <div class="content">
-      <!-- Deal selector -->
-      <div class="deal-selector">
-        <label><i class="fas fa-building" style="color:var(--accent);margin-right:4px;"></i>Deal:</label>
-        <select id="dealSelect" onchange="loadRoom()">
-          <option value="">— Select a deal —</option>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1><i class="fas fa-folder-open"></i> Deal Room</h1>
+      <div class="header-actions">
+        <select id="dealSelect" class="form-select" onchange="DealRoom.loadDeal()" style="width:auto;min-width:200px;">
+          <option value="">Select a deal...</option>
         </select>
-        <button class="btn btn-secondary" style="padding:8px 14px;font-size:.82rem;" onclick="copyRoomLink()"><i class="fas fa-share-alt"></i> Share Room</button>
+      </div>
+    </div>
+
+    <div class="content" id="dealContent" style="display:none;">
+      <!-- Deal Info -->
+      <div class="deal-room-header">
+        <div class="deal-info">
+          <h2 id="dealName">Deal Name</h2>
+          <p id="dealAddress">Address</p>
+          <div class="deal-meta">
+            <span><i class="fas fa-users"></i> <span id="dealInvestors">0</span> Investors</span>
+            <span><i class="fas fa-dollar-sign"></i> <span id="dealEquity">$0</span> Equity</span>
+            <span><i class="fas fa-building"></i> <span id="dealType">—</span></span>
+          </div>
+        </div>
+        <div class="deal-actions">
+          <button class="btn btn-secondary" onclick="DealRoom.shareRoom()">
+            <i class="fas fa-share-alt"></i> Share
+          </button>
+          <button class="btn btn-primary" onclick="DealRoom.uploadDoc()">
+            <i class="fas fa-upload"></i> Upload
+          </button>
+        </div>
       </div>
 
-      <!-- Room categories -->
-      <div class="rooms-grid" id="roomsGrid">
-        <!-- Populated by JS -->
+      <!-- Tabs -->
+      <div class="dr-tabs">
+        <button class="dr-tab active" data-tab="documents" onclick="DealRoom.switchTab('documents')">
+          <i class="fas fa-file"></i> Documents
+        </button>
+        <button class="dr-tab" data-tab="investors" onclick="DealRoom.switchTab('investors')">
+          <i class="fas fa-users"></i> Investors
+        </button>
+        <button class="dr-tab" data-tab="activity" onclick="DealRoom.switchTab('activity')">
+          <i class="fas fa-history"></i> Activity
+        </button>
       </div>
 
-      <!-- File list -->
-      <div class="card" id="fileCard" style="display:none;">
-        <div class="card-header">
-          <div class="card-title" id="activeCategoryTitle">All Files</div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button id="bulkActionBtn" class="btn-xs" style="display:none;" onclick="openBulkModal()"><i class="fas fa-layer-group"></i> Bulk Edit (<span id="bulkCount">0</span>)</button>
-          <span id="fileCountLabel" style="font-size:.8rem;color:var(--text-secondary);"></span>
+      <!-- Documents Tab -->
+      <div class="dr-tab-content" id="tab-documents">
+        <div class="doc-categories">
+          <div class="doc-category">
+            <div class="cat-header">
+              <h3><i class="fas fa-gavel"></i> Legal</h3>
+              <span class="doc-count" id="countLegal">0</span>
+            </div>
+            <div class="doc-list" id="docsLegal"></div>
+          </div>
+          <div class="doc-category">
+            <div class="cat-header">
+              <h3><i class="fas fa-chart-line"></i> Financial</h3>
+              <span class="doc-count" id="countFinancial">0</span>
+            </div>
+            <div class="doc-list" id="docsFinancial"></div>
+          </div>
+          <div class="doc-category">
+            <div class="cat-header">
+              <h3><i class="fas fa-image"></i> Property</h3>
+              <span class="doc-count" id="countProperty">0</span>
+            </div>
+            <div class="doc-list" id="docsProperty"></div>
+          </div>
+          <div class="doc-category">
+            <div class="cat-header">
+              <h3><i class="fas fa-envelope"></i> Correspondence</h3>
+              <span class="doc-count" id="countCorrespondence">0</span>
+            </div>
+            <div class="doc-list" id="docsCorrespondence"></div>
+          </div>
         </div>
+      </div>
+
+      <!-- Investors Tab -->
+      <div class="dr-tab-content" id="tab-investors" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <h2>Investors in this deal</h2>
+          </div>
+          <div class="card-body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Investor</th>
+                  <th>Investment</th>
+                  <th>Ownership</th>
+                  <th>Status</th>
+                  <th class="text-center">Documents</th>
+                </tr>
+              </thead>
+              <tbody id="investorTableBody"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()"
-          ondragover="e=>e.preventDefault()" ondrop="handleDrop(event)">
-          <i class="fas fa-cloud-upload-alt"></i>
-          <p><strong>Click to upload</strong> or drag and drop files here</p>
-          <p style="font-size:.75rem;margin-top:4px;">PDF, Word, Excel, images — max 10MB each</p>
-          <input type="file" id="fileInput" multiple onchange="handleFileSelect(event)" style="display:none;">
-        </div>
-        <div class="file-list" id="fileList"></div>
+      </div>
+
+      <!-- Activity Tab -->
+      <div class="dr-tab-content" id="tab-activity" style="display:none;">
+        <div class="activity-feed" id="activityFeed"></div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="content" id="emptyState">
+      <div class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <h3>Select a Deal</h3>
+        <p>Choose a deal from the dropdown to view its deal room</p>
       </div>
     </div>
   </main>
-</div>
 
-<!-- Bulk Edit Modal -->
-<div class="modal-overlay" id="bulkModal" onclick="if(event.target===this) closeBulkModal()">
-  <div class="modal" style="max-width:440px;">
-    <div class="modal-header">
-      <h2 class="modal-title"><i class="fas fa-layer-group" style="color:var(--purple);margin-right:6px;"></i>Bulk Edit Files</h2>
-      <button class="modal-close" onclick="closeBulkModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:20px;">Update tags for selected files.</p>
-      <div class="form-group">
-        <label>Category</label>
-        <select id="bulkCategory">
-          <option value="">— No change —</option>
-          ${CATEGORIES.filter(c=>c.id!=='all').map(c=>`<option value="${c.id}">${c.label}</option>`).join('')}
-        </select>
+  <!-- Upload Modal -->
+  <div id="uploadModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-upload"></i> Upload Document</h2>
+        <button class="close" onclick="DealRoom.closeModal()">&times;</button>
       </div>
-      <div class="form-group">
-        <label>Access Level</label>
-        <select id="bulkAccess">
-          <option value="">— No change —</option>
-          <option value="all">All Linked Investors</option>
-          <option value="gp">GP Only</option>
-        </select>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Document Name</label>
+          <input type="text" id="docName" class="form-input" placeholder="e.g., Purchase Agreement">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="docCategory" class="form-select">
+            <option value="legal">Legal</option>
+            <option value="financial">Financial</option>
+            <option value="property">Property</option>
+            <option value="correspondence">Correspondence</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>File</label>
+          <input type="file" id="docFile" class="form-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png">
+        </div>
+        <div class="form-group">
+          <label>Access Level</label>
+          <select id="docAccess" class="form-select">
+            <option value="all">All Investors</option>
+            <option value="gp">GP Only</option>
+            <option value="select">Select Investors</option>
+          </select>
+        </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeBulkModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="applyBulkTags()">Update Selected</button>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="DealRoom.closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="DealRoom.saveDoc()">
+          <i class="fas fa-upload"></i> Upload
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Upload Modal -->
-<div class="modal-overlay" id="uploadModal" onclick="handleModalClick(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <h2 class="modal-title"><i class="fas fa-upload" style="color:var(--accent);margin-right:6px;"></i>Upload Document</h2>
-      <button class="modal-close" onclick="closeUploadModal()"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group">
-        <label>Deal *</label>
-        <select id="modalDealSelect">
-          <option value="">— Select deal —</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Category</label>
-        <select id="modalCategory">
-          <option value="legal">Legal Documents</option>
-          <option value="financial">Financial</option>
-          <option value="due-diligence">Due Diligence</option>
-          <option value="tax">Tax Documents</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Access Level</label>
-        <select id="modalAccess">
-          <option value="all">All Linked Investors</option>
-          <option value="gp">GP Only</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>File *</label>
-        <input type="file" id="modalFile" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="uploadFile()"><i class="fas fa-upload"></i> Upload</button>
-    </div>
-  </div>
-</div>
-
-<script>
-SP.requireGP();
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('visible');}
-
-const CATEGORIES = [
-  { id:'all', label:'All Files', icon:'fa-folder-open', color:'blue' },
-  { id:'legal', label:'Legal Documents', icon:'fa-file-contract', color:'purple' },
-  { id:'financial', label:'Financial', icon:'fa-chart-bar', color:'green' },
-  { id:'due-diligence', label:'Due Diligence', icon:'fa-search', color:'amber' },
-  { id:'tax', label:'Tax Documents', icon:'fa-file-invoice-dollar', color:'blue' },
-  { id:'other', label:'Other', icon:'fa-file', color:'amber' },
-];
-
-let activeCategory = 'all';
-let activeDealId = null;
-
-function init() {
-  const deals = SP.getDeals();
-  const sel = document.getElementById('dealSelect');
-  const modalSel = document.getElementById('modalDealSelect');
-  deals.forEach(d => {
-    const o = new Option(d.name, d.id);
-    sel.appendChild(o.cloneNode(true));
-    modalSel.appendChild(o);
-  });
-  // Pre-select from URL
-  const urlDeal = new URLSearchParams(window.location.search).get('deal');
-  if (urlDeal) { sel.value = urlDeal; loadRoom(); }
-}
-
-async function loadRoom() {
-  activeDealId = document.getElementById('dealSelect').value;
-  if (!activeDealId) {
-    document.getElementById('roomsGrid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);font-size:.875rem;"><i class="fas fa-folder" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i>Select a deal to view its document room</div>';
-    document.getElementById('fileCard').style.display = 'none';
-    return;
-  }
-
-  // Merge Firebase cloud files with localStorage files
-  if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
-    try {
-      const cloudDocs = await SPFB.getDealDocuments(activeDealId);
-      if (cloudDocs.length) {
-        const existing = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
-        const existingIds = new Set(existing.map(f => f.cloudDocId).filter(Boolean));
-        const toAdd = cloudDocs
-          .filter(d => d.fileUrl && !existingIds.has(d.id))
-          .map(d => ({
-            id: 'c_' + d.id,
-            cloudDocId: d.id,
-            dealId: activeDealId,
-            name: d.name,
-            size: d.size ? Math.round(d.size / 1024) + ' KB' : '—',
-            category: d.type || 'other',
-            access: d.accessLevel === 'gp' ? 'gp' : 'all',
-            uploadedAt: d.uploadedAt?.toDate?.()?.toLocaleDateString() || '—',
-            cloudUrl: d.fileUrl,
-            isCloud: true,
-          }));
-        if (toAdd.length) {
-          SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', [...existing, ...toAdd]);
-        }
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.SP && SP.isLoggedIn) {
+        initPage();
+      } else {
+        document.addEventListener('sp-ready', initPage);
       }
-    } catch (e) { console.warn('Deal Room cloud sync:', e.message); }
-  }
+    });
 
-  renderCategories();
-  renderFiles('all');
-  document.getElementById('fileCard').style.display = 'block';
-}
-
-function getFiles(dealId) {
-  const all = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
-  return all.filter(f => f.dealId === dealId);
-}
-
-function renderCategories() {
-  const files = getFiles(activeDealId);
-  const grid = document.getElementById('roomsGrid');
-  grid.innerHTML = CATEGORIES.map(c => {
-    const count = c.id === 'all' ? files.length : files.filter(f => f.category === c.id).length;
-    return `<div class="room-card ${activeCategory===c.id?'active':''}" onclick="renderFiles('${c.id}')">
-      <div class="room-icon ${c.color}"><i class="fas ${c.icon}"></i></div>
-      <div class="room-title">${c.label}</div>
-      <div class="room-count">${count} file${count!==1?'s':''}</div>
-    </div>`;
-  }).join('');
-}
-
-function fileIconClass(name) {
-  const ext = (name||'').split('.').pop().toLowerCase();
-  if (['pdf'].includes(ext)) return 'pdf';
-  if (['doc','docx'].includes(ext)) return 'doc';
-  if (['jpg','jpeg','png','gif','webp'].includes(ext)) return 'img';
-  return 'other';
-}
-function fileIconFA(name) {
-  const ext = (name||'').split('.').pop().toLowerCase();
-  if (ext==='pdf') return 'fa-file-pdf';
-  if (['doc','docx'].includes(ext)) return 'fa-file-word';
-  if (['xls','xlsx','csv'].includes(ext)) return 'fa-file-excel';
-  if (['jpg','jpeg','png','gif','webp'].includes(ext)) return 'fa-file-image';
-  return 'fa-file';
-}
-
-function renderFiles(categoryId) {
-  activeCategory = categoryId;
-  const files = getFiles(activeDealId).filter(f => categoryId==='all' || f.category===categoryId);
-  const cat = CATEGORIES.find(c=>c.id===categoryId);
-  document.getElementById('activeCategoryTitle').textContent = cat?.label || 'Files';
-  document.getElementById('fileCountLabel').textContent = `${files.length} file${files.length!==1?'s':''}`;
-
-  renderCategories(); // refresh counts + active state
-
-  const list = document.getElementById('fileList');
-  if (!files.length) {
-    list.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><p>No files in this category yet.<br>Upload files using the button above or drop them in the zone.</p></div>`;
-    return;
-  }
-  list.innerHTML = files.map(f => `
-    <div class="file-item">
-      <input type="checkbox" class="file-checkbox" value="${f.id}" onchange="updateBulkUI()" style="width:18px;height:18px;accent-color:var(--accent);margin-right:4px;">
-      <div class="file-icon ${fileIconClass(f.name)}"><i class="fas ${fileIconFA(f.name)}"></i></div>
-      <div class="file-info">
-        <div class="file-name">${f.name}</div>
-        <div class="file-meta">${f.size||'—'} · Uploaded ${f.uploadedAt||'—'} · ${f.category||'other'}${f.isCloud?` · <span style="color:var(--accent);font-size:.75rem;"><i class="fas fa-cloud"></i> Cloud</span>`:''}</div>
-      </div>
-      <span class="file-access ${f.access==='all'?'access-all':'access-restricted'}">${f.access==='all'?'All Investors':'GP Only'}</span>
-      <div class="file-actions">
-        ${(f.dataUrl||f.cloudUrl)?`<button class="btn-xs" onclick="downloadFile('${f.id}')"><i class="fas fa-${f.cloudUrl?'external-link-alt':'download'}"></i></button>`:''}
-        <button class="btn-xs" onclick="toggleAccess('${f.id}')" title="Toggle access"><i class="fas fa-lock${f.access==='all'?'-open':''}"></i></button>
-        <button class="btn-xs danger" onclick="deleteFile('${f.id}')"><i class="fas fa-trash"></i></button>
-      </div>
-    </div>`).join('');
-  updateBulkUI();
-}
-
-function updateBulkUI() {
-  const selected = document.querySelectorAll('.file-checkbox:checked').length;
-  document.getElementById('bulkActionBtn').style.display = selected ? 'flex' : 'none';
-  document.getElementById('bulkCount').textContent = selected;
-}
-
-function openBulkModal() { document.getElementById('bulkModal').classList.add('open'); }
-function closeBulkModal() { document.getElementById('bulkModal').classList.remove('open'); }
-
-function applyBulkTags() {
-  const selectedIds = Array.from(document.querySelectorAll('.file-checkbox:checked')).map(cb => cb.value);
-  const cat = document.getElementById('bulkCategory').value;
-  const acc = document.getElementById('bulkAccess').value;
-  const allFiles = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
-  selectedIds.forEach(id => {
-    const f = allFiles.find(x => x.id === id);
-    if (f) { if (cat) f.category = cat; if (acc) f.access = acc; }
-  });
-  SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', allFiles);
-  renderFiles(activeCategory);
-  closeBulkModal();
-}
-
-function saveFile(fileObj) {
-  const all = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
-  all.unshift(fileObj);
-  SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', all);
-}
-
-function processFiles(fileList, dealId, category, access) {
-  Array.from(fileList).forEach(file => {
-    if (file.size > 25 * 1024 * 1024) { alert(`${file.name} is too large (max 25MB)`); return; }
-
-    // Show upload progress indicator
-    const progressId = 'prog_' + Date.now();
-    const progressEl = document.createElement('div');
-    progressEl.id = progressId;
-    progressEl.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;font-size:.85rem;z-index:9999;min-width:240px;box-shadow:var(--shadow-lg);';
-    progressEl.innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><i class="fas fa-cloud-upload-alt" style="color:var(--accent);"></i><div><div style="font-weight:600;">${file.name}</div><div id="${progressId}_pct" style="color:var(--text-secondary);">Uploading…</div></div></div><div style="height:4px;background:var(--border-light);border-radius:2px;margin-top:10px;"><div id="${progressId}_bar" style="height:4px;background:var(--accent);border-radius:2px;width:0;transition:width .2s;"></div></div>`;
-    document.body.appendChild(progressEl);
-
-    const fileEntry = {
-      id: 'f' + Date.now() + Math.random().toString(36).slice(2,5),
-      dealId,
-      name: file.name,
-      size: (file.size/1024).toFixed(0) + ' KB',
-      category: category || 'other',
-      access: access || 'all',
-      uploadedAt: new Date().toLocaleDateString(),
-      mimeType: file.type,
-      cloudUrl: null,
-      cloudDocId: null,
-      isCloud: false,
-    };
-
-    // Listen for SPFB upload progress events
-    const onProgress = (ev) => {
-      if (ev.detail.name !== file.name) return;
-      const pct = ev.detail.pct;
-      const barEl = document.getElementById(progressId + '_bar');
-      const pctEl = document.getElementById(progressId + '_pct');
-      if (barEl) barEl.style.width = pct + '%';
-      if (pctEl) pctEl.textContent = `${pct}% uploaded`;
-    };
-    window.addEventListener('spfb-upload-progress', onProgress);
-
-    const finish = (url, docId) => {
-      window.removeEventListener('spfb-upload-progress', onProgress);
-      setTimeout(() => { document.getElementById(progressId)?.remove(); }, 2500);
-      if (url) { fileEntry.cloudUrl = url; fileEntry.cloudDocId = docId; fileEntry.isCloud = true; }
-      saveFile(fileEntry);
-      renderFiles(activeCategory);
-      renderCategories();
-      SP.logActivity('fa-cloud-upload-alt', 'blue', `<strong>${file.name}</strong> uploaded${url ? ' to cloud' : ''}`);
-      // Show success toast
-      const toast = document.createElement('div');
-      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--success);color:#fff;border-radius:var(--radius);padding:12px 20px;font-size:.85rem;z-index:9999;box-shadow:var(--shadow-lg);';
-      toast.innerHTML = `<i class="fas fa-check-circle"></i> ${file.name} uploaded${url ? ' to cloud' : ''}`;
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    };
-
-    if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
-      // Upload to Firebase Storage
-      SPFB.uploadFile(file, dealId, category || 'other', access === 'gp' ? 'gp' : 'all_investors')
-        .then(({ docId, fileUrl }) => { finish(fileUrl, docId); })
-        .catch(err => {
-          console.warn('SPFB upload failed, falling back to local:', err.message);
-          // Fallback: read as DataURL and save locally
-          const reader = new FileReader();
-          reader.onload = ev => { fileEntry.dataUrl = ev.target.result; finish(null, null); };
-          reader.readAsDataURL(file);
-        });
-    } else {
-      // Offline: use DataURL in localStorage (existing behavior, 10MB cap)
-      if (file.size > 10 * 1024 * 1024) {
-        document.getElementById(progressId)?.remove();
-        alert(`${file.name}: Firebase not connected. Files >10MB require cloud upload. Connect Firebase to upload large files.`);
+    function initPage() {
+      if (!SP.isLoggedIn()) {
+        window.location.href = 'login.html';
         return;
       }
-      const reader = new FileReader();
-      reader.onload = ev => { fileEntry.dataUrl = ev.target.result; finish(null, null); };
-      reader.readAsDataURL(file);
+      DealRoom.init();
     }
-  });
-}
-
-function handleFileSelect(e) { processFiles(e.target.files, activeDealId, activeCategory==='all'?'other':activeCategory, 'all'); }
-function handleDrop(e) { e.preventDefault(); if (!activeDealId) { alert('Select a deal first.'); return; } processFiles(e.dataTransfer.files, activeDealId, 'other', 'all'); }
-
-function downloadFile(id) {
-  const all = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
-  const f = all.find(x=>x.id===id);
-  if (!f) return;
-  // Cloud file — open in new tab (Firebase Storage signed URL)
-  if (f.cloudUrl) { window.open(f.cloudUrl, '_blank'); return; }
-  // Local file — DataURL download
-  if (f.dataUrl) { const a = document.createElement('a'); a.href = f.dataUrl; a.download = f.name; a.click(); return; }
-  alert('File not available. It may have been stored in a previous session.');
-}
-
-function toggleAccess(id) {
-  const all = SP.load(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', []);
-  const idx = all.findIndex(f=>f.id===id);
-  if (idx<0) return;
-  all[idx].access = all[idx].access==='all'?'gp':'all';
-  SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', all);
-  renderFiles(activeCategory);
-}
-
-function deleteFile(id) {
-  if (!confirm('Delete this file?')) return;
-  SP.save(SP.makeOrgKey ? SP.makeOrgKey('dealRoomFiles') : 'dealRoomFiles', SP.load('dealRoomFiles',[]).filter(f=>f.id!==id));
-  renderFiles(activeCategory);
-  renderCategories();
-}
-
-function openUploadModal() {
-  document.getElementById('modalDealSelect').value = activeDealId || '';
-  document.getElementById('uploadModal').classList.add('open');
-}
-function closeUploadModal() { document.getElementById('uploadModal').classList.remove('open'); }
-function handleModalClick(e) { if(e.target===document.getElementById('uploadModal')) closeUploadModal(); }
-
-function uploadFile() {
-  const dealId = document.getElementById('modalDealSelect').value;
-  const category = document.getElementById('modalCategory').value;
-  const access = document.getElementById('modalAccess').value;
-  const files = document.getElementById('modalFile').files;
-  if (!dealId) { alert('Select a deal.'); return; }
-  if (!files.length) { alert('Select at least one file.'); return; }
-  processFiles(files, dealId, category, access);
-  // If this deal isn't selected, switch to it
-  if (dealId !== activeDealId) { document.getElementById('dealSelect').value = dealId; loadRoom(); }
-  closeUploadModal();
-}
-
-function copyRoomLink() {
-  if (!activeDealId) { alert('Select a deal first.'); return; }
-  const url = window.location.href.split('?')[0] + '?deal=' + activeDealId;
-  navigator.clipboard.writeText(url).then(() => {
-    const btn = document.querySelector('.deal-selector button');
-    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-    setTimeout(()=>{ btn.innerHTML='<i class="fas fa-share-alt"></i> Share Room'; },2000);
-  });
-}
-
-init();
-</script>
+  </script>
+  <script src="js/sp-deal-room.js"></script>
 </body>
 </html>

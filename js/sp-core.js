@@ -1089,7 +1089,9 @@ window.SP = (function () {
           { href:'dashboard.html', icon:'fa-th-large', label:'Dashboard' },
         ]},
         { id:'deals', title:'DEALS', items:[
-          { href:'deals.html', icon:'fa-building', label:'Portfolio' },
+          { href:'deals.html', icon:'fa-building', label:'Properties' },
+          { href:'deal-room.html', icon:'fa-folder-open', label:'Deal Room' },
+          { href:'portfolio.html', icon:'fa-chart-pie', label:'Fund Overview' },
           { href:'new-deal.html', icon:'fa-plus', label:'New Deal' },
           { href:'sourcing-crm.html', icon:'fa-stream', label:'Pipeline' },
           { href:'cap-table.html', icon:'fa-pie-chart', label:'Cap Tables' },
@@ -1143,6 +1145,7 @@ window.SP = (function () {
           { href:'compliance-hub.html', icon:'fa-shield-halved', label:'Compliance' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
+          { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
           { href:'audit-logs.html', icon:'fa-fingerprint', label:'Audit Log' },
           { href:'lenders.html', icon:'fa-landmark', label:'Lenders' },
         ]},
