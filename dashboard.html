@@ -65,6 +65,15 @@
       .main { margin-left: 0 !important; width: 100% !important; }
       .sidebar, #sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; }
       .sidebar.open, #sidebar.open { transform: translateX(0) !important; }
+      /* Top bar mobile layout */
+      .mobile-menu-btn { display: flex !important; }
+      .mobile-brand { display: flex !important; }
+      .desktop-title h1 { font-size: 1rem !important; }
+      .desktop-title p { display: none !important; }
+      #syncIndicator { display: none !important; }
+      .btn-label { display: none !important; }
+      /* "Getting Started" checklist: don't overlap top bar */
+      #alertBanners { margin-top: 8px; }
     }
     .top-bar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
     .top-left { display: flex; align-items: center; gap: 16px; }
@@ -229,22 +238,34 @@
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
   <main class="main">
-    <header class="top-bar">
-      <div class="top-left">
-        <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
-        <div class="page-title-bar">
-          <h1>Dashboard</h1>
-          <p id="greetingLine">Good morning — here's your portfolio overview</p>
+    <header class="top-bar" style="padding:12px 16px;">
+      <!-- Mobile top bar: hamburger | logo | actions -->
+      <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0;">
+        <button class="mobile-menu-btn" onclick="toggleSidebar()" style="display:none;flex-shrink:0;width:40px;height:40px;background:none;border:1px solid var(--border);border-radius:8px;cursor:pointer;align-items:center;justify-content:center;">
+          <i class="fas fa-bars" style="color:var(--text-secondary);font-size:1rem;"></i>
+        </button>
+        <!-- Brand logo — visible on mobile, hidden on desktop (sidebar has it) -->
+        <a href="dashboard.html" class="mobile-brand" style="display:none;align-items:center;gap:8px;text-decoration:none;flex-shrink:0;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28" style="flex-shrink:0;">
+            <circle cx="16" cy="16" r="16" fill="#1e3a5f"/>
+            <rect x="7" y="5" width="3.5" height="22" rx="1.75" fill="#6366f1"/>
+            <path d="M 13 11 L 23 16 L 13 21" stroke="#818cf8" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span style="font-size:1.1rem;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">deel<span style="color:#6366f1;">track</span></span>
+        </a>
+        <!-- Desktop: page title -->
+        <div class="desktop-title" style="flex:1;min-width:0;">
+          <h1 style="font-size:1.25rem;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Dashboard</h1>
+          <p id="greetingLine" style="margin:0;font-size:0.8rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Good morning — here's your portfolio overview</p>
         </div>
       </div>
-      <div class="top-actions">
-        <!-- Cloud sync indicator -->
-        <div id="syncIndicator" title="Cloud sync status" style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text-muted);padding:6px 10px;border-radius:var(--radius);background:var(--border-light);cursor:default;user-select:none;">
-          <i class="fas fa-circle" id="syncDot" style="font-size:.55rem;color:var(--text-muted);"></i>
-          <span id="syncLabel">Connecting…</span>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <div id="syncIndicator" title="Cloud sync status" style="display:flex;align-items:center;gap:4px;font-size:.75rem;color:var(--text-muted);padding:5px 8px;border-radius:var(--radius);background:var(--border-light);cursor:default;user-select:none;">
+          <i class="fas fa-circle" id="syncDot" style="font-size:.5rem;color:var(--text-muted);"></i>
+          <span id="syncLabel">…</span>
         </div>
-        <button class="btn-icon notification-dot" title="Notifications"><i class="fas fa-bell"></i></button>
-        <a href="new-deal.html" class="btn btn-primary"><i class="fas fa-plus"></i> New Deal</a>
+        <button class="btn-icon notification-dot" title="Notifications" style="width:36px;height:36px;flex-shrink:0;"><i class="fas fa-bell"></i></button>
+        <a href="new-deal.html" class="btn btn-primary" style="padding:8px 12px;font-size:0.82rem;flex-shrink:0;"><i class="fas fa-plus"></i> <span class="btn-label">New Deal</span></a>
       </div>
     </header>
 
