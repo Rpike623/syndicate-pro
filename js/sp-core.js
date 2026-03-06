@@ -1112,6 +1112,8 @@ window.SP = (function () {
           { href:'investors.html', icon:'fa-users', label:'Investors' },
           { href:'investor-pipeline.html', icon:'fa-funnel-dollar', label:'Lead Pipeline' },
           { href:'investor-onboarding.html', icon:'fa-user-check', label:'Onboarding' },
+          { href:'webinars.html', icon:'fa-video', label:'Webinars' },
+          { href:'referrals.html', icon:'fa-share-nodes', label:'Referrals' },
           { href:'investor-chat.html', icon:'fa-comments', label:'Messenger' },
           { href:'investor-update.html', icon:'fa-bullhorn', label:'Updates' },
           { href:'inbox.html', icon:'fa-inbox', label:'Inbox' },
@@ -1128,6 +1130,7 @@ window.SP = (function () {
           { href:'capital-calls.html', icon:'fa-hand-holding-usd', label:'Capital Calls' },
           { href:'capital-account.html', icon:'fa-list-ol', label:'Capital Accounts' },
           { href:'accounting.html', icon:'fa-calculator', label:'Fund Accounting' },
+          { href:'budget-actual.html', icon:'fa-balance-scale', label:'Budget vs Actual' },
         ], overflow:[
           { href:'capital-account-statement.html', icon:'fa-file-contract', label:'Account Ledger' },
           { href:'distribution-reconciliation.html', icon:'fa-scale-balanced', label:'Reconciliation' },
@@ -1153,6 +1156,7 @@ window.SP = (function () {
         { id:'ops', title:'OPERATIONS', items:[
           { href:'insurance.html', icon:'fa-shield-cat', label:'Insurance' },
           { href:'reservations.html', icon:'fa-hand-pointer', label:'Reservations' },
+          { href:'vendors.html', icon:'fa-tools', label:'Vendors' },
           { href:'tax-center.html', icon:'fa-file-invoice-dollar', label:'Tax Center' },
         ], overflow:[
         ]},
