@@ -1591,3 +1591,178 @@ input:focus, select:focus, textarea:focus {
     gap: 8px;
   }
 }
+
+/* ── MOBILE POLISH v2 ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Bigger touch targets */
+  .btn, .btn-primary, .btn-secondary, .btn-icon {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .btn-icon {
+    padding: 10px 12px;
+  }
+  
+  /* Form inputs */
+  .form-input, .form-select {
+    min-height: 44px;
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+  
+  /* Header */
+  .dt-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  
+  .dt-header h1 {
+    font-size: 18px;
+    flex: 1 1 100%;
+    order: 2;
+  }
+  
+  .dt-header .header-actions {
+    order: 3;
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  
+  .dt-header .header-actions .btn {
+    flex: 1;
+  }
+  
+  .mobile-menu-btn {
+    order: 1;
+    width: 44px;
+    height: 44px;
+    display: flex !important;
+  }
+  
+  /* Cards */
+  .card {
+    margin-bottom: 16px;
+    border-radius: 8px;
+  }
+  
+  .card-header {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  
+  .card-header h2 {
+    font-size: 16px;
+    flex: 1 1 100%;
+  }
+  
+  /* Data tables */
+  .data-table {
+    font-size: 13px;
+  }
+  
+  .data-table th, .data-table td {
+    padding: 10px 8px;
+  }
+  
+  /* Stats */
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .stat-card {
+    padding: 12px;
+  }
+  
+  .stat-value {
+    font-size: 22px;
+  }
+  
+  /* Modal */
+  .modal-content {
+    margin: 16px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+  
+  .modal-header {
+    padding: 16px;
+    position: sticky;
+    top: 0;
+    background: var(--dt-surface);
+    z-index: 1;
+  }
+  
+  .modal-body {
+    padding: 16px;
+  }
+  
+  .modal-footer {
+    padding: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .modal-footer .btn {
+    flex: 1;
+  }
+  
+  /* Content padding */
+  .content {
+    padding: 16px;
+  }
+  
+  /* Form groups */
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  .form-row {
+    gap: 12px;
+  }
+  
+  /* Sidebar overlay */
+  .sidebar-overlay {
+    display: none;
+  }
+  
+  /* Hide less critical elements on mobile */
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .header-actions .btn span {
+    display: none;
+  }
+  
+  .header-actions .btn i {
+    margin: 0;
+  }
+}
+
+/* Fix for iOS Safari viewport height */
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Horizontal scroll for tables */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+  min-width: 600px;
+}
