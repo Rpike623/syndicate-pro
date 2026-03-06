@@ -11,49 +11,58 @@
   <div id="sidebar"></div>
   <main class="main" id="main">
     <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
-        <i class="fas fa-bars"></i>
-      </button>
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
       <h1><i class="fas fa-user-check"></i> Investor Onboarding</h1>
       <div class="header-actions">
-        <button class="btn btn-primary" onclick="Onboarding.startNew()">
-          <i class="fas fa-plus"></i> New Onboarding
-        </button>
+        <button class="btn btn-secondary" onclick="Onboarding.exportAll()"><i class="fas fa-download"></i> Export</button>
+        <button class="btn btn-primary" onclick="Onboarding.startNew()"><i class="fas fa-plus"></i> New Investor</button>
       </div>
     </div>
 
     <div class="content">
-      <!-- Overview Stats -->
+      <!-- Stats -->
       <div class="stats-row">
-        <div class="stat-card">
-          <span class="stat-label">Active Onboardings</span>
-          <span class="stat-value" id="statActive">0</span>
+        <div class="stat-card"><span class="stat-label">Active</span><span class="stat-value" id="statActive">0</span></div>
+        <div class="stat-card"><span class="stat-label">Awaiting Docs</span><span class="stat-value text-warning" id="statDocs">0</span></div>
+        <div class="stat-card"><span class="stat-label">Verifying</span><span class="stat-value text-primary" id="statVerify">0</span></div>
+        <div class="stat-card"><span class="stat-label">Completed</span><span class="stat-value text-success" id="statCompleted">0</span></div>
+        <div class="stat-card"><span class="stat-label">Avg Days</span><span class="stat-value" id="statDays">0</span></div>
+      </div>
+
+      <!-- Pipeline View -->
+      <div class="onboarding-pipeline">
+        <div class="pipeline-stage" data-stage="invite">
+          <div class="stage-header"><h3><i class="fas fa-envelope"></i> Invited</h3><span class="stage-count" id="count-invite">0</span></div>
+          <div class="stage-cards" id="cards-invite"></div>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Awaiting Investor</span>
-          <span class="stat-value text-warning" id="statAwaiting">0</span>
+        <div class="pipeline-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="pipeline-stage" data-stage="docs">
+          <div class="stage-header"><h3><i class="fas fa-file-alt"></i> Documents</h3><span class="stage-count" id="count-docs">0</span></div>
+          <div class="stage-cards" id="cards-docs"></div>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Completed</span>
-          <span class="stat-value text-success" id="statCompleted">0</span>
+        <div class="pipeline-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="pipeline-stage" data-stage="verify">
+          <div class="stage-header"><h3><i class="fas fa-user-shield"></i> Verification</h3><span class="stage-count" id="count-verify">0</span></div>
+          <div class="stage-cards" id="cards-verify"></div>
         </div>
-        <div class="stat-card">
-          <span class="stat-label">Avg. Completion Time</span>
-          <span class="stat-value" id="statAvgTime">0 days</span>
+        <div class="pipeline-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="pipeline-stage" data-stage="complete">
+          <div class="stage-header"><h3><i class="fas fa-check-circle"></i> Ready</h3><span class="stage-count" id="count-complete">0</span></div>
+          <div class="stage-cards" id="cards-complete"></div>
         </div>
       </div>
 
-      <!-- Onboarding List -->
+      <!-- Detailed List -->
       <div class="card">
         <div class="card-header">
-          <h2><i class="fas fa-list"></i> Onboarding Pipeline</h2>
+          <h2><i class="fas fa-list"></i> All Onboardings</h2>
           <div class="filter-group">
             <select id="statusFilter" class="form-select form-select-sm" onchange="Onboarding.renderList()">
               <option value="">All Status</option>
-              <option value="started">Started</option>
-              <option value="docs_pending">Documents Pending</option>
-              <option value="verification">Verification</option>
-              <option value="completed">Completed</option>
+              <option value="invite">Invited</option>
+              <option value="docs">Awaiting Docs</option>
+              <option value="verify">Verification</option>
+              <option value="complete">Ready to Invest</option>
             </select>
           </div>
         </div>
@@ -64,250 +73,101 @@
                 <th>Investor</th>
                 <th>Deal</th>
                 <th>Investment</th>
-                <th>Started</th>
                 <th>Progress</th>
-                <th>Status</th>
+                <th>Step</th>
+                <th>Days Active</th>
                 <th class="text-center">Actions</th>
               </tr>
             </thead>
-            <tbody id="onboardingTableBody">
-            </tbody>
+            <tbody id="onboardingTableBody"></tbody>
           </table>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- Onboarding Wizard Modal -->
-  <div id="wizardModal" class="modal" style="display:none;">
+  <!-- New Investor Modal -->
+  <div id="newModal" class="modal" style="display:none;">
     <div class="modal-content modal-lg">
-      <div class="modal-header">
-        <h2><i class="fas fa-user-plus"></i> New Investor Onboarding</h2>
-        <button class="close" onclick="Onboarding.closeModal()">&times;</button>
-      </div>
+      <div class="modal-header"><h2><i class="fas fa-user-plus"></i> New Investor Onboarding</h2><button class="close" onclick="Onboarding.closeModal()">&times;</button></div>
       <div class="modal-body">
-        <!-- Step Indicator -->
-        <div class="wizard-steps">
-          <div class="wizard-step active" data-step="1">
-            <span class="step-num">1</span>
-            <span class="step-label">Investor Info</span>
-          </div>
-          <div class="wizard-step" data-step="2">
-            <span class="step-num">2</span>
-            <span class="step-label">Deal Selection</span>
-          </div>
-          <div class="wizard-step" data-step="3">
-            <span class="step-num">3</span>
-            <span class="step-label">Documents</span>
-          </div>
-          <div class="wizard-step" data-step="4">
-            <span class="step-num">4</span>
-            <span class="step-label">Review</span>
-          </div>
+        <!-- Stepper -->
+        <div class="onboarding-stepper">
+          <div class="step active" data-step="1"><span>1</span><small>Contact</small></div>
+          <div class="step" data-step="2"><span>2</span><small>Investment</small></div>
+          <div class="step" data-step="3"><span>3</span><small>Documents</small></div>
+          <div class="step" data-step="4"><span>4</span><small>Review</small></div>
         </div>
 
-        <!-- Step 1: Investor Info -->
-        <div class="wizard-content" id="step1">
+        <!-- Step 1: Contact -->
+        <div class="step-content" id="step1">
           <h3>Investor Information</h3>
           <div class="form-row">
-            <div class="form-group">
-              <label>First Name *</label>
-              <input type="text" id="invFirstName" class="form-input" required>
-            </div>
-            <div class="form-group">
-              <label>Last Name *</label>
-              <input type="text" id="invLastName" class="form-input" required>
-            </div>
+            <div class="form-group"><label>First Name *</label><input type="text" id="invFirstName" class="form-input"></div>
+            <div class="form-group"><label>Last Name *</label><input type="text" id="invLastName" class="form-input"></div>
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label>Email *</label>
-              <input type="email" id="invEmail" class="form-input" required>
-            </div>
-            <div class="form-group">
-              <label>Phone</label>
-              <input type="tel" id="invPhone" class="form-input">
-            </div>
+            <div class="form-group"><label>Email *</label><input type="email" id="invEmail" class="form-input"></div>
+            <div class="form-group"><label>Phone</label><input type="tel" id="invPhone" class="form-input"></div>
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label>Entity Name (if applicable)</label>
-              <input type="text" id="invEntity" class="form-input" placeholder="LLC, Trust, etc.">
-            </div>
-            <div class="form-group">
-              <label>Tax ID / EIN</label>
-              <input type="text" id="invEin" class="form-input" placeholder="XX-XXXXXXX">
-            </div>
+            <div class="form-group"><label>Entity (optional)</label><input type="text" id="invEntity" class="form-input" placeholder="LLC, Trust, etc."></div>
+            <div class="form-group"><label>EIN</label><input type="text" id="invEin" class="form-input" placeholder="XX-XXXXXXX"></div>
           </div>
-          <div class="form-group">
-            <label>Mailing Address</label>
-            <input type="text" id="invAddress" class="form-input" placeholder="Street address">
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>City</label>
-              <input type="text" id="invCity" class="form-input">
-            </div>
-            <div class="form-group">
-              <label>State</label>
-              <input type="text" id="invState" class="form-input">
-            </div>
-            <div class="form-group">
-              <label>ZIP</label>
-              <input type="text" id="invZip" class="form-input">
-            </div>
-          </div>
+          <div class="form-group"><label>Address</label><input type="text" id="invAddress" class="form-input"></div>
         </div>
 
-        <!-- Step 2: Deal Selection -->
-        <div class="wizard-content" id="step2" style="display:none;">
-          <h3>Select Investment</h3>
-          <div class="form-group">
-            <label>Deal *</label>
-            <select id="invDeal" class="form-select" onchange="Onboarding.updateDealInfo()">
-              <option value="">Select a deal...</option>
-            </select>
+        <!-- Step 2: Investment -->
+        <div class="step-content" id="step2" style="display:none;">
+          <h3>Investment Details</h3>
+          <div class="form-group"><label>Select Deal *</label><select id="invDeal" class="form-select"></select></div>
+          <div class="form-row">
+            <div class="form-group"><label>Investment Amount *</label><input type="number" id="invAmount" class="form-input" placeholder="250000"></div>
+            <div class="form-group"><label>Entity Type</label><select id="invEntityType" class="form-select"><option value="individual">Individual</option><option value="joint">Joint Tenants</option><option value="llc">LLC</option><option value="trust">Trust</option><option value="ira">Self-Directed IRA</option></select></div>
           </div>
-          <div class="deal-preview" id="dealPreview" style="display:none;">
-            <div class="deal-info-card">
-              <h4 id="previewDealName">Deal Name</h4>
-              <p id="previewDealAddress">Address</p>
-              <div class="deal-details">
-                <div><span>Target Return:</span> <strong id="previewReturn">—</strong></div>
-                <div><span>Min Investment:</span> <strong id="previewMin">—</strong></div>
-                <div><span>Hold Period:</span> <strong id="previewHold">—</strong></div>
-              </div>
-            </div>
-          </div>
-          <div class="form-group" style="margin-top:20px;">
-            <label>Investment Amount *</label>
-            <div class="input-group">
-              <span>$</span>
-              <input type="number" id="invAmount" class="form-input" min="0" placeholder="250000">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Investment Entity Type</label>
-            <select id="invEntityType" class="form-select">
-              <option value="individual">Individual</option>
-              <option value="joint">Joint Tenants</option>
-              <option value="llc">LLC</option>
-              <option value="trust">Trust</option>
-              <option value="ira">Self-Directed IRA</option>
-              <option value="corporation">Corporation</option>
-            </select>
-          </div>
+          <div class="form-group"><label>Investment Source</label><select id="invSource" class="form-select"><option value="savings">Personal Savings</option><option value="retirement">Retirement Account</option><option value="inheritance">Inheritance</option><option value="sale">Real Estate Sale</option><option value="other">Other</option></select></div>
         </div>
 
         <!-- Step 3: Documents -->
-        <div class="wizard-content" id="step3" style="display:none;">
+        <div class="step-content" id="step3" style="display:none;">
           <h3>Required Documents</h3>
-          <p class="text-muted">Select documents to send to investor for completion.</p>
-          
-          <div class="doc-checklist">
-            <label class="checkbox-item">
-              <input type="checkbox" id="docSubscription" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Subscription Agreement</strong>
-                <small>Primary investment document</small>
-              </div>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" id="docAccreditation" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Accreditation Certificate</strong>
-                <small>Net worth / income verification</small>
-              </div>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" id="docW9" checked>
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>W-9 Form</strong>
-                <small>Tax identification</small>
-              </div>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" id="docBankInfo">
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Bank Information</strong>
-                <small>Wire instructions</small>
-              </div>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" id="docPpm">
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>PPM Acknowledgment</strong>
-                <small>Private placement memorandum</small>
-              </div>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" id="docRisk">
-              <span class="checkmark"></span>
-              <div class="checkbox-label">
-                <strong>Risk Disclosure</strong>
-                <small>Investment risk acknowledgment</small>
-              </div>
-            </label>
+          <div class="doc-checklist-enhanced">
+            <label class="doc-item"><input type="checkbox" id="docSub" checked><span class="doc-check"><i class="fas fa-check"></i></span><div class="doc-label"><strong>Subscription Agreement</strong><small>Primary investment document</small></div><span class="badge badge-secondary">Required</span></label>
+            <label class="doc-item"><input type="checkbox" id="docAccred" checked><span class="doc-check"><i class="fas fa-check"></i></span><div class="doc-label"><strong>Accreditation Certificate</strong><small>Net worth / income verification</small></div><span class="badge badge-secondary">Required</span></label>
+            <label class="doc-item"><input type="checkbox" id="docW9" checked><span class="doc-check"><i class="fas fa-check"></i></span><div class="doc-label"><strong>W-9 Form</strong><small>Tax identification</small></div><span class="badge badge-secondary">Required</span></label>
+            <label class="doc-item"><input type="checkbox" id="docPpm"><span class="doc-check"><i class="fas fa-check"></i></span><div class="doc-label"><strong>PPM Acknowledgment</strong><small>Private placement memorandum</small></div><span class="badge badge-info">Recommended</span></label>
+            <label class="doc-item"><input type="checkbox" id="docBank"><span class="doc-check"><i class="fas fa-check"></i></span><div class="doc-label"><strong>Bank Information</strong><small>Wire instructions</small></div><span class="badge badge-info">Recommended</span></label>
+            <label class="doc-item"><input type="checkbox" id="docCorp"><span class="doc-check"><i class="fas fa-check"></i></span><div class="doc-label"><strong>Corporate Resolution</strong><small>For entities only</small></div><span class="badge badge-warning">If applicable</span></label>
           </div>
         </div>
 
         <!-- Step 4: Review -->
-        <div class="wizard-content" id="step4" style="display:none;">
+        <div class="step-content" id="step4" style="display:none;">
           <h3>Review & Send</h3>
-          <div class="review-summary">
-            <div class="review-section">
-              <h4>Investor Details</h4>
-              <p><strong>Name:</strong> <span id="reviewName">—</span></p>
-              <p><strong>Email:</strong> <span id="reviewEmail">—</span></p>
-              <p><strong>Entity:</strong> <span id="reviewEntity">—</span></p>
-            </div>
-            <div class="review-section">
-              <h4>Investment Details</h4>
-              <p><strong>Deal:</strong> <span id="reviewDeal">—</span></p>
-              <p><strong>Amount:</strong> <span id="reviewAmount">—</span></p>
-              <p><strong>Type:</strong> <span id="reviewType">—</span></p>
-            </div>
-            <div class="review-section">
-              <h4>Documents to Send</h4>
-              <ul id="reviewDocs"></ul>
-            </div>
+          <div class="review-box">
+            <div class="review-row"><span>Name:</span><strong id="revName">—</strong></div>
+            <div class="review-row"><span>Email:</span><strong id="revEmail">—</strong></div>
+            <div class="review-row"><span>Deal:</span><strong id="revDeal">—</strong></div>
+            <div class="review-row"><span>Investment:</span><strong id="revAmount">—</strong></div>
+            <div class="review-row"><span>Documents:</span><strong id="revDocs">—</strong></div>
           </div>
-          
           <div class="form-group" style="margin-top:20px;">
-            <label>Email Message (optional)</label>
-            <textarea id="invMessage" class="form-input" rows="3" placeholder="Add a personal message to the investor..."></textarea>
+            <label>Personal Message (optional)</label><textarea id="invMessage" class="form-input" rows="2" placeholder="Welcome message to investor..."></textarea>
+          </div>
+          <div class="action-buttons">
+            <label class="checkbox-item"><input type="checkbox" id="sendWelcome" checked><span class="checkmark"></span> Send welcome email immediately</label>
+            <label class="checkbox-item"><input type="checkbox" id="sendReminder"><span class="checkmark"></span> Set automatic reminder in 3 days</label>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-secondary" id="prevBtn" onclick="Onboarding.prevStep()" style="display:none;">Previous</button>
-        <button class="btn btn-primary" id="nextBtn" onclick="Onboarding.nextStep()">Next</button>
+        <button class="btn btn-secondary" id="prevBtn" onclick="Onboarding.prevStep()" style="display:none;">Back</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="Onboarding.nextStep()">Continue</button>
       </div>
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (window.SP && SP.isLoggedIn) {
-        initPage();
-      } else {
-        document.addEventListener('sp-ready', initPage);
-      }
-    });
-
-    function initPage() {
-      if (!SP.isLoggedIn()) {
-        window.location.href = 'login.html';
-        return;
-      }
-      Onboarding.init();
-    }
-  </script>
-  <script src="js/sp-onboarding-wizard.js"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Onboarding.init();}</script>
+  <script src="js/sp-onboarding-v2.js"></script>
 </body>
 </html>
