@@ -1097,6 +1097,7 @@ window.SP = (function () {
           { href:'cap-table.html', icon:'fa-pie-chart', label:'Cap Tables' },
           { href:'deal-scoring.html', icon:'fa-star', label:'Deal Scoring' },
           { href:'pipeline-forecast.html', icon:'fa-chart-line', label:'Forecast' },
+          { href:'lease-tracking.html', icon:'fa-file-signature', label:'Leases' },
         ], overflow:[
           { href:'deal-compare.html', icon:'fa-balance-scale', label:'Compare Deals' },
           { href:'deal-room.html', icon:'fa-folder-open', label:'Deal Room' },
