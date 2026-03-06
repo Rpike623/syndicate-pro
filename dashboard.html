@@ -68,12 +68,13 @@
       /* Top bar mobile layout */
       .mobile-menu-btn { display: flex !important; }
       .mobile-brand { display: flex !important; }
-      .desktop-title h1 { font-size: 1rem !important; }
-      .desktop-title p { display: none !important; }
+      /* Hide page title on mobile — logo takes its place */
+      .desktop-title { display: none !important; }
       #syncIndicator { display: none !important; }
       .btn-label { display: none !important; }
-      /* "Getting Started" checklist: don't overlap top bar */
-      #alertBanners { margin-top: 8px; }
+      /* Full-width content, tighter padding */
+      .content { padding: 12px !important; }
+      #alertBanners { margin-top: 0; }
     }
     .top-bar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
     .top-left { display: flex; align-items: center; gap: 16px; }
@@ -244,16 +245,15 @@
         <button class="mobile-menu-btn" onclick="toggleSidebar()" style="display:none;flex-shrink:0;width:40px;height:40px;background:none;border:1px solid var(--border);border-radius:8px;cursor:pointer;align-items:center;justify-content:center;">
           <i class="fas fa-bars" style="color:var(--text-secondary);font-size:1rem;"></i>
         </button>
-        <!-- Brand logo — visible on mobile, hidden on desktop (sidebar has it) -->
-        <a href="dashboard.html" class="mobile-brand" style="display:none;align-items:center;gap:8px;text-decoration:none;flex-shrink:0;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28" style="flex-shrink:0;">
+        <!-- Brand logo icon — visible on mobile only, no text -->
+        <a href="dashboard.html" class="mobile-brand" style="display:none;align-items:center;text-decoration:none;flex-shrink:0;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
             <circle cx="16" cy="16" r="16" fill="#1e3a5f"/>
             <rect x="7" y="5" width="3.5" height="22" rx="1.75" fill="#6366f1"/>
             <path d="M 13 11 L 23 16 L 13 21" stroke="#818cf8" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <span style="font-size:1.1rem;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">deel<span style="color:#6366f1;">track</span></span>
         </a>
-        <!-- Desktop: page title -->
+        <!-- Desktop only: page title -->
         <div class="desktop-title" style="flex:1;min-width:0;">
           <h1 style="font-size:1.25rem;font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Dashboard</h1>
           <p id="greetingLine" style="margin:0;font-size:0.8rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Good morning — here's your portfolio overview</p>
