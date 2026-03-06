@@ -13,6 +13,7 @@
         body{font-family:'Inter',sans-serif;background:white;color:var(--primary);display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 60px; }
+    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .one-pager { max-width: 800px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 60px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
         .one-header { display: flex; justify-content: space-between; border-bottom: 3px solid var(--primary); padding-bottom: 24px; margin-bottom: 32px; align-items: flex-end; }

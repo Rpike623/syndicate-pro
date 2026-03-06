@@ -18,6 +18,7 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
+    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .grid-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 32px; }
         .heatmap { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-top: 20px; }

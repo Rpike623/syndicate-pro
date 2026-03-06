@@ -37,6 +37,7 @@
     .nav-item i { width: 20px; text-align: center; }
     
     .main { flex: 1; margin-left: 260px; }
+    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
     .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--bg-panel); }
     .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
     .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }

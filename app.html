@@ -46,6 +46,7 @@
     
     /* Main Content */
     .main { flex: 1; margin-left: 260px; position: relative; }
+    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
     .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--bg-panel); position: sticky; top: 0; z-index: 50; }
     .page-title h1 { font-size: 1.4rem; }
     .page-title p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }

@@ -20,6 +20,7 @@
         /* v2.0 Sidebar Layout Fix */
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; position: relative; }
+    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         

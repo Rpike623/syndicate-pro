@@ -15,6 +15,7 @@
     /* .nav-item CSS moved to dt-global.css */
     /* .nav-item.active CSS moved to dt-global.css */
     .main { flex: 1; margin-left: 260px; padding: 32px; }
+    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
     .alert-banner { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #f59e0b; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
     .alert-banner i { font-size: 1.5rem; color: #d97706; }
     .compliance-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }

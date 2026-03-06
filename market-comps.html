@@ -13,6 +13,7 @@
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
+    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .comp-card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.2s; margin-bottom: 16px; }
         .comp-card:hover { transform: scale(1.01); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
