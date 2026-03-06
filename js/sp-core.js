@@ -1098,6 +1098,8 @@ window.SP = (function () {
           { href:'deal-scoring.html', icon:'fa-star', label:'Deal Scoring' },
           { href:'pipeline-forecast.html', icon:'fa-chart-line', label:'Forecast' },
           { href:'lease-tracking.html', icon:'fa-file-signature', label:'Leases' },
+          { href:'deal-milestones.html', icon:'fa-flag-checkered', label:'Milestones' },
+          { href:'market-comps.html', icon:'fa-building', label:'Comps' },
         ], overflow:[
           { href:'deal-compare.html', icon:'fa-balance-scale', label:'Compare Deals' },
           { href:'deal-room.html', icon:'fa-folder-open', label:'Deal Room' },
@@ -1119,6 +1121,7 @@ window.SP = (function () {
           { href:'referrals.html', icon:'fa-share-nodes', label:'Referrals' },
           { href:'investor-chat.html', icon:'fa-comments', label:'Messenger' },
           { href:'investor-update.html', icon:'fa-bullhorn', label:'Updates' },
+          { href:'investor-feedback.html', icon:'fa-smile', label:'Feedback' },
           { href:'inbox.html', icon:'fa-inbox', label:'Inbox' },
         ], overflow:[
           { href:'investor-sentiment-v2.html', icon:'fa-brain', label:'Sentiment' },

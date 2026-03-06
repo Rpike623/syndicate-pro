@@ -1,64 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investable Market Comps - deeltrack</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="js/sp-core.js"></script>
-    <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 16px; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; }
-        /* sidebar CSS moved to dt-global.css */
-        .main { flex: 1; margin-left: 260px; padding: 40px; }
-    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        
-        .comp-card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; display: flex; align-items: center; gap: 20px; transition: all 0.2s; margin-bottom: 16px; }
-        .comp-card:hover { transform: scale(1.01); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .comp-img { width: 120px; height: 80px; background: #f1f5f9; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #cbd5e1; }
-        .comp-info { flex: 1; }
-        .comp-name { font-weight: 700; font-size: 1.1rem; margin-bottom: 4px; }
-        .comp-metrics { display: flex; gap: 16px; font-size: 0.85rem; color: #64748b; }
-        .comp-val { color: var(--accent); font-weight: 700; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Comps | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
 </head>
 <body>
-    <aside class="sidebar" id="sidebar"></aside>
-    <main class="main">
-        <h1 style="font-family: 'Space Grotesk'; font-size: 2rem; margin-bottom: 12px;">Market Comp Library</h1>
-        <p style="color: #64748b; margin-bottom: 32px;">Validate your underwriting entries against recently traded assets.</p>
-
-        <div id="compsList">
-            <!-- Seed Comps -->
-            <div class="comp-card">
-                <div class="comp-img"><i class="fas fa-building"></i></div>
-                <div class="comp-info">
-                    <div class="comp-name">The Standard at Fort Worth</div>
-                    <div class="comp-metrics">
-                        <span>Sale: <strong class="comp-val">$32.4M</strong></span>
-                        <span>Price/Unit: <strong class="comp-val">$215K</strong></span>
-                        <span>Cap Rate: <strong class="comp-val">5.2%</strong></span>
-                    </div>
-                </div>
-                <button class="btn-xs">View Photos</button>
-            </div>
-            
-            <div class="comp-card">
-                <div class="comp-img"><i class="fas fa-building"></i></div>
-                <div class="comp-info">
-                    <div class="comp-name">Willow Creek Garden Apts</div>
-                    <div class="comp-metrics">
-                        <span>Sale: <strong class="comp-val">$18.1M</strong></span>
-                        <span>Price/Unit: <strong class="comp-val">$142K</strong></span>
-                        <span>Cap Rate: <strong class="comp-val">6.1%</strong></span>
-                    </div>
-                </div>
-                <button class="btn-xs">View Photos</button>
-            </div>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-building"></i> Market Comps</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="Comps.sampleData()">Load Sample</button>
+        <button class="btn btn-primary" onclick="Comps.showModal()">Add Comp</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">Total Comps</span><span class="stat-value" id="statTotal">0</span></div>
+        <div class="stat-card"><span class="stat-label">Avg Price/SF</span><span class="stat-value" id="statPrice">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Avg Cap Rate</span><span class="stat-value" id="statCap">0%</span></div>
+        <div class="stat-card"><span class="stat-label">Avg NOI</span><span class="stat-value" id="statNoi">$0</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Comparable Properties</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Property</th><th>Location</th><th>Type</th><th>Price</th><th>SqFt</th><th>Price/SF</th><th>Cap Rate</th><th>NOI</th><th>Status</th></tr></thead><tbody id="compTable"></tbody></table>
         </div>
-    </main>
-<script>SP.requireGP();</script>
+      </div>
+    </div>
+  </main>
+  <div id="compModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Add Comp</h2><button class="close" onclick="Comps.closeModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label>Property Name</label><input type="text" id="cName" class="form-input"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Location</label><input type="text" id="cLocation" class="form-input"></div>
+          <div class="form-group"><label>Type</label><select id="cType" class="form-select"><option value="Multifamily">Multifamily</option><option value="Office">Office</option><option value="Industrial">Industrial</option><option value="Retail">Retail</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Sale Price</label><input type="number" id="cPrice" class="form-input"></div>
+          <div class="form-group"><label>Square Feet</label><input type="number" id="cSf" class="form-input"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Cap Rate</label><input type="number" id="cCap" class="form-input" step="0.1"></div>
+          <div class="form-group"><label>NOI</label><input type="number" id="cNoi" class="form-input"></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="Comps.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Comps.save()">Save</button></div>
+    </div>
+  </div>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Comps.init();}</script>
+  <script src="js/sp-comps.js"></script>
 </body>
 </html>
