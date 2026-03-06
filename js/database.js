@@ -432,6 +432,11 @@ class WaterfallCalculator {
 // Initialize global instance
 const db = new SyndicateDB();
 
+if (typeof window !== 'undefined') {
+  window.SyndicateDB = SyndicateDB;
+  window.WaterfallCalculator = WaterfallCalculator;
+}
+
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { SyndicateDB, WaterfallCalculator };

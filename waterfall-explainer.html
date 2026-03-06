@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Waterfall Explainer — deeltrack</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dt-global.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -16,19 +16,103 @@
 <body>
   <aside class="sidebar" id="sidebar"></aside>
   <main class="main">
-    <div style="padding:40px;max-width:1200px;margin:0 auto;">
-      <div style="margin-bottom:32px;">
-        <div style="font-size:12px;font-weight:800;color:#6366f1;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">Investor Education</div>
-        <h1 style="font-size:2rem;font-weight:800;margin:0;">Waterfall Explainer</h1>
-        <p style="color:#64748b;margin-top:8px;">Interactive visualization to help LPs understand distribution waterfalls.</p>
+    <section class="waterfall-explainer">
+      <div class="waterfall-hero">
+        <div>
+          <div class="eyebrow">Investor Education</div>
+          <h1>Waterfall Explainer</h1>
+          <p class="subhead">See how proceeds flow through every hurdle, catch-up, and split so LPs understand when they get paid.</p>
+        </div>
+        <div class="hero-summary" id="hero-summary">
+          <div>
+            <span>Total Proceeds</span>
+            <strong id="total-proceeds">$0</strong>
+          </div>
+          <div>
+            <span>GP Multiple</span>
+            <strong id="gp-multiple">0.00x</strong>
+          </div>
+          <div>
+            <span>LP Multiple</span>
+            <strong id="lp-multiple">0.00x</strong>
+          </div>
+        </div>
       </div>
-      <div style="background:#f8fafc;border:2px dashed #e2e8f0;border-radius:16px;padding:60px;text-align:center;">
-        <i class="fas fa-chart-waterfall" style="font-size:3rem;color:#cbd5e1;margin-bottom:20px;display:block;"></i>
-        <h3 style="font-size:1.25rem;font-weight:700;color:#475569;margin-bottom:8px;">Coming Soon</h3>
-        <p style="color:#64748b;max-width:400px;margin:0 auto;">Animated waterfall walkthrough with interactive tier breakdowns and preferred return calculators is in development.</p>
+
+      <div class="waterfall-grid">
+        <div class="panel controls">
+          <h2>Deal inputs</h2>
+          <p>Adjust the assumptions and watch the waterfall rearrange in real-time.</p>
+          <div class="control">
+            <label>Total equity</label>
+            <div class="input-group">
+              <span>$</span>
+              <input type="number" id="total-equity" value="2000000" min="100000" step="50000">
+            </div>
+          </div>
+          <div class="control">
+            <label>Exit multiple</label>
+            <input type="number" id="exit-multiple" value="1.8" step="0.1" min="1">
+          </div>
+          <div class="control">
+            <label>Preferred return (%)</label>
+            <input type="number" id="pref-return" value="8" step="0.25" min="0">
+          </div>
+          <div class="control">
+            <label>Holding period (years)</label>
+            <input type="number" id="hold-period" value="5" min="1" max="20">
+          </div>
+          <div class="control">
+            <label>Waterfall type</label>
+            <select id="waterfall-type">
+              <option value="simple">Simple</option>
+              <option value="pref">Preferred + residual</option>
+              <option value="catchup">Preferred + Catch-up</option>
+            </select>
+          </div>
+          <div class="control">
+            <label>GP promote (%)</label>
+            <input type="number" id="gp-promote" value="20" min="0" max="100" step="1">
+          </div>
+          <div class="control">
+            <label>Catch-up rate (%)</label>
+            <input type="number" id="catchup-rate" value="50" min="0" max="100" step="1">
+          </div>
+        </div>
+
+        <div class="panel chart-panel">
+          <h2>Waterfall tiers</h2>
+          <div class="chart" id="tier-chart"></div>
+          <div class="tier-legend" id="tier-legend"></div>
+        </div>
       </div>
-    </div>
+
+      <div class="panel split-summary">
+        <div>
+          <h3>Cash allocation</h3>
+          <p>Each tier shows GP and LP portions based on the assumptions above. Hover or tap to see amounts.</p>
+        </div>
+        <div class="summary-hint">
+          <div>
+            <span>GP IRR</span>
+            <strong id="gp-irr">0%</strong>
+          </div>
+          <div>
+            <span>LP IRR</span>
+            <strong id="lp-irr">0%</strong>
+          </div>
+          <div>
+            <span>Residual split</span>
+            <strong id="residual-split">0% / 0%</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel explainer-cards" id="explainer-cards"></div>
+    </section>
   </main>
+
+  <script src="js/waterfall-explainer.js"></script>
   <script>SP.requireGP();</script>
 </body>
 </html>
