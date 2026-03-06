@@ -874,7 +874,7 @@ window.SP = (function () {
       const footer = document.createElement('div');
       footer.id = 'dt-legal-footer';
       footer.style.cssText = 'background:#0f172a;color:rgba(255,255,255,0.45);font-size:.7rem;padding:12px 32px;text-align:center;line-height:1.6;font-family:Inter,sans-serif;margin-top:auto;border-top:1px solid rgba(255,255,255,0.1);';
-      footer.innerHTML = `<strong style="color:var(--danger)">LEGAL DISCLAIMER:</strong> deeltrack is a software tool, not a registered broker-dealer, investment adviser, or placement agent. Nothing on this platform constitutes investment advice or a solicitation to buy or sell securities. Financial targets are estimates only — not guarantees. All generated documents are templates requiring independent legal counsel review before execution. &nbsp;·&nbsp; <a href="terms.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Terms</a> &nbsp;·&nbsp; <a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Privacy</a> &nbsp;·&nbsp; <a href="disclaimer.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Disclaimer</a>`;
+      footer.innerHTML = `deeltrack is a software tool — not a broker-dealer, investment adviser, or placement agent. Generated documents require independent legal review. &nbsp;·&nbsp; <a href="terms.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Terms</a> &nbsp;·&nbsp; <a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Privacy</a> &nbsp;·&nbsp; <a href="disclaimer.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Disclaimer</a>`;
       document.body.appendChild(footer);
     }
 
@@ -886,7 +886,7 @@ window.SP = (function () {
       banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1e293b;color:rgba(255,255,255,.85);padding:14px 24px;display:flex;align-items:center;gap:16px;z-index:9000;font-family:Inter,sans-serif;font-size:.8rem;box-shadow:0 -4px 20px rgba(0,0,0,.3);flex-wrap:wrap;';
       banner.innerHTML = `
         <div style="flex:1;min-width:200px;">
-          <strong style="color:white;">Platform Notice:</strong> deeltrack is organizational software — not a broker-dealer or investment adviser. Financial projections and generated documents require independent professional review. Your data is stored in your browser.
+          <strong style="color:white;">Notice:</strong> deeltrack is organizational software — not a broker-dealer or investment adviser. Generated documents require independent professional review.
           <a href="disclaimer.html" style="color:#60a5fa;margin-left:8px;">Full Disclaimer</a>
         </div>
         <button onclick="localStorage.setItem('dt_notice_dismissed','1');document.getElementById('dt-notice-banner').remove()" style="background:#3b82f6;color:white;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600;white-space:nowrap;flex-shrink:0;">Got it</button>`;
