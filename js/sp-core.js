@@ -1129,7 +1129,9 @@ window.SP = (function () {
           { href:'distributions.html', icon:'fa-wallet', label:'Distributions' },
           { href:'distribution-calc.html', icon:'fa-bolt', label:'Distribution Command' },
           { href:'capital-calls.html', icon:'fa-hand-holding-usd', label:'Capital Calls' },
+          { href:'capital-call-calc.html', icon:'fa-calculator', label:'Call Calculator' },
           { href:'capital-account.html', icon:'fa-list-ol', label:'Capital Accounts' },
+          { href:'cap-table-v2.html', icon:'fa-chart-pie', label:'Cap Tables' },
           { href:'accounting.html', icon:'fa-calculator', label:'Fund Accounting' },
           { href:'budget-actual.html', icon:'fa-balance-scale', label:'Budget vs Actual' },
         ], overflow:[

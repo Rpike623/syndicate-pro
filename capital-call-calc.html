@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capital Call Calculator | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-calculator"></i> Capital Call Calculator</h1>
+    </div>
+    <div class="content">
+      <div class="calc-container">
+        <div class="calc-section">
+          <h3>Deal Information</h3>
+          <div class="form-group"><label>Deal Name</label><input type="text" id="ccDeal" class="form-input" value="Sunset Apartments"></div>
+          <div class="form-group"><label>Total Equity Required</label><input type="number" id="ccTotal" class="form-input" value="4500000"></div>
+          <div class="form-group"><label>Number of Investors</label><input type="number" id="ccInvestors" class="form-input" value="12"></div>
+        </div>
+        <div class="calc-section">
+          <h3>Investor Allocation</h3>
+          <div class="investor-list" id="investorList">
+            <div class="investor-row"><input type="text" placeholder="Investor Name" class="inv-name"><input type="number" placeholder="Commitment $" class="inv-commit"><span class="inv-pct">0%</span></div>
+            <div class="investor-row"><input type="text" placeholder="Investor Name" class="inv-name"><input type="number" placeholder="Commitment $" class="inv-commit"><span class="inv-pct">0%</span></div>
+            <div class="investor-row"><input type="text" placeholder="Investor Name" class="inv-name"><input type="number" placeholder="Commitment $" class="inv-commit"><span class="inv-pct">0%</span></div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="CapitalCall.addInvestor()">+ Add Investor</button>
+        </div>
+        <div class="calc-section">
+          <h3>Call Details</h3>
+          <div class="form-row">
+            <div class="form-group"><label>Call Amount</label><input type="number" id="ccAmount" class="form-input" value="1500000"></div>
+            <div class="form-group"><label>Due Date</label><input type="date" id="ccDue" class="form-input"></div>
+          </div>
+          <div class="form-group"><label>Percentage of Commitment</label><input type="number" id="ccPct" class="form-input" value="33" placeholder="33% of commitment"></div>
+        </div>
+        <div style="text-align:center;margin:20px 0;">
+          <button class="btn btn-primary btn-lg" onclick="CapitalCall.calculate()"><i class="fas fa-calculator"></i> Calculate Calls</button>
+        </div>
+      </div>
+      <div class="calc-results" id="calcResults" style="display:none;">
+        <div class="card">
+          <div class="card-header"><h2>Capital Call Summary</h2></div>
+          <div class="card-body">
+            <div class="summary-grid">
+              <div class="summary-item"><span>Deal</span><strong id="resDeal">—</strong></div>
+              <div class="summary-item"><span>Total Raised</span><strong id="resTotal">—</strong></div>
+              <div class="summary-item"><span>Call Amount</span><strong id="resCall">—</strong></div>
+              <div class="summary-item"><span>Due Date</span><strong id="resDue">—</strong></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Individual Calls</h2><button class="btn btn-secondary btn-sm" onclick="CapitalCall.exportCSV()">Export CSV</button></div>
+          <div class="card-body">
+            <table class="data-table"><thead><tr><th>Investor</th><th>Commitment</th><th>Call Amount</th><th>Wire Info</th><th>Due</th></tr></thead><tbody id="callTable"></tbody></table>
+          </div>
+        </div>
+        <div class="email-templates">
+          <h3>Email Template</h3>
+          <div class="email-box" id="emailTemplate"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}CapitalCall.init();}</script>
+  <script src="js/sp-capital-call.js"></script>
+</body>
+</html>
