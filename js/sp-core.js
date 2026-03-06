@@ -1095,6 +1095,7 @@ window.SP = (function () {
           { href:'new-deal.html', icon:'fa-plus', label:'New Deal' },
           { href:'sourcing-crm.html', icon:'fa-stream', label:'Pipeline' },
           { href:'cap-table.html', icon:'fa-pie-chart', label:'Cap Tables' },
+          { href:'deal-scoring.html', icon:'fa-star', label:'Deal Scoring' },
         ], overflow:[
           { href:'deal-compare.html', icon:'fa-balance-scale', label:'Compare Deals' },
           { href:'deal-room.html', icon:'fa-folder-open', label:'Deal Room' },
@@ -1166,6 +1167,7 @@ window.SP = (function () {
           { href:'documents.html', icon:'fa-file-contract', label:'Documents' },
           { href:'om-builder.html', icon:'fa-file-pdf', label:'OM Builder' },
           { href:'proforma.html', icon:'fa-table', label:'Pro Forma' },
+          { href:'rent-roll.html', icon:'fa-list', label:'Rent Roll' },
         ], overflow:[
           { href:'om-v2.html', icon:'fa-clapperboard', label:'Interactive Offering' },
           { href:'waterfall-explainer.html', icon:'fa-play-circle', label:'Waterfall Animator' },

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Roll Analysis | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-list"></i> Rent Roll Analysis</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="RentRoll.sample()">Load Sample</button>
+        <button class="btn btn-primary" onclick="RentRoll.analyze()">Analyze</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card" style="margin-bottom:24px;">
+        <div class="card-header"><h2>Enter Rent Roll Data</h2></div>
+        <div class="card-body">
+          <textarea id="rentData" class="form-input" rows="15" placeholder="Unit,Type,Beds,Baths,SqFt,Current Rent,Market Rent,Vacancy,Tenant
+101,2BR,2,1,950,1650,1750,Occupied,Smith
+102,1BR,1,1,650,1250,1300,Vacant,
+103,2BR,2,1,950,1700,1750,Occupied,Johnson
+104,3BR,3,2,1200,2100,2200,Occupied,Williams
+..."></textarea>
+        </div>
+      </div>
+      <div class="analysis-results" id="results" style="display:none;">
+        <div class="stats-row">
+          <div class="stat-card"><span class="stat-label">Total Units</span><span class="stat-value" id="statUnits">0</span></div>
+          <div class="stat-card"><span class="stat-label">Occupancy</span><span class="stat-value" id="statOccupancy">0%</span></div>
+          <div class="stat-card"><span class="stat-label">Current Rent</span><span class="stat-value" id="statCurrent">$0</span></div>
+          <div class="stat-card"><span class="stat-label">Market Rent</span><span class="stat-value" id="statMarket">$0</span></div>
+          <div class="stat-card"><span class="stat-label">Rent Loss</span><span class="stat-value text-danger" id="statLoss">$0</span></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Unit Type Breakdown</h2></div>
+          <div class="card-body" id="typeBreakdown"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Vacancy Loss Detail</h2></div>
+          <div class="card-body" id="vacancyDetail"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}}</script>
+  <script src="js/sp-rentroll.js"></script>
+</body>
+</html>
