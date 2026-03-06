@@ -274,7 +274,9 @@
                 }).join('');
             }
 
-            renderTierChips(scenario.waterfall, amount, scenario.summary.totalProceeds);
+            // Tier breakdown container check
+        const tierContainer = document.getElementById('tierBreakdown');
+        if (tierContainer) renderTierChips(scenario.waterfall, amount, scenario.summary.totalProceeds);
 
             btn.disabled = false;
         }
@@ -290,9 +292,9 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing Protocol...';
 
-            if (typeof SP_Firebase !== 'undefined') {
+            if (typeof SPFB !== 'undefined' && SPFB.isReady && SPFB.isReady()) {
                 try {
-                    const orgId = SP_Firebase.getOrgId();
+                    const orgId = SPFB.getOrgId();
                     const distId = 'DIST_' + Date.now();
                     const deal = SPData.getDeals().find(d => d.id === dealId);
                     const prefSplits = currentLPs._prefSplits || [];

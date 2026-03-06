@@ -379,7 +379,10 @@ function exportCSV(){
   const deals=SP.getDeals();
   const headers=['Deal Name','Type','Status','Raise Target','IRR','Equity Multiple','Investors'];
   const rows=deals.map(d=>[d.name,d.type,d.status,d.raise||0,d.irr||0,d.equity||0,(d.investors||[]).length]);
-  const csv=[headers,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const csv=[headers,...rows].map(r=>r.map(v=>{
+    const str=String(v).replace(/"/g,'""');
+    return `"${str}"`;
+  }).join(',')).join('\n');
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download='deeltrack-report.csv';

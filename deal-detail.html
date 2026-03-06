@@ -546,7 +546,9 @@ function generateOANow() {
     if (typeof SPData !== "undefined" && SPData.isReady()) SPData.saveDeal(allDeals[idx]); else SP.saveDeals(allDeals);
   }
   SP.logActivity('fa-file-contract', 'green', `Operating Agreement generated for <strong>${deal.name}</strong>`);
-  if (window._spNotif) window._spNotif.addNotification('doc', 'fa-file-contract', 'green', 'OA Ready', `Operating Agreement generated for ${deal.name}`, `deal-detail.html?id=${dealId}`);
+  if (typeof window._spNotif !== 'undefined' && window._spNotif && window._spNotif.addNotification) {
+    window._spNotif.addNotification('doc', 'fa-file-contract', 'green', 'OA Ready', `Operating Agreement generated for ${deal.name}`, `deal-detail.html?id=${dealId}`);
+  }
   render();
   // Switch to docs tab
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -949,8 +951,10 @@ function duplicateDeal(id) {
 }
 
 function shareTeaserLink(dId) {
-  const orgId = SP.getOrgId();
-  const token = btoa(`${orgId}|${dId}`).replace(/=/g,'');
+  const orgId = SP.getOrgId ? SP.getOrgId() : (SP.getSession()?.orgId || 'demo');
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 8);
+  const token = btoa(`${orgId}|${dId}|${timestamp}|${random}`).replace(/=/g,'').substring(0, 32);
   const base = window.location.href.replace(/deal-detail\.html.*/, '');
   const url = `${base}deal-teaser.html?t=${token}`;
   navigator.clipboard.writeText(url).then(() => {

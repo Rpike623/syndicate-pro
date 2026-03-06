@@ -124,11 +124,23 @@
     </div>
   </div>
 <script>
-  // Redirect if already logged in
+  // Show switch account if already logged in
   if (SP.isLoggedIn()) {
-      // v2.0 Hardening: Handle role-based Skeleton transitions
+      const session = SP.getSession();
       document.body.classList.add('authenticating');
-      window.location.href = SP.isInvestor() ? 'investor-portal.html' : 'dashboard.html';
+      document.getElementById('loginCard').innerHTML = `
+        <div style="text-align:center;padding:40px 20px;">
+          <div style="width:64px;height:64px;background:linear-gradient(135deg,#3b82f6,#6366f1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+            <i class="fas fa-user-circle" style="font-size:32px;color:white;"></i>
+          </div>
+          <h2 style="color:#fff;margin-bottom:8px;">Signed in as</h2>
+          <p style="color:#94a3b8;font-size:1.1rem;margin-bottom:24px;">${session?.name || session?.email || 'User'}</p>
+          <p style="color:#64748b;font-size:0.875rem;margin-bottom:24px;">Role: ${session?.role || 'General Partner'}</p>
+          <a href="dashboard.html" class="btn btn-primary" style="display:inline-block;padding:12px 24px;background:#3b82f6;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-bottom:12px;">Go to Dashboard</a>
+          <br>
+          <button onclick="SP.logout();window.location.reload();" style="display:inline-block;padding:10px 20px;background:transparent;border:1px solid #475569;color:#94a3b8;border-radius:8px;cursor:pointer;font-weight:500;font-size:0.9rem;">Sign Out & Switch</button>
+        </div>
+      `;
   }
 
   function togglePw() {
