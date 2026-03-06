@@ -1139,9 +1139,9 @@ window.SP = (function () {
           { href:'gp-benchmarks.html', icon:'fa-gauge-high', label:'Benchmarks' },
           { href:'gp-pl.html', icon:'fa-money-bill-trend-up', label:'P&L' },
           { href:'carry-tracker.html', icon:'fa-hand-holding-dollar', label:'Carry Tracker' },
+          { href:'compliance-hub.html', icon:'fa-shield-halved', label:'Compliance' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
-          { href:'compliance-hud.html', icon:'fa-shield-halved', label:'Compliance' },
           { href:'audit-logs.html', icon:'fa-fingerprint', label:'Audit Log' },
           { href:'lenders.html', icon:'fa-landmark', label:'Lenders' },
         ]},

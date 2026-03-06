@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compliance Center | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-firebase.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1><i class="fas fa-shield-halved"></i> Compliance Center</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="Compliance.exportReport()">
+          <i class="fas fa-download"></i> Export Report
+        </button>
+        <button class="btn btn-primary" onclick="Compliance.showAddModal()">
+          <i class="fas fa-plus"></i> Add Filing
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Compliance Overview -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-label">Active Deals</span>
+          <span class="stat-value" id="statDeals">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Pending Filings</span>
+          <span class="stat-value text-warning" id="statPending">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Filed This Year</span>
+          <span class="stat-value text-success" id="statFiled">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Accredited Investors</span>
+          <span class="stat-value text-primary" id="statAccredited">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Exemptions Used</span>
+          <span class="stat-value" id="statExemptions">0</span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab active" data-tab="formd" onclick="Compliance.switchTab('formd')">
+            <i class="fas fa-file-contract"></i> Form D
+          </button>
+          <button class="tab" data-tab="state" onclick="Compliance.switchTab('state')">
+            <i class="fas fa-building"></i> State Filings
+          </button>
+          <button class="tab" data-tab="accreditation" onclick="Compliance.switchTab('accreditation')">
+            <i class="fas fa-certificate"></i> Accreditation
+          </button>
+          <button class="tab" data-tab="exemptions" onclick="Compliance.switchTab('exemptions')">
+            <i class="fas fa-exclamation-triangle"></i> Exemptions
+          </button>
+        </div>
+
+        <!-- Form D Tab -->
+        <div class="tab-content" id="tab-formd">
+          <div class="card">
+            <div class="card-header">
+              <h2><i class="fas fa-file-contract"></i> SEC Form D Filings</h2>
+              <div class="filter-group">
+                <select id="formdDealFilter" class="form-select form-select-sm" onchange="Compliance.renderFormD()">
+                  <option value="">All Deals</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Deal</th>
+                    <th>Filing Date</th>
+                    <th>Amount Offered</th>
+                    <th>Investors</th>
+                    <th>Status</th>
+                    <th>Amended</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="formdTableBody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- State Filings Tab -->
+        <div class="tab-content" id="tab-state" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h2><i class="fas fa-building"></i> State Blue Sky Filings</h2>
+              <div class="filter-group">
+                <select id="stateDealFilter" class="form-select form-select-sm" onchange="Compliance.renderState()">
+                  <option value="">All Deals</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Deal</th>
+                    <th>State</th>
+                    <th>Filing Type</th>
+                    <th>Filing Date</th>
+                    <th>Effective Date</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="stateTableBody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accreditation Tab -->
+        <div class="tab-content" id="tab-accreditation" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h2><i class="fas fa-certificate"></i> Investor Accreditation Status</h2>
+              <div class="filter-group">
+                <select id="accredFilter" class="form-select form-select-sm" onchange="Compliance.renderAccreditation()">
+                  <option value="">All Status</option>
+                  <option value="verified">Verified</option>
+                  <option value="pending">Pending Review</option>
+                  <option value="expired">Expired</option>
+                  <option value="not_verified">Not Verified</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Investor</th>
+                    <th>Method</th>
+                    <th>Verified Date</th>
+                    <th>Expiry Date</th>
+                    <th>Status</th>
+                    <th>Doc</th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="accredTableBody">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Exemptions Tab -->
+        <div class="tab-content" id="tab-exemptions" style="display:none;">
+          <div class="card">
+            <div class="card-header">
+              <h2><i class="fas fa-exclamation-triangle"></i> Regulation D Exemptions</h2>
+            </div>
+            <div class="card-body">
+              <div class="exemption-cards">
+                <div class="exemption-card">
+                  <div class="exemption-header">
+                    <h3>Rule 506(b)</h3>
+                    <span class="badge badge-success">Active</span>
+                  </div>
+                  <p>General solicitation prohibited. Accredited investors only. Form D required.</p>
+                  <div class="exemption-stats">
+                    <span>Used: <strong id="stat506b">0</strong> deals</span>
+                  </div>
+                </div>
+                <div class="exemption-card">
+                  <div class="exemption-header">
+                    <h3>Rule 506(c)</h3>
+                    <span class="badge badge-success">Active</span>
+                  </div>
+                  <p>General solicitation allowed. Advertising permitted with verifyed accreditation.</p>
+                  <div class="exemption-stats">
+                    <span>Used: <strong id="stat506c">0</strong> deals</span>
+                  </div>
+                </div>
+                <div class="exemption-card">
+                  <div class="exemption-header">
+                    <h3>Rule 504</h3>
+                    <span class="badge badge-warning">Limited</span>
+                  </div>
+                  <p>Up to $10M. Limited general solicitation. State filings required.</p>
+                  <div class="exemption-stats">
+                    <span>Used: <strong id="stat504">0</strong> deals</span>
+                  </div>
+                </div>
+                <div class="exemption-card">
+                  <div class="exemption-header">
+                    <h3>Rule 505</h3>
+                    <span class="badge badge-secondary">Deprecated</span>
+                  </div>
+                  <p>Superseded by 504. No longer used for new offerings.</p>
+                  <div class="exemption-stats">
+                    <span>Used: <strong id="stat505">0</strong> deals</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Filing Modal -->
+  <div id="filingModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-plus-circle"></i> Add Filing</h2>
+        <button class="close" onclick="Compliance.closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="filingForm">
+          <input type="hidden" id="filingId">
+          <input type="hidden" id="filingType" value="formd">
+          
+          <div class="form-group">
+            <label>Deal</label>
+            <select id="filingDeal" class="form-select" required>
+            </select>
+          </div>
+
+          <div class="form-group" id="stateField" style="display:none;">
+            <label>State</label>
+            <select id="filingState" class="form-select">
+              <option value="">Select state...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Filing Date</label>
+            <input type="date" id="filingDate" class="form-input" required>
+          </div>
+
+          <div class="form-group" id="amountField">
+            <label>Amount Offered ($)</label>
+            <input type="number" id="filingAmount" class="form-input" placeholder="1000000" min="0">
+          </div>
+
+          <div class="form-group" id="investorField">
+            <label>Number of Investors</label>
+            <input type="number" id="filingInvestors" class="form-input" placeholder="10" min="1">
+          </div>
+
+          <div class="form-group">
+            <label>Status</label>
+            <select id="filingStatus" class="form-select">
+              <option value="filed">Filed</option>
+              <option value="pending">Pending</option>
+              <option value="effective">Effective</option>
+              <option value="withdrawn">Withdrawn</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="filingNotes" class="form-input" rows="2" placeholder="Additional details..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="Compliance.closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="Compliance.saveFiling()">
+          <i class="fas fa-save"></i> Save Filing
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.SP && SP.isLoggedIn) {
+        initPage();
+      } else {
+        document.addEventListener('sp-ready', initPage);
+      }
+    });
+
+    function initPage() {
+      if (!SP.isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+      }
+      Compliance.init();
+    }
+  </script>
+  <script src="js/sp-compliance.js"></script>
+</body>
+</html>

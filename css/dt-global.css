@@ -1240,3 +1240,119 @@ input:focus, select:focus, textarea:focus {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── COMPLIANCE CENTER STYLES ──────────────────────────────────────────── */
+.tabs-container {
+  background: var(--dt-surface);
+  border-radius: var(--dt-radius);
+  border: 1px solid var(--dt-border);
+  overflow: hidden;
+}
+
+.tabs {
+  display: flex;
+  background: var(--dt-bg);
+  border-bottom: 1px solid var(--dt-border);
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--dt-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  transition: var(--dt-transition);
+}
+
+.tab:hover {
+  color: var(--dt-text);
+  background: rgba(0,0,0,0.02);
+}
+
+.tab.active {
+  color: var(--dt-accent);
+  border-bottom-color: var(--dt-accent);
+}
+
+.tab-content {
+  padding: 24px;
+}
+
+/* Exemption cards */
+.exemption-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.exemption-card {
+  background: var(--dt-bg);
+  border: 1px solid var(--dt-border);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.exemption-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.exemption-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.exemption-card p {
+  font-size: 13px;
+  color: var(--dt-text-muted);
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.exemption-stats {
+  font-size: 12px;
+  color: var(--dt-text-muted);
+  padding-top: 12px;
+  border-top: 1px solid var(--dt-border);
+}
+
+.badge-secondary {
+  background: var(--dt-text-muted);
+  color: white;
+}
+
+.badge-info {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Tab content mobile */
+@media (max-width: 768px) {
+  .tabs {
+    flex-wrap: nowrap;
+  }
+  
+  .tab {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  
+  .tab-content {
+    padding: 16px;
+  }
+  
+  .exemption-cards {
+    grid-template-columns: 1fr;
+  }
+}
