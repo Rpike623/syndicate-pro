@@ -8,6 +8,7 @@
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
   <script src="js/sp-math.js"></script>
+  <script src="js/database.js"></script>
   <style>
     :root { 
       --primary: #0f172a; 
@@ -143,57 +144,137 @@
     <script>
         let currentLPs = [];
 
-        async function init() {
-            if (window.SPData) {
-                const deals = SPData.getDeals();
-                const sel = document.getElementById('dealSelect');
-                deals.forEach(d => sel.add(new Option(d.name, d.id)));
-                document.getElementById('distDate').valueAsDate = new Date();
+        function init() {
+            if (!window.SPData) return;
+            const deals = SPData.getDeals();
+            const sel = document.getElementById('dealSelect');
+            sel.innerHTML = '<option value="">— Select Target Asset —</option>';
+            deals.forEach(d => sel.add(new Option(d.name, d.id)));
+            document.getElementById('distDate').valueAsDate = new Date();
+        }
+
+        function buildWaterfallInput(deal) {
+            const gpEquityPct = Number(deal.gpEquity ?? deal.wizardData?.gpEquity ?? 10);
+            const lpEquityPct = Number(deal.lpEquity ?? deal.wizardData?.lpEquity ?? (100 - gpEquityPct));
+            return {
+                totalEquity: Number(deal.totalEquity ?? deal.raise ?? 1000000),
+                gpEquityPct,
+                lpEquityPct,
+                prefReturn: Number(deal.prefReturn ?? deal.wizardData?.prefReturn ?? 0),
+                gpPromotePct: Number(deal.gpPromote ?? deal.wizardData?.gpPromote ?? 20),
+                catchupRate: Number(deal.catchupRate ?? deal.wizardData?.catchupRate ?? 50),
+                exitMultiple: Number(deal.exitMultiple ?? deal.wizardData?.exitMultiple ?? 1.8),
+                holdPeriod: Number(deal.holdPeriod ?? deal.wizardData?.holdPeriod ?? 5),
+                waterfallType: deal.waterfallType ?? deal.wizardData?.waterfallType ?? 'simple'
+            };
+        }
+
+        function formatCurrency(value) {
+            return `$${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function formatPercent(value) {
+            return `${Number(value || 0).toFixed(2)}%`;
+        }
+
+        function renderTierChips(waterfall, distributionAmount, totalProceeds) {
+            const tierContainer = document.getElementById('tierBreakdown');
+            if (!tierContainer) return;
+            if (!waterfall.length || distributionAmount <= 0) {
+                tierContainer.innerHTML = '<div class="tier-chip">No tiers hit yet. Select a deal + amount to preview.</div>';
+                return;
             }
+
+            tierContainer.innerHTML = waterfall.map(tier => {
+                const tierShare = totalProceeds ? (tier.total / totalProceeds) : 0;
+                const tierAmount = distributionAmount * tierShare;
+                return `
+                    <div class="tier-chip">
+                        <div><strong>${tier.name}</strong></div>
+                        <div class="tier-values">
+                            <span>${formatCurrency(tierAmount)}</span>
+                            <span>${(tierShare * 100).toFixed(1)}%</span>
+                        </div>
+                        <small>${tier.description}</small>
+                        <div class="tier-values">
+                            <span>GP ${formatCurrency(tier.gp)}</span>
+                            <span>LP ${formatCurrency(tier.lp)}</span>
+                        </div>
+                    </div>`;
+            }).join('');
         }
 
         function previewDistribution() {
             const dealId = document.getElementById('dealSelect').value;
             const amount = parseFloat(document.getElementById('distAmt').value) || 0;
             const btn = document.getElementById('execBtn');
-            const status = document.getElementById('ledgerStatus');
-            
+
             if (!dealId || amount <= 0) {
                 btn.disabled = true;
                 return;
             }
 
-            const deals = SPData.getDeals();
-            const deal = deals.find(d => d.id === dealId);
+            const deal = SPData.getDeals().find(d => d.id === dealId);
             if (!deal) return;
 
-            // Simplified Waterfall Calculation
-            const lpPct = 0.8; // Assume 80/20 split for demo
-            const gpPct = 0.2;
-            const lpTotal = amount * lpPct;
-            const gpTotal = amount * gpPct;
+            const calculatorInput = buildWaterfallInput(deal);
+            const scenario = WaterfallCalculator.calculate(calculatorInput);
+            const lpShare = scenario.summary.lpTotal / (scenario.summary.totalProceeds || 1);
+            const gpShare = scenario.summary.gpTotal / (scenario.summary.totalProceeds || 1);
+            const lpTotal = amount * lpShare;
+            const gpTotal = amount * gpShare;
 
-            document.getElementById('lpSum').textContent = '$' + lpTotal.toLocaleString();
-            document.getElementById('gpSum').textContent = '$' + gpTotal.toLocaleString();
+            document.getElementById('lpSum').textContent = formatCurrency(lpTotal);
+            document.getElementById('gpSum').textContent = formatCurrency(gpTotal);
             document.getElementById('lpCount').textContent = (deal.investors || []).length;
-            
-            // Build Preview Table
-            currentLPs = deal.investors || [];
-            let html = '';
-            currentLPs.forEach(inv => {
-                const invRecord = SPData.getInvestorById(inv.investorId);
-                const payout = lpTotal * (inv.ownership / 100);
-                html += `
-                    <tr>
-                        <td><strong>${invRecord ? invRecord.firstName + ' ' + invRecord.lastName : 'Unknown Investor'}</strong></td>
-                        <td style="font-family: JetBrains Mono; font-weight: 500; font-size: 13px;">${inv.ownership}%</td>
-                        <td style="text-align: right; font-weight: 600; color: var(--success);">$${(payout / (inv.committed || 1) * 100).toFixed(2)}%</td>
-                        <td style="text-align: right; font-family: JetBrains Mono; font-weight: 700; color: var(--primary);">$${payout.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-                    </tr>
-                `;
-            });
 
-            document.getElementById('ledgerBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;">No investors linked to this asset.</td></tr>';
+            currentLPs = deal.investors || [];
+
+            // Compute pref-aware splits
+            const priorDists = (SPData.getDistributions() || []).filter(d => d.dealId === dealId);
+            const prefSplits = (typeof SPMath !== 'undefined' && currentLPs.length)
+                ? SPMath.computePrefSplits(deal, priorDists, amount, 0.25)
+                : [];
+
+            // Store on currentLPs for executeDistribution
+            currentLPs._prefSplits = prefSplits;
+
+            const ledgerBody = document.getElementById('ledgerBody');
+            if (!currentLPs.length) {
+                ledgerBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No investors linked to this asset.</td></tr>';
+            } else {
+                // Update header to show pref columns
+                const thead = ledgerBody.closest('table')?.querySelector('thead tr');
+                if (thead && prefSplits.length && thead.children.length < 6) {
+                    thead.innerHTML = `
+                        <th>Investor</th>
+                        <th>Ownership</th>
+                        <th>Pref Paid</th>
+                        <th>Excess</th>
+                        <th>Pref Remaining</th>
+                        <th style="text-align:right;">Total Payout</th>`;
+                }
+                ledgerBody.innerHTML = currentLPs.map(inv => {
+                    const investor = SPData.getInvestorById(inv.investorId);
+                    const ps = prefSplits.find(s => s.investorId === inv.investorId);
+                    const payout = ps ? ps.totalThisDist : lpTotal * ((inv.ownership ?? 0) / 100);
+                    const prefPaid = ps ? ps.prefPaidThisDist : 0;
+                    const excess = ps ? ps.excessThisDist : payout;
+                    const prefRem = ps ? ps.prefRemaining : null;
+                    return `
+                        <tr>
+                            <td><strong>${investor ? `${investor.firstName} ${investor.lastName}` : 'Unknown Investor'}</strong></td>
+                            <td style="font-family: JetBrains Mono; font-weight: 500; font-size: 13px;">${inv.ownership ?? ps?.ownership?.toFixed(1) ?? 0}%</td>
+                            <td style="color: #b45309; font-weight: 600; font-family: JetBrains Mono;">${formatCurrency(prefPaid)}</td>
+                            <td style="color: var(--accent); font-weight: 600; font-family: JetBrains Mono;">${formatCurrency(excess)}</td>
+                            <td style="color: var(--text-secondary); font-size: 12px; font-family: JetBrains Mono;">${prefRem !== null ? formatCurrency(prefRem) : '—'}</td>
+                            <td style="text-align: right; font-family: JetBrains Mono; font-weight: 700; color: var(--primary);">${formatCurrency(payout)}</td>
+                        </tr>`;
+                }).join('');
+            }
+
+            renderTierChips(scenario.waterfall, amount, scenario.summary.totalProceeds);
+
             btn.disabled = false;
         }
 
@@ -201,9 +282,10 @@
             const btn = document.getElementById('execBtn');
             const amount = parseFloat(document.getElementById('distAmt').value);
             const dealId = document.getElementById('dealSelect').value;
-            
+
+            if (!dealId || isNaN(amount) || amount <= 0) return;
             if (!confirm(`WARNING: You are about to execute an official distribution run of $${amount.toLocaleString()}. This action will update all investor ledgers in Firestore and notify LPs. Proceed?`)) return;
-            
+
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing Protocol...';
 
@@ -211,23 +293,45 @@
                 try {
                     const orgId = SP_Firebase.getOrgId();
                     const distId = 'DIST_' + Date.now();
-                    
-                    // 1. Create Distribution Entry
+                    const deal = SPData.getDeals().find(d => d.id === dealId);
+                    const prefSplits = currentLPs._prefSplits || [];
+                    const recipients = (currentLPs || []).map(inv => {
+                        const ps = prefSplits.find(s => s.investorId === inv.investorId);
+                        return ps ? {
+                            investorId: inv.investorId,
+                            ownership: ps.ownership,
+                            invested: ps.invested,
+                            amount: ps.totalThisDist,
+                            prefPaidThisDist: ps.prefPaidThisDist,
+                            excessThisDist: ps.excessThisDist,
+                            prefRemaining: ps.prefRemaining,
+                            prefPaidToDate: ps.prefPaidToDate + ps.prefPaidThisDist,
+                        } : {
+                            investorId: inv.investorId,
+                            ownership: inv.ownership || 0,
+                            amount: 0,
+                            prefPaidThisDist: 0,
+                            excessThisDist: 0,
+                            prefRemaining: null,
+                            prefPaidToDate: null,
+                        };
+                    });
                     await firebase.firestore().collection('orgs').doc(orgId).collection('distributions').doc(distId).set({
-                        dealId: dealId,
+                        dealId,
+                        dealName: deal ? deal.name : 'Unknown',
                         date: document.getElementById('distDate').value,
                         totalAmount: amount,
                         status: 'executed',
+                        prefAware: prefSplits.length > 0,
+                        recipients,
                         createdAt: new Date()
                     });
 
-                    // 2. Loop through LPs and create individual ledger entries
-                    // In a production environment, this would be a Cloud Function or batch
                     const status = document.getElementById('ledgerStatus');
                     status.classList.remove('status-pending');
                     status.classList.add('status-executed');
                     status.textContent = 'Action Successfully Executed';
-                    
+
                     alert('Distribution run complete. Investor portals updated.');
                     location.reload();
                 } catch (e) {

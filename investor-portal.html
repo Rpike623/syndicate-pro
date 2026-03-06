@@ -810,22 +810,51 @@
       el.innerHTML = '<div class="empty"><i class="fas fa-wallet"></i><h3>No distributions yet</h3><p>Distributions will appear here when your GP processes them.</p></div>';
       return;
     }
+    // Compute cumulative pref paid/remaining per deal for this investor
+    const prefSummaryByDeal = {};
+    myDists.forEach(d => {
+      const rec = (d.recipients||[]).find(r => r.investorId === investorRecord.id);
+      if (!rec) return;
+      if (!prefSummaryByDeal[d.dealId]) prefSummaryByDeal[d.dealId] = { prefPaid: 0, prefRemaining: null, lastDist: null };
+      prefSummaryByDeal[d.dealId].prefPaid += (rec.prefPaidThisDist || 0);
+      if (rec.prefRemaining !== undefined && rec.prefRemaining !== null)
+        prefSummaryByDeal[d.dealId].prefRemaining = rec.prefRemaining;
+      prefSummaryByDeal[d.dealId].lastDist = d;
+    });
+
     el.innerHTML = `<table class="dist-table">
       <thead><tr>
-        <th>Deal</th><th>Date</th><th>Your Amount</th><th>Payment Total</th>
+        <th>Deal</th><th>Date</th><th>Pref Paid</th><th>Excess</th><th>Your Amount</th><th>Payment Total</th>
       </tr></thead>
       <tbody>${myDists.map(d => {
         const rec = (d.recipients||[]).find(r => r.investorId === investorRecord.id);
-        const amount = rec?.amount || d.amount || 0;
+        const amount = rec?.amount ?? rec?.totalThisDist ?? d.amount ?? 0;
+        const prefPaid = rec?.prefPaidThisDist ?? 0;
+        const excess = rec?.excessThisDist ?? (amount - prefPaid);
         const dealName = myDeals.find(m=>m.deal.id===d.dealId)?.deal.name || '—';
+        const isPrefAware = d.prefAware || (rec && rec.prefPaidThisDist !== undefined);
         return `<tr>
-          <td><strong>${dealName}</strong></td>
+          <td><strong>${dealName}</strong>${isPrefAware ? ' <span style="font-size:0.7rem;background:#fef3c7;color:#b45309;padding:1px 6px;border-radius:99px;">Pref-Tracked</span>' : ''}</td>
           <td>${d.date ? new Date(d.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—'}</td>
+          <td style="color:#b45309;font-weight:600;">${isPrefAware ? fmtFull$(prefPaid) : '—'}</td>
+          <td style="color:#3b82f6;font-weight:600;">${isPrefAware ? fmtFull$(excess) : '—'}</td>
           <td><span class="dist-amount">${fmtFull$(amount)}</span></td>
           <td style="color:#94a3b8;">${fmtFull$(d.totalAmount || 0)}</td>
         </tr>`;
       }).join('')}</tbody>
-    </table>`;
+    </table>
+    ${Object.keys(prefSummaryByDeal).length ? `
+    <div style="margin-top:16px;padding:14px 18px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;">
+      <div style="font-weight:600;font-size:0.875rem;margin-bottom:8px;color:#b45309;"><i class="fas fa-star"></i> Cumulative Preferred Return Summary</div>
+      ${Object.entries(prefSummaryByDeal).map(([dealId, ps]) => {
+        const dealName = myDeals.find(m=>m.deal.id===dealId)?.deal.name || dealId;
+        return `<div style="font-size:0.825rem;display:flex;gap:24px;flex-wrap:wrap;padding:4px 0;border-top:1px solid rgba(251,191,36,0.15);">
+          <span><strong>${dealName}</strong></span>
+          <span>Pref Paid: <strong style="color:#10b981;">${fmtFull$(ps.prefPaid)}</strong></span>
+          ${ps.prefRemaining !== null ? `<span>Pref Remaining: <strong style="color:#ef4444;">${fmtFull$(ps.prefRemaining)}</strong></span>` : ''}
+        </div>`;
+      }).join('')}
+    </div>` : ''}`;
   }
 
   // ── Render Capital Calls ───────────────────────────────────────────────────
