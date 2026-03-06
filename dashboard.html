@@ -1157,25 +1157,37 @@ function renderDeadlines() {
   // Demo data already seeded via loadDeals/loadInvestors above
 
   // ── Cloud sync indicator ────────────────────────────────────────────────────
+  let _syncRetries = 0;
   function updateSyncIndicator() {
     const dot = document.getElementById('syncDot');
     const label = document.getElementById('syncLabel');
     if (!dot || !label) return;
-    if (typeof SPFB === 'undefined') {
-      dot.style.color = '#6b7280'; label.textContent = 'Local only';
-    } else if (SPFB.isOffline()) {
-      dot.style.color = '#ef4444'; label.textContent = 'Offline';
-    } else if (SPFB.isReady()) {
-      dot.style.color = '#10b981'; label.textContent = 'Cloud synced';
-      // Patch SP.* once ready so all saves go to Firestore
+
+    if (typeof SPFB !== 'undefined' && SPFB.isReady()) {
+      // Connected and ready — green
+      dot.style.color = '#10b981'; label.textContent = 'Synced';
       if (typeof SPFB.patchSPCore === 'function') SPFB.patchSPCore();
-    } else {
-      dot.style.color = '#f59e0b'; label.textContent = 'Syncing…';
-      setTimeout(updateSyncIndicator, 1500);
+      return;
     }
+
+    if (typeof SPData !== 'undefined' && SPData.isReady()) {
+      // SPData ready (Firestore loaded) even if SPFB reports offline
+      dot.style.color = '#10b981'; label.textContent = 'Synced';
+      return;
+    }
+
+    _syncRetries++;
+    if (_syncRetries > 10) {
+      // After 15s of trying, just hide the indicator — don't scare the user
+      document.getElementById('syncIndicator').style.display = 'none';
+      return;
+    }
+
+    // Still connecting — show subtle amber, no scary red
+    dot.style.color = '#f59e0b'; label.textContent = 'Connecting…';
+    setTimeout(updateSyncIndicator, 1500);
   }
 
-  // Poll once immediately, then again when SPFB is ready
   updateSyncIndicator();
   window.addEventListener('spdata-ready', updateSyncIndicator);
 
