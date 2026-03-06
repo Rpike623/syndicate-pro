@@ -845,7 +845,8 @@
     </table>
     ${Object.keys(prefSummaryByDeal).length ? `
     <div style="margin-top:16px;padding:14px 18px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;">
-      <div style="font-weight:600;font-size:0.875rem;margin-bottom:8px;color:#b45309;"><i class="fas fa-star"></i> Cumulative Preferred Return Summary</div>
+      <div style="font-weight:600;font-size:0.875rem;margin-bottom:4px;color:#b45309;"><i class="fas fa-star"></i> Cumulative Preferred Return Summary</div>
+      <div style="font-size:0.78rem;color:#78716c;margin-bottom:10px;line-height:1.5;">Your preferred return accrues annually on your invested capital. Distributions satisfy this pref first — once it's fully paid, excess cash is split pro-rata among all investors.</div>
       ${Object.entries(prefSummaryByDeal).map(([dealId, ps]) => {
         const dealName = myDeals.find(m=>m.deal.id===dealId)?.deal.name || dealId;
         return `<div style="font-size:0.825rem;display:flex;gap:24px;flex-wrap:wrap;padding:4px 0;border-top:1px solid rgba(251,191,36,0.15);">

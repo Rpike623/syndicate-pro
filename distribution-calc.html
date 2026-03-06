@@ -250,9 +250,9 @@
                     thead.innerHTML = `
                         <th>Investor</th>
                         <th>Ownership</th>
-                        <th>Pref Paid</th>
-                        <th>Excess</th>
-                        <th>Pref Remaining</th>
+                        <th title="Amount from this distribution applied toward satisfying the investor's preferred return hurdle">Pref Paid <i class="fas fa-info-circle" style="font-size:0.6rem;opacity:0.5;"></i></th>
+                        <th title="Amount above the preferred return, split pro-rata by ownership percentage">Excess <i class="fas fa-info-circle" style="font-size:0.6rem;opacity:0.5;"></i></th>
+                        <th title="Preferred return still owed to this investor after this distribution">Pref Remaining <i class="fas fa-info-circle" style="font-size:0.6rem;opacity:0.5;"></i></th>
                         <th style="text-align:right;">Total Payout</th>`;
                 }
                 ledgerBody.innerHTML = currentLPs.map(inv => {
