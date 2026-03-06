@@ -865,12 +865,15 @@ window.SP = (function () {
 (function injectLegalFooter() {
   if (typeof document === 'undefined') return;
   document.addEventListener('DOMContentLoaded', function () {
+    // Skip on mobile — footer is hidden via CSS anyway, don't inject useless DOM
+    const isMobile = window.innerWidth <= 768;
+    
     // Don't inject on legal pages themselves
     const path = window.location.pathname;
     if (['/terms.html','/privacy.html','/disclaimer.html','/login.html','/signup.html'].some(p => path.endsWith(p))) return;
 
-    // Footer disclaimer bar at bottom of every app page
-    if (!document.getElementById('dt-legal-footer')) {
+    // Footer disclaimer bar at bottom of every app page (desktop only)
+    if (!isMobile && !document.getElementById('dt-legal-footer')) {
       const footer = document.createElement('div');
       footer.id = 'dt-legal-footer';
       footer.style.cssText = 'background:#0f172a;color:rgba(255,255,255,0.45);font-size:.7rem;padding:12px 32px;text-align:center;line-height:1.6;font-family:Inter,sans-serif;margin-top:auto;border-top:1px solid rgba(255,255,255,0.1);';
