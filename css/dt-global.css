@@ -373,6 +373,9 @@ input:focus, select:focus, textarea:focus {
   .sidebar-overlay.visible { display: block !important; }
 
   /* ── Top bar: stack on small screens ─────────────────────────────────── */
+  /* No gap at top of screen */
+  body, .app { margin: 0 !important; padding: 0 !important; }
+
   .top-bar, header.top-bar {
     padding: 10px 12px !important;
     flex-wrap: nowrap !important;
