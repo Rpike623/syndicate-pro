@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investor Pipeline | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-firebase.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <i class="fas fa-bars"></i>
+      </button>
+      <h1><i class="fas fa-funnel-dollar"></i> Investor Pipeline</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="InvestorPipeline.showAddModal()">
+          <i class="fas fa-plus"></i> Add Lead
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Pipeline Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-label">Total Leads</span>
+          <span class="stat-value" id="statTotal">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Qualified</span>
+          <span class="stat-value text-success" id="statQualified">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">In Progress</span>
+          <span class="stat-value text-warning" id="statProgress">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Converted</span>
+          <span class="stat-value text-primary" id="statConverted">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Pipeline Value</span>
+          <span class="stat-value" id="statValue">$0</span>
+        </div>
+      </div>
+
+      <!-- Kanban Board -->
+      <div class="pipeline-board">
+        <div class="pipeline-column" data-stage="new">
+          <div class="column-header">
+            <h3><i class="fas fa-seedling"></i> New Leads</h3>
+            <span class="column-count" id="count-new">0</span>
+          </div>
+          <div class="column-cards" id="cards-new" ondrop="InvestorPipeline.drop(event, 'new')" ondragover="InvestorPipeline.allowDrop(event)">
+          </div>
+        </div>
+
+        <div class="pipeline-column" data-stage="contacted">
+          <div class="column-header">
+            <h3><i class="fas fa-phone"></i> Contacted</h3>
+            <span class="column-count" id="count-contacted">0</span>
+          </div>
+          <div class="column-cards" id="cards-contacted" ondrop="InvestorPipeline.drop(event, 'contacted')" ondragover="InvestorPipeline.allowDrop(event)">
+          </div>
+        </div>
+
+        <div class="pipeline-column" data-stage="qualified">
+          <div class="column-header">
+            <h3><i class="fas fa-check-circle"></i> Qualified</h3>
+            <span class="column-count" id="count-qualified">0</span>
+          </div>
+          <div class="column-cards" id="cards-qualified" ondrop="InvestorPipeline.drop(event, 'qualified')" ondragover="InvestorPipeline.allowDrop(event)">
+          </div>
+        </div>
+
+        <div class="pipeline-column" data-stage="proposal">
+          <div class="column-header">
+            <h3><i class="fas fa-file-contract"></i> Proposal</h3>
+            <span class="column-count" id="count-proposal">0</span>
+          </div>
+          <div class="column-cards" id="cards-proposal" ondrop="InvestorPipeline.drop(event, 'proposal')" ondragover="InvestorPipeline.allowDrop(event)">
+          </div>
+        </div>
+
+        <div class="pipeline-column" data-stage="committed">
+          <div class="column-header">
+            <h3><i class="fas fa-handshake"></i> Committed</h3>
+            <span class="column-count" id="count-committed">0</span>
+          </div>
+          <div class="column-cards" id="cards-committed" ondrop="InvestorPipeline.drop(event, 'committed')" ondragover="InvestorPipeline.allowDrop(event)">
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add/Edit Lead Modal -->
+  <div id="leadModal" class="modal" style="display:none;">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2><i class="fas fa-user-plus"></i> <span id="modalTitle">Add New Lead</span></h2>
+        <button class="close" onclick="InvestorPipeline.closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="leadForm">
+          <input type="hidden" id="leadId">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name *</label>
+              <input type="text" id="leadFirstName" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label>Last Name *</label>
+              <input type="text" id="leadLastName" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" id="leadEmail" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="leadPhone" class="form-input" placeholder="(555) 123-4567">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Company / Entity</label>
+              <input type="text" id="leadCompany" class="form-input" placeholder="Acme Investments LLC">
+            </div>
+            <div class="form-group">
+              <label>Source</label>
+              <select id="leadSource" class="form-select">
+                <option value="referral">Referral</option>
+                <option value="website">Website</option>
+                <option value="webinar">Webinar</option>
+                <option value="conference">Conference</option>
+                <option value="cold-outreach">Cold Outreach</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Interest Level</label>
+              <select id="leadInterest" class="form-select">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="hot">Hot</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Deal Interest</label>
+              <select id="leadDealType" class="form-select">
+                <option value="">Select deal type...</option>
+                <option value="multifamily">Multifamily</option>
+                <option value="office">Office</option>
+                <option value="industrial">Industrial</option>
+                <option value="retail">Retail</option>
+                <option value="mixed-use">Mixed-Use</option>
+                <option value="development">Development</option>
+                <option value="value-add">Value-Add</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Target Investment</label>
+              <div class="input-group">
+                <span>$</span>
+                <input type="number" id="leadInvestment" class="form-input" placeholder="250000" min="0">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Timeline</label>
+              <select id="leadTimeline" class="form-select">
+                <option value="immediate">Immediate</option>
+                <option value="q1">Q1 2026</option>
+                <option value="q2">Q2 2026</option>
+                <option value="q3">Q3 2026</option>
+                <option value="q4">Q4 2026</option>
+                <option value="2027">2027+</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="leadNotes" class="form-input" rows="3" placeholder="Initial conversation notes, preferences, etc."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="InvestorPipeline.closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="InvestorPipeline.saveLead()">
+          <i class="fas fa-save"></i> Save Lead
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lead Detail Modal -->
+  <div id="detailModal" class="modal" style="display:none;">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h2><i class="fas fa-user"></i> Lead Details</h2>
+        <button class="close" onclick="InvestorPipeline.closeDetailModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="detailContent">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="InvestorPipeline.closeDetailModal()">Close</button>
+        <button class="btn btn-primary" onclick="InvestorPipeline.editFromDetail()">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.SP && SP.isLoggedIn) {
+        initPage();
+      } else {
+        document.addEventListener('sp-ready', initPage);
+      }
+    });
+
+    function initPage() {
+      if (!SP.isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+      }
+      InvestorPipeline.init();
+    }
+  </script>
+  <script src="js/sp-pipeline-leads.js"></script>
+</body>
+</html>

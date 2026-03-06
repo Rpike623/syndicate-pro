@@ -1012,3 +1012,231 @@ input:focus, select:focus, textarea:focus {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ── INVESTOR PIPELINE STYLES ──────────────────────────────────────────── */
+.pipeline-board {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  min-height: 500px;
+}
+
+.pipeline-column {
+  flex: 0 0 280px;
+  background: var(--dt-bg);
+  border-radius: var(--dt-radius);
+  border: 1px solid var(--dt-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.column-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--dt-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--dt-surface);
+  border-radius: var(--dt-radius) var(--dt-radius) 0 0;
+}
+
+.column-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.column-header h3 i {
+  color: var(--dt-accent);
+}
+
+.column-count {
+  background: var(--dt-accent);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.column-cards {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pipeline-card {
+  background: var(--dt-surface);
+  border: 1px solid var(--dt-border);
+  border-radius: 8px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--dt-shadow-sm);
+}
+
+.pipeline-card:hover {
+  box-shadow: var(--dt-shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--dt-accent);
+}
+
+.pipeline-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.pipeline-card .card-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.interest-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.pipeline-card .card-company {
+  font-size: 12px;
+  color: var(--dt-text-muted);
+  margin-bottom: 12px;
+}
+
+.pipeline-card .card-details {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pipeline-card .card-detail {
+  font-size: 12px;
+  color: var(--dt-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pipeline-card .card-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--dt-text-muted);
+  padding-top: 10px;
+  border-top: 1px solid var(--dt-border);
+}
+
+.pipeline-card .card-source {
+  background: var(--dt-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--dt-surface);
+  border: 1px solid var(--dt-border);
+  border-radius: var(--dt-radius);
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-label {
+  display: block;
+  font-size: 12px;
+  color: var(--dt-text-muted);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-value.text-success { color: var(--dt-success); }
+.stat-value.text-warning { color: var(--dt-warning); }
+.stat-value.text-primary { color: var(--dt-accent); }
+
+/* Detail modal */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.detail-section {
+  background: var(--dt-bg);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.detail-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: var(--dt-accent);
+}
+
+.detail-section p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.detail-section a {
+  color: var(--dt-accent);
+}
+
+/* Form adjustments */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.modal-lg {
+  max-width: 700px;
+}
+
+@media (max-width: 1200px) {
+  .stats-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .pipeline-board {
+    padding-bottom: 60px;
+  }
+  
+  .pipeline-column {
+    flex: 0 0 260px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

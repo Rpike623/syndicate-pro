@@ -1108,6 +1108,7 @@ window.SP = (function () {
         ]},
         { id:'investors', title:'INVESTORS', items:[
           { href:'investors.html', icon:'fa-users', label:'Investors' },
+          { href:'investor-pipeline.html', icon:'fa-funnel-dollar', label:'Lead Pipeline' },
           { href:'investor-chat.html', icon:'fa-comments', label:'Messenger' },
           { href:'investor-update.html', icon:'fa-bullhorn', label:'Updates' },
           { href:'inbox.html', icon:'fa-inbox', label:'Inbox' },
