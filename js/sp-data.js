@@ -79,7 +79,11 @@ const SPData = (() => {
         ) : [];
         _cache[name] = lsData && lsData.length ? lsData : [];
         if (_cache[name].length) {
-          console.log(`SPData: ${name} — Firestore empty, using ${_cache[name].length} items from localStorage`);
+          console.log(`SPData: ${name} — Firestore empty, seeding ${_cache[name].length} items to Firestore from localStorage`);
+          // Push localStorage data TO Firestore so it becomes the single source of truth
+          _batchWrite(_cache[name], item => _col(name).doc(item.id)).catch(e =>
+            console.warn(`SPData: seed ${name} to Firestore failed:`, e.message)
+          );
         }
       }
     } catch(e) {
