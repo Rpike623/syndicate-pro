@@ -344,12 +344,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 @media (max-width: 768px) {
-  /* ── Zero out the sidebar width variable — fixes ALL margin/width/padding at once ── */
-  :root {
-    --dt-sidebar-width: 0px !important;
-  }
-
-  /* Belt AND suspenders — also override directly */
+  /* ── Override main layout (belt+suspenders — also overridden after last desktop rule) */
   .main, main.main, main, #main {
     margin-left: 0 !important;
     width: 100% !important;
@@ -585,6 +580,14 @@ input:focus, select:focus, textarea:focus {
 .main, main.main, main, #main { 
   margin-left: var(--dt-sidebar-width) !important; 
   position: relative !important;
+}
+/* Mobile override MUST come after ALL desktop .main rules */
+@media (max-width: 768px) {
+  .main, main.main, main, #main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    position: relative !important;
+  }
 }
 
 .waterfall-explainer {
