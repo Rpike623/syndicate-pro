@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack - Distribution Tracking</title>
+  <title>Distributions — deeltrack</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -173,13 +173,16 @@
     
     <main class="main">
       <header class="top-bar">
-        <div class="breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-separator">/</span><span class="breadcrumb-current">Distributions</span></div>
-        <div class="top-actions"><button class="btn-icon" title="Help"><i class="fas fa-question-circle"></i></button><button class="btn-icon" title="Notifications"><i class="fas fa-bell"></i></button></div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')" style="display:none;background:none;border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;cursor:pointer;align-items:center;justify-content:center;"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
+          <div class="breadcrumb"><a href="dashboard.html">Home</a><span class="breadcrumb-separator">/</span><span class="breadcrumb-current">Distributions</span></div>
+        </div>
+        <div class="top-actions"><button class="btn-icon" title="Notifications"><i class="fas fa-bell"></i></button></div>
       </header>
       
       <div class="content">
         <div class="page-header">
-          <h1 class="page-title">Distribution Tracking</h1>
+          <h1 class="page-title">Distributions</h1>
           <p class="page-description">Record and manage quarterly distributions to investors</p>
         </div>
         
