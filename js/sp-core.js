@@ -1159,7 +1159,8 @@ window.SP = (function () {
           { href:'proforma.html', icon:'fa-table', label:'Pro Forma' },
         ], overflow:[
           { href:'om-v2.html', icon:'fa-clapperboard', label:'Interactive Offering' },
-          { href:'waterfall-explainer.html', icon:'fa-water', label:'Waterfall Explainer' },
+          { href:'waterfall-explainer.html', icon:'fa-water', label:'Waterfall Calculator' },
+          { href:'waterfall-guide.html', icon:'fa-book-open', label:'Waterfall Guide' },
           { href:'market-comps.html', icon:'fa-city', label:'Market Comps' },
           { href:'email-templates.html', icon:'fa-envelope', label:'Email Hub' },
           { href:'debt-tracker.html', icon:'fa-landmark', label:'Debt Tracker' },

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waterfall Structure Guide — deeltrack</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dt-global.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <style>
+    .guide { max-width: 900px; padding: 32px; margin: 0 auto; }
+    .guide h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; color: #0f172a; }
+    .guide .subtitle { color: #64748b; font-size: 1.05rem; margin-bottom: 32px; line-height: 1.6; }
+    .guide h2 { font-size: 1.35rem; font-weight: 700; margin: 40px 0 12px; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    .guide h3 { font-size: 1.1rem; font-weight: 600; margin: 24px 0 8px; color: #1e293b; }
+    .guide p, .guide li { font-size: 0.95rem; line-height: 1.75; color: #334155; }
+    .guide ul, .guide ol { padding-left: 24px; margin: 12px 0; }
+    .guide li { margin-bottom: 8px; }
+    .card-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin: 20px 0; }
+    .card-box.blue { background: #eff6ff; border-color: #bfdbfe; }
+    .card-box.green { background: #f0fdf4; border-color: #bbf7d0; }
+    .card-box.amber { background: #fffbeb; border-color: #fde68a; }
+    .card-box.red { background: #fef2f2; border-color: #fecaca; }
+    .card-box h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .card-box .label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .card-box.blue .label { color: #2563eb; }
+    .card-box.green .label { color: #16a34a; }
+    .card-box.amber .label { color: #d97706; }
+    .example { background: #1e293b; color: #e2e8f0; border-radius: 10px; padding: 20px 24px; margin: 16px 0; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; line-height: 1.8; }
+    .example strong { color: #60a5fa; }
+    .example .green { color: #4ade80; }
+    .example .amber { color: #fbbf24; }
+    .example .red { color: #f87171; }
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+    @media (max-width: 640px) { .pros-cons { grid-template-columns: 1fr; } }
+    .pros-cons .pros { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 16px; }
+    .pros-cons .cons { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 16px; }
+    .pros-cons h5 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+    .pros-cons .pros h5 { color: #16a34a; }
+    .pros-cons .cons h5 { color: #dc2626; }
+    .pros-cons li { font-size: 0.875rem; margin-bottom: 4px; }
+    .decision-tree { background: linear-gradient(135deg, #0f172a, #1e293b); color: white; border-radius: 14px; padding: 32px; margin: 24px 0; }
+    .decision-tree h3 { color: white; margin-top: 0; }
+    .decision-tree p { color: #cbd5e1; }
+    .dt-step { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 16px 20px; margin: 12px 0; }
+    .dt-step strong { color: #60a5fa; }
+    .dt-step .answer { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+    .dt-step .answer span { background: rgba(255,255,255,0.1); padding: 4px 14px; border-radius: 6px; font-size: 0.85rem; }
+    .dt-step .answer span.rec { background: #3b82f6; font-weight: 600; }
+    .toc { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px 28px; margin: 20px 0; }
+    .toc a { color: #3b82f6; text-decoration: none; font-size: 0.9rem; display: block; padding: 4px 0; }
+    .toc a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main">
+    <div class="guide">
+      <h1><i class="fas fa-water" style="color:#3b82f6;margin-right:8px;"></i> Waterfall Structure Guide</h1>
+      <p class="subtitle">A plain-English guide to help you choose the right distribution waterfall for your syndication. No jargon, real examples, clear trade-offs.</p>
+
+      <div class="toc">
+        <strong>Contents</strong>
+        <a href="#what">What Is a Waterfall?</a>
+        <a href="#simple">1. Simple Split</a>
+        <a href="#pref">2. Preferred Return (Pref)</a>
+        <a href="#catchup">3. Preferred Return + GP Catch-Up</a>
+        <a href="#tiered">4. Tiered Promote</a>
+        <a href="#euro-vs-american">5. European vs. American Waterfall</a>
+        <a href="#decision">Which Structure Is Right for You?</a>
+        <a href="#glossary">Glossary</a>
+      </div>
+
+      <!-- ─── WHAT IS A WATERFALL ─────────────────────────────────────── -->
+      <h2 id="what">What Is a Waterfall?</h2>
+      <p>A distribution waterfall is the order in which cash flows from a real estate deal to its investors. Think of it like a series of buckets that fill up in sequence — money flows into the first bucket, and only when it's full does it overflow into the next one.</p>
+      <p>The waterfall determines <strong>who gets paid, how much, and in what order.</strong> Getting this right is critical: it aligns incentives between you (the GP) and your investors (the LPs).</p>
+
+      <div class="card-box blue">
+        <div class="label">Key concept</div>
+        <h4>The two sources of cash</h4>
+        <p style="margin:0;">Investors receive cash at two points: <strong>periodic distributions</strong> (quarterly cash flow from operations) and <strong>exit proceeds</strong> (when the property sells). Your waterfall applies to both — but periodic distributions usually just pay the preferred return, while exit proceeds flow through the full waterfall.</p>
+      </div>
+
+      <!-- ─── SIMPLE SPLIT ────────────────────────────────────────────── -->
+      <h2 id="simple">1. Simple Split</h2>
+      <p>The simplest structure. All profits are split between GP and LPs at a fixed ratio, with no hurdles or preferences.</p>
+
+      <h3>How it works</h3>
+      <ol>
+        <li><strong>Return of Capital</strong> — investors get their money back first</li>
+        <li><strong>Profit Split</strong> — everything above capital is split at the agreed ratio (e.g., 80/20 LP/GP)</li>
+      </ol>
+
+      <div class="example">
+        <strong>Example: $1M equity, 1.8x exit ($1.8M proceeds)</strong><br>
+        Tier 1: Return $1M to investors (pro-rata) ← <span class="green">capital back</span><br>
+        Tier 2: Split $800K profit → <span class="green">$640K to LPs (80%)</span> · <span class="amber">$160K to GP (20%)</span><br>
+        <br>
+        <strong>LP gets:</strong> $1M + $640K = <span class="green">$1.64M (1.64x)</span><br>
+        <strong>GP gets:</strong> $160K = <span class="amber">$160K</span>
+      </div>
+
+      <div class="pros-cons">
+        <div class="pros">
+          <h5><i class="fas fa-check"></i> Pros</h5>
+          <ul>
+            <li>Dead simple to explain to investors</li>
+            <li>Easy to calculate and track</li>
+            <li>Good for experienced investors who trust you</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h5><i class="fas fa-times"></i> Cons</h5>
+          <ul>
+            <li>GP profits even if returns are mediocre</li>
+            <li>No incentive floor for investors</li>
+            <li>Harder to raise from sophisticated LPs</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-box amber">
+        <div class="label">Best for</div>
+        <p style="margin:0;">Friends-and-family raises, very small deals, or deals where you want maximum simplicity. Not recommended for institutional LPs or larger raises.</p>
+      </div>
+
+      <!-- ─── PREFERRED RETURN ────────────────────────────────────────── -->
+      <h2 id="pref">2. Preferred Return (Pref)</h2>
+      <p>The most common structure in real estate syndication. Investors earn a minimum annual return (the "preferred return" or "pref") before the GP participates in profits.</p>
+
+      <h3>How it works</h3>
+      <ol>
+        <li><strong>Return of Capital</strong> — investors get their money back</li>
+        <li><strong>Preferred Return</strong> — investors receive their pref (e.g., 8% per year) on invested capital</li>
+        <li><strong>Residual Split</strong> — everything above pref is split at the agreed ratio</li>
+      </ol>
+
+      <div class="example">
+        <strong>Example: $1M equity, 8% pref, 80/20 split, 5-year hold, 1.8x exit</strong><br>
+        Tier 1: Return $1M capital ← <span class="green">capital back</span><br>
+        Tier 2: Pay 8% × $1M × 5 years = <span class="green">$400K preferred return to LPs</span><br>
+        Tier 3: Remaining $400K split → <span class="green">$320K to LPs (80%)</span> · <span class="amber">$80K to GP (20%)</span><br>
+        <br>
+        <strong>LP gets:</strong> $1M + $400K + $320K = <span class="green">$1.72M (1.72x)</span><br>
+        <strong>GP gets:</strong> <span class="amber">$80K</span>
+      </div>
+
+      <div class="card-box blue">
+        <div class="label">Cumulative vs. Non-Cumulative</div>
+        <h4>Does unpaid pref roll over?</h4>
+        <p style="margin:0;"><strong>Cumulative:</strong> If you can't pay the full 8% one quarter, the shortfall accrues and must be paid before any profit split. This is more LP-friendly and is the industry standard.<br><br>
+        <strong>Non-cumulative:</strong> Unpaid pref is lost — it doesn't accrue. Rarely used in syndication because LPs don't like it.</p>
+      </div>
+
+      <div class="pros-cons">
+        <div class="pros">
+          <h5><i class="fas fa-check"></i> Pros</h5>
+          <ul>
+            <li>Industry standard — LPs expect this</li>
+            <li>Aligns incentives (GP only profits above hurdle)</li>
+            <li>Easy for investors to understand</li>
+            <li>Works for quarterly distributions AND exit</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h5><i class="fas fa-times"></i> Cons</h5>
+          <ul>
+            <li>GP may earn nothing if returns are below pref</li>
+            <li>Can create tension if pref is set too high</li>
+            <li>Residual split still starts from first dollar above pref</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-box green">
+        <div class="label">Best for</div>
+        <p style="margin:0;">Most syndications. This is the default for a reason — it gives LPs a floor, gives you upside above the hurdle, and everyone understands it. Use 7-10% pref for most multifamily/commercial deals.</p>
+      </div>
+
+      <!-- ─── PREF + CATCH-UP ─────────────────────────────────────────── -->
+      <h2 id="catchup">3. Preferred Return + GP Catch-Up</h2>
+      <p>Same as the pref structure, but with an added "catch-up" tier where the GP receives a larger share of profits until they've caught up to their promote percentage of total profits.</p>
+
+      <h3>How it works</h3>
+      <ol>
+        <li><strong>Return of Capital</strong> — investors get their money back</li>
+        <li><strong>Preferred Return</strong> — investors get their pref</li>
+        <li><strong>GP Catch-Up</strong> — GP receives 50-100% of the next dollars until they've earned their promote % of all profits distributed so far</li>
+        <li><strong>Residual Split</strong> — everything after catch-up is split at the agreed ratio</li>
+      </ol>
+
+      <div class="example">
+        <strong>Example: $1M equity, 8% pref, 50% catch-up, 80/20 split, 5yr, 1.8x</strong><br>
+        Tier 1: Return $1M capital ← <span class="green">capital back</span><br>
+        Tier 2: Pay $400K pref to LPs ← <span class="green">8% × 5 years</span><br>
+        Tier 3: GP catch-up at 50% of next $200K → <span class="amber">$100K to GP</span> · <span class="green">$100K to LPs</span><br>
+        Tier 4: Remaining $200K split → <span class="green">$160K to LPs</span> · <span class="amber">$40K to GP</span><br>
+        <br>
+        <strong>LP gets:</strong> $1M + $400K + $100K + $160K = <span class="green">$1.66M (1.66x)</span><br>
+        <strong>GP gets:</strong> $100K + $40K = <span class="amber">$140K</span>
+      </div>
+
+      <div class="card-box blue">
+        <div class="label">Why catch-up exists</div>
+        <p style="margin:0;">Without a catch-up, the GP only earns 20% of profits <em>above the pref</em>. With catch-up, the GP earns 20% of <em>all profits</em> (including the pref tier). The catch-up accelerates the GP's share until they've "caught up" to the same economic position they'd be in if they'd received their promote from dollar one.</p>
+      </div>
+
+      <div class="pros-cons">
+        <div class="pros">
+          <h5><i class="fas fa-check"></i> Pros</h5>
+          <ul>
+            <li>GP earns meaningful promote even when returns are modest</li>
+            <li>Standard in institutional private equity</li>
+            <li>More GP motivation to execute</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h5><i class="fas fa-times"></i> Cons</h5>
+          <ul>
+            <li>More complex to explain to retail investors</li>
+            <li>LPs give up some upside in the catch-up band</li>
+            <li>Catch-up rate (50% vs 100%) changes economics significantly</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-box green">
+        <div class="label">Best for</div>
+        <p style="margin:0;">Experienced GPs with a strong track record. Institutional LPs expect catch-up provisions. If you're raising from family offices, high-net-worth individuals with PE experience, or fund-of-funds, use this structure.</p>
+      </div>
+
+      <!-- ─── TIERED PROMOTE ──────────────────────────────────────────── -->
+      <h2 id="tiered">4. Tiered Promote</h2>
+      <p>Multiple hurdle rates with increasing GP promote at each tier. The GP earns a higher percentage as returns exceed predefined IRR thresholds.</p>
+
+      <h3>How it works</h3>
+      <ol>
+        <li><strong>Return of Capital</strong> — investors get their money back</li>
+        <li><strong>Tier 1 (0-8% IRR)</strong> — 100% to LPs (pref)</li>
+        <li><strong>Tier 2 (8-12% IRR)</strong> — 80/20 LP/GP split</li>
+        <li><strong>Tier 3 (12-18% IRR)</strong> — 70/30 LP/GP split</li>
+        <li><strong>Tier 4 (18%+ IRR)</strong> — 60/40 LP/GP split</li>
+      </ol>
+
+      <div class="example">
+        <strong>Example: Tiered promote on $1M with 2.0x exit over 5 years (~15% IRR)</strong><br>
+        Tier 1: Return $1M + pay 8% pref ($400K) ← <span class="green">100% to LPs</span><br>
+        Tier 2: Next tranche (8-12% IRR) → <span class="green">80% LP</span> / <span class="amber">20% GP</span><br>
+        Tier 3: Next tranche (12-15% IRR) → <span class="green">70% LP</span> / <span class="amber">30% GP</span><br>
+        <br>
+        GP earns a higher promote on the incremental returns they generate.
+      </div>
+
+      <div class="pros-cons">
+        <div class="pros">
+          <h5><i class="fas fa-check"></i> Pros</h5>
+          <ul>
+            <li>Perfectly aligns incentives — GP earns more only by delivering more</li>
+            <li>LPs retain more in moderate-return scenarios</li>
+            <li>Industry gold standard for institutional capital</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h5><i class="fas fa-times"></i> Cons</h5>
+          <ul>
+            <li>Most complex to explain and calculate</li>
+            <li>Requires IRR calculation (not just simple math)</li>
+            <li>Can create disputes about timing of cash flows</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-box green">
+        <div class="label">Best for</div>
+        <p style="margin:0;">Larger deals ($10M+ equity), institutional co-investments, and GPs with strong track records who want to capture more upside on home-run deals while giving LPs downside protection.</p>
+      </div>
+
+      <!-- ─── EUROPEAN VS AMERICAN ────────────────────────────────────── -->
+      <h2 id="euro-vs-american">5. European vs. American Waterfall</h2>
+      <p>This isn't a waterfall <em>type</em> — it's a waterfall <em>scope</em>. It determines whether the waterfall is calculated per deal or across the whole fund.</p>
+
+      <div class="card-box blue">
+        <h4><i class="fas fa-flag-usa" style="color:#3b82f6;"></i> American (Deal-by-Deal)</h4>
+        <p>The GP earns their promote on <strong>each deal individually</strong> as it exits. If Deal A returns 2.0x and Deal B returns 0.8x, the GP still earns promote on Deal A even though the overall portfolio is mediocre.</p>
+        <p style="margin:0;"><strong>Common in:</strong> Single-asset syndications, deal-by-deal GP/LP structures. <em>This is what most syndicators use.</em></p>
+      </div>
+
+      <div class="card-box green">
+        <h4><i class="fas fa-globe-europe" style="color:#16a34a;"></i> European (Whole-Fund / Portfolio)</h4>
+        <p>The GP only earns promote after <strong>all invested capital is returned across the entire fund</strong>. If Deal A wins but Deal B loses, the GP's promote is calculated on the net portfolio return.</p>
+        <p style="margin:0;"><strong>Common in:</strong> Blind-pool funds, commingled vehicles, institutional fund structures. More LP-friendly because losses offset gains.</p>
+      </div>
+
+      <div class="card-box amber">
+        <div class="label">deeltrack default</div>
+        <p style="margin:0;">deeltrack calculates waterfalls <strong>deal-by-deal (American style)</strong> by default, since most syndicators manage individual deals rather than blind-pool funds. Each deal's distributions are tracked independently with their own pref accrual and waterfall tiers.</p>
+      </div>
+
+      <!-- ─── DECISION TREE ───────────────────────────────────────────── -->
+      <div class="decision-tree" id="decision">
+        <h3><i class="fas fa-route" style="margin-right:8px;"></i> Which Structure Is Right for You?</h3>
+        <p>Answer these questions to find your best fit:</p>
+
+        <div class="dt-step">
+          <strong>Q1: Who are your investors?</strong>
+          <div class="answer">
+            <span>Friends & family → <strong>Simple Split or Pref</strong></span>
+            <span>Accredited individuals → <strong>Pref</strong></span>
+            <span>Family offices / institutions → <strong>Pref + Catch-Up or Tiered</strong></span>
+          </div>
+        </div>
+
+        <div class="dt-step">
+          <strong>Q2: How experienced are you as a GP?</strong>
+          <div class="answer">
+            <span>First deal → <span class="rec">Pref (8%) with 80/20 split</span></span>
+            <span>3-5 deals → <strong>Pref + Catch-Up</strong></span>
+            <span>10+ deals / track record → <strong>Tiered Promote</strong></span>
+          </div>
+        </div>
+
+        <div class="dt-step">
+          <strong>Q3: How complex is the deal?</strong>
+          <div class="answer">
+            <span>Single asset, value-add → <span class="rec">Pref (7-8%)</span></span>
+            <span>Development / higher risk → <strong>Pref (10-12%)</strong></span>
+            <span>Multi-asset fund → <strong>Tiered + European waterfall</strong></span>
+          </div>
+        </div>
+
+        <div class="dt-step">
+          <strong>Q4: What pref rate should I use?</strong>
+          <div class="answer">
+            <span>Core / stabilized → <strong>6-7%</strong></span>
+            <span>Value-add → <span class="rec"><strong>8%</strong> (industry standard)</span></span>
+            <span>Opportunistic / dev → <strong>10-12%</strong></span>
+          </div>
+        </div>
+
+        <div class="dt-step" style="background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);">
+          <strong>🏆 Most common structure for syndicators:</strong><br>
+          <span style="font-size:1.05rem;color:white;">8% cumulative preferred return → 80/20 LP/GP split on profits above pref</span><br>
+          <span style="font-size:0.85rem;color:#94a3b8;">This is what the majority of multifamily and commercial syndicators use. It's familiar to investors, easy to explain, and well-supported by deeltrack's distribution engine.</span>
+        </div>
+      </div>
+
+      <!-- ─── GLOSSARY ────────────────────────────────────────────────── -->
+      <h2 id="glossary">Glossary</h2>
+      <div class="card-box">
+        <p><strong>Preferred Return (Pref):</strong> The minimum annual return LPs must receive before the GP participates in profits. Usually 7-10%.</p>
+        <p><strong>Promote / Carried Interest:</strong> The GP's share of profits above the hurdle. Their reward for finding, managing, and executing the deal.</p>
+        <p><strong>Catch-Up:</strong> A tier where the GP receives an accelerated share of distributions until their total promote equals a target percentage of all profits.</p>
+        <p><strong>Hurdle Rate:</strong> The return threshold that must be met before moving to the next waterfall tier. The pref is the first hurdle.</p>
+        <p><strong>IRR (Internal Rate of Return):</strong> The annualized return accounting for the timing of cash flows. Used in tiered promote structures.</p>
+        <p><strong>LP (Limited Partner):</strong> The passive investor who contributes capital.</p>
+        <p><strong>GP (General Partner):</strong> The sponsor/operator who finds and manages the deal.</p>
+        <p><strong>Equity Multiple:</strong> Total distributions ÷ total invested. A 1.8x multiple means $1.80 returned for every $1.00 invested.</p>
+        <p style="margin:0;"><strong>Clawback:</strong> A provision requiring the GP to return promote if later deals underperform and the overall fund doesn't meet the hurdle. Common in European waterfalls.</p>
+      </div>
+
+    </div>
+  </main>
+  <script>SP.requireGP();</script>
+</body>
+</html>
