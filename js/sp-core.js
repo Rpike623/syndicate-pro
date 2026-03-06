@@ -1154,6 +1154,8 @@ window.SP = (function () {
           { href:'gp-pl.html', icon:'fa-money-bill-trend-up', label:'P&L' },
           { href:'carry-tracker.html', icon:'fa-hand-holding-dollar', label:'Carry Tracker' },
           { href:'compliance-hub.html', icon:'fa-shield-halved', label:'Compliance' },
+          { href:'asset-management.html', icon:'fa-building', label:'Assets' },
+          { href:'risk-register.html', icon:'fa-exclamation-triangle', label:'Risk' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
