@@ -1041,16 +1041,16 @@ function renderDealsTable(deals) {
     const pct = d.raise > 0 ? Math.min(100,Math.round(committed/d.raise*100)) : 0;
     const barColor = pct>=75?'var(--success)':pct>=40?'var(--accent)':'var(--warning)';
     return `<tr>
-      <td><div style="font-weight:600;">${d.name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${d.location||'—'}</div></td>
-      <td><span class="badge ${typeMap[d.type]||'badge-sourcing'}">${typeLabel[d.type]||d.type||'—'}</span></td>
-      <td>
+      <td data-label="Deal"><div style="font-weight:600;">${d.name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${d.location||'—'}</div></td>
+      <td data-label="Type"><span class="badge ${typeMap[d.type]||'badge-sourcing'}">${typeLabel[d.type]||d.type||'—'}</span></td>
+      <td data-label="Raise">
         <div class="money-val">${fmt$(d.raise||0)}</div>
-        <div style="margin-top:4px;height:4px;background:var(--border-light);border-radius:4px;overflow:hidden;width:80px;"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;"></div></div>
+        <div style="margin-top:4px;height:4px;background:var(--border-light);border-radius:4px;overflow:hidden;width:80px;display:inline-block;"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;"></div></div>
         <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">${fmt$(committed)} (${pct}%)</div>
       </td>
-      <td class="irr-val">${d.irr ? fmtPct(d.irr) : '—'}</td>
-      <td><span class="badge ${statusMap[d.status]||'badge-sourcing'}">${statusLabel[d.status]||d.status||'—'}</span></td>
-      <td><div class="action-btns">
+      <td data-label="IRR" class="irr-val">${d.irr ? fmtPct(d.irr) : '—'}</td>
+      <td data-label="Status"><span class="badge ${statusMap[d.status]||'badge-sourcing'}">${statusLabel[d.status]||d.status||'—'}</span></td>
+      <td data-label="Actions"><div class="action-btns">
         <a href="deal-detail.html?id=${d.id}" class="btn-xs"><i class="fas fa-eye"></i></a>
         <a href="new-deal.html?id=${d.id}" class="btn-xs"><i class="fas fa-calculator"></i></a>
       </div></td>

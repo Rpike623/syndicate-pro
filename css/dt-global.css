@@ -406,10 +406,62 @@ input:focus, select:focus, textarea:focus {
   .card-header { padding: 14px 16px !important; }
   .card-body { padding: 16px !important; }
 
-  /* ── Tables: horizontal scroll ───────────────────────────────────────── */
-  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  thead { white-space: nowrap; }
-  th, td { padding: 10px 12px !important; font-size: 0.82rem !important; }
+  /* ── Better Responsive Tables: Stacking rows on mobile ──────────────── */
+  table.stack-mobile, 
+  .card-body table { 
+    display: block !important; 
+    width: 100% !important;
+  }
+  table.stack-mobile thead,
+  .card-body table thead { 
+    display: none !important; 
+  }
+  table.stack-mobile tr,
+  .card-body table tr { 
+    display: block !important;
+    border-bottom: 8px solid var(--dt-bg-light) !important;
+    padding: 16px 0 !important;
+  }
+  table.stack-mobile td,
+  .card-body table td { 
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 8px 16px !important;
+    border: none !important;
+    text-align: right !important;
+  }
+  table.stack-mobile td::before,
+  .card-body table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 10px;
+    color: var(--dt-text-muted);
+    flex-shrink: 0;
+    margin-right: 16px;
+    text-align: left;
+  }
+  /* First cell (usually the name) is full width and prominent */
+  table.stack-mobile td:first-child,
+  .card-body table td:first-child {
+    display: block !important;
+    text-align: left !important;
+    background: var(--dt-bg-light);
+    margin-bottom: 8px;
+    padding: 12px 16px !important;
+  }
+  table.stack-mobile td:first-child::before,
+  .card-body table td:first-child::before {
+    display: none !important;
+  }
+  /* Action buttons cell */
+  table.stack-mobile td:last-child,
+  .card-body table td:last-child {
+    justify-content: flex-end !important;
+    padding-top: 12px !important;
+    border-top: 1px solid var(--dt-border-light) !important;
+  }
 
   /* ── Distribution cards ──────────────────────────────────────────────── */
   .distribution-card { padding: 14px !important; }

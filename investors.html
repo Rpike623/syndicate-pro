@@ -516,21 +516,21 @@ function renderTable(list) {
     const linkedDeals = allDeals.filter(d => Array.isArray(d.investors) && d.investors.some(i => i.investorId === inv.id));
     return `
     <tr>
-      <td>
+      <td data-label="Investor">
         <div class="investor-cell">
           <div class="investor-av av-${idx%6}">${initials(inv)}</div>
           <div><div class="investor-name"><a href="investor-detail.html?id=${inv.id}" style="color:inherit;text-decoration:none;">${inv.firstName} ${inv.lastName}</a></div><div class="investor-email">${inv.email}</div></div>
         </div>
       </td>
-      <td style="color:var(--text-secondary);font-size:0.85rem;">${inv.phone||'—'}</td>
-      <td>${(accBadge[inv.accredStatus]||accBadge.pending)(inv)}</td>
-      <td class="money">${fmt$(inv.totalInvested||0)}</td>
-      <td style="text-align:center;">
+      <td data-label="Phone" style="color:var(--text-secondary);font-size:0.85rem;">${inv.phone||'—'}</td>
+      <td data-label="Accreditation">${(accBadge[inv.accredStatus]||accBadge.pending)(inv)}</td>
+      <td data-label="Invested" class="money">${fmt$(inv.totalInvested||0)}</td>
+      <td data-label="Deals" style="text-align:center;">
         <span style="font-weight:600;">${linkedDeals.length}</span>
         ${linkedDeals.length ? `<div style="font-size:0.7rem;color:var(--text-muted);">${linkedDeals.map(d=>d.name).slice(0,2).join(', ')}${linkedDeals.length>2?' +more':''}</div>` : ''}
       </td>
-      <td>${statusBadge[inv.status]||'—'}</td>
-      <td>
+      <td data-label="Status">${statusBadge[inv.status]||'—'}</td>
+      <td data-label="Actions">
         <div class="action-btns">
           <button class="btn-xs" onclick="editInvestor('${inv.id}')" title="Edit"><i class="fas fa-edit"></i></button>
           <button class="btn-xs" onclick="openDealLinkModal('${inv.id}')" title="Link to Deal" style="color:var(--accent);"><i class="fas fa-link"></i></button>

@@ -417,14 +417,14 @@ function renderTable(list) {
   }
   tbody.innerHTML = list.map(d => `
     <tr>
-      <td><div class="deal-name">${d.name}</div><div class="deal-location"><i class="fas fa-map-marker-alt" style="font-size:0.7rem;"></i> ${d.location||'—'}</div></td>
-      <td><span class="badge ${TYPE_BADGE[d.type]||'badge-other'}">${TYPE_LABEL[d.type]||d.type||'—'}</span></td>
-      <td class="money">${fmt$(d.raise||0)}</td>
-      <td class="irr-val">${d.irr?d.irr.toFixed(1)+'%':'—'}</td>
-      <td class="em-val">${d.equity?d.equity.toFixed(2)+'x':'—'}</td>
-      <td><span class="badge ${STATUS_BADGE[d.status]||'badge-sourcing'}">${STATUS_LABEL[d.status]||d.status||'—'}</span></td>
-      <td style="color:var(--text-secondary);font-size:0.8rem;">${d.added?new Date(d.added).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—'}</td>
-      <td>
+      <td data-label="Deal"><div class="deal-name">${d.name}</div><div class="deal-location"><i class="fas fa-map-marker-alt" style="font-size:0.7rem;"></i> ${d.location||'—'}</div></td>
+      <td data-label="Type"><span class="badge ${TYPE_BADGE[d.type]||'badge-other'}">${TYPE_LABEL[d.type]||d.type||'—'}</span></td>
+      <td data-label="Raise" class="money">${fmt$(d.raise||0)}</td>
+      <td data-label="IRR" class="irr-val">${d.irr?d.irr.toFixed(1)+'%':'—'}</td>
+      <td data-label="EM" class="em-val">${d.equity?d.equity.toFixed(2)+'x':'—'}</td>
+      <td data-label="Status"><span class="badge ${STATUS_BADGE[d.status]||'badge-sourcing'}">${STATUS_LABEL[d.status]||d.status||'—'}</span></td>
+      <td data-label="Added" style="color:var(--text-secondary);font-size:0.8rem;">${d.added?new Date(d.added).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—'}</td>
+      <td data-label="Actions">
         <div class="action-btns">
           <a href="deal-detail.html?id=${d.id}" class="btn-xs"><i class="fas fa-eye"></i></a>
           <a href="new-deal.html?id=${d.id}" class="btn-xs"><i class="fas fa-calculator"></i> Model</a>

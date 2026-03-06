@@ -264,12 +264,12 @@
                     const prefRem = ps ? ps.prefRemaining : null;
                     return `
                         <tr>
-                            <td><strong>${investor ? `${investor.firstName} ${investor.lastName}` : 'Unknown Investor'}</strong></td>
-                            <td style="font-family: JetBrains Mono; font-weight: 500; font-size: 13px;">${inv.ownership ?? ps?.ownership?.toFixed(1) ?? 0}%</td>
-                            <td style="color: #b45309; font-weight: 600; font-family: JetBrains Mono;">${formatCurrency(prefPaid)}</td>
-                            <td style="color: var(--accent); font-weight: 600; font-family: JetBrains Mono;">${formatCurrency(excess)}</td>
-                            <td style="color: var(--text-secondary); font-size: 12px; font-family: JetBrains Mono;">${prefRem !== null ? formatCurrency(prefRem) : '—'}</td>
-                            <td style="text-align: right; font-family: JetBrains Mono; font-weight: 700; color: var(--primary);">${formatCurrency(payout)}</td>
+                            <td data-label="Investor"><strong>${investor ? `${investor.firstName} ${investor.lastName}` : 'Unknown Investor'}</strong></td>
+                            <td data-label="Ownership" style="font-family: JetBrains Mono; font-weight: 500; font-size: 13px;">${inv.ownership ?? ps?.ownership?.toFixed(1) ?? 0}%</td>
+                            <td data-label="Pref Paid" style="color: #b45309; font-weight: 600; font-family: JetBrains Mono;">${formatCurrency(prefPaid)}</td>
+                            <td data-label="Excess" style="color: var(--accent); font-weight: 600; font-family: JetBrains Mono;">${formatCurrency(excess)}</td>
+                            <td data-label="Pref Rem." style="color: var(--text-secondary); font-size: 12px; font-family: JetBrains Mono;">${prefRem !== null ? formatCurrency(prefRem) : '—'}</td>
+                            <td data-label="Total Payout" style="text-align: right; font-family: JetBrains Mono; font-weight: 700; color: var(--primary);">${formatCurrency(payout)}</td>
                         </tr>`;
                 }).join('');
             }
