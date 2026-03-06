@@ -851,3 +851,164 @@ input:focus, select:focus, textarea:focus {
     flex-direction: column;
   }
 }
+
+/* ── FUND ACCOUNTING STYLES ─────────────────────────────────────────────── */
+.pnl-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.pnl-section {
+  padding: 20px;
+  border-radius: var(--dt-radius);
+}
+
+.pnl-income {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1px solid #86efac;
+}
+
+.pnl-expense {
+  background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+  border: 1px solid #fca5a5;
+}
+
+.pnl-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dt-text-muted);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pnl-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  font-size: 14px;
+}
+
+.pnl-row:last-child {
+  border-bottom: none;
+}
+
+.pnl-row.pnl-total {
+  font-weight: 700;
+  padding-top: 12px;
+  margin-top: 8px;
+  border-top: 2px solid rgba(0,0,0,0.1);
+}
+
+.pnl-row .amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
+
+.pnl-income .amount.positive {
+  color: #166534;
+}
+
+.pnl-expense .amount.negative {
+  color: #991b1b;
+}
+
+.pnl-net {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  margin-top: 20px;
+  background: var(--dt-surface);
+  border: 2px solid var(--dt-border);
+  border-radius: var(--dt-radius);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.pnl-net .amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+}
+
+.pnl-net .amount.positive {
+  color: var(--dt-success);
+}
+
+.pnl-net .amount.negative {
+  color: var(--dt-danger);
+}
+
+/* Cash Flow */
+.cf-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.cf-item {
+  text-align: center;
+  padding: 16px;
+  background: var(--dt-bg);
+  border-radius: 8px;
+}
+
+.cf-label {
+  display: block;
+  font-size: 12px;
+  color: var(--dt-text-muted);
+  margin-bottom: 8px;
+}
+
+.cf-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.cf-value.positive {
+  color: var(--dt-success);
+}
+
+.cf-value.negative {
+  color: var(--dt-danger);
+}
+
+/* Filter group */
+.filter-group {
+  display: flex;
+  gap: 8px;
+}
+
+/* Transaction table */
+.data-table .btn-icon {
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: var(--dt-text-muted);
+  transition: var(--dt-transition);
+}
+
+.data-table .btn-icon:hover {
+  color: var(--dt-accent);
+}
+
+.data-table .btn-icon.text-danger:hover {
+  color: var(--dt-danger);
+}
+
+.text-success { color: var(--dt-success) !important; }
+.text-danger { color: var(--dt-danger) !important; }
+
+@media (max-width: 768px) {
+  .pnl-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cf-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

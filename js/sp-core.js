@@ -1123,6 +1123,7 @@ window.SP = (function () {
           { href:'distribution-calc.html', icon:'fa-bolt', label:'Distribution Command' },
           { href:'capital-calls.html', icon:'fa-hand-holding-usd', label:'Capital Calls' },
           { href:'capital-account.html', icon:'fa-list-ol', label:'Capital Accounts' },
+          { href:'accounting.html', icon:'fa-calculator', label:'Fund Accounting' },
         ], overflow:[
           { href:'capital-account-statement.html', icon:'fa-file-contract', label:'Account Ledger' },
           { href:'distribution-reconciliation.html', icon:'fa-scale-balanced', label:'Reconciliation' },
