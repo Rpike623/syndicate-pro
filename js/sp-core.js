@@ -503,7 +503,7 @@ const SP = (function () {
       },
       {
         id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9,
-        status:'operating', location:'Austin, TX', added:'2025-11-10', units:96, state:'TX',
+        status:'operating', location:'Austin, TX', added:'2025-11-10', closeDate:'2025-11-15', units:96, state:'TX',
         companyName:'Riverside Flats Capital LLC', purchasePrice:21000000, loanAmount:16800000,
         totalEquity:4200000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
         generatedOA: oa1, oaGeneratedAt:'2025-11-10T09:00:00.000Z',
@@ -516,7 +516,7 @@ const SP = (function () {
       },
       {
         id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1,
-        status:'closed', location:'Dallas, TX', added:'2025-12-01', units:0, state:'TX',
+        status:'closed', location:'Dallas, TX', added:'2025-12-01', closeDate:'2025-12-01', units:0, state:'TX',
         companyName:'Meridian Industrial Capital LLC', purchasePrice:37500000, loanAmount:30000000,
         totalEquity:7500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
         investors:[
@@ -527,7 +527,7 @@ const SP = (function () {
       },
       {
         id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7,
-        status:'operating', location:'Houston, TX', added:'2026-01-15', units:248, state:'TX',
+        status:'operating', location:'Houston, TX', added:'2026-01-15', closeDate:'2026-01-20', units:248, state:'TX',
         companyName:'Hudson Portfolio Capital LLC', purchasePrice:60000000, loanAmount:48000000,
         totalEquity:12000000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
         generatedOA: oa2, oaGeneratedAt:'2026-01-15T09:00:00.000Z',
@@ -556,12 +556,77 @@ const SP = (function () {
     ];
     save('deals', deals);
 
-    // Distributions (so investor portal shows real history)
+    // ── Distributions — pref-aware, status:'posted' so pref engine counts them ──
+    // Riverside Flats (d1): 8% pref, 3 investors, closeDate 2025-11-15
+    //   di1: $250k × 8% / 4 = $5,000 Q pref; di2: $500k × 8% / 4 = $10,000; di3: $250k × 8% / 4 = $5,000
+    //   Q4 2025 total pref due = $20,000. Dist = $84,000 → $20k pref + $64k excess split 5.95/11.9/5.95 of LP 23.8%
+    //   LP excess pool: $64,000 split among 23.8% LP ownership (di1:5.95, di2:11.9, di3:5.95 = 23.8 total)
+    //   di1 excess: 64000*(5.95/23.8)=16000, di2: 32000, di3: 16000
+    //   di1 total: 5000+16000=21000, di2: 10000+32000=42000, di3: 5000+16000=21000 = 84000 ✓
     save('distributions', [
-      { id:'dd1', dealId:'d1', dealName:'Riverside Flats', period:'Q4 2025', quarter:'Q4', year:2025, totalAmount:84000, amount:84000, date:'2026-01-05', method:'Wire', investorCount:3,
-        recipients:[{investorId:'di1',amount:14875,ownership:5.95},{investorId:'di2',amount:29750,ownership:11.9},{investorId:'di3',amount:14875,ownership:5.95}] },
-      { id:'dd2', dealId:'d2', dealName:'Meridian Industrial', period:'Q4 2025', quarter:'Q4', year:2025, totalAmount:150000, amount:150000, date:'2026-01-08', method:'Wire', investorCount:2,
-        recipients:[{investorId:'di2',amount:50025,ownership:6.67},{investorId:'di4',amount:99975,ownership:13.33}] },
+      {
+        id:'dd1', dealId:'d1', dealName:'Riverside Flats',
+        period:'Q4 2025', quarter:'Q4', year:2025,
+        totalAmount:84000, amount:84000,
+        date:'2026-01-05', method:'Wire',
+        status:'posted', prefAware:true,
+        investorCount:3,
+        recipients:[
+          { investorId:'di1', ownership:5.95, invested:250000,
+            prefPaidThisDist:5000, excessThisDist:16000, totalThisDist:21000,
+            amount:21000, prefPaidToDate:5000, prefRemainingAfterDist:0 },
+          { investorId:'di2', ownership:11.9, invested:500000,
+            prefPaidThisDist:10000, excessThisDist:32000, totalThisDist:42000,
+            amount:42000, prefPaidToDate:10000, prefRemainingAfterDist:0 },
+          { investorId:'di3', ownership:5.95, invested:250000,
+            prefPaidThisDist:5000, excessThisDist:16000, totalThisDist:21000,
+            amount:21000, prefPaidToDate:5000, prefRemainingAfterDist:0 },
+        ]
+      },
+      // Q1 2026 Riverside Flats dist — pref fully current, all excess
+      // Pref for Q1: di1 $5k, di2 $10k, di3 $5k = $20k. Dist=$90,000 → $20k pref + $70k excess
+      // di1: 5000+70000*(5.95/23.8)=5000+17500=22500, di2: 10000+35000=45000, di3: 5000+17500=22500
+      {
+        id:'dd3', dealId:'d1', dealName:'Riverside Flats',
+        period:'Q1 2026', quarter:'Q1', year:2026,
+        totalAmount:90000, amount:90000,
+        date:'2026-04-05', method:'Wire',
+        status:'posted', prefAware:true,
+        investorCount:3,
+        recipients:[
+          { investorId:'di1', ownership:5.95, invested:250000,
+            prefPaidThisDist:5000, excessThisDist:17500, totalThisDist:22500,
+            amount:22500, prefPaidToDate:10000, prefRemainingAfterDist:0 },
+          { investorId:'di2', ownership:11.9, invested:500000,
+            prefPaidThisDist:10000, excessThisDist:35000, totalThisDist:45000,
+            amount:45000, prefPaidToDate:20000, prefRemainingAfterDist:0 },
+          { investorId:'di3', ownership:5.95, invested:250000,
+            prefPaidThisDist:5000, excessThisDist:17500, totalThisDist:22500,
+            amount:22500, prefPaidToDate:10000, prefRemainingAfterDist:0 },
+        ]
+      },
+      // Meridian Industrial (d2): 8% pref, closeDate 2025-12-01
+      //   di2: $500k×8%/4=$10k Q pref; di4: $1M×8%/4=$20k Q pref = $30k total
+      //   Q4 2025 dist=$150,000 → $30k pref + $120k excess
+      //   LP ownership: di2 6.67%, di4 13.33% (total 20%)
+      //   di2 excess: 120000*(6.67/20)=40,020; di4 excess: 80,016 ≈ rounding to 120000
+      //   di2 total: 10000+40020=50020, di4: 20000+79980=99980
+      {
+        id:'dd2', dealId:'d2', dealName:'Meridian Industrial',
+        period:'Q4 2025', quarter:'Q4', year:2025,
+        totalAmount:150000, amount:150000,
+        date:'2026-01-08', method:'Wire',
+        status:'posted', prefAware:true,
+        investorCount:2,
+        recipients:[
+          { investorId:'di2', ownership:6.67, invested:500000,
+            prefPaidThisDist:10000, excessThisDist:40020, totalThisDist:50020,
+            amount:50020, prefPaidToDate:10000, prefRemainingAfterDist:0 },
+          { investorId:'di4', ownership:13.33, invested:1000000,
+            prefPaidThisDist:20000, excessThisDist:79980, totalThisDist:99980,
+            amount:99980, prefPaidToDate:20000, prefRemainingAfterDist:0 },
+        ]
+      },
     ]);
 
     // Capital calls

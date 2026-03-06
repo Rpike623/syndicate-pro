@@ -230,10 +230,11 @@
 
             currentLPs = deal.investors || [];
 
-            // Compute pref-aware splits
-            const priorDists = (SPData.getDistributions() || []).filter(d => d.dealId === dealId);
+            // Only POSTED dists count toward the pref ledger
+            const priorDists = (SPData.getDistributions() || []).filter(d => d.dealId === dealId && d.status === 'posted');
+            const distDate   = document.getElementById('distDate').value;
             const prefSplits = (typeof SPMath !== 'undefined' && currentLPs.length)
-                ? SPMath.computePrefSplits(deal, priorDists, amount, 0.25)
+                ? SPMath.computePrefSplits(deal, priorDists, amount, distDate ? new Date(distDate) : new Date())
                 : [];
 
             // Store on currentLPs for executeDistribution
@@ -321,7 +322,7 @@
                         dealName: deal ? deal.name : 'Unknown',
                         date: document.getElementById('distDate').value,
                         totalAmount: amount,
-                        status: 'executed',
+                        status: 'posted',
                         prefAware: prefSplits.length > 0,
                         recipients,
                         createdAt: new Date()

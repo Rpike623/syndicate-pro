@@ -292,155 +292,187 @@
     SP.requireGP();
 
     let distributions = [];
+    let deals = [];
 
-    function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num || 0); }
-        function loadDeals() {
+    function fmt$(n) { return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n||0); }
+    const formatCurrency = fmt$;
+
+    function loadDeals() {
       deals = SP.getDeals();
-      distributions = SP.getDistributions(); // fresh from Firebase
+      distributions = SP.getDistributions();
       const select = document.getElementById('distDeal');
-      select.innerHTML = '<option value="">Select a deal...</option>' + deals.map(d => `<option value="${d.id}">${d.name || 'Unnamed Deal'}</option>`).join('');
-      // Pre-select deal from URL param if present
+      select.innerHTML = '<option value="">Select a deal...</option>'
+        + deals.map(d => `<option value="${d.id}">${d.name||'Unnamed Deal'}</option>`).join('');
       const urlDeal = new URLSearchParams(window.location.search).get('deal');
       if (urlDeal) select.value = urlDeal;
     }
 
+    // ── Status badge helper ───────────────────────────────────────────────
+    function statusBadge(status) {
+      if (status === 'posted') return `<span style="display:inline-flex;align-items:center;gap:4px;background:#d1fae5;color:#065f46;font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:99px;"><i class="fas fa-check-circle"></i> Posted</span>`;
+      return `<span style="display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:99px;"><i class="fas fa-clock"></i> Draft</span>`;
+    }
+
+    // ── Render list ───────────────────────────────────────────────────────
     function renderDistributions() {
+      distributions = SP.getDistributions();
       const container = document.getElementById('distributionList');
       if (!distributions.length) {
-        container.innerHTML = `<div class="empty-state"><div class="icon"><i class="fas fa-wallet"></i></div><h3>No distributions recorded</h3><p>Record your first distribution to start tracking payments to investors</p></div>`;
+        container.innerHTML = `<div class="empty-state"><div class="icon"><i class="fas fa-wallet"></i></div><h3>No distributions yet</h3><p>Create a draft, preview the pref-aware split, then post it to lock the ledger.</p></div>`;
         return;
       }
       container.innerHTML = distributions.slice().reverse().map(dist => {
-        const totalPrefPaid = (dist.recipients || []).reduce((s,r) => s + (r.prefPaidThisDist||0), 0);
-        const totalExcess = (dist.recipients || []).reduce((s,r) => s + (r.excessThisDist||0), 0);
-        const prefBadge = dist.prefAware
-          ? `<span style="display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#b45309;font-size:0.75rem;font-weight:600;padding:2px 8px;border-radius:99px;margin-left:8px;" title="Pref-aware split">
-               <i class="fas fa-star" style="font-size:0.65rem;"></i> Pref-Tracked
-             </span>`
-          : '';
+        const totalPrefPaid = (dist.recipients||[]).reduce((s,r)=>s+(r.prefPaidThisDist||0),0);
+        const totalExcess   = (dist.recipients||[]).reduce((s,r)=>s+(r.excessThisDist||0),0);
+        const isPosted = dist.status === 'posted';
         const prefBreakdown = dist.prefAware
           ? `<div style="margin-top:10px;padding:10px 14px;background:var(--border-light);border-radius:var(--radius);font-size:0.8rem;display:flex;gap:24px;flex-wrap:wrap;">
-               <span><i class="fas fa-star" style="color:#f59e0b;"></i> Pref Paid: <strong>${formatCurrency(totalPrefPaid)}</strong></span>
-               <span><i class="fas fa-chart-pie" style="color:#3b82f6;"></i> Excess Split: <strong>${formatCurrency(totalExcess)}</strong></span>
+               <span><i class="fas fa-star" style="color:#f59e0b;"></i> Pref Paid: <strong>${fmt$(totalPrefPaid)}</strong></span>
+               <span><i class="fas fa-chart-pie" style="color:#3b82f6;"></i> Excess: <strong>${fmt$(totalExcess)}</strong></span>
                <span><i class="fas fa-users" style="color:#64748b;"></i> ${(dist.recipients||[]).length} investors</span>
              </div>`
           : '';
+        const postBtn = !isPosted
+          ? `<button onclick="postDistribution('${dist.id}')" class="btn btn-success btn-sm" style="margin-left:8px;"><i class="fas fa-paper-plane"></i> Post</button>`
+          : '';
         return `
-        <div class="distribution-card">
+        <div class="distribution-card" style="border-left:4px solid ${isPosted ? 'var(--success)' : 'var(--warning)'};">
           <div class="distribution-header">
-            <div>
-              <div class="distribution-title" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">
-                ${dist.dealName || 'Unknown Deal'} — ${dist.period || (dist.quarter+' '+dist.year)}
-                ${prefBadge}
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span class="distribution-title">${dist.dealName||'Unknown'} — ${dist.period||(dist.quarter+' '+dist.year)}</span>
+                ${statusBadge(dist.status)}
+                ${dist.prefAware ? `<span style="background:#fef3c7;color:#b45309;font-size:0.72rem;font-weight:600;padding:2px 8px;border-radius:99px;"><i class="fas fa-star"></i> Pref-Tracked</span>` : ''}
               </div>
               <div style="font-size:.875rem;color:var(--text-secondary);margin-top:4px;">
-                <i class="fas fa-calendar"></i> ${dist.date ? new Date(dist.date).toLocaleDateString() : '—'} &nbsp;·&nbsp;
-                <i class="fas fa-credit-card"></i> ${dist.method || 'Wire'} &nbsp;·&nbsp;
-                <i class="fas fa-users"></i> ${dist.recipients ? dist.recipients.length : (dist.investorCount || 0)} investors
+                <i class="fas fa-calendar"></i> ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'} &nbsp;·&nbsp;
+                <i class="fas fa-credit-card"></i> ${dist.method||'Wire'} &nbsp;·&nbsp;
+                <i class="fas fa-users"></i> ${(dist.recipients||[]).length||dist.investorCount||0} investors
+                ${isPosted && dist.postedAt ? `&nbsp;·&nbsp;<i class="fas fa-lock"></i> Posted ${new Date(dist.postedAt).toLocaleDateString()}` : ''}
               </div>
             </div>
-            <div class="distribution-amount">${formatCurrency(dist.totalAmount || dist.amount || 0)}</div>
+            <div style="text-align:right;">
+              <div class="distribution-amount">${fmt$(dist.totalAmount||dist.amount||0)}</div>
+              ${postBtn}
+            </div>
           </div>
           <div class="distribution-meta">
-            <span><i class="fas fa-building"></i> ${dist.dealName || '—'}</span>
-            <span>${dist.notes || ''}</span>
+            <span><i class="fas fa-building"></i> ${dist.dealName||'—'}</span>
+            <span>${dist.notes||''}</span>
           </div>
           ${prefBreakdown}
         </div>`;
       }).join('');
     }
 
+    // ── Post a draft distribution ─────────────────────────────────────────
+    // Posting locks the calculation into the ledger — future distributions
+    // will see this distribution in their prior-history and compute pref correctly.
+    function postDistribution(distId) {
+      if (!confirm('Post this distribution? Once posted it will be locked and will affect all future pref calculations.')) return;
+      distributions = SP.getDistributions();
+      const idx = distributions.findIndex(d => d.id === distId);
+      if (idx < 0) return;
+      distributions[idx].status = 'posted';
+      distributions[idx].postedAt = new Date().toISOString();
+      SP.saveDistributions(distributions);
+      SP.logActivity('fa-lock','green',`Distribution for <strong>${distributions[idx].dealName}</strong> posted — ledger locked.`);
+      renderDistributions();
+      updateStats();
+    }
+
     function updateStats() {
+      distributions = SP.getDistributions();
       const year = new Date().getFullYear();
-      const ytd = distributions.filter(d => (d.date||'').startsWith(year) || d.year === year).reduce((s,d) => s+(d.totalAmount||d.amount||0), 0);
-      document.getElementById('totalDistributed').textContent = formatCurrency(ytd);
-      document.getElementById('distributionsCount').textContent = distributions.filter(d => (d.date||'').startsWith(year) || d.year === year).length;
-      const all = distributions.reduce((s,d) => s+(d.totalAmount||d.amount||0), 0);
-      const avg = distributions.length ? all / distributions.length : 0;
-      document.getElementById('avgDistribution').textContent = formatCurrency(avg);
+      // Only count posted dists in YTD stats
+      const posted = distributions.filter(d => d.status === 'posted');
+      const ytd = posted.filter(d => (d.date||'').startsWith(year)||d.year===year).reduce((s,d)=>s+(d.totalAmount||d.amount||0),0);
+      document.getElementById('totalDistributed').textContent = fmt$(ytd);
+      document.getElementById('distributionsCount').textContent = posted.filter(d=>(d.date||'').startsWith(year)||d.year===year).length;
+      const all = posted.reduce((s,d)=>s+(d.totalAmount||d.amount||0),0);
+      const avg = posted.length ? all/posted.length : 0;
+      document.getElementById('avgDistribution').textContent = fmt$(avg);
     }
 
     function openModal() { document.getElementById('modal').classList.add('active'); loadDeals(); }
     function closeModal() { document.getElementById('modal').classList.remove('active'); }
 
+    // ── Save distribution as DRAFT (does NOT affect pref ledger until Posted) ─
     function saveDistribution() {
-      const dealId = document.getElementById('distDeal').value;
-      const deal = SP.getDealById(dealId);
-      const amount = parseFloat(document.getElementById('distAmount').value) || 0;
-      const date = document.getElementById('distDate').value;
+      const dealId  = document.getElementById('distDeal').value;
+      const deal    = SP.getDealById(dealId);
+      const amount  = parseFloat(document.getElementById('distAmount').value) || 0;
+      const date    = document.getElementById('distDate').value;
       const quarter = document.getElementById('distQuarter').value;
-      const year = parseInt(document.getElementById('distYear').value);
+      const year    = parseInt(document.getElementById('distYear').value);
 
-      // Compute pref-aware per-investor splits using SPMath.computePrefSplits
-      const priorForDeal = distributions.filter(d => d.dealId === dealId);
-      const prefSplits = (deal && typeof SPMath !== 'undefined')
-        ? SPMath.computePrefSplits(deal, priorForDeal, amount, 0.25)
+      if (!dealId || !deal) { alert('Please select a deal.'); return; }
+      if (!amount) { alert('Please enter a distribution amount.'); return; }
+
+      // Only POSTED prior distributions count toward the pref ledger
+      const postedForDeal = (SP.getDistributions()||[]).filter(d => d.dealId === dealId && d.status === 'posted');
+
+      const prefSplits = (typeof SPMath !== 'undefined')
+        ? SPMath.computePrefSplits(deal, postedForDeal, amount, date ? new Date(date) : new Date())
         : [];
 
-      // Build recipients — use pref splits if available, else fall back to simple ownership
-      const recipients = deal ? (deal.investors || []).map(inv => {
+      const recipients = (deal.investors||[]).map(inv => {
         const ps = prefSplits.find(s => s.investorId === inv.investorId);
         if (ps) {
           return {
-            investorId: inv.investorId,
-            ownership: ps.ownership,
-            invested: ps.invested,
-            amount: ps.totalThisDist,
-            prefPaidThisDist: ps.prefPaidThisDist,
-            excessThisDist: ps.excessThisDist,
-            prefRemaining: ps.prefRemaining,
-            prefPaidToDate: ps.prefPaidToDate + ps.prefPaidThisDist,
+            investorId:         inv.investorId,
+            ownership:          ps.ownership,
+            invested:           ps.invested,
+            amount:             ps.totalThisDist,
+            prefPaidThisDist:   ps.prefPaidThisDist,
+            excessThisDist:     ps.excessThisDist,
+            prefRemainingAfterDist: ps.prefRemainingAfterDist,
+            prefPaidAfterDist:  ps.prefPaidAfterDist,
           };
         }
-        // fallback: simple ownership split
+        // No pref configured — simple ownership split
+        const pct = parseFloat(inv.ownership)||0;
         return {
           investorId: inv.investorId,
-          amount: inv.ownership ? parseFloat((amount * inv.ownership / 100).toFixed(2)) : 0,
-          ownership: inv.ownership || 0,
+          ownership: pct,
+          invested: parseFloat(inv.committed||inv.amount||0),
+          amount: parseFloat((amount * pct / 100).toFixed(2)),
           prefPaidThisDist: 0,
-          excessThisDist: inv.ownership ? parseFloat((amount * inv.ownership / 100).toFixed(2)) : 0,
-          prefRemaining: null,
-          prefPaidToDate: null,
+          excessThisDist: parseFloat((amount * pct / 100).toFixed(2)),
+          prefRemainingAfterDist: null,
+          prefPaidAfterDist: null,
         };
-      }) : [];
+      });
 
       const dist = {
-        id: 'dist' + Date.now(),
-        dealId: dealId || '',
-        dealName: deal ? deal.name : 'Unknown Deal',
-        period: `${quarter} ${year}`,
+        id:           'dist' + Date.now(),
+        dealId,
+        dealName:     deal.name,
+        period:       `${quarter} ${year}`,
         quarter, year,
-        totalAmount: amount,
-        amount, // keep for legacy compat
+        totalAmount:  amount,
+        amount,
         date,
-        method: document.getElementById('distMethod').value,
-        notes: document.getElementById('distNotes').value,
+        method:       document.getElementById('distMethod').value,
+        notes:        document.getElementById('distNotes').value,
         investorCount: recipients.length,
-        prefAware: prefSplits.length > 0,
+        prefAware:    prefSplits.length > 0,
+        status:       'draft',   // ← DRAFT until GP explicitly posts
+        createdAt:    new Date().toISOString(),
         recipients,
       };
 
+      distributions = SP.getDistributions();
       distributions.push(dist);
       SP.saveDistributions(distributions);
-      // SPData handles Firestore write via SP.saveDistributions
-      SP.logActivity('fa-wallet', 'purple', `Distribution of <strong>${formatCurrency(amount)}</strong> recorded for <strong>${dist.dealName}</strong>`);
+      SP.logActivity('fa-wallet','amber',`Draft distribution of <strong>${fmt$(amount)}</strong> created for <strong>${dist.dealName}</strong> — pending post.`);
       closeModal();
       renderDistributions();
-    window.addEventListener('spdata-ready', function() { renderDistributions(); updateStats(); });
-
-      // Auto-send distribution notification emails
-      if (typeof SPEmail !== 'undefined' && SPEmail.isConfigured() && dist.recipients?.length) {
-        const recipientIds = dist.recipients.map(r => r.investorId);
-        const allInvestors = SP.getInvestors().filter(inv => recipientIds.includes(inv.id));
-        if (allInvestors.length) {
-          SPEmail.sendDistribution(dist, allInvestors).then(results => {
-            const sent = results.filter(r => r.status === 'sent').length;
-            if (sent) showToast(`Distribution notices sent to ${sent} investors`);
-          });
-        }
-      }
+      updateStats();
     }
 
+    window.addEventListener('spdata-ready', () => { loadDeals(); renderDistributions(); updateStats(); });
+    if (typeof SPData !== 'undefined' && SPData.isReady()) { loadDeals(); renderDistributions(); updateStats(); }
     renderDistributions();
     updateStats();
   </script>
