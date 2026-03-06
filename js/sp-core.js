@@ -32,7 +32,10 @@
   }
 })();
 
-const SP = (function () {
+// Use window.SP so all inline scripts and other modules can reliably access it
+// (const/let in <script src> tags create script-scoped bindings that can fail
+//  to propagate across script boundaries in some browser configurations)
+window.SP = (function () {
 
   // ─── Session ────────────────────────────────────────────────────────────────
 
