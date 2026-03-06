@@ -1157,6 +1157,8 @@ window.SP = (function () {
           { href:'insurance.html', icon:'fa-shield-cat', label:'Insurance' },
           { href:'reservations.html', icon:'fa-hand-pointer', label:'Reservations' },
           { href:'vendors.html', icon:'fa-tools', label:'Vendors' },
+          { href:'maintenance.html', icon:'fa-wrench', label:'Maintenance' },
+          { href:'tasks.html', icon:'fa-tasks', label:'Tasks' },
           { href:'tax-center.html', icon:'fa-file-invoice-dollar', label:'Tax Center' },
         ], overflow:[
         ]},

@@ -2612,3 +2612,83 @@ input:focus, select:focus, textarea:focus {
   .onboarding-pipeline { flex-direction: column; }
   .pipeline-arrow { transform: rotate(90deg); padding: 8px 0; }
 }
+
+/* ── TASKS & MAINTENANCE STYLES ───────────────────────────────────────── */
+.task-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.task-col {
+  background: var(--dt-surface);
+  border: 1px solid var(--dt-border);
+  border-radius: var(--dt-radius);
+  padding: 16px;
+  min-height: 400px;
+}
+
+.task-col h3 {
+  font-size: 14px;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-col h3 .count {
+  background: var(--dt-accent);
+  color: white;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--dt-bg);
+  border: 1px solid var(--dt-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--dt-transition);
+}
+
+.task-card:hover { border-color: var(--dt-accent); }
+.task-card.overdue { border-left: 3px solid var(--dt-danger); }
+
+.task-priority {
+  width: 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.priority-low { background: var(--dt-text-muted); }
+.priority-medium { background: var(--dt-warning); }
+.priority-high { background: var(--dt-danger); }
+
+.task-content { flex: 1; }
+
+.task-title {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.task-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--dt-text-muted);
+}
+
+@media (max-width: 900px) {
+  .task-columns { grid-template-columns: 1fr; }
+}
