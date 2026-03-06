@@ -500,15 +500,17 @@ function viewOA() {
 }
 
 function printOA() {
+  const html = deal.generatedOA || '';
   const w = window.open('', '_blank');
   w.document.write(`<!DOCTYPE html><html><head><title>${deal.name} — Operating Agreement</title>
     <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}
-    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style></head>
+    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style></head><body>${html}</body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 500);
 }
 
 function downloadOAWord() {
+  const html = deal.generatedOA || '';
   const blob = new Blob([html], {type:'application/msword'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -669,7 +671,11 @@ function printSubDoc(contentId) {
   const content = document.getElementById(contentId)?.innerHTML;
   if (!content) return;
   const w = window.open('', '_blank');
-  w.document.close(); setTimeout(() => w.print(), 400);
+  w.document.write(`<!DOCTYPE html><html><head><title>Subscription Agreement</title>
+    <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}
+    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style></head><body>${content}</body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
 }
 
 function downloadSubDoc(investorId) {
@@ -680,6 +686,7 @@ function downloadSubDoc(investorId) {
   if (typeof SPDocs === 'undefined') return;
   const invEntry = (deal.investors||[]).find(i=>i.investorId===investorId)||{};
   const html = SPDocs.generateSubDoc(deal, {...inv, committed: invEntry.committed||0}, gpName, gpRep);
+  const blob = new Blob([html], {type:'application/msword'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `${inv.firstName||'Investor'}-${inv.lastName||''}-SubDoc.doc`;
@@ -730,6 +737,7 @@ function sendSubDoc(investorId) {
     .sig-line{border-top:1px solid #333;margin-top:40px;padding-top:8px;font-size:.85rem;}
     .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:5rem;color:rgba(0,0,0,.04);font-weight:700;pointer-events:none;}
     @media print{.no-print{display:none;}}
+    </style></head><body>
     <div class="watermark">DRAFT</div>
     <div class="no-print" style="background:#fef3c7;padding:12px 20px;margin-bottom:24px;border-radius:8px;font-family:sans-serif;font-size:.9rem;">
       ⚠️ <strong>Draft Document</strong> — This is a placeholder template. Have your attorney review before use.
@@ -928,6 +936,8 @@ function copyPitch() {
   navigator.clipboard.writeText(text);
   showToast('Pitch copied to clipboard!', 'success');
 }
+
+function duplicateDeal(id) {
   const allDeals = SP.getDeals();
   const d = allDeals.find(x=>x.id===id);
   if(!d) return;

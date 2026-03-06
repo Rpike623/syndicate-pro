@@ -596,15 +596,15 @@
   </style>
 </head>
 <body>
-  <div class="app"><aside class="sidebar" id="sidebar"></aside>
-    <!-- Sidebar with Progress -->
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-    <nav class="nav"></nav>
         <a href="javascript:void(0)" onclick="SP.goHome()" class="logo" style="text-decoration:none;color:white;">
           <div class="logo-icon">◆</div>
           <span>deeltrack</span>
         </a>
       </div>
+      <nav class="nav"></nav>
       
       <div class="wizard-progress">
         <div class="progress-title">Deal Setup Progress</div>
@@ -1733,6 +1733,7 @@
       const deal = id ? SP.getDealById(id) : null;
       const oa = deal?.generatedOA || document.getElementById('successOAContent')?.innerHTML;
       if (!oa) return;
+      const blob = new Blob([oa], {type:'application/msword'});
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = `${deal?.name || 'Operating-Agreement'}.doc`;

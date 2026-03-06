@@ -521,7 +521,7 @@
         <div style="font-size:0.75rem; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">Exclusive Pre-Access</div>
         <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
             <div style="font-size:0.9rem; color:rgba(255,255,255,0.9);">Interested in reinvesting your pending distribution into <strong>Pecan Hollow Apartments</strong> (Fort Worth)? <strong>19.4% Build Target.</strong></div>
-            <a href="deal-teaser.html?deal=live_d1" style="background:white; color:var(--accent); padding:8px 16px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.8rem; white-space:nowrap;">View Opportunity</a>
+            <a href="deal-teaser.html?deal=pecan-hollow" style="background:white; color:var(--accent); padding:8px 16px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.8rem; white-space:nowrap;">View Opportunity</a>
         </div>
     </div>
     <div class="hero-stats">
@@ -1235,7 +1235,7 @@
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
 
-    if(typeof SPFB !== 'undefined' && SPFB.isReady()) {
+    if(typeof SPFB !== 'undefined' && SPFB.isReady() && investorRecord) {
       try {
         const path = `vault/${SPFB.getOrgId()}/${investorRecord.id}/${Date.now()}_${file.name}`;
         const ref = firebase.storage().ref(path);
