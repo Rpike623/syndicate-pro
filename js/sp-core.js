@@ -898,23 +898,15 @@ window.SP = (function () {
   });
 })();
 
-// ─── PWA: Unregister any old service workers ─────────────────────────────────
-// The SW caused aggressive caching that broke code deployments on mobile.
-// We now register a passthrough SW that immediately unregisters itself
-// and clears all caches.
-(function killSW() {
+// ─── PWA: Nuke all service workers and caches ────────────────────────────────
+// The SW was caching old code and breaking every deploy. Gone for good.
+(function nukeSW() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
-  window.addEventListener('load', () => {
-    // Register the passthrough SW which will self-destruct and clear caches
-    navigator.serviceWorker.register('/syndicate-pro/sw.js').catch(() => {});
-    // Also proactively unregister any old SWs
-    navigator.serviceWorker.getRegistrations().then(regs => {
-      regs.forEach(r => {
-        if (!r.active || r.active.scriptURL.includes('sw.js')) return;
-        r.unregister();
-      });
-    });
+  // Run immediately — don't wait for load event
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
   });
+  caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
 })();
 
 // ─── Mobile nav: ensure sidebar overlay + toggle works on every page ─────────
