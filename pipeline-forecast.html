@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pipeline Forecast | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-chart-line"></i> Pipeline Forecast</h1>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">Pipeline Value</span><span class="stat-value" id="statPipeline">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Expected This Quarter</span><span class="stat-value text-success" id="statThisQ">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Expected Next Quarter</span><span class="stat-value text-primary" id="statNextQ">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Weighted Avg Probability</span><span class="stat-value" id="statProb">0%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Pipeline Forecast</h2></div>
+        <div class="card-body"><canvas id="forecastChart" height="80"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Deals by Stage</h2></div>
+        <div class="card-body">
+          <div class="forecast-stages" id="forecastStages"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Monthly Breakdown</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Month</th><th>Expected Closes</th><th>Pipeline</th><th>Probability</th><th>Weighted Value</th></tr></thead><tbody id="monthlyTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Forecast.init();}</script>
+  <script src="js/sp-forecast.js"></script>
+</body>
+</html>

@@ -1096,6 +1096,7 @@ window.SP = (function () {
           { href:'sourcing-crm.html', icon:'fa-stream', label:'Pipeline' },
           { href:'cap-table.html', icon:'fa-pie-chart', label:'Cap Tables' },
           { href:'deal-scoring.html', icon:'fa-star', label:'Deal Scoring' },
+          { href:'pipeline-forecast.html', icon:'fa-chart-line', label:'Forecast' },
         ], overflow:[
           { href:'deal-compare.html', icon:'fa-balance-scale', label:'Compare Deals' },
           { href:'deal-room.html', icon:'fa-folder-open', label:'Deal Room' },
@@ -1162,6 +1163,8 @@ window.SP = (function () {
           { href:'vendors.html', icon:'fa-tools', label:'Vendors' },
           { href:'maintenance.html', icon:'fa-wrench', label:'Maintenance' },
           { href:'tasks.html', icon:'fa-tasks', label:'Tasks' },
+          { href:'lease-tracking.html', icon:'fa-file-signature', label:'Leases' },
+          { href:'quarterly-report.html', icon:'fa-quarterly-report', label:'Quarterly Report' },
           { href:'tax-center.html', icon:'fa-file-invoice-dollar', label:'Tax Center' },
         ], overflow:[
         ]},
