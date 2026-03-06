@@ -1090,93 +1090,130 @@ window.SP = (function () {
     const nav = document.querySelector('#sidebar .nav, .sidebar .nav');
     if (nav) {
       const page = window.location.pathname.split('/').pop() || 'dashboard.html';
-      const navItems = [
-        { section: 'OPERATIONS' },
-        { href: 'investors.html', icon: 'fa-users', label: 'CRM: Investors' },
-        { href: 'investor-sentiment-v2.html', icon: 'fa-brain', label: 'Investor Sentiment' },
-        { href: 'investor-retention.html', icon: 'fa-user-clock', label: 'Investor Retention' },
-        { href: 'network-map.html', icon: 'fa-project-diagram', label: 'Network Map' },
-        { href: 'anchor-map.html', icon: 'fa-anchor', label: 'Anchor Referral Map' },
-        { href: 'investor-heatmap.html', icon: 'fa-th', label: 'Activity Heatmap' },
-        { href: 'sourcing-crm.html', icon: 'fa-stream', label: 'CRM: Pipeline' },
-        { href: 'lenders.html', icon: 'fa-landmark', label: 'CRM: Lenders' },
-        { href: 'deals.html', icon: 'fa-building', label: 'Portfolio' },
-        { href: 'portfolio-health.html', icon: 'fa-heart-pulse', label: 'Portfolio Health' },
-        { href: 'cap-table.html', icon: 'fa-pie-chart', label: 'Deal Cap Tables' },
-        { href: 'portfolio-explorer.html', icon: 'fa-chart-pie', label: 'Portfolio Explorer' },
-        { href: 'dynamic-valuation.html', icon: 'fa-sync-alt', label: 'Dynamic Valuation' },
-        { href: 'reit-rollup.html', icon: 'fa-layer-group', label: 'Fund/REIT Rollup' },
-        { href: 'gp-benchmarks.html', icon: 'fa-gauge-high', label: 'GP Benchmarks' },
-        { href: 'gp-pl.html', icon: 'fa-money-bill-trend-up', label: 'GP P&L Dashboard' },
-        { href: 'carry-tracker.html', icon: 'fa-hand-holding-dollar', label: 'GP Carry Tracker' },
-        { href: 'executive-summary.html', icon: 'fa-file-invoice', label: 'GP Executive PDF' },
-        { href: 'scenario-planner.html', icon: 'fa-project-diagram', label: 'Scenario Planner' },
-        { href: 'sensitivity-matrix.html', icon: 'fa-table', label: 'Sensitivity Matrix' },
-        { href: 'risk-matrix.html', icon: 'fa-table-cells', label: 'Risk Matrix' },
-        { href: 'deal-approvals.html', icon: 'fa-check-double', label: 'Approval Pipeline' },
-        { href: 'new-deal.html', icon: 'fa-plus', label: 'Underwriting' },
-        { section: 'ADMIN' },
-        { href: 'dashboard.html', icon: 'fa-th-large', label: 'Main' },
-        { href: 'documents.html', icon: 'fa-file-contract', label: 'Documents' },
-        { href: 'investor-statements.html', icon: 'fa-file-invoice', label: 'Investor Statements' },
-        { href: 'capital-account-statement.html', icon: 'fa-file-contract', label: 'Account Ledger' },
-        { href: 'distribution-calc.html', icon: 'fa-bolt', label: 'Distribution Command' },
-        { href: 'capital-account.html', icon: 'fa-list-ol', label: 'Capital Accounts' },
-        { href: 'compliance-hud.html', icon: 'fa-shield-halved', label: 'Compliance HUD' },
-        { href: 'currency-center.html', icon: 'fa-globe-americas', label: 'Currency Center' },
-        { href: 'reports.html', icon: 'fa-chart-bar', label: 'Reports' },
-        { section: 'Tools' },
-        { href: 'proforma.html', icon: 'fa-table', label: 'Pro Forma' },
-        { href: 'market-comps.html', icon: 'fa-city', label: 'Market Comps' },
-        { href: 'wire-confirm.html', icon: 'fa-bank', label: 'Wire Confirmation' },
-        { href: 'waterfall-explainer.html', icon: 'fa-water', label: 'Waterfall Explainer' },
-        { href: 'distributions.html', icon: 'fa-wallet', label: 'CRM: Distributions' },
-        { href: 'distribution-reconciliation.html', icon: 'fa-scale-balanced', label: 'Disbursement Recon' },
-        { href: 'capital-calls.html', icon: 'fa-hand-holding-usd', label: 'Capital Calls' },
-        { href: 'tax-center.html', icon: 'fa-file-invoice-dollar', label: 'Tax Center' },
-        { href: 'email-templates.html', icon: 'fa-envelope', label: 'Email Hub' },
-        { href: 'investor-chat.html', icon: 'fa-comments', label: 'LP Messenger' },
-        { href: 'audit-logs.html', icon: 'fa-fingerprint', label: 'Audit View' },
-        { href: 'deal-room.html', icon: 'fa-folder-open', label: 'Deal Room' },
-        { href: 'deal-room-log.html', icon: 'fa-file-magnifying-glass', label: 'Deal Room Scrutiny' },
-        { href: 'om-builder.html', icon: 'fa-file-pdf', label: 'OM Generator' },
-        { href: 'om-v2.html', icon: 'fa-clapperboard', label: 'Interactive Offering' },
-        { href: 'investor-update.html', icon: 'fa-bullhorn', label: 'Update Builder' },
-        { href: 'inbox.html', icon: 'fa-inbox', label: 'Investor Inbox' },
-        { href: 'deal-compare.html', icon: 'fa-balance-scale', label: 'Compare Deals' },
-        { section: 'Account' },
-        { href: 'team.html', icon: 'fa-user-shield', label: 'Team Management' },
-        { href: 'settings.html', icon: 'fa-cog', label: 'Settings' },
+      // ── Collapsible sidebar navigation ──────────────────────────────
+      // Each section has primary items (always visible) and overflow items
+      // (shown when the section is expanded). The current page's section
+      // auto-expands so the user always sees where they are.
+      const navSections = [
+        { id:'home', items:[
+          { href:'dashboard.html', icon:'fa-th-large', label:'Dashboard' },
+        ]},
+        { id:'deals', title:'DEALS', items:[
+          { href:'deals.html', icon:'fa-building', label:'Portfolio' },
+          { href:'new-deal.html', icon:'fa-plus', label:'New Deal' },
+          { href:'sourcing-crm.html', icon:'fa-stream', label:'Pipeline' },
+          { href:'cap-table.html', icon:'fa-pie-chart', label:'Cap Tables' },
+        ], overflow:[
+          { href:'deal-compare.html', icon:'fa-balance-scale', label:'Compare Deals' },
+          { href:'deal-room.html', icon:'fa-folder-open', label:'Deal Room' },
+          { href:'deal-room-log.html', icon:'fa-magnifying-glass', label:'Deal Room Log' },
+          { href:'deal-approvals.html', icon:'fa-check-double', label:'Approvals' },
+          { href:'portfolio-health.html', icon:'fa-heart-pulse', label:'Portfolio Health' },
+          { href:'portfolio-explorer.html', icon:'fa-chart-pie', label:'Portfolio Explorer' },
+          { href:'dynamic-valuation.html', icon:'fa-sync-alt', label:'Valuation' },
+          { href:'reit-rollup.html', icon:'fa-layer-group', label:'Fund Rollup' },
+          { href:'scenario-planner.html', icon:'fa-project-diagram', label:'Scenario Planner' },
+          { href:'sensitivity-matrix.html', icon:'fa-table', label:'Sensitivity Matrix' },
+          { href:'risk-matrix.html', icon:'fa-table-cells', label:'Risk Matrix' },
+        ]},
+        { id:'investors', title:'INVESTORS', items:[
+          { href:'investors.html', icon:'fa-users', label:'Investors' },
+          { href:'investor-chat.html', icon:'fa-comments', label:'Messenger' },
+          { href:'investor-update.html', icon:'fa-bullhorn', label:'Updates' },
+          { href:'inbox.html', icon:'fa-inbox', label:'Inbox' },
+        ], overflow:[
+          { href:'investor-sentiment-v2.html', icon:'fa-brain', label:'Sentiment' },
+          { href:'investor-retention.html', icon:'fa-user-clock', label:'Retention' },
+          { href:'network-map.html', icon:'fa-project-diagram', label:'Network Map' },
+          { href:'anchor-map.html', icon:'fa-anchor', label:'Referral Map' },
+          { href:'investor-heatmap.html', icon:'fa-th', label:'Activity Heatmap' },
+        ]},
+        { id:'finance', title:'FINANCE', items:[
+          { href:'distributions.html', icon:'fa-wallet', label:'Distributions' },
+          { href:'distribution-calc.html', icon:'fa-bolt', label:'Distribution Command' },
+          { href:'capital-calls.html', icon:'fa-hand-holding-usd', label:'Capital Calls' },
+          { href:'capital-account.html', icon:'fa-list-ol', label:'Capital Accounts' },
+        ], overflow:[
+          { href:'capital-account-statement.html', icon:'fa-file-contract', label:'Account Ledger' },
+          { href:'distribution-reconciliation.html', icon:'fa-scale-balanced', label:'Reconciliation' },
+          { href:'wire-confirm.html', icon:'fa-bank', label:'Wire Confirm' },
+          { href:'currency-center.html', icon:'fa-globe-americas', label:'Currency Center' },
+          { href:'tax-center.html', icon:'fa-file-invoice-dollar', label:'Tax Center' },
+          { href:'k1-generator.html', icon:'fa-file-invoice', label:'K-1 Generator' },
+          { href:'investor-statements.html', icon:'fa-file-invoice', label:'Statements' },
+        ]},
+        { id:'gp', title:'GP TOOLS', items:[
+          { href:'reports.html', icon:'fa-chart-bar', label:'Reports' },
+          { href:'gp-benchmarks.html', icon:'fa-gauge-high', label:'Benchmarks' },
+          { href:'gp-pl.html', icon:'fa-money-bill-trend-up', label:'P&L' },
+          { href:'carry-tracker.html', icon:'fa-hand-holding-dollar', label:'Carry Tracker' },
+        ], overflow:[
+          { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
+          { href:'compliance-hud.html', icon:'fa-shield-halved', label:'Compliance' },
+          { href:'audit-logs.html', icon:'fa-fingerprint', label:'Audit Log' },
+          { href:'lenders.html', icon:'fa-landmark', label:'Lenders' },
+        ]},
+        { id:'docs', title:'DOCUMENTS', items:[
+          { href:'documents.html', icon:'fa-file-contract', label:'Documents' },
+          { href:'om-builder.html', icon:'fa-file-pdf', label:'OM Builder' },
+          { href:'proforma.html', icon:'fa-table', label:'Pro Forma' },
+        ], overflow:[
+          { href:'om-v2.html', icon:'fa-clapperboard', label:'Interactive Offering' },
+          { href:'waterfall-explainer.html', icon:'fa-water', label:'Waterfall Explainer' },
+          { href:'market-comps.html', icon:'fa-city', label:'Market Comps' },
+          { href:'email-templates.html', icon:'fa-envelope', label:'Email Hub' },
+          { href:'debt-tracker.html', icon:'fa-landmark', label:'Debt Tracker' },
+          { href:'exit-calc.html', icon:'fa-calculator', label:'Exit Calculator' },
+        ]},
+        { id:'account', title:'ACCOUNT', items:[
+          { href:'team.html', icon:'fa-user-shield', label:'Team' },
+          { href:'settings.html', icon:'fa-cog', label:'Settings' },
+        ]},
       ];
 
-      // Also active for deal-detail, investor-detail, etc.
-      const activeMap = {
-        'deal-detail.html': 'pipeline.html',
-        'deals.html': 'pipeline.html',
-        'investor-detail.html': 'investors.html',
-        'investor-statements.html': 'reports.html',
-        'distribution-calc.html': 'distributions.html',
-        'deal-teaser.html': 'pipeline.html',
-        'deal-compare.html': 'deal-compare.html',
-        'rent-roll-analyzer.html': 'proforma.html',
-        'market-comps.html': 'reports.html',
-        'ic-memo-builder.html': 'documents.html',
-        'ic-memo-builder.html': 'documents.html',
-        'teaser-generator.html': 'teaser-generator.html',
-        'inbox.html': 'inbox.html',
-        'capital-calls.html': 'capital-calls.html',
-        'k1-generator.html': 'k1-generator.html',
-        'proforma.html': 'proforma.html',
-        'lenders.html': 'lenders.html',
-        'portfolio-explorer.html': 'portfolio-explorer.html',
-        'scenario-planner.html': 'scenario-planner.html',
+      // Map pages to their section so the active section auto-expands
+      const pageToSection = {};
+      navSections.forEach(sec => {
+        (sec.items||[]).concat(sec.overflow||[]).forEach(item => {
+          if (item.href) pageToSection[item.href] = sec.id;
+        });
+      });
+      // Extra aliases
+      const extraAliases = {
+        'deal-detail.html':'deals', 'investor-detail.html':'investors',
+        'deal-teaser.html':'deals', 'rent-roll-analyzer.html':'docs',
+        'ic-memo-builder.html':'docs', 'teaser-generator.html':'docs',
       };
-      const activePage = activeMap[page] || page;
+      Object.assign(pageToSection, extraAliases);
 
-      nav.innerHTML = navItems.map(item => {
-        if (item.section) return `<div class="nav-section">${item.section}</div>`;
-        const isActive = page === item.href || (activeMap[page] === item.href);
-        return `<a href="${item.href}" class="nav-item ${isActive ? 'active' : ''}"><i class="fas ${item.icon}"></i><span>${item.label}</span></a>`;
+      const activeMap = pageToSection; // backwards compat
+      const activeSection = pageToSection[page] || 'home';
+
+      // Restore expanded sections from sessionStorage (persists during tab life)
+      const expandedKey = 'dt_nav_expanded';
+      let expandedSections = {};
+      try { expandedSections = JSON.parse(sessionStorage.getItem(expandedKey)||'{}'); } catch(e){}
+      // Auto-expand the section containing the current page
+      expandedSections[activeSection] = true;
+
+      function renderItem(item, isActive) {
+        return `<a href="${item.href}" class="nav-item ${isActive ? 'active' : ''}" title="${item.label}"><i class="fas ${item.icon}"></i><span>${item.label}</span></a>`;
+      }
+
+      nav.innerHTML = navSections.map(sec => {
+        const isExpanded = !!expandedSections[sec.id];
+        const hasOverflow = sec.overflow && sec.overflow.length > 0;
+        const titleHtml = sec.title
+          ? `<div class="nav-section" style="display:flex;justify-content:space-between;align-items:center;cursor:${hasOverflow?'pointer':'default'};user-select:none;" ${hasOverflow ? `onclick="(function(el){var o=el.parentElement.querySelector('.nav-overflow');var k='${sec.id}';var s=JSON.parse(sessionStorage.getItem('${expandedKey}')||'{}');if(o.style.display==='none'){o.style.display='';s[k]=true;el.querySelector('.chevron').style.transform='rotate(90deg)'}else{o.style.display='none';delete s[k];el.querySelector('.chevron').style.transform=''}sessionStorage.setItem('${expandedKey}',JSON.stringify(s))})(this)"` : ''}>
+              <span>${sec.title}</span>
+              ${hasOverflow ? `<i class="fas fa-chevron-right chevron" style="font-size:0.55rem;opacity:0.5;transition:transform 0.15s;${isExpanded?'transform:rotate(90deg)':''}"></i>` : ''}
+            </div>`
+          : '';
+        const mainItems = sec.items.map(item => renderItem(item, page === item.href)).join('');
+        const overflowItems = hasOverflow
+          ? `<div class="nav-overflow" style="display:${isExpanded?'':'none'}">${sec.overflow.map(item => renderItem(item, page === item.href)).join('')}</div>`
+          : '';
+        return titleHtml + mainItems + overflowItems;
       }).join('');
     }
 
