@@ -1,9 +1,9 @@
 // deeltrack Service Worker v3
 // Network-first for HTML, Cache-first for assets, localStorage data always available
 
-const CACHE_VERSION = 'sp-v3';
-const STATIC_CACHE = 'sp-static-v3';
-const DYNAMIC_CACHE = 'sp-dynamic-v3';
+const CACHE_VERSION = 'sp-v4';
+const STATIC_CACHE = 'sp-static-v4';
+const DYNAMIC_CACHE = 'sp-dynamic-v4';
 
 // Core pages to pre-cache on install
 const PRECACHE = [
@@ -83,8 +83,13 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // JS/CSS/fonts: Cache-first
-  if (['script','style','font'].includes(request.destination)) {
+  // JS/CSS: Network-first so code deploys take effect immediately
+  // Fonts: Cache-first (they rarely change)
+  if (['script','style'].includes(request.destination)) {
+    event.respondWith(networkFirstWithCache(request, STATIC_CACHE));
+    return;
+  }
+  if (request.destination === 'font') {
     event.respondWith(cacheFirst(request, STATIC_CACHE));
     return;
   }
