@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Portfolio | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+  <link rel="stylesheet" href="css/investor-portal.css">
+</head>
+<body class="portal-body">
+  <div class="portal-header">
+    <div class="portal-logo"><i class="fas fa-building"></i> Deeltrack</div>
+    <div class="portal-nav">
+      <a href="#" class="active" data-page="dashboard">Dashboard</a>
+      <a href="#" data-page="investments">Investments</a>
+      <a href="#" data-page="documents">Documents</a>
+      <a href="#" data-page="statements">Statements</a>
+      <a href="#" data-page="profile">Profile</a>
+    </div>
+    <div class="portal-user">
+      <span id="investorName">Welcome, Investor</span>
+      <button class="btn btn-secondary btn-sm" onclick="Portal.logout()">Logout</button>
+    </div>
+  </div>
+
+  <main class="portal-main">
+    <!-- Dashboard -->
+    <div class="portal-page" id="page-dashboard">
+      <div class="welcome-banner">
+        <h1>Welcome back, <span id="welcomeName">Investor</span></h1>
+        <p>Here's your investment portfolio overview</p>
+      </div>
+      
+      <div class="kpi-row">
+        <div class="kpi-card"><span class="kpi-label">Total Invested</span><span class="kpi-value" id="kpiInvested">$0</span></div>
+        <div class="kpi-card"><span class="kpi-label">Current Value</span><span class="kpi-value" id="kpiValue">$0</span></div>
+        <div class="kpi-card"><span class="kpi-label">Total Distributions</span><span class="kpi-value text-success" id="kpiDist">$0</span></div>
+        <div class="kpi-card"><span class="kpi-label">IRR</span><span class="kpi-value" id="kpiIrr">0%</span></div>
+      </div>
+
+      <div class="portal-grid">
+        <div class="card">
+          <div class="card-header"><h2><i class="fas fa-chart-line"></i> Investment Performance</h2></div>
+          <div class="card-body"><canvas id="perfChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2><i class="fas fa-history"></i> Recent Activity</h2></div>
+          <div class="card-body" id="activityList"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h2><i class="fas fa-building"></i> Your Properties</h2></div>
+        <div class="card-body" id="propertyList"></div>
+      </div>
+    </div>
+
+    <!-- Investments -->
+    <div class="portal-page" id="page-investments" style="display:none;">
+      <h2>My Investments</h2>
+      <div class="investments-grid" id="investmentsGrid"></div>
+    </div>
+
+    <!-- Documents -->
+    <div class="portal-page" id="page-documents" style="display:none;">
+      <h2>Documents</h2>
+      <div class="doc-filters"><button class="filter-btn active" data-filter="all">All</button><button class="filter-btn" data-filter="ppm">PPM</button><button class="filter-btn" data-filter="agreement">Agreements</button><button class="filter-btn" data-filter="tax">Tax Forms</button></div>
+      <div class="doc-grid" id="docGrid"></div>
+    </div>
+
+    <!-- Statements -->
+    <div class="portal-page" id="page-statements" style="display:none;">
+      <h2>Statements</h2>
+      <div class="statements-list" id="statementsList"></div>
+    </div>
+
+    <!-- Profile -->
+    <div class="portal-page" id="page-profile" style="display:none;">
+      <h2>My Profile</h2>
+      <div class="profile-section">
+        <div class="form-group"><label>Name</label><input type="text" id="profName" class="form-input"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="profEmail" class="form-input"></div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="profPhone" class="form-input"></div>
+        <button class="btn btn-primary" onclick="Portal.saveProfile()">Save Changes</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){Portal.init();});</script>
+  <script src="js/sp-investor-portal.js"></script>
+</body>
+</html>
