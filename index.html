@@ -63,7 +63,7 @@
   <style>
     /* Custom Styling & Overrides */
     body {
-      background-color: theme('colors.dark.base');
+      background-color: #0B1120;
       color: #F8FAFC;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
@@ -71,9 +71,9 @@
     
     /* Subtle Grid Background for Hero */
     .hero-bg {
-      background-image: theme('backgroundImage.hero-mesh'), 
-                        linear-gradient(theme('colors.dark.border') 1px, transparent 1px),
-                        linear-gradient(90deg, theme('colors.dark.border') 1px, transparent 1px);
+      background-image: radial-gradient(at 0% 0%, rgba(2,132,199,0.15) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(14,165,233,0.15) 0px, transparent 50%), 
+                        linear-gradient(#1E293B 1px, transparent 1px),
+                        linear-gradient(90deg, #1E293B 1px, transparent 1px);
       background-size: 100% 100%, 60px 60px, 60px 60px;
       background-position: center center;
     }
@@ -82,13 +82,13 @@
     .glass-card {
       background: rgba(17, 24, 39, 0.7);
       backdrop-filter: blur(12px);
-      border: 1px solid theme('colors.dark.border');
+      border: 1px solid #1E293B;
     }
     
     .glass-nav {
       background: rgba(11, 17, 32, 0.85);
       backdrop-filter: blur(16px);
-      border-bottom: 1px solid theme('colors.dark.border');
+      border-bottom: 1px solid #1E293B;
     }
 
     /* Feature Card Hover Glow */
@@ -103,7 +103,7 @@
       inset: -1px;
       border-radius: inherit;
       padding: 1px;
-      background: linear-gradient(to bottom right, theme('colors.brand.400'), transparent);
+      background: linear-gradient(to bottom right, #0ea5e9, transparent);
       -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
@@ -129,12 +129,12 @@
     }
     
     .btn-gradient {
-      background: linear-gradient(135deg, theme('colors.brand.500'), theme('colors.brand.700'));
+      background: linear-gradient(135deg, #0ea5e9, #0ea5e9);
       transition: all 0.3s ease;
     }
     
     .btn-gradient:hover {
-      background: linear-gradient(135deg, theme('colors.brand.400'), theme('colors.brand.600'));
+      background: linear-gradient(135deg, #0ea5e9, #0ea5e9);
       box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
     }
 
@@ -145,7 +145,7 @@
       left: calc(50% + 2rem);
       right: calc(-50% + 2rem);
       height: 2px;
-      background: linear-gradient(90deg, theme('colors.brand.600'), transparent);
+      background: linear-gradient(90deg, #0ea5e9, transparent);
       z-index: -1;
     }
     
@@ -162,8 +162,8 @@
     /* Mockup Frame */
     .mockup-frame {
       border-radius: 12px;
-      border: 1px solid theme('colors.dark.border');
-      background: theme('colors.dark.card');
+      border: 1px solid #1E293B;
+      background: #111827;
       overflow: hidden;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
@@ -173,7 +173,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      border-bottom: 1px solid theme('colors.dark.border');
+      border-bottom: 1px solid #1E293B;
     }
     .mockup-dot {
       width: 10px; height: 10px; border-radius: 50%;
@@ -186,7 +186,7 @@
     .mockup-fade {
       position: absolute;
       bottom: 0; left: 0; right: 0; height: 100px;
-      background: linear-gradient(to bottom, transparent, theme('colors.dark.base'));
+      background: linear-gradient(to bottom, transparent, #0B1120);
       pointer-events: none;
     }
 
@@ -195,14 +195,14 @@
       width: 8px;
     }
     ::-webkit-scrollbar-track {
-      background: theme('colors.dark.base');
+      background: #0B1120;
     }
     ::-webkit-scrollbar-thumb {
-      background: theme('colors.dark.border');
+      background: #1E293B;
       border-radius: 4px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: theme('colors.dark.muted');
+      background: #94A3B8;
     }
   </style>
   <style>
@@ -210,10 +210,10 @@
     body { color: #F8FAFC; }
   </style>
 </head>
-<body class="antialiased selection:bg-brand-500 selection:text-white">
+<body class="antialiased selection:bg-brand-500 selection:text-white" style="background:#0B1120;color:#F8FAFC;min-height:100vh;">
 
   <!-- Navigation -->
-  <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
+  <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar" style="background:rgba(11,17,32,0.92);border-bottom:1px solid #1E293B;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-20">
         <div class="flex-shrink-0 flex items-center gap-3">
@@ -233,7 +233,7 @@
   </nav>
 
   <!-- Hero Section -->
-  <section class="hero-bg relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+  <section class="hero-bg relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-[90vh] flex flex-col justify-center" style="background:#0B1120;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
       <div data-aos="fade-up" data-aos-duration="1000">
         <span class="inline-block py-1 px-3 rounded-full bg-brand-900/50 border border-brand-500/30 text-brand-300 text-xs font-semibold tracking-wider uppercase mb-6 shadow-[0_0_15px_rgba(14,165,233,0.2)]">
@@ -262,7 +262,7 @@
   </section>
 
   <!-- Social Proof / Stats Bar -->
-  <section class="border-y border-dark-border bg-dark-card/50 backdrop-blur-sm relative z-20">
+  <section class="border-y border-dark-border bg-dark-card/50 backdrop-blur-sm relative z-20" style="background:#111827;border-color:#1E293B;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-dark-border">
         
@@ -292,7 +292,7 @@
   </section>
 
   <!-- Features Grid -->
-  <section id="features" class="py-24 relative overflow-hidden">
+  <section id="features" class="py-24 relative overflow-hidden" style="background:#0B1120;">
     <!-- Background element -->
     <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-800/10 rounded-full blur-[100px] -z-10"></div>
     
@@ -364,7 +364,7 @@
   </section>
 
   <!-- How It Works Section -->
-  <section id="how-it-works" class="py-24 bg-dark-card/30 border-y border-dark-border">
+  <section id="how-it-works" class="py-24 bg-dark-card/30 border-y border-dark-border" style="background:#111827;border-color:#1E293B;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       
       <div class="text-center mb-20" data-aos="fade-up">
@@ -408,7 +408,7 @@
   </section>
 
   <!-- Investor Portal Preview -->
-  <section id="portal" class="py-24 relative overflow-hidden">
+  <section id="portal" class="py-24 relative overflow-hidden" style="background:#0B1120;">
     <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-700/10 rounded-full blur-[120px] -z-10"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -507,7 +507,7 @@
   </section>
 
   <!-- CTA Section -->
-  <section class="py-24 relative overflow-hidden bg-gradient-to-b from-transparent to-dark-card border-t border-dark-border">
+  <section class="py-24 relative overflow-hidden bg-gradient-to-b from-transparent to-dark-card border-t border-dark-border" style="background:#111827;border-color:#1E293B;">
     <div class="absolute inset-0 hero-bg mix-blend-overlay opacity-50 pointer-events-none"></div>
     <div class="max-w-4xl mx-auto px-4 text-center relative z-10" data-aos="zoom-in">
       <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Ready to professionalize your syndication operation?</h2>
@@ -524,7 +524,7 @@
   </section>
 
   <!-- Footer -->
-  <footer class="bg-[#050811] py-12 border-t border-dark-border text-center sm:text-left">
+  <footer class="bg-[#050811] py-12 border-t border-dark-border text-center sm:text-left" style="background:#050811;border-color:#1E293B;">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col md:flex-row justify-between items-center gap-6">
         <div class="flex items-center gap-2">
