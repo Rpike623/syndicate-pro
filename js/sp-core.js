@@ -1188,6 +1188,7 @@ window.SP = (function () {
           { href:'escrow-tracker.html', icon:'fa-vault', label:'Escrow' },
           { href:'property-list.html', icon:'fa-list', label:'Properties' },
           { href:'fee-tracker.html', icon:'fa-percent', label:'Fee Tracker' },
+          { href:'roi-sensitivity.html', icon:'fa-wave-square', label:'Sensitivity' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
