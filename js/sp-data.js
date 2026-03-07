@@ -250,19 +250,40 @@ const SPData = (() => {
   }
   async function saveDistribution(dist) {
     if (!dist.id) dist.id = _id('dist');
-    const idx = (_cache.distributions || []).findIndex(d => d.id === dist.id);
+    // Update cache
+    if (!_cache.distributions) _cache.distributions = [];
+    const idx = _cache.distributions.findIndex(d => d.id === dist.id);
     if (idx >= 0) _cache.distributions[idx] = dist;
-    else (_cache.distributions = _cache.distributions || []).unshift(dist);
-    if (_db) await _col('distributions').doc(dist.id)
-      .set({ ...dist, orgId: _orgId, updatedAt: _ts() }, { merge: true })
-      .catch(e => console.warn('SPData.saveDistribution:', e.message));
+    else _cache.distributions.unshift(dist);
+    // Always persist to localStorage immediately as fallback
+    try {
+      const _lsKey = (SP.makeOrgKey ? SP.makeOrgKey('distributions') : (_orgId + '_distributions'));
+      localStorage.setItem(_lsKey, JSON.stringify(_cache.distributions));
+    } catch(e) {}
+    // Write to Firestore
+    if (_db && _orgId) {
+      try {
+        await _col('distributions').doc(dist.id)
+          .set({ ...dist, orgId: _orgId, updatedAt: _ts() }, { merge: true });
+      } catch(e) {
+        console.warn('SPData.saveDistribution Firestore failed (localStorage backup saved):', e.message);
+        // Don't re-throw — localStorage has the data
+      }
+    }
+    return dist.id;
   }
+
   async function saveDistributions(dists) {
     _cache.distributions = dists;
+    // Always persist to localStorage immediately
+    try {
+      const _lsKey = (SP.makeOrgKey ? SP.makeOrgKey('distributions') : (_orgId + '_distributions'));
+      localStorage.setItem(_lsKey, JSON.stringify(dists));
+    } catch(e) {}
     if (!_db || !_orgId) return;
     await _batchWrite(dists.map(d => ({ ...d, id: d.id || _id('dist') })),
       item => { if (!item.id) item.id = _id('dist'); return _col('distributions').doc(item.id); })
-      .catch(e => console.warn('SPData.saveDistributions:', e.message));
+      .catch(e => console.warn('SPData.saveDistributions Firestore batch failed (localStorage backup saved):', e.message));
   }
 
   // ── CAPITAL CALLS ──────────────────────────────────────────────────────────
@@ -324,6 +345,7 @@ const SPData = (() => {
     SP.saveDeals         = saveDeals;
     SP.saveInvestors     = saveInvestors;
     SP.saveDistributions = saveDistributions;
+    SP.saveDistribution  = saveDistribution;   // Single-dist write (preferred path)
     SP.logActivity       = logActivity;
     SP.saveSettings      = saveSettings;
 

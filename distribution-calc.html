@@ -716,7 +716,7 @@ function previewDistribution() {
 }
 
 // ── Execute / Post ──────────────────────────────────────────────────────────
-function executeDistribution() {
+async function executeDistribution() {
   const amount = parseFloat(document.getElementById('distAmt').value) || 0;
   const dealId = document.getElementById('dealSelect').value;
   const date = document.getElementById('distDate').value;
@@ -786,10 +786,47 @@ function executeDistribution() {
     recipients,
   };
 
-  // Save via SP layer (writes to localStorage + Firestore)
-  const dists = SP.getDistributions ? SP.getDistributions() : [];
-  dists.unshift(dist);
-  if (SP.saveDistributions) SP.saveDistributions(dists);
+  // ── Save with await + explicit error handling ───────────────────────────
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+  try {
+    // Prefer single-doc write (efficient, atomic) over full array batch
+    if (SP.saveDistribution) {
+      await SP.saveDistribution(dist);
+    } else {
+      // Fallback: prepend to array and batch-write
+      const dists = SP.getDistributions ? SP.getDistributions() : [];
+      // Avoid duplicates if already in array
+      if (!dists.find(d => d.id === dist.id)) dists.unshift(dist);
+      if (SP.saveDistributions) await SP.saveDistributions(dists);
+    }
+  } catch(saveErr) {
+    // Firestore write failed — fall back to localStorage directly
+    console.error('[executeDistribution] save error:', saveErr);
+    try {
+      const fallbackDists = JSON.parse(localStorage.getItem(SP.makeOrgKey('distributions')) || '[]');
+      if (!fallbackDists.find(d => d.id === dist.id)) fallbackDists.unshift(dist);
+      localStorage.setItem(SP.makeOrgKey('distributions'), JSON.stringify(fallbackDists));
+      console.warn('[executeDistribution] Firestore failed — saved to localStorage fallback');
+    } catch(lsErr) {
+      // Both failed — tell the user
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-bolt"></i> Post Distribution to Ledger';
+      alert('Save failed: ' + (saveErr.message || 'Unknown error') + '\nPlease try again or check your connection.');
+      return;
+    }
+  }
+
+  // ── Verify the save actually stuck ─────────────────────────────────────
+  const savedDists = SP.getDistributions ? SP.getDistributions() : [];
+  if (!savedDists.find(d => d.id === dist.id)) {
+    // Not found in memory — force localStorage write as last resort
+    console.error('[executeDistribution] Verification failed — dist not found in SP.getDistributions(), forcing localStorage write');
+    try {
+      const raw = JSON.parse(localStorage.getItem(SP.makeOrgKey('distributions')) || '[]');
+      if (!raw.find(d => d.id === dist.id)) raw.unshift(dist);
+      localStorage.setItem(SP.makeOrgKey('distributions'), JSON.stringify(raw));
+    } catch(e) {}
+  }
 
   // Store for wire report
   _lastDist = dist;
