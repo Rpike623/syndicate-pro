@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capital Events | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-chart-bar"></i> Capital Events</h1>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="card-header"><h2>Capital Activity Timeline</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Date</th><th>Event</th><th>Deal</th><th>Amount</th><th>Source</th></tr></thead><tbody id="capTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}CapEvents.init();}</script>
+  <script src="js/sp-cap-events.js"></script>
+</body>
+</html>
