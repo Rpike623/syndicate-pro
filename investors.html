@@ -22,14 +22,14 @@
   <script src="js/sp-email.js"></script>
   <style>
     :root {
-      --primary: #0f172a; --accent: #0ea5e9; --accent-hover: #0284c7; --accent-light: rgba(14,165,233,0.15);
-      --success: #10b981; --success-light: rgba(16,185,129,0.15);
-      --warning: #f59e0b; --warning-light: rgba(245,158,11,0.15);
-      --danger: #ef4444; --danger-light: rgba(239,68,68,0.15);
-      --purple: #8b5cf6; --purple-light: rgba(139,92,246,0.15);
-      --text: #F8FAFC; --text-secondary: #94A3B8; --text-muted: #64748B;
-      --border: #1E293B; --border-light: rgba(255,255,255,0.05);
-      --bg: #0B1120; --bg-card: #111827; --bg-sidebar: #050811;
+      --primary: #1B1A19; --accent: #F37925; --accent-hover: #D96515; --accent-light: rgba(243,121,37,0.12);
+      --success: #2D9A6B; --success-light: rgba(45,154,107,0.12);
+      --warning: #E8890A; --warning-light: rgba(232,137,10,0.12);
+      --danger: #D94F3D; --danger-light: rgba(217,79,61,0.12);
+      --purple: #7B5CC4; --purple-light: rgba(123,92,196,0.15);
+      --text: #1B1A19; --text-secondary: #6B6560; --text-muted: #9C9590;
+      --border: #E2DDD8; --border-light: rgba(27,26,25,0.08);
+      --bg: #F3F3F3; --bg-card: #FFFFFF; --bg-sidebar: #050811;
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0/0.05); --shadow: 0 1px 3px 0 rgb(0 0 0/0.1);
       --shadow-md: 0 4px 6px -1px rgb(0 0 0/0.1); --shadow-lg: 0 10px 15px -3px rgb(0 0 0/0.1);
       --radius-sm: 6px; --radius: 8px; --radius-md: 12px;
@@ -380,7 +380,7 @@
             <div><strong>To:</strong> <span id="inviteToLine">—</span></div>
             <div style="margin-top:3px;"><strong>Subject:</strong> <span id="inviteSubjectLine">You've been invited to deeltrack</span></div>
           </div>
-          <div id="inviteEmailBody" style="padding:16px;font-size:0.85rem;line-height:1.7;color:#F8FAFC;background: #111827;white-space:pre-wrap;max-height:220px;overflow-y:auto;"></div>
+          <div id="inviteEmailBody" style="padding:16px;font-size:0.85rem;line-height:1.7;color:#1B1A19;background: #111827;white-space:pre-wrap;max-height:220px;overflow-y:auto;"></div>
         </div>
       </div>
     </div>
@@ -403,7 +403,7 @@
     <div class="modal-body">
       <div style="background:var(--border-light);border-radius:var(--radius);padding:12px 14px;margin-bottom:20px;font-size:0.875rem;color:var(--text-secondary);">
         <i class="fas fa-user" style="color:var(--accent);margin-right:6px;"></i>
-        Linking: <strong id="dlInvestorName" style="color:#F8FAFC;">—</strong>
+        Linking: <strong id="dlInvestorName" style="color:#1B1A19;">—</strong>
       </div>
       <div class="form-group">
         <label>Select Deal *</label>
@@ -1026,7 +1026,7 @@ async function sendInviteViaDeeltrack() {
           <tr>
             <td style="background:#0B1120;padding:24px 40px;text-align:center;">
               <p style="color:#94a3b8;font-size:13px;margin:0;">Powered by deeltrack · Real Estate Syndication Platform</p>
-              <p style="color:#cbd5e1;font-size:12px;margin:8px 0 0;">This invitation was sent on behalf of your sponsor</p>
+              <p style="color:#6B6560;font-size:12px;margin:8px 0 0;">This invitation was sent on behalf of your sponsor</p>
             </td>
           </tr>
         </table>

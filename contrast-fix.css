@@ -196,3 +196,29 @@ html body .nav-badge, html body .unread-count { background: #D94F3D !important; 
 
 /* view-all override with !important at higher specificity */
 html body .view-all, html body a.view-all { color: #a04400 !important; }
+
+/* ── text-muted overrides — #9C9590 on white = 2.95:1, fails AA ────────── */
+/* Use #6B6560 = 5.74:1 for small supporting text */
+html body [style*="color:var(--text-muted)"],
+html body [style*="color: var(--text-muted)"] { color: #6B6560 !important; }
+html body .text-muted, html body .muted { color: #6B6560 !important; }
+
+/* ── .pct class (ownership %) — orange #F37925 = 2.77:1 on white ─────── */
+html body .pct { color: #6B6560 !important; }
+html body td.pct, html body .pct-val { color: #6B6560 !important; }
+
+/* ── dt-header — ensure visible title ──────────────────────────────────── */
+html body .dt-header { background: #FFFFFF !important; border-bottom: 1px solid #E2DDD8 !important; }
+html body .dt-header h1 { color: #1B1A19 !important; }
+html body .dt-header h1 i { color: #F37925 !important; }
+html body .dt-header .mobile-brand { color: #1B1A19 !important; }
+
+/* ── Investor email addresses in tables ─────────────────────────────────── */
+html body .inv-cell [style*="color:var(--text-muted)"],
+html body .inv-cell [style*="color: var(--text-muted)"] { color: #6B6560 !important; }
+
+/* ── Committed badge (deal-detail investors) ────────────────────────────── */
+html body .badge-committed { background: rgba(243,121,37,0.12) !important; color: #7A3500 !important; }
+html body .badge-active    { background: rgba(45,154,107,0.12)  !important; color: #1A7A50 !important; }
+html body .badge-funded    { background: rgba(145,195,206,0.25) !important; color: #1A6070 !important; }
+html body .badge-exited    { background: rgba(107,101,96,0.15)  !important; color: #3D3A37 !important; }

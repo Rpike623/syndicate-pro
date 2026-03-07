@@ -22,25 +22,25 @@
   <script src="js/sp-email.js"></script>
   <style>
     :root {
-      --primary: #0f172a;
-      --primary-light: #1e293b;
+      --primary: #1B1A19;
+      --primary-light: #3D3A37;
       --secondary: #334155;
-      --accent: #0ea5e9;
-      --accent-hover: #0284c7;
-      --accent-light: rgba(14,165,233,0.15);
-      --success: #10b981;
-      --success-light: rgba(16,185,129,0.15);
-      --warning: #f59e0b;
-      --warning-light: rgba(245,158,11,0.15);
-      --danger: #ef4444;
-      --danger-light: rgba(239,68,68,0.15);
-      --text: #F8FAFC;
-      --text-secondary: #94A3B8;
-      --text-muted: #64748B;
-      --border: #1E293B;
-      --border-light: rgba(255,255,255,0.05);
-      --bg: #0B1120;
-      --bg-card: #111827;
+      --accent: #F37925;
+      --accent-hover: #D96515;
+      --accent-light: rgba(243,121,37,0.12);
+      --success: #2D9A6B;
+      --success-light: rgba(45,154,107,0.12);
+      --warning: #E8890A;
+      --warning-light: rgba(232,137,10,0.12);
+      --danger: #D94F3D;
+      --danger-light: rgba(217,79,61,0.12);
+      --text: #1B1A19;
+      --text-secondary: #6B6560;
+      --text-muted: #9C9590;
+      --border: #E2DDD8;
+      --border-light: rgba(27,26,25,0.08);
+      --bg: #F3F3F3;
+      --bg-card: #FFFFFF;
       --bg-sidebar: #050811;
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
       --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -363,7 +363,7 @@
                         ${((investor?.firstName?.[0]||'?') + (investor?.lastName?.[0]||'')).toUpperCase()}
                       </div>
                       <div>
-                        <div style="font-weight:600;font-size:14px;color:#F8FAFC;">${name}</div>
+                        <div style="font-weight:600;font-size:14px;color:#1B1A19;">${name}</div>
                         <div style="font-size:11px;color:#94A3B8;">${ownership.toFixed(2)}% ownership</div>
                       </div>
                     </div>
@@ -395,7 +395,7 @@
           <div onclick="toggleSplit('${distId}')" style="padding:18px 22px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;user-select:none;">
             <div style="flex:1;min-width:0;">
               <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-                <span style="font-size:15px;font-weight:700;color:#F8FAFC;">${dealName}</span>
+                <span style="font-size:15px;font-weight:700;color:#1B1A19;">${dealName}</span>
                 ${period ? `<span style="font-size:13px;color:#94A3B8;">— ${period}</span>` : ''}
                 ${statusBadge(dist.status)}
                 ${hasPref ? `<span style="background:rgba(245,158,11,0.15);color:#fbbf24;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid rgba(245,158,11,0.3);"><i class="fas fa-star"></i> Pref-Tracked</span>` : ''}
@@ -428,7 +428,7 @@
               <!-- Pref summary bar if applicable -->
               ${hasPref ? `
               <div style="padding:12px 16px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;margin:16px 0;font-size:12px;color:#fcd34d;display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
-                <span style="font-weight:700;color:#F8FAFC;"><i class="fas fa-info-circle" style="margin-right:4px;color:#f59e0b;"></i>How the pref split works:</span>
+                <span style="font-weight:700;color:#1B1A19;"><i class="fas fa-info-circle" style="margin-right:4px;color:#f59e0b;"></i>How the pref split works:</span>
                 <span>Outstanding pref <strong style="color:#fbbf24;">${fmt$(totalPrefPaid)}</strong> satisfied first</span>
                 <span>Remaining <strong style="color:#38bdf8;">${fmt$(total - totalPrefPaid)}</strong> split by ownership %</span>
               </div>` : ''}

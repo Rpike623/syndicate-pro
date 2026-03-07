@@ -20,11 +20,11 @@
   <script src="js/sp-documents.js"></script>
   <style>
     :root {
-      --primary: #0f172a;--accent: #0ea5e9;--accent-hover:#0284c7;--accent-light: rgba(14,165,233,0.15);
-      --success: #10b981;--success-light: rgba(16,185,129,0.15);--warning: #f59e0b;--warning-light: rgba(245,158,11,0.15);
-      --danger: #ef4444;--danger-light: rgba(239,68,68,0.15);--purple: #8b5cf6;--purple-light: rgba(139,92,246,0.15);
-      --text: #F8FAFC;--text-secondary: #94A3B8;--text-muted: #64748B;
-      --border: #1E293B;--border-light: rgba(255,255,255,0.05);--bg: #0B1120;--bg-card: #111827;--bg-sidebar: #050811;
+      --primary: #1B1A19;--accent: #F37925;--accent-hover:#D96515;--accent-light: rgba(243,121,37,0.12);
+      --success: #2D9A6B;--success-light: rgba(45,154,107,0.12);--warning: #E8890A;--warning-light: rgba(232,137,10,0.12);
+      --danger: #D94F3D;--danger-light: rgba(217,79,61,0.12);--purple: #7B5CC4;--purple-light: rgba(123,92,196,0.15);
+      --text: #1B1A19;--text-secondary: #6B6560;--text-muted: #9C9590;
+      --border: #E2DDD8;--border-light: rgba(27,26,25,0.08);--bg: #F3F3F3;--bg-card: #FFFFFF;--bg-sidebar: #050811;
       --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);
       --radius-sm:6px;--radius:8px;--radius-md:12px;
     }
@@ -102,7 +102,7 @@
     .badge-active{background:var(--success-light);color:var(--success);}
     .badge-exited{background:var(--border-light);color:var(--text-secondary);}
     .money{font-family:'JetBrains Mono',monospace;font-weight:600;}
-    .pct{font-family:'JetBrains Mono',monospace;color:var(--accent);}
+    .pct{font-family:'JetBrains Mono',monospace;color:#6B6560;}
     .btn-xs{padding:5px 10px;font-size:.75rem;font-weight:600;border-radius:var(--radius-sm);border:1px solid #1E293B;background:#111827;color:var(--text-secondary);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;}
     .btn-xs:hover{background:var(--accent);color:white;border-color:var(--accent);}
     .btn-xs.danger:hover{background:var(--danger);border-color:var(--danger);}
@@ -320,33 +320,33 @@ function render() {
 
     <!-- ── DEAL ACTIONS — what do you want to do? ─────────────────────── -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:22px;">
-      <button onclick="openAddInvModal()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;font-family:inherit;" onmouseover="this.style.borderColor='#0ea5e9';this.style.background='rgba(14,165,233,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <button onclick="openAddInvModal()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;font-family:inherit;" onmouseover="this.style.borderColor='#0ea5e9';this.style.background='rgba(14,165,233,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
         <div style="width:40px;height:40px;background:rgba(14,165,233,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#38bdf8;"><i class="fas fa-user-plus"></i></div>
         <span style="font-size:13px;font-weight:700;">Add Investor</span>
         <span style="font-size:11px;color:#94A3B8;text-align:center;">Link an LP to this deal</span>
       </button>
-      <a href="distribution-calc.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#10b981';this.style.background='rgba(16,185,129,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <a href="distribution-calc.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#10b981';this.style.background='rgba(16,185,129,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
         <div style="width:40px;height:40px;background:rgba(16,185,129,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#34d399;"><i class="fas fa-bolt"></i></div>
         <span style="font-size:13px;font-weight:700;">Run Distribution</span>
         <span style="font-size:11px;color:#94A3B8;text-align:center;">Calculate &amp; pay investors</span>
       </a>
-      <a href="capital-calls.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#f59e0b';this.style.background='rgba(245,158,11,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <a href="capital-calls.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#f59e0b';this.style.background='rgba(245,158,11,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
         <div style="width:40px;height:40px;background:rgba(245,158,11,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fbbf24;"><i class="fas fa-hand-holding-usd"></i></div>
         <span style="font-size:13px;font-weight:700;">Capital Call</span>
         <span style="font-size:11px;color:#94A3B8;text-align:center;">Request funds from LPs</span>
       </a>
-      <a href="deal-room.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#8b5cf6';this.style.background='rgba(139,92,246,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <a href="deal-room.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#8b5cf6';this.style.background='rgba(139,92,246,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
         <div style="width:40px;height:40px;background:rgba(139,92,246,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#a78bfa;"><i class="fas fa-folder-open"></i></div>
         <span style="font-size:13px;font-weight:700;">Deal Room</span>
         <span style="font-size:11px;color:#94A3B8;text-align:center;">Upload &amp; share documents</span>
       </a>
-      <a href="k1-generator.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
-        <div style="width:40px;height:40px;background:rgba(148,163,184,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#CBD5E1;"><i class="fas fa-file-invoice-dollar"></i></div>
+      <a href="k1-generator.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+        <div style="width:40px;height:40px;background:rgba(148,163,184,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#6B6560;"><i class="fas fa-file-invoice-dollar"></i></div>
         <span style="font-size:13px;font-weight:700;">Generate K-1s</span>
         <span style="font-size:11px;color:#94A3B8;text-align:center;">Tax reports for LPs</span>
       </a>
-      <a href="new-deal.html?id=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
-        <div style="width:40px;height:40px;background:rgba(148,163,184,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#CBD5E1;"><i class="fas fa-calculator"></i></div>
+      <a href="new-deal.html?id=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+        <div style="width:40px;height:40px;background:rgba(148,163,184,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#6B6560;"><i class="fas fa-calculator"></i></div>
         <span style="font-size:13px;font-weight:700;">Model / Edit</span>
         <span style="font-size:11px;color:#94A3B8;text-align:center;">Update deal structure</span>
       </a>
@@ -356,12 +356,12 @@ function render() {
     <div class="card" style="margin-bottom:20px;">
       <div class="card-body" style="padding:16px 22px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <span style="font-size:13px;font-weight:600;color:#F8FAFC;">Capital Raise Progress</span>
+          <span style="font-size:13px;font-weight:600;color:#1B1A19;">Capital Raise Progress</span>
           <span style="font-size:13px;color:#94A3B8;">${fmtFull$(totalCommitted)} raised of ${fmtFull$(raise)} target</span>
         </div>
         <div class="cap-bar"><div class="cap-fill" style="width:${pctRaised}%"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:12px;color:#94A3B8;margin-top:6px;">
-          <span><strong style="color:#F8FAFC;">${pctRaised}%</strong> funded · ${linked.length} investor${linked.length!==1?'s':''}</span>
+          <span><strong style="color:#1B1A19;">${pctRaised}%</strong> funded · ${linked.length} investor${linked.length!==1?'s':''}</span>
           <span>${fmtFull$(Math.max(0,raise-totalCommitted))} remaining</span>
         </div>
       </div>
@@ -395,7 +395,7 @@ function render() {
       <!-- CTA to run a new distribution -->
       <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.06));border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
         <div>
-          <div style="font-weight:700;font-size:15px;color:#F8FAFC;margin-bottom:3px;"><i class="fas fa-bolt" style="color:#34d399;margin-right:8px;"></i>Ready to run a distribution?</div>
+          <div style="font-weight:700;font-size:15px;color:#1B1A19;margin-bottom:3px;"><i class="fas fa-bolt" style="color:#34d399;margin-right:8px;"></i>Ready to run a distribution?</div>
           <div style="font-size:13px;color:#94A3B8;">The Distribution Command Center calculates pref-aware splits and posts to each investor's ledger.</div>
         </div>
         <a href="distribution-calc.html?deal=${deal.id}" class="btn btn-primary" style="white-space:nowrap;background:#10b981;">
@@ -418,7 +418,7 @@ function render() {
       <!-- CTA to issue a capital call -->
       <div style="background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.05));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
         <div>
-          <div style="font-weight:700;font-size:15px;color:#F8FAFC;margin-bottom:3px;"><i class="fas fa-hand-holding-usd" style="color:#fbbf24;margin-right:8px;"></i>Need to call capital?</div>
+          <div style="font-weight:700;font-size:15px;color:#1B1A19;margin-bottom:3px;"><i class="fas fa-hand-holding-usd" style="color:#fbbf24;margin-right:8px;"></i>Need to call capital?</div>
           <div style="font-size:13px;color:#94A3B8;">Issue a notice to all linked investors requesting their capital contribution.</div>
         </div>
         <a href="capital-calls.html?deal=${deal.id}" class="btn btn-primary" style="white-space:nowrap;background:#f59e0b;">
@@ -444,7 +444,7 @@ function render() {
                   const statusColor = c.status === 'received' ? '#34d399' : isOverdue ? '#f87171' : '#fbbf24';
                   const statusLabel = c.status === 'received' ? 'Received' : isOverdue ? 'Overdue' : 'Pending';
                   return `<tr>
-                    <td style="padding:12px 14px;color:#CBD5E1;">${c.callNumber||'Initial'}</td>
+                    <td style="padding:12px 14px;color:#6B6560;">${c.callNumber||'Initial'}</td>
                     <td style="padding:12px 14px;font-family:'JetBrains Mono',monospace;font-weight:700;">${fmtFull$(c.amount||0)}</td>
                     <td style="padding:12px 14px;color:${isOverdue?'#f87171':'#94A3B8'};">${c.dueDate||'—'}</td>
                     <td style="padding:12px 14px;"><span style="background:${statusColor}22;color:${statusColor};padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">${statusLabel}</span></td>
@@ -699,14 +699,14 @@ function renderSubTracker() {
             ${STATUS_STEPS.map((s,si)=>`
               <div style="display:flex;align-items:center;gap:4px;">
                 <div style="width:22px;height:22px;border-radius:50%;background:${si<=stepIdx?'var(--success)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:.65rem;color:white;font-weight:700;">${si<stepIdx?'✓':si===stepIdx?'→':''}</div>
-                <span style="font-size:.7rem;color:${si<=stepIdx?'#F8FAFC':'var(--text-muted)'};">${STATUS_LABELS[s]}</span>
+                <span style="font-size:.7rem;color:${si<=stepIdx?'#1B1A19':'#9C9590'};">${STATUS_LABELS[s]}</span>
                 ${si<STATUS_STEPS.length-1?'<div style="width:16px;height:2px;background:var(--border);margin:0 2px;"></div>':''}
               </div>`).join('')}
           </div>
         </td>
         <td style="padding:12px 14px;">
           <div style="display:flex;gap:6px;">
-            ${STATUS_STEPS.map(s=>s!==subStatus?`<button onclick="updateSubStatus('${entry.investorId}','${s}')" style="padding:4px 8px;background:${STATUS_COLORS[s]?.split(',')[0]||'#0B1120'};color:${STATUS_COLORS[s]?.split(',')[1]||'#64748b'};border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;">${STATUS_LABELS[s]}</button>`:null).filter(Boolean).join('')}
+            ${STATUS_STEPS.map(s=>s!==subStatus?`<button onclick="updateSubStatus('${entry.investorId}','${s}')" style="padding:4px 8px;background:${STATUS_COLORS[s]?.split(',')[0]||'#EDEBE8'};color:${STATUS_COLORS[s]?.split(',')[1]||'#3D3A37'};border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;">${STATUS_LABELS[s]}</button>`:null).filter(Boolean).join('')}
             <button onclick="viewSubDoc('${entry.investorId}')" title="View subscription agreement" style="padding:4px 8px;background:var(--purple-light);color:var(--purple);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-file-signature"></i></button>
             <button onclick="requestESignature('${entry.investorId}')" title="Request Digital Signature (E-sign)" style="padding:4px 8px;background:#ede9fe;color:#9333ea;border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-pen-nib"></i> E-sign</button>
             <button onclick="sendSubDoc('${entry.investorId}')" title="Email pdf sub doc to investor" style="padding:4px 8px;background:var(--accent-light);color:var(--accent);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-paper-plane"></i></button>

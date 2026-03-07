@@ -3520,8 +3520,8 @@ td.irr {
    Without desktop styles this was completely unstyled.
    ─────────────────────────────────────────────────────────────────────────── */
 .dt-header {
-  background: #111827 !important;
-  border-bottom: 1px solid #1E293B !important;
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #E2DDD8 !important;
   padding: 0 32px !important;
   height: 60px !important;
   min-height: 60px !important;
@@ -3533,7 +3533,7 @@ td.irr {
   z-index: 100 !important;
   gap: 16px !important;
   flex-shrink: 0 !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  box-shadow: 0 1px 3px rgba(27,26,25,0.08) !important;
 }
 .dt-header h1 {
   font-size: 18px !important;
