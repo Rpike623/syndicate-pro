@@ -11,76 +11,34 @@
   <main class="main" id="main">
     <div class="dt-header">
       <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-hammer"></i> Rehab Estimator</h1>
+      <h1><i class="fas fa-tools"></i> Rehab Estimator</h1>
     </div>
     <div class="content">
       <div class="card">
-        <div class="card-header"><h2>Property Details</h2></div>
+        <div class="card-header"><h2>Renovation Costs</h2></div>
         <div class="card-body">
           <div class="form-row">
-            <div class="form-group"><label>Square Footage</label><input type="number" id="reSqft" class="form-input" value="2000" oninput="RehabEstimator.calc()"></div>
-            <div class="form-group"><label>Bedrooms</label><input type="number" id="reBeds" class="form-input" value="3" oninput="RehabEstimator.calc()"></div>
+            <div class="form-group"><label>Kitchen ($/unit)</label><input type="number" id="reKitchen" class="form-input" value="8500"></div>
+            <div class="form-group"><label>Bath ($/unit)</label><input type="number" id="reBath" class="form-input" value="4500"></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>Bathrooms</label><input type="number" id="reBaths" class="form-input" value="2" oninput="RehabEstimator.calc()"></div>
-            <div class="form-group"><label>Year Built</label><input type="number" id="reYear" class="form-input" value="1980" oninput="RehabEstimator.calc()"></div>
+            <div class="form-group"><label>Flooring ($/sqft)</label><input type="number" id="reFloor" class="form-input" value="3.5"></div>
+            <div class="form-group"><label>Paint ($/sqft)</label><input type="number" id="rePaint" class="form-input" value="1.5"></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>Condition (1-5)</label><select id="reCondition" class="form-input" onchange="RehabEstimator.calc()">
-              <option value="1">1 - Excellent</option>
-              <option value="2">2 - Good</option>
-              <option value="3" selected>3 - Fair</option>
-              <option value="4">4 - Poor</option>
-              <option value="5">5 - Major Rehab Needed</option>
-            </select></div>
-            <div class="form-group"><label>Rehab Scope</label><select id="reScope" class="form-input" onchange="RehabEstimator.calc()">
-              <option value="cosmetic" selected>Cosmetic Only</option>
-              <option value="light">Light Renovation</option>
-              <option value="moderate">Moderate Renovation</option>
-              <option value="full">Full Gut Rehab</option>
-            </select></div>
+            <div class="form-group"><label>Units</label><input type="number" id="reUnits" class="form-input" value="10"></div>
+            <div class="form-group"><label>Avg Sqft/Unit</label><input type="number" id="reSqft" class="form-input" value="950"></div>
           </div>
+          <button class="btn btn-primary" onclick="Rehab.calc()">Calculate Total</button>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><h2>Line Items</h2></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label>Kitchen ($)</label><input type="number" id="reKitchen" class="form-input" value="15000" oninput="RehabEstimator.calc()"></div>
-            <div class="form-group"><label>Bathrooms ($)</label><input type="number" id="reBathrooms" class="form-input" value="8000" oninput="RehabEstimator.calc()"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Flooring ($)</label><input type="number" id="reFlooring" class="form-input" value="6000" oninput="RehabEstimator.calc()"></div>
-            <div class="form-group"><label>Paint ($)</label><input type="number" id="rePaint" class="form-input" value="3000" oninput="RehabEstimator.calc()"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Roof ($)</label><input type="number" id="reRoof" class="form-input" value="0" oninput="RehabEstimator.calc()"></div>
-            <div class="form-group"><label>HVAC ($)</label><input type="number" id="reHVAC" class="form-input" value="0" oninput="RehabEstimator.calc()"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Electrical ($)</label><input type="number" id="reElectrical" class="form-input" value="0" oninput="RehabEstimator.calc()"></div>
-            <div class="form-group"><label>Plumbing ($)</label><input type="number" id="rePlumbing" class="form-input" value="0" oninput="RehabEstimator.calc()"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Exterior ($)</label><input type="number" id="reExterior" class="form-input" value="0" oninput="RehabEstimator.calc()"></div>
-            <div class="form-group"><label>Other ($)</label><input type="number" id="reOther" class="form-input" value="5000" oninput="RehabEstimator.calc()"></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Cost Summary</h2></div>
-        <div class="card-body">
-          <div class="result-row"><span>Line Item Total</span><strong id="reLineTotal">$0</strong></div>
-          <div class="result-row"><span>Contingency (10%)</span><strong id="reContingency">$0</strong></div>
-          <div class="result-row"><span>Overhead (8%)</span><strong id="reOverhead">$0</strong></div>
-          <div class="result-row"><span>Profit Margin (15%)</span><strong id="reProfit">$0</strong></div>
-          <div class="result-row"><span>Total Rehab Cost</span><strong id="reTotal" class="text-success">$0</strong></div>
-          <div class="result-row"><span>Cost Per Square Foot</span><strong id="rePSF">$0</strong></div>
-        </div>
+        <div class="card-header"><h2>Estimate Summary</h2></div>
+        <div class="card-body" id="reSummary"></div>
       </div>
     </div>
   </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}RehabEstimator.init();}</script>
-  <script src="js/sp-rehab-estimator.js"></script>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Rehab.init();}</script>
+  <script src="js/sp-rehab.js"></script>
 </body>
 </html>
