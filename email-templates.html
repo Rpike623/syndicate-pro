@@ -268,43 +268,18 @@
 </head>
 <body>
 
-  <div id="sidebar" class="sidebar">
-    <div class="sidebar-header">
-    <nav class="nav"></nav>
-      <div class="logo">
-        <div class="logo-icon"><i class="fas fa-bolt"></i></div>
-        <span>deel<span style="color:#0ea5e9;">track</span></span>
-      </div>
-    </div>
-    <div class="nav">
-      <a href="index.html" class="nav-item"><i class="fas fa-chart-pie"></i> Calculator</a>
-      <a href="pipeline.html" class="nav-item"><i class="fas fa-layer-group"></i> Deal Pipeline</a>
-      <a href="investors.html" class="nav-item"><i class="fas fa-users"></i> Investors</a>
-      <a href="distributions.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Distributions</a>
-      <a href="documents.html" class="nav-item"><i class="fas fa-file-contract"></i> Documents</a>
-      <a href="debt-tracker.html" class="nav-item"><i class="fas fa-landmark"></i><span>Debt Tracker</span></a>
-      <a href="exit-calc.html" class="nav-item"><i class="fas fa-sign-out-alt"></i><span>Exit Calculator</span></a>
-      <a href="om-builder.html" class="nav-item"><i class="fas fa-file-alt"></i><span>OM Builder</span></a>
-      <a href="investor-update.html" class="nav-item"><i class="fas fa-paper-plane"></i><span>Investor Updates</span></a>
-      <a href="deal-room.html" class="nav-item"><i class="fas fa-folder-open"></i><span>Deal Room</span></a>
-      <a href="teaser-generator.html" class="nav-item"><i class="fas fa-file-image"></i><span>Teaser</span></a>
-      <a href="k1-generator.html" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> K-1 Generator</a>
-      <a href="#" class="nav-item active"><i class="fas fa-envelope"></i> Email Templates</a>
-      <a href="reports.html" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-      <a href="new-deal.html" class="nav-item"><i class="fas fa-calculator"></i><span>Deal Modeling</span></a>
-      <a href="proforma.html" class="nav-item"><i class="fas fa-table"></i><span>Pro Forma</span></a>
-      <a href="capital-calls.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i><span>Capital Calls</span></a>
-      <a href="email-templates.html" class="nav-item"><i class="fas fa-envelope"></i><span>Email Templates</span></a>
-    </div>
-  </div>
+  <div class="app" style="min-height:100vh;">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
 
-  <div class="main">
-    <div class="header">
-      <div class="title">
-        <h1>Email Templates</h1>
-        <p>Professional communications for your investors</p>
+  <main class="main">
+    <div style="background:#111827;border-bottom:1px solid #1E293B;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;">
+      <div>
+        <h1 style="font-size:1.25rem;font-weight:700;">Email Templates</h1>
+        <p style="font-size:.8rem;color:#94A3B8;">Professional communications for your investors</p>
       </div>
     </div>
+    <div style="padding:32px;">
 
     <!-- Template Selector -->
     <div class="template-grid">
@@ -416,9 +391,10 @@
         </div>
       </div>
     </div>
-  </div>
+  </div><!-- end padding div -->
+  </main>
 
-  <script src="js/database.js"></script>
+  <script>/* database.js removed — using SP.* directly */</script>
   
   <script>
     const templates = {
@@ -743,5 +719,6 @@
       init();
     };
   </script>
+</div><!-- end .app -->
 </body>
 </html>
