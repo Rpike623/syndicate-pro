@@ -1189,6 +1189,7 @@ window.SP = (function () {
           { href:'property-list.html', icon:'fa-list', label:'Properties' },
           { href:'fee-tracker.html', icon:'fa-percent', label:'Fee Tracker' },
           { href:'roi-sensitivity.html', icon:'fa-wave-square', label:'Sensitivity' },
+          { href:'lead-calculator.html', icon:'fa-calculator', label:'Lead Calculator' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
