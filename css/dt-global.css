@@ -865,13 +865,13 @@ input:focus, select:focus, textarea:focus {
 }
 
 .pnl-income {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  border: 1px solid #86efac;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
 }
 
 .pnl-expense {
-  background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
-  border: 1px solid #fca5a5;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
 }
 
 .pnl-section h3 {
@@ -908,11 +908,11 @@ input:focus, select:focus, textarea:focus {
 }
 
 .pnl-income .amount.positive {
-  color: #166534;
+  color: #34d399;
 }
 
 .pnl-expense .amount.negative {
-  color: #991b1b;
+  color: #f87171;
 }
 
 .pnl-net {
@@ -2975,3 +2975,933 @@ input:focus, select:focus, textarea:focus {
 .je-section { margin-bottom: 20px; }
 .je-section h4 { margin: 0 0 8px 0; color: #0ea5e9; font-size: 14px; }
 .je-section pre { background: #1e293b; color: #e2e8f0; padding: 16px; border-radius: 8px; font-size: 12px; overflow-x: auto; white-space: pre; }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   POLISH PASS — 2026-03-07
+   Fixes identified in full-platform audit:
+   1. Table row borders were #f1f5f9 (near-white) → dark on dark = harsh lines
+   2. .page-header h1 color was --dt-primary (dark blue) → invisible on dark bg
+   3. .main had padding:32px 40px and pages also had .content padding:32px → double pad
+   4. Global typography refinements for professional hierarchy
+   5. Card/panel consistency: header/body padding standardized
+   6. Button consistency: all non-primary buttons get a clear style
+   7. Empty state color fixes (h3 was dark, invisible on dark bg)
+   8. Form label color fixes
+   9. Number right-alignment in tables
+   10. Consistent badge/status pill sizing
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. TABLE ROW BORDERS: fix near-white border on dark bg ─────────────── */
+td {
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+tr:hover td {
+  background: rgba(255,255,255,0.025) !important;
+}
+
+/* ── 2. PAGE HEADER: fix invisible title color ───────────────────────────── */
+.page-header h1,
+.page-title,
+.page-header .page-title {
+  color: #F8FAFC !important;
+}
+
+/* ── 3. LAYOUT: strip redundant padding on .main so .content drives spacing */
+/* Pages use .main > .content for padding — don't double-pad */
+.main,
+main.main,
+main,
+#main {
+  padding: 0 !important;
+}
+
+/* ── 4. CONTENT AREA: consistent padding ────────────────────────────────── */
+.content {
+  padding: 28px 32px !important;
+  max-width: 1440px !important;
+}
+@media (max-width: 1200px) {
+  .content { padding: 24px 24px !important; }
+}
+@media (max-width: 768px) {
+  .content { padding: 14px 14px !important; }
+}
+
+/* ── 5. TOP BAR: ensure it fills width and has correct height ─────────────── */
+.top-bar,
+header.top-bar {
+  padding: 0 32px !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  flex-shrink: 0 !important;
+}
+@media (max-width: 768px) {
+  .top-bar, header.top-bar { padding: 0 14px !important; height: 54px !important; min-height: 54px !important; }
+}
+
+/* ── 6. CARD HEADER / BODY: consistent padding ───────────────────────────── */
+.card-header {
+  padding: 18px 22px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+.card-title {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #F8FAFC !important;
+  letter-spacing: -0.01em !important;
+}
+.card-subtitle {
+  font-size: 12px !important;
+  color: #94A3B8 !important;
+  margin-top: 2px !important;
+  font-weight: 400 !important;
+}
+.card-body {
+  padding: 20px 22px !important;
+}
+
+/* ── 7. SECTION HEADINGS in content (h1, h2 inside .content) ────────────── */
+.content h1 {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #F8FAFC !important;
+  letter-spacing: -0.025em !important;
+  margin: 0 0 4px 0 !important;
+}
+.content h2 {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #F8FAFC !important;
+  letter-spacing: -0.01em !important;
+}
+.content h3 {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #F8FAFC !important;
+}
+
+/* ── 8. EMPTY STATE: fix invisible h3 on dark bg ─────────────────────────── */
+.empty-state h3 {
+  color: #94A3B8 !important;
+  font-size: 15px !important;
+}
+.empty-state p {
+  color: #64748B !important;
+  font-size: 13px !important;
+}
+
+/* ── 9. FORM LABELS: ensure readable on dark bg ─────────────────────────── */
+label {
+  color: #CBD5E1 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* ── 10. BUTTONS: ensure secondary button always looks like a button ──────── */
+.btn-secondary,
+button.btn-secondary {
+  background: transparent !important;
+  color: #CBD5E1 !important;
+  border: 1px solid #1E293B !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+  font-family: inherit !important;
+}
+.btn-secondary:hover,
+button.btn-secondary:hover {
+  background: rgba(255,255,255,0.06) !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+/* btn-xs (small action buttons in tables) */
+.btn-xs {
+  padding: 5px 10px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  border: 1px solid #1E293B !important;
+  background: transparent !important;
+  color: #94A3B8 !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  text-decoration: none !important;
+  font-family: inherit !important;
+  white-space: nowrap !important;
+}
+.btn-xs:hover {
+  background: var(--dt-accent) !important;
+  color: white !important;
+  border-color: var(--dt-accent) !important;
+}
+.btn-xs.danger:hover {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+}
+
+/* ── 11. BADGE/STATUS PILL: normalize sizing ─────────────────────────────── */
+.badge {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 3px 10px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  letter-spacing: 0.02em !important;
+  white-space: nowrap !important;
+}
+
+/* ── 12. CURRENCY / NUMBER COLUMNS: right align in tables ───────────────── */
+td.money,
+td.num,
+td.currency,
+.td-money,
+td[data-label="Amount"],
+td[data-label="Invested"],
+td[data-label="Raise"],
+td[data-label="IRR"] {
+  text-align: right !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+th.col-num,
+th.col-money,
+th.col-currency {
+  text-align: right !important;
+}
+
+/* ── 13. SECTION SPACING: gap between page sections ─────────────────────── */
+.content > * + * {
+  margin-top: 0 !important; /* let each section control its own margin */
+}
+/* Standard spacing between top-level cards/sections in content */
+.content > .card + .card,
+.content > .card + div,
+.content > div + .card {
+  margin-top: 20px !important;
+}
+
+/* ── 14. STAT/KPI CARD: ensure consistent internal structure ─────────────── */
+.stat-card,
+.kpi-card {
+  padding: 20px 22px !important;
+}
+.stat-card .val,
+.stat-card .stat-value,
+.kpi-card .kpi-value {
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  letter-spacing: -0.03em !important;
+  color: #F8FAFC !important;
+  line-height: 1.1 !important;
+}
+.stat-card .lbl,
+.stat-card .stat-label,
+.kpi-card .kpi-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #64748B !important;
+  margin-bottom: 6px !important;
+}
+
+/* ── 15. TABLE: column headers cleaner ───────────────────────────────────── */
+th {
+  background: rgba(255,255,255,0.03) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  color: #64748B !important;
+  padding: 11px 16px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  white-space: nowrap !important;
+}
+td {
+  padding: 13px 16px !important;
+  font-size: 13.5px !important;
+  color: #E2E8F0 !important;
+  vertical-align: middle !important;
+}
+
+/* ── 16. BREADCRUMB: consistent styling ──────────────────────────────────── */
+.breadcrumb,
+nav.breadcrumb {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+}
+.breadcrumb a {
+  color: #64748B !important;
+  text-decoration: none !important;
+  transition: color 0.15s !important;
+}
+.breadcrumb a:hover { color: var(--dt-accent) !important; }
+.breadcrumb-sep,
+.breadcrumb-separator { color: #334155 !important; }
+.breadcrumb-current { color: #F8FAFC !important; font-weight: 600 !important; }
+
+/* ── 17. INPUT PLACEHOLDER: muted but readable ───────────────────────────── */
+input::placeholder,
+textarea::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* ── 18. LINK INSIDE TABLE: accessible color ─────────────────────────────── */
+td a {
+  color: #F8FAFC !important;
+  text-decoration: none !important;
+}
+td a:hover {
+  color: var(--dt-accent) !important;
+  text-decoration: underline !important;
+}
+
+/* ── 19. MODAL POLISH: consistent sizing and padding ─────────────────────── */
+.modal-overlay.open,
+.modal-overlay.active {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.modal {
+  background: #111827 !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.5) !important;
+}
+.modal-header {
+  padding: 22px 26px 0 !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+.modal-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #F8FAFC !important;
+}
+.modal-body {
+  padding: 20px 26px !important;
+}
+.modal-footer {
+  padding: 0 26px 22px !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+}
+.modal-close {
+  width: 30px !important;
+  height: 30px !important;
+  background: rgba(255,255,255,0.06) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #94A3B8 !important;
+  transition: all 0.15s !important;
+}
+.modal-close:hover { background: rgba(239,68,68,0.2) !important; color: #ef4444 !important; }
+
+/* ── 20. FORM GROUPS: consistent vertical spacing ─────────────────────────── */
+.form-group {
+  margin-bottom: 18px !important;
+}
+.form-group:last-child {
+  margin-bottom: 0 !important;
+}
+.form-group label {
+  display: block !important;
+  margin-bottom: 7px !important;
+}
+
+/* ── 21. PAGE TITLE BAR (top-bar variant with title) ─────────────────────── */
+.page-title-bar h1 {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #F8FAFC !important;
+  margin: 0 !important;
+  letter-spacing: -0.02em !important;
+}
+.page-title-bar p {
+  font-size: 12px !important;
+  color: #64748B !important;
+  margin: 1px 0 0 !important;
+}
+
+/* ── 22. TOAST NOTIFICATIONS: ensure they're above everything ─────────────── */
+#toast,
+.toast {
+  z-index: 99999 !important;
+}
+
+/* ── 23. DEAL / PROPERTY TYPE BADGES ─────────────────────────────────────── */
+.badge-mf   { background: rgba(14,165,233,0.15) !important;  color: #38bdf8 !important; }
+.badge-ind  { background: rgba(16,185,129,0.15) !important;  color: #34d399 !important; }
+.badge-ret  { background: rgba(245,158,11,0.15) !important;  color: #fbbf24 !important; }
+.badge-off  { background: rgba(139,92,246,0.15) !important;  color: #a78bfa !important; }
+.badge-other{ background: rgba(100,116,139,0.12)!important;  color: #94a3b8 !important; }
+
+/* Deal status badges */
+.badge-sourcing  { background: rgba(100,116,139,0.12)!important; color: #94a3b8 !important; }
+.badge-loi       { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+.badge-dd        { background: rgba(14,165,233,0.15) !important; color: #38bdf8 !important; }
+.badge-closed    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+.badge-operating { background: rgba(139,92,246,0.15) !important; color: #a78bfa !important; }
+.badge-active    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+.badge-verified  { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+.badge-pending   { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+.badge-expired   { background: rgba(239,68,68,0.15)  !important; color: #f87171 !important; }
+.badge-inactive  { background: rgba(100,116,139,0.1) !important; color: #64748b !important; }
+.badge-funded    { background: rgba(14,165,233,0.15) !important; color: #38bdf8 !important; }
+.badge-committed { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+
+/* Distribution status */
+.badge-posted { background: rgba(16,185,129,0.15)  !important; color: #34d399 !important; }
+.badge-draft  { background: rgba(245,158,11,0.15)  !important; color: #fbbf24 !important; }
+
+/* ── 24. ACTION BUTTON GROUP (header-level buttons) ──────────────────────── */
+.top-actions,
+.header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ── 25. TABLE SCROLL WRAPPER: horizontal scroll on overflow ─────────────── */
+.table-scroll,
+.table-wrap {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  border-radius: 0 0 var(--dt-radius) var(--dt-radius) !important;
+}
+
+/* ── 26. TOOLBAR / FILTER BAR: consistent spacing ────────────────────────── */
+.toolbar {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 20px !important;
+}
+
+/* ── 27. SEARCH INPUT ────────────────────────────────────────────────────── */
+.search-input,
+.search-wrap input {
+  background: #111827 !important;
+  border: 1px solid #1E293B !important;
+  color: #F8FAFC !important;
+  border-radius: 8px !important;
+  padding: 10px 12px 10px 36px !important;
+  font-size: 13.5px !important;
+}
+.search-input:focus,
+.search-wrap input:focus {
+  border-color: var(--dt-accent) !important;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.1) !important;
+}
+
+/* ── 28. SELECT DROPDOWNS in toolbar ────────────────────────────────────── */
+.toolbar select,
+.filter-bar select {
+  background: #111827 !important;
+  border: 1px solid #1E293B !important;
+  color: #F8FAFC !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  font-size: 13.5px !important;
+  cursor: pointer !important;
+}
+
+/* ── 29. VIEW TOGGLE (table/card) ────────────────────────────────────────── */
+.view-toggle {
+  display: flex !important;
+  border: 1px solid #1E293B !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+.view-btn {
+  padding: 8px 12px !important;
+  border: none !important;
+  background: #111827 !important;
+  color: #94A3B8 !important;
+  cursor: pointer !important;
+  font-size: 13px !important;
+  transition: all 0.15s !important;
+}
+.view-btn.active {
+  background: var(--dt-accent) !important;
+  color: white !important;
+}
+
+/* ── 30. IRR / PERCENTAGE VALUES: green color ────────────────────────────── */
+.irr-val,
+.val-positive,
+td.irr {
+  color: #34d399 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 600 !important;
+}
+
+/* ── END POLISH PASS ─────────────────────────────────────────────────────── */
+
+/* ── DT-HEADER (used on ~149 tool/utility pages) ─────────────────────────────
+   These pages use <div class="dt-header"> instead of <header class="top-bar">.
+   Without desktop styles this was completely unstyled.
+   ─────────────────────────────────────────────────────────────────────────── */
+.dt-header {
+  background: #111827 !important;
+  border-bottom: 1px solid #1E293B !important;
+  padding: 0 32px !important;
+  height: 60px !important;
+  min-height: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  gap: 16px !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+}
+.dt-header h1 {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: #F8FAFC !important;
+  margin: 0 !important;
+  letter-spacing: -0.02em !important;
+  flex: 1 !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+.dt-header h1 i {
+  color: var(--dt-accent) !important;
+  margin-right: 10px !important;
+  font-size: 16px !important;
+}
+.dt-header .header-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ── MAIN when used with dt-header: no top padding so header sits flush ───── */
+/* Pages with dt-header put the header inside .main, so no extra top gap needed */
+.main > .dt-header,
+main.main > .dt-header {
+  margin: 0 !important;
+}
+
+/* ── SUB-HEADER / PAGE DESCRIPTION below dt-header ──────────────────────── */
+.dt-subheader,
+.page-description-bar {
+  padding: 16px 32px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+  background: rgba(255,255,255,0.01) !important;
+}
+
+/* ── APP CONTAINER for old-style pages (main > content pattern) ───────────── */
+.app {
+  display: flex !important;
+  min-height: 100vh !important;
+}
+
+/* ── CONTENT WHEN INSIDE MAIN (belt-and-suspenders) ─────────────────────── */
+main.main > .content,
+.main > .content,
+#main > .content {
+  padding: 28px 32px !important;
+  max-width: none !important;
+}
+
+/* ─── END DT-HEADER FIX ────────────────────────────────────────────────── */
+
+/* ── .guide class (waterfall-guide.html and similar) ─────────────────────── */
+.guide {
+  padding: 28px 32px !important;
+  max-width: 1200px !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPONENT LIBRARY — common patterns used across many pages
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── DATA TABLE (many tool pages use .data-table) ─────────────────────────── */
+.data-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+.data-table th {
+  background: rgba(255,255,255,0.03) !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #64748B !important;
+  padding: 11px 14px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+  white-space: nowrap !important;
+}
+.data-table td {
+  padding: 13px 14px !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  font-size: 13.5px !important;
+  vertical-align: middle !important;
+  color: #E2E8F0 !important;
+}
+.data-table tr:hover td { background: rgba(255,255,255,0.025) !important; }
+.data-table tr:last-child td { border-bottom: none !important; }
+
+/* ── FORM INPUT (form-input class) ───────────────────────────────────────── */
+.form-input,
+.form-select {
+  width: 100% !important;
+  padding: 10px 14px !important;
+  background: #111827 !important;
+  border: 1px solid #1E293B !important;
+  border-radius: 8px !important;
+  color: #F8FAFC !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+  outline: none !important;
+}
+.form-input:focus,
+.form-select:focus {
+  border-color: var(--dt-accent) !important;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.1) !important;
+}
+
+/* ── FORM ROW (2-column form grid) ───────────────────────────────────────── */
+.form-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 16px !important;
+}
+@media (max-width: 640px) {
+  .form-row { grid-template-columns: 1fr !important; }
+}
+
+/* ── RESULT PANEL / CALCULATION OUTPUT ───────────────────────────────────── */
+.result-panel,
+.results-panel,
+.calc-results {
+  background: rgba(14,165,233,0.06) !important;
+  border: 1px solid rgba(14,165,233,0.2) !important;
+  border-radius: var(--dt-radius) !important;
+  padding: 20px 22px !important;
+}
+
+/* Result row key-value pair */
+.result-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 12px 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  font-size: 14px !important;
+}
+.result-row:last-child { border-bottom: none !important; }
+.result-row span { color: #94A3B8 !important; }
+.result-row strong {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  color: #F8FAFC !important;
+}
+.result-row strong.positive { color: #34d399 !important; }
+.result-row strong.negative { color: #f87171 !important; }
+
+/* ── SECTION DIVIDER ─────────────────────────────────────────────────────── */
+.section-divider {
+  height: 1px !important;
+  background: rgba(255,255,255,0.07) !important;
+  margin: 24px 0 !important;
+}
+
+/* ── ALERT / NOTICE PANELS ───────────────────────────────────────────────── */
+.alert-info {
+  background: rgba(14,165,233,0.1) !important;
+  border: 1px solid rgba(14,165,233,0.25) !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+  font-size: 13px !important;
+  color: #93c5fd !important;
+  display: flex !important;
+  gap: 10px !important;
+}
+.alert-warning {
+  background: rgba(245,158,11,0.1) !important;
+  border: 1px solid rgba(245,158,11,0.25) !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+  font-size: 13px !important;
+  color: #fcd34d !important;
+  display: flex !important;
+  gap: 10px !important;
+}
+.alert-danger {
+  background: rgba(239,68,68,0.1) !important;
+  border: 1px solid rgba(239,68,68,0.25) !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+  font-size: 13px !important;
+  color: #fca5a5 !important;
+  display: flex !important;
+  gap: 10px !important;
+}
+.alert-success {
+  background: rgba(16,185,129,0.1) !important;
+  border: 1px solid rgba(16,185,129,0.25) !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+  font-size: 13px !important;
+  color: #6ee7b7 !important;
+  display: flex !important;
+  gap: 10px !important;
+}
+
+/* ── STAT VALUE in result cards ──────────────────────────────────────────── */
+.stat-value,
+.kpi-value {
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  letter-spacing: -0.03em !important;
+  color: #F8FAFC !important;
+  line-height: 1 !important;
+  margin-bottom: 4px !important;
+}
+
+/* ── MUTED TEXT ──────────────────────────────────────────────────────────── */
+.text-muted,
+.text-secondary {
+  color: #94A3B8 !important;
+  font-size: 12px !important;
+}
+.text-success { color: #34d399 !important; }
+.text-danger  { color: #f87171 !important; }
+.text-warning { color: #fbbf24 !important; }
+.text-accent  { color: var(--dt-accent) !important; }
+.text-right   { text-align: right !important; }
+.text-center  { text-align: center !important; }
+
+/* ── GRID HELPERS ────────────────────────────────────────────────────────── */
+.grid-2 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 20px !important; }
+.grid-3 { display: grid !important; grid-template-columns: repeat(3,1fr) !important; gap: 20px !important; }
+.grid-4 { display: grid !important; grid-template-columns: repeat(4,1fr) !important; gap: 16px !important; }
+@media (max-width: 900px) {
+  .grid-3, .grid-4 { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 640px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr !important; }
+}
+
+/* ── FLEX HELPERS ────────────────────────────────────────────────────────── */
+.flex-between {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+.flex-gap {
+  display: flex !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+/* ── MARGIN HELPERS ──────────────────────────────────────────────────────── */
+.mt-4  { margin-top:  4px  !important; }
+.mt-8  { margin-top:  8px  !important; }
+.mt-12 { margin-top: 12px  !important; }
+.mt-16 { margin-top: 16px  !important; }
+.mt-20 { margin-top: 20px  !important; }
+.mt-24 { margin-top: 24px  !important; }
+.mb-4  { margin-bottom:  4px  !important; }
+.mb-8  { margin-bottom:  8px  !important; }
+.mb-12 { margin-bottom: 12px  !important; }
+.mb-16 { margin-bottom: 16px  !important; }
+.mb-20 { margin-bottom: 20px  !important; }
+.mb-24 { margin-bottom: 24px  !important; }
+
+/* ── FONT MONO helper ────────────────────────────────────────────────────── */
+.font-mono {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 600 !important;
+}
+
+/* ── DASHBOARD QUICK-ACTION CARDS ────────────────────────────────────────── */
+.qa-card,
+.quick-action-card {
+  background: #111827 !important;
+  border: 1px solid #1E293B !important;
+  border-radius: var(--dt-radius) !important;
+  padding: 22px 20px !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  color: #F8FAFC !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  transition: all 0.18s !important;
+  cursor: pointer !important;
+}
+.qa-card:hover,
+.quick-action-card:hover {
+  border-color: var(--dt-accent) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--dt-shadow-md) !important;
+}
+
+/* ── ACTIVITY FEED ───────────────────────────────────────────────────────── */
+.activity-item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  padding: 14px 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+.activity-item:last-child { border-bottom: none !important; }
+.activity-body { flex: 1 !important; min-width: 0 !important; }
+.activity-text { font-size: 13.5px !important; color: #E2E8F0 !important; line-height: 1.5 !important; }
+.activity-time { font-size: 11.5px !important; color: #64748B !important; margin-top: 2px !important; }
+
+/* ── DEAL HERO (deal-detail.html) ────────────────────────────────────────── */
+.deal-hero {
+  border-radius: var(--dt-radius) !important;
+  padding: 28px 32px !important;
+  margin-bottom: 22px !important;
+  color: white !important;
+}
+.deal-metric {
+  background: rgba(255,255,255,0.08) !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+}
+.deal-metric .val {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+}
+.deal-metric .lbl {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: rgba(255,255,255,0.6) !important;
+  margin-top: 4px !important;
+}
+
+/* ── DISTRIBUTION CARD ───────────────────────────────────────────────────── */
+.distribution-card {
+  background: #111827 !important;
+  border: 1px solid #1E293B !important;
+  border-radius: var(--dt-radius) !important;
+  padding: 20px 22px !important;
+  margin-bottom: 12px !important;
+  transition: border-color 0.15s !important;
+}
+.distribution-card:hover { border-color: #334155 !important; }
+.distribution-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #F8FAFC !important;
+}
+.distribution-amount {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: #34d399 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* ── PROFILE HERO (investor-detail, settings) ────────────────────────────── */
+.profile-hero {
+  border-radius: var(--dt-radius) !important;
+  padding: 28px 32px !important;
+  margin-bottom: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 24px !important;
+}
+
+/* ── WATERFALL TIER ROWS (distributions, deal) ───────────────────────────── */
+.tier-row {
+  display: flex !important;
+  align-items: center !important;
+  padding: 14px 16px !important;
+  background: #111827 !important;
+  border-radius: 8px !important;
+  margin-bottom: 8px !important;
+  border-left: 4px solid var(--dt-accent) !important;
+}
+.tier-row.return { border-left-color: #64748B !important; }
+.tier-row.pref   { border-left-color: #f59e0b !important; }
+.tier-row.catchup{ border-left-color: var(--dt-accent) !important; }
+.tier-row.split  { border-left-color: #22c55e !important; }
+
+/* ── BADGE COLOR OVERRIDES: beat contrast-fix.css specificity ──────────────
+   contrast-fix.css sets html body .badge { color: #e2e8f0 !important }
+   We need higher specificity to keep our color-coded badges meaningful.
+   ────────────────────────────────────────────────────────────────────────── */
+html body .badge.badge-mf,
+html body .badge-mf     { background: rgba(14,165,233,0.15) !important; color: #38bdf8 !important; }
+html body .badge.badge-ind,
+html body .badge-ind    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+html body .badge.badge-ret,
+html body .badge-ret    { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+html body .badge.badge-off,
+html body .badge-off    { background: rgba(139,92,246,0.15) !important; color: #a78bfa !important; }
+html body .badge.badge-other,
+html body .badge-other  { background: rgba(100,116,139,0.12)!important; color: #94a3b8 !important; }
+html body .badge.badge-sourcing,
+html body .badge-sourcing  { background: rgba(100,116,139,0.12)!important; color: #94a3b8 !important; }
+html body .badge.badge-loi,
+html body .badge-loi       { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+html body .badge.badge-dd,
+html body .badge-dd        { background: rgba(14,165,233,0.15) !important; color: #38bdf8 !important; }
+html body .badge.badge-closed,
+html body .badge-closed    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+html body .badge.badge-operating,
+html body .badge-operating { background: rgba(139,92,246,0.15) !important; color: #a78bfa !important; }
+html body .badge.badge-active,
+html body .badge-active    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+html body .badge.badge-verified,
+html body .badge-verified  { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+html body .badge.badge-pending,
+html body .badge-pending   { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+html body .badge.badge-expired,
+html body .badge-expired   { background: rgba(239,68,68,0.15) !important; color: #f87171 !important; }
+html body .badge.badge-inactive,
+html body .badge-inactive  { background: rgba(100,116,139,0.1)!important; color: #64748b !important; }
+html body .badge.badge-funded,
+html body .badge-funded    { background: rgba(14,165,233,0.15) !important; color: #38bdf8 !important; }
+html body .badge.badge-committed,
+html body .badge-committed { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+html body .badge.badge-posted,
+html body .badge-posted    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+html body .badge.badge-draft,
+html body .badge-draft     { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+
+/* ─── END BADGE OVERRIDES ─────────────────────────────────────────────────── */
