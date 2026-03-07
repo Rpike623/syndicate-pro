@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Equity Waterfall Visualizer | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-layer-group"></i> Equity Waterfall Visualizer</h1>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="card-header"><h2>Distribution Waterfall</h2></div>
+        <div class="card-body">
+          <div style="display:flex;gap:4px;height:200px;align-items:flex-end;margin:20px 0;">
+            <div style="flex:1;background:#22c55e;height:30%;border-radius:4px 4px 0 0;"><span style="color:white;font-size:10px;">LP Return</span></div>
+            <div style="flex:1;background:#6366f1;height:20%;border-radius:4px 4px 0 0;"><span style="color:white;font-size:10px;">LP Preferred</span></div>
+            <div style="flex:1;background:#f59e0b;height:15%;border-radius:4px 4px 0 0;"><span style="color:white;font-size:10px;">GP Catchup</span></div>
+            <div style="flex:1;background:#ef4444;height:10%;border-radius:4px 4px 0 0;"><span style="color:white;font-size:10px;">GP Carry</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

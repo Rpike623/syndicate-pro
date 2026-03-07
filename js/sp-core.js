@@ -812,8 +812,7 @@ window.SP = (function () {
     document.addEventListener('DOMContentLoaded', function () {
     // Load order: sp-math.js -> sp-ai.js -> sp-theme.js -> sp-reit.js -> sp-chat.js -> sp-audit.js -> sp-esign.js
     const m = document.createElement('script');
-    m.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-math.js';
-    if (!m.src || m.src === 'sp-math.js') m.src = 'js/sp-math.js';
+    m.src = 'js/sp-math.js';
     m.onload = () => {
       const t = document.createElement('script');
       t.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-theme.js';
@@ -839,8 +838,7 @@ window.SP = (function () {
     document.head.appendChild(m);
 
     const s = document.createElement('script');
-    s.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-audit.js';
-    if (!s.src || s.src === 'sp-audit.js') s.src = 'js/sp-audit.js';
+    s.src = 'js/sp-audit.js';
     s.onload = () => {
       const e = document.createElement('script');
       e.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-esign.js';
