@@ -289,10 +289,6 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (window.SP && SP.isLoggedIn) {
-        initPage();
-      } else {
     SP.onDataReady(() => {
       if (!SP.isLoggedIn()) { window.location.href = 'login.html'; return; }
       Compliance.init();

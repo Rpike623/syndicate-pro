@@ -699,7 +699,6 @@ function previewDistribution() {
 
   // Show pref callout if pref is active
   const prefCallout = document.getElementById('prefCallout');
-  const prefRate = currentDeal.prefReturn || 0;
   if (prefRate > 0 && prefSplits.length) {
     const totalPrefPaid = prefSplits.reduce((s, p) => s + p.prefPaidThisDist, 0);
     const totalPrefRem = prefSplits.reduce((s, p) => s + (p.prefRemainingAfterDist || 0), 0);
