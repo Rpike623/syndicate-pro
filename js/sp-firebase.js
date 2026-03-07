@@ -83,8 +83,11 @@ const SPFB = (function () {
     const localName    = localSession?.name  || fbUser.displayName || localEmail;
     const localRole    = localSession?.role  || 'General Partner';
 
-    // OrgId: prefer localStorage org (so existing data maps correctly), else hash email
-    const derivedOrgId = localEmail ? _hashEmail(localEmail) : fbUser.uid;
+    // OrgId: prefer localStorage orgId (for data isolation), else derive from email
+    // Special case: demo-gp2@deeltrack.com (Marcus Rivera) gets unique org for testing
+    const isMarcus = localEmail.toLowerCase() === 'demo-gp2@deeltrack.com';
+    const marcusOrgId = 'marcus_rivera_org';
+    const derivedOrgId = isMarcus ? marcusOrgId : (localEmail ? _hashEmail(localEmail) : fbUser.uid);
 
     _db.collection('users').doc(fbUser.uid).get().then(doc => {
       if (doc.exists) {
@@ -98,6 +101,7 @@ const SPFB = (function () {
         _orgId = _spUser.orgId;
       } else {
         // New user (anonymous or first real signup) — create profile
+        // Use derivedOrgId which handles Marcus's unique orgId
         _spUser = {
           uid:         fbUser.uid,
           email:       localEmail,
@@ -133,6 +137,7 @@ const SPFB = (function () {
     const DEMO_PASSWORDS = {
       'gp@deeltrack.com':       'Demo1234!',
       'investor@deeltrack.com': 'Demo1234!',
+      'demo-gp2@deeltrack.com': 'Demo1234!',
     };
     const email = localSession.email.toLowerCase();
     const demoPassword = DEMO_PASSWORDS[email];

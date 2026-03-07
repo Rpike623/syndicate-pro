@@ -103,18 +103,20 @@ window.SP = (function () {
   }
 
   // All demo accounts share one org so data flows freely between GP and LP views
-  // Note: demo-gp2@deeltrack.com is EXCLUDED for data isolation testing
-  const DEMO_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com','demo-gp2@deeltrack.com'];
+  // NOTE: demo-gp2 is EXCLUDED from this list to test data isolation — it gets its own unique org
+  const DEMO_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com'];
   const DEMO_ORG_ID = 'deeltrack_demo';
 
   function getOrgId() {
     const s = getSession();
     if (!s) return null;
-    // v2.0 Priority: Use stored orgId FIRST - this is where Marcus gets his unique org
+    // v2.0 Priority: Use stored orgId FIRST — this is the source of truth for all users
+    // This ensures each GP gets their own unique orgId, not the shared demo org
     if (s.orgId) return s.orgId;
-    // Demo accounts use shared org (except demo-gp2 which should have stored orgId from auth)
+    // Legacy fallback: only use shared demo org for truly shared demo accounts
+    // (demo-gp2 should never reach this line — it always has orgId set in session)
     if (s.email && DEMO_EMAILS.includes(s.email.toLowerCase())) return DEMO_ORG_ID;
-    // Fallback: derive from email
+    // Final fallback: derive from email hash
     return simpleHash(s.email.toLowerCase());
   }
 
@@ -384,23 +386,29 @@ window.SP = (function () {
     const users = getUsers();
     // Seed demo GP — accept both old and new demo emails
     // ALL demo accounts share ONE org so data is visible across sessions
+    // EXCEPT demo-gp2@deeltrack.com (Marcus Rivera) who needs data isolation for testing
     const DEMO_ORG_ID = 'deeltrack_demo';
-    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'gp@deeltrack.com', 'philip@jchapmancpa.com', 'investor@deeltrack.com', 'demo-gp2@deeltrack.com'];
+    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'gp@deeltrack.com', 'philip@jchapmancpa.com', 'investor@deeltrack.com'];
     demoEmails.forEach(demoEmail => {
       const existing = users.find(u => u.email === demoEmail);
-      // Marcus gets his own unique org for data isolation testing
-      const isMarcus = demoEmail === 'demo-gp2@deeltrack.com';
-      const marcusOrgId = 'marcus_rivera_org';
       if (!existing) {
-        const name = demoEmail.includes('philip') ? 'Phil Chapman' : demoEmail.includes('investor') ? 'Demo Investor' : demoEmail.includes('gp2') ? 'Marcus Rivera' : 'Robert Pike';
+        const name = demoEmail.includes('philip') ? 'Phil Chapman' : demoEmail.includes('investor') ? 'Demo Investor' : 'Robert Pike';
         const role = (demoEmail.includes('philip') || demoEmail.includes('investor@')) ? 'Investor' : 'General Partner';
-        const orgId = isMarcus ? marcusOrgId : DEMO_ORG_ID;
-        users.push({ email: demoEmail, password: 'Demo1234!', name, role, orgId });
-      } else if (existing.orgId !== DEMO_ORG_ID && existing.email !== 'demo-gp2@deeltrack.com') {
-        // Migrate existing demo user to shared org (but preserve Marcus's unique org for data isolation)
-        existing.orgId = DEMO_ORG_ID;
+        users.push({ email: demoEmail, password: 'Demo1234!', name, role, orgId: DEMO_ORG_ID });
       }
     });
+    
+    // Handle Marcus Rivera (demo-gp2) separately — he gets his own unique org for data isolation testing
+    const marcusEmail = 'demo-gp2@deeltrack.com';
+    const marcusExisting = users.find(u => u.email === marcusEmail);
+    const marcusOrgId = 'marcus_rivera_org';
+    if (!marcusExisting) {
+      users.push({ email: marcusEmail, password: 'Demo1234!', name: 'Marcus Rivera', role: 'General Partner', orgId: marcusOrgId });
+    } else if (marcusExisting.orgId !== marcusOrgId) {
+      // Ensure Marcus always has his unique orgId
+      marcusExisting.orgId = marcusOrgId;
+    }
+    
     localStorage.setItem('sp_users', JSON.stringify(users));
     const user = getUsers().find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
     if (!user) return null;
