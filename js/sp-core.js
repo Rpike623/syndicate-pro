@@ -815,22 +815,18 @@ window.SP = (function () {
     m.src = 'js/sp-math.js';
     m.onload = () => {
       const t = document.createElement('script');
-      t.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-theme.js';
-      if (!t.src || t.src === 'sp-theme.js') t.src = 'js/sp-theme.js';
+      t.src = 'js/sp-theme.js';
       document.head.appendChild(t);
 
       const a = document.createElement('script');
-      a.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-ai.js';
-      if (!a.src || a.src === 'sp-ai.js') a.src = 'js/sp-ai.js';
+      a.src = 'js/sp-ai.js';
       
       const r = document.createElement('script');
-      r.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-reit.js';
-      if (!r.src || r.src === 'sp-reit.js') r.src = 'js/sp-reit.js';
+      r.src = 'js/sp-reit.js';
       document.head.appendChild(r);
 
       const c = document.createElement('script');
-      c.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-chat.js';
-      if (!c.src || c.src === 'sp-chat.js') c.src = 'js/sp-chat.js';
+      c.src = 'js/sp-chat.js';
       document.head.appendChild(c);
       
       document.head.appendChild(a);
