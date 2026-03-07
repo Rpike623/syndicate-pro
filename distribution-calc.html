@@ -17,16 +17,16 @@
   <script src="js/sp-math.js"></script>
   <script src="js/database.js"></script>
   <style>
-    :root { --accent:#F37925; --success:#2D9A6B; --warning:#E8890A; --danger:#D94F3D; --bg:#F3F3F3; --surface:#FFFFFF; --border:#E2DDD8; }
+    :root { --accent:#F37925; --accent-hover:#D96515; --success:#2D9A6B; --warning:#E8890A; --danger:#D94F3D; --bg:#F3F3F3; --surface:#FFFFFF; --border:#E2DDD8; --text:#1B1A19; --text-muted:#6B6560; --text-light:#9C9590; }
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:'Inter',sans-serif; background:var(--bg); color:#F8FAFC; display:flex; min-height:100vh; font-size:14px; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); display:flex; min-height:100vh; font-size:14px; }
     .main { flex:1; margin-left:260px; min-height:100vh; display:flex; flex-direction:column; }
     @media(max-width:768px){.main{margin-left:0!important;width:100%!important;}}
 
     /* Top bar */
     .top-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 32px; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; flex-shrink:0; }
-    .top-bar h1 { font-size:17px; font-weight:700; color:#F8FAFC; margin:0; }
-    .top-bar p { font-size:12px; color: #94A3B8; margin:0; }
+    .top-bar h1 { font-size:17px; font-weight:700; color:var(--text); margin:0; }
+    .top-bar p { font-size:12px; color:var(--text-muted); margin:0; }
     .mobile-menu-btn { display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 10px; cursor:pointer; }
     @media(max-width:768px){.mobile-menu-btn{display:flex!important;} .top-bar{padding:0 14px;}}
 
@@ -36,10 +36,10 @@
 
     /* Step flow indicator */
     .steps { display:flex; gap:0; margin-bottom:28px; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-    .step { flex:1; padding:14px 20px; display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color: #94A3B8; position:relative; }
-    .step.active { color:#F8FAFC; background:rgba(14,165,233,0.08); }
+    .step { flex:1; padding:14px 20px; display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:var(--text-light); position:relative; }
+    .step.active { color:var(--text); background:rgba(243,121,37,0.06); }
     .step.done { color:var(--success); }
-    .step-num { width:24px; height:24px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; }
+    .step-num { width:24px; height:24px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; color:var(--text-muted); }
     .step.active .step-num { background:var(--accent); color:white; }
     .step.done .step-num { background:var(--success); color:white; }
     .step + .step::before { content:''; position:absolute; left:0; top:20%; bottom:20%; width:1px; background:var(--border); }
@@ -51,71 +51,71 @@
     /* Cards */
     .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
     .card-hdr { padding:16px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-    .card-hdr h2 { font-size:14px; font-weight:700; color:#F8FAFC; margin:0; }
-    .card-hdr p { font-size:11px; color: #94A3B8; margin:2px 0 0; }
+    .card-hdr h2 { font-size:14px; font-weight:700; color:var(--text); margin:0; }
+    .card-hdr p { font-size:11px; color:var(--text-muted); margin:2px 0 0; }
     .card-body { padding:22px; }
 
     /* Form */
     .form-group { margin-bottom:18px; }
     .form-group:last-child { margin-bottom:0; }
-    .form-group label { display:block; font-size:11px; font-weight:700; color: #94A3B8; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:7px; }
-    .form-group input, .form-group select { width:100%; padding:11px 14px; background:#0B1120; border:1px solid var(--border); border-radius:8px; color:#F8FAFC; font-size:14px; font-family:inherit; outline:none; transition:border-color 0.15s; }
-    .form-group input:focus, .form-group select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(14,165,233,0.1); }
+    .form-group label { display:block; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:7px; }
+    .form-group input, .form-group select { width:100%; padding:11px 14px; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:14px; font-family:inherit; outline:none; transition:border-color 0.15s; }
+    .form-group input:focus, .form-group select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(243,121,37,0.1); }
 
     /* Summary tiles */
     .summary-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:20px 0; }
-    .stile { background:#0B1120; border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
-    .stile-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color: #94A3B8; margin-bottom:4px; }
-    .stile-val { font-size:20px; font-weight:800; font-family:'JetBrains Mono',monospace; letter-spacing:-0.03em; color:#F8FAFC; }
+    .stile { background:#F3F0ED; border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+    .stile-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); margin-bottom:4px; }
+    .stile-val { font-size:20px; font-weight:800; font-family:'JetBrains Mono',monospace; letter-spacing:-0.03em; color:var(--text); }
 
     /* Waterfall tier breakdown */
     .waterfall-tiers { display:flex; flex-direction:column; gap:8px; margin:16px 0; }
-    .wf-tier { display:flex; align-items:center; gap:12px; padding:10px 14px; background:#0B1120; border-radius:8px; border-left:4px solid var(--border); }
-    .wf-tier.tier-roc  { border-left-color:#64748b; }
+    .wf-tier { display:flex; align-items:center; gap:12px; padding:10px 14px; background:#F3F0ED; border-radius:8px; border-left:4px solid var(--border); }
+    .wf-tier.tier-roc  { border-left-color:#9C9590; }
     .wf-tier.tier-pref { border-left-color:var(--warning); }
     .wf-tier.tier-catchup { border-left-color:var(--accent); }
     .wf-tier.tier-split { border-left-color:var(--success); }
-    .wf-tier-name { font-size:12px; font-weight:600; color:#F8FAFC; flex:1; }
-    .wf-tier-desc { font-size:11px; color: #94A3B8; }
-    .wf-tier-amount { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; color:#F8FAFC; text-align:right; }
-    .wf-tier-split { font-size:11px; color: #94A3B8; text-align:right; white-space:nowrap; }
+    .wf-tier-name { font-size:12px; font-weight:600; color:var(--text); flex:1; }
+    .wf-tier-desc { font-size:11px; color:var(--text-muted); }
+    .wf-tier-amount { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; color:var(--text); text-align:right; }
+    .wf-tier-split { font-size:11px; color:var(--text-muted); text-align:right; white-space:nowrap; }
 
     /* Pref tracking callout */
-    .pref-callout { background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:14px 16px; margin:16px 0; font-size:12px; color:#fcd34d; line-height:1.6; }
-    .pref-callout strong { color:#F8FAFC; }
+    .pref-callout { background:rgba(243,121,37,0.06); border:1px solid rgba(243,121,37,0.2); border-radius:10px; padding:14px 16px; margin:16px 0; font-size:12px; color:var(--text-muted); line-height:1.6; }
+    .pref-callout strong { color:var(--text); }
 
     /* Execute button */
     .exec-btn { width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:all 0.2s; margin-top:4px; }
-    .exec-btn:hover { background:#0284c7; transform:translateY(-1px); box-shadow:0 8px 20px rgba(14,165,233,0.3); }
+    .exec-btn:hover { background:var(--accent-hover); transform:translateY(-1px); box-shadow:0 8px 20px rgba(243,121,37,0.25); }
     .exec-btn:disabled { opacity:0.45; cursor:not-allowed; transform:none; box-shadow:none; }
 
     /* Ledger table */
     .table-scroll { overflow-x:auto; }
     table { width:100%; border-collapse:collapse; }
-    th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color: #94A3B8; padding:11px 16px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); text-align:left; white-space:nowrap; }
+    th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); padding:11px 16px; border-bottom:2px solid var(--border); background:#F8F6F4; text-align:left; white-space:nowrap; }
     th.right, td.right { text-align:right; }
-    td { padding:13px 16px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13px; color:#E2E8F0; vertical-align:middle; }
-    tr:hover td { background:rgba(255,255,255,0.025); }
+    td { padding:13px 16px; border-bottom:1px solid var(--border); font-size:13px; color:var(--text); vertical-align:middle; }
+    tr:hover td { background:#F8F6F4; }
     tr:last-child td { border-bottom:none; }
     .mono { font-family:'JetBrains Mono',monospace; font-weight:600; }
 
     /* Status */
     .status-pill { padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; text-transform:uppercase; }
-    .status-pending  { background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); }
-    .status-ready    { background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3); }
-    .status-executed { background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); }
+    .status-pending  { background:rgba(232,137,10,0.1); color:#b45309; border:1px solid rgba(232,137,10,0.25); }
+    .status-ready    { background:rgba(243,121,37,0.1); color:#D96515; border:1px solid rgba(243,121,37,0.25); }
+    .status-executed { background:rgba(45,154,107,0.1); color:#2D9A6B; border:1px solid rgba(45,154,107,0.25); }
 
     /* Empty state */
-    .empty-ledger { text-align:center; padding:60px 20px; color: #94A3B8; }
+    .empty-ledger { text-align:center; padding:60px 20px; color:var(--text-light); }
     .empty-ledger i { font-size:2rem; opacity:0.2; display:block; margin-bottom:14px; }
 
     /* Success banner */
-    .success-banner { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:18px 22px; margin-bottom:20px; display:none; }
+    .success-banner { background:rgba(45,154,107,0.08); border:1px solid rgba(45,154,107,0.2); border-radius:12px; padding:18px 22px; margin-bottom:20px; display:none; }
     .success-banner.show { display:flex; align-items:center; gap:14px; }
 
     /* Posted distributions */
     .dist-history { display:flex; flex-direction:column; gap:0; }
-    .dist-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .dist-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); }
     .dist-row:last-child { border-bottom:none; }
   </style>
   <link rel="stylesheet" href="contrast-fix.css">
@@ -128,14 +128,14 @@
     <div class="top-bar">
       <div style="display:flex;align-items:center;gap:12px;">
         <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')">
-          <i class="fas fa-bars" style="color:#94a3b8;"></i>
+          <i class="fas fa-bars" style="color:var(--text-muted);"></i>
         </button>
         <div>
           <h1><i class="fas fa-bolt" style="color:var(--accent);margin-right:8px;font-size:16px;"></i>Distribution Command Center</h1>
           <p>Calculate pref-aware splits, preview the ledger, then post to lock it</p>
         </div>
       </div>
-      <a href="distributions.html" class="btn btn-secondary" style="padding:8px 14px;font-size:13px;background:transparent;border:1px solid var(--border);color:#94a3b8;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+      <a href="distributions.html" class="btn btn-secondary" style="padding:8px 14px;font-size:13px;background:transparent;border:1px solid var(--border);color:var(--text-muted);border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
         <i class="fas fa-history"></i> View History
       </a>
     </div>
@@ -162,14 +162,14 @@
       <div class="success-banner" id="successBanner" style="flex-wrap:wrap;gap:12px;">
         <i class="fas fa-check-circle" style="color:var(--success);font-size:1.5rem;flex-shrink:0;"></i>
         <div style="flex:1;min-width:200px;">
-          <div style="font-weight:700;color:#1B1A19;font-size:15px;">Distribution Posted Successfully</div>
-          <div style="font-size:13px;color:#94a3b8;margin-top:2px;">Ledger locked. Investor capital accounts updated. <a href="distributions.html" style="color:var(--accent);">View in Distributions →</a></div>
+          <div style="font-weight:700;color:var(--text);font-size:15px;">Distribution Posted Successfully</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">Ledger locked. Investor capital accounts updated. <a href="distributions.html" style="color:var(--accent);">View in Distributions →</a></div>
         </div>
         <div style="display:flex;gap:10px;flex-shrink:0;flex-wrap:wrap;">
           <button onclick="showWireReport()" style="background:#F37925;color:white;border:none;padding:9px 18px;border-radius:7px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;white-space:nowrap;">
             <i class="fas fa-file-invoice-dollar"></i> Wire Report
           </button>
-          <button onclick="printWireReport()" style="background:#FFFFFF;color:#1B1A19;border:1px solid #E2DDD8;padding:9px 18px;border-radius:7px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;white-space:nowrap;">
+          <button onclick="printWireReport()" style="background:#FFFFFF;color:var(--text);border:1px solid #E2DDD8;padding:9px 18px;border-radius:7px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;white-space:nowrap;">
             <i class="fas fa-print"></i> Print / PDF
           </button>
         </div>
@@ -256,7 +256,7 @@
               </div>
               <div class="stile">
                 <div class="stile-lbl">To LPs</div>
-                <div class="stile-val" id="lpSum" style="color:#34d399;">$0</div>
+                <div class="stile-val" id="lpSum" style="color:var(--success);">$0</div>
               </div>
               <div class="stile">
                 <div class="stile-lbl">GP Promote</div>
@@ -266,7 +266,7 @@
 
             <!-- Waterfall tier breakdown -->
             <div style="padding:0 22px 16px;" id="tierSection" style="display:none;">
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94A3B8;margin:16px 0 8px;">Waterfall Tiers</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);margin:16px 0 8px;">Waterfall Tiers</div>
               <div class="waterfall-tiers" id="tierBreakdown"></div>
             </div>
 
@@ -304,7 +304,7 @@
               <button id="execBtn" class="exec-btn" onclick="executeDistribution()" disabled style="flex:1;">
                 <i class="fas fa-bolt"></i> Post Distribution to Ledger
               </button>
-              <button onclick="resetForm()" style="padding:12px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:#94a3b8;cursor:pointer;font-family:inherit;font-size:13px;white-space:nowrap;" title="Reset form">
+              <button onclick="resetForm()" style="padding:12px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);cursor:pointer;font-family:inherit;font-size:13px;white-space:nowrap;" title="Reset form">
                 <i class="fas fa-redo"></i>
               </button>
             </div>
@@ -439,9 +439,9 @@ function renderPrefSummary() {
     const paidPct = p.totalPrefAccrued > 0 ? Math.min(100, (p.prefPaidToDate / p.totalPrefAccrued) * 100) : 100;
     const color = p.prefRemainingBeforeDist <= 0 ? '#2D9A6B' : (paidPct > 50 ? '#E8890A' : '#EF4444');
     return `<tr>
-      <td style="font-size:.82rem;font-weight:600;color:#1B1A19;padding:8px 10px;">${name}</td>
+      <td style="font-size:.82rem;font-weight:600;color:var(--text);padding:8px 10px;">${name}</td>
       <td style="font-size:.8rem;color:#6B6560;padding:8px 10px;font-family:monospace;">${p.daysHeld}d / ${p.yearsHeld.toFixed(2)}yr</td>
-      <td style="font-size:.8rem;padding:8px 10px;font-family:monospace;color:#1B1A19;">${fmt$(p.totalPrefAccrued)}</td>
+      <td style="font-size:.8rem;padding:8px 10px;font-family:monospace;color:var(--text);">${fmt$(p.totalPrefAccrued)}</td>
       <td style="font-size:.8rem;padding:8px 10px;font-family:monospace;color:#2D9A6B;">${fmt$(p.prefPaidToDate)}</td>
       <td style="font-size:.8rem;padding:8px 10px;font-family:monospace;font-weight:700;color:${color};">${fmt$(p.prefRemainingBeforeDist)}</td>
     </tr>`;
@@ -451,12 +451,12 @@ function renderPrefSummary() {
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
       <div style="background:#F3F0ED;border-radius:7px;padding:12px 14px;">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6B6560;margin-bottom:4px;">Pref Rate</div>
-        <div style="font-size:20px;font-weight:800;font-family:monospace;color:#1B1A19;">${prefRate}%</div>
+        <div style="font-size:20px;font-weight:800;font-family:monospace;color:var(--text);">${prefRate}%</div>
         <div style="font-size:11px;color:#9C9590;">Annual, simple</div>
       </div>
       <div style="background:#F3F0ED;border-radius:7px;padding:12px 14px;">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6B6560;margin-bottom:4px;">Total Accrued</div>
-        <div style="font-size:20px;font-weight:800;font-family:monospace;color:#1B1A19;">${fmt$(totalPrefAccruedAll)}</div>
+        <div style="font-size:20px;font-weight:800;font-family:monospace;color:var(--text);">${fmt$(totalPrefAccruedAll)}</div>
         <div style="font-size:11px;color:#9C9590;">Since deal start</div>
       </div>
       <div style="background:#F3F0ED;border-radius:7px;padding:12px 14px;">
@@ -489,23 +489,23 @@ function renderHistory() {
   const body = document.getElementById('historyBody');
   const posted = SP.getDistributions().filter(d => d.dealId === currentDeal.id && d.status === 'posted');
   if (!posted.length) {
-    body.innerHTML = `<div style="color:#64748b;font-size:13px;text-align:center;padding:20px;">No posted distributions yet for this deal.</div>`;
+    body.innerHTML = `<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">No posted distributions yet for this deal.</div>`;
     return;
   }
   body.innerHTML = posted.slice().reverse().map(d => `
     <div class="dist-row">
       <div>
         <div style="font-weight:600;">${d.period || (d.quarter + ' ' + d.year) || '—'}</div>
-        <div style="font-size:11px;color:#64748b;">${d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString() : '—'} · ${(d.recipients || []).length} investors</div>
+        <div style="font-size:11px;color:var(--text-muted);">${d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString() : '—'} · ${(d.recipients || []).length} investors</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#34d399;">${fmt$(d.totalAmount || 0)}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${fmt$(d.totalAmount || 0)}</div>
         <button onclick="event.stopPropagation();openHistWireReport('${d.id}')" title="Wire Instructions Report" style="background:rgba(243,121,37,.12);color:#F37925;border:none;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:.72rem;font-weight:700;font-family:inherit;white-space:nowrap;"><i class="fas fa-file-invoice-dollar"></i> Wires</button>
       </div>
     </div>`).join('') + `
     <div style="padding:12px 0;border-top:2px solid var(--border);margin-top:8px;display:flex;justify-content:space-between;font-weight:700;">
       <span>Total Posted</span>
-      <span style="font-family:'JetBrains Mono',monospace;color:#34d399;">${fmt$(posted.reduce((s,d)=>s+(d.totalAmount||0),0))}</span>
+      <span style="font-family:'JetBrains Mono',monospace;color:var(--success);">${fmt$(posted.reduce((s,d)=>s+(d.totalAmount||0),0))}</span>
     </div>`;
 }
 
@@ -685,16 +685,16 @@ function previewDistribution() {
     return `<tr>
       <td>
         <div style="font-weight:600;">${name}</div>
-        ${email ? `<div style="font-size:11px;color:#64748b;">${email}</div>` : ''}
+        ${email ? `<div style="font-size:11px;color:var(--text-muted);">${email}</div>` : ''}
       </td>
       <td class="right mono">${fmtPct(inv.ownership)}</td>
-      <td class="right mono" style="color:#fbbf24;">${fmt$(prefPaid)}</td>
-      <td class="right mono" style="color:#94a3b8;">${fmt$(excess)}</td>
-      <td class="right mono" style="color:#34d399;font-size:15px;">${fmt$(payout)}</td>
+      <td class="right mono" style="color:#b45309;">${fmt$(prefPaid)}</td>
+      <td class="right mono" style="color:var(--text-muted);">${fmt$(excess)}</td>
+      <td class="right mono" style="color:var(--success);font-size:15px;">${fmt$(payout)}</td>
     </tr>`;
   }).join('') + `<tr style="background:rgba(255,255,255,0.02);">
     <td colspan="4" style="font-weight:700;font-size:13px;padding:13px 16px;">Total LP Distributions</td>
-    <td class="right mono" style="color:#34d399;font-weight:800;font-size:15px;">${fmt$(totalCheck)}</td>
+    <td class="right mono" style="color:var(--success);font-weight:800;font-size:15px;">${fmt$(totalCheck)}</td>
   </tr>`;
 
   // Show pref callout if pref is active
@@ -1001,7 +1001,7 @@ function buildWireReport(dist) {
   const html = `
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
       <div>
-        <h1 style="font-size:18px;font-weight:800;color:#1B1A19;">Wire Instructions Report</h1>
+        <h1 style="font-size:18px;font-weight:800;color:var(--text);">Wire Instructions Report</h1>
         <div class="meta">${esc(dealName)} &nbsp;·&nbsp; Distribution Date: ${dateStr} &nbsp;·&nbsp; Period: ${dist.period || '—'} &nbsp;·&nbsp; Generated: ${now}</div>
       </div>
       <div style="font-size:12px;color:#999;text-align:right;">CONFIDENTIAL<br>Do not distribute</div>
@@ -1010,15 +1010,15 @@ function buildWireReport(dist) {
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
       <div style="background:#F3F0ED;border-radius:6px;padding:12px 16px;">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B6560;margin-bottom:4px;">Total Distribution</div>
-        <div style="font-size:20px;font-weight:800;color:#1B1A19;font-family:monospace;">${fmt$(dist.totalAmount)}</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text);font-family:monospace;">${fmt$(dist.totalAmount)}</div>
       </div>
       <div style="background:#F3F0ED;border-radius:6px;padding:12px 16px;">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B6560;margin-bottom:4px;">LP Total</div>
-        <div style="font-size:20px;font-weight:800;color:#1B1A19;font-family:monospace;">${fmt$(dist.lpAmount || totalLP)}</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text);font-family:monospace;">${fmt$(dist.lpAmount || totalLP)}</div>
       </div>
       <div style="background:#F3F0ED;border-radius:6px;padding:12px 16px;">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B6560;margin-bottom:4px;">Investors</div>
-        <div style="font-size:20px;font-weight:800;color:#1B1A19;">${dist.investorCount || dist.recipients?.length || 0}</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text);">${dist.investorCount || dist.recipients?.length || 0}</div>
       </div>
     </div>
 
