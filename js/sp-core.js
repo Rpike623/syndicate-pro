@@ -1098,6 +1098,7 @@ window.SP = (function () {
           { href:'deal-scoring.html', icon:'fa-star', label:'Deal Scoring' },
           { href:'pipeline-forecast.html', icon:'fa-chart-line', label:'Forecast' },
           { href:'lease-tracking.html', icon:'fa-file-signature', label:'Leases' },
+          { href:'lease-expiry.html', icon:'fa-calendar-check', label:'Lease Expiry' },
           { href:'deal-milestones.html', icon:'fa-flag-checkered', label:'Milestones' },
           { href:'market-comps.html', icon:'fa-building', label:'Comps' },
         ], overflow:[
@@ -1155,6 +1156,8 @@ window.SP = (function () {
           { href:'carry-tracker.html', icon:'fa-hand-holding-dollar', label:'Carry Tracker' },
           { href:'compliance-hub.html', icon:'fa-shield-halved', label:'Compliance' },
           { href:'asset-management.html', icon:'fa-building', label:'Assets' },
+          { href:'property-performance.html', icon:'fa-chart-line', label:'Property Perf' },
+          { href:'gp-dashboard-v3.html', icon:'fa-tachometer-alt', label:'GP Dashboard' },
           { href:'risk-register.html', icon:'fa-exclamation-triangle', label:'Risk' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },

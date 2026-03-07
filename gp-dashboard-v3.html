@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GP Dashboard V3 | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-tachometer-alt"></i> GP Dashboard</h1>
+      <div class="header-actions"><span id="lastUpdate" class="text-muted">Updated just now</span></div>
+    </div>
+    <div class="content">
+      <div class="kpi-strip">
+        <div class="kpi"><span class="kpi-label">AUM</span><span class="kpi-value">$52.6M</span><span class="kpi-change positive">+12%</span></div>
+        <div class="kpi"><span class="kpi-label">IRR</span><span class="kpi-value">16.2%</span><span class="kpi-change positive">+2.1%</span></div>
+        <div class="kpi"><span class="kpi-label">Equity Deployed</span><span class="kpi-value">$15.2M</span><span class="kpi-change">78%</span></div>
+        <div class="kpi"><span class="kpi-label">Distributions YTD</span><span class="kpi-value">$1.2M</span><span class="kpi-change positive">+8%</span></div>
+        <div class="kpi"><span class="kpi-label">Active LPs</span><span class="kpi-value">41</span><span class="kpi-change">+3</span></div>
+        <div class="kpi"><span class="kpi-label">GP Carry</span><span class="kpi-value">$420K</span><span class="kpi-change positive">Earned</span></div>
+      </div>
+      <div class="dashboard-grid">
+        <div class="card"><div class="card-header"><h2>AUM Trend</h2></div><div class="card-body"><canvas id="aumTrend" height="100"></canvas></div></div>
+        <div class="card"><div class="card-header"><h2>Deal Performance</h2></div><div class="card-body"><canvas id="dealPerf" height="100"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Top Performer</h2></div>
+        <div class="card-body">
+          <div class="top-performer">
+            <div class="tp-info"><h3>Industrial Portfolio</h3><p>Dallas, TX • Industrial</p></div>
+            <div class="tp-metrics"><div><span>IRR</span><strong>16.8%</strong></div><div><span>MOIC</span><strong>1.35x</strong></div><div><span>Equity</span><strong>$7.2M</strong></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Pipeline</h2></div>
+        <div class="card-body">
+          <div class="pipeline-bar"><div class="pb-seg" style="width:25%;background:#6366f1">$15M</div><div class="pb-seg" style="width:35%;background:#22c55e">$22M</div><div class="pb-seg" style="width:40%;background:#f59e0b">$25M</div></div>
+          <div class="pipeline-labels"><span>Active</span><span>LOI</span><span>Marketing</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Dash.init();}</script>
+  <script src="js/sp-gp-dashboard.js"></script>
+</body>
+</html>
