@@ -166,27 +166,13 @@
 </head>
 <body>
 <div class="app"><aside class="sidebar" id="sidebar"></aside>
-
-  <!-- Sidebar -->
-    <div class="sidebar-header">
-    <nav class="nav"></nav>
-      <a href="javascript:void(0)" onclick="SP.goHome()" class="logo"><img src="assets/logo-icon.svg" width="36" height="36" alt="dl"><span>deel<span style="color:#0ea5e9;">track</span></span></a>
-    </div>
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar" id="sidebarAvatar">GP</div>
-        <div class="user-details">
-          <div class="user-name" id="sidebarName">Loading…</div>
-          <div class="user-role">General Partner</div>
-        </div>
-      </div>
-    </div>
-  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
 
   <!-- Main -->
-  <div class="main">
+  <main class="main">
     <div class="top-bar">
-      <div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')" style="display:none;" class="mobile-menu-btn"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
         <div class="page-title-bar">
           <h1><i class="fas fa-file-invoice-dollar" style="color:var(--accent);margin-right:8px;"></i>K-1 Generator</h1>
           <p>Generate Schedule K-1 (Form 1065) placeholders for your limited partners</p>
@@ -338,7 +324,7 @@
       </div>
 
     </div>
-  </div>
+  </main>
 </div>
 
 <!-- Print Modal -->
@@ -355,13 +341,17 @@
 
 <script>
 // ── Auth ──────────────────────────────────────────────────────────────────────
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) { window.location.href = 'login.html'; return; }
-  const n = user.displayName || user.email || 'GP';
-  document.getElementById('sidebarName').textContent = n;
-  document.getElementById('sidebarAvatar').textContent = n.charAt(0).toUpperCase();
+// SP.requireGP() handles auth guard; also use Firebase Auth state for init timing
+if (typeof firebase !== 'undefined' && firebase.auth) {
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user && !SP.isLoggedIn()) { window.location.href = 'login.html'; return; }
+    init();
+  });
+} else {
+  // Fallback: init directly if Firebase not available
+  SP.requireGP();
   init();
-});
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentDeal = null;

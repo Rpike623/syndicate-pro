@@ -472,7 +472,7 @@ function handleOverlayClick(e) { if (e.target===document.getElementById('modalOv
 
 function saveDeal() {
   const name = document.getElementById('fName').value.trim();
-  if (!name) { alert('Deal name is required.'); return; }
+  if (!name) { alert('Deal name is required.'); document.getElementById('fName').focus(); return; }
   const deal = {
     id: 'd'+Date.now(), name,
     type: document.getElementById('fType').value,
@@ -483,16 +483,40 @@ function saveDeal() {
     equity: parseFloat(document.getElementById('fEM').value)||0,
     units: parseInt(document.getElementById('fUnits').value)||0,
     added: new Date().toISOString().split('T')[0],
+    investors: [],
+    documents: [],
+    notes: '',
   };
   deals.unshift(deal);
-  save(); updateStats(); filterDeals(); closeModal();
+  save();
+  // Also write to Firestore if available
+  if (typeof SPData !== 'undefined' && SPData.isReady() && SPData.saveDeal) {
+    SPData.saveDeal(deal);
+  }
+  SP.logActivity('fa-plus-circle','blue',`New deal added: <strong>${name}</strong>`);
+  updateStats(); filterDeals(); closeModal();
+  // Show toast
+  showToast('Deal saved!');
+  // Navigate to the new deal detail page
+  setTimeout(() => { window.location.href = `deal-detail.html?id=${deal.id}`; }, 600);
+}
+
+function showToast(msg, type) {
+  const bg = type === 'error' ? '#ef4444' : '#10b981';
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:${bg};color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;`;
+  t.innerHTML = `<i class="fas fa-check-circle"></i>${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 2000);
 }
 
 function deleteDeal(id) {
-  SP.deleteDeal(id); // Remove from Firestore + cache
   const d = deals.find(x=>x.id===id);
   if (!d) return;
   if (!confirm(`Delete "${d.name}"? This cannot be undone.`)) return;
+  if (typeof SPData !== 'undefined' && SPData.isReady() && SPData.deleteDeal) {
+    SPData.deleteDeal(id);
+  }
   deals = deals.filter(x=>x.id!==id);
   save(); updateStats(); filterDeals();
 }

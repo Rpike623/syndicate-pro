@@ -636,9 +636,10 @@ function saveInvestor() {
   } else {
     data.id = 'i' + Date.now();
     investors.unshift(data);
-    logActivity('fa-user-plus','green',`<strong>${firstName} ${lastName}</strong> added as new investor`);
+    SP.logActivity('fa-user-plus','green',`<strong>${firstName} ${lastName}</strong> added as new investor`);
   }
   save(); updateStats(); filterTable(); closeModal();
+  showToast(editingId ? 'Investor updated!' : 'Investor added!');
   // Show invite modal only for new investors
   if (isNew) openInviteModal(firstName, lastName, email);
 }
@@ -1164,6 +1165,16 @@ document.getElementById('fAccredDate')?.addEventListener('change', function() {
 
 load(); updateStats(); filterTable();
 window.addEventListener('spdata-ready', function() { load(); updateStats(); filterTable(); });
+
+function showToast(msg, type) {
+  const bg = type === 'error' ? '#ef4444' : '#10b981';
+  const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:${bg};color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;transition:opacity .3s;`;
+  t.innerHTML = `<i class="fas ${icon}"></i>${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 2500);
+}
 </script>
 </body>
 </html>

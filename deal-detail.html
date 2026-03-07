@@ -165,6 +165,8 @@
 <body>
 <div class="app"><aside class="sidebar" id="sidebar"></aside>
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <!-- Hidden element referenced by JS for GP name -->
+  <span id="gpName" style="display:none;"></span>
 
   <main class="main">
     <header class="top-bar">
@@ -172,12 +174,12 @@
         <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
         <nav class="breadcrumb">
           <a href="javascript:void(0)" onclick="SP.goHome()">Home</a><span class="breadcrumb-sep">/</span>
-          <a href="pipeline.html">Pipeline</a><span class="breadcrumb-sep">/</span>
+          <a href="deals.html">Deals</a><span class="breadcrumb-sep">/</span>
           <span class="breadcrumb-current" id="breadcrumbDealName">Deal Detail</span>
         </nav>
       </div>
       <div class="top-actions" id="topActions">
-        <a href="pipeline.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+        <a href="deals.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
       </div>
     </header>
 
@@ -853,11 +855,13 @@ function switchTab(name, btn) {
 }
 
 function saveEdit() {
+  const nameVal = document.getElementById('eName').value.trim();
+  if (!nameVal) { alert('Deal name is required.'); document.getElementById('eName').focus(); return; }
   const deals = SP.getDeals();
   const idx = deals.findIndex(d=>d.id===dealId);
   if(idx<0) return;
   deals[idx] = {...deals[idx],
-    name: document.getElementById('eName').value.trim(),
+    name: nameVal,
     type: document.getElementById('eType').value,
     status: document.getElementById('eStatus').value,
     location: document.getElementById('eLocation').value.trim(),
@@ -866,10 +870,21 @@ function saveEdit() {
     equity: parseFloat(document.getElementById('eEM').value)||0,
     units: parseInt(document.getElementById('eUnits').value)||0,
     notes: document.getElementById('eNotes').value.trim(),
+    updatedAt: new Date().toISOString(),
   };
+  // Always save locally first, then sync to Firestore if available
   SP.saveDeals(deals);
+  if (typeof SPData !== 'undefined' && SPData.isReady()) {
+    SPData.saveDeal(deals[idx]);
+  }
   SP.logActivity('fa-edit','amber',`<strong>${deals[idx].name}</strong> deal details updated`);
+  showToast('Deal saved!', 'success');
   render();
+  // Re-activate edit tab after re-render
+  setTimeout(() => {
+    const editTab = Array.from(document.querySelectorAll('.tab')).find(t => t.textContent.includes('Edit'));
+    if (editTab) { editTab.click(); }
+  }, 50);
 }
 
 function importInvestorToCRM(invId) {
@@ -990,15 +1005,37 @@ function shareTeaserLink(dId) {
   }).catch(() => { prompt('Copy this teaser link:', url); });
 }
 
+// ── Shared toast helper ─────────────────────────────────────────────────────
+function showToast(msg, type) {
+  const bg = type === 'error' ? '#ef4444' : '#10b981';
+  const icon = type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle';
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:${bg};color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;transition:opacity .3s;`;
+  t.innerHTML = `<i class="fas ${icon}"></i>${msg}`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 2500);
+}
+
 if(!dealId) {
-  window.location.href='pipeline.html';
+  window.location.href='deals.html';
 } else {
   // Wait for Firestore data before first render
   function _initialRender() {
-    if (SP.getDealById(dealId)) render();
+    if (SP.getDealById(dealId)) { render(); }
+    else {
+      // Show a loading placeholder while data loads
+      document.getElementById('mainContent').innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+        <i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+        <p>Loading deal data…</p>
+      </div>`;
+    }
   }
   window.addEventListener('spdata-ready', _initialRender);
   if (typeof SPData !== 'undefined' && SPData.isReady()) _initialRender();
+  // Fallback: if spdata-ready never fires, try after 2s
+  setTimeout(() => {
+    if (!deal) _initialRender();
+  }, 2000);
 }
 </script>
 </body>

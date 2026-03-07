@@ -773,9 +773,9 @@
     }
 
     function deleteDeal(id) {
-      SP.deleteDeal(id); // Remove from Firestore + cache
       const deal = deals.find(d=>d.id===id);
-      if (!deal || !confirm(`Delete "${deal.name}"?`)) return;
+      if (!deal || !confirm(`Delete "${deal.name}"? This cannot be undone.`)) return;
+      if (typeof SPData !== 'undefined' && SPData.isReady() && SPData.deleteDeal) SPData.deleteDeal(id);
       deals = deals.filter(d => d.id !== id);
       SP.saveDeals(deals);
       renderPipeline();

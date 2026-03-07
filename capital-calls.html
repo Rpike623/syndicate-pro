@@ -9,6 +9,16 @@
   <title>deeltrack | Capital Calls </title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-billing.js"></script>
+  <script src="js/sp-email.js"></script>
   <style>
     :root {
       --primary: #0f172a;
@@ -107,10 +117,7 @@
 </head>
 <body>
   <div class="app"><aside class="sidebar" id="sidebar"></aside>
-      <div class="sidebar-header"><div class="logo"><img src="assets/logo-icon.svg" width="36" height="36" alt="dl"><span>deel<span style="color:#0ea5e9;">track</span></span></div></div>
-    <nav class="nav"></nav>
-      <div class="sidebar-footer"><div class="user-info"><div class="user-avatar">GP</div><div class="user-details"><div class="user-name">General Partner</div><div class="user-role">Administrator</div></div></div></div>
-    </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
     
     <main class="main">
       <header class="top-bar">
@@ -185,17 +192,6 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js"></script>
-  <script src="js/sp-data.js"></script>
-  <script src="js/sp-firebase.js"></script>
-  <script src="js/sp-billing.js"></script>
-  <script src="js/sp-email.js"></script>
   <script>
     SP.requireGP();
 
@@ -205,46 +201,96 @@
       const select = document.getElementById('callDeal');
       select.innerHTML = '<option value="">Select a deal...</option>' + deals.map(d => {
         const committed = (d.investors||[]).reduce((s,i)=>s+(i.committed||0),0);
-        return `<option value="${d.id}" data-name="${d.name}" data-equity="${committed}" data-raise="${d.raise||0}">${d.name || 'Unnamed Deal'} — ${formatCurrency(d.raise||0)} raise</option>`;
+        const invCount = (d.investors||[]).length;
+        return `<option value="${d.id}" data-name="${d.name}" data-equity="${committed}" data-raise="${d.raise||0}">${d.name || 'Unnamed Deal'} — ${formatCurrency(d.raise||0)} raise (${invCount} investor${invCount!==1?'s':''})</option>`;
       }).join('');
     }
     
     function updatePreview() {
       const dealSelect = document.getElementById('callDeal');
+      const dealId = dealSelect.value;
       const dealOption = dealSelect.options[dealSelect.selectedIndex];
-      const dealName = dealOption.dataset.name || '[DEAL NAME]';
-      const totalEquity = parseFloat(dealOption.dataset.equity) || 0;
-      const callAmount = parseFloat(document.getElementById('callAmount').value) || 0;
-      const callNumber = document.getElementById('callNumber').value;
-      const dueDate = document.getElementById('dueDate').value || '[DUE DATE]';
-      const purpose = document.getElementById('callPurpose').value || '[PURPOSE OF CALL]';
-      const wire = document.getElementById('wireInstructions').value || '[WIRE INSTRUCTIONS]';
-      
-      const pctOfEquity = totalEquity > 0 ? ((callAmount / totalEquity) * 100).toFixed(2) : 0;
-      
+      const dealName = dealOption?.dataset?.name || '[DEAL NAME]';
+      const totalEquity = parseFloat(dealOption?.dataset?.equity) || 0;
+      const totalRaise  = parseFloat(dealOption?.dataset?.raise)  || 0;
+      const callAmount  = parseFloat(document.getElementById('callAmount').value) || 0;
+      const callNumber  = document.getElementById('callNumber').value;
+      const dueDate     = document.getElementById('dueDate').value || '[DUE DATE]';
+      const purpose     = document.getElementById('callPurpose').value || '[PURPOSE OF CALL]';
+      const wire        = document.getElementById('wireInstructions').value || '[WIRE INSTRUCTIONS]';
+      const settings    = SP.load('settings', {});
+      const gpName      = settings.firmName || settings.gpFullName || 'Managing Member';
+
+      // Build per-investor breakdown
+      const deal = dealId ? SP.getDealById(dealId) : null;
+      const linked = deal?.investors || [];
+      const allInvestors = SP.getInvestors();
+      let invRows = '';
+      let allocatedTotal = 0;
+
+      if (linked.length && callAmount > 0) {
+        invRows = linked.map(entry => {
+          const inv = allInvestors.find(i => i.id === entry.investorId) || {};
+          const pct = entry.ownership || 0;
+          // Each investor's share = their ownership % of total LP equity, applied to the call
+          const lpPct = pct / 100;
+          const amount = Math.round(callAmount * lpPct);
+          allocatedTotal += amount;
+          return `<tr style="border-bottom:1px solid #eee;">
+            <td style="padding:6px 8px;">${inv.firstName || 'Unknown'} ${inv.lastName || ''}</td>
+            <td style="padding:6px 8px;text-align:right;">${pct.toFixed(2)}%</td>
+            <td style="padding:6px 8px;text-align:right;font-weight:700;">${formatCurrency(amount)}</td>
+          </tr>`;
+        }).join('');
+      }
+
+      const pctOfEquity = totalRaise > 0 ? ((callAmount / totalRaise) * 100).toFixed(2) : 0;
       const preview = document.getElementById('previewContainer');
+
       preview.innerHTML = `
         <div class="notice-preview" id="noticeContent">
           <h2>NOTICE OF CAPITAL CALL</h2>
           <div class="section"><span class="label">To:</span> Members of ${dealName}</div>
           <div class="section"><span class="label">Date:</span> ${new Date().toLocaleDateString()}</div>
-          <div class="section"><span class="label">Re:</span> ${callNumber} Capital Call</div>
+          <div class="section"><span class="label">Re:</span> ${callNumber} Capital Call — ${formatCurrency(callAmount)}</div>
           <div class="section" style="margin-top: 24px;">
             <p>Dear Member,</p>
-            <p>This notice constitutes a capital call for ${formatCurrency(callAmount)} (${pctOfEquity}% of total equity commitment) per the terms of the Operating Agreement.</p>
+            <p>This notice constitutes a capital call for <strong>${formatCurrency(callAmount)}</strong> (${pctOfEquity}% of total equity commitment) pursuant to the terms of the Operating Agreement.</p>
             <p><span class="label">Purpose:</span> ${purpose}</p>
-            <p><span class="label">Payment Due Date:</span> ${dueDate}</p>
-            <p><span class="label">Wire Instructions:</span><br>${wire.replace(/\n/g, '<br>')}</p>
+            <p><span class="label">Payment Due Date:</span> <strong>${dueDate}</strong></p>
+            ${wire !== '[WIRE INSTRUCTIONS]' ? `<p><span class="label">Wire Instructions:</span><br>${wire.replace(/\n/g, '<br>')}</p>` : ''}
           </div>
+          ${invRows ? `
+          <div class="section" style="margin-top:20px;">
+            <span class="label">Per-Investor Call Amounts</span>
+            <table style="width:100%;margin-top:10px;border-collapse:collapse;font-size:0.85rem;">
+              <thead><tr style="background:#f1f5f9;">
+                <th style="padding:6px 8px;text-align:left;">Investor</th>
+                <th style="padding:6px 8px;text-align:right;">Ownership %</th>
+                <th style="padding:6px 8px;text-align:right;">Amount Due</th>
+              </tr></thead>
+              <tbody>${invRows}</tbody>
+              <tfoot><tr style="border-top:2px solid #333;background:#f8fafc;">
+                <td style="padding:6px 8px;font-weight:700;" colspan="2">Total</td>
+                <td style="padding:6px 8px;text-align:right;font-weight:700;">${formatCurrency(allocatedTotal)}</td>
+              </tr></tfoot>
+            </table>
+          </div>` : ''}
           <div class="section" style="margin-top: 32px;">
             <p>Please remit funds by the due date. Failure to contribute may result in dilution or other remedies per the Operating Agreement.</p>
-            <p style="margin-top: 24px;">Sincerely,<br>Managing Member</p>
+            <p style="margin-top: 24px;">Sincerely,<br><strong>${gpName}</strong><br>Managing Member</p>
           </div>
         </div>
       `;
     }
     
-    function generateNotice() { updatePreview(); }
+    function generateNotice() {
+      const dealId = document.getElementById('callDeal').value;
+      const amount = parseFloat(document.getElementById('callAmount').value) || 0;
+      if (!dealId) { alert('Please select a deal first.'); return; }
+      if (!amount) { alert('Please enter a call amount.'); return; }
+      updatePreview();
+    }
     
     function exportPDF() {
       const { jsPDF } = window.jspdf;

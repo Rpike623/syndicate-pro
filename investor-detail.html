@@ -7,39 +7,422 @@
   <title>deeltrack | Investor Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
   <style>
-    :root{--primary: #0f172a;--accent: #0ea5e9;--accent-hover:#0284c7;--accent-light: rgba(14,165,233,0.15);
-      --success: #10b981;--success-light: rgba(16,185,129,0.15);--warning: #f59e0b;--warning-light: rgba(245,158,11,0.15);
-      --danger: #ef4444;--danger-light: rgba(239,68,68,0.15);--purple: #8b5cf6;--purple-light: rgba(139,92,246,0.15);
-      --text: #F8FAFC;--text-secondary: #94A3B8;--text-muted: #64748B;
-      --border: #1E293B;--border-light: rgba(255,255,255,0.05);--bg: #0B1120;--bg-card: #111827;--bg-sidebar: #050811;
-      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--radius-sm:6px;--radius:8px;--radius-md:12px;}
+    :root{
+      --primary:#0f172a;--accent:#0ea5e9;--accent-hover:#0284c7;--accent-light:rgba(14,165,233,0.15);
+      --success:#10b981;--success-light:rgba(16,185,129,0.15);--warning:#f59e0b;--warning-light:rgba(245,158,11,0.15);
+      --danger:#ef4444;--danger-light:rgba(239,68,68,0.15);--purple:#8b5cf6;--purple-light:rgba(139,92,246,0.15);
+      --text:#F8FAFC;--text-secondary:#94A3B8;--text-muted:#64748B;
+      --border:#1E293B;--border-light:rgba(255,255,255,0.05);--bg:#0B1120;--bg-card:#111827;
+      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);
+      --radius-sm:6px;--radius:8px;--radius-md:12px;
+    }
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:#0B1120;color:#F8FAFC;line-height:1.5;}
+    body{font-family:'Inter',sans-serif;background:#0B1120;color:#F8FAFC;line-height:1.5;-webkit-font-smoothing:antialiased;}
     .app{display:flex;min-height:100vh;}
-    /* sidebar CSS moved to dt-global.css */
     .main{flex:1;margin-left:260px;min-height:100vh;}
-    .top-bar{background:#111827;border-bottom:1px solid #1E293B;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;}
-    .content{padding:32px;max-width:1100px;}
-    .profile-hero{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--radius-md);padding:32px;color:white;margin-bottom:24px;display:flex;align-items:center;gap:24px;}
-    .profile-av{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;box-shadow:0 10px 20px rgba(0,0,0,.2);}
-    .profile-title h1{font-size:1.75rem;margin-bottom:4px;}
-    .profile-sub{font-size:.95rem;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:12px;}
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;}.sidebar,#sidebar{transform:translateX(-100%)!important;position:fixed!important;z-index:100!important;}.sidebar.open,#sidebar.open{transform:translateX(0)!important;}.mobile-menu-btn{display:flex!important;}}
+    .top-bar{background:#111827;border-bottom:1px solid #1E293B;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+    .breadcrumb{display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--text-secondary);}
+    .breadcrumb a{color:var(--text-secondary);text-decoration:none;}.breadcrumb a:hover{color:var(--accent);}
+    .breadcrumb-sep{color:var(--text-muted);}
+    .breadcrumb-current{color:#F8FAFC;font-weight:600;}
+    .mobile-menu-btn{display:none;background:none;border:1px solid #1E293B;border-radius:var(--radius);padding:8px 10px;cursor:pointer;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-size:.875rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;font-family:'Inter',sans-serif;}
+    .btn-primary{background:var(--accent);color:white;}.btn-primary:hover{background:var(--accent-hover);}
+    .btn-secondary{background:#111827;color:#F8FAFC;border:1px solid #1E293B;}.btn-secondary:hover{background:var(--border-light);}
+    .content{padding:32px;}
+    /* Hero */
+    .profile-hero{background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:var(--radius-md);padding:32px;color:white;margin-bottom:24px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;position:relative;overflow:hidden;}
+    .profile-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(59,130,246,.15),transparent 70%);border-radius:50%;}
+    .profile-av{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;flex-shrink:0;box-shadow:0 10px 20px rgba(0,0,0,.3);}
+    .profile-info{flex:1;}
+    .profile-info h1{font-size:1.75rem;font-weight:700;margin-bottom:6px;}
+    .profile-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;color:rgba(255,255,255,.65);font-size:.875rem;}
+    .profile-meta span{display:flex;align-items:center;gap:6px;}
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;}
+    .badge-verified{background:var(--success-light);color:var(--success);}
+    .badge-pending{background:var(--warning-light);color:var(--warning);}
+    .badge-expired{background:var(--danger-light);color:var(--danger);}
+    .badge-active{background:var(--success-light);color:var(--success);}
+    .badge-inactive{background:var(--border-light);color:var(--text-secondary);}
+    .badge-funded{background:var(--accent-light);color:var(--accent);}
+    .badge-committed{background:var(--warning-light);color:var(--warning);}
+    /* Stat row */
     .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
-    .stat-card{background: #111827;border:1px solid #1E293B;border-radius:var(--radius);padding:20px;}
-    .stat-lbl{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
-    .stat-val{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
-    .card{background: #111827;border:1px solid #1E293B;border-radius:var(--radius-md);margin-bottom:24px;overflow:hidden;}
-    .card-header{padding:16px 20px;border-bottom:1px solid var(--border-light);font-weight:700;}
-    .table{width:100%;border-collapse:collapse;}
-    .table th{text-align:left;font-size:.72rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);padding:10px 16px;border-bottom:1px solid var(--border-light);}
-    .table td{padding:12px 16px;border-bottom:1px solid var(--border-light);font-size:.875rem;}
-    .badge{padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;}
-    .btn{padding:10px 20px;border-radius:var(--radius);font-weight:600;cursor:pointer;border:none;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
-    .btn-secondary{background: #111827;border:1px solid #1E293B;color:#F8FAFC;}
+    @media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.stat-row{grid-template-columns:1fr 1fr;}}
+    .stat-card{background:#111827;border:1px solid #1E293B;border-radius:var(--radius-md);padding:20px;display:flex;align-items:center;gap:14px;}
+    .stat-icon{width:44px;height:44px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+    .stat-icon.blue{background:var(--accent-light);color:var(--accent);}
+    .stat-icon.green{background:var(--success-light);color:var(--success);}
+    .stat-icon.amber{background:var(--warning-light);color:var(--warning);}
+    .stat-icon.purple{background:var(--purple-light);color:var(--purple);}
+    .stat-body .val{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
+    .stat-body .lbl{font-size:.78rem;color:var(--text-secondary);margin-top:2px;}
+    /* Tabs */
+    .tabs{display:flex;gap:0;border-bottom:2px solid #1E293B;margin-bottom:24px;}
+    .tab{padding:12px 20px;font-size:.875rem;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;}
+    .tab:hover{color:#F8FAFC;}
+    .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .tab-panel{display:none;}.tab-panel.active{display:block;}
+    /* Cards */
+    .card{background:#111827;border:1px solid #1E293B;border-radius:var(--radius-md);margin-bottom:20px;}
+    .card-header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center;}
+    .card-title{font-size:1rem;font-weight:700;}
+    .card-body{padding:20px 24px 24px;}
+    /* Tables */
+    .table-scroll{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;}
+    thead{background:var(--border-light);}
+    th{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);padding:10px 16px;text-align:left;white-space:nowrap;}
+    td{padding:12px 16px;border-bottom:1px solid var(--border-light);font-size:.875rem;vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tr:hover td{background:rgba(59,130,246,.02);}
+    .money{font-family:'JetBrains Mono',monospace;font-weight:600;}
+    /* Info grid */
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+    @media(max-width:640px){.info-grid{grid-template-columns:1fr;}}
+    .info-row{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border-light);}
+    .info-row:last-child{border-bottom:none;}
+    .info-label{font-size:.8rem;color:var(--text-secondary);font-weight:500;}
+    .info-value{font-size:.875rem;font-weight:600;text-align:right;max-width:60%;}
+    /* Empty state */
+    .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);}
+    .empty-state i{font-size:2rem;opacity:.3;display:block;margin-bottom:12px;}
+    /* Deal row */
+    .deal-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border-light);}
+    .deal-row:last-child{border-bottom:none;}
+    /* Toast */
+    #toast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:var(--success);color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:none;align-items:center;gap:8px;font-family:'Inter',sans-serif;}
+    #toast.show{display:flex;}
+    /* Distribution history */
+    .dist-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border-light);}
+    .dist-item:last-child{border-bottom:none;}
   </style>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
-<div class="app"><aside class="sidebar" id="sidebar"></aside>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
+
+  <main class="main">
+    <header class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
+        <nav class="breadcrumb">
+          <a href="dashboard.html">Home</a>
+          <span class="breadcrumb-sep">/</span>
+          <a href="investors.html">Investors</a>
+          <span class="breadcrumb-sep">/</span>
+          <span class="breadcrumb-current" id="breadcrumbName">Investor Profile</span>
+        </nav>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <a href="investors.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+        <button class="btn btn-primary" onclick="editInvestor()"><i class="fas fa-edit"></i> Edit</button>
+      </div>
+    </header>
+
+    <div class="content" id="mainContent">
+      <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+        <i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:12px;display:block;"></i>
+        <p>Loading investor profile…</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
+
+<script>
+SP.requireGP();
+
+const urlParams = new URLSearchParams(window.location.search);
+const invId = urlParams.get('id');
+
+if (!invId) { window.location.href = 'investors.html'; }
+
+function fmt$(n) {
+  if (!n && n !== 0) return '—';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + Number(n).toLocaleString();
+}
+function fmtFull$(n) { return '$' + Number(n || 0).toLocaleString(); }
+
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  const span = document.getElementById('toastMsg');
+  span.textContent = msg;
+  el.style.background = type === 'error' ? 'var(--danger)' : 'var(--success)';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.getElementById('tab-' + name)?.classList.add('active');
+}
+
+function editInvestor() {
+  window.location.href = 'investors.html?edit=' + invId;
+}
+
+function render() {
+  const inv = SP.getInvestorById(invId);
+  if (!inv) {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-user-slash"></i>
+        <h3>Investor not found</h3>
+        <p>This investor may have been deleted. <a href="investors.html" style="color:var(--accent);">Return to investor list</a></p>
+      </div>`;
+    return;
+  }
+
+  // Update breadcrumb
+  document.getElementById('breadcrumbName').textContent = inv.firstName + ' ' + inv.lastName;
+  document.title = `deeltrack | ${inv.firstName} ${inv.lastName}`;
+
+  // Linked deals
+  const allDeals = SP.getDeals();
+  const linkedDeals = allDeals.filter(d =>
+    Array.isArray(d.investors) && d.investors.some(i => i.investorId === inv.id)
+  );
+
+  // Total committed across all deals
+  let totalCommitted = 0;
+  linkedDeals.forEach(d => {
+    const entry = d.investors.find(i => i.investorId === inv.id);
+    if (entry) totalCommitted += entry.committed || 0;
+  });
+
+  // Distributions received
+  const allDists = SP.getDistributions();
+  const invDists = allDists.filter(d =>
+    Array.isArray(d.recipients) && d.recipients.some(r => r.investorId === inv.id)
+  );
+  const totalReceived = invDists.reduce((s, d) => {
+    const r = d.recipients.find(r => r.investorId === inv.id);
+    return s + (r ? (r.amount || r.totalThisDist || 0) : 0);
+  }, 0);
+
+  const accredBadge = {
+    verified: '<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>',
+    pending: '<span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>',
+    expired: '<span class="badge badge-expired"><i class="fas fa-times-circle"></i> Expired</span>',
+  };
+
+  const initials = ((inv.firstName || '?')[0] + (inv.lastName || '?')[0]).toUpperCase();
+  const accrualColor = ['#0ea5e9','#10b981','#8b5cf6','#f59e0b','#ef4444'][Math.abs(inv.id.charCodeAt(0)) % 5];
+
+  document.getElementById('mainContent').innerHTML = `
+    <!-- Hero -->
+    <div class="profile-hero">
+      <div class="profile-av" style="background:linear-gradient(135deg,${accrualColor},#60a5fa);">${initials}</div>
+      <div class="profile-info">
+        <h1>${inv.firstName} ${inv.lastName}</h1>
+        <div class="profile-meta">
+          ${inv.email ? `<span><i class="fas fa-envelope"></i> ${inv.email}</span>` : ''}
+          ${inv.phone ? `<span><i class="fas fa-phone"></i> ${inv.phone}</span>` : ''}
+          ${inv.address ? `<span><i class="fas fa-map-marker-alt"></i> ${inv.address}</span>` : ''}
+          ${accredBadge[inv.accredStatus || 'pending'] || ''}
+          <span class="badge badge-${inv.status || 'active'}">${inv.status || 'active'}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-dollar-sign"></i></div>
+        <div class="stat-body">
+          <div class="val">${fmt$(totalCommitted)}</div>
+          <div class="lbl">Total Committed</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-building"></i></div>
+        <div class="stat-body">
+          <div class="val">${linkedDeals.length}</div>
+          <div class="lbl">Active Deals</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="fas fa-wallet"></i></div>
+        <div class="stat-body">
+          <div class="val">${fmt$(totalReceived)}</div>
+          <div class="lbl">Distributions Received</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon amber"><i class="fas fa-shield-alt"></i></div>
+        <div class="stat-body">
+          <div class="val">${inv.accredStatus === 'verified' ? (inv.accredExpiry ? new Date(inv.accredExpiry).getFullYear() : '✓') : (inv.accredStatus || '—')}</div>
+          <div class="lbl">Accreditation</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('deals', this)"><i class="fas fa-building"></i> Deals (${linkedDeals.length})</button>
+      <button class="tab" onclick="switchTab('distributions', this)"><i class="fas fa-wallet"></i> Distributions (${invDists.length})</button>
+      <button class="tab" onclick="switchTab('profile', this)"><i class="fas fa-user"></i> Profile</button>
+    </div>
+
+    <!-- Deals Tab -->
+    <div class="tab-panel active" id="tab-deals">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Linked Deals</div>
+          <a href="investors.html" class="btn btn-primary" style="padding:7px 14px;font-size:.82rem;"><i class="fas fa-link"></i> Link to Deal</a>
+        </div>
+        <div class="card-body">
+          ${linkedDeals.length ? `
+            ${linkedDeals.map(d => {
+              const entry = d.investors.find(i => i.investorId === inv.id) || {};
+              const STATUS_BADGE = {committed:'badge-committed',funded:'badge-funded',active:'badge-active'};
+              const STATUS_LABEL = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',operating:'Operating',closed:'Closed'};
+              return `
+              <div class="deal-row">
+                <div style="flex:1;">
+                  <div style="font-weight:600;"><a href="deal-detail.html?id=${d.id}" style="color:#F8FAFC;text-decoration:none;">${d.name}</a></div>
+                  <div style="font-size:.78rem;color:var(--text-muted);margin-top:3px;">
+                    ${d.location || '—'} · ${STATUS_LABEL[d.status] || d.status || '—'}
+                    ${entry.linkedAt ? ' · Linked ' + new Date(entry.linkedAt).toLocaleDateString() : ''}
+                  </div>
+                </div>
+                <div style="text-align:right;flex-shrink:0;">
+                  <div class="money">${fmtFull$(entry.committed || 0)}</div>
+                  <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">
+                    ${entry.ownership ? entry.ownership.toFixed(2) + '% ownership' : '—'}
+                  </div>
+                  <span class="badge ${STATUS_BADGE[entry.status] || 'badge-committed'}" style="margin-top:4px;">${entry.status || 'committed'}</span>
+                </div>
+              </div>`;
+            }).join('')}
+          ` : `<div class="empty-state"><i class="fas fa-building"></i><p>No deals linked yet. <a href="investors.html" style="color:var(--accent);">Link this investor to a deal</a></p></div>`}
+        </div>
+      </div>
+    </div>
+
+    <!-- Distributions Tab -->
+    <div class="tab-panel" id="tab-distributions">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Distribution History</div></div>
+        <div class="card-body">
+          ${invDists.length ? `
+            ${invDists.slice().reverse().map(d => {
+              const r = d.recipients.find(r => r.investorId === inv.id) || {};
+              const amount = r.amount || r.totalThisDist || 0;
+              return `
+              <div class="dist-item">
+                <div>
+                  <div style="font-weight:600;">${d.dealName || 'Unknown Deal'}</div>
+                  <div style="font-size:.78rem;color:var(--text-muted);">${d.period || (d.quarter + ' ' + d.year) || '—'} · ${d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString() : '—'}</div>
+                  ${r.prefPaidThisDist > 0 ? `<div style="font-size:.72rem;color:var(--warning);margin-top:2px;"><i class="fas fa-star"></i> Pref: ${fmtFull$(r.prefPaidThisDist)} + Excess: ${fmtFull$(r.excessThisDist || 0)}</div>` : ''}
+                </div>
+                <div style="text-align:right;">
+                  <div class="money" style="color:var(--success);">${fmtFull$(amount)}</div>
+                  <div style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">${d.method || 'Wire'}</div>
+                </div>
+              </div>`;
+            }).join('')}
+            <div style="padding:12px 0;border-top:2px solid #1E293B;margin-top:8px;display:flex;justify-content:space-between;font-weight:700;">
+              <span>Total Received</span>
+              <span class="money" style="color:var(--success);">${fmtFull$(totalReceived)}</span>
+            </div>
+          ` : `<div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded for this investor yet.</p></div>`}
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div class="tab-panel" id="tab-profile">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Investor Information</div>
+          <button class="btn btn-secondary" style="padding:7px 14px;font-size:.82rem;" onclick="editInvestor()"><i class="fas fa-edit"></i> Edit</button>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 40px;">
+            <div>
+              ${infoRow('Full Name', inv.firstName + ' ' + inv.lastName)}
+              ${infoRow('Email', inv.email ? `<a href="mailto:${inv.email}" style="color:var(--accent);">${inv.email}</a>` : '—')}
+              ${infoRow('Phone', inv.phone || '—')}
+              ${infoRow('Address', inv.address || '—')}
+              ${infoRow('Status', `<span class="badge badge-${inv.status || 'active'}">${inv.status || 'active'}</span>`)}
+            </div>
+            <div>
+              ${infoRow('Accreditation', accredBadge[inv.accredStatus || 'pending'] || '—')}
+              ${infoRow('Method', inv.accredMethod || '—')}
+              ${infoRow('Verified Date', inv.accredDate ? new Date(inv.accredDate).toLocaleDateString() : '—')}
+              ${infoRow('Expiry Date', inv.accredExpiry ? new Date(inv.accredExpiry).toLocaleDateString() : '—')}
+              ${infoRow('Min Investment', inv.minInvest ? fmtFull$(inv.minInvest) : '—')}
+              ${infoRow('Max Investment', inv.maxInvest ? fmtFull$(inv.maxInvest) : '—')}
+            </div>
+          </div>
+          ${inv.notes ? `
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light);">
+              <div style="font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">NOTES</div>
+              <div style="font-size:.875rem;line-height:1.6;color:#F8FAFC;">${inv.notes}</div>
+            </div>` : ''}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Quick Actions</div></div>
+        <div class="card-body" style="display:flex;flex-wrap:wrap;gap:10px;">
+          <a href="mailto:${inv.email || ''}" class="btn btn-secondary"><i class="fas fa-envelope"></i> Send Email</a>
+          <a href="k1-generator.html" class="btn btn-secondary"><i class="fas fa-file-invoice-dollar"></i> Generate K-1</a>
+          <a href="capital-account-statement.html?investor=${invId}" class="btn btn-secondary"><i class="fas fa-list-ol"></i> Capital Account</a>
+          <button class="btn btn-secondary" onclick="copyInvLink()"><i class="fas fa-link"></i> Copy Portal Link</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function infoRow(label, value) {
+  return `<div class="info-row">
+    <span class="info-label">${label}</span>
+    <span class="info-value">${value}</span>
+  </div>`;
+}
+
+function copyInvLink() {
+  const inv = SP.getInvestorById(invId);
+  if (!inv?.email) { showToast('No email on file for this investor', 'error'); return; }
+  const token = SP.createInviteToken(inv.email, SP.getOrgId());
+  const url = window.location.origin + window.location.pathname.replace('investor-detail.html', '') + 'investor-portal.html?invite=' + token;
+  navigator.clipboard.writeText(url).then(() => showToast('Portal link copied!')).catch(() => prompt('Copy this link:', url));
+}
+
+// Initialize
+function init() {
+  if (typeof SPData !== 'undefined' && SPData.onReady) {
+    SPData.onReady(render);
+  } else {
+    render();
+  }
+  // Also re-render when Firestore data loads
+  window.addEventListener('spdata-ready', render);
+  setTimeout(() => { if (!SP.getInvestorById(invId)) render(); }, 1500);
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

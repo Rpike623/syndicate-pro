@@ -9,6 +9,17 @@
   <title>deeltrack | Distributions </title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-math.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <script src="js/sp-billing.js"></script>
+  <script src="js/sp-email.js"></script>
   <style>
     :root {
       --primary: #0f172a;
@@ -167,14 +178,7 @@
 </head>
 <body>
   <div class="app"><aside class="sidebar" id="sidebar"></aside>
-      <div class="sidebar-header">
-    <nav class="nav"></nav>
-        <div class="logo"><img src="assets/logo-icon.svg" width="36" height="36" alt="dl"><span>deel<span style="color:#0ea5e9;">track</span></span></div>
-      </div>
-      <div class="sidebar-footer">
-        <div class="user-info"><div class="user-avatar">GP</div><div class="user-details"><div class="user-name">General Partner</div><div class="user-role">Administrator</div></div></div>
-      </div>
-    </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
     
     <main class="main">
       <header class="top-bar">
@@ -284,18 +288,6 @@
     </div>
   </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <script src="js/sp-math.js"></script>
-  <script src="js/sp-core.js"></script>
-  <script src="js/sp-data.js"></script>
-  <script src="js/sp-firebase.js"></script>
-  <script src="js/sp-billing.js"></script>
-  <script src="js/sp-email.js"></script>
   <script>
     SP.requireGP();
 
@@ -418,6 +410,36 @@
       const all = posted.reduce((s,d)=>s+(d.totalAmount||d.amount||0),0);
       const avg = posted.length ? all/posted.length : 0;
       document.getElementById('avgDistribution').textContent = fmt$(avg);
+      renderDealStats();
+    }
+
+    function renderDealStats() {
+      const el = document.getElementById('dealStats');
+      if (!el) return;
+      const posted = distributions.filter(d => d.status === 'posted');
+      if (!posted.length) {
+        el.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="icon" style="width:60px;height:60px;"><i class="fas fa-building"></i></div><p style="font-size:.875rem;">No posted distributions yet</p></div>';
+        return;
+      }
+      // Group by deal
+      const byDeal = {};
+      posted.forEach(d => {
+        if (!byDeal[d.dealId]) byDeal[d.dealId] = { name: d.dealName || 'Unknown', total: 0, count: 0 };
+        byDeal[d.dealId].total += d.totalAmount || d.amount || 0;
+        byDeal[d.dealId].count++;
+      });
+      el.innerHTML = Object.values(byDeal).sort((a,b) => b.total - a.total).map(d => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
+          <div>
+            <div style="font-weight:600;font-size:.875rem;">${d.name}</div>
+            <div style="font-size:.75rem;color:var(--text-muted);">${d.count} distribution${d.count!==1?'s':''}</div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${fmt$(d.total)}</div>
+        </div>`).join('') + `
+        <div style="display:flex;justify-content:space-between;padding:12px 0;font-weight:700;border-top:2px solid var(--border);">
+          <span>Total All Deals</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:var(--success);">${fmt$(posted.reduce((s,d)=>s+(d.totalAmount||d.amount||0),0))}</span>
+        </div>`;
     }
 
     function openModal() { document.getElementById('modal').classList.add('active'); loadDeals(); }
@@ -501,6 +523,15 @@
     if (typeof SPData !== 'undefined' && SPData.isReady()) { loadDeals(); renderDistributions(); updateStats(); }
     renderDistributions();
     updateStats();
+
+    function showToast(msg, type) {
+      const bg = type === 'error' ? '#ef4444' : '#10b981';
+      const t = document.createElement('div');
+      t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:${bg};color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-family:'Inter',sans-serif;`;
+      t.innerHTML = `<i class="fas fa-check-circle"></i>${msg}`;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);
+    }
   </script>
 </body>
 </html>
