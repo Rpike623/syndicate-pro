@@ -8,16 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/sp-core.js"></script>
     <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 12px; }
+        :root { --primary: #0f172a; --accent: #0ea5e9; --bg: #0B1120; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        body{font-family:'Inter',sans-serif;background:#0B1120;color:var(--primary);display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         
         .fx-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-        .fx-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .fx-card { background: #111827; border: 1px solid #1E293B; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
         .fx-pair { font-weight: 700; font-size: 0.9rem; color: #64748b; }
         .fx-rate { font-family: 'JetBrains Mono'; font-weight: 600; color: var(--primary); }
         .fx-delta { font-size: 0.75rem; font-weight: 600; }
@@ -26,9 +26,9 @@
 
         .form-group { margin-bottom: 20px; }
         label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
-        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-family: 'Inter'; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #1E293B; font-family: 'Inter'; font-size: 0.9rem; }
         
-        .result-box { background: #f1f5f9; padding: 20px; border-radius: 12px; text-align: center; }
+        .result-box { background: #0B1120; padding: 20px; border-radius: 12px; text-align: center; }
         .result-val { font-size: 2rem; font-weight: 800; color: var(--accent); font-family: 'JetBrains Mono'; }
     </style>
 </head>
@@ -78,7 +78,7 @@
                 <p style="font-size: 0.85rem; color: #64748b; margin-top: 8px;">Automated treaty analysis for international members.</p>
                 <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
                     <div style="padding: 12px; background: #dcfce7; border-radius: 8px; border: 1px solid #10b981; font-size: 0.8rem; color: #16a34a; font-weight: 600;"><i class="fas fa-certificate"></i> UK-US Treaty Active (0.0% Withholding)</div>
-                    <div style="padding: 12px; background: #fffbeb; border-radius: 8px; border: 1px solid #f59e0b; font-size: 0.8rem; color: #92400e; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> German Treaty Review Required (15% Default)</div>
+                    <div style="padding: 12px; background: #111827beb; border-radius: 8px; border: 1px solid #f59e0b; font-size: 0.8rem; color: #92400e; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> German Treaty Review Required (15% Default)</div>
                 </div>
             </div>
         </div>

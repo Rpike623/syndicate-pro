@@ -15,20 +15,20 @@
     <script src="js/sp-math.js"></script>
     <style>
         :root {
-            --primary: #0f172a; --accent: #3b82f6; --border: #e2e8f0; --bg: #f8fafc;
-            --bear: #ef4444; --base: #3b82f6; --bull: #10b981;
+            --primary: #0f172a; --accent: #0ea5e9; --border: #1E293B; --bg: #0B1120;
+            --bear: #ef4444; --base: #0ea5e9; --bull: #10b981;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background: #0B1120; color: var(--primary); display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
-        .card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); height: 100%; }
+        .card { background: #111827; border: 1px solid #1E293B; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.5)%; }
         
         .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
-        .scenario-card { border-top: 4px solid var(--border); }
+        .scenario-card { border-top: 4px solid #1E293B; }
         .scenario-bear { border-top-color: var(--bear); }
         .scenario-base { border-top-color: var(--base); }
         .scenario-bull { border-top-color: var(--bull); }
@@ -36,14 +36,14 @@
         .scenario-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
         .input-group { margin-bottom: 16px; }
         .input-group label { display: block; font-size: 0.75rem; color: #64748b; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: 'JetBrains Mono'; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #1E293B; border-radius: 6px; font-family: 'JetBrains Mono'; }
         
-        .results { margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border); }
+        .results { margin-top: 20px; padding-top: 20px; border-top: 1px dashed #1E293B; }
         .res-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
         .res-val { font-weight: 700; font-family: 'JetBrains Mono'; }
         
         .comparison-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-        .comparison-table th { text-align: left; font-size: 0.75rem; color: #64748b; padding: 12px; background: #f1f5f9; }
+        .comparison-table th { text-align: left; font-size: 0.75rem; color: #64748b; padding: 12px; background: #0B1120; }
         .comparison-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
 
         @media (max-width: 1024px) { .scenario-grid { grid-template-columns: 1fr; } }
@@ -57,7 +57,7 @@
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Exit Scenario Planner</h1>
                 <p style="color: #64748b;">Sensitize deal exits across Bear, Base, and Bull cases</p>
             </div>
-            <select id="dealSelect" onchange="loadDealData()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); background: white; font-weight: 600;">
+            <select id="dealSelect" onchange="loadDealData()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; background: #111827; font-weight: 600;">
                 <option value="">— Select Deal —</option>
             </select>
         </div>

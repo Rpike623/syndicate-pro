@@ -9,21 +9,21 @@
     <script src="js/sp-core.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
+        :root { --primary: #0f172a; --accent: #0ea5e9; --success: #10b981; --bg: #0B1120; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        body{font-family:'Inter',sans-serif;background:#0B1120;color:var(--primary);display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         
         .cap-table { width: 100%; border-collapse: collapse; }
-        .cap-table th { text-align: left; font-size: 0.7rem; color: #64748b; padding: 12px 16px; border-bottom: 2px solid #e2e8f0; text-transform: uppercase; }
+        .cap-table th { text-align: left; font-size: 0.7rem; color: #64748b; padding: 12px 16px; border-bottom: 2px solid #1E293B; text-transform: uppercase; }
         .cap-table td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
         
         .member-type { padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
-        .type-gp { background: #eff6ff; color: #2563eb; }
-        .type-lp { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+        .type-gp { background: #eff6ff; color: #0284c7; }
+        .type-lp { background: #0B1120; color: #64748b; border: 1px solid #1E293B; }
     </style>
 </head>
 <body>
@@ -35,7 +35,7 @@
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Deal Cap Table</h1>
                 <p style="color: #64748b;">Managing entity ownership, voting rights, and pro-rata equity participation</p>
             </div>
-            <select id="dealSelect" onchange="loadCapTable()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; font-weight: 600;">
+            <select id="dealSelect" onchange="loadCapTable()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; background: #111827; font-weight: 600;">
                 <!-- Dealt -->
             </select>
         </div>
@@ -105,7 +105,7 @@
                     labels: ['GP Equity', 'Institutional LP', 'Individual LP'],
                     datasets: [{
                         data: [10, 45, 45],
-                        backgroundColor: ['#3b82f6', '#0f172a', '#94a3b8'],
+                        backgroundColor: ['#0ea5e9', '#0f172a', '#94a3b8'],
                         borderWidth: 0
                     }]
                 },

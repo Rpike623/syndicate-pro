@@ -8,26 +8,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/sp-core.js"></script>
     <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --bg: #f8fafc; --radius: 12px; }
+        :root { --primary: #0f172a; --accent: #0ea5e9; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --bg: #0B1120; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        body{font-family:'Inter',sans-serif;background:#0B1120;color:var(--primary);display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .health-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
-        .property-card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; position: relative; overflow: hidden; }
+        .property-card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; position: relative; overflow: hidden; }
         
         .health-score { position: absolute; top: 20px; right: 24px; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; font-weight: 800; font-size: 1.1rem; }
         .score-good { background: #f0fdf4; color: var(--success); border: 2px solid var(--success); }
-        .score-warn { background: #fffbeb; color: var(--warning); border: 2px solid var(--warning); }
+        .score-warn { background: #111827beb; color: var(--warning); border: 2px solid var(--warning); }
         .score-bad { background: #fef2f2; color: var(--danger); border: 2px solid var(--danger); }
 
         .metric-row { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
         .m-lbl { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
         .m-val { font-size: 0.9rem; font-weight: 700; font-family: 'JetBrains Mono'; }
         
-        .progress-bar { height: 6px; background: #f1f5f9; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        .progress-bar { height: 6px; background: #0B1120; border-radius: 3px; overflow: hidden; margin-top: 4px; }
         .progress-fill { height: 100%; background: var(--accent); }
     </style>
 </head>

@@ -13,23 +13,23 @@
       --primary: #0f172a;
       --primary-light: #1e293b;
       --secondary: #334155;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --accent-light: #dbeafe;
+      --accent: #0ea5e9;
+      --accent-hover: #0284c7;
+      --accent-light: rgba(14,165,233,0.15);
       --success: #10b981;
-      --success-light: #d1fae5;
+      --success-light: rgba(16,185,129,0.15);
       --warning: #f59e0b;
-      --warning-light: #fef3c7;
+      --warning-light: rgba(245,158,11,0.15);
       --danger: #ef4444;
-      --danger-light: #fee2e2;
-      --text: #0f172a;
-      --text-secondary: #64748b;
-      --text-muted: #94a3b8;
-      --border: #e2e8f0;
-      --border-light: #f1f5f9;
-      --bg: #f8fafc;
-      --bg-card: #ffffff;
-      --bg-sidebar: #0f172a;
+      --danger-light: rgba(239,68,68,0.15);
+      --text: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --border: #1E293B;
+      --border-light: rgba(255,255,255,0.05);
+      --bg: #0B1120;
+      --bg-card: #111827;
+      --bg-sidebar: #050811;
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
       --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
       --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -39,7 +39,7 @@
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0B1120; color: #F8FAFC; line-height: 1.5; -webkit-font-smoothing: antialiased; }
     .app { display: flex; min-height: 100vh; }
     /* sidebar CSS moved to dt-global.css */
     /* .sidebar-header CSS moved to dt-global.css */
@@ -59,43 +59,43 @@
     .user-role { font-size: 0.75rem; color: rgba(255,255,255,0.65); }
     .main { flex: 1; margin-left: 260px; min-height: 100vh; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } .sidebar, #sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; } .sidebar.open, #sidebar.open { transform: translateX(0) !important; } }
-    .top-bar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
+    .top-bar { background: #111827; border-bottom: 1px solid #1E293B; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
     .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 0.875rem; color: var(--text-secondary); }
     .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
     .breadcrumb a:hover { color: var(--accent); }
     .breadcrumb-separator { color: var(--text-muted); }
-    .breadcrumb-current { color: var(--text); font-weight: 500; }
+    .breadcrumb-current { color: #F8FAFC; font-weight: 500; }
     .top-actions { display: flex; gap: 12px; align-items: center; }
-    .btn-icon { width: 40px; height: 40px; border: 1px solid var(--border); background: var(--bg-card); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+    .btn-icon { width: 40px; height: 40px; border: 1px solid #1E293B; background: #111827; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
     .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
     .content { padding: 32px; max-width: 1600px; }
     .page-header { margin-bottom: 32px; }
-    .page-title { font-size: 1.875rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .page-title { font-size: 1.875rem; font-weight: 700; color: #F8FAFC; margin-bottom: 8px; }
     .page-description { color: var(--text-secondary); font-size: 1rem; }
-    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
-    .card-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .card-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius-md); overflow: hidden; }
+    .card-header { padding: 20px 24px; border-bottom: 1px solid #1E293B; display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-size: 1rem; font-weight: 600; color: #F8FAFC; }
     .card-subtitle { font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px; }
     .card-body { padding: 24px; }
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; font-size: 0.9rem; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; }
     .btn-primary { background: var(--accent); color: white; }
     .btn-primary:hover { background: var(--accent-hover); box-shadow: var(--shadow-md); }
-    .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary { background: #111827; color: #F8FAFC; border: 1px solid #1E293B; }
     .btn-secondary:hover { background: var(--border-light); border-color: var(--text-muted); }
     .btn-success { background: var(--success); color: white; }
     .btn-success:hover { background: #059669; }
     .form-group { margin-bottom: 20px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text); margin-bottom: 8px; }
-    input, select, textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.95rem; font-family: inherit; background: var(--bg-card); color: var(--text); transition: all 0.15s; }
+    label { display: block; font-size: 0.875rem; font-weight: 500; color: #F8FAFC; margin-bottom: 8px; }
+    input, select, textarea { width: 100%; padding: 10px 14px; border: 1px solid #1E293B; border-radius: var(--radius); font-size: 0.95rem; font-family: inherit; background: #111827; color: #F8FAFC; transition: all 0.15s; }
     input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light); }
     .input-group { position: relative; }
     .input-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
     .input-group input { padding-left: 32px; }
     .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     @media (max-width: 1024px) { .content-grid { grid-template-columns: 1fr; } }
-    .notice-preview { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; font-family: 'Times New Roman', serif; line-height: 1.6; }
-    .notice-preview h2 { font-size: 1.25rem; text-align: center; margin-bottom: 24px; border-bottom: 2px solid var(--border); padding-bottom: 16px; }
+    .notice-preview { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 32px; font-family: 'Times New Roman', serif; line-height: 1.6; }
+    .notice-preview h2 { font-size: 1.25rem; text-align: center; margin-bottom: 24px; border-bottom: 2px solid #1E293B; padding-bottom: 16px; }
     .notice-preview .section { margin-bottom: 20px; }
     .notice-preview .label { font-weight: 600; display: block; margin-bottom: 4px; }
     .empty-state { text-align: center; padding: 40px; color: var(--text-secondary); }
@@ -113,7 +113,7 @@
     <main class="main">
       <header class="top-bar">
         <div style="display:flex;align-items:center;gap:12px;">
-          <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay')?.classList.toggle('visible')" style="display:none;background:none;border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;cursor:pointer;align-items:center;justify-content:center;"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
+          <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay')?.classList.toggle('visible')" style="display:none;background:none;border:1px solid #1E293B;border-radius:var(--radius);padding:8px 10px;cursor:pointer;align-items:center;justify-content:center;"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
           <div class="breadcrumb"><a href="dashboard.html">Home</a><span class="breadcrumb-separator">/</span><span class="breadcrumb-current">Capital Calls</span></div>
         </div>
         <div class="top-actions"><button class="btn-icon" title="Notifications"><i class="fas fa-bell"></i></button></div>
@@ -311,7 +311,7 @@
         // Show hint that email can be automated
         setTimeout(() => {
           const hint = document.createElement('div');
-          hint.style.cssText = 'position:fixed;bottom:80px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:.82rem;z-index:9999;max-width:280px;box-shadow:var(--shadow-lg);';
+          hint.style.cssText = 'position:fixed;bottom:80px;right:24px;background:var(--card);border:1px solid #1E293B;border-radius:var(--radius);padding:12px 16px;font-size:.82rem;z-index:9999;max-width:280px;box-shadow:var(--shadow-lg);';
           hint.innerHTML = '<i class="fas fa-envelope" style="color:var(--accent);"></i> <strong>Tip:</strong> Set up EmailJS in <a href="settings.html" style="color:var(--accent);">Settings → Notifications</a> to auto-send capital call emails to investors.';
           document.body.appendChild(hint);
           setTimeout(() => hint.remove(), 6000);
@@ -346,7 +346,7 @@
       const overdue = calls.filter(c=>c.dueDate && new Date(c.dueDate)<new Date() && c.status!=='received').length;
       const bar = document.getElementById('callStatsBar');
       if (!bar) return;
-      const kpi = (label, val, color) => `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;"><div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:6px;">${label}</div><div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:${color};">${val}</div></div>`;
+      const kpi = (label, val, color) => `<div style="background:#111827;border:1px solid #1E293B;border-radius:var(--radius-md);padding:18px;"><div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:6px;">${label}</div><div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:${color};">${val}</div></div>`;
       bar.innerHTML =
         kpi('Total Issued', formatCurrency(total), 'var(--text)') +
         kpi('Received', formatCurrency(received), 'var(--success)') +

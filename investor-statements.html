@@ -9,27 +9,27 @@
   <script src="js/sp-core.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    :root{--primary:#0f172a;--accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#dbeafe;
-      --success:#10b981;--success-light:#d1fae5;--warning:#f59e0b;--warning-light:#fef3c7;
-      --danger:#ef4444;--text:#0f172a;--text-secondary:#64748b;--border:#e2e8f0;--bg:#f8fafc;--radius:8px;}
+    :root{--primary: #0f172a;--accent: #0ea5e9;--accent-hover:#0284c7;--accent-light: rgba(14,165,233,0.15);
+      --success: #10b981;--success-light: rgba(16,185,129,0.15);--warning: #f59e0b;--warning-light: rgba(245,158,11,0.15);
+      --danger: #ef4444;--text: #F8FAFC;--text-secondary: #94A3B8;--border: #1E293B;--bg: #0B1120;--radius:8px;}
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+    body{font-family:'Inter',sans-serif;background:#0B1120;color:#F8FAFC;line-height:1.5;}
     .app{display:flex;min-height:100vh;}
     .main{flex:1;margin-left:260px;min-height:100vh;}
     /* sidebar CSS moved to dt-global.css */
-    .top-bar{background:#fff;border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+    .top-bar{background: #111827;border-bottom:1px solid #1E293B;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
     .content{padding:32px;max-width:1200px;}
-    .card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
-    .statement-preview{background:white;border:1px solid var(--border);padding:40px;max-width:800px;margin:0 auto;box-shadow:0 10px 30px rgba(0,0,0,0.05);font-family:'Inter',serif;}
+    .card{background: #111827;border:1px solid #1E293B;border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+    .statement-preview{background: #111827;border:1px solid #1E293B;padding:40px;max-width:800px;margin:0 auto;box-shadow:0 10px 30px rgba(0,0,0,0.05);font-family:'Inter',serif;}
     .header-logo{font-size:1.5rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
     .form-group{margin-bottom:16px;}
     label{display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
-    select,input{width:100%;padding:10px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;}
+    select,input{width:100%;padding:10px;border:1px solid #1E293B;border-radius:var(--radius);font-size:.9rem;}
     .btn{padding:10px 20px;border-radius:var(--radius);font-weight:600;cursor:pointer;border:none;}
     .btn-primary{background:var(--accent);color:white;}
-    .btn-secondary{background:white;border:1px solid var(--border);}
+    .btn-secondary{background: #111827;border:1px solid #1E293B;}
     .table{width:100%;border-collapse:collapse;margin:20px 0;}
-    .table th{text-align:left;font-size:.75rem;text-transform:uppercase;color:var(--text-secondary);padding:10px;border-bottom:2px solid var(--border);}
+    .table th{text-align:left;font-size:.75rem;text-transform:uppercase;color:var(--text-secondary);padding:10px;border-bottom:2px solid #1E293B;}
     .table td{padding:12px 10px;border-bottom:1px solid var(--border-light);font-size:.9rem;}
   </style>
 </head>
@@ -110,12 +110,12 @@ function updatePreview() {
       <div><div style="color:var(--text-secondary);text-transform:uppercase;font-size:.7rem;margin-bottom:8px;font-weight:700;">Investor</div><strong>${inv.firstName} ${inv.lastName}</strong><br>${inv.email}</div>
       <div><div style="color:var(--text-secondary);text-transform:uppercase;font-size:.7rem;margin-bottom:8px;font-weight:700;">Property / Deal</div><strong>${deal.name}</strong><br>${deal.location}</div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;background:var(--bg);padding:20px;border-radius:var(--radius);margin-bottom:40px;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;background:#0B1120;padding:20px;border-radius:var(--radius);margin-bottom:40px;">
       <div><div style="font-size:.7rem;color:var(--text-secondary);margin-bottom:4px;">Capital Commitment</div><div style="font-size:1.2rem;font-weight:700;">$${entry.committed.toLocaleString()}</div></div>
       <div><div style="font-size:.7rem;color:var(--text-secondary);margin-bottom:4px;">Ownership %</div><div style="font-size:1.2rem;font-weight:700;">${entry.ownership.toFixed(2)}%</div></div>
       <div><div style="font-size:.7rem;color:var(--text-secondary);margin-bottom:4px;">Distributions to Date</div><div style="font-size:1.2rem;font-weight:700;color:var(--success);">$${totalReceived.toLocaleString()}</div></div>
     </div>
-    <h3 style="font-size:.9rem;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:10px;">Activity Details</h3>
+    <h3 style="font-size:.9rem;margin-bottom:10px;border-bottom:1px solid #1E293B;padding-bottom:10px;">Activity Details</h3>
     <table class="table">
       <thead><tr><th>Date</th><th>Description</th><th style="text-align:right;">Amount</th></tr></thead>
       <tbody>

@@ -15,24 +15,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #0f172a; --accent: #3b82f6; --success: #10b981;
-            --border: #e2e8f0; --bg: #f8fafc; --radius: 12px;
+            --primary: #0f172a; --accent: #0ea5e9; --success: #10b981;
+            --border: #1E293B; --bg: #0B1120; --radius: 12px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background: #0B1120; color: var(--primary); display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
-        .card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.5)); }
         .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         
         .sentiment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
         .viz-box { height: 250px; position: relative; }
         
         .heat-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
-        .heat-cell { padding: 16px; border-radius: 8px; border: 1px solid var(--border); }
+        .heat-cell { padding: 16px; border-radius: 8px; border: 1px solid #1E293B; }
         .heat-val { font-size: 1.25rem; font-weight: 700; font-family: 'JetBrains Mono'; margin-bottom: 4px; }
         .heat-lbl { font-size: 0.75rem; color: #64748b; text-transform: uppercase; }
         
@@ -87,7 +87,7 @@
                     datasets: [{
                         label: 'Total Doc Views',
                         data: [12, 19, 45, 82, 34, 12, 10], // Simulated velocity
-                        borderColor: '#3b82f6',
+                        borderColor: '#0ea5e9',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         fill: true,
                         tension: 0.4
@@ -106,7 +106,7 @@
                     datasets: [{
                         label: 'LP Interest (Survey Data)',
                         data: [85, 62, 21, 45, 12],
-                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
+                        backgroundColor: ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444']
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }

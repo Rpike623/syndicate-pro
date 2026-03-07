@@ -8,23 +8,23 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/sp-core.js"></script>
     <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
+        :root { --primary: #0f172a; --accent: #0ea5e9; --success: #10b981; --bg: #0B1120; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        body{font-family:'Inter',sans-serif;background:#0B1120;color:var(--primary);display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; position: relative; overflow: hidden; }
+        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; position: relative; overflow: hidden; }
         
         .carry-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
-        .carry-card { padding: 24px; border-radius: 12px; background: white; border: 1px solid #e2e8f0; text-align: center; }
+        .carry-card { padding: 24px; border-radius: 12px; background: #111827; border: 1px solid #1E293B; text-align: center; }
         .carry-val { font-size: 1.75rem; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--primary); }
         .carry-lbl { font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em; }
 
         .asset-list { display: flex; flex-direction: column; gap: 12px; }
-        .asset-row { display: flex; justify-content: space-between; padding: 16px; border-radius: 8px; background: #f8fafc; border: 1px solid #e2e8f0; align-items: center; }
+        .asset-row { display: flex; justify-content: space-between; padding: 16px; border-radius: 8px; background: #0B1120; border: 1px solid #1E293B; align-items: center; }
         
-        .progress-rail { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 8px; width: 200px; }
+        .progress-rail { height: 8px; background: #1E293B; border-radius: 4px; overflow: hidden; margin-top: 8px; width: 200px; }
         .progress-fill { height: 100%; background: var(--success); }
     </style>
 </head>

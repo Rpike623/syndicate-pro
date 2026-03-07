@@ -8,19 +8,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/sp-core.js"></script>
     <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 12px; }
+        :root { --primary: #0f172a; --accent: #0ea5e9; --bg: #0B1120; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        body{font-family:'Inter',sans-serif;background:#0B1120;color:var(--primary);display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         
-        .workflow-step { display: flex; gap: 20px; align-items: flex-start; padding: 20px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; margin-bottom: 12px; position: relative; }
+        .workflow-step { display: flex; gap: 20px; align-items: flex-start; padding: 20px; border-radius: 10px; background: #0B1120; border: 1px solid #1E293B; margin-bottom: 12px; position: relative; }
         .workflow-step.completed { border-left: 4px solid var(--success); background: #f0fdf4; }
         .workflow-step.active { border-left: 4px solid var(--accent); background: #eff6ff; }
         
-        .step-icon { width: 40px; height: 40px; border-radius: 50%; background: white; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .step-icon { width: 40px; height: 40px; border-radius: 50%; background: #111827; border: 1px solid #1E293B; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
         .workflow-step.completed .step-icon { color: var(--success); border-color: var(--success); }
         .workflow-step.active .step-icon { color: var(--accent); border-color: var(--accent); }
 
@@ -40,7 +40,7 @@
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Investment Approval Center</h1>
                 <p style="color: #64748b;">Managing the 'Underwriting to Close' workflow for internal stakeholders</p>
             </div>
-            <select style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; font-weight: 600;">
+            <select style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; background: #111827; font-weight: 600;">
                 <option>Pecan Hollow — Series A</option>
             </select>
         </div>
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <div class="card" style="background: #0f172a; color: white; border: none;">
+        <div class="card" style="background: #0ea5e9; color: white; border: none;">
             <h3>Strategic Compliance Note</h3>
             <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 10px; line-height: 1.6;">
                 Closing cannot occur until 100% of "Initial Pro Forma" and "PPM Sign-off" milestones are digitally stamped. This provides a clear audit trail for the eventual Form D filing.

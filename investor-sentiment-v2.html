@@ -8,16 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="js/sp-core.js"></script>
     <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --bg: #f8fafc; --radius: 12px; }
+        :root { --primary: #0f172a; --accent: #0ea5e9; --success: #10b981; --bg: #0B1120; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--primary);display:flex;min-height:100vh;}
+        body{font-family:'Inter',sans-serif;background:#0B1120;color:var(--primary);display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         
         .sentiment-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 32px; }
-        .lp-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .lp-card { background: #111827; border: 1px solid #1E293B; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         
         .intent-score { width: 100px; text-align: center; }
         .score-val { font-size: 1.5rem; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--accent); }
@@ -29,7 +29,7 @@
         .tag-hold { background: #fef9c3; color: #a16207; }
         .tag-hot { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
 
-        .trend-canvas { height: 120px; background: #f8fafc; border-radius: 8px; margin-top: 20px; border: 1px solid #f1f5f9; display: flex; align-items: flex-end; padding: 10px; gap: 4px; }
+        .trend-canvas { height: 120px; background: #0B1120; border-radius: 8px; margin-top: 20px; border: 1px solid #f1f5f9; display: flex; align-items: flex-end; padding: 10px; gap: 4px; }
         .bar { flex: 1; background: var(--accent); opacity: 0.3; border-radius: 2px; }
         .bar.active { opacity: 1; background: var(--success); }
     </style>

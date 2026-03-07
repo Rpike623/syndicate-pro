@@ -10,15 +10,15 @@
     :root {
       --primary: #0f172a;
       --primary-light: #1e293b;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --accent-light: #dbeafe;
+      --accent: #0ea5e9;
+      --accent-hover: #0284c7;
+      --accent-light: rgba(14,165,233,0.15);
       --success: #10b981;
-      --text: #0f172a;
-      --text-secondary: #64748b;
-      --border: #e2e8f0;
-      --bg: #f8fafc;
-      --bg-card: #ffffff;
+      --text: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --border: #1E293B;
+      --bg: #0B1120;
+      --bg-card: #111827;
       --radius: 8px;
       --radius-md: 12px;
       --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
@@ -39,7 +39,7 @@
     .auth-container {
       width: 100%;
       max-width: 520px;
-      background: var(--bg-card);
+      background: #111827;
       border-radius: var(--radius-md);
       box-shadow: var(--shadow-lg);
       padding: 48px;
@@ -111,19 +111,19 @@
       display: block;
       font-size: 0.875rem;
       font-weight: 500;
-      color: var(--text);
+      color: #F8FAFC;
       margin-bottom: 8px;
     }
     
     input {
       width: 100%;
       padding: 12px 16px;
-      border: 1px solid var(--border);
+      border: 1px solid #1E293B;
       border-radius: var(--radius);
       font-size: 1rem;
       font-family: inherit;
-      background: var(--bg-card);
-      color: var(--text);
+      background: #111827;
+      color: #F8FAFC;
       transition: all 0.15s;
     }
     
@@ -160,8 +160,8 @@
     
     .btn-outline {
       background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
+      color: #F8FAFC;
+      border: 1px solid #1E293B;
     }
     
     .divider {
@@ -212,10 +212,10 @@
       <div class="logo" style="justify-content:center;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" style="border-radius:50%;">
           <circle cx="20" cy="20" r="20" fill="#1e3a5f"/>
-          <rect x="9" y="6" width="4.5" height="28" rx="2.25" fill="#3b82f6"/>
-          <path d="M 16 13 L 30 20 L 16 27" stroke="#3b82f6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="9" y="6" width="4.5" height="28" rx="2.25" fill="#0ea5e9"/>
+          <path d="M 16 13 L 30 20 L 16 27" stroke="#0ea5e9" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span style="font-size:1.4rem;font-weight:700;color:#0f172a;">deel<span style="color:#3b82f6;">track</span></span>
+        <span style="font-size:1.4rem;font-weight:700;color:#0f172a;">deel<span style="color:#0ea5e9;">track</span></span>
       </div>
       <h1 id="signupHeading">Start your free trial</h1>
       <p id="signupSubhead">No credit card required. 14 days free.</p>
@@ -223,7 +223,7 @@
 
     <!-- Invite banner (shown when arriving via invite link) -->
     <div id="inviteBanner" style="display:none;background:linear-gradient(135deg,#dbeafe,#ede9fe);border:1px solid #93c5fd;border-radius:12px;padding:16px 18px;margin-bottom:20px;display:none;align-items:flex-start;gap:12px;">
-      <div style="width:36px;height:36px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;flex-shrink:0;">
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;flex-shrink:0;">
         <i class="fas fa-envelope-open-text"></i>
       </div>
       <div>

@@ -22,23 +22,23 @@
       --primary: #0f172a;
       --primary-light: #1e293b;
       --secondary: #334155;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --accent-light: #dbeafe;
+      --accent: #0ea5e9;
+      --accent-hover: #0284c7;
+      --accent-light: rgba(14,165,233,0.15);
       --success: #10b981;
-      --success-light: #d1fae5;
+      --success-light: rgba(16,185,129,0.15);
       --warning: #f59e0b;
-      --warning-light: #fef3c7;
+      --warning-light: rgba(245,158,11,0.15);
       --danger: #ef4444;
-      --danger-light: #fee2e2;
-      --text: #0f172a;
-      --text-secondary: #64748b;
-      --text-muted: #94a3b8;
-      --border: #e2e8f0;
-      --border-light: #f1f5f9;
-      --bg: #f8fafc;
-      --bg-card: #ffffff;
-      --bg-sidebar: #0f172a;
+      --danger-light: rgba(239,68,68,0.15);
+      --text: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --border: #1E293B;
+      --border-light: rgba(255,255,255,0.05);
+      --bg: #0B1120;
+      --bg-card: #111827;
+      --bg-sidebar: #050811;
       --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
       --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
       --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -51,8 +51,8 @@
     
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #0B1120;
+      color: #F8FAFC;
       display: flex;
       min-height: 100vh;
     }
@@ -114,9 +114,9 @@
     }
     
     .template-card {
-      background: white;
+      background: #111827;
       border-radius: var(--radius-md);
-      border: 1px solid var(--border);
+      border: 1px solid #1E293B;
       padding: 24px;
       cursor: pointer;
       transition: 0.2s;
@@ -144,9 +144,9 @@
     .template-card p { font-size: 0.9rem; color: var(--text-secondary); }
     
     .card {
-      background: white;
+      background: #111827;
       border-radius: var(--radius-md);
-      border: 1px solid var(--border);
+      border: 1px solid #1E293B;
       padding: 24px;
       margin-bottom: 24px;
       box-shadow: var(--shadow-sm);
@@ -173,7 +173,7 @@
     
     select, input, textarea {
       padding: 10px 12px;
-      border: 1px solid var(--border);
+      border: 1px solid #1E293B;
       border-radius: var(--radius);
       font-size: 0.95rem;
       transition: 0.2s;
@@ -203,8 +203,8 @@
     
     .btn-primary { background: var(--accent); color: white; }
     .btn-primary:hover { background: var(--accent-hover); }
-    .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
-    .btn-outline:hover { background: var(--bg); }
+    .btn-outline { background: #111827; border: 1px solid #1E293B; color: #F8FAFC; }
+    .btn-outline:hover { background: #0B1120; }
     .btn-success { background: var(--success); color: white; }
     
     /* Email Preview */
@@ -218,7 +218,7 @@
     .email-container {
       max-width: 600px;
       margin: 0 auto;
-      background: white;
+      background: #111827;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
@@ -605,11 +605,11 @@
             <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">
               <i class="fas fa-users"></i> Send To
             </label>
-            <div id="recipientContainer" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:8px;background:var(--bg-card);">
+            <div id="recipientContainer" style="max-height:180px;overflow-y:auto;border:1px solid #1E293B;border-radius:8px;padding:8px;background:#111827;">
               <label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:.85rem;cursor:pointer;">
                 <input type="checkbox" id="allInvestors" onchange="toggleAll(this)" checked style="accent-color:var(--accent);"> All Investors (${investors.length})
               </label>
-              <hr style="border:none;border-top:1px solid var(--border);margin:6px 0;">
+              <hr style="border:none;border-top:1px solid #1E293B;margin:6px 0;">
               ${investors.map(inv => `
                 <label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:.82rem;cursor:pointer;">
                   <input type="checkbox" class="inv-checkbox" value="${inv.email}" data-name="${inv.firstName} ${inv.lastName}" checked style="accent-color:var(--accent);">

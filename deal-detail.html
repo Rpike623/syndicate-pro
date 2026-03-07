@@ -19,16 +19,16 @@
   <script src="js/sp-documents.js"></script>
   <style>
     :root {
-      --primary:#0f172a;--accent:#3b82f6;--accent-hover:#2563eb;--accent-light:#dbeafe;
-      --success:#10b981;--success-light:#d1fae5;--warning:#f59e0b;--warning-light:#fef3c7;
-      --danger:#ef4444;--danger-light:#fee2e2;--purple:#8b5cf6;--purple-light:#ede9fe;
-      --text:#0f172a;--text-secondary:#64748b;--text-muted:#94a3b8;
-      --border:#e2e8f0;--border-light:#f1f5f9;--bg:#f8fafc;--bg-card:#fff;--bg-sidebar: #0f172a;
+      --primary: #0f172a;--accent: #0ea5e9;--accent-hover:#0284c7;--accent-light: rgba(14,165,233,0.15);
+      --success: #10b981;--success-light: rgba(16,185,129,0.15);--warning: #f59e0b;--warning-light: rgba(245,158,11,0.15);
+      --danger: #ef4444;--danger-light: rgba(239,68,68,0.15);--purple: #8b5cf6;--purple-light: rgba(139,92,246,0.15);
+      --text: #F8FAFC;--text-secondary: #94A3B8;--text-muted: #64748B;
+      --border: #1E293B;--border-light: rgba(255,255,255,0.05);--bg: #0B1120;--bg-card: #111827;--bg-sidebar: #050811;
       --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);
       --radius-sm:6px;--radius:8px;--radius-md:12px;
     }
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;}
+    body{font-family:'Inter',sans-serif;background:#0B1120;color:#F8FAFC;line-height:1.5;-webkit-font-smoothing:antialiased;}
     .app{display:flex;min-height:100vh;}
     /* sidebar CSS moved to dt-global.css */
     /* .sidebar-header CSS moved to dt-global.css */
@@ -45,17 +45,17 @@
     .user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--success),#34d399);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;color:white;flex-shrink:0;}
     .user-details{flex:1;}.user-name{font-size:.9rem;font-weight:600;}.user-role{font-size:.75rem;color:rgba(255,255,255,.65);}
     .main{flex:1;margin-left:260px;min-height:100vh;}
-    .top-bar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+    .top-bar{background:#111827;border-bottom:1px solid #1E293B;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
     .top-left{display:flex;align-items:center;gap:16px;}
-    .mobile-menu-btn{display:none;background:none;border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;cursor:pointer;}
+    .mobile-menu-btn{display:none;background:none;border:1px solid #1E293B;border-radius:var(--radius);padding:8px 10px;cursor:pointer;}
     .breadcrumb{display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--text-secondary);}
     .breadcrumb a{color:var(--text-secondary);text-decoration:none;}.breadcrumb a:hover{color:var(--accent);}
     .breadcrumb-sep{color:var(--text-muted);}
-    .breadcrumb-current{color:var(--text);font-weight:600;}
+    .breadcrumb-current{color:#F8FAFC;font-weight:600;}
     .top-actions{display:flex;gap:10px;align-items:center;}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-size:.875rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;font-family:'Inter',sans-serif;}
     .btn-primary{background:var(--accent);color:white;}.btn-primary:hover{background:var(--accent-hover);}
-    .btn-secondary{background:var(--bg-card);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border-light);}
+    .btn-secondary{background:#111827;color:#F8FAFC;border:1px solid #1E293B;}.btn-secondary:hover{background:var(--border-light);}
     .btn-danger{background:var(--danger-light);color:var(--danger);border:1px solid var(--danger);}.btn-danger:hover{background:var(--danger);color:white;}
     .content{padding:32px;}
     /* Deal header */
@@ -77,13 +77,13 @@
     .deal-metric .val{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
     .deal-metric .lbl{font-size:.72rem;color:rgba(255,255,255,.65);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
     /* Tabs */
-    .tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px;}
+    .tabs{display:flex;gap:0;border-bottom:2px solid #1E293B;margin-bottom:24px;}
     .tab{padding:12px 20px;font-size:.9rem;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;}
-    .tab:hover{color:var(--text);}
+    .tab:hover{color:#F8FAFC;}
     .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
     .tab-panel{display:none;}.tab-panel.active{display:block;}
     /* Cards */
-    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:20px;}
+    .card{background:#111827;border:1px solid #1E293B;border-radius:var(--radius-md);margin-bottom:20px;}
     .card-header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center;}
     .card-title{font-size:1rem;font-weight:700;}
     .card-body{padding:20px 24px 24px;}
@@ -102,7 +102,7 @@
     .badge-exited{background:var(--border-light);color:var(--text-secondary);}
     .money{font-family:'JetBrains Mono',monospace;font-weight:600;}
     .pct{font-family:'JetBrains Mono',monospace;color:var(--accent);}
-    .btn-xs{padding:5px 10px;font-size:.75rem;font-weight:600;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-card);color:var(--text-secondary);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;}
+    .btn-xs{padding:5px 10px;font-size:.75rem;font-weight:600;border-radius:var(--radius-sm);border:1px solid #1E293B;background:#111827;color:var(--text-secondary);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;}
     .btn-xs:hover{background:var(--accent);color:white;border-color:var(--accent);}
     .btn-xs.danger:hover{background:var(--danger);border-color:var(--danger);}
     /* Capital summary bar */
@@ -113,7 +113,7 @@
     .dist-item:last-child{border-bottom:none;}
     /* Document grid */
     .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
-    .doc-card{background:var(--border-light);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:all .15s;}
+    .doc-card{background:var(--border-light);border:1px solid #1E293B;border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:all .15s;}
     .doc-card:hover{border-color:var(--accent);background:var(--accent-light);}
     .doc-icon{font-size:1.5rem;color:var(--accent);margin-bottom:8px;}
     .doc-name{font-size:.8rem;font-weight:600;}
@@ -122,12 +122,12 @@
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
     .form-group{margin-bottom:0;}
     .form-group label{display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
-    .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;color:var(--text);background:var(--bg-card);outline:none;transition:all .15s;font-family:'Inter',sans-serif;}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid #1E293B;border-radius:var(--radius);font-size:.9rem;color:#F8FAFC;background:#111827;outline:none;transition:all .15s;font-family:'Inter',sans-serif;}
     .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
     /* Modal */
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
     .modal-overlay.open{display:flex;}
-    .modal{background:var(--bg-card);border-radius:var(--radius-md);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+    .modal{background:#111827;border-radius:var(--radius-md);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
     .modal-header{padding:24px 28px 0;display:flex;justify-content:space-between;align-items:center;}
     .modal-title{font-size:1.1rem;font-weight:700;}
     .modal-close{width:32px;height:32px;border:none;background:var(--border-light);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
@@ -136,7 +136,7 @@
     .modal-footer{padding:0 28px 24px;display:flex;justify-content:flex-end;gap:10px;}
     /* Investor av */
     .inv-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:white;flex-shrink:0;}
-    .av-0{background:linear-gradient(135deg,#3b82f6,#60a5fa);}
+    .av-0{background:linear-gradient(135deg,#0ea5e9,#60a5fa);}
     .av-1{background:linear-gradient(135deg,#10b981,#34d399);}
     .av-2{background:linear-gradient(135deg,#8b5cf6,#a78bfa);}
     .av-3{background:linear-gradient(135deg,#f59e0b,#fbbf24);}
@@ -184,10 +184,10 @@
     </div>
     
     <!-- AI ASSISTANT PITCH CONTAINER -->
-    <div id="aiAssistant" style="position:fixed; bottom:80px; right:32px; width:400px; background:#0f172a; border:1px solid #3b82f6; border-radius:12px; padding:20px; box-shadow:var(--shadow-lg); display:none; z-index:100;">
+    <div id="aiAssistant" style="position:fixed; bottom:80px; right:32px; width:400px; background: #0ea5e9; border:1px solid #0ea5e9; border-radius:12px; padding:20px; box-shadow:var(--shadow-lg); display:none; z-index:100;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <div style="font-weight:700; color:white; display:flex; align-items:center; gap:8px; font-size:0.9rem;">
-                <i class="fas fa-robot" style="color:#3b82f6;"></i> AI Pitch Generator
+                <i class="fas fa-robot" style="color:#0ea5e9;"></i> AI Pitch Generator
             </div>
             <button class="btn-xs" onclick="document.getElementById('aiAssistant').style.display='none'">✕</button>
         </div>
@@ -323,7 +323,7 @@ function render() {
       <div class="card-body">
         <div class="cap-bar"><div class="cap-fill" style="width:${pctRaised}%"></div></div>
         <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--text-secondary);margin-top:6px;">
-          <span><strong style="color:var(--text);">${pctRaised}%</strong> raised</span>
+          <span><strong style="color:#F8FAFC;">${pctRaised}%</strong> raised</span>
           <span>${fmtFull$(Math.max(0,raise-totalCommitted))} remaining</span>
         </div>
       </div>
@@ -390,7 +390,7 @@ function render() {
         </div>
         <div class="card-body">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-            <div style="border:1px solid var(--border); border-radius:8px; padding:20px;">
+            <div style="border:1px solid #1E293B; border-radius:8px; padding:20px;">
               <div style="font-weight:700; font-size:0.9rem; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
                 <i class="fas fa-landmark" style="color:var(--warning);"></i> SEC Form D
               </div>
@@ -400,7 +400,7 @@ function render() {
                  <button class="btn btn-secondary" style="width:100%;" onclick="markFormDFiled('${deal.id}')">Mark as Filed</button>`
               }
             </div>
-            <div style="border:1px solid var(--border); border-radius:8px; padding:20px;">
+            <div style="border:1px solid #1E293B; border-radius:8px; padding:20px;">
               <div style="font-weight:700; font-size:0.9rem; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
                 <i class="fas fa-fingerprint" style="color:var(--accent);"></i> Audit Trail
               </div>
@@ -480,7 +480,7 @@ function renderDocumentsTab() {
         </div>
       </div>
       ${hasOA ? `
-        <div id="oaPreview" style="display:none;border-top:1px solid var(--border);padding:32px;background:#fafafa;">
+        <div id="oaPreview" style="display:none;border-top:1px solid #1E293B;padding:32px;background:#fafafa;">
           ${deal.generatedOA}
         </div>` : ''}
     </div>
@@ -577,7 +577,7 @@ function renderSubTracker() {
   const linked = deal.investors || [];
   if (!linked.length) return `<div class="empty-state"><i class="fas fa-file-signature"></i><p>No investors linked yet. Add investors to track their subscription status.</p></div>`;
   const STATUS_STEPS = ['sent','viewed','signed','funded'];
-  const STATUS_COLORS = {sent:'#dbeafe,#3b82f6',viewed:'#fef3c7,#f59e0b',signed:'#ede9fe,#8b5cf6',funded:'#d1fae5,#10b981'};
+  const STATUS_COLORS = {sent:'#dbeafe,#0ea5e9',viewed:'#fef3c7,#f59e0b',signed:'#ede9fe,#8b5cf6',funded:'#d1fae5,#10b981'};
   const STATUS_LABELS = {sent:'Sent',viewed:'Viewed',signed:'Signed',funded:'Funded'};
 
   return `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">
@@ -596,7 +596,7 @@ function renderSubTracker() {
       return `<tr style="border-bottom:1px solid var(--border-light);">
         <td style="padding:12px 14px;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:white;flex-shrink:0;">${initials}</div>
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:white;flex-shrink:0;">${initials}</div>
             <div><div style="font-weight:600;font-size:.875rem;">${inv.firstName} ${inv.lastName}</div><div style="font-size:.75rem;color:var(--text-muted);">${inv.email}</div></div>
           </div>
         </td>
@@ -606,14 +606,14 @@ function renderSubTracker() {
             ${STATUS_STEPS.map((s,si)=>`
               <div style="display:flex;align-items:center;gap:4px;">
                 <div style="width:22px;height:22px;border-radius:50%;background:${si<=stepIdx?'var(--success)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:.65rem;color:white;font-weight:700;">${si<stepIdx?'✓':si===stepIdx?'→':''}</div>
-                <span style="font-size:.7rem;color:${si<=stepIdx?'var(--text)':'var(--text-muted)'};">${STATUS_LABELS[s]}</span>
+                <span style="font-size:.7rem;color:${si<=stepIdx?'#F8FAFC':'var(--text-muted)'};">${STATUS_LABELS[s]}</span>
                 ${si<STATUS_STEPS.length-1?'<div style="width:16px;height:2px;background:var(--border);margin:0 2px;"></div>':''}
               </div>`).join('')}
           </div>
         </td>
         <td style="padding:12px 14px;">
           <div style="display:flex;gap:6px;">
-            ${STATUS_STEPS.map(s=>s!==subStatus?`<button onclick="updateSubStatus('${entry.investorId}','${s}')" style="padding:4px 8px;background:${STATUS_COLORS[s]?.split(',')[0]||'#f1f5f9'};color:${STATUS_COLORS[s]?.split(',')[1]||'#64748b'};border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;">${STATUS_LABELS[s]}</button>`:null).filter(Boolean).join('')}
+            ${STATUS_STEPS.map(s=>s!==subStatus?`<button onclick="updateSubStatus('${entry.investorId}','${s}')" style="padding:4px 8px;background:${STATUS_COLORS[s]?.split(',')[0]||'#0B1120'};color:${STATUS_COLORS[s]?.split(',')[1]||'#64748b'};border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;">${STATUS_LABELS[s]}</button>`:null).filter(Boolean).join('')}
             <button onclick="viewSubDoc('${entry.investorId}')" title="View subscription agreement" style="padding:4px 8px;background:var(--purple-light);color:var(--purple);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-file-signature"></i></button>
             <button onclick="requestESignature('${entry.investorId}')" title="Request Digital Signature (E-sign)" style="padding:4px 8px;background:#ede9fe;color:#9333ea;border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-pen-nib"></i> E-sign</button>
             <button onclick="sendSubDoc('${entry.investorId}')" title="Email pdf sub doc to investor" style="padding:4px 8px;background:var(--accent-light);color:var(--accent);border:none;border-radius:6px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:inherit;"><i class="fas fa-paper-plane"></i></button>
@@ -667,8 +667,8 @@ function viewSubDoc(investorId) {
   }
   const invName = inv.firstName ? `${inv.firstName} ${inv.lastName}` : 'Investor';
   modal.innerHTML = `
-    <div style="background:white;border-radius:12px;width:100%;max-width:860px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 64px rgba(0,0,0,.5);">
-      <div style="background:#0f172a;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+    <div style="background: #111827;border-radius:12px;width:100%;max-width:860px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 64px rgba(0,0,0,.5);">
+      <div style="background: #0ea5e9;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
         <div>
           <div style="color:white;font-weight:700;font-family:'Sora',sans-serif;">Subscription Agreement</div>
           <div style="color:rgba(255,255,255,.65);font-size:.8rem;">${invName} · ${deal.name}</div>
@@ -748,7 +748,7 @@ function sendSubDoc(investorId) {
     body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:40px;line-height:1.7;}
     h1{font-size:1.4rem;text-align:center;text-transform:uppercase;margin-bottom:4px;}
     .subtitle{text-align:center;color:#94a3b8;margin-bottom:40px;}
-    h2{font-size:1rem;margin:28px 0 12px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;}
+    h2{font-size:1rem;margin:28px 0 12px;border-bottom:1px solid #1E293B;padding-bottom:4px;}
     .field{border-bottom:1px solid #333;display:inline-block;min-width:200px;margin:0 8px;}
     .sig-block{margin-top:60px;display:grid;grid-template-columns:1fr 1fr;gap:60px;}
     .sig-line{border-top:1px solid #333;margin-top:40px;padding-top:8px;font-size:.85rem;}
@@ -758,7 +758,7 @@ function sendSubDoc(investorId) {
     <div class="watermark">DRAFT</div>
     <div class="no-print" style="background:#fef3c7;padding:12px 20px;margin-bottom:24px;border-radius:8px;font-family:sans-serif;font-size:.9rem;">
       ⚠️ <strong>Draft Document</strong> — This is a placeholder template. Have your attorney review before use.
-      <button onclick="window.print()" style="float:right;padding:6px 14px;background:#3b82f6;color:white;border:none;border-radius:6px;cursor:pointer;font-size:.85rem;">🖨 Print / PDF</button>
+      <button onclick="window.print()" style="float:right;padding:6px 14px;background: #0ea5e9;color:white;border:none;border-radius:6px;cursor:pointer;font-size:.85rem;">🖨 Print / PDF</button>
     </div>
     <h1>Subscription Agreement</h1>
     <div class="subtitle">${firmName} | ${deal.name}</div>

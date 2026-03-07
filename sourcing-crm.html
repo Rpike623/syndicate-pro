@@ -14,18 +14,18 @@
     <script src="js/sp-firebase.js"></script>
     <script src="js/sp-pipeline.js"></script>
     <style>
-        :root { --primary: #0f172a; --accent: #6366f1; --bg: #f8fafc; --glass: rgba(255,255,255,0.7); --radius: 16px; }
+        :root { --primary: #0f172a; --accent: #0ea5e9; --bg: #0B1120; --glass: rgba(255,255,255,0.7); --radius: 16px; }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; font-size: 14px; }
+        body { font-family: 'Inter', sans-serif; background: #0B1120; display: flex; min-height: 100vh; font-size: 14px; }
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
 
         .pipeline-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; align-items: start; }
         .stage-col { background: rgba(0,0,0,0.02); border-radius: var(--radius); padding: 12px; min-height: 80vh; border: 1px dashed rgba(0,0,0,0.05); }
         .stage-header { padding: 12px; margin-bottom: 20px; text-transform: uppercase; font-size: 11px; font-weight: 800; color: #64748b; letter-spacing: 1.5px; display: flex; justify-content: space-between; align-items: center; }
-        .stage-count { background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 999px; font-size: 10px; }
+        .stage-count { background: #1E293B; color: #475569; padding: 2px 8px; border-radius: 999px; font-size: 10px; }
 
-        .deal-card { background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 16px; position: relative; cursor: grab; transition: all 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .deal-card { background: #111827; border: 1px solid #1E293B; border-radius: 12px; padding: 20px; margin-bottom: 16px; position: relative; cursor: grab; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.5)); }
         .deal-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border-color: var(--accent); }
         .deal-name { font-size: 15px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
         .deal-location { font-size: 12px; color: #94a3b8; margin-bottom: 12px; display: flex; align-items: center; gap: 4px; }
@@ -67,7 +67,7 @@
                     </div>
                 </div>
                 <div class="deal-card">
-                    <span class="score-pill" style="background:#fff7ed; color:#c2410c;">54 Score</span>
+                    <span class="score-pill" style="background:#1118277ed; color:#c2410c;">54 Score</span>
                     <div class="deal-name">Legacy Square</div>
                     <div class="deal-location"><i class="fas fa-map-marker-alt"></i> San Antonio, TX</div>
                     <div class="deal-metrics">
@@ -85,7 +85,7 @@
                     <span class="score-pill">91 Score</span>
                     <div class="deal-name">The Heights Retail</div>
                     <div class="deal-location"><i class="fas fa-map-marker-alt"></i> Houston, TX</div>
-                    <div style="margin-top:12px; font-size:11px; color:#475569; background:#f1f5f9; padding:8px; border-radius:6px;">
+                    <div style="margin-top:12px; font-size:11px; color:#475569; background:#0B1120; padding:8px; border-radius:6px;">
                         <i class="fas fa-chart-line"></i> Modeling 18.2% IRR target.
                     </div>
                 </div>
@@ -99,11 +99,11 @@
             <!-- Stage 4: Due Diligence -->
             <div class="stage-col">
                 <div class="stage-header">Due Diligence <span class="stage-count">1</span></div>
-                <div class="deal-card" style="background: #f8fafc; border-style: dashed;">
+                <div class="deal-card" style="background: #0B1120; border-style: dashed;">
                     <div class="deal-name">Summit Ridge (REI)</div>
                     <div class="deal-location"><i class="fas fa-map-marker-alt"></i> Fort Worth, TX</div>
                     <div style="margin-top:12px; display:flex; gap:6px;">
-                        <span style="font-size:9px; background:#dbeafe; color:#2563eb; padding:2px 6px; border-radius:4px; font-weight:700;">PHASE 1 ESA</span>
+                        <span style="font-size:9px; background:#dbeafe; color:#0284c7; padding:2px 6px; border-radius:4px; font-weight:700;">PHASE 1 ESA</span>
                         <span style="font-size:9px; background:#fef3c7; color:#d97706; padding:2px 6px; border-radius:4px; font-weight:700;">RE-SURVEY</span>
                     </div>
                 </div>

@@ -9,36 +9,36 @@
   <script src="js/sp-core.js"></script>
   <style>
     :root {
-      --primary: #0f172a; --accent: #3b82f6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
-      --text: #0f172a; --text-secondary: #64748b; --border: #e2e8f0; --bg: #f8fafc; --bg-card: #ffffff;
+      --primary: #0f172a; --accent: #0ea5e9; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+      --text: #F8FAFC; --text-secondary: #94A3B8; --border: #1E293B; --bg: #0B1120; --bg-card: #111827;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); display: flex; min-height: 100vh; }
+    body { font-family: 'Inter', sans-serif; background: #0B1120; display: flex; min-height: 100vh; }
     /* sidebar CSS moved to dt-global.css */
     .nav { padding: 24px 12px; }
     /* .nav-item CSS moved to dt-global.css */
     /* .nav-item.active CSS moved to dt-global.css */
     .main { flex: 1; margin-left: 260px; padding: 32px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-    .progress-bar { background: #e2e8f0; height: 8px; border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
+    .progress-bar { background: #1E293B; height: 8px; border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
     .progress-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.5s; }
     .checklist-container { max-width: 800px; }
-    .phase { background: white; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
-    .phase-header { background: var(--bg); padding: 16px 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+    .phase { background: #111827; border: 1px solid #1E293B; border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .phase-header { background: #0B1120; padding: 16px 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #1E293B; }
     .phase-progress { margin-left: auto; font-size: 0.875rem; color: var(--text-secondary); }
-    .task { display: flex; align-items: center; padding: 16px 24px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; }
-    .task:hover { background: var(--bg); }
+    .task { display: flex; align-items: center; padding: 16px 24px; border-bottom: 1px solid #1E293B; cursor: pointer; transition: background 0.2s; }
+    .task:hover { background: #0B1120; }
     .task:last-child { border-bottom: none; }
-    .task-checkbox { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; margin-right: 16px; display: flex; align-items: center; justify-content: center; }
+    .task-checkbox { width: 24px; height: 24px; border: 2px solid #1E293B; border-radius: 6px; margin-right: 16px; display: flex; align-items: center; justify-content: center; }
     .task.completed .task-checkbox { background: var(--success); border-color: var(--success); color: white; }
     .task.completed .task-text { text-decoration: line-through; color: var(--text-secondary); }
     .task-meta { margin-left: auto; font-size: 0.8rem; color: var(--text-secondary); }
-    .task-assignee { background: var(--bg); padding: 4px 12px; border-radius: 12px; margin-left: 12px; }
+    .task-assignee { background: #0B1120; padding: 4px 12px; border-radius: 12px; margin-left: 12px; }
     .urgent { color: var(--danger); font-weight: 600; }
     .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; }
     .btn-primary { background: var(--accent); color: white; }
     .add-task { display: flex; gap: 12px; margin-top: 16px; padding: 0 24px 24px; }
-    .add-task input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
+    .add-task input { flex: 1; padding: 10px; border: 1px solid #1E293B; border-radius: 6px; }
   </style>
 </head>
 <body>
@@ -58,7 +58,7 @@
         <h1>Deal Closing Checklist</h1>
         <p style="color: var(--text-secondary);">Track every item needed to get to closing</p>
       </div>
-      <select id="dealSelect" style="padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+      <select id="dealSelect" style="padding: 10px; border: 1px solid #1E293B; border-radius: 8px;">
         <option>Select a deal...</option>
       </select>
     </div>

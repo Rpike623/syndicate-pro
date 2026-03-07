@@ -10,18 +10,18 @@
     :root {
       --primary: #0f172a;
       --primary-light: #1e293b;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --accent-light: #dbeafe;
+      --accent: #0ea5e9;
+      --accent-hover: #0284c7;
+      --accent-light: rgba(14,165,233,0.15);
       --success: #10b981;
       --warning: #f59e0b;
-      --text: #0f172a;
-      --text-secondary: #64748b;
-      --text-muted: #94a3b8;
-      --border: #e2e8f0;
-      --border-light: #f1f5f9;
-      --bg: #f8fafc;
-      --bg-card: #ffffff;
+      --text: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --border: #1E293B;
+      --border-light: rgba(255,255,255,0.05);
+      --bg: #0B1120;
+      --bg-card: #111827;
       --radius: 8px;
       --radius-md: 12px;
       --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
@@ -33,16 +33,16 @@
     
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #0B1120;
+      color: #F8FAFC;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
     }
     
     /* Header */
     .header {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
+      background: #111827;
+      border-bottom: 1px solid #1E293B;
       padding: 16px 32px;
       display: flex;
       justify-content: space-between;
@@ -58,7 +58,7 @@
       gap: 12px;
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--text);
+      color: #F8FAFC;
       text-decoration: none;
     }
     
@@ -86,7 +86,7 @@
       transition: color 0.15s;
     }
     
-    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover { color: #F8FAFC; }
     
     .header-actions {
       display: flex;
@@ -121,8 +121,8 @@
     
     .btn-secondary {
       background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
+      color: #F8FAFC;
+      border: 1px solid #1E293B;
     }
     
     .btn-secondary:hover {
@@ -172,7 +172,7 @@
     }
     
     .billing-toggle span.active {
-      color: var(--text);
+      color: #F8FAFC;
       font-weight: 600;
     }
     
@@ -190,7 +190,7 @@
       position: absolute;
       width: 20px;
       height: 20px;
-      background: white;
+      background: #111827;
       border-radius: 50%;
       top: 2px;
       right: 2px;
@@ -229,8 +229,8 @@
     }
     
     .pricing-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: #111827;
+      border: 1px solid #1E293B;
       border-radius: var(--radius-md);
       padding: 32px;
       position: relative;
@@ -333,7 +333,7 @@
     }
     
     .faq-item {
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #1E293B;
       padding: 24px 0;
     }
     
@@ -370,8 +370,8 @@
     
     /* Footer */
     .footer {
-      background: var(--bg-card);
-      border-top: 1px solid var(--border);
+      background: #111827;
+      border-top: 1px solid #1E293B;
       padding: 40px 32px;
       text-align: center;
       color: var(--text-secondary);
@@ -519,7 +519,7 @@
   <script>
     // Toggle switch interaction
     document.querySelector('.toggle-switch').addEventListener('click', function() {
-      this.style.background = this.style.background === 'rgb(203, 213, 225)' ? '#3b82f6' : '#cbd5e1';
+      this.style.background = this.style.background === 'rgb(203, 213, 225)' ? '#0ea5e9' : '#cbd5e1';
     });
   </script>
 </body>

@@ -11,26 +11,26 @@
     :root {
       --primary: #0f172a;
       --primary-light: #1e293b;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
+      --accent: #0ea5e9;
+      --accent-hover: #0284c7;
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      --text: #0f172a;
-      --text-secondary: #64748b;
-      --text-muted: #94a3b8;
-      --border: #e2e8f0;
-      --bg: #f8fafc;
-      --bg-card: #ffffff;
-      --bg-sidebar: #0f172a;
+      --text: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --border: #1E293B;
+      --bg: #0B1120;
+      --bg-card: #111827;
+      --bg-sidebar: #050811;
       --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
     }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #0B1120;
+      color: #F8FAFC;
     }
     
     .app { display: flex; min-height: 100vh; }
@@ -78,8 +78,8 @@
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
     
     .top-bar {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
+      background: #111827;
+      border-bottom: 1px solid #1E293B;
       padding: 16px 32px;
       display: flex;
       justify-content: space-between;
@@ -90,8 +90,8 @@
     
     /* Deal Selector */
     .deal-selector {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: #111827;
+      border: 1px solid #1E293B;
       border-radius: 8px;
       padding: 20px 24px;
       margin-bottom: 24px;
@@ -112,8 +112,8 @@
     
     .select-deal-btn {
       padding: 10px 20px;
-      background: var(--bg);
-      border: 1px solid var(--border);
+      background: #0B1120;
+      border: 1px solid #1E293B;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 500;
@@ -121,8 +121,8 @@
     
     /* Fundraising Progress */
     .fundraising-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: #111827;
+      border: 1px solid #1E293B;
       border-radius: 8px;
       padding: 24px;
       margin-bottom: 24px;
@@ -170,7 +170,7 @@
     
     .progress-bar {
       height: 12px;
-      background: var(--bg);
+      background: #0B1120;
       border-radius: 6px;
       overflow: hidden;
     }
@@ -192,8 +192,8 @@
     
     /* Commitments Table */
     .commitments-section {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+      background: #111827;
+      border: 1px solid #1E293B;
       border-radius: 8px;
       padding: 24px;
     }
@@ -249,12 +249,12 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-muted);
-      border-bottom: 2px solid var(--border);
+      border-bottom: 2px solid #1E293B;
     }
     
     td {
       padding: 16px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #1E293B;
       font-size: 0.9rem;
     }
     
@@ -311,8 +311,8 @@
     
     .action-btn {
       padding: 6px 10px;
-      border: 1px solid var(--border);
-      background: white;
+      border: 1px solid #1E293B;
+      background: #111827;
       border-radius: 4px;
       cursor: pointer;
       color: var(--text-secondary);
@@ -342,7 +342,7 @@
     .modal-overlay.active { display: flex; }
     
     .modal {
-      background: white;
+      background: #111827;
       border-radius: 8px;
       width: 100%;
       max-width: 500px;
@@ -352,7 +352,7 @@
     
     .modal-header {
       padding: 20px 24px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #1E293B;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -391,14 +391,14 @@
     .form-group select {
       width: 100%;
       padding: 10px 12px;
-      border: 1px solid var(--border);
+      border: 1px solid #1E293B;
       border-radius: 6px;
       font-size: 0.95rem;
     }
     
     .modal-footer {
       padding: 16px 24px;
-      border-top: 1px solid var(--border);
+      border-top: 1px solid #1E293B;
       display: flex;
       justify-content: flex-end;
       gap: 12px;
@@ -484,7 +484,7 @@
           <div class="section-header">
             <div class="section-title">Investor Commitments</div>
             <div>
-              <button class="btn btn-sm" style="background: var(--bg); border: 1px solid var(--border);">
+              <button class="btn btn-sm" style="background: #0B1120; border: 1px solid #1E293B;">
                 <i class="fas fa-download"></i> Export CSV
               </button>
             </div>
@@ -548,7 +548,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn" style="background: var(--bg); border: 1px solid var(--border);" onclick="closeModal()">Cancel</button>
+        <button class="btn" style="background: #0B1120; border: 1px solid #1E293B;" onclick="closeModal()">Cancel</button>
         <button class="btn btn-success" onclick="saveCommitment()">
           <i class="fas fa-check"></i> Record Commitment
         </button>

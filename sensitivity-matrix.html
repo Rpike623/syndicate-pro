@@ -15,25 +15,25 @@
     <script src="js/sp-math.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --radius: 12px; }
+        :root { --primary: #0f172a; --accent: #0ea5e9; --bg: #0B1120; --radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--primary); display: flex; min-height: 100vh; }
+        body { font-family: 'Inter', sans-serif; background: #0B1120; color: var(--primary); display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: var(--radius); padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.5)); }
         .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         
         .sens-table { width: 100%; border-collapse: collapse; text-align: center; }
-        .sens-table th { padding: 12px; font-size: 0.75rem; color: #64748b; background: #f8fafc; border: 1px solid #e2e8f0; }
-        .sens-table td { padding: 12px; font-family: 'JetBrains Mono'; font-size: 0.85rem; border: 1px solid #e2e8f0; }
+        .sens-table th { padding: 12px; font-size: 0.75rem; color: #64748b; background: #0B1120; border: 1px solid #1E293B; }
+        .sens-table td { padding: 12px; font-family: 'JetBrains Mono'; font-size: 0.85rem; border: 1px solid #1E293B; }
         .sens-val { font-weight: 700; }
         .sens-positive { color: #10b981; }
         .sens-negative { color: #ef4444; }
-        .sens-neutral { background: #f1f5f9; font-weight: 800; }
+        .sens-neutral { background: #0B1120; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -45,7 +45,7 @@
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Market Sensitivity Analysis</h1>
                 <p style="color: #64748b;">Underwriting stress-test across varying Cap Rate and Rent Growth scenarios</p>
             </div>
-            <select id="dealSelect" onchange="generateMatrix()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; font-weight: 600;">
+            <select id="dealSelect" onchange="generateMatrix()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; background: #111827; font-weight: 600;">
                 <option value="">— Select Deal —</option>
             </select>
         </div>

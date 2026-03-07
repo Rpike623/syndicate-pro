@@ -12,16 +12,16 @@
   <style>
     :root { 
       --primary: #0f172a; 
-      --accent: #6366f1; 
-      --success: #22c55e; 
-      --bg: #f8fafc; 
+      --accent: #0ea5e9; 
+      --success: #10b981; 
+      --bg: #0B1120; 
       --glass: rgba(255, 255, 255, 0.8);
       --glass-border: rgba(226, 232, 240, 0.5);
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body { 
       font-family:'Inter', sans-serif; 
-      background: var(--bg);
+      background: #0B1120;
       background-image: 
         radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0, transparent 50%), 
         radial-gradient(at 50% 0%, rgba(34, 197, 94, 0.03) 0, transparent 50%);
@@ -35,12 +35,12 @@
     .glass-card { 
       background: var(--glass); backdrop-filter: blur(10px); 
       border: 1px solid var(--glass-border); border-radius: 16px; 
-      padding: 32px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+      padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.5));
     }
 
     .form-group { margin-bottom: 24px; }
     .label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
-    .input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 15px; outline: none; transition: border-color 0.2s; }
+    .input { width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #1E293B; font-family: inherit; font-size: 15px; outline: none; transition: border-color 0.2s; }
     .input:focus { border-color: var(--accent); }
 
     .exec-btn { 
@@ -52,7 +52,7 @@
     .exec-btn:hover { background: #1e293b; transform: translateY(-1px); }
     .exec-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .summary-tile { display: flex; flex-direction: column; gap: 4px; padding: 20px; background: #fff; border: 1px solid #f1f5f9; border-radius: 12px; }
+    .summary-tile { display: flex; flex-direction: column; gap: 4px; padding: 20px; background: #111827; border: 1px solid #f1f5f9; border-radius: 12px; }
     .summary-val { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; letter-spacing: -0.05em; color: var(--primary); }
 
     .table { width: 100%; border-collapse: collapse; }
@@ -60,7 +60,7 @@
     .table td { padding: 16px; border-bottom: 1px solid #f8fafc; font-size: 14px; }
     
     .status-pill { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .status-pending { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+    .status-pending { background: #1118277ed; color: #c2410c; border: 1px solid #ffedd5; }
     .status-executed { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
   </style>
 </head>
