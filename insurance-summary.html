@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance Summary | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-shield-alt"></i> Insurance Summary</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="Ins.showModal()">Add Policy</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">Total Premium</span><span class="stat-value" id="statPremium">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Policies</span><span class="stat-value" id="statPolicies">0</span></div>
+        <div class="stat-card"><span class="stat-label">Total Coverage</span><span class="stat-value" id="statCoverage">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Renewals Due</span><span class="stat-value text-warning" id="statRenew">0</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Coverage Details</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Property</th><th>Type</th><th>Carrier</th><th>Limit</th><th>Premium</th><th>Expiry</th><th>Status</th></tr></thead><tbody id="insTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="insModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Add Policy</h2><button class="close" onclick="Ins.closeModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label>Property</label><select id="iProperty" class="form-select"><option>Sunset Apartments</option><option>Downtown Office</option></select></div>
+        <div class="form-group"><label>Coverage Type</label><select id="iType" class="form-select"><option>Property</option><option>Liability</option><option> umbrella</option><option> flood</option></select></div>
+        <div class="form-row">
+          <div class="form-group"><label>Carrier</label><input type="text" id="iCarrier" class="form-input"></div>
+          <div class="form-group"><label>Limit</label><input type="number" id="iLimit" class="form-input"></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="Ins.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Ins.save()">Save</button></div>
+    </div>
+  </div>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Ins.init();}</script>
+  <script src="js/sp-ins-summary.js"></script>
+</body>
+</html>
