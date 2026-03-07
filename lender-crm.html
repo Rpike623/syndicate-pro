@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lender CRM | Deeltrack</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <style>
+    :root {
+      --primary: #0f172a; --primary-light: #1e293b; --secondary: #334155;
+      --accent: #3b82f6; --accent-hover: #2563eb; --accent-light: #dbeafe;
+      --success: #10b981; --success-light: #d1fae5;
+      --warning: #f59e0b; --warning-light: #fef3c7;
+      --danger: #ef4444; --danger-light: #fee2e2;
+      --purple: #8b5cf6; --purple-light: #ede9fe;
+      --text: #0f172a; --text-secondary: #64748b; --text-muted: #94a3b8;
+      --border: #e2e8f0; --border-light: #f1f5f9;
+      --bg: #f8fafc; --bg-card: #ffffff;
+      --radius: 8px; --radius-md: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+    .app { display: flex; min-height: 100vh; }
+    .main { flex: 1; margin-left: 260px; padding: 32px; }
+    @media (max-width: 768px) { .main { margin-left: 0; padding: 20px; } }
+
+    /* Header */
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 6px; }
+    .page-header p { color: var(--text-secondary); font-size: 0.95rem; }
+
+    /* KPI Cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .kpi-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .kpi-value { font-size: 1.75rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+    .kpi-change { font-size: 0.8rem; margin-top: 4px; }
+    .kpi-change.up { color: var(--success); }
+    .kpi-change.down { color: var(--danger); }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 24px; }
+    .tab { padding: 12px 20px; font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Lender Grid */
+    .lender-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+    .lender-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0; overflow: hidden; transition: all 0.2s; }
+    .lender-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-color: var(--accent); }
+    .lender-header { padding: 20px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: flex-start; }
+    .lender-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .lender-type { font-size: 0.75rem; color: var(--text-secondary); }
+    .lender-status { font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+    .status-active { background: var(--success-light); color: var(--success); }
+    .status-pending { background: var(--warning-light); color: var(--warning); }
+    .status-cold { background: var(--border-light); color: var(--text-muted); }
+
+    .lender-body { padding: 20px; }
+    .lender-contact { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 0.875rem; color: var(--text-secondary); }
+    .lender-contact i { width: 16px; color: var(--text-muted); }
+
+    .products-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0; }
+    .product-tag { font-size: 0.7rem; padding: 3px 10px; border-radius: 4px; background: var(--accent-light); color: var(--accent); font-weight: 500; }
+    .product-tag.construction { background: var(--purple-light); color: var(--purple); }
+    .product-tag.bridge { background: var(--warning-light); color: var(--warning); }
+    .product-tag.perm { background: var(--success-light); color: var(--success); }
+
+    .loan-history { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light); }
+    .loan-history h4 { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .loan-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-light); font-size: 0.875rem; }
+    .loan-item:last-child { border-bottom: none; }
+    .loan-amount { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+    .lender-actions { display: flex; gap: 8px; padding: 16px 20px; background: var(--border-light); border-top: 1px solid var(--border-light); }
+    .btn-sm { padding: 6px 12px; font-size: 0.75rem; font-weight: 600; border-radius: var(--radius); border: 1px solid var(--border); background: var(--bg-card); cursor: pointer; }
+    .btn-sm:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+    /* Pipeline Board */
+    .pipeline-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    @media (max-width: 1200px) { .pipeline-board { grid-template-columns: repeat(2, 1fr); } }
+    .pipeline-column { background: var(--border-light); border-radius: var(--radius); padding: 16px; }
+    .pipeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .pipeline-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .pipeline-count { font-size: 0.75rem; background: var(--bg-card); padding: 2px 8px; border-radius: 10px; }
+    .pipeline-cards { display: flex; flex-direction: column; gap: 12px; }
+    .pipeline-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: grab; }
+    .pipeline-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .pipeline-card h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+    .pipeline-card .property { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px; }
+    .pipeline-card .amount { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--accent); font-size: 0.95rem; }
+    .pipeline-card .meta { display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Term Sheets */
+    .terms-list { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); }
+    .terms-item { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 100px; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--border-light); align-items: center; }
+    .terms-item:last-child { border-bottom: none; }
+    .terms-item.header { background: var(--border-light); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
+    .terms-lender { font-weight: 600; }
+    .terms-lender .type { font-size: 0.75rem; color: var(--text-secondary); font-weight: 400; }
+    .terms-rate { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--accent); }
+    .terms-amount { font-family: 'JetBrains Mono', monospace; }
+    .terms-status { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; display: inline-block; }
+    .status-received { background: var(--accent-light); color: var(--accent); }
+    .status-under-review { background: var(--warning-light); color: var(--warning); }
+    .status-accepted { background: var(--success-light); color: var(--success); }
+    .status-rejected { background: var(--danger-light); color: var(--danger); }
+    .status-expired { background: var(--border-light); color: var(--text-muted); }
+
+    /* Action Bar */
+    .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .btn { padding: 10px 18px; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border-light); }
+    .search-box { position: relative; }
+    .search-box input { padding: 10px 14px 10px 36px; border: 1px solid var(--border); border-radius: var(--radius); width: 280px; font-size: 0.875rem; }
+    .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--bg-card); border-radius: var(--radius-md); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 1.1rem; font-weight: 700; }
+    .modal-close { width: 32px; height: 32px; border: none; background: var(--border-light); border-radius: var(--radius); cursor: pointer; }
+    .modal-body { padding: 24px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 0.9rem; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); outline: none; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .modal-footer { padding: 0 24px 24px; display: flex; justify-content: flex-end; gap: 10px; }
+  </style>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main">
+    <div class="page-header">
+      <h1>Lender Relationship CRM</h1>
+      <p>Track lenders, term sheets, and loan pipeline in one place</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Active Lenders</div>
+        <div class="kpi-value" id="activeLenders">0</div>
+        <div class="kpi-change up"><i class="fas fa-arrow-up"></i> 3 this month</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Term Sheets Pending</div>
+        <div class="kpi-value" id="pendingTerms">0</div>
+        <div class="kpi-change">Under review</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pipeline Volume</div>
+        <div class="kpi-value" id="pipelineVolume">$0</div>
+        <div class="kpi-change up">Across all stages</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avg Interest Rate</div>
+        <div class="kpi-value" id="avgRate">0%</div>
+        <div class="kpi-change down"><i class="fas fa-arrow-down"></i> -15bps</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('lenders', this)"><i class="fas fa-university"></i> Lender Directory</button>
+      <button class="tab" onclick="switchTab('pipeline', this)"><i class="fas fa-stream"></i> Loan Pipeline</button>
+      <button class="tab" onclick="switchTab('terms', this)"><i class="fas fa-file-contract"></i> Term Sheets</button>
+    </div>
+
+    <!-- Lender Directory Tab -->
+    <div class="tab-panel active" id="tab-lenders">
+      <div class="action-bar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search lenders..." id="lenderSearch">
+        </div>
+        <button class="btn btn-primary" onclick="openLenderModal()"><i class="fas fa-plus"></i> Add Lender</button>
+      </div>
+      <div class="lender-grid" id="lenderGrid">
+        <!-- Lenders loaded via JS -->
+      </div>
+    </div>
+
+    <!-- Pipeline Tab -->
+    <div class="tab-panel" id="tab-pipeline">
+      <div class="action-bar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search deals..." id="pipelineSearch">
+        </div>
+        <button class="btn btn-primary" onclick="openPipelineModal()"><i class="fas fa-plus"></i> Add to Pipeline</button>
+      </div>
+      <div class="pipeline-board" id="pipelineBoard">
+        <div class="pipeline-column">
+          <div class="pipeline-header">
+            <span class="pipeline-title">Initial Contact</span>
+            <span class="pipeline-count" id="count-contact">0</span>
+          </div>
+          <div class="pipeline-cards" id="col-contact"></div>
+        </div>
+        <div class="pipeline-column">
+          <div class="pipeline-header">
+            <span class="pipeline-title">Term Sheet Requested</span>
+            <span class="pipeline-count" id="count-terms">0</span>
+          </div>
+          <div class="pipeline-cards" id="col-terms"></div>
+        </div>
+        <div class="pipeline-column">
+          <div class="pipeline-header">
+            <span class="pipeline-title">Underwriting</span>
+            <span class="pipeline-count" id="count-underwriting">0</span>
+          </div>
+          <div class="pipeline-cards" id="col-underwriting"></div>
+        </div>
+        <div class="pipeline-column">
+          <div class="pipeline-header">
+            <span class="pipeline-title">Approved / Closed</span>
+            <span class="pipeline-count" id="count-approved">0</span>
+          </div>
+          <div class="pipeline-cards" id="col-approved"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Term Sheets Tab -->
+    <div class="tab-panel" id="tab-terms">
+      <div class="action-bar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search term sheets..." id="termsSearch">
+        </div>
+        <button class="btn btn-primary" onclick="openTermSheetModal()"><i class="fas fa-plus"></i> Add Term Sheet</button>
+      </div>
+      <div class="terms-list" id="termsList">
+        <div class="terms-item header">
+          <div>Lender</div>
+          <div>Loan Amount</div>
+          <div>Rate</div>
+          <div>LTC</div>
+          <div>Status</div>
+          <div>Actions</div>
+        </div>
+        <!-- Term sheets loaded via JS -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Lender Modal -->
+  <div class="modal-overlay" id="lenderModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-university" style="color:var(--accent)"></i> Add Lender</h3>
+        <button class="modal-close" onclick="closeLenderModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Lender Name *</label>
+            <input type="text" id="lenderName" placeholder="e.g., First National Bank">
+          </div>
+          <div class="form-group">
+            <label>Lender Type *</label>
+            <select id="lenderType">
+              <option value="">Select type</option>
+              <option value="Bank">Bank</option>
+              <option value="Credit Union">Credit Union</option>
+              <option value="Debt Fund">Debt Fund</option>
+              <option value="Private Lender">Private Lender</option>
+              <option value="Agency">Agency (Fannie/Freddie)</option>
+              <option value="CMBS">CMBS Lender</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Primary Contact</label>
+            <input type="text" id="lenderContact" placeholder="Contact name">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="lenderEmail" placeholder="email@lender.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="lenderPhone" placeholder="(555) 123-4567">
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="lenderStatus">
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="cold">Cold</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Preferred Products (comma separated)</label>
+          <input type="text" id="lenderProducts" placeholder="Bridge, Construction, Permanent, Mezzanine">
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="lenderNotes" rows="3" placeholder="Relationship notes, preferences, etc."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeLenderModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveLender()"><i class="fas fa-save"></i> Save Lender</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add to Pipeline Modal -->
+  <div class="modal-overlay" id="pipelineModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-stream" style="color:var(--accent)"></i> Add to Pipeline</h3>
+        <button class="modal-close" onclick="closePipelineModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Property / Deal Name *</label>
+          <input type="text" id="pipeProperty" placeholder="e.g., Riverside Flats">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Lender *</label>
+            <select id="pipeLender">
+              <option value="">Select lender</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Loan Amount *</label>
+            <input type="number" id="pipeAmount" placeholder="5000000">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stage *</label>
+            <select id="pipeStage">
+              <option value="contact">Initial Contact</option>
+              <option value="terms">Term Sheet Requested</option>
+              <option value="underwriting">Underwriting</option>
+              <option value="approved">Approved</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Target Close Date</label>
+            <input type="date" id="pipeCloseDate">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="pipeNotes" rows="2" placeholder="Deal notes"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closePipelineModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="savePipeline()"><i class="fas fa-save"></i> Add to Pipeline</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Term Sheet Modal -->
+  <div class="modal-overlay" id="termSheetModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-file-contract" style="color:var(--accent)"></i> Add Term Sheet</h3>
+        <button class="modal-close" onclick="closeTermSheetModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Lender *</label>
+            <select id="termLender">
+              <option value="">Select lender</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Property / Deal *</label>
+            <input type="text" id="termProperty" placeholder="Deal name">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Loan Amount *</label>
+            <input type="number" id="termAmount" placeholder="5000000">
+          </div>
+          <div class="form-group">
+            <label>Interest Rate *</label>
+            <input type="text" id="termRate" placeholder="SOFR + 3.25%">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>LTC / LTV</label>
+            <input type="text" id="termLTC" placeholder="75% LTC">
+          </div>
+          <div class="form-group">
+            <label>Term</label>
+            <input type="text" id="termDuration" placeholder="24 months">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Status *</label>
+            <select id="termStatus">
+              <option value="received">Received</option>
+              <option value="under-review">Under Review</option>
+              <option value="accepted">Accepted</option>
+              <option value="rejected">Rejected</option>
+              <option value="expired">Expired</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Expiration Date</label>
+            <input type="date" id="termExpiry">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeTermSheetModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveTermSheet()"><i class="fas fa-save"></i> Save Term Sheet</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    SP.requireGP();
+    
+    // Sample data
+    let lenders = [
+      { id: 'l1', name: 'First National Bank', type: 'Bank', contact: 'Sarah Mitchell', email: 's.mitchell@fnb.com', phone: '(214) 555-0100', status: 'active', products: ['Bridge', 'Permanent'], notes: 'Great relationship, fast closings', loans: [{amount: 4200000, property: 'Riverside Flats', date: '2024-03-15'}, {amount: 7500000, property: 'Meridian Industrial', date: '2023-08-20'}] },
+      { id: 'l2', name: 'Texas Capital Partners', type: 'Debt Fund', contact: 'Michael Chen', email: 'mchen@txcapital.com', phone: '(512) 555-0200', status: 'active', products: ['Construction', 'Bridge'], notes: 'Aggressive on value-add deals', loans: [{amount: 12000000, property: 'Hudson Portfolio', date: '2024-01-10'}] },
+      { id: 'l3', name: 'LifeCo Financial', type: 'Private Lender', contact: 'Jennifer Adams', email: 'jadams@lifecofin.com', phone: '(713) 555-0300', status: 'pending', products: ['Permanent'], notes: 'Conservative, long-term hold preferred', loans: [] },
+      { id: 'l4', name: 'Fannie Mae DUS', type: 'Agency', contact: 'Robert Kim', email: 'r.kim@duslender.com', phone: '(469) 555-0400', status: 'active', products: ['Permanent'], notes: 'Best rates for stabilized multifamily', loans: [{amount: 8500000, property: 'Parkview Commons', date: '2024-06-01'}] },
+      { id: 'l5', name: 'Highland Credit', type: 'Private Lender', contact: 'David Torres', email: 'dtorres@highlandcredit.com', phone: '(210) 555-0500', status: 'cold', products: ['Bridge', 'Mezzanine'], notes: 'High rates but flexible', loans: [{amount: 2800000, property: 'Lone Star Storage', date: '2023-11-15'}] }
+    ];
+
+    let pipeline = [
+      { id: 'p1', property: 'Westgate Retail Center', lender: 'l1', amount: 5800000, stage: 'contact', closeDate: '2026-04-15', notes: 'Initial discussion' },
+      { id: 'p2', property: 'Brazos Hotel Group', lender: 'l2', amount: 15000000, stage: 'terms', closeDate: '2026-05-01', notes: 'Term sheet expected next week' },
+      { id: 'p3', property: 'Permian Basin Industrial', lender: 'l4', amount: 22000000, stage: 'underwriting', closeDate: '2026-03-30', notes: 'Appraisal in progress' },
+      { id: 'p4', property: 'Lone Star Self Storage', lender: 'l1', amount: 2800000, stage: 'approved', closeDate: '2026-03-10', notes: 'Closing scheduled' }
+    ];
+
+    let termSheets = [
+      { id: 't1', lender: 'l2', property: 'Brazos Hotel Group', amount: 15000000, rate: 'SOFR + 3.75%', ltc: '75% LTC', term: '36 months', status: 'received', expiry: '2026-03-15' },
+      { id: 't2', lender: 'l1', property: 'Westgate Retail Center', amount: 5800000, rate: 'SOFR + 3.25%', ltc: '70% LTC', term: '24 months', status: 'under-review', expiry: '2026-03-20' },
+      { id: 't3', lender: 'l4', property: 'Permian Basin Industrial', amount: 22000000, rate: '5.85% Fixed', ltc: '80% LTC', term: '120 months', status: 'accepted', expiry: '2026-02-28' },
+      { id: 't4', lender: 'l5', property: 'Lone Star Self Storage', amount: 2800000, rate: '10.5% Fixed', ltc: '65% LTC', term: '12 months', status: 'rejected', expiry: '2026-01-15' }
+    ];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderLenders();
+      renderPipeline();
+      renderTermSheets();
+      updateKPIs();
+      populateLenderSelects();
+    });
+
+    function switchTab(tabName, btn) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + tabName).classList.add('active');
+    }
+
+    function updateKPIs() {
+      document.getElementById('activeLenders').textContent = lenders.filter(l => l.status === 'active').length;
+      document.getElementById('pendingTerms').textContent = termSheets.filter(t => t.status === 'received' || t.status === 'under-review').length;
+      document.getElementById('pipelineVolume').textContent = '$' + (pipeline.reduce((s, p) => s + p.amount, 0) / 1000000).toFixed(1) + 'M';
+      const rates = termSheets.filter(t => t.status === 'received' || t.status === 'accepted').map(t => parseFloat(t.rate.match(/[\d.]+/)?.[0] || 0));
+      const avgRate = rates.length ? (rates.reduce((a, b) => a + b, 0) / rates.length).toFixed(2) : 0;
+      document.getElementById('avgRate').textContent = avgRate + '%';
+    }
+
+    // Lender Directory
+    function renderLenders() {
+      const grid = document.getElementById('lenderGrid');
+      grid.innerHTML = lenders.map(lender => `
+        <div class="lender-card">
+          <div class="lender-header">
+            <div class="lender-info">
+              <h3>${lender.name}</h3>
+              <div class="lender-type">${lender.type} • ${lender.contact || 'No contact'}</div>
+            </div>
+            <span class="lender-status status-${lender.status}">${lender.status}</span>
+          </div>
+          <div class="lender-body">
+            <div class="lender-contact"><i class="fas fa-envelope"></i> ${lender.email || '—'}</div>
+            <div class="lender-contact"><i class="fas fa-phone"></i> ${lender.phone || '—'}</div>
+            <div class="products-list">
+              ${lender.products.map(p => `<span class="product-tag ${p.toLowerCase()}">${p}</span>`).join('')}
+            </div>
+            ${lender.loans.length ? `
+              <div class="loan-history">
+                <h4>Loan History (${lender.loans.length})</h4>
+                ${lender.loans.slice(0, 2).map(loan => `
+                  <div class="loan-item">
+                    <span>${loan.property}</span>
+                    <span class="loan-amount">$${(loan.amount/1000000).toFixed(1)}M</span>
+                  </div>
+                `).join('')}
+                ${lender.loans.length > 2 ? `<div class="loan-item" style="color:var(--text-muted)">+ ${lender.loans.length - 2} more</div>` : ''}
+              </div>
+            ` : ''}
+          </div>
+          <div class="lender-actions">
+            <button class="btn-sm" onclick="viewLender('${lender.id}')"><i class="fas fa-eye"></i> View</button>
+            <button class="btn-sm" onclick="addLoan('${lender.id}')"><i class="fas fa-plus"></i> Add Loan</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openLenderModal() { document.getElementById('lenderModal').classList.add('open'); }
+    function closeLenderModal() { document.getElementById('lenderModal').classList.remove('open'); }
+    function saveLender() {
+      const name = document.getElementById('lenderName').value;
+      if (!name) return alert('Lender name required');
+      const newLender = {
+        id: 'l' + Date.now(),
+        name: name,
+        type: document.getElementById('lenderType').value || 'Bank',
+        contact: document.getElementById('lenderContact').value,
+        email: document.getElementById('lenderEmail').value,
+        phone: document.getElementById('lenderPhone').value,
+        status: document.getElementById('lenderStatus').value,
+        products: document.getElementById('lenderProducts').value.split(',').map(p => p.trim()).filter(p => p),
+        notes: document.getElementById('lenderNotes').value,
+        loans: []
+      };
+      lenders.push(newLender);
+      renderLenders();
+      updateKPIs();
+      populateLenderSelects();
+      closeLenderModal();
+      // Clear form
+      document.querySelectorAll('#lenderModal input, #lenderModal select, #lenderModal textarea').forEach(el => el.value = '');
+    }
+
+    // Pipeline
+    function renderPipeline() {
+      const stages = ['contact', 'terms', 'underwriting', 'approved'];
+      stages.forEach(stage => {
+        const colItems = pipeline.filter(p => p.stage === stage);
+        document.getElementById('count-' + stage).textContent = colItems.length;
+        document.getElementById('col-' + stage).innerHTML = colItems.map(p => {
+          const lender = lenders.find(l => l.id === p.lender);
+          return `
+            <div class="pipeline-card" draggable="true" data-id="${p.id}">
+              <h4>${lender?.name || 'Unknown'}</h4>
+              <div class="property">${p.property}</div>
+              <div class="amount">$${(p.amount/1000000).toFixed(2)}M</div>
+              <div class="meta">
+                <span><i class="fas fa-calendar"></i> ${p.closeDate || 'TBD'}</span>
+                <span onclick="deletePipeline('${p.id}')" style="cursor:pointer;color:var(--danger)"><i class="fas fa-trash"></i></span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      });
+    }
+
+    function openPipelineModal() { 
+      populateLenderSelects();
+      document.getElementById('pipelineModal').classList.add('open'); 
+    }
+    function closePipelineModal() { document.getElementById('pipelineModal').classList.remove('open'); }
+    function savePipeline() {
+      const property = document.getElementById('pipeProperty').value;
+      const lender = document.getElementById('pipeLender').value;
+      const amount = parseFloat(document.getElementById('pipeAmount').value);
+      if (!property || !lender || !amount) return alert('Property, lender and amount required');
+      pipeline.push({
+        id: 'p' + Date.now(),
+        property: property,
+        lender: lender,
+        amount: amount,
+        stage: document.getElementById('pipeStage').value,
+        closeDate: document.getElementById('pipeCloseDate').value,
+        notes: document.getElementById('pipeNotes').value
+      });
+      renderPipeline();
+      updateKPIs();
+      closePipelineModal();
+      document.querySelectorAll('#pipelineModal input, #pipelineModal select, #pipelineModal textarea').forEach(el => el.value = '');
+    }
+    function deletePipeline(id) {
+      if (!confirm('Remove from pipeline?')) return;
+      pipeline = pipeline.filter(p => p.id !== id);
+      renderPipeline();
+      updateKPIs();
+    }
+
+    // Term Sheets
+    function renderTermSheets() {
+      const list = document.getElementById('termsList');
+      list.innerHTML = `
+        <div class="terms-item header">
+          <div>Lender</div>
+          <div>Loan Amount</div>
+          <div>Rate</div>
+          <div>LTC</div>
+          <div>Status</div>
+          <div>Actions</div>
+        </div>
+        ${termSheets.map(ts => {
+          const lender = lenders.find(l => l.id === ts.lender);
+          return `
+            <div class="terms-item">
+              <div class="terms-lender">
+                ${lender?.name || 'Unknown'}
+                <div class="type">${ts.property}</div>
+              </div>
+              <div class="terms-amount">$${(ts.amount/1000000).toFixed(2)}M</div>
+              <div class="terms-rate">${ts.rate}</div>
+              <div>${ts.ltc}</div>
+              <div><span class="terms-status status-${ts.status}">${ts.status.replace('-', ' ')}</span></div>
+              <div>
+                <button class="btn-sm" onclick="viewTermSheet('${ts.id}')">View</button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
+
+    function openTermSheetModal() { 
+      populateLenderSelects();
+      document.getElementById('termSheetModal').classList.add('open'); 
+    }
+    function closeTermSheetModal() { document.getElementById('termSheetModal').classList.remove('open'); }
+    function saveTermSheet() {
+      const lender = document.getElementById('termLender').value;
+      const property = document.getElementById('termProperty').value;
+      const amount = parseFloat(document.getElementById('termAmount').value);
+      const rate = document.getElementById('termRate').value;
+      if (!lender || !property || !amount || !rate) return alert('Lender, property, amount and rate required');
+      termSheets.push({
+        id: 't' + Date.now(),
+        lender: lender,
+        property: property,
+        amount: amount,
+        rate: rate,
+        ltc: document.getElementById('termLTC').value,
+        term: document.getElementById('termDuration').value,
+        status: document.getElementById('termStatus').value,
+        expiry: document.getElementById('termExpiry').value
+      });
+      renderTermSheets();
+      updateKPIs();
+      closeTermSheetModal();
+      document.querySelectorAll('#termSheetModal input, #termSheetModal select').forEach(el => el.value = '');
+    }
+
+    // Helper functions
+    function populateLenderSelects() {
+      const opts = lenders.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+      document.getElementById('pipeLender').innerHTML = '<option value="">Select lender</option>' + opts;
+      document.getElementById('termLender').innerHTML = '<option value="">Select lender</option>' + opts;
+    }
+
+    function viewLender(id) { alert('View lender: ' + id); }
+    function addLoan(id) { alert('Add loan for: ' + id); }
+    function viewTermSheet(id) { alert('View term sheet: ' + id); }
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('open');
+      });
+    });
+  </script>
+</body>
+</html>

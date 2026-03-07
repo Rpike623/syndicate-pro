@@ -1268,6 +1268,7 @@ window.SP = (function () {
           { href:'om-v2.html', icon:'fa-clapperboard', label:'Interactive Offering' },
           { href:'waterfall-explainer.html', icon:'fa-play-circle', label:'Waterfall Animator' },
           { href:'waterfall-guide.html', icon:'fa-book-open', label:'Waterfall Guide' },
+          { href:'lender-crm.html', icon:'fa-university', label:'Lender CRM' },
           { href:'market-comps.html', icon:'fa-city', label:'Market Comps' },
           { href:'email-templates.html', icon:'fa-envelope', label:'Email Hub' },
           { href:'debt-tracker.html', icon:'fa-landmark', label:'Debt Tracker' },
