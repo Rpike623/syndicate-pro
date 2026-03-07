@@ -1,74 +1,634 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>deeltrack — Real Estate Syndication Platform</title>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deeltrack | Institutional Syndication Management</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Animations -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7', // Primary Accent
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            },
+            dark: {
+              base: '#0B1120',  // Deep charcoal/navy
+              card: '#111827',
+              border: '#1E293B',
+              muted: '#64748B',
+            }
+          },
+          backgroundImage: {
+            'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+            'hero-mesh': 'radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.15) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(14, 165, 233, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(2, 132, 199, 0.1) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(14, 165, 233, 0.1) 0px, transparent 50%)',
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; line-height: 1.6; }
-    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px 20px; }
-    .hero h1 { font-size: clamp(40px, 8vw, 72px); font-weight: 700; margin-bottom: 20px; }
-    .hero h1 span { background: linear-gradient(135deg, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero p { font-size: 20px; color: #64748b; max-width: 600px; margin-bottom: 40px; }
-    .cta { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-    .btn { padding: 16px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; text-decoration: none; transition: all 0.2s; }
-    .btn-primary { background: linear-gradient(135deg, #8b5cf6, #06b6d4); color: white; }
-    .btn-secondary { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; }
-    .features { padding: 80px 20px; max-width: 1200px; margin: 0 auto; }
-    .features h2 { text-align: center; font-size: 36px; margin-bottom: 60px; }
-    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-    .feature { background: #1a1a24; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 30px; }
-    .feature h3 { font-size: 20px; margin-bottom: 12px; color: #8b5cf6; }
-    .feature p { color: #64748b; }
+    /* Custom Styling & Overrides */
+    body {
+      background-color: theme('colors.dark.base');
+      color: #F8FAFC;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    
+    /* Subtle Grid Background for Hero */
+    .hero-bg {
+      background-image: theme('backgroundImage.hero-mesh'), 
+                        linear-gradient(theme('colors.dark.border') 1px, transparent 1px),
+                        linear-gradient(90deg, theme('colors.dark.border') 1px, transparent 1px);
+      background-size: 100% 100%, 60px 60px, 60px 60px;
+      background-position: center center;
+    }
+
+    /* Glassmorphism components */
+    .glass-card {
+      background: rgba(17, 24, 39, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid theme('colors.dark.border');
+    }
+    
+    .glass-nav {
+      background: rgba(11, 17, 32, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid theme('colors.dark.border');
+    }
+
+    /* Feature Card Hover Glow */
+    .feature-card {
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(to bottom right, theme('colors.brand.400'), transparent);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 40px -10px rgba(2, 132, 199, 0.15);
+    }
+    
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Custom Gradients for Text & Buttons */
+    .text-gradient {
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-image: linear-gradient(to right, #38bdf8, #0284c7);
+    }
+    
+    .btn-gradient {
+      background: linear-gradient(135deg, theme('colors.brand.500'), theme('colors.brand.700'));
+      transition: all 0.3s ease;
+    }
+    
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, theme('colors.brand.400'), theme('colors.brand.600'));
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.4);
+    }
+
+    /* Connecting Lines in 'How it Works' */
+    .timeline-line {
+      position: absolute;
+      top: 2rem;
+      left: calc(50% + 2rem);
+      right: calc(-50% + 2rem);
+      height: 2px;
+      background: linear-gradient(90deg, theme('colors.brand.600'), transparent);
+      z-index: -1;
+    }
+    
+    @media (max-width: 768px) {
+      .timeline-line { display: none; }
+    }
+
+    /* Animated Counter specific styling */
+    .stat-number {
+      font-feature-settings: "tnum";
+      font-variant-numeric: tabular-nums;
+    }
+    
+    /* Mockup Frame */
+    .mockup-frame {
+      border-radius: 12px;
+      border: 1px solid theme('colors.dark.border');
+      background: theme('colors.dark.card');
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .mockup-header {
+      background: #0f172a;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid theme('colors.dark.border');
+    }
+    .mockup-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .mockup-body {
+      padding: 24px;
+      position: relative;
+    }
+    /* Add subtle gradient overlay to bottom of mockup to fade it out */
+    .mockup-fade {
+      position: absolute;
+      bottom: 0; left: 0; right: 0; height: 100px;
+      background: linear-gradient(to bottom, transparent, theme('colors.dark.base'));
+      pointer-events: none;
+    }
+
+    /* Hide scrollbar structure */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: theme('colors.dark.base');
+    }
+    ::-webkit-scrollbar-thumb {
+      background: theme('colors.dark.border');
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: theme('colors.dark.muted');
+    }
   </style>
 </head>
-<body>
-  <section class="hero">
-    <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:20px;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="52" height="52">
-        <circle cx="24" cy="24" r="24" fill="#1e3a5f"/>
-        <rect x="10" y="7" width="5.5" height="34" rx="2.75" fill="#3b82f6"/>
-        <path d="M 19 16 L 36 24 L 19 32" stroke="#3b82f6" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <h1 style="margin:0;">deel<span>track</span></h1>
+<body class="antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- Navigation -->
+  <nav class="fixed w-full z-50 glass-nav transition-all duration-300" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex-shrink-0 flex items-center gap-3">
+          <div class="w-8 h-8 rounded bg-gradient-to-br from-brand-400 to-brand-700 flex items-center justify-center text-white font-bold text-lg">
+            d
+          </div>
+          <span class="font-bold text-xl tracking-tight">deeltrack</span>
+        </div>
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="#features" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Features</a>
+          <a href="#how-it-works" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">How It Works</a>
+          <a href="#portal" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Investor Portal</a>
+          <a href="login.html" class="text-sm font-semibold text-white/90 hover:text-white transition-colors">Log In</a>
+          <a href="login.html" class="btn-gradient text-white text-sm font-semibold px-5 py-2.5 rounded-md flex items-center gap-2">
+            Get Started <i class="fas fa-arrow-right text-[10px]"></i>
+          </a>
+        </div>
+      </div>
     </div>
-    <p>Complete real estate syndication platform. From deal sourcing to investor distributions.</p>
-    <div class="cta">
-      <a href="login.html" class="btn btn-primary">Get Started</a>
-      <a href="#features" class="btn btn-secondary">Learn More</a>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-bg relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden min-h-[90vh] flex flex-col justify-center">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <div data-aos="fade-up" data-aos-duration="1000">
+        <span class="inline-block py-1 px-3 rounded-full bg-brand-900/50 border border-brand-500/30 text-brand-300 text-xs font-semibold tracking-wider uppercase mb-6 shadow-[0_0_15px_rgba(14,165,233,0.2)]">
+          Institutional-Grade Infrastructure
+        </span>
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
+          Syndication management that <br class="hidden lg:block" />
+          <span class="text-gradient">scales with your portfolio.</span>
+        </h1>
+        <p class="mt-4 text-xl text-dark-muted max-w-3xl mx-auto mb-10 leading-relaxed font-light">
+          Your investors deserve better than spreadsheets. Deeltrack replaces disjointed tools with a unified platform for pipeline tracking, automated waterfalls, document generation, and a premium LP portal.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+          <a href="login.html" class="btn-gradient text-white font-semibold flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-lg">
+            Get Started
+          </a>
+          <a href="#features" class="glass-card hover:bg-white/5 text-white font-medium flex items-center justify-center gap-2 px-8 py-4 rounded-lg text-lg transition-colors smooth-scroll">
+            <i class="fas fa-play-circle text-brand-400"></i> See How It Works
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Decorative glowing orb behind hero text -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-600/20 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+  </section>
+
+  <!-- Social Proof / Stats Bar -->
+  <section class="border-y border-dark-border bg-dark-card/50 backdrop-blur-sm relative z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-dark-border">
+        
+        <div class="p-4" data-aos="fade-up" data-aos-delay="100">
+          <div class="text-4xl md:text-5xl font-bold font-mono text-white mb-2 flex justify-center items-center">
+            $<span class="counter stat-number" data-target="250">0</span>M+
+          </div>
+          <div class="text-sm font-medium text-dark-muted uppercase tracking-widest">Distributions Tracked</div>
+        </div>
+
+        <div class="p-4" data-aos="fade-up" data-aos-delay="200">
+          <div class="text-4xl md:text-5xl font-bold font-mono text-white mb-2 flex justify-center items-center">
+            <span class="counter stat-number" data-target="180">0</span>+
+          </div>
+          <div class="text-sm font-medium text-dark-muted uppercase tracking-widest">Deals Managed</div>
+        </div>
+
+        <div class="p-4" data-aos="fade-up" data-aos-delay="300">
+          <div class="text-4xl md:text-5xl font-bold font-mono text-white mb-2 flex justify-center items-center">
+            <span class="counter stat-number" data-target="1400">0</span>+
+          </div>
+          <div class="text-sm font-medium text-dark-muted uppercase tracking-widest">Investors Served</div>
+        </div>
+
+      </div>
     </div>
   </section>
-  
-  <section class="features" id="features">
-    <h2>Everything You Need</h2>
-    <div class="feature-grid">
-      <div class="feature">
-        <h3>Deal Pipeline</h3>
-        <p>Track every deal from sourcing through closing. LOI deadlines, due diligence, and milestones.</p>
+
+  <!-- Features Grid -->
+  <section id="features" class="py-24 relative overflow-hidden">
+    <!-- Background element -->
+    <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-800/10 rounded-full blur-[100px] -z-10"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
+        <h2 class="text-brand-400 font-semibold tracking-wide uppercase text-sm mb-3">Core Capabilities</h2>
+        <h3 class="text-3xl md:text-4xl font-bold mb-4">Everything you need to manage funds.</h3>
+        <p class="text-dark-muted text-lg">A robust operating system designed specifically for real estate syndicators. Built for scale, security, and precision.</p>
       </div>
-      <div class="feature">
-        <h3>Investor CRM</h3>
-        <p>Manage your investor relationships. Accreditation tracking, commitments, and communications.</p>
-      </div>
-      <div class="feature">
-        <h3>Auto Waterfall</h3>
-        <p>Set it once per deal. Distributions automatically calculated based on your terms.</p>
-      </div>
-      <div class="feature">
-        <h3>Document Generation</h3>
-        <p>Generate PPMs, operating agreements, and subscription docs. E-sign ready.</p>
-      </div>
-      <div class="feature">
-        <h3>Capital Calls</h3>
-        <p>Request funds from investors with automated calculations and wire instructions.</p>
-      </div>
-      <div class="feature">
-        <h3>K-1 Reports</h3>
-        <p>Tax-ready reports for your investors. Export and distribute seamlessly.</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Feature 1 -->
+        <div class="glass-card rounded-xl p-8 feature-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="w-12 h-12 rounded-lg bg-brand-900/50 flex items-center justify-center mb-6 border border-brand-700/50 text-brand-400 text-xl">
+            <i class="fas fa-stream"></i>
+          </div>
+          <h4 class="text-xl font-bold mb-3">Deal Pipeline</h4>
+          <p class="text-sm text-gray-400 leading-relaxed">Track every deal from sourcing through closing. Manage LOI deadlines, due diligence milestones, and closing checklists in one unified kanban view.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="glass-card rounded-xl p-8 feature-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="w-12 h-12 rounded-lg bg-brand-900/50 flex items-center justify-center mb-6 border border-brand-700/50 text-brand-400 text-xl">
+            <i class="fas fa-users"></i>
+          </div>
+          <h4 class="text-xl font-bold mb-3">Investor CRM</h4>
+          <p class="text-sm text-gray-400 leading-relaxed">Manage your entire investor base. Track accreditation status natively, view historical commitments, and maintain detailed relationship logs.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="glass-card rounded-xl p-8 feature-card" data-aos="fade-up" data-aos-delay="300">
+          <div class="w-12 h-12 rounded-lg bg-brand-900/50 flex items-center justify-center mb-6 border border-brand-700/50 text-brand-400 text-xl">
+            <i class="fas fa-water"></i>
+          </div>
+          <h4 class="text-xl font-bold mb-3">Waterfall Distributions</h4>
+          <p class="text-sm text-gray-400 leading-relaxed">Configure your promote structure once. Preferred returns, complex catch-up provisions, and multi-tier splits are calculated automatically and flawlessly.</p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="glass-card rounded-xl p-8 feature-card" data-aos="fade-up" data-aos-delay="400">
+          <div class="w-12 h-12 rounded-lg bg-brand-900/50 flex items-center justify-center mb-6 border border-brand-700/50 text-brand-400 text-xl">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h4 class="text-xl font-bold mb-3">Document Vault</h4>
+          <p class="text-sm text-gray-400 leading-relaxed">Generate dynamically and store securely. PPMs, operating agreements, subscription docs, and custom side letters — all organized and e-signature ready.</p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="glass-card rounded-xl p-8 feature-card" data-aos="fade-up" data-aos-delay="500">
+          <div class="w-12 h-12 rounded-lg bg-brand-900/50 flex items-center justify-center mb-6 border border-brand-700/50 text-brand-400 text-xl">
+            <i class="fas fa-money-check-alt"></i>
+          </div>
+          <h4 class="text-xl font-bold mb-3">Capital Calls</h4>
+          <p class="text-sm text-gray-400 leading-relaxed">Issue capital calls effortlessly. Automated pro-rata calculations, custom investor-specific notices, and secure wire instruction delivery in seconds.</p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="glass-card rounded-xl p-8 feature-card" data-aos="fade-up" data-aos-delay="600">
+          <div class="w-12 h-12 rounded-lg bg-brand-900/50 flex items-center justify-center mb-6 border border-brand-700/50 text-brand-400 text-xl">
+            <i class="fas fa-file-invoice-dollar"></i>
+          </div>
+          <h4 class="text-xl font-bold mb-3">K-1 & Tax Reporting</h4>
+          <p class="text-sm text-gray-400 leading-relaxed">Deliver tax-ready reports to your investors painlessly. Generate Form 1065 data, distribute securely, and track LP downloads and acknowledgments.</p>
+        </div>
+
       </div>
     </div>
   </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="py-24 bg-dark-card/30 border-y border-dark-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center mb-20" data-aos="fade-up">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Streamline your workflow.</h2>
+        <p class="text-dark-muted text-lg max-w-2xl mx-auto">From acquiring an asset to distributing profits, deeltrack provides structure at every step of the syndication lifecycle.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
+        
+        <!-- Step 1 -->
+        <div class="relative text-center z-10" data-aos="fade-right" data-aos-delay="100">
+          <div class="w-16 h-16 mx-auto bg-dark-base border-2 border-brand-500 rounded-full flex items-center justify-center text-xl font-bold text-white mb-6 shadow-[0_0_20px_rgba(14,165,233,0.3)]">
+            1
+          </div>
+          <div class="timeline-line"></div>
+          <h4 class="text-lg font-bold mb-2">Set Up Your Deal</h4>
+          <p class="text-sm text-gray-400">Define your legal entity structure, dial in waterfall terms, generate offering docs, and log initial investor commitments.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative text-center z-10" data-aos="fade-up" data-aos-delay="300">
+          <div class="w-16 h-16 mx-auto bg-dark-base border-2 border-brand-500 rounded-full flex items-center justify-center text-xl font-bold text-white mb-6 shadow-[0_0_20px_rgba(14,165,233,0.3)]">
+            2
+          </div>
+          <div class="timeline-line"></div>
+          <h4 class="text-lg font-bold mb-2">Manage & Track</h4>
+          <p class="text-sm text-gray-400">Monitor your acquisitions pipeline, issue capital calls seamlessly, and manage ongoing LP communications securely.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative text-center z-10" data-aos="fade-left" data-aos-delay="500">
+          <div class="w-16 h-16 mx-auto bg-dark-base border-2 border-brand-500 rounded-full flex items-center justify-center text-xl font-bold text-white mb-6 shadow-[0_0_20px_rgba(14,165,233,0.3)]">
+            3
+          </div>
+          <h4 class="text-lg font-bold mb-2">Distribute & Report</h4>
+          <p class="text-sm text-gray-400">Execute one-click distribution runs, publish automated K-1s, and provide LPs with a real-time, self-serve portal.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Investor Portal Preview -->
+  <section id="portal" class="py-24 relative overflow-hidden">
+    <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-700/10 rounded-full blur-[120px] -z-10"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        
+        <div data-aos="fade-right">
+          <h2 class="text-brand-400 font-semibold tracking-wide uppercase text-sm mb-3">The LP Experience</h2>
+          <h3 class="text-3xl md:text-4xl font-bold mb-6">A portal that makes you look like an institution.</h3>
+          <p class="text-dark-muted text-lg mb-8 leading-relaxed">
+            Your investors expect transparency. Give them a dedicated, secure portal to view capital account summaries, track distribution history, download K-1s, and review deal documents on demand.
+          </p>
+          <ul class="space-y-4 mb-8">
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-brand-500 mt-1"></i>
+              <span class="text-gray-300">White-labeled to your firm's brand</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-brand-500 mt-1"></i>
+              <span class="text-gray-300">Mobile-optimized for LPs on the go</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i class="fas fa-check-circle text-brand-500 mt-1"></i>
+              <span class="text-gray-300">Self-serve document vault (no more email attachments)</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- CSS Mockup -->
+        <div class="relative" data-aos="fade-left">
+          <div class="mockup-frame">
+            <!-- Browser Header -->
+            <div class="mockup-header">
+              <div class="flex gap-1.5 mr-4">
+                <div class="mockup-dot bg-red-500/80"></div>
+                <div class="mockup-dot bg-yellow-500/80"></div>
+                <div class="mockup-dot bg-green-500/80"></div>
+              </div>
+              <div class="bg-black/40 rounded text-[10px] text-gray-400 px-4 py-1 flex-1 text-center font-mono">
+                portal.deeltrack.com/my-investments
+              </div>
+            </div>
+            
+            <!-- Dashboard UI Mockup Content -->
+            <div class="mockup-body h-[400px]">
+              
+              <!-- Mock Header -->
+              <div class="flex justify-between items-end border-b border-dark-border pb-4 mb-6">
+                <div>
+                  <h4 class="font-bold text-xl mb-1">Welcome back, Sarah</h4>
+                  <div class="text-xs text-gray-500 font-mono">Total Invested: $750,000</div>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center text-xs font-bold">SC</div>
+              </div>
+
+              <!-- Mock KPI Row -->
+              <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-dark-base border border-dark-border rounded p-3">
+                  <div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Active Deals</div>
+                  <div class="text-xl font-bold font-mono">4</div>
+                </div>
+                <div class="bg-dark-base border border-dark-border rounded p-3">
+                  <div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">YTD Distributions</div>
+                  <div class="text-xl font-bold font-mono text-success">$32,500</div>
+                </div>
+                <div class="bg-dark-base border border-dark-border rounded p-3">
+                  <div class="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Avg IRR</div>
+                  <div class="text-xl font-bold font-mono text-brand-400">16.4%</div>
+                </div>
+              </div>
+
+              <!-- Mock Chart/List Area -->
+              <div class="bg-dark-base border border-dark-border rounded p-4 mb-4">
+                <div class="text-xs font-bold mb-3 flex items-center gap-2"><i class="fas fa-file-pdf text-red-400"></i> Recent Documents</div>
+                <div class="space-y-2">
+                  <div class="flex justify-between text-xs py-2 border-b border-dark-card">
+                    <span class="text-gray-300">2026 K-1 - Riverside Flats</span>
+                    <span class="text-brand-400 cursor-pointer">Download</span>
+                  </div>
+                  <div class="flex justify-between text-xs py-2 border-b border-dark-card">
+                    <span class="text-gray-300">Q1 Update Memo</span>
+                    <span class="text-brand-400 cursor-pointer">Download</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mockup-fade"></div>
+            </div>
+          </div>
+          
+          <!-- Decorative glow behind mockup -->
+          <div class="absolute -inset-4 bg-brand-500/20 blur-2xl -z-10 rounded-full"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-24 relative overflow-hidden bg-gradient-to-b from-transparent to-dark-card border-t border-dark-border">
+    <div class="absolute inset-0 hero-bg mix-blend-overlay opacity-50 pointer-events-none"></div>
+    <div class="max-w-4xl mx-auto px-4 text-center relative z-10" data-aos="zoom-in">
+      <h2 class="text-4xl md:text-5xl font-extrabold mb-6">Ready to professionalize your syndication operation?</h2>
+      <p class="text-lg text-dark-muted mb-10">Join top-performing GPs managing their capital lifecycle efficiently.</p>
+      
+      <a href="login.html" class="btn-gradient text-white text-lg font-bold px-10 py-5 rounded-lg inline-flex items-center gap-3 shadow-[0_0_30px_rgba(14,165,233,0.3)] hover:scale-105">
+        Get Started Now <i class="fas fa-laptop-code"></i>
+      </a>
+      
+      <p class="mt-8 text-sm text-gray-500">
+        Questions? Reach us at <a href="mailto:hello@deeltrack.com" class="text-brand-400 hover:text-brand-300 underline underline-offset-4">hello@deeltrack.com</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-[#050811] py-12 border-t border-dark-border text-center sm:text-left">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 rounded bg-brand-600 flex items-center justify-center text-white font-bold text-xs">d</div>
+          <span class="font-bold text-lg text-gray-200">deeltrack</span>
+        </div>
+        
+        <div class="flex flex-wrap justify-center gap-8 text-sm font-medium">
+          <a href="#features" class="text-gray-400 hover:text-white transition-colors smooth-scroll">Features</a>
+          <a href="login.html" class="text-gray-400 hover:text-white transition-colors">Log In</a>
+          <a href="mailto:hello@deeltrack.com" class="text-gray-400 hover:text-white transition-colors">Contact</a>
+        </div>
+        
+        <div class="text-xs text-gray-600">
+          &copy; 2025 deeltrack. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // Initialize Scroll Animations
+    AOS.init({
+      once: true,
+      offset: 50,
+      duration: 800,
+      easing: 'ease-out-cubic',
+    });
+
+    // Animate Counters
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200; 
+
+    const animateCounters = () => {
+      counters.forEach(counter => {
+        const updateCount = () => {
+          const target = +counter.getAttribute('data-target');
+          const count = +counter.innerText;
+          const inc = target / speed;
+
+          if (count < target) {
+            counter.innerText = Math.ceil(count + inc);
+            setTimeout(updateCount, 15);
+          } else {
+            // Apply formatting if necessary based on data-target scale
+            if(target === 1400) {
+               // Quick hack to add comma for the 1,400+ since the counter wipes text
+               counter.innerText = "1,400";
+            } else {
+               counter.innerText = target;
+            }
+          }
+        };
+        updateCount();
+      });
+    };
+
+    // Intersection Observer to trigger counter animation when in view
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.5
+    };
+
+    const counterObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    const statsSection = document.querySelector('.stat-number')?.parentElement?.parentElement;
+    if(statsSection) {
+      counterObserver.observe(statsSection);
+    }
+
+    // Smooth Scroll specifically for nav anchors
+    document.querySelectorAll('.smooth-scroll, nav a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+        if(targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80, // offset for fixed nav
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    // Change Navbar style on scroll
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        nav.classList.add('shadow-lg');
+        nav.style.background = 'rgba(11, 17, 32, 0.95)';
+      } else {
+        nav.classList.remove('shadow-lg');
+        nav.style.background = 'rgba(11, 17, 32, 0.85)';
+      }
+    });
+  </script>
 </body>
 </html>
