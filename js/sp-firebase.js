@@ -46,16 +46,21 @@ const SPFB = (function () {
       return;
     }
     try {
+      // Configure Firestore with cache settings (replaces deprecated enablePersistence)
+      const firestoreSettings = {
+        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+      };
+      
       _db      = firebase.firestore();
+      _db.settings(firestoreSettings);
       _storage = firebase.storage();
       _auth    = firebase.auth();
       _auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
-      // Enable offline persistence
+      // Enable offline persistence (fallback for older SDKs)
       _db.enablePersistence({ synchronizeTabs: true })
         .catch(err => {
-          if (err.code === 'failed-precondition') console.warn('SPFB: persistence limited to one tab');
-          else if (err.code === 'unimplemented') console.warn('SPFB: persistence not supported');
+          // Silent fail - persistence is optional, cache settings handle offline
         });
 
       // Watch auth state
