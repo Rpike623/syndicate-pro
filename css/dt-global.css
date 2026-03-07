@@ -4101,3 +4101,19 @@ fieldset label {
 }
 
 /* ── END FINAL CATCH-ALL ─────────────────────────────────────────────────── */
+
+/* ── ADDITIONAL VAL/METRIC CLASSES: force white on dark ──────────────────── */
+.perf-val,
+.summary-val,
+.cohort-val,
+.m-val,
+.metric-val,
+.carry-val,
+.kpi-val,
+.figure-val,
+.calc-val,
+.result-val {
+  color: #F8FAFC !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+}
