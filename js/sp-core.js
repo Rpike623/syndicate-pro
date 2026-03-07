@@ -1191,6 +1191,7 @@ window.SP = (function () {
           { href:'roi-sensitivity.html', icon:'fa-wave-square', label:'Sensitivity' },
           { href:'lead-calculator.html', icon:'fa-calculator', label:'Lead Calculator' },
           { href:'renovation-tracker.html', icon:'fa-hammer', label:'Renovation' },
+          { href:'valuation-model.html', icon:'fa-tags', label:'Valuation' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
