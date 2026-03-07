@@ -270,7 +270,33 @@
           <select id="fStatus"><option value="active">Active</option><option value="inactive">Inactive</option></select>
         </div>
       </div>
-      <div class="form-group"><label>Notes</label><textarea id="fNotes" placeholder="Investment preferences, communication history, etc."></textarea></div>
+      <!-- Banking information for distributions -->
+      <div style="border-top:1px solid var(--border);padding-top:18px;margin-top:4px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94A3B8;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-university" style="color:var(--accent);"></i> Banking / Distribution Info
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Bank Name</label><input type="text" id="fBankName" placeholder="e.g., Chase, Wells Fargo"></div>
+          <div class="form-group"><label>Account Name</label><input type="text" id="fBankAccountName" placeholder="Name on account"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Account Number</label><input type="text" id="fBankAccount" placeholder="••••••••" autocomplete="off"></div>
+          <div class="form-group"><label>Routing Number</label><input type="text" id="fBankRouting" placeholder="9-digit ABA routing" maxlength="9"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Account Type</label>
+            <select id="fBankType">
+              <option value="">Select…</option>
+              <option value="checking">Checking</option>
+              <option value="savings">Savings</option>
+              <option value="wire">Wire (international)</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Wire Instructions / Notes</label><input type="text" id="fBankNotes" placeholder="SWIFT, memo, or any special instructions"></div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:16px;"><label>Notes</label><textarea id="fNotes" placeholder="Investment preferences, communication history, etc."></textarea></div>
       <div class="form-group">
         <label><i class="fas fa-paperclip" style="margin-right:4px;color:var(--accent);"></i>Accreditation Document</label>
         <div id="accredDocZone" style="border:2px dashed #1E293B;border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:all .2s;position:relative;" onclick="document.getElementById('accredDocFile').click()">
@@ -600,6 +626,13 @@ function openModal(id) {
       document.getElementById('fTotalInvested').value = inv.totalInvested||'';
       document.getElementById('fStatus').value = inv.status||'active';
       document.getElementById('fNotes').value = inv.notes||'';
+      // Banking fields
+      document.getElementById('fBankName').value = inv.bankName||'';
+      document.getElementById('fBankAccountName').value = inv.bankAccountName||'';
+      document.getElementById('fBankAccount').value = inv.bankAccount||'';
+      document.getElementById('fBankRouting').value = inv.bankRouting||'';
+      document.getElementById('fBankType').value = inv.bankType||'';
+      document.getElementById('fBankNotes').value = inv.bankNotes||'';
     }
   } else {
     fields.forEach(f => { const el = document.getElementById(f); if (el) el.value = f==='fAccredStatus'?'pending':f==='fStatus'?'active':''; });
@@ -633,6 +666,13 @@ function saveInvestor() {
     deals: 0,
     status: document.getElementById('fStatus').value,
     notes: document.getElementById('fNotes').value.trim(),
+    // Banking / distribution info
+    bankName: document.getElementById('fBankName').value.trim(),
+    bankAccountName: document.getElementById('fBankAccountName').value.trim(),
+    bankAccount: document.getElementById('fBankAccount').value.trim(),
+    bankRouting: document.getElementById('fBankRouting').value.trim(),
+    bankType: document.getElementById('fBankType').value,
+    bankNotes: document.getElementById('fBankNotes').value.trim(),
   };
   const isNew = !editingId;
   if (editingId) {

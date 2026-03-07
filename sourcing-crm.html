@@ -2,131 +2,564 @@
 <html lang="en">
 <head>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>deeltrack | Pipeline </title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="js/sp-core.js"></script>
-    <script src="js/sp-firebase.js"></script>
-    <script src="js/sp-pipeline.js"></script>
-    <style>
-        :root { --primary: #0f172a; --accent: #0ea5e9; --bg: #0B1120; --glass: rgba(255,255,255,0.7); --radius: 16px; }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; display: flex; min-height: 100vh; font-size: 14px; }
-        .main { flex: 1; margin-left: 260px; padding: 40px; }
-    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Deal Pipeline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <style>
+    :root {
+      --accent:#0ea5e9; --success:#10b981; --warning:#f59e0b; --danger:#ef4444; --purple:#8b5cf6;
+      --bg:#0B1120; --surface:#111827; --border:#1E293B;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:#F8FAFC; display:flex; min-height:100vh; font-size:14px; -webkit-font-smoothing:antialiased; }
+    .main { flex:1; margin-left:260px; min-height:100vh; display:flex; flex-direction:column; }
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;}}
 
-        .pipeline-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; align-items: start; }
-        .stage-col { background: rgba(0,0,0,0.02); border-radius: var(--radius); padding: 12px; min-height: 80vh; border: 1px dashed rgba(0,0,0,0.05); }
-        .stage-header { padding: 12px; margin-bottom: 20px; text-transform: uppercase; font-size: 11px; font-weight: 800; color: #94A3B8; letter-spacing: 1.5px; display: flex; justify-content: space-between; align-items: center; }
-        .stage-count { background: #1E293B; color: #94A3B8; padding: 2px 8px; border-radius: 999px; font-size: 10px; }
+    /* Top bar */
+    .top-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 28px; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; flex-shrink:0; gap:12px; }
+    .top-bar h1 { font-size:17px; font-weight:700; }
+    .mobile-menu-btn { display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 10px; cursor:pointer; }
+    @media(max-width:768px){.mobile-menu-btn{display:flex!important;} .top-bar{padding:0 14px;}}
+    .btn { display:inline-flex; align-items:center; gap:7px; padding:9px 16px; font-size:13px; font-weight:600; border-radius:8px; border:none; cursor:pointer; transition:all .15s; font-family:inherit; text-decoration:none; }
+    .btn-primary { background:var(--accent); color:white; }
+    .btn-primary:hover { background:#0284c7; }
+    .btn-secondary { background:transparent; color:#CBD5E1; border:1px solid var(--border); }
+    .btn-secondary:hover { background:rgba(255,255,255,0.06); }
 
-        .deal-card { background: #111827; border: 1px solid #1E293B; border-radius: 12px; padding: 20px; margin-bottom: 16px; position: relative; cursor: grab; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        .deal-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border-color: var(--accent); }
-        .deal-name { font-size: 15px; font-weight: 700; color: #F8FAFC; margin-bottom: 6px; }
-        .deal-location { font-size: 12px; color: #94a3b8; margin-bottom: 12px; display: flex; align-items: center; gap: 4px; }
-        
-        .deal-metrics { display: flex; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.07); }
-        .m-stat { flex: 1; }
-        .m-label { font-size: 10px; text-transform: uppercase; color: #94a3b8; font-weight: 700; display: block; }
-        .m-val { font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono'; color: #F8FAFC; }
+    /* ─── Stage guide banner ─────────────────────────────────────────── */
+    .stage-guide { background:var(--surface); border-bottom:1px solid var(--border); padding:0 28px; display:flex; gap:0; overflow-x:auto; flex-shrink:0; }
+    .stage-guide-item { display:flex; align-items:center; gap:8px; padding:10px 18px; font-size:12px; font-weight:600; color:#94A3B8; white-space:nowrap; border-bottom:2px solid transparent; cursor:pointer; transition:all .15s; }
+    .stage-guide-item:hover { color:#F8FAFC; }
+    .stage-guide-item.active { color:#F8FAFC; border-bottom-color:var(--accent); }
+    .stage-guide-item .dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .stage-guide-item .count { background:var(--border); color:#CBD5E1; padding:1px 7px; border-radius:99px; font-size:10px; font-weight:700; }
 
-        .score-pill { position: absolute; top: 18px; right: 20px; font-size: 10px; font-weight: 800; background: rgba(16,185,129,0.15); color: #34d399; padding: 4px 10px; border-radius: 999px; }
+    /* ─── Board ───────────────────────────────────────────────────────── */
+    .board-wrap { flex:1; overflow-x:auto; padding:20px 28px 28px; -webkit-overflow-scrolling:touch; }
+    .board { display:grid; gap:16px; align-items:start; min-width:900px; }
+    /* Columns rendered by JS */
 
-        .add-deal-btn { width: 100%; padding: 12px; border: 1px dashed #cbd5e1; border-radius: 10px; background: transparent; color: #94A3B8; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .add-deal-btn:hover { border-color: var(--accent); color: var(--accent); background: #f5f8ff; }
-    </style>
+    /* ─── Column ─────────────────────────────────────────────────────── */
+    .stage-col { background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:12px; padding:0; min-height:300px; display:flex; flex-direction:column; }
+    .col-header { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; border-radius:12px 12px 0 0; }
+    .col-header-left { display:flex; align-items:center; gap:8px; }
+    .col-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .col-title { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:#CBD5E1; }
+    .col-count { background:var(--border); color:#94A3B8; padding:2px 8px; border-radius:99px; font-size:10px; font-weight:700; }
+    .col-body { padding:12px; flex:1; }
+    .col-footer { padding:10px 12px; }
+    .add-btn { width:100%; padding:9px; border:1px dashed rgba(255,255,255,0.15); border-radius:8px; background:transparent; color:#94A3B8; font-size:12px; font-weight:600; cursor:pointer; transition:all .15s; display:flex; align-items:center; justify-content:center; gap:6px; font-family:inherit; }
+    .add-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(14,165,233,0.06); }
+
+    /* ─── Deal card ───────────────────────────────────────────────────── */
+    .deal-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:10px; cursor:pointer; transition:all .18s; position:relative; }
+    .deal-card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.3); }
+    .deal-card:last-child { margin-bottom:0; }
+    .card-name { font-size:14px; font-weight:700; color:#F8FAFC; margin-bottom:4px; display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+    .card-name span { flex:1; line-height:1.3; }
+    .card-location { font-size:11px; color:#94A3B8; margin-bottom:10px; display:flex; align-items:center; gap:4px; }
+    .card-metrics { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+    .card-metric { font-size:11px; }
+    .card-metric .lbl { color:#94A3B8; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; }
+    .card-metric .val { font-family:'JetBrains Mono',monospace; font-weight:700; color:#F8FAFC; font-size:12px; }
+    /* Notes section on card */
+    .card-notes { font-size:11px; color:#CBD5E1; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); border-radius:6px; padding:8px 10px; margin-top:8px; line-height:1.5; white-space:pre-wrap; }
+    .card-notes-placeholder { font-size:11px; color:#475569; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.08); border-radius:6px; padding:7px 10px; margin-top:8px; cursor:pointer; transition:all .15s; }
+    .card-notes-placeholder:hover { border-color:#94A3B8; color:#94A3B8; }
+    /* Tag chips */
+    .card-tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
+    .tag { font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px; }
+    .tag-sourcing { background:rgba(100,116,139,0.2); color:#94A3B8; }
+    .tag-loi     { background:rgba(245,158,11,0.15); color:#fbbf24; }
+    .tag-dd      { background:rgba(14,165,233,0.15); color:#38bdf8; }
+    .tag-closing { background:rgba(139,92,246,0.15); color:#a78bfa; }
+    .tag-closed  { background:rgba(16,185,129,0.15); color:#34d399; }
+    .tag-multifamily { background:rgba(14,165,233,0.12); color:#38bdf8; }
+    .tag-industrial  { background:rgba(16,185,129,0.12); color:#34d399; }
+    .tag-retail      { background:rgba(245,158,11,0.12); color:#fbbf24; }
+
+    /* ─── Deal drawer (slide-in detail panel) ────────────────────────── */
+    .drawer-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:300; }
+    .drawer-overlay.open { display:block; }
+    .drawer { position:fixed; right:0; top:0; bottom:0; width:460px; max-width:100vw; background:var(--surface); border-left:1px solid var(--border); z-index:301; transform:translateX(100%); transition:transform .25s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; overflow:hidden; }
+    .drawer.open { transform:translateX(0); }
+    .drawer-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:flex-start; flex-shrink:0; }
+    .drawer-title { font-size:17px; font-weight:700; color:#F8FAFC; }
+    .drawer-close { background:rgba(255,255,255,0.06); border:none; border-radius:6px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#94A3B8; transition:all .15s; flex-shrink:0; }
+    .drawer-close:hover { background:rgba(239,68,68,0.2); color:#f87171; }
+    .drawer-body { flex:1; overflow-y:auto; padding:22px 24px; }
+    .drawer-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; gap:10px; flex-shrink:0; }
+    .dl { display:flex; flex-direction:column; gap:18px; }
+    .dl-row { display:flex; flex-direction:column; gap:6px; }
+    .dl-row label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#94A3B8; }
+    .dl-row input, .dl-row select, .dl-row textarea { width:100%; padding:10px 12px; background:#0B1120; border:1px solid var(--border); border-radius:8px; color:#F8FAFC; font-size:14px; font-family:inherit; outline:none; transition:border-color .15s; }
+    .dl-row input:focus, .dl-row select:focus, .dl-row textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(14,165,233,.1); }
+    .dl-row textarea { resize:vertical; min-height:90px; line-height:1.6; }
+    .dl-row textarea::placeholder { color:#475569; }
+    .dl-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .stage-select-wrap { display:flex; gap:6px; flex-wrap:wrap; }
+    .stage-btn { padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; border:1px solid var(--border); background:transparent; color:#94A3B8; cursor:pointer; transition:all .15s; font-family:inherit; }
+    .stage-btn:hover { border-color:#94A3B8; color:#F8FAFC; }
+    .stage-btn.active { color:white; border-color:transparent; }
+    .stage-btn-sourcing.active { background:rgba(100,116,139,0.4); border-color:#64748b; }
+    .stage-btn-loi.active     { background:rgba(245,158,11,0.25); border-color:var(--warning); color:#fbbf24; }
+    .stage-btn-dd.active      { background:rgba(14,165,233,0.2); border-color:var(--accent); color:#38bdf8; }
+    .stage-btn-closing.active { background:rgba(139,92,246,0.2); border-color:var(--purple); color:#a78bfa; }
+    .stage-btn-closed.active  { background:rgba(16,185,129,0.2); border-color:var(--success); color:#34d399; }
+    /* Timeline / notes history */
+    .notes-timeline { display:flex; flex-direction:column; gap:0; margin-top:8px; }
+    .note-entry { padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; gap:3px; }
+    .note-entry:last-child { border-bottom:none; }
+    .note-text { font-size:13px; color:#E2E8F0; line-height:1.5; }
+    .note-meta { font-size:10px; color:#64748b; }
+    .inline-note-input { display:flex; gap:8px; margin-top:10px; }
+    .inline-note-input input { flex:1; padding:9px 12px; background:#0B1120; border:1px solid var(--border); border-radius:8px; color:#F8FAFC; font-size:13px; font-family:inherit; outline:none; }
+    .inline-note-input input:focus { border-color:var(--accent); }
+    .inline-note-input button { padding:9px 14px; background:var(--accent); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600; font-size:13px; font-family:inherit; white-space:nowrap; }
+
+    /* ─── Inline note editing on card ────────────────────────────────── */
+    .note-editor { width:100%; margin-top:8px; padding:8px 10px; background:rgba(14,165,233,0.06); border:1px solid rgba(14,165,233,0.3); border-radius:6px; color:#F8FAFC; font-size:12px; font-family:inherit; outline:none; resize:none; line-height:1.5; min-height:60px; display:none; }
+    .note-editor:focus { border-color:var(--accent); }
+
+    /* ─── Empty stage ─────────────────────────────────────────────────── */
+    .stage-empty { text-align:center; padding:24px 12px; color:#475569; }
+    .stage-empty i { font-size:1.5rem; opacity:0.2; display:block; margin-bottom:8px; }
+    .stage-empty p { font-size:12px; }
+
+    /* Toast */
+    #toast { position:fixed; bottom:24px; right:24px; z-index:9999; padding:12px 20px; border-radius:8px; font-size:13px; font-weight:600; background:var(--success); color:white; display:none; align-items:center; gap:8px; box-shadow:0 8px 24px rgba(0,0,0,.2); }
+    #toast.show { display:flex; }
+  </style>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
-    <aside class="sidebar" id="sidebar"></aside>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
 
-    <main class="main">
-        <header style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <div style="font-size: 12px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 8px;">Deal Origination</div>
-                <h1 style="font-size: 2.2rem; font-weight: 900; letter-spacing: -0.04em;">Acquisitions Pipeline</h1>
-            </div>
-            <button class="add-deal-btn" style="width: auto; padding: 12px 24px; border: none; background: var(--primary); color: white;">+ Log New Opportunity</button>
-        </header>
-
-        <div class="pipeline-board">
-            <!-- Stage 1: Sourcing -->
-            <div class="stage-col">
-                <div class="stage-header">Sourcing <span class="stage-count">2</span></div>
-                <div class="deal-card">
-                    <span class="score-pill">82 Score</span>
-                    <div class="deal-name">Creekside Village</div>
-                    <div class="deal-location"><i class="fas fa-map-marker-alt"></i> Austin, TX</div>
-                    <div class="deal-metrics">
-                        <div class="m-stat"><span class="m-label">Units</span><span class="m-val">124</span></div>
-                        <div class="m-stat"><span class="m-label">Target Cap</span><span class="m-val">6.2%</span></div>
-                    </div>
-                </div>
-                <div class="deal-card">
-                    <span class="score-pill" style="background:#1118277ed; color:#c2410c;">54 Score</span>
-                    <div class="deal-name">Legacy Square</div>
-                    <div class="deal-location"><i class="fas fa-map-marker-alt"></i> San Antonio, TX</div>
-                    <div class="deal-metrics">
-                        <div class="m-stat"><span class="m-label">Units</span><span class="m-val">90</span></div>
-                        <div class="m-stat"><span class="m-label">Target Cap</span><span class="m-val">5.1%</span></div>
-                    </div>
-                </div>
-                <button class="add-deal-btn">+ Add Sourced</button>
-            </div>
-
-            <!-- Stage 2: Underwriting -->
-            <div class="stage-col">
-                <div class="stage-header">Underwriting <span class="stage-count">1</span></div>
-                <div class="deal-card" style="border-left: 4px solid var(--accent);">
-                    <span class="score-pill">91 Score</span>
-                    <div class="deal-name">The Heights Retail</div>
-                    <div class="deal-location"><i class="fas fa-map-marker-alt"></i> Houston, TX</div>
-                    <div style="margin-top:12px; font-size:11px; color:#94A3B8; background:#0B1120; padding:8px; border-radius:6px;">
-                        <i class="fas fa-chart-line"></i> Modeling 18.2% IRR target.
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stage 3: LOI -->
-            <div class="stage-col">
-                <div class="stage-header">LOI <span class="stage-count">0</span></div>
-            </div>
-
-            <!-- Stage 4: Due Diligence -->
-            <div class="stage-col">
-                <div class="stage-header">Due Diligence <span class="stage-count">1</span></div>
-                <div class="deal-card" style="background: #0B1120; border-style: dashed;">
-                    <div class="deal-name">Summit Ridge (REI)</div>
-                    <div class="deal-location"><i class="fas fa-map-marker-alt"></i> Fort Worth, TX</div>
-                    <div style="margin-top:12px; display:flex; gap:6px;">
-                        <span style="font-size:10px; background:rgba(14,165,233,0.15); color:#38bdf8; padding:2px 6px; border-radius:4px; font-weight:700;">PHASE 1 ESA</span>
-                        <span style="font-size:10px; background:rgba(245,158,11,0.12); color:#fbbf24; padding:2px 6px; border-radius:4px; font-weight:700;">RE-SURVEY</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Stage 5: Closing -->
-            <div class="stage-col">
-                <div class="stage-header">Closing <span class="stage-count">0</span></div>
-            </div>
+  <main class="main">
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')">
+          <i class="fas fa-bars" style="color:#94A3B8;"></i>
+        </button>
+        <div>
+          <h1>Deal Pipeline</h1>
+          <div style="font-size:11px;color:#94A3B8;margin-top:1px;">Drag cards between stages · Click to edit · Click notes icon to add notes</div>
         </div>
-    </main>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a href="deals.html" class="btn btn-secondary"><i class="fas fa-th-list"></i> List View</a>
+        <button onclick="openNewDeal()" class="btn btn-primary"><i class="fas fa-plus"></i> Add Deal</button>
+      </div>
+    </div>
 
-    <script>
-        // Init logic for connecting to Firebase and loading real deals
-        async function loadPipeline() {
-            if (window.SP_Pipeline) {
-                const deals = await SP_Pipeline.getPipeline();
-                // Render logic here
-            }
+    <!-- Stage count guide -->
+    <div class="stage-guide" id="stageGuide"></div>
+
+    <!-- Kanban board -->
+    <div class="board-wrap">
+      <div class="board" id="board"></div>
+    </div>
+  </main>
+
+  <!-- Deal detail drawer -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-title" id="drawerTitle">Deal Detail</div>
+        <div style="font-size:12px;color:#94A3B8;margin-top:3px;" id="drawerSubtitle">Edit deal info and track progress</div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="drawer-body">
+      <div class="dl">
+        <div class="dl-row">
+          <label>Deal Name *</label>
+          <input type="text" id="dName" placeholder="e.g., Riverside Flats">
+        </div>
+        <div class="dl-row">
+          <label>Stage</label>
+          <div class="stage-select-wrap">
+            <button class="stage-btn stage-btn-sourcing" onclick="selectStage('sourcing')">Sourcing</button>
+            <button class="stage-btn stage-btn-loi" onclick="selectStage('loi')">LOI</button>
+            <button class="stage-btn stage-btn-dd" onclick="selectStage('dd')">Due Diligence</button>
+            <button class="stage-btn stage-btn-closing" onclick="selectStage('closing')">Closing</button>
+            <button class="stage-btn stage-btn-closed" onclick="selectStage('closed')">Closed</button>
+          </div>
+        </div>
+        <div class="dl-grid">
+          <div class="dl-row">
+            <label>Property Type</label>
+            <select id="dType">
+              <option value="multifamily">Multifamily</option>
+              <option value="industrial">Industrial</option>
+              <option value="retail">Retail</option>
+              <option value="office">Office</option>
+              <option value="self-storage">Self-Storage</option>
+              <option value="hotel">Hotel / Hospitality</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="dl-row">
+            <label>Location</label>
+            <input type="text" id="dLocation" placeholder="City, State">
+          </div>
+          <div class="dl-row">
+            <label>Target Raise ($)</label>
+            <input type="number" id="dRaise" placeholder="5000000">
+          </div>
+          <div class="dl-row">
+            <label>Target IRR (%)</label>
+            <input type="number" id="dIRR" placeholder="18.5" step="0.1">
+          </div>
+          <div class="dl-row">
+            <label>Purchase Price ($)</label>
+            <input type="number" id="dPrice" placeholder="12000000">
+          </div>
+          <div class="dl-row">
+            <label>Units / SF</label>
+            <input type="number" id="dUnits" placeholder="96">
+          </div>
+        </div>
+
+        <!-- Notes / Activity Log -->
+        <div class="dl-row">
+          <label><i class="fas fa-sticky-note" style="margin-right:5px;color:#94A3B8;"></i>Notes & Activity Log</label>
+          <div style="font-size:11px;color:#94A3B8;margin-bottom:8px;">Track survey status, calls, site visits, action items, anything. One note per entry.</div>
+          <div class="notes-timeline" id="notesTimeline"></div>
+          <div class="inline-note-input">
+            <input type="text" id="newNoteInput" placeholder="Add a note — e.g., 'Survey pending', 'Spoke with broker re price'…" onkeydown="if(event.key==='Enter')addNote()">
+            <button onclick="addNote()"><i class="fas fa-plus"></i> Add</button>
+          </div>
+        </div>
+
+        <div class="dl-row">
+          <label>Next Step / Action Item</label>
+          <input type="text" id="dNextStep" placeholder="e.g., Get Phase 1 results, Schedule site visit…">
+        </div>
+        <div class="dl-row">
+          <label>Due Date</label>
+          <input type="date" id="dDue">
+        </div>
+        <div class="dl-row">
+          <label>Broker / Contact</label>
+          <input type="text" id="dBroker" placeholder="Name, email, or phone">
+        </div>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button onclick="saveDrawer()" class="btn btn-primary" style="flex:1;"><i class="fas fa-save"></i> Save</button>
+      <button onclick="deleteDealFromDrawer()" class="btn" style="background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);">
+        <i class="fas fa-trash"></i>
+      </button>
+      <a id="drawerViewLink" href="#" class="btn btn-secondary"><i class="fas fa-eye"></i> Full Detail</a>
+    </div>
+  </div>
+
+  <div id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg">Saved</span></div>
+
+<script>
+SP.requireGP();
+
+// ── Stage config ─────────────────────────────────────────────────────────────
+const STAGES = [
+  { id:'sourcing', label:'Sourcing',     dot:'#64748b', desc:'Initial discovery and screening' },
+  { id:'loi',      label:'LOI',          dot:'#f59e0b', desc:'Letter of Intent submitted/received' },
+  { id:'dd',       label:'Due Diligence',dot:'#0ea5e9', desc:'Active inspection, legal, financial review' },
+  { id:'closing',  label:'Closing',      dot:'#8b5cf6', desc:'Under contract, closing preparations' },
+  { id:'closed',   label:'Closed ✓',     dot:'#10b981', desc:'Closed and operating' },
+];
+
+// Map deal.status values → stage IDs
+const STATUS_TO_STAGE = { sourcing:'sourcing', loi:'loi', dd:'dd', operating:'closed', closed:'closed', closing:'closing', raising:'sourcing' };
+const STAGE_TO_STATUS = { sourcing:'sourcing', loi:'loi', dd:'dd', closing:'closing', closed:'closed' };
+
+let allDeals = [];
+let editingId = null;
+let editingDeal = null;
+
+// ── Format ────────────────────────────────────────────────────────────────────
+function fmt$(n) {
+  const v = Number(n||0);
+  if (v >= 1e6) return '$'+(v/1e6).toFixed(1)+'M';
+  if (v >= 1e3) return '$'+(v/1e3).toFixed(0)+'K';
+  return '$'+v.toLocaleString();
+}
+
+// ── Load & render ─────────────────────────────────────────────────────────────
+function load() {
+  allDeals = SP.getDeals ? SP.getDeals() : [];
+  render();
+}
+
+function getStage(deal) {
+  // Use deal.pipelineStage first (set by this page), then map from status
+  return deal.pipelineStage || STATUS_TO_STAGE[deal.status] || 'sourcing';
+}
+
+function render() {
+  const board = document.getElementById('board');
+  const guide = document.getElementById('stageGuide');
+  const cols = STAGES.map(s => s.id).join(' 1fr ');
+  board.style.gridTemplateColumns = `repeat(${STAGES.length}, minmax(200px, 1fr))`;
+
+  // Stage guide bar
+  guide.innerHTML = STAGES.map(s => {
+    const count = allDeals.filter(d => getStage(d) === s.id).length;
+    return `<div class="stage-guide-item" onclick="scrollToStage('${s.id}')">
+      <div class="dot" style="background:${s.dot};"></div>
+      <span>${s.label}</span>
+      <span class="count">${count}</span>
+    </div>`;
+  }).join('');
+
+  // Board columns
+  board.innerHTML = STAGES.map(s => {
+    const stageDeals = allDeals.filter(d => getStage(d) === s.id);
+    return `<div class="stage-col" id="col_${s.id}" ondragover="onDragOver(event,'${s.id}')" ondrop="onDrop(event,'${s.id}')">
+      <div class="col-header">
+        <div class="col-header-left">
+          <div class="col-dot" style="background:${s.dot};"></div>
+          <span class="col-title">${s.label}</span>
+          <span class="col-count">${stageDeals.length}</span>
+        </div>
+        <button onclick="openNewDealInStage('${s.id}')" title="Add deal to ${s.label}" style="background:none;border:none;color:#64748b;cursor:pointer;padding:4px 6px;border-radius:6px;font-size:14px;transition:color .15s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='#64748b'">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <div class="col-body" id="body_${s.id}">
+        ${stageDeals.length
+          ? stageDeals.map(d => renderCard(d, s.id)).join('')
+          : `<div class="stage-empty"><i class="fas fa-${s.id==='closed'?'check-circle':'inbox'}"></i><p>${s.id==='sourcing'?'Add deals to start tracking your pipeline':'No deals in this stage yet'}</p></div>`
         }
-        window.addEventListener('spdata-ready', loadPipeline);
-    </script>
+      </div>
+      <div class="col-footer">
+        <button class="add-btn" onclick="openNewDealInStage('${s.id}')"><i class="fas fa-plus"></i> Add to ${s.label}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCard(d, stageId) {
+  const notes = d.pipelineNotes || [];
+  const lastNote = notes.length ? notes[notes.length-1] : null;
+  const invested = (d.investors||[]).reduce((s,i)=>s+(i.committed||0),0);
+  const tags = [d.type].filter(Boolean);
+
+  return `<div class="deal-card" draggable="true" data-id="${d.id}" id="card_${d.id}"
+      ondragstart="onDragStart(event,'${d.id}')"
+      onclick="openDrawer('${d.id}')">
+    <div class="card-name">
+      <span>${d.name}</span>
+      ${d.irr ? `<span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;color:#34d399;">${d.irr.toFixed(1)}%</span>` : ''}
+    </div>
+    ${d.location ? `<div class="card-location"><i class="fas fa-map-marker-alt"></i> ${d.location}</div>` : ''}
+    <div class="card-metrics">
+      ${d.raise ? `<div class="card-metric"><div class="lbl">Raise</div><div class="val">${fmt$(d.raise)}</div></div>` : ''}
+      ${d.units ? `<div class="card-metric"><div class="lbl">Units</div><div class="val">${d.units}</div></div>` : ''}
+      ${invested ? `<div class="card-metric"><div class="lbl">Committed</div><div class="val" style="color:#34d399;">${fmt$(invested)}</div></div>` : ''}
+    </div>
+    ${tags.length ? `<div class="card-tags">${tags.map(t=>`<span class="tag tag-${t}">${t}</span>`).join('')}</div>` : ''}
+    <!-- Notes preview -->
+    ${lastNote
+      ? `<div class="card-notes" onclick="event.stopPropagation();openDrawer('${d.id}')"><i class="fas fa-sticky-note" style="margin-right:5px;color:#94A3B8;font-size:10px;"></i>${escHtml(lastNote.text)}${notes.length>1?`<span style="color:#64748b;"> (+${notes.length-1} more)</span>`:''}</div>`
+      : `<div class="card-notes-placeholder" onclick="event.stopPropagation();openDrawer('${d.id}');setTimeout(()=>document.getElementById('newNoteInput').focus(),200)"><i class="fas fa-plus" style="font-size:9px;margin-right:4px;"></i>Add a note…</div>`
+    }
+    ${d.dueDate||d.due ? `<div style="font-size:11px;color:#f59e0b;margin-top:8px;"><i class="fas fa-clock"></i> Due: ${d.dueDate||d.due}</div>` : ''}
+    ${d.nextStep ? `<div style="font-size:11px;color:#38bdf8;margin-top:4px;"><i class="fas fa-arrow-right"></i> ${escHtml(d.nextStep)}</div>` : ''}
+  </div>`;
+}
+
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Drag & drop stage movement ────────────────────────────────────────────────
+let draggingId = null;
+function onDragStart(e, id) { draggingId = id; e.dataTransfer.effectAllowed = 'move'; }
+function onDragOver(e, stageId) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function onDrop(e, stageId) {
+  e.preventDefault();
+  if (!draggingId) return;
+  const deal = allDeals.find(d => d.id === draggingId);
+  if (!deal) return;
+  deal.pipelineStage = stageId;
+  deal.status = STAGE_TO_STATUS[stageId] || deal.status;
+  SP.saveDeals(allDeals);
+  render();
+  showToast(`Moved to ${STAGES.find(s=>s.id===stageId)?.label}`);
+  draggingId = null;
+}
+
+// ── Drawer ────────────────────────────────────────────────────────────────────
+function openDrawer(dealId) {
+  const deal = allDeals.find(d => d.id === dealId);
+  if (!deal) return;
+  editingId = dealId;
+  editingDeal = deal;
+
+  document.getElementById('drawerTitle').textContent = deal.name || 'Deal Detail';
+  document.getElementById('drawerSubtitle').textContent = deal.location || 'Edit deal info and track progress';
+  document.getElementById('drawerViewLink').href = `deal-detail.html?id=${dealId}`;
+
+  // Populate fields
+  document.getElementById('dName').value = deal.name || '';
+  document.getElementById('dType').value = deal.type || 'multifamily';
+  document.getElementById('dLocation').value = deal.location || '';
+  document.getElementById('dRaise').value = deal.raise || '';
+  document.getElementById('dIRR').value = deal.irr || '';
+  document.getElementById('dPrice').value = deal.purchasePrice || '';
+  document.getElementById('dUnits').value = deal.units || '';
+  document.getElementById('dNextStep').value = deal.nextStep || '';
+  document.getElementById('dDue').value = deal.dueDate || deal.due || '';
+  document.getElementById('dBroker').value = deal.broker || '';
+
+  // Stage buttons
+  const stage = getStage(deal);
+  document.querySelectorAll('.stage-btn').forEach(b => b.classList.remove('active'));
+  const activeBtn = document.querySelector(`.stage-btn-${stage}`);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  // Notes timeline
+  renderNotesTimeline(deal.pipelineNotes || []);
+
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  setTimeout(() => document.getElementById('dName').focus(), 200);
+}
+
+function renderNotesTimeline(notes) {
+  const el = document.getElementById('notesTimeline');
+  if (!notes.length) {
+    el.innerHTML = `<div style="font-size:12px;color:#64748b;padding:8px 0;">No notes yet — add your first one below.</div>`;
+    return;
+  }
+  el.innerHTML = notes.slice().reverse().map((n, i) => `
+    <div class="note-entry">
+      <div class="note-text">${escHtml(n.text)}</div>
+      <div class="note-meta">${new Date(n.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})} · <button onclick="deleteNote(${notes.length-1-i})" style="background:none;border:none;color:#475569;cursor:pointer;font-size:11px;padding:0;">remove</button></div>
+    </div>`).join('');
+}
+
+function addNote() {
+  const input = document.getElementById('newNoteInput');
+  const text = input.value.trim();
+  if (!text || !editingDeal) return;
+  if (!editingDeal.pipelineNotes) editingDeal.pipelineNotes = [];
+  editingDeal.pipelineNotes.push({ text, ts: new Date().toISOString() });
+  input.value = '';
+  renderNotesTimeline(editingDeal.pipelineNotes);
+  // Auto-save silently
+  SP.saveDeals(allDeals);
+  render();
+}
+
+function deleteNote(idx) {
+  if (!editingDeal || !editingDeal.pipelineNotes) return;
+  editingDeal.pipelineNotes.splice(idx, 1);
+  renderNotesTimeline(editingDeal.pipelineNotes);
+  SP.saveDeals(allDeals);
+  render();
+}
+
+let _drawerSelectedStage = null;
+function selectStage(stageId) {
+  _drawerSelectedStage = stageId;
+  document.querySelectorAll('.stage-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector(`.stage-btn-${stageId}`);
+  if (btn) btn.classList.add('active');
+}
+
+function saveDrawer() {
+  if (!editingId || !editingDeal) return;
+  editingDeal.name = document.getElementById('dName').value.trim() || editingDeal.name;
+  editingDeal.type = document.getElementById('dType').value;
+  editingDeal.location = document.getElementById('dLocation').value.trim();
+  editingDeal.raise = parseFloat(document.getElementById('dRaise').value) || editingDeal.raise || 0;
+  editingDeal.irr = parseFloat(document.getElementById('dIRR').value) || editingDeal.irr || 0;
+  editingDeal.purchasePrice = parseFloat(document.getElementById('dPrice').value) || editingDeal.purchasePrice || 0;
+  editingDeal.units = parseInt(document.getElementById('dUnits').value) || editingDeal.units || 0;
+  editingDeal.nextStep = document.getElementById('dNextStep').value.trim();
+  editingDeal.dueDate = document.getElementById('dDue').value;
+  editingDeal.broker = document.getElementById('dBroker').value.trim();
+  if (_drawerSelectedStage) {
+    editingDeal.pipelineStage = _drawerSelectedStage;
+    editingDeal.status = STAGE_TO_STATUS[_drawerSelectedStage] || editingDeal.status;
+  }
+  SP.saveDeals(allDeals);
+  SP.logActivity('fa-edit', 'blue', `Updated <strong>${editingDeal.name}</strong> in pipeline`);
+  render();
+  closeDrawer();
+  showToast('Deal saved!');
+}
+
+function deleteDealFromDrawer() {
+  if (!editingId) return;
+  const deal = allDeals.find(d => d.id === editingId);
+  if (!confirm(`Delete "${deal?.name||'this deal'}"? This cannot be undone.`)) return;
+  allDeals = allDeals.filter(d => d.id !== editingId);
+  SP.saveDeals(allDeals);
+  closeDrawer();
+  render();
+  showToast('Deal deleted');
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+  editingId = null;
+  editingDeal = null;
+  _drawerSelectedStage = null;
+  document.getElementById('newNoteInput').value = '';
+}
+
+// ── New deal ──────────────────────────────────────────────────────────────────
+function openNewDeal() { openNewDealInStage('sourcing'); }
+
+function openNewDealInStage(stageId) {
+  const id = 'p_' + Date.now();
+  const newDeal = {
+    id, name:'', type:'multifamily', location:'', raise:0, irr:0, status:'sourcing',
+    pipelineStage: stageId, pipelineNotes:[], investors:[], documents:[],
+    added: new Date().toISOString().split('T')[0],
+  };
+  allDeals.unshift(newDeal);
+  SP.saveDeals(allDeals);
+  render();
+  openDrawer(id);
+  selectStage(stageId);
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+function scrollToStage(id) {
+  document.getElementById('col_' + id)?.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.addEventListener('spdata-ready', load);
+if (typeof SP !== 'undefined' && SP.getDeals && SP.getDeals().length) load();
+setTimeout(load, 600);
+
+// Keyboard shortcut: Escape closes drawer
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+</script>
 </body>
 </html>
