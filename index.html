@@ -61,6 +61,22 @@
 
   <style>
     /* Custom Styling & Overrides */
+    /* ── Critical text visibility — fallback if Tailwind classes don't apply ── */
+    body, body * { color: #F8FAFC; }
+    h1, h2, h3, h4, h5, h6 { color: #FFFFFF; }
+    p, li, span { color: #D1D5DB; }
+    nav a { color: #E5E7EB; }
+    .glass-card h4 { color: #FFFFFF; }
+    .glass-card p  { color: #D1D5DB; }
+    /* Brand accent */
+    .text-brand-400, [class*="text-brand"] { color: #38bdf8; }
+    /* Keep buttons readable */
+    a[class*="bg-"], button[class*="bg-"] { color: #FFFFFF; }
+    /* Footer stays muted */
+    footer, footer * { color: #9CA3AF; }
+    /* Stats */
+    .stat-number, [class*="font-mono"] { color: #FFFFFF; }
+
     body {
       background-color: #0B1120;
       color: #F8FAFC;
