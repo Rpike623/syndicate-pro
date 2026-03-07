@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HUD Closing | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-file-invoice"></i> HUD Closing Statement</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="HUD.clear()">Clear</button>
+        <button class="btn btn-primary" onclick="HUD.calculate()">Calculate</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="hud-grid">
+        <div class="card">
+          <div class="card-header"><h2>Section A: Contract Information</h2></div>
+          <div class="card-body">
+            <div class="form-group"><label>101. Contract Sales Price</label><input type="number" id="h101" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>102. Personal Property</label><input type="number" id="h102" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>103. Land</label><input type="number" id="h103" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label><strong>120. Gross Amount Due</strong></label><input type="number" id="h120" class="form-input hud-total" readonly></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Section B: Settlement Charges</h2></div>
+          <div class="card-body">
+            <div class="form-group"><label>201. Commission - Listing Agent</label><input type="number" id="h201" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>202. Commission - Selling Agent</label><input type="number" id="h202" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>301. Origination Charges</label><input type="number" id="h301" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>302. Application Fee</label><input type="number" id="h302" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>303. Appraisal Fee</label><input type="number" id="h303" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>304. Credit Report</label><input type="number" id="h304" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>305. Survey</label><input type="number" id="h305" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>306. Title Insurance</label><input type="number" id="h306" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>307. Lender's Title Insurance</label><input type="number" id="h307" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>308. Owner's Title Insurance</label><input type="number" id="h308" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>309. Recording Fees</label><input type="number" id="h309" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>310. Transfer Taxes</label><input type="number" id="h310" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>311. Attorney Fees</label><input type="number" id="h311" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>312. Title Search</label><input type="number" id="h312" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>313. Inspection Fees</label><input type="number" id="h313" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>314. Property Taxes</label><input type="number" id="h314" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label><strong>1400. Total Settlement Charges</strong></label><input type="number" id="h1400" class="form-input hud-total" readonly></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h2>Section C: Funds Due From Borrower</h2></div>
+          <div class="card-body">
+            <div class="form-group"><label>401. Deposit</label><input type="number" id="h401" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>402. New Loan Amount</label><input type="number" id="h402" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>403. Existing Loan Balance</label><input type="number" id="h403" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>404. Seller Credit</label><input type="number" id="h404" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label><strong>120. Gross Amount Due</strong></label><input type="number" id="h120b" class="form-input hud-total" readonly></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Section D: Funds Due To Seller</h2></div>
+          <div class="card-body">
+            <div class="form-group"><label>501. Contract Sales Price</label><input type="number" id="h501" class="form-input hud-input" value="0" readonly></div>
+            <div class="form-group"><label>502. Existing Loans</label><input type="number" id="h502" class="form-input hud-input" value="0" readonly></div>
+            <div class="form-group"><label>503. Payoff to First Lien</label><input type="number" id="h503" class="form-input hud-input" value="0"></div>
+            <div class="form-group"><label>504. Payoff to Second Lien</label><input type="number" id="h504" class="form-input hud-input" value="0"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Summary</h2></div>
+        <div class="card-body">
+          <div class="summary-grid">
+            <div class="summary-item"><span>Total Purchase Price</span><strong id="sumPurchase">$0</strong></div>
+            <div class="summary-item"><span>Total Closing Costs</span><strong id="sumCosts">$0</strong></div>
+            <div class="summary-item"><span>Cash to Close (Buyer)</span><strong id="sumBuyer" class="text-warning">$0</strong></div>
+            <div class="summary-item"><span>Net to Seller</span><strong id="sumSeller" class="text-success">$0</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h2>Journal Entries (AJEs)</h2>
+          <button class="btn btn-secondary btn-sm" onclick="HUD.copyJE()">Copy to Clipboard</button>
+        </div>
+        <div class="card-body">
+          <div class="je-section"><h4>To Record Asset Acquisition</h4><pre id="jeAssets"></pre></div>
+          <div class="je-section"><h4>To Record Loan Proceeds</h4><pre id="jeLoan"></pre></div>
+          <div class="je-section"><h4>To Record Cash Payment</h4><pre id="jeCash"></pre></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}HUD.init();}</script>
+  <script src="js/sp-hud.js"></script>
+</body>
+</html>

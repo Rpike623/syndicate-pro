@@ -1179,6 +1179,7 @@ window.SP = (function () {
           { href:'equity-multiple.html', icon:'fa-coins', label:'Equity Multiple' },
           { href:'yield-converter.html', icon:'fa-arrow-right-arrow-left', label:'Yield Convert' },
           { href:'dscr-calc.html', icon:'fa-shield-halved', label:'DSCR Calc' },
+          { href:'hud-closing.html', icon:'fa-file-invoice', label:'HUD Closing' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
