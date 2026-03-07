@@ -857,31 +857,25 @@ const SPFB = (function () {
       try { localStorage.setItem(_lsKey(name), JSON.stringify(data)); } catch(e) {}
     }
 
-    // Patch SP.getDeals — only if SPData hasn't already patched it with Firestore cache
-    // SPData.getDeals() returns from in-memory cache populated from Firestore.
-    // Don't overwrite that with the LS-only version which can return empty if orgId isn't set.
-    if (!window.SPData || !SPData.isReady || !SPData.isReady()) {
-      SP.getDeals = function() {
-        if (SPFB.isReady() && !SPFB.isOffline()) {
-          SPFB.getDeals().then(deals => { if (deals && deals.length) _lsSet('deals', deals); }).catch(() => {});
-        }
-        return _lsGet('deals');
-      };
+    // Patch SP.getDeals / getInvestors / getDistributions
+    // Always delegate to SPData (Firestore-backed in-memory cache) when ready.
+    // Fall back to a direct Firestore fetch if SPData isn't up yet.
+    // localStorage is NEVER the source of truth — only a write-through cache.
+    SP.getDeals = function() {
+      if (window.SPData && SPData.isReady && SPData.isReady()) return SPData.getDeals();
+      // SPData not ready yet — return whatever is cached locally while Firestore loads
+      return _lsGet('deals');
+    };
 
-      SP.getInvestors = function() {
-        if (SPFB.isReady() && !SPFB.isOffline()) {
-          SPFB.getInvestors().then(investors => { if (investors && investors.length) _lsSet('investors', investors); }).catch(() => {});
-        }
-        return _lsGet('investors');
-      };
+    SP.getInvestors = function() {
+      if (window.SPData && SPData.isReady && SPData.isReady()) return SPData.getInvestors ? SPData.getInvestors() : (_lsGet('investors'));
+      return _lsGet('investors');
+    };
 
-      SP.getDistributions = function() {
-        if (SPFB.isReady() && !SPFB.isOffline()) {
-          SPFB.getDistributions().then(dists => { if (dists && dists.length) _lsSet('distributions', dists); }).catch(() => {});
-        }
-        return _lsGet('distributions');
-      };
-    }
+    SP.getDistributions = function() {
+      if (window.SPData && SPData.isReady && SPData.isReady()) return SPData.getDistributions ? SPData.getDistributions() : (_lsGet('distributions'));
+      return _lsGet('distributions');
+    };
 
     // Patch SP.saveDeals
     const _origSaveDeals = SP.saveDeals.bind(SP);
