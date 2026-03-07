@@ -1078,7 +1078,7 @@ window.SP = (function () {
               <div class="user-role" style="font-size:11px;color:rgba(255,255,255,0.45);">${s?.role || 'GP'}</div>
             </div>
           </div>
-          <button onclick="SP.logout()" style="width:100%;padding:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;color:#f87171;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:all 0.15s;" onmouseenter="this.style.background='rgba(239,68,68,0.2)'" onmouseleave="this.style.background='rgba(239,68,68,0.1)'">
+          <button class="logout-btn" onclick="SP.logout()" style="width:100%;padding:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;color:#f87171;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:all 0.15s;" onmouseenter="this.style.background='rgba(239,68,68,0.2)'" onmouseleave="this.style.background='rgba(239,68,68,0.1)'">
             <i class="fas fa-sign-out-alt"></i> Sign Out
           </button>`;
         sb.appendChild(footer);
