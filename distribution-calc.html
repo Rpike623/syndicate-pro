@@ -353,27 +353,36 @@ function setStep(n) {
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────
+let _initRetries = 0;
 function init() {
   const deals = SP.getDeals ? SP.getDeals() : [];
+
+  // If SPData hasn't loaded yet, retry up to 8x with backoff
+  if (!deals.length && _initRetries < 8) {
+    _initRetries++;
+    setTimeout(init, _initRetries * 400);
+    return;
+  }
+
   const sel = document.getElementById('dealSelect');
+  if (!sel) return;
   sel.innerHTML = '<option value="">— Select a deal —</option>';
-  deals.filter(d => (d.investors || []).length > 0).forEach(d => {
+
+  // Show ALL deals — let GP pick even if no investors yet (they may be adding them)
+  const activeDeals = deals.filter(d => d.status !== 'archived');
+  activeDeals.forEach(d => {
+    const invCount = (d.investors || []).length;
     const opt = document.createElement('option');
     opt.value = d.id;
-    opt.textContent = d.name + ' (' + (d.investors || []).length + ' investors)';
+    opt.textContent = d.name + (invCount ? ' (' + invCount + ' investor' + (invCount !== 1 ? 's' : '') + ')' : ' — no investors yet');
     sel.appendChild(opt);
   });
-  if (deals.filter(d => !(d.investors || []).length).length > 0) {
-    const grp = document.createElement('optgroup');
-    grp.label = 'No investors yet';
-    deals.filter(d => !(d.investors || []).length).forEach(d => {
-      const opt = document.createElement('option');
-      opt.value = d.id;
-      opt.textContent = d.name + ' (no investors)';
-      opt.disabled = true;
-      grp.appendChild(opt);
-    });
-    sel.appendChild(grp);
+
+  if (!activeDeals.length) {
+    const opt = document.createElement('option');
+    opt.disabled = true;
+    opt.textContent = 'No deals found — add a deal first';
+    sel.appendChild(opt);
   }
 
   // Set default date to today
@@ -387,7 +396,11 @@ function init() {
 // ── Deal selected ────────────────────────────────────────────────────────────
 function onDealChange() {
   const dealId = document.getElementById('dealSelect').value;
-  currentDeal = dealId ? SP.getDealById(dealId) : null;
+  // getDealById may return null if SPData cache isn't ready — fall back to getDeals() scan
+  currentDeal = dealId
+    ? (SP.getDealById ? SP.getDealById(dealId) : null)
+      || (SP.getDeals ? SP.getDeals().find(d => d.id === dealId) : null)
+    : null;
 
   document.getElementById('prefSummaryCard').style.display = currentDeal ? 'block' : 'none';
   document.getElementById('historyCard').style.display = currentDeal ? 'block' : 'none';
@@ -876,9 +889,12 @@ function resetForm() {
   setStep(1);
 }
 
-window.addEventListener('spdata-ready', init);
-if (typeof SP !== 'undefined' && SP.getDeals && SP.getDeals().length) init();
-setTimeout(init, 800);
+// Re-run init (reset retry counter) whenever spdata-ready fires
+window.addEventListener('spdata-ready', () => { _initRetries = 0; init(); });
+// Also try immediately and after short delays as fallback
+if (typeof SP !== 'undefined' && SP.getDeals) init();
+setTimeout(() => { _initRetries = 0; init(); }, 600);
+setTimeout(() => { _initRetries = 0; init(); }, 2000);
 
 // Close wire report modal on Escape
 document.addEventListener('keydown', e => {
