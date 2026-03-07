@@ -4,26 +4,398 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Settings </title>
+  <title>deeltrack | Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <style>
+    :root {
+      --accent:#0ea5e9;--accent-hover:#0284c7;--accent-light:rgba(14,165,233,0.15);
+      --success:#10b981;--success-light:rgba(16,185,129,0.15);
+      --warning:#f59e0b;--warning-light:rgba(245,158,11,0.15);
+      --danger:#ef4444;--danger-light:rgba(239,68,68,0.15);
+      --text:#F8FAFC;--text-secondary:#94A3B8;--text-muted:#64748B;
+      --border:#1E293B;--border-light:rgba(255,255,255,0.05);--bg:#0B1120;--bg-card:#111827;
+      --radius-sm:6px;--radius:8px;--radius-md:12px;
+      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:#0B1120;color:#F8FAFC;line-height:1.5;-webkit-font-smoothing:antialiased;}
+    .app{display:flex;min-height:100vh;}
+    .main{flex:1;margin-left:260px;min-height:100vh;}
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;}.sidebar,#sidebar{transform:translateX(-100%)!important;position:fixed!important;z-index:100!important;}.sidebar.open,#sidebar.open{transform:translateX(0)!important;}.mobile-menu-btn{display:flex!important;}}
+    .top-bar{background:#111827;border-bottom:1px solid #1E293B;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+    .mobile-menu-btn{display:none;background:none;border:1px solid #1E293B;border-radius:var(--radius);padding:8px 10px;cursor:pointer;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-size:.875rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;font-family:'Inter',sans-serif;}
+    .btn-primary{background:var(--accent);color:white;}.btn-primary:hover{background:var(--accent-hover);}
+    .btn-secondary{background:#111827;color:#F8FAFC;border:1px solid #1E293B;}.btn-secondary:hover{background:var(--border-light);}
+    .btn-danger{background:var(--danger-light);color:var(--danger);border:1px solid var(--danger);}
+    .content{padding:32px;max-width:900px;}
+    /* Section cards */
+    .settings-section{background:#111827;border:1px solid #1E293B;border-radius:var(--radius-md);margin-bottom:24px;overflow:hidden;}
+    .section-header{padding:20px 24px;border-bottom:1px solid #1E293B;display:flex;justify-content:space-between;align-items:center;}
+    .section-title{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:10px;}
+    .section-title i{color:var(--accent);}
+    .section-body{padding:24px;}
+    /* Form */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    @media(max-width:640px){.form-grid{grid-template-columns:1fr;}}
+    .form-group{display:flex;flex-direction:column;gap:6px;}
+    .form-group.full{grid-column:1/-1;}
+    .form-group label{font-size:.8rem;font-weight:600;color:var(--text-secondary);}
+    .form-group label.required::after{content:' *';color:var(--danger);}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid #1E293B;border-radius:var(--radius);font-size:.9rem;color:#F8FAFC;background:#111827;outline:none;transition:all .15s;font-family:'Inter',sans-serif;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+    .form-group textarea{resize:vertical;min-height:80px;}
+    .help-text{font-size:.75rem;color:var(--text-muted);margin-top:2px;}
+    /* Defaults row */
+    .defaults-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+    @media(max-width:640px){.defaults-grid{grid-template-columns:1fr 1fr;}}
+    /* Toast */
+    #toast{position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:var(--success);color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:none;align-items:center;gap:8px;}
+    #toast.show{display:flex;}
+    /* Danger zone */
+    .danger-zone{border:1px solid var(--danger);border-radius:var(--radius-md);padding:20px;background:var(--danger-light);}
+    .danger-zone h3{color:var(--danger);margin-bottom:8px;font-size:.95rem;}
+    .danger-zone p{font-size:.82rem;color:#fca5a5;margin-bottom:16px;}
+  </style>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-cog"></i> Settings</h1>
-    </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>Account Settings</h2></div>
-        <div class="card-body">
-          <div class="form-group"><label>Organization Name</label><input type="text" class="form-input" value="Deeltrack LLC"></div>
-          <div class="form-group"><label>Timezone</label><select class="form-select"><option>America/Chicago</option></select></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
+
+  <main class="main">
+    <header class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
+        <div>
+          <h1 style="font-size:1.25rem;font-weight:700;">Settings</h1>
+          <p style="font-size:.8rem;color:var(--text-secondary);">Firm profile, deal defaults, and account preferences</p>
         </div>
       </div>
+      <button class="btn btn-primary" onclick="saveAll()"><i class="fas fa-save"></i> Save All Changes</button>
+    </header>
+
+    <div class="content">
+
+      <!-- Firm Profile -->
+      <div class="settings-section">
+        <div class="section-header">
+          <div class="section-title"><i class="fas fa-building"></i> Firm Profile</div>
+          <span style="font-size:.78rem;color:var(--text-muted);">Used on all generated documents</span>
+        </div>
+        <div class="section-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="required">Firm Legal Name</label>
+              <input type="text" id="firmName" placeholder="e.g., Pike Capital Management LLC">
+              <span class="help-text">Full legal name as it appears on operating agreements</span>
+            </div>
+            <div class="form-group">
+              <label>Doing Business As (DBA)</label>
+              <input type="text" id="firmDBA" placeholder="e.g., Pike Capital">
+            </div>
+            <div class="form-group">
+              <label>Entity Type</label>
+              <select id="firmEntityType">
+                <option value="LLC">LLC</option>
+                <option value="LP">Limited Partnership</option>
+                <option value="Corp">Corporation</option>
+                <option value="Trust">Trust</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Federal EIN</label>
+              <input type="text" id="firmEIN" placeholder="XX-XXXXXXX">
+              <span class="help-text">Used on K-1s and tax filings</span>
+            </div>
+            <div class="form-group">
+              <label>State of Formation</label>
+              <select id="firmState">
+                <option value="TX">Texas</option>
+                <option value="DE">Delaware</option>
+                <option value="CA">California</option>
+                <option value="NY">New York</option>
+                <option value="FL">Florida</option>
+                <option value="NV">Nevada</option>
+                <option value="WY">Wyoming</option>
+                <option value="CO">Colorado</option>
+                <option value="AZ">Arizona</option>
+                <option value="GA">Georgia</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Firm Website</label>
+              <input type="url" id="firmWebsite" placeholder="https://yourfirm.com">
+            </div>
+            <div class="form-group full">
+              <label>Principal Office Address</label>
+              <input type="text" id="firmAddress" placeholder="123 Main St, Suite 100, Fort Worth, TX 76102">
+            </div>
+            <div class="form-group">
+              <label>Firm Email</label>
+              <input type="email" id="firmEmail" placeholder="info@yourfirm.com">
+            </div>
+            <div class="form-group">
+              <label>Firm Phone</label>
+              <input type="tel" id="firmPhone" placeholder="(817) 555-0100">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Managing Partner -->
+      <div class="settings-section">
+        <div class="section-header">
+          <div class="section-title"><i class="fas fa-user-tie"></i> Managing Partner / GP Representative</div>
+        </div>
+        <div class="section-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="required">Full Name</label>
+              <input type="text" id="gpFullName" placeholder="Robert Pike">
+            </div>
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" id="gpTitle" placeholder="Managing Member">
+            </div>
+            <div class="form-group">
+              <label>Direct Email</label>
+              <input type="email" id="gpEmail" placeholder="robert@yourfirm.com">
+            </div>
+            <div class="form-group">
+              <label>Direct Phone</label>
+              <input type="tel" id="gpPhone" placeholder="(817) 555-0101">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deal Defaults -->
+      <div class="settings-section">
+        <div class="section-header">
+          <div class="section-title"><i class="fas fa-sliders-h"></i> Deal Defaults</div>
+          <span style="font-size:.78rem;color:var(--text-muted);">Pre-fill values for new deals</span>
+        </div>
+        <div class="section-body">
+          <div class="defaults-grid">
+            <div class="form-group">
+              <label>Preferred Return (%)</label>
+              <input type="number" id="defPref" placeholder="8" step="0.5" min="0" max="30">
+            </div>
+            <div class="form-group">
+              <label>GP Promote (%)</label>
+              <input type="number" id="defPromote" placeholder="20" step="1" min="0" max="50">
+            </div>
+            <div class="form-group">
+              <label>GP Equity (%)</label>
+              <input type="number" id="defGPEquity" placeholder="10" step="1" min="0" max="50">
+            </div>
+            <div class="form-group">
+              <label>Default Hold Period (yrs)</label>
+              <input type="number" id="defHold" placeholder="5" step="1" min="1" max="30">
+            </div>
+            <div class="form-group">
+              <label>Default SEC Exemption</label>
+              <select id="defSEC">
+                <option value="506b">Reg D 506(b)</option>
+                <option value="506c">Reg D 506(c)</option>
+                <option value="4a5">Section 4(a)(5)</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Default Deal State</label>
+              <select id="defState">
+                <option value="TX">Texas</option>
+                <option value="DE">Delaware</option>
+                <option value="CA">California</option>
+                <option value="NY">New York</option>
+                <option value="FL">Florida</option>
+                <option value="NV">Nevada</option>
+                <option value="WY">Wyoming</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account Info -->
+      <div class="settings-section">
+        <div class="section-header">
+          <div class="section-title"><i class="fas fa-user-circle"></i> Account</div>
+        </div>
+        <div class="section-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Account Email</label>
+              <input type="email" id="accountEmail" readonly style="background:var(--border-light);color:var(--text-muted);">
+            </div>
+            <div class="form-group">
+              <label>Display Name</label>
+              <input type="text" id="accountName" placeholder="Your name">
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:12px 16px;background:var(--border-light);border-radius:var(--radius);font-size:.82rem;color:var(--text-secondary);">
+            <i class="fas fa-info-circle" style="color:var(--accent);margin-right:6px;"></i>
+            To change your password, use the <strong>Forgot Password</strong> link on the login page.
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="settings-section">
+        <div class="section-header">
+          <div class="section-title"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> Danger Zone</div>
+        </div>
+        <div class="section-body">
+          <div class="danger-zone">
+            <h3>Sign Out Everywhere</h3>
+            <p>This will sign you out of deeltrack on all devices and clear your local session.</p>
+            <button class="btn btn-danger" onclick="SP.logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
+</div>
+
+<div id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Settings saved!</span></div>
+
+<script>
+SP.requireGP();
+
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg || 'Settings saved!';
+  el.style.background = type === 'error' ? 'var(--danger)' : 'var(--success)';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function loadSettings() {
+  const s = SP.load('settings', {});
+  const session = SP.getSession();
+
+  // Firm
+  set('firmName', s.firmName);
+  set('firmDBA', s.firmDBA);
+  set('firmEntityType', s.firmEntityType || 'LLC');
+  set('firmEIN', s.firmEIN);
+  set('firmState', s.firmState || 'TX');
+  set('firmAddress', s.firmAddress);
+  set('firmEmail', s.firmEmail);
+  set('firmPhone', s.firmPhone);
+  set('firmWebsite', s.firmWebsite);
+
+  // GP
+  set('gpFullName', s.gpFullName || session?.name);
+  set('gpTitle', s.gpTitle || 'Managing Member');
+  set('gpEmail', s.gpEmail || session?.email);
+  set('gpPhone', s.gpPhone);
+
+  // Defaults
+  set('defPref', s.defPref || 8);
+  set('defPromote', s.defPromote || 20);
+  set('defGPEquity', s.defGPEquity || 10);
+  set('defHold', s.defHold || 5);
+  set('defSEC', s.defSEC || '506b');
+  set('defState', s.defState || 'TX');
+
+  // Account
+  set('accountEmail', session?.email || '');
+  set('accountName', session?.name || s.gpFullName || '');
+}
+
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el && val !== undefined && val !== null) el.value = val;
+}
+
+function saveAll() {
+  const settings = {
+    firmName: v('firmName'),
+    firmDBA: v('firmDBA'),
+    firmEntityType: v('firmEntityType'),
+    firmEIN: v('firmEIN'),
+    firmState: v('firmState'),
+    firmAddress: v('firmAddress'),
+    firmEmail: v('firmEmail'),
+    firmPhone: v('firmPhone'),
+    firmWebsite: v('firmWebsite'),
+    gpFullName: v('gpFullName'),
+    gpTitle: v('gpTitle'),
+    gpEmail: v('gpEmail'),
+    gpPhone: v('gpPhone'),
+    defPref: v('defPref'),
+    defPromote: v('defPromote'),
+    defGPEquity: v('defGPEquity'),
+    defHold: v('defHold'),
+    defSEC: v('defSEC'),
+    defState: v('defState'),
+  };
+
+  // Validate required fields
+  if (!settings.firmName) {
+    showToast('Firm Legal Name is required.', 'error');
+    document.getElementById('firmName').focus();
+    return;
+  }
+  if (!settings.gpFullName) {
+    showToast('Managing Partner name is required.', 'error');
+    document.getElementById('gpFullName').focus();
+    return;
+  }
+
+  SP.save('settings', settings);
+
+  // Also update Firestore if available
+  if (typeof SPFB !== 'undefined' && SPFB.isReady() && SPFB.saveSettings) {
+    SPFB.saveSettings(settings);
+  }
+
+  // Update display name in session if changed
+  const name = v('accountName');
+  if (name) {
+    const session = SP.getSession();
+    if (session) {
+      session.name = name;
+      SP.setSession(session);
+    }
+  }
+
+  SP.logActivity('fa-cog', 'blue', 'Firm settings updated');
+  showToast('Settings saved!');
+}
+
+function v(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+loadSettings();
+
+// Also load from Firestore when ready
+window.addEventListener('spdata-ready', () => {
+  if (typeof SPFB !== 'undefined' && SPFB.isReady() && SPFB.getSettings) {
+    SPFB.getSettings().then(s => {
+      if (s && Object.keys(s).length) {
+        SP.save('settings', s);
+        loadSettings();
+      }
+    });
+  }
+});
+</script>
 </body>
 </html>

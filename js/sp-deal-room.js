@@ -189,40 +189,112 @@ window.DealRoom = {
   },
 
   saveDoc: function() {
-    const name = document.getElementById('docName').value;
+    const name = document.getElementById('docName').value.trim();
     const category = document.getElementById('docCategory').value;
     const access = document.getElementById('docAccess').value;
-    
-    if (!name) {
-      alert('Please enter document name');
-      return;
-    }
+    const fileInput = document.getElementById('docFile');
+    const file = fileInput.files[0];
 
-    const newDoc = {
-      id: Date.now().toString(),
-      name,
-      category,
-      access,
-      uploadedBy: 'GP',
-      date: new Date().toISOString().split('T')[0],
-      size: '0 KB'
+    if (!name) { alert('Please enter a document name.'); return; }
+
+    const dealId = this.currentDeal?.id;
+    if (!dealId) { alert('No deal selected.'); return; }
+
+    const saveBtn = document.querySelector('#uploadModal .btn-primary');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading…'; }
+
+    const doSave = (fileUrl, fileSize, mimeType) => {
+      const newDoc = {
+        id: Date.now().toString(),
+        name,
+        category,
+        access,
+        uploadedBy: SP.getSession()?.name || 'GP',
+        date: new Date().toISOString().split('T')[0],
+        size: fileSize || '—',
+        fileUrl: fileUrl || null,
+        mimeType: mimeType || null,
+        storagePath: null,
+      };
+      this.documents.unshift(newDoc);
+      this.saveDocuments();
+      this.renderDocuments();
+      this.closeModal();
+      fileInput.value = '';
+      document.getElementById('docName').value = '';
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = '<i class="fas fa-upload"></i> Upload'; }
+      SP.logActivity('fa-file-upload', 'blue', `Document <strong>${name}</strong> uploaded to <strong>${this.currentDeal.name}</strong>`);
+      this._showToast('Document uploaded!');
     };
 
-    this.documents.unshift(newDoc);
-    this.saveDocuments();
-    this.renderDocuments();
-    this.closeModal();
-    
-    // Clear form
-    document.getElementById('docName').value = '';
+    const formatSize = (bytes) => {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(1) + ' MB';
+    };
+
+    if (file) {
+      // Try Firebase Storage first, fall back to base64 in localStorage
+      if (typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline() && typeof SPFB.uploadFile === 'function') {
+        SPFB.uploadFile(file, dealId, category, access === 'all' ? 'all_investors' : 'gp')
+          .then(({ docId, fileUrl }) => doSave(fileUrl, formatSize(file.size), file.type))
+          .catch(err => {
+            console.warn('Firebase upload failed, falling back to local:', err);
+            const reader = new FileReader();
+            reader.onload = (ev) => doSave(ev.target.result, formatSize(file.size), file.type);
+            reader.readAsDataURL(file);
+          });
+      } else {
+        // Store as base64 data URL (localStorage — works offline)
+        if (file.size > 10 * 1024 * 1024) { alert('File too large for local storage (max 10MB). Connect to Firebase for larger files.'); if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = '<i class="fas fa-upload"></i> Upload'; } return; }
+        const reader = new FileReader();
+        reader.onload = (ev) => doSave(ev.target.result, formatSize(file.size), file.type);
+        reader.readAsDataURL(file);
+      }
+    } else {
+      // No file — save metadata only (e.g., linked generated document)
+      doSave(null, '—', null);
+    }
+  },
+
+  _showToast: function(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:#10b981;color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-family:Inter,sans-serif;';
+    t.innerHTML = '<i class="fas fa-check-circle"></i>' + msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2500);
   },
 
   viewDoc: function(id) {
-    alert('Opening document viewer...');
+    const doc = this.documents.find(d => d.id === id);
+    if (!doc) return;
+    if (doc.fileUrl) {
+      // Base64 or Firebase URL
+      const w = window.open();
+      if (doc.fileUrl.startsWith('data:')) {
+        w.document.write(`<!DOCTYPE html><html><head><title>${doc.name}</title></head><body style="margin:0;background:#000;">
+          <iframe src="${doc.fileUrl}" style="width:100%;height:100vh;border:none;"></iframe>
+        </body></html>`);
+        w.document.close();
+      } else {
+        w.location.href = doc.fileUrl;
+      }
+    } else {
+      alert('No file attached to this document record. Please re-upload with a file.');
+    }
   },
 
   downloadDoc: function(id) {
-    alert('Downloading document...');
+    const doc = this.documents.find(d => d.id === id);
+    if (!doc) return;
+    if (doc.fileUrl) {
+      const a = document.createElement('a');
+      a.href = doc.fileUrl;
+      a.download = doc.name + (doc.mimeType === 'application/pdf' ? '.pdf' : '');
+      a.click();
+    } else {
+      alert('No file to download. Re-upload this document with an attached file.');
+    }
   },
 
   deleteDoc: function(id) {
