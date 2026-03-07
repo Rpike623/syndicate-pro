@@ -837,8 +837,7 @@ window.SP = (function () {
     s.src = 'js/sp-audit.js';
     s.onload = () => {
       const e = document.createElement('script');
-      e.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-esign.js';
-      if (!e.src || e.src === 'sp-esign.js') e.src = 'js/sp-esign.js';
+      e.src = 'js/sp-esign.js';
       document.head.appendChild(e);
     };
     document.head.appendChild(s);
@@ -849,9 +848,7 @@ window.SP = (function () {
 (function loadTheme() {
   if (typeof document === 'undefined') return;
   const s = document.createElement('script');
-  s.src = (document.currentScript?.src || '').replace('sp-core.js','') + 'sp-theme.js';
-  // Fallback path resolution
-  if (!s.src || s.src === 'sp-theme.js') s.src = 'js/sp-theme.js';
+  s.src = 'js/sp-theme.js';
   document.head.appendChild(s);
 })();
 
