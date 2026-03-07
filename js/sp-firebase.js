@@ -172,13 +172,15 @@ const SPFB = (function () {
     // Sync Firebase user into SP session so requireGP/requireInvestor work on every page
     if (_spUser && typeof SP !== 'undefined') {
       const existing = SP.getSession();
-      // Only overwrite if not already set, or if Firebase has fresher role/orgId
-      if (!existing || !existing.loggedIn || existing.email !== _spUser.email) {
+      // ALWAYS sync session when Firebase user exists — this fixes data isolation
+      // The orgId from Firebase Auth is the source of truth, not localStorage
+      if (_spUser && _spUser.email) {
         SP.setSession({
           email:     _spUser.email,
           name:      _spUser.name || _spUser.displayName || _spUser.email,
           role:      _spUser.role || 'General Partner',
-          orgId:     _spUser.orgId || _orgId,
+          // CRITICAL: Always use Firebase orgId for data isolation
+          orgId:     _spUser.orgId || _orgId || existing?.orgId,
           loggedIn:  true,
           loginTime: Date.now(),
           uid:       _spUser.uid,
