@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-data.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <style>
+    :root {
+      --accent:#0ea5e9;--accent-hover:#0284c7;--accent-light:rgba(14,165,233,0.15);
+      --success:#10b981;--success-light:rgba(16,185,129,0.15);
+      --warning:#f59e0b;--warning-light:rgba(245,158,11,0.15);
+      --danger:#ef4444;--danger-light:rgba(239,68,68,0.15);
+      --purple:#8b5cf6;--purple-light:rgba(139,92,246,0.15);
+      --text:#F8FAFC;--text-secondary:#94A3B8;--text-muted:#64748B;
+      --border:#1E293B;--border-light:rgba(255,255,255,0.05);
+      --bg:#0B1120;--bg-card:#111827;
+      --radius-sm:6px;--radius:8px;--radius-md:12px;
+      --shadow-sm:0 1px 2px rgb(0 0 0/.05);
+      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);
+      --shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:#0B1120;color:#F8FAFC;line-height:1.5;-webkit-font-smoothing:antialiased;}
+    .app{display:flex;min-height:100vh;}
+    .main{flex:1;margin-left:260px;min-height:100vh;}
+    @media(max-width:768px){
+      .main{margin-left:0!important;width:100%!important;}
+      .sidebar,#sidebar{transform:translateX(-100%)!important;position:fixed!important;z-index:100!important;}
+      .sidebar.open,#sidebar.open{transform:translateX(0)!important;}
+      .mobile-menu-btn{display:flex!important;}
+      .content{padding:16px!important;}
+    }
+    /* Top bar */
+    .top-bar{background:#111827;border-bottom:1px solid #1E293B;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+    .mobile-menu-btn{display:none;background:none;border:1px solid #1E293B;border-radius:var(--radius);padding:8px 10px;cursor:pointer;}
+    /* Content */
+    .content{padding:32px;}
+    /* Page header */
+    .page-header{margin-bottom:32px;}
+    .page-header h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;}
+    .page-header p{color:var(--text-secondary);font-size:.9rem;}
+    /* Search */
+    .tools-search{position:relative;max-width:420px;margin-bottom:32px;}
+    .tools-search i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.875rem;}
+    .tools-search input{width:100%;padding:11px 14px 11px 40px;background:#111827;border:1px solid #1E293B;border-radius:var(--radius);color:#F8FAFC;font-size:.9rem;font-family:'Inter',sans-serif;outline:none;transition:all .15s;}
+    .tools-search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,165,233,.1);}
+    .tools-search input::placeholder{color:var(--text-muted);}
+    /* Category */
+    .category{margin-bottom:40px;}
+    .category-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #1E293B;}
+    .category-icon{width:32px;height:32px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:.875rem;flex-shrink:0;}
+    .cat-blue{background:var(--accent-light);color:var(--accent);}
+    .cat-green{background:var(--success-light);color:var(--success);}
+    .cat-purple{background:var(--purple-light);color:var(--purple);}
+    .cat-amber{background:var(--warning-light);color:var(--warning);}
+    .cat-teal{background:rgba(20,184,166,.15);color:#14b8a6;}
+    .category-title{font-size:.95rem;font-weight:700;color:#F8FAFC;}
+    .category-desc{font-size:.78rem;color:var(--text-muted);margin-top:1px;}
+    .category-count{margin-left:auto;font-size:.72rem;font-weight:600;color:var(--text-muted);background:var(--border-light);padding:2px 8px;border-radius:20px;}
+    /* Tool grid */
+    .tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+    /* Tool card */
+    .tool-card{background:#111827;border:1px solid #1E293B;border-radius:var(--radius-md);padding:18px 20px;text-decoration:none;color:#F8FAFC;display:flex;flex-direction:column;gap:10px;transition:all .18s;position:relative;overflow:hidden;}
+    .tool-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+    .tool-card.stub{opacity:.65;}
+    .tool-card.stub:hover{border-color:#334155;transform:none;box-shadow:none;cursor:default;}
+    .tool-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+    .tool-icon{width:36px;height:36px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+    .tool-name{font-size:.875rem;font-weight:600;line-height:1.3;}
+    .tool-desc{font-size:.75rem;color:var(--text-secondary);line-height:1.5;}
+    /* Coming soon badge */
+    .badge-soon{display:inline-flex;align-items:center;gap:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:20px;background:rgba(100,116,139,.15);color:#64748b;border:1px solid rgba(100,116,139,.25);}
+    /* No results */
+    .no-results{text-align:center;padding:60px 20px;color:var(--text-muted);}
+    .no-results i{font-size:2rem;opacity:.3;display:block;margin-bottom:12px;}
+    /* Hide categories when all tools filtered out */
+    .category.hidden{display:none;}
+  </style>
+  <link rel="stylesheet" href="contrast-fix.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
+
+  <main class="main">
+    <header class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')">
+          <i class="fas fa-bars" style="color:var(--text-secondary);"></i>
+        </button>
+        <div>
+          <h1 style="font-size:1.25rem;font-weight:700;">Tools</h1>
+          <p style="font-size:.8rem;color:var(--text-secondary);">Calculators, analytics, and utilities for real estate syndication</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Search -->
+      <div class="tools-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="toolSearch" placeholder="Search tools…" oninput="filterTools(this.value)">
+      </div>
+
+      <div id="noResults" class="no-results" style="display:none;">
+        <i class="fas fa-search"></i>
+        <p>No tools match "<span id="searchTerm"></span>"</p>
+      </div>
+
+      <!-- ── CATEGORY 1: Deal Analysis ─────────────────────────── -->
+      <div class="category" id="cat-deal-analysis">
+        <div class="category-header">
+          <div class="category-icon cat-blue"><i class="fas fa-calculator"></i></div>
+          <div>
+            <div class="category-title">Deal Analysis</div>
+            <div class="category-desc">Model deals, run projections, and stress-test returns</div>
+          </div>
+          <span class="category-count" id="count-deal-analysis"></span>
+        </div>
+        <div class="tool-grid" id="grid-deal-analysis">
+          <!-- Tool cards injected by JS -->
+        </div>
+      </div>
+
+      <!-- ── CATEGORY 2: Portfolio & Finance ────────────────────── -->
+      <div class="category" id="cat-portfolio">
+        <div class="category-header">
+          <div class="category-icon cat-green"><i class="fas fa-chart-line"></i></div>
+          <div>
+            <div class="category-title">Portfolio & Finance</div>
+            <div class="category-desc">Track performance, accounting, and capital activity across your portfolio</div>
+          </div>
+          <span class="category-count" id="count-portfolio"></span>
+        </div>
+        <div class="tool-grid" id="grid-portfolio">
+        </div>
+      </div>
+
+      <!-- ── CATEGORY 3: Investor Relations ────────────────────── -->
+      <div class="category" id="cat-investors">
+        <div class="category-header">
+          <div class="category-icon cat-purple"><i class="fas fa-users"></i></div>
+          <div>
+            <div class="category-title">Investor Relations</div>
+            <div class="category-desc">Manage your LP pipeline, communications, and engagement</div>
+          </div>
+          <span class="category-count" id="count-investors"></span>
+        </div>
+        <div class="tool-grid" id="grid-investors">
+        </div>
+      </div>
+
+      <!-- ── CATEGORY 4: Documents & Compliance ────────────────── -->
+      <div class="category" id="cat-documents">
+        <div class="category-header">
+          <div class="category-icon cat-amber"><i class="fas fa-file-contract"></i></div>
+          <div>
+            <div class="category-title">Documents & Compliance</div>
+            <div class="category-desc">Generate legal documents, track regulatory obligations, manage files</div>
+          </div>
+          <span class="category-count" id="count-documents"></span>
+        </div>
+        <div class="tool-grid" id="grid-documents">
+        </div>
+      </div>
+
+      <!-- ── CATEGORY 5: Property Operations ───────────────────── -->
+      <div class="category" id="cat-operations">
+        <div class="category-header">
+          <div class="category-icon cat-teal"><i class="fas fa-building"></i></div>
+          <div>
+            <div class="category-title">Property Operations</div>
+            <div class="category-desc">Property-level management — leases, maintenance, vendors, tenants</div>
+          </div>
+          <span class="category-count" id="count-operations"></span>
+        </div>
+        <div class="tool-grid" id="grid-operations">
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+SP.requireGP();
+
+// ── Tool definitions ──────────────────────────────────────────────────────────
+// stub: true  = page exists but is a placeholder < 50 lines, shown with "Coming Soon" badge
+// stub: false = real functionality
+const TOOLS = {
+  'deal-analysis': [
+    { href:'new-deal.html',          icon:'fa-plus-circle',        color:'var(--accent)',   name:'New Deal Wizard',      desc:'5-step wizard: structure, capital, waterfall, documents.',  stub:false },
+    { href:'proforma.html',          icon:'fa-table',              color:'var(--success)',  name:'Pro Forma',            desc:'Build income/expense projections for any property.',        stub:false },
+    { href:'exit-calc.html',         icon:'fa-calculator',         color:'var(--accent)',   name:'Exit Calculator',      desc:'Model sale proceeds, investor returns, and GP promote.',    stub:false },
+    { href:'scenario-planner.html',  icon:'fa-project-diagram',    color:'var(--purple)',   name:'Scenario Planner',     desc:'Bear / base / bull exit scenarios side-by-side.',           stub:false },
+    { href:'sensitivity-matrix.html',icon:'fa-table',              color:'var(--warning)',  name:'Sensitivity Matrix',   desc:'2-variable sensitivity on IRR and equity multiple.',         stub:false },
+    { href:'dynamic-valuation.html', icon:'fa-sync-alt',           color:'var(--accent)',   name:'Dynamic Valuation',    desc:'Live DCF valuation model with adjustable assumptions.',      stub:false },
+    { href:'capital-stack.html',     icon:'fa-layer-group',        color:'var(--success)',  name:'Capital Stack',        desc:'Visualize debt/equity layers for any deal.',                 stub:false },
+    { href:'amortization.html',      icon:'fa-calendar-alt',       color:'var(--text-muted)',name:'Amortization',        desc:'Loan amortization schedule and payment breakdown.',          stub:false },
+    { href:'cap-rate.html',          icon:'fa-percent',            color:'var(--warning)',  name:'Cap Rate Calculator',  desc:'Calculate cap rate, NOI, and property value.',               stub:false },
+    { href:'deal-compare.html',      icon:'fa-balance-scale',      color:'var(--accent)',   name:'Deal Comparator',      desc:'Compare up to 4 deals head-to-head on key metrics.',         stub:false },
+    { href:'deal-scoring.html',      icon:'fa-star',               color:'var(--warning)',  name:'Deal Scoring',         desc:'Score and rank deals by your custom criteria.',              stub:false },
+    { href:'irr-calc.html',          icon:'fa-percent',            color:'var(--success)',  name:'IRR Calculator',       desc:'Calculate internal rate of return for any cash flow.',       stub:true  },
+    { href:'dscr-calc.html',         icon:'fa-shield-halved',      color:'var(--accent)',   name:'DSCR Calculator',      desc:'Debt service coverage ratio for loan underwriting.',         stub:true  },
+    { href:'ltc-calc.html',          icon:'fa-calculator',         color:'var(--text-muted)',name:'LTC Calculator',      desc:'Loan-to-cost analysis for construction/acquisition.',       stub:true  },
+    { href:'equity-multiple.html',   icon:'fa-coins',              color:'var(--warning)',  name:'Equity Multiple',      desc:'Calculate equity multiple and MOIC for any investment.',     stub:true  },
+    { href:'rehab-estimator.html',   icon:'fa-hammer',             color:'var(--warning)',  name:'Rehab Estimator',      desc:'Estimate renovation costs by scope and unit count.',         stub:true  },
+    { href:'waterfall-guide.html',   icon:'fa-book-open',          color:'var(--purple)',   name:'Waterfall Guide',      desc:'Plain-English explainer: pref, catch-up, promote.',          stub:false },
+    { href:'waterfall-explainer.html',icon:'fa-play-circle',       color:'var(--accent)',   name:'Waterfall Animator',   desc:'Animated walkthrough of distribution waterfall math.',       stub:false },
+    { href:'investment-thesis.html', icon:'fa-lightbulb',          color:'var(--warning)',  name:'Investment Thesis',    desc:'Document your thesis and investment criteria per deal.',      stub:false },
+  ],
+  'portfolio': [
+    { href:'portfolio.html',          icon:'fa-chart-pie',         color:'var(--accent)',   name:'Fund Overview',        desc:'Portfolio-level AUM, returns, and deal status summary.',     stub:false },
+    { href:'reports.html',            icon:'fa-chart-bar',         color:'var(--success)',  name:'Reports',              desc:'GP performance reports across the full portfolio.',          stub:false },
+    { href:'gp-pl.html',              icon:'fa-money-bill-trend-up',color:'var(--success)', name:'GP P&L',               desc:'Track GP-level income: fees, carry, and distributions.',     stub:false },
+    { href:'gp-benchmarks.html',      icon:'fa-gauge-high',        color:'var(--accent)',   name:'GP Benchmarks',        desc:'Compare your portfolio metrics to market benchmarks.',        stub:false },
+    { href:'portfolio-health.html',   icon:'fa-heart-pulse',       color:'var(--danger)',   name:'Portfolio Health',     desc:'Health dashboard: delinquencies, expirations, alerts.',      stub:false },
+    { href:'carry-tracker.html',      icon:'fa-hand-holding-dollar',color:'var(--success)', name:'Carry Tracker',        desc:'Track vested and unvested GP carry across all deals.',        stub:false },
+    { href:'capital-account.html',    icon:'fa-list-ol',           color:'var(--accent)',   name:'Capital Accounts',     desc:'Per-investor capital account balances and activity.',        stub:false },
+    { href:'accounting.html',         icon:'fa-calculator',        color:'var(--text-muted)',name:'Fund Accounting',     desc:'Journal entries, ledger, and fund-level financials.',        stub:false },
+    { href:'budget-actual.html',      icon:'fa-balance-scale',     color:'var(--warning)',  name:'Budget vs Actual',     desc:'Compare projected vs actual income and expenses.',           stub:false },
+    { href:'distribution-calc.html',  icon:'fa-bolt',              color:'var(--purple)',   name:'Distribution Command', desc:'Preview pref-aware splits before posting distributions.',    stub:false },
+    { href:'capital-account-statement.html',icon:'fa-file-contract',color:'var(--accent)',  name:'Account Ledger',       desc:'Detailed capital account statement per investor.',           stub:false },
+    { href:'distribution-reconciliation.html',icon:'fa-scale-balanced',color:'var(--success)','name':'Dist. Reconciliation',desc:'Reconcile posted distributions against bank records.',    stub:false },
+    { href:'investor-statements.html',icon:'fa-file-invoice',      color:'var(--accent)',   name:'Investor Statements',  desc:'Generate quarterly statements for limited partners.',        stub:false },
+    { href:'wire-confirm.html',       icon:'fa-university',        color:'var(--text-muted)',name:'Wire Confirmation',   desc:'Document and confirm incoming capital wire transfers.',       stub:false },
+    { href:'tax-center.html',         icon:'fa-file-invoice-dollar',color:'var(--warning)', name:'Tax Center',           desc:'Centralized tax management — K-1s, filings, and deadlines.', stub:false },
+    { href:'risk-register.html',      icon:'fa-exclamation-triangle',color:'var(--danger)', name:'Risk Register',        desc:'Document and track deal-level risks and mitigations.',       stub:false },
+  ],
+  'investors': [
+    { href:'investor-pipeline.html',   icon:'fa-funnel-dollar',    color:'var(--accent)',   name:'Lead Pipeline',        desc:'Track prospective LP conversations from lead to close.',     stub:false },
+    { href:'investor-onboarding.html', icon:'fa-user-check',       color:'var(--success)',  name:'Onboarding',           desc:'Manage KYC, accreditation, and subscription docs.',          stub:false },
+    { href:'inbox.html',               icon:'fa-inbox',            color:'var(--accent)',   name:'Inbox',                desc:'GP email inbox connected to admin@deeltrack.com.',           stub:false },
+    { href:'investor-update.html',     icon:'fa-bullhorn',         color:'var(--success)',  name:'Investor Updates',     desc:'Compose and send quarterly update emails to LPs.',           stub:false },
+    { href:'email-templates.html',     icon:'fa-envelope',         color:'var(--accent)',   name:'Email Templates',      desc:'Pre-built email templates for capital calls, updates, K-1s.',stub:false },
+    { href:'network-map.html',         icon:'fa-project-diagram',  color:'var(--purple)',   name:'Network Map',          desc:'Visualize your investor network and referral graph.',         stub:false },
+    { href:'investor-retention.html',  icon:'fa-user-clock',       color:'var(--warning)',  name:'Retention Analytics',  desc:'Track LP satisfaction, re-investment rates, and churn.',     stub:false },
+    { href:'investor-sentiment-v2.html',icon:'fa-brain',           color:'var(--purple)',   name:'Sentiment Analysis',   desc:'Analyze LP sentiment from communications.',                   stub:false },
+    { href:'investor-heatmap.html',    icon:'fa-th',               color:'var(--accent)',   name:'Activity Heatmap',     desc:'Visualize LP engagement activity over time.',                stub:false },
+    { href:'referrals.html',           icon:'fa-share-nodes',      color:'var(--success)',  name:'Referrals',            desc:'Track and reward LP referrals to your syndication.',          stub:false },
+    { href:'investor-feedback.html',   icon:'fa-smile',            color:'var(--success)',  name:'Investor Feedback',    desc:'Collect and review satisfaction surveys from LPs.',          stub:false },
+    { href:'webinars.html',            icon:'fa-video',            color:'var(--accent)',   name:'Webinars',             desc:'Schedule and manage LP education webinars.',                 stub:false },
+    { href:'investor-chat.html',       icon:'fa-comments',         color:'var(--purple)',   name:'Messenger',            desc:'Direct messaging with individual investors.',                stub:false },
+    { href:'anchor-map.html',          icon:'fa-anchor',           color:'var(--text-muted)',name:'Referral Map',        desc:'Map investor introductions and anchor LP influence.',         stub:false },
+  ],
+  'documents': [
+    { href:'deal-room.html',           icon:'fa-folder-open',      color:'var(--accent)',   name:'Deal Room',            desc:'Secure per-deal document sharing with investors.',           stub:false },
+    { href:'om-builder.html',          icon:'fa-file-pdf',         color:'var(--danger)',   name:'OM Builder',           desc:'Build professional offering memorandums for deals.',         stub:false },
+    { href:'om-v2.html',               icon:'fa-clapperboard',     color:'var(--accent)',   name:'Interactive Offering', desc:'Rich interactive offering memo with charts and maps.',        stub:false },
+    { href:'lender-crm.html',          icon:'fa-university',       color:'var(--success)',  name:'Lender CRM',           desc:'Track lenders, term sheets, and loan history.',              stub:false },
+    { href:'debt-tracker.html',        icon:'fa-landmark',         color:'var(--warning)',  name:'Debt Tracker',         desc:'Track loans, maturities, and debt service obligations.',     stub:false },
+    { href:'compliance-hub.html',      icon:'fa-shield-halved',    color:'var(--success)',  name:'Compliance Hub',       desc:'SEC Form D tracking, accreditation, and compliance alerts.', stub:false },
+    { href:'executive-summary.html',   icon:'fa-file-invoice',     color:'var(--accent)',   name:'Executive Summary',    desc:'Generate investor-ready executive summary PDF.',             stub:false },
+    { href:'recapitalization.html',    icon:'fa-money-bill-wave',  color:'var(--success)',  name:'Recapitalization',     desc:'Model refinancing and recapitalization scenarios.',           stub:false },
+    { href:'gp-vesting.html',          icon:'fa-award',            color:'var(--warning)',  name:'GP Vesting',           desc:'Track GP equity vesting schedules across deals.',            stub:false },
+    { href:'audit-logs.html',          icon:'fa-fingerprint',      color:'var(--text-muted)',name:'Audit Logs',          desc:'Full platform audit trail of all GP actions.',               stub:true  },
+    { href:'rent-roll.html',           icon:'fa-list',             color:'var(--accent)',   name:'Rent Roll',            desc:'Property rent roll management and analysis.',                stub:true  },
+    { href:'currency-center.html',     icon:'fa-globe-americas',   color:'var(--text-muted)',name:'Currency Center',     desc:'Multi-currency conversion for international investments.',    stub:false },
+  ],
+  'operations': [
+    { href:'sourcing-crm.html',        icon:'fa-stream',           color:'var(--accent)',   name:'Deal Pipeline',        desc:'Kanban deal pipeline — from sourcing through close.',        stub:false },
+    { href:'due-diligence.html',       icon:'fa-search',           color:'var(--accent)',   name:'Due Diligence',        desc:'DD checklist and task management per deal.',                 stub:false },
+    { href:'lease-tracking.html',      icon:'fa-file-signature',   color:'var(--warning)',  name:'Lease Tracking',       desc:'Active lease management, expirations, renewals.',            stub:false },
+    { href:'vendors.html',             icon:'fa-tools',            color:'var(--text-muted)',name:'Vendors',             desc:'Vendor directory, contracts, and performance tracking.',     stub:false },
+    { href:'maintenance.html',         icon:'fa-wrench',           color:'var(--warning)',  name:'Maintenance',          desc:'Work orders, maintenance log, and vendor dispatch.',         stub:false },
+    { href:'tenant-directory.html',    icon:'fa-users',            color:'var(--accent)',   name:'Tenant Directory',     desc:'Tenant contact list, lease terms, and payment history.',     stub:false },
+    { href:'insurance.html',           icon:'fa-shield-cat',       color:'var(--success)',  name:'Insurance',            desc:'Policy tracking, renewals, and COI management.',             stub:false },
+    { href:'property-inspections.html',icon:'fa-clipboard-check',  color:'var(--accent)',   name:'Inspections',          desc:'Schedule and record property inspection reports.',           stub:false },
+    { href:'tasks.html',               icon:'fa-tasks',            color:'var(--purple)',   name:'Task Manager',         desc:'GP task list with deal assignments and due dates.',          stub:false },
+    { href:'quarterly-report.html',    icon:'fa-chart-bar',        color:'var(--success)',  name:'Quarterly Report',     desc:'Generate quarterly performance reports for investors.',       stub:false },
+    { href:'reservations.html',        icon:'fa-hand-pointer',     color:'var(--accent)',   name:'Reservations',         desc:'Track investor interest and soft reservations per deal.',     stub:false },
+    { href:'exchange-1031.html',       icon:'fa-exchange-alt',     color:'var(--warning)',  name:'1031 Exchange',        desc:'Model 1031 exchange timelines, rules, and replacement.',     stub:false },
+    { href:'cost-segregation.html',    icon:'fa-layer-group',      color:'var(--accent)',   name:'Cost Segregation',     desc:'Estimate cost segregation study and accelerated depreciation.',stub:false },
+    { href:'tax-appeal.html',          icon:'fa-gavel',            color:'var(--warning)',  name:'Tax Appeal',           desc:'Property tax appeal analysis and documentation.',             stub:false },
+    { href:'deal-room-log.html',       icon:'fa-magnifying-glass', color:'var(--text-muted)',name:'Deal Room Log',       desc:'Audit log of investor document views and activity.',         stub:false },
+    { href:'deal-approvals.html',      icon:'fa-check-double',     color:'var(--success)',  name:'Deal Approvals',       desc:'GP approval workflows for major deal decisions.',            stub:false },
+    { href:'market-comps.html',        icon:'fa-city',             color:'var(--accent)',   name:'Market Comps',         desc:'Comparable property analysis for underwriting.',             stub:false },
+    { href:'scenario-planner.html',    icon:'fa-project-diagram',  color:'var(--purple)',   name:'Scenario Planner',     desc:'Bear / base / bull exit scenarios side-by-side.',           stub:false },
+    { href:'cap-table.html',           icon:'fa-pie-chart',        color:'var(--accent)',   name:'Cap Table',            desc:'LP ownership cap table per deal.',                           stub:false },
+    { href:'reit-rollup.html',         icon:'fa-layer-group',      color:'var(--success)',  name:'Fund Rollup',          desc:'REIT/fund-level rollup of all underlying properties.',        stub:false },
+    { href:'insurance-tracker.html',   icon:'fa-shield-alt',       color:'var(--success)',  name:'Insurance Tracker',    desc:'Track all policy renewals and coverage amounts.',             stub:false },
+    { href:'lenders-crm.html',         icon:'fa-university',       color:'var(--accent)',   name:'Lenders CRM',          desc:'Lender relationships, contacts, and product preferences.',   stub:false },
+    { href:'exit-strategy.html',       icon:'fa-door-open',        color:'var(--success)',  name:'Exit Strategy',        desc:'Document planned exit strategy and timeline for each deal.', stub:false },
+    { href:'team.html',                icon:'fa-user-shield',      color:'var(--purple)',   name:'Team',                 desc:'Manage GP team members, roles, and access levels.',          stub:false },
+  ],
+};
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function buildCard(tool) {
+  const stubBadge = tool.stub
+    ? `<span class="badge-soon"><i class="fas fa-clock" style="font-size:.55rem;"></i> Coming Soon</span>`
+    : '';
+  return `<a href="${tool.stub ? 'javascript:void(0)' : tool.href}" class="tool-card ${tool.stub ? 'stub' : ''}" data-name="${tool.name.toLowerCase()}" data-desc="${tool.desc.toLowerCase()}" ${tool.stub ? 'title="This tool is coming soon"' : ''}>
+    <div class="tool-card-top">
+      <div class="tool-icon" style="background:${colorToLight(tool.color)};color:${tool.color};">
+        <i class="fas ${tool.icon}"></i>
+      </div>
+      ${stubBadge}
+    </div>
+    <div>
+      <div class="tool-name">${tool.name}</div>
+      <div class="tool-desc">${tool.desc}</div>
+    </div>
+  </a>`;
+}
+
+function colorToLight(c) {
+  // Convert CSS var to a light bg
+  const map = {
+    'var(--accent)': 'var(--accent-light)',
+    'var(--success)': 'var(--success-light)',
+    'var(--warning)': 'var(--warning-light)',
+    'var(--danger)': 'var(--danger-light)',
+    'var(--purple)': 'var(--purple-light)',
+    'var(--text-muted)': 'var(--border-light)',
+  };
+  return map[c] || 'var(--border-light)';
+}
+
+const catMap = {
+  'deal-analysis': 'deal-analysis',
+  'portfolio': 'portfolio',
+  'investors': 'investors',
+  'documents': 'documents',
+  'operations': 'operations',
+};
+
+function renderAll() {
+  Object.entries(TOOLS).forEach(([catId, tools]) => {
+    const grid = document.getElementById('grid-' + catId);
+    const countEl = document.getElementById('count-' + catId);
+    if (!grid) return;
+    grid.innerHTML = tools.map(buildCard).join('');
+    if (countEl) countEl.textContent = tools.length + ' tools';
+  });
+}
+
+function filterTools(q) {
+  const query = q.toLowerCase().trim();
+  document.getElementById('noResults').style.display = 'none';
+  document.getElementById('searchTerm').textContent = q;
+
+  let totalVisible = 0;
+
+  Object.keys(TOOLS).forEach(catId => {
+    const grid = document.getElementById('grid-' + catId);
+    const cat  = document.getElementById('cat-' + catId);
+    const countEl = document.getElementById('count-' + catId);
+    if (!grid || !cat) return;
+
+    let visCount = 0;
+    grid.querySelectorAll('.tool-card').forEach(card => {
+      const name = card.dataset.name || '';
+      const desc = card.dataset.desc || '';
+      const matches = !query || name.includes(query) || desc.includes(query);
+      card.style.display = matches ? '' : 'none';
+      if (matches) visCount++;
+    });
+
+    cat.classList.toggle('hidden', visCount === 0);
+    if (countEl) countEl.textContent = visCount + ' tools';
+    totalVisible += visCount;
+  });
+
+  if (query && totalVisible === 0) {
+    document.getElementById('noResults').style.display = 'block';
+  }
+}
+
+renderAll();
+</script>
+</body>
+</html>
