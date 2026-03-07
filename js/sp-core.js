@@ -1183,6 +1183,7 @@ window.SP = (function () {
           { href:'exchange-1031.html', icon:'fa-exchange-alt', label:'1031 Exchange' },
           { href:'cost-segregation.html', icon:'fa-layer-group', label:'Cost Segregation' },
           { href:'bonus-depreciation.html', icon:'fa-bolt', label:'Bonus Depr' },
+          { href:'jv-partnership.html', icon:'fa-handshake', label:'JV Partnership' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
@@ -1273,6 +1274,23 @@ window.SP = (function () {
 
     // Apply saved theme
     SP.applyTheme(localStorage.getItem('sp_theme') || 'light');
+
+    // Mobile sidebar toggle (global function)
+    window.toggleSidebar = function() {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        sidebar.classList.toggle('open');
+        let overlay = document.getElementById('sidebarOverlay');
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.id = 'sidebarOverlay';
+          overlay.className = 'sidebar-overlay';
+          overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('visible'); };
+          document.body.appendChild(overlay);
+        }
+        overlay.classList.toggle('visible');
+      }
+    };
 
     // Inject logout link if not already present
     const footer = document.querySelector('.sidebar-footer');
