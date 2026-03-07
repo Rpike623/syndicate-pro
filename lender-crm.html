@@ -467,14 +467,61 @@
       { id: 't4', lender: 'l5', property: 'Lone Star Self Storage', amount: 2800000, rate: '10.5% Fixed', ltc: '65% LTC', term: '12 months', status: 'rejected', expiry: '2026-01-15' }
     ];
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
+    // Initialize with Firestore
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadFromFirestore();
       renderLenders();
       renderPipeline();
       renderTermSheets();
       updateKPIs();
       populateLenderSelects();
     });
+
+    // Firestore persistence
+    async function loadFromFirestore() {
+      if (typeof SPData === 'undefined' || !SPData.getOrgId) {
+        console.log('LenderCRM: Using local data (SPData not ready)');
+        return;
+      }
+      const orgId = SPData.getOrgId();
+      if (!orgId) return;
+      
+      try {
+        const db = firebase.firestore();
+        // Load lenders
+        const lendersSnap = await db.collection('orgs').doc(orgId).collection('lenders').get();
+        if (!lendersSnap.empty) {
+          lenders = lendersSnap.docs.map(d => ({id: d.id, ...d.data()}));
+        }
+        // Load pipeline
+        const pipelineSnap = await db.collection('orgs').doc(orgId).collection('loanPipeline').get();
+        if (!pipelineSnap.empty) {
+          pipeline = pipelineSnap.docs.map(d => ({id: d.id, ...d.data()}));
+        }
+        // Load term sheets
+        const termsSnap = await db.collection('orgs').doc(orgId).collection('termSheets').get();
+        if (!termsSnap.empty) {
+          termSheets = termsSnap.docs.map(d => ({id: d.id, ...d.data()}));
+        }
+        console.log('LenderCRM: Loaded from Firestore');
+      } catch (e) {
+        console.warn('LenderCRM: Firestore load error', e);
+      }
+    }
+
+    async function saveToFirestore(collection, data, id) {
+      if (typeof SPData === 'undefined' || !SPData.getOrgId) return;
+      const orgId = SPData.getOrgId();
+      if (!orgId) return;
+      
+      try {
+        const db = firebase.firestore();
+        await db.collection('orgs').doc(orgId).collection(collection).doc(id).set(data);
+        console.log('LenderCRM: Saved to Firestore');
+      } catch (e) {
+        console.warn('LenderCRM: Firestore save error', e);
+      }
+    }
 
     function switchTab(tabName, btn) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -537,7 +584,6 @@
       const name = document.getElementById('lenderName').value;
       if (!name) return alert('Lender name required');
       const newLender = {
-        id: 'l' + Date.now(),
         name: name,
         type: document.getElementById('lenderType').value || 'Bank',
         contact: document.getElementById('lenderContact').value,
@@ -546,14 +592,25 @@
         status: document.getElementById('lenderStatus').value,
         products: document.getElementById('lenderProducts').value.split(',').map(p => p.trim()).filter(p => p),
         notes: document.getElementById('lenderNotes').value,
-        loans: []
+        loans: [],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
+      // Save to Firestore first to get ID
+      if (typeof SPData !== 'undefined' && SPData.getOrgId) {
+        const orgId = SPData.getOrgId();
+        if (orgId) {
+          const db = firebase.firestore();
+          const docRef = await db.collection('orgs').doc(orgId).collection('lenders').add(newLender);
+          newLender.id = docRef.id;
+        }
+      } else {
+        newLender.id = 'l' + Date.now();
+      }
       lenders.push(newLender);
       renderLenders();
       updateKPIs();
       populateLenderSelects();
       closeLenderModal();
-      // Clear form
       document.querySelectorAll('#lenderModal input, #lenderModal select, #lenderModal textarea').forEach(el => el.value = '');
     }
 
@@ -585,27 +642,46 @@
       document.getElementById('pipelineModal').classList.add('open'); 
     }
     function closePipelineModal() { document.getElementById('pipelineModal').classList.remove('open'); }
-    function savePipeline() {
+    async function savePipeline() {
       const property = document.getElementById('pipeProperty').value;
       const lender = document.getElementById('pipeLender').value;
       const amount = parseFloat(document.getElementById('pipeAmount').value);
       if (!property || !lender || !amount) return alert('Property, lender and amount required');
-      pipeline.push({
-        id: 'p' + Date.now(),
+      const newPipeline = {
         property: property,
         lender: lender,
         amount: amount,
         stage: document.getElementById('pipeStage').value,
         closeDate: document.getElementById('pipeCloseDate').value,
-        notes: document.getElementById('pipeNotes').value
-      });
+        notes: document.getElementById('pipeNotes').value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (typeof SPData !== 'undefined' && SPData.getOrgId) {
+        const orgId = SPData.getOrgId();
+        if (orgId) {
+          const db = firebase.firestore();
+          const docRef = await db.collection('orgs').doc(orgId).collection('loanPipeline').add(newPipeline);
+          newPipeline.id = docRef.id;
+        }
+      } else {
+        newPipeline.id = 'p' + Date.now();
+      }
+      pipeline.push(newPipeline);
       renderPipeline();
       updateKPIs();
       closePipelineModal();
       document.querySelectorAll('#pipelineModal input, #pipelineModal select, #pipelineModal textarea').forEach(el => el.value = '');
     }
-    function deletePipeline(id) {
+    async function deletePipeline(id) {
       if (!confirm('Remove from pipeline?')) return;
+      // Delete from Firestore
+      if (typeof SPData !== 'undefined' && SPData.getOrgId) {
+        const orgId = SPData.getOrgId();
+        if (orgId) {
+          const db = firebase.firestore();
+          await db.collection('orgs').doc(orgId).collection('loanPipeline').doc(id).delete();
+        }
+      }
       pipeline = pipeline.filter(p => p.id !== id);
       renderPipeline();
       updateKPIs();
@@ -649,14 +725,13 @@
       document.getElementById('termSheetModal').classList.add('open'); 
     }
     function closeTermSheetModal() { document.getElementById('termSheetModal').classList.remove('open'); }
-    function saveTermSheet() {
+    async function saveTermSheet() {
       const lender = document.getElementById('termLender').value;
       const property = document.getElementById('termProperty').value;
       const amount = parseFloat(document.getElementById('termAmount').value);
       const rate = document.getElementById('termRate').value;
       if (!lender || !property || !amount || !rate) return alert('Lender, property, amount and rate required');
-      termSheets.push({
-        id: 't' + Date.now(),
+      const newTerm = {
         lender: lender,
         property: property,
         amount: amount,
@@ -664,8 +739,20 @@
         ltc: document.getElementById('termLTC').value,
         term: document.getElementById('termDuration').value,
         status: document.getElementById('termStatus').value,
-        expiry: document.getElementById('termExpiry').value
-      });
+        expiry: document.getElementById('termExpiry').value,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (typeof SPData !== 'undefined' && SPData.getOrgId) {
+        const orgId = SPData.getOrgId();
+        if (orgId) {
+          const db = firebase.firestore();
+          const docRef = await db.collection('orgs').doc(orgId).collection('termSheets').add(newTerm);
+          newTerm.id = docRef.id;
+        }
+      } else {
+        newTerm.id = 't' + Date.now();
+      }
+      termSheets.push(newTerm);
       renderTermSheets();
       updateKPIs();
       closeTermSheetModal();
