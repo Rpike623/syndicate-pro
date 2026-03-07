@@ -1187,6 +1187,7 @@ window.SP = (function () {
           { href:'due-diligence.html', icon:'fa-search', label:'Due Diligence' },
           { href:'escrow-tracker.html', icon:'fa-vault', label:'Escrow' },
           { href:'property-list.html', icon:'fa-list', label:'Properties' },
+          { href:'fee-tracker.html', icon:'fa-percent', label:'Fee Tracker' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
