@@ -1202,6 +1202,7 @@ window.SP = (function () {
           { href:'move-out.html', icon:'fa-sign-out-alt', label:'Move-Out' },
           { href:'vendor-invoice.html', icon:'fa-file-invoice-dollar', label:'Invoices' },
           { href:'budget-variance.html', icon:'fa-chart-bar', label:'Budget Var' },
+          { href:'notice-tracker.html', icon:'fa-envelope-open-text', label:'Notices' },
           { href:'insurance-summary.html', icon:'fa-shield-alt', label:'Insurance' },
           { href:'utility-analysis.html', icon:'fa-chart-line', label:'Utility Analysis' },
           { href:'tenant-application.html', icon:'fa-user-plus', label:'Tenant App' },
@@ -1209,6 +1210,7 @@ window.SP = (function () {
           { href:'move-out.html', icon:'fa-sign-out-alt', label:'Move-Out' },
           { href:'vendor-invoice.html', icon:'fa-file-invoice-dollar', label:'Invoices' },
           { href:'budget-variance.html', icon:'fa-chart-bar', label:'Budget Var' },
+          { href:'notice-tracker.html', icon:'fa-envelope-open-text', label:'Notices' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },

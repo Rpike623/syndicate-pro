@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notice Tracker | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-envelope-open-text"></i> Notice Tracker</h1>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">Pending</span><span class="stat-value text-warning">5</span></div>
+        <div class="stat-card"><span class="stat-label">Sent</span><span class="stat-value text-success">28</span></div>
+        <div class="stat-card"><span class="stat-label">Required 30d</span><span class="stat-value">3</span></div>
+        <div class="stat-card"><span class="stat-label">Delinquent</span><span class="stat-value text-danger">2</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Notices</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Type</th><th>Property</th><th>Recipient</th><th>Due Date</th><th>Status</th></tr></thead><tbody>
+            <tr><td>Lease Expiration</td><td>Sunset 101</td><td>John Smith</td><td>2026-03-15</td><td><span class="badge badge-warning">Pending</span></td></tr>
+            <tr><td>Late Payment</td><td>Sunset 105</td><td>Jane Doe</td><td>2026-03-01</td><td><span class="badge badge-danger">Delinquent</span></td></tr>
+            <tr><td>Move-Out</td><td>Unit 108</td><td>Bob Wilson</td><td>2026-03-05</td><td><span class="badge badge-success">Sent</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}}</script>
+</body>
+</html>
