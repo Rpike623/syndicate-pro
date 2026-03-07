@@ -159,11 +159,19 @@
       </div>
 
       <!-- Success banner (shown after post) -->
-      <div class="success-banner" id="successBanner">
+      <div class="success-banner" id="successBanner" style="flex-wrap:wrap;gap:12px;">
         <i class="fas fa-check-circle" style="color:var(--success);font-size:1.5rem;flex-shrink:0;"></i>
-        <div>
+        <div style="flex:1;min-width:200px;">
           <div style="font-weight:700;color:#1B1A19;font-size:15px;">Distribution Posted Successfully</div>
           <div style="font-size:13px;color:#94a3b8;margin-top:2px;">Ledger locked. Investor capital accounts updated. <a href="distributions.html" style="color:var(--accent);">View in Distributions →</a></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-shrink:0;flex-wrap:wrap;">
+          <button onclick="showWireReport()" style="background:#F37925;color:white;border:none;padding:9px 18px;border-radius:7px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;white-space:nowrap;">
+            <i class="fas fa-file-invoice-dollar"></i> Wire Report
+          </button>
+          <button onclick="printWireReport()" style="background:#FFFFFF;color:#1B1A19;border:1px solid #E2DDD8;padding:9px 18px;border-radius:7px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;white-space:nowrap;">
+            <i class="fas fa-print"></i> Print / PDF
+          </button>
         </div>
       </div>
 
@@ -444,7 +452,10 @@ function renderHistory() {
         <div style="font-weight:600;">${d.period || (d.quarter + ' ' + d.year) || '—'}</div>
         <div style="font-size:11px;color:#64748b;">${d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString() : '—'} · ${(d.recipients || []).length} investors</div>
       </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#34d399;">${fmt$(d.totalAmount || 0)}</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#34d399;">${fmt$(d.totalAmount || 0)}</div>
+        <button onclick="event.stopPropagation();openHistWireReport('${d.id}')" title="Wire Instructions Report" style="background:rgba(243,121,37,.12);color:#F37925;border:none;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:.72rem;font-weight:700;font-family:inherit;white-space:nowrap;"><i class="fas fa-file-invoice-dollar"></i> Wires</button>
+      </div>
     </div>`).join('') + `
     <div style="padding:12px 0;border-top:2px solid var(--border);margin-top:8px;display:flex;justify-content:space-between;font-weight:700;">
       <span>Total Posted</span>
@@ -687,6 +698,9 @@ function executeDistribution() {
   dists.unshift(dist);
   if (SP.saveDistributions) SP.saveDistributions(dists);
 
+  // Store for wire report
+  _lastDist = dist;
+
   // Log activity
   if (SP.logActivity) SP.logActivity('fa-wallet', 'green', `Distribution of <strong>${fmt$(amount)}</strong> posted for <strong>${currentDeal.name}</strong> — ${recipients.length} investors`);
 
@@ -735,6 +749,201 @@ function resetForm() {
 window.addEventListener('spdata-ready', init);
 if (typeof SP !== 'undefined' && SP.getDeals && SP.getDeals().length) init();
 setTimeout(init, 800);
+
+// Close wire report modal on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const m = document.getElementById('wireReportModal');
+    if (m && m.style.display !== 'none') m.style.display = 'none';
+  }
+});
+
+// ── Wire Instructions Report ───────────────────────────────────────────────
+let _lastDist = null; // set by executeDistribution on success
+
+function showWireReport() {
+  if (!_lastDist) { alert('Post a distribution first.'); return; }
+  const modal = document.getElementById('wireReportModal');
+  buildWireReport(_lastDist);
+  modal.style.display = 'flex';
+}
+
+function printWireReport() {
+  if (!_lastDist) { alert('Post a distribution first.'); return; }
+  buildWireReport(_lastDist);
+  const content = document.getElementById('wireReportContent').innerHTML;
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Wire Instructions Report</title>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      body{font-family:Georgia,serif;color:#111;padding:32px;font-size:13px;}
+      h1{font-size:20px;margin-bottom:4px;}
+      .meta{color:#666;font-size:12px;margin-bottom:24px;}
+      table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+      th{background:#f0f0f0;text-align:left;padding:8px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid #ddd;}
+      td{padding:10px 10px;border-bottom:1px solid #eee;vertical-align:top;}
+      .amt{font-family:monospace;font-weight:700;font-size:14px;}
+      .bank{font-size:11px;color:#444;line-height:1.7;}
+      .no-bank{font-size:11px;color:#e55;font-style:italic;}
+      .total-row td{font-weight:700;border-top:2px solid #111;background:#f9f9f9;}
+      .warning{background:#fffbe6;border:1px solid #f0c040;border-radius:4px;padding:10px 14px;font-size:12px;margin-bottom:20px;}
+      .footer{margin-top:32px;font-size:11px;color:#999;border-top:1px solid #ddd;padding-top:12px;}
+      @media print{body{padding:16px;}button{display:none;}}
+    </style></head><body>${content}
+    <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+function buildWireReport(dist) {
+  const allInvestors = SP.getInvestors ? SP.getInvestors() : [];
+  const dealName = dist.dealName || currentDeal?.name || 'Deal';
+  const dateStr = dist.date ? new Date(dist.date + 'T00:00:00').toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }) : dist.date;
+  const now = new Date().toLocaleString('en-US', { dateStyle:'medium', timeStyle:'short' });
+
+  let totalLP = 0;
+  let missingBankCount = 0;
+
+  const rows = (dist.recipients || []).map(r => {
+    const inv = allInvestors.find(i => i.id === r.investorId) || {};
+    const name = [inv.firstName, inv.lastName].filter(Boolean).join(' ') || inv.name || inv.email || r.investorId || 'Unknown';
+    const amt = r.amount || r.totalThisDist || 0;
+    totalLP += amt;
+
+    const hasBankInfo = inv.bankAccount && inv.bankRouting;
+    if (!hasBankInfo) missingBankCount++;
+
+    const bankHtml = hasBankInfo ? `
+      <div><strong>${inv.bankName || 'Bank not specified'}</strong></div>
+      <div>Account Name: ${inv.bankAccountName || name}</div>
+      <div>Account #: ${inv.bankAccount}</div>
+      <div>Routing #: ${inv.bankRouting}</div>
+      <div>Type: ${inv.bankType || 'ACH'}</div>
+      ${inv.bankNotes ? `<div>Notes: ${inv.bankNotes}</div>` : ''}
+    ` : '<span style="color:#e55;font-style:italic;">⚠ No banking info on file</span>';
+
+    const pref = r.prefPaidThisDist > 0 ? `<div style="font-size:10px;color:#666;margin-top:2px;">Pref: ${fmt$(r.prefPaidThisDist)} + Excess: ${fmt$(r.excessThisDist || 0)}</div>` : '';
+
+    return `<tr>
+      <td>
+        <div style="font-weight:600;">${esc(name)}</div>
+        <div style="font-size:11px;color:#666;">${inv.email || ''}</div>
+        <div style="font-size:11px;color:#666;">${(r.ownership||0).toFixed(2)}% ownership · ${fmt$(r.invested||r.committed||0)} committed</div>
+      </td>
+      <td>
+        <div class="amt">${fmt$(amt)}</div>
+        ${pref}
+      </td>
+      <td>
+        <div class="${hasBankInfo ? 'bank' : 'no-bank'}">${bankHtml}</div>
+      </td>
+    </tr>`;
+  });
+
+  // GP row if applicable
+  let gpRow = '';
+  if (dist.gpAmount > 0) {
+    const settings = SP.getSettings ? SP.getSettings() : {};
+    gpRow = `<tr>
+      <td>
+        <div style="font-weight:600;">${esc(settings.firmName || 'General Partner (GP)')}</div>
+        <div style="font-size:11px;color:#666;">GP Promote / Carried Interest</div>
+      </td>
+      <td><div class="amt">${fmt$(dist.gpAmount)}</div></td>
+      <td><div style="font-size:11px;color:#666;font-style:italic;">GP entity — internal transfer</div></td>
+    </tr>`;
+  }
+
+  const missingWarning = missingBankCount > 0 ? `
+    <div class="warning">
+      <strong>⚠ ${missingBankCount} investor${missingBankCount > 1 ? 's' : ''} missing banking info.</strong>
+      Contact them to collect wire/ACH details before processing.
+      <a href="investors.html" style="color:#b45309;font-weight:600;margin-left:8px;">Update Investors →</a>
+    </div>` : '';
+
+  const html = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+      <div>
+        <h1 style="font-size:18px;font-weight:800;color:#1B1A19;">Wire Instructions Report</h1>
+        <div class="meta">${esc(dealName)} &nbsp;·&nbsp; Distribution Date: ${dateStr} &nbsp;·&nbsp; Period: ${dist.period || '—'} &nbsp;·&nbsp; Generated: ${now}</div>
+      </div>
+      <div style="font-size:12px;color:#999;text-align:right;">CONFIDENTIAL<br>Do not distribute</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+      <div style="background:#F3F0ED;border-radius:6px;padding:12px 16px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B6560;margin-bottom:4px;">Total Distribution</div>
+        <div style="font-size:20px;font-weight:800;color:#1B1A19;font-family:monospace;">${fmt$(dist.totalAmount)}</div>
+      </div>
+      <div style="background:#F3F0ED;border-radius:6px;padding:12px 16px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B6560;margin-bottom:4px;">LP Total</div>
+        <div style="font-size:20px;font-weight:800;color:#1B1A19;font-family:monospace;">${fmt$(dist.lpAmount || totalLP)}</div>
+      </div>
+      <div style="background:#F3F0ED;border-radius:6px;padding:12px 16px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#6B6560;margin-bottom:4px;">Investors</div>
+        <div style="font-size:20px;font-weight:800;color:#1B1A19;">${dist.investorCount || dist.recipients?.length || 0}</div>
+      </div>
+    </div>
+
+    ${missingWarning}
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:32%;">Investor</th>
+          <th style="width:14%;">Amount</th>
+          <th>Wire / ACH Instructions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.join('')}
+        ${gpRow}
+        <tr class="total-row">
+          <td>TOTAL</td>
+          <td class="amt">${fmt$(dist.totalAmount)}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      This report is confidential and intended for wire processing purposes only. Verify all banking information before initiating transfers. deeltrack is not responsible for wire errors — always confirm routing/account numbers directly with investors.
+    </div>`;
+
+  document.getElementById('wireReportContent').innerHTML = html;
+}
+
+// Open wire report for any historical distribution by ID
+function openHistWireReport(distId) {
+  const allDists = SP.getDistributions ? SP.getDistributions() : [];
+  const dist = allDists.find(d => d.id === distId);
+  if (!dist) { alert('Distribution not found.'); return; }
+  _lastDist = dist;
+  buildWireReport(dist);
+  document.getElementById('wireReportModal').style.display = 'flex';
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
+
+<!-- Wire Report Modal -->
+<div id="wireReportModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;">
+  <div style="background:#FFFFFF;border-radius:14px;width:100%;max-width:860px;box-shadow:0 20px 60px rgba(0,0,0,.2);overflow:hidden;">
+    <div style="background:#1B1A19;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-weight:800;font-size:1rem;color:#F3F0ED;display:flex;align-items:center;gap:8px;"><i class="fas fa-file-invoice-dollar" style="color:#F37925;"></i> Wire Instructions Report</div>
+        <div style="font-size:.75rem;color:rgba(243,240,237,.5);margin-top:2px;">Confidential — for wire processing only</div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button onclick="printWireReport()" style="background:#F37925;color:white;border:none;padding:8px 16px;border-radius:6px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;">
+          <i class="fas fa-print"></i> Print / PDF
+        </button>
+        <button onclick="document.getElementById('wireReportModal').style.display='none'" style="background:rgba(255,255,255,.1);color:white;border:none;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">×</button>
+      </div>
+    </div>
+    <div style="padding:28px;overflow-y:auto;max-height:75vh;" id="wireReportContent"></div>
+  </div>
+</div>
 </body>
 </html>
