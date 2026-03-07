@@ -1185,6 +1185,7 @@ window.SP = (function () {
           { href:'bonus-depreciation.html', icon:'fa-bolt', label:'Bonus Depr' },
           { href:'jv-partnership.html', icon:'fa-handshake', label:'JV Partnership' },
           { href:'due-diligence.html', icon:'fa-search', label:'Due Diligence' },
+          { href:'escrow-tracker.html', icon:'fa-vault', label:'Escrow' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
