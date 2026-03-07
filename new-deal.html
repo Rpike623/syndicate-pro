@@ -886,28 +886,71 @@
               <div class="form-grid" style="margin-bottom: 24px;">
                 <div class="form-group">
                   <label class="required">Waterfall Type</label>
-                  <select id="waterfallType" onchange="updateWaterfallPreview()">
+                  <select id="waterfallType" onchange="updateWaterfallPreview();toggleTieredFields()">
                     <option value="simple">Simple Split</option>
                     <option value="pref">Preferred Return</option>
                     <option value="catchup" selected>Pref + GP Catch-Up</option>
-                    <option value="tiered">Tiered Promote</option>
+                    <option value="tiered">Multi-Tier Promote (3 Tiers)</option>
                   </select>
+                  <span class="help-text">Multi-Tier = 8% pref → 70/30 to hurdle IRR → 60/40 thereafter</span>
                 </div>
                 
                 <div class="form-group">
                   <label>Preferred Return %</label>
                   <input type="number" id="prefReturn" value="8" step="0.5" onchange="updateWaterfallPreview()">
+                  <span class="help-text">Annual accruing return paid to LPs before GP promote</span>
                 </div>
                 
                 <div class="form-group">
                   <label>GP Promote %</label>
                   <input type="number" id="gpPromote" value="30" onchange="updateWaterfallPreview()">
+                  <span class="help-text">GP's share of profits above the pref (e.g. 20 = 80/20 split)</span>
                 </div>
                 
                 <div class="form-group">
                   <label>Catch-Up Rate</label>
                   <input type="number" id="catchupRate" value="50" onchange="updateWaterfallPreview()">
-                  <span class="help-text">GP share during catch-up period</span>
+                  <span class="help-text">% of distributions to GP during catch-up until GP has earned their promote share</span>
+                </div>
+              </div>
+
+              <!-- Multi-Tier Promote Fields (shown only when tiered is selected) -->
+              <div id="tieredFields" style="display:none;background:#F8F6F4;border:1px solid #E2DDD8;border-radius:8px;padding:16px;margin-bottom:20px;">
+                <div style="font-weight:700;font-size:.9rem;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:#1B1A19;">
+                  <i class="fas fa-layer-group" style="color:#F37925;"></i> Multi-Tier Waterfall Configuration
+                  <span style="font-size:.75rem;font-weight:400;color:#6B6560;"> — Distributions flow top-to-bottom through each tier</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                  <div class="form-group">
+                    <label style="font-size:.8rem;">Tier 1 — LP Pref Return %</label>
+                    <input type="number" id="tier1Pref" value="8" step="0.5" onchange="updateWaterfallPreview()">
+                    <span class="help-text">e.g., 8% annual LP pref</span>
+                  </div>
+                  <div class="form-group">
+                    <label style="font-size:.8rem;">Tier 2 — IRR Hurdle %</label>
+                    <input type="number" id="tier2Hurdle" value="12" step="0.5" onchange="updateWaterfallPreview()">
+                    <span class="help-text">Hurdle IRR for tier 2 → 3 flip</span>
+                  </div>
+                  <div class="form-group">
+                    <label style="font-size:.8rem;">Tier 2 — GP Split %</label>
+                    <input type="number" id="tier2GPSplit" value="30" onchange="updateWaterfallPreview()">
+                    <span class="help-text">GP % between pref and hurdle (e.g., 30)</span>
+                  </div>
+                  <div class="form-group">
+                    <label style="font-size:.8rem;">Tier 3 — GP Split %</label>
+                    <input type="number" id="tier3GPSplit" value="40" onchange="updateWaterfallPreview()">
+                    <span class="help-text">GP % above hurdle IRR (e.g., 40)</span>
+                  </div>
+                  <div class="form-group">
+                    <label style="font-size:.8rem;">GP Catch-Up (Tier 1→2)</label>
+                    <select id="tier2Catchup" onchange="updateWaterfallPreview()">
+                      <option value="yes">Yes — GP catch-up after pref</option>
+                      <option value="no">No — straight split after pref</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="background:#FFF8F0;border:1px solid #FDDCBB;border-radius:6px;padding:10px 14px;margin-top:10px;font-size:.78rem;color:#7A3200;">
+                  <strong>Example:</strong> 8% LP pref → GP catch-up → 70/30 LP/GP up to 12% IRR → 60/40 LP/GP above 12% IRR
                 </div>
               </div>
               
@@ -1170,7 +1213,7 @@
               <button class="btn btn-secondary" onclick="prevStep()">
                 <i class="fas fa-arrow-left"></i> Back
               </button>
-              <button class="btn btn-primary" onclick="createDeal()" style="padding: 12px 32px;">
+              <button class="btn btn-primary" id="createDealBtn" onclick="createDealAsync()" style="padding: 12px 32px;">
                 <i class="fas fa-check-circle"></i> Create Deal & Generate Documents
               </button>
             </div>
@@ -1453,34 +1496,86 @@
             <div class="tier-number">1</div>
             <div class="tier-content">
               <div class="tier-name">Return of Capital</div>
-              <div class="tier-desc">100% to investors until capital returned</div>
+              <div class="tier-desc">100% to investors until full capital is returned</div>
             </div>
           </div>
           <div class="tier-row pref">
             <div class="tier-number">2</div>
             <div class="tier-content">
               <div class="tier-name">Preferred Return</div>
-              <div class="tier-desc">${pref}% to LPs</div>
+              <div class="tier-desc">${pref}% annual cumulative return to LPs</div>
             </div>
           </div>
           <div class="tier-row catchup">
             <div class="tier-number">3</div>
             <div class="tier-content">
               <div class="tier-name">GP Catch-Up</div>
-              <div class="tier-desc">GP receives promote share to catch up</div>
+              <div class="tier-desc">GP receives distributions until GP has earned ${promote}% of all pref + catch-up distributions combined</div>
             </div>
           </div>
           <div class="tier-row split">
             <div class="tier-number">4</div>
             <div class="tier-content">
               <div class="tier-name">Residual Split</div>
-              <div class="tier-desc">${promote}% GP / ${100-promote}% LP</div>
+              <div class="tier-desc">${100 - promote}% LP / ${promote}% GP on all remaining distributions</div>
+            </div>
+          </div>
+        `;
+      } else if (type === 'tiered') {
+        const t1p = document.getElementById('tier1Pref')?.value || 8;
+        const t2h = document.getElementById('tier2Hurdle')?.value || 12;
+        const t2gp = document.getElementById('tier2GPSplit')?.value || 30;
+        const t3gp = document.getElementById('tier3GPSplit')?.value || 40;
+        const hasCatchup = document.getElementById('tier2Catchup')?.value === 'yes';
+        const t2lp = 100 - t2gp;
+        const t3lp = 100 - t3gp;
+        let tierNum = 1;
+        tiers = `
+          <div class="tier-row return">
+            <div class="tier-number">${tierNum++}</div>
+            <div class="tier-content">
+              <div class="tier-name">Return of Capital</div>
+              <div class="tier-desc">100% to all investors until full capital returned</div>
+            </div>
+          </div>
+          <div class="tier-row pref">
+            <div class="tier-number">${tierNum++}</div>
+            <div class="tier-content">
+              <div class="tier-name">Tier 1 — Preferred Return</div>
+              <div class="tier-desc">${t1p}% annual accruing return paid 100% to LPs</div>
+            </div>
+          </div>
+          ${hasCatchup ? `<div class="tier-row catchup">
+            <div class="tier-number">${tierNum++}</div>
+            <div class="tier-content">
+              <div class="tier-name">GP Catch-Up</div>
+              <div class="tier-desc">100% to GP until GP has earned ${t2gp}% of pref distributions</div>
+            </div>
+          </div>` : ''}
+          <div class="tier-row split">
+            <div class="tier-number">${tierNum++}</div>
+            <div class="tier-content">
+              <div class="tier-name">Tier 2 — Below ${t2h}% IRR Hurdle</div>
+              <div class="tier-desc">${t2lp}% LP / ${t2gp}% GP until portfolio reaches ${t2h}% IRR</div>
+            </div>
+          </div>
+          <div class="tier-row split" style="border-left-color:#a78bfa;">
+            <div class="tier-number" style="background:#a78bfa;">${tierNum++}</div>
+            <div class="tier-content">
+              <div class="tier-name">Tier 3 — Above ${t2h}% IRR Hurdle</div>
+              <div class="tier-desc">${t3lp}% LP / ${t3gp}% GP on all remaining distributions above ${t2h}% IRR</div>
             </div>
           </div>
         `;
       }
       
       document.getElementById('waterfallTiers').innerHTML = tiers;
+    }
+
+    function toggleTieredFields() {
+      const type = document.getElementById('waterfallType').value;
+      const el = document.getElementById('tieredFields');
+      if (el) el.style.display = type === 'tiered' ? 'block' : 'none';
     }
     
     function populateReview() {
@@ -1788,7 +1883,53 @@
     function updatePreview() {
       // Live preview updates would go here
     }
-    
+
+    // ── Async wrapper for createDeal — adds loading state + 15s timeout ──
+    function createDealAsync() {
+      const btn = document.getElementById('createDealBtn');
+      if (!btn) { createDeal(); return; }
+
+      // Show loading state
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating Documents…';
+
+      // Timeout guard — if generation hangs >15s, surface error
+      const timeoutId = setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Create Deal & Generate Documents';
+        showWizardError('Document generation timed out. Please try again.');
+      }, 15000);
+
+      // Defer to next tick so the browser can repaint the loading state
+      setTimeout(() => {
+        try {
+          createDeal();
+          clearTimeout(timeoutId);
+          // Button stays disabled — user is on success screen
+        } catch (err) {
+          clearTimeout(timeoutId);
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-check-circle"></i> Create Deal & Generate Documents';
+          showWizardError('Failed to create deal: ' + (err.message || 'Unknown error'));
+          console.error('[createDeal]', err);
+        }
+      }, 50);
+    }
+
+    function showWizardError(msg) {
+      let el = document.getElementById('wizardErrorBanner');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'wizardErrorBanner';
+        el.style.cssText = 'position:fixed;top:20px;right:20px;background:#EF4444;color:white;padding:14px 20px;border-radius:8px;z-index:9999;font-size:.875rem;font-weight:600;max-width:360px;box-shadow:0 4px 20px rgba(0,0,0,.3);display:flex;align-items:center;gap:10px;';
+        el.innerHTML = '<i class="fas fa-exclamation-circle"></i><span></span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:white;cursor:pointer;margin-left:auto;font-size:1rem;">×</button>';
+        document.body.appendChild(el);
+      }
+      el.querySelector('span').textContent = msg;
+      el.style.display = 'flex';
+      setTimeout(() => { if (el.parentElement) el.remove(); }, 8000);
+    }
+
     // Initialize
     updateWaterfallPreview();
   </script>

@@ -897,7 +897,7 @@ window.SP = (function () {
       const footer = document.createElement('div');
       footer.id = 'dt-legal-footer';
       footer.style.cssText = 'background:#0f172a;color:rgba(255,255,255,0.45);font-size:.7rem;padding:12px 32px;text-align:center;line-height:1.6;font-family:Inter,sans-serif;margin-top:auto;border-top:1px solid rgba(255,255,255,0.1);';
-      footer.innerHTML = `deeltrack is a software tool — not a broker-dealer, investment adviser, or placement agent. Generated documents require independent legal review. &nbsp;·&nbsp; <a href="terms.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Terms</a> &nbsp;·&nbsp; <a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Privacy</a> &nbsp;·&nbsp; <a href="disclaimer.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Disclaimer</a>`;
+      footer.innerHTML = `deeltrack is a software tool — not a broker-dealer, investment adviser, or placement agent. Generated documents require independent legal review. &nbsp;·&nbsp; <a href="terms.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Terms</a> &nbsp;·&nbsp; <a href="privacy.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Privacy</a> &nbsp;·&nbsp; <a href="disclaimer.html" style="color:rgba(255,255,255,0.6);text-decoration:none;">Disclaimer</a> &nbsp;·&nbsp; <a href="security.html" style="color:rgba(255,255,255,0.6);text-decoration:none;"><i class="fas fa-shield-alt" style="font-size:.7rem;"></i> Security</a> &nbsp;·&nbsp; <a href="integrations.html" style="color:rgba(255,255,255,0.6);text-decoration:none;"><i class="fas fa-plug" style="font-size:.7rem;"></i> Integrations</a>`;
       document.body.appendChild(footer);
     }
 
@@ -1130,6 +1130,8 @@ window.SP = (function () {
         // ── Account ──────────────────────────────────────────────
         { id:'account', title:'ACCOUNT', items:[
           { href:'settings.html', icon:'fa-cog', label:'Settings' },
+          { href:'integrations.html', icon:'fa-plug', label:'Integrations' },
+          { href:'security.html', icon:'fa-shield-alt', label:'Security' },
         ]},
       ];
 

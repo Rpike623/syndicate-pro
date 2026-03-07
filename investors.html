@@ -249,16 +249,26 @@
           </select>
         </div>
         <div class="form-group"><label>Accreditation Status</label>
-          <select id="fAccredStatus">
+          <select id="fAccredStatus" onchange="updateAccredWorkflow()">
+            <option value="pending">Pending - Awaiting Documents</option>
+            <option value="under_review">Under Review</option>
             <option value="verified">Verified</option>
-            <option value="pending">Pending</option>
+            <option value="rejected">Rejected</option>
             <option value="expired">Expired</option>
           </select>
+          <span class="help-text">Workflow: Pending > Under Review > Verified / Rejected</span>
         </div>
       </div>
+      <div id="accredWorkflowNote" style="display:none;background:#FFF8F0;border:1px solid #FDDCBB;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:.8rem;color:#7A3200;"></div>
       <div class="form-row">
         <div class="form-group"><label>Verification Date</label><input type="date" id="fAccredDate" placeholder="Date verified"></div>
         <div class="form-group"><label>Expiry Date</label><input type="date" id="fAccredExpiry" placeholder="Expiry (usually +2 years)"></div>
+      </div>
+      <div class="form-row" id="accredNotesRow" style="display:none;">
+        <div class="form-group">
+          <label>Status Notes / Reason</label>
+          <textarea id="fAccredNotes" rows="2" placeholder="Notes for this status change (reason for rejection, documents requested, reviewer...)"></textarea>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group"><label>Min Investment ($)</label><input type="number" id="fMinInvest" placeholder="50000"></div>
@@ -272,8 +282,12 @@
       </div>
       <!-- Banking information for distributions -->
       <div style="border-top:1px solid var(--border);padding-top:18px;margin-top:4px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94A3B8;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94A3B8;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
           <i class="fas fa-university" style="color:var(--accent);"></i> Banking / Distribution Info
+        </div>
+        <div style="background:#F0FDF4;border:1px solid #A7F3D0;border-radius:6px;padding:8px 12px;margin-bottom:14px;font-size:.75rem;color:#065F46;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-lock"></i>
+          <span>Bank details are encrypted at rest. <a href="security.html" target="_blank" style="color:#065F46;font-weight:600;text-decoration:underline;">Learn about our security</a></span>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Bank Name</label><input type="text" id="fBankName" placeholder="e.g., Chase, Wells Fargo"></div>
@@ -552,6 +566,8 @@ function renderTable(list) {
       return '<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>';
     },
     pending: () => '<span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>',
+    under_review: () => '<span class="badge" style="background:rgba(99,102,241,.12);color:#6366f1;"><i class="fas fa-search"></i> Under Review</span>',
+    rejected: () => '<span class="badge" style="background:rgba(239,68,68,.12);color:#ef4444;"><i class="fas fa-times-circle"></i> Rejected</span>',
     expired: () => '<span class="badge badge-expired"><i class="fas fa-times-circle"></i> Expired</span>',
   };
   const statusBadge = { active:'<span class="badge badge-active">Active</span>', inactive:'<span class="badge badge-inactive">Inactive</span>' };
@@ -643,8 +659,50 @@ function openModal(id) {
   }
   document.getElementById('modalOverlay').classList.add('open');
 }
-function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function updateAccredWorkflow() {
+  const status = document.getElementById('fAccredStatus')?.value;
+  const note = document.getElementById('accredWorkflowNote');
+  const notesRow = document.getElementById('accredNotesRow');
+  if (!status || !note) return;
+  const msgs = {
+    pending: 'Investor has not yet submitted accreditation documentation.',
+    under_review: 'Documents have been received. Review in progress — move to Verified or Rejected when complete.',
+    verified: 'Accreditation confirmed. Set the verification date and expiry (typically 2 years).',
+    rejected: 'Accreditation was not approved. Document your reason below for the audit trail.',
+    expired: 'Prior accreditation has expired. Move to Pending to restart the verification process.',
+  };
+  note.style.display = 'block';
+  note.innerHTML = '<i class="fas fa-info-circle" style="margin-right:6px;"></i>' + (msgs[status] || '');
+  // Always show notes field for under_review and rejected; optional others
+  if (notesRow) notesRow.style.display = (status === 'under_review' || status === 'rejected') ? '' : 'none';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  // Reset form state so stale data doesn't appear on next open
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add Investor';
+  const form = document.getElementById('modal');
+  if (form) form.querySelectorAll('input,select,textarea').forEach(el => {
+    if (el.type === 'checkbox' || el.type === 'radio') el.checked = false;
+    else el.value = '';
+  });
+  // Reset accred doc upload zone
+  const dz = document.getElementById('accredDocZone');
+  const dl = document.getElementById('accredDocLabel');
+  if (dz) { dz.style.borderColor = ''; dz.style.background = ''; }
+  if (dl) dl.innerHTML = '<i class="fas fa-cloud-upload-alt" style="margin-right:6px;"></i>Click to upload CPA letter, attorney letter, or verification doc (PDF/JPG, max 5MB)';
+}
 function handleOverlayClick(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+// Escape key closes any open modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('modalOverlay')?.classList.contains('open')) closeModal();
+    if (document.getElementById('csvModalOverlay')?.classList.contains('open')) closeCSVModal?.();
+    if (document.getElementById('inviteModalOverlay')?.classList.contains('open')) closeInviteModal?.();
+  }
+});
 
 function saveInvestor() {
   const firstName = document.getElementById('fFirstName').value.trim();
@@ -673,6 +731,8 @@ function saveInvestor() {
     bankRouting: document.getElementById('fBankRouting').value.trim(),
     bankType: document.getElementById('fBankType').value,
     bankNotes: document.getElementById('fBankNotes').value.trim(),
+    accredNotes: document.getElementById('fAccredNotes')?.value?.trim() || '',
+    accredStatusChangedAt: new Date().toISOString(),
   };
   const isNew = !editingId;
   if (editingId) {

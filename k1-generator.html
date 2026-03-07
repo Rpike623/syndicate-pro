@@ -180,6 +180,7 @@
       </div>
       <div class="top-actions">
         <button class="btn btn-secondary btn-sm" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+        <button class="btn btn-primary btn-sm" id="saveK1Btn" onclick="saveK1Data()"><i class="fas fa-save"></i> Save K-1 Data</button>
         <button class="btn btn-success btn-sm" id="batchPrintBtn" onclick="batchPrint()" disabled><i class="fas fa-print"></i> Print All K-1s</button>
       </div>
     </div>
@@ -685,6 +686,66 @@ function showToast(msg, type='') {
 
 // Close modal on Escape
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Save K-1 data to deal record ─────────────────────────────────────────────
+function saveK1Data() {
+  if (!currentDeal) { showToast('Select a deal first.', 'error'); return; }
+  if (!allocations.length) { showToast('Calculate K-1s first.', 'error'); return; }
+
+  const btn = document.getElementById('saveK1Btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…'; }
+
+  const saveTimeout = setTimeout(() => {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save K-1 Data'; }
+    showToast('Save timed out — please try again.', 'error');
+  }, 10000);
+
+  try {
+    const year = document.getElementById('taxYear').value;
+    const k1Snapshot = {
+      year,
+      dealId: currentDeal.id,
+      savedAt: new Date().toISOString(),
+      inputs: {
+        ordinaryIncome: parseFloat(document.getElementById('f1_ordinary').value) || 0,
+        rentalIncome: parseFloat(document.getElementById('f2_rental').value) || 0,
+        stcg: parseFloat(document.getElementById('f8_stcg').value) || 0,
+        ltcg: parseFloat(document.getElementById('f9a_ltcg').value) || 0,
+        sec1231: parseFloat(document.getElementById('f10_1231').value) || 0,
+        sec179: parseFloat(document.getElementById('f12_sec179').value) || 0,
+        otherDed: parseFloat(document.getElementById('f13_otherdep').value) || 0,
+        distributions: parseFloat(document.getElementById('f19_dist').value) || 0,
+        capBegin: parseFloat(document.getElementById('capBegin').value) || 0,
+        capContrib: parseFloat(document.getElementById('capContrib').value) || 0,
+        capMethod: document.getElementById('capMethod').value,
+      },
+      allocations,
+    };
+
+    // Persist on the deal record
+    const deals = SP.getDeals ? SP.getDeals() : (SP.get('deals') || []);
+    const idx = deals.findIndex(d => d.id === currentDeal.id);
+    if (idx >= 0) {
+      if (!deals[idx].k1History) deals[idx].k1History = {};
+      deals[idx].k1History[year] = k1Snapshot;
+      if (SP.saveDeals) {
+        SP.saveDeals(deals);
+      } else {
+        SP.set('deals', deals);
+      }
+    }
+
+    clearTimeout(saveTimeout);
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save K-1 Data'; }
+    showToast(`K-1 data saved for ${year}!`, 'success');
+    SP.logActivity && SP.logActivity('fa-file-invoice-dollar', 'green', `K-1 data saved for <strong>${currentDeal.name}</strong> (${year})`);
+  } catch (err) {
+    clearTimeout(saveTimeout);
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save K-1 Data'; }
+    showToast('Save failed: ' + (err.message || 'Unknown error'), 'error');
+    console.error('[saveK1Data]', err);
+  }
+}
 </script>
 <script>SP.requireGP();</script>
 </body>

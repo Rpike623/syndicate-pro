@@ -122,6 +122,14 @@ window.DealRoom = {
       const docs = this.documents.filter(d => d.category === cat);
       document.getElementById(`count${cat.charAt(0).toUpperCase() + cat.slice(1)}`).textContent = docs.length;
       
+      const accessBadge = (d) => {
+        if (d.access === 'gp') return '<span style="font-size:.67rem;font-weight:600;padding:2px 7px;border-radius:10px;background:#F0EDEA;color:#6B6560;white-space:nowrap;"><i class="fas fa-lock"></i> GP Only</span>';
+        if (d.access === 'select') {
+          const cnt = d.allowedInvestors?.length || 0;
+          return `<span style="font-size:.67rem;font-weight:600;padding:2px 7px;border-radius:10px;background:rgba(99,102,241,.12);color:#6366f1;white-space:nowrap;"><i class="fas fa-users"></i> ${cnt} investor${cnt===1?'':'s'}</span>`;
+        }
+        return '<span style="font-size:.67rem;font-weight:600;padding:2px 7px;border-radius:10px;background:rgba(45,154,107,.12);color:#0F5C35;white-space:nowrap;"><i class="fas fa-eye"></i> All</span>';
+      };
       document.getElementById(categories[cat]).innerHTML = docs.map(d => `
         <div class="doc-item" onclick="DealRoom.viewDoc('${d.id}')">
           <div class="doc-icon">
@@ -129,9 +137,10 @@ window.DealRoom = {
           </div>
           <div class="doc-info">
             <strong>${d.name}</strong>
-            <span>${d.date} • ${d.size}</span>
+            <span>${d.date} • ${d.size} &nbsp; ${accessBadge(d)}</span>
           </div>
           <div class="doc-actions">
+            <button class="btn-icon" title="Manage access" onclick="event.stopPropagation(); DealRoom.manageDocAccess('${d.id}')"><i class="fas fa-user-lock"></i></button>
             <button class="btn-icon" onclick="event.stopPropagation(); DealRoom.downloadDoc('${d.id}')"><i class="fas fa-download"></i></button>
             <button class="btn-icon text-danger" onclick="event.stopPropagation(); DealRoom.deleteDoc('${d.id}')"><i class="fas fa-trash"></i></button>
           </div>
@@ -172,26 +181,57 @@ window.DealRoom = {
     const now = new Date();
     const year = now.getFullYear();
     
-    this.activities = [
-      { id: '1', action: 'document uploaded', detail: 'Q1 2026 Financials', user: 'GP', date: `${year}-04-01` },
-      { id: '2', action: 'distribution posted', detail: '$125,000 to all investors', user: 'System', date: `${year}-03-15` },
-      { id: '3', action: 'document viewed', detail: 'Operating Agreement', user: 'John Smith', date: `${year}-03-14` },
-      { id: '4', action: 'investor added', detail: 'Lisa Brown - $750K', user: 'GP', date: `${year}-03-10` },
-      { id: '5', action: 'document uploaded', detail: 'Rent Roll - March 2026', user: 'GP', date: `${year}-04-05` },
-      { id: '6', action: 'report generated', detail: 'Monthly Performance Report', user: 'System', date: `${year}-04-01` }
+    // Seed with static demo events
+    const staticEvents = [
+      { id: '1', action: 'document uploaded', detail: 'Q1 2026 Financials', user: 'GP', date: `${year}-04-01`, ts: null },
+      { id: '2', action: 'distribution posted', detail: '$125,000 to all investors', user: 'System', date: `${year}-03-15`, ts: null },
+      { id: '3', action: 'document viewed', detail: 'Operating Agreement', user: 'John Smith', date: `${year}-03-14`, ts: null },
+      { id: '4', action: 'investor added', detail: 'Lisa Brown - $750K', user: 'GP', date: `${year}-03-10`, ts: null },
+      { id: '5', action: 'document uploaded', detail: 'Rent Roll - March 2026', user: 'GP', date: `${year}-04-05`, ts: null },
     ];
 
-    document.getElementById('activityFeed').innerHTML = this.activities.map(a => `
-      <div class="activity-item">
-        <div class="activity-icon">
+    // Pull real document view events from localStorage
+    const realEvents = this.getDocActivity(dealId).map(e => ({
+      id: e.id,
+      action: 'document viewed',
+      detail: e.docName,
+      user: e.investorName,
+      date: e.timestamp ? e.timestamp.split('T')[0] : '',
+      ts: e.timestamp,
+    }));
+
+    // Merge + sort by timestamp descending (real events first if same date)
+    this.activities = [...realEvents, ...staticEvents].sort((a, b) => {
+      if (a.ts && b.ts) return new Date(b.ts) - new Date(a.ts);
+      if (a.ts) return -1;
+      if (b.ts) return 1;
+      return b.date.localeCompare(a.date);
+    });
+
+    this.renderActivity();
+  },
+
+  renderActivity: function() {
+    const feed = document.getElementById('activityFeed');
+    if (!feed) return;
+    if (!this.activities.length) {
+      feed.innerHTML = '<p class="text-muted" style="padding:16px;text-align:center;">No activity yet</p>';
+      return;
+    }
+    feed.innerHTML = this.activities.map(a => {
+      const timeStr = a.ts ? new Date(a.ts).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : a.date;
+      const isDocView = a.action === 'document viewed';
+      return `
+      <div class="activity-item" ${isDocView ? 'style="border-left:2px solid rgba(99,102,241,.4);padding-left:12px;"' : ''}>
+        <div class="activity-icon" ${isDocView ? 'style="background:rgba(99,102,241,.1);color:#6366f1;"' : ''}>
           <i class="fas fa-${this.getActivityIcon(a.action)}"></i>
         </div>
         <div class="activity-content">
-          <p><strong>${a.action}</strong> - ${a.detail}</p>
-          <span class="activity-meta">${a.user} • ${a.date}</span>
+          <p><strong>${a.action}</strong> — ${a.detail}</p>
+          <span class="activity-meta">${a.user} • ${timeStr}</span>
         </div>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   },
 
   switchTab: function(tab) {
@@ -208,6 +248,117 @@ window.DealRoom = {
 
   closeModal: function() {
     document.getElementById('uploadModal').style.display = 'none';
+    // Reset access controls
+    const accEl = document.getElementById('docAccess');
+    if (accEl) accEl.value = 'all';
+    this.toggleInvestorSelect();
+  },
+
+  // Show/hide investor checkbox list based on access selection
+  toggleInvestorSelect: function() {
+    const access = document.getElementById('docAccess')?.value;
+    const group = document.getElementById('investorSelectGroup');
+    if (!group) return;
+    if (access === 'select') {
+      group.style.display = '';
+      this._populateInvestorCheckboxes();
+    } else {
+      group.style.display = 'none';
+    }
+  },
+
+  _populateInvestorCheckboxes: function() {
+    const container = document.getElementById('investorCheckboxList');
+    if (!container) return;
+    const deal = this.currentDeal;
+    let investors = [];
+    if (deal) {
+      const allInv = SP.getInvestors ? SP.getInvestors() : [];
+      investors = (deal.investors || []).map(entry => {
+        const inv = allInv.find(i => i.id === entry.investorId) || {};
+        const name = [inv.firstName, inv.lastName].filter(Boolean).join(' ') || inv.name || inv.email || entry.investorId;
+        return { id: entry.investorId, name };
+      });
+    }
+    if (!investors.length) {
+      container.innerHTML = '<span style="color:#9C9590;font-size:.82rem;">No investors linked to this deal yet.</span>';
+      return;
+    }
+    container.innerHTML = investors.map(inv => `
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.82rem;color:#1B1A19;">
+        <input type="checkbox" value="${inv.id}" checked style="accent-color:#F37925;">
+        ${inv.name}
+      </label>`).join('');
+  },
+
+  // Get array of selected investor IDs from the checkbox list
+  _getSelectedInvestors: function() {
+    const boxes = document.querySelectorAll('#investorCheckboxList input[type="checkbox"]');
+    return Array.from(boxes).filter(b => b.checked).map(b => b.value);
+  },
+
+  // Manage access for an existing document
+  manageDocAccess: function(docId) {
+    const doc = this.documents.find(d => d.id === docId);
+    if (!doc) return;
+    // Re-open modal in "manage access" mode
+    const modal = document.getElementById('uploadModal');
+    if (modal) {
+      document.getElementById('docName').value = doc.name;
+      document.getElementById('docCategory').value = doc.category || 'legal';
+      const accEl = document.getElementById('docAccess');
+      if (accEl) {
+        accEl.value = doc.access || 'all';
+        this.toggleInvestorSelect();
+        // Pre-check existing allowed investors
+        if (doc.allowedInvestors?.length) {
+          setTimeout(() => {
+            const boxes = document.querySelectorAll('#investorCheckboxList input[type="checkbox"]');
+            boxes.forEach(b => { b.checked = doc.allowedInvestors.includes(b.value); });
+          }, 50);
+        }
+      }
+      modal.style.display = 'flex';
+      // Store doc id for update
+      modal.dataset.editDocId = docId;
+    }
+  },
+
+  // Record a document view event (called from investor portal)
+  recordDocView: function(docId, investorName, investorId) {
+    const doc = this.documents.find(d => d.id === docId);
+    if (!doc) return;
+    const event = {
+      id: Date.now().toString(),
+      type: 'document_viewed',
+      docId,
+      docName: doc.name,
+      investorName: investorName || 'Unknown',
+      investorId: investorId || null,
+      dealId: this.currentDeal?.id,
+      timestamp: new Date().toISOString(),
+    };
+    // Store in localStorage keyed by deal
+    const key = 'dt_doc_activity_' + (this.currentDeal?.id || 'global');
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    existing.unshift(event);
+    if (existing.length > 200) existing.splice(200);
+    localStorage.setItem(key, JSON.stringify(existing));
+    // Push to activity feed
+    this.activities.unshift({
+      id: event.id,
+      action: 'document viewed',
+      detail: doc.name,
+      user: investorName,
+      date: new Date().toISOString().split('T')[0],
+    });
+    this.renderActivity();
+  },
+
+  // Load document view events for current deal
+  getDocActivity: function(dealId) {
+    const key = 'dt_doc_activity_' + (dealId || this.currentDeal?.id || 'global');
+    return JSON.parse(localStorage.getItem(key) || '[]');
   },
 
   saveDoc: function() {
@@ -225,12 +376,32 @@ window.DealRoom = {
     const saveBtn = document.querySelector('#uploadModal .btn-primary');
     if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading…'; }
 
+    const allowedInvestors = access === 'select' ? this._getSelectedInvestors() : null;
+
     const doSave = (fileUrl, fileSize, mimeType) => {
+      // Check if we're editing an existing doc's access (manage access modal)
+      const modal = document.getElementById('uploadModal');
+      const editDocId = modal?.dataset?.editDocId;
+      if (editDocId) {
+        const idx = this.documents.findIndex(d => d.id === editDocId);
+        if (idx >= 0) {
+          this.documents[idx].access = access;
+          this.documents[idx].allowedInvestors = allowedInvestors;
+          this.saveDocuments();
+          this.renderDocuments();
+          delete modal.dataset.editDocId;
+          this.closeModal();
+          if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = '<i class="fas fa-upload"></i> Upload'; }
+          this._showToast('Access settings updated!');
+          return;
+        }
+      }
       const newDoc = {
         id: Date.now().toString(),
         name,
         category,
         access,
+        allowedInvestors: allowedInvestors,
         uploadedBy: SP.getSession()?.name || 'GP',
         date: new Date().toISOString().split('T')[0],
         size: fileSize || '—',

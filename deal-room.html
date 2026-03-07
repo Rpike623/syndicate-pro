@@ -169,11 +169,19 @@
         </div>
         <div class="form-group">
           <label>Access Level</label>
-          <select id="docAccess" class="form-select">
+          <select id="docAccess" class="form-select" onchange="DealRoom.toggleInvestorSelect()">
             <option value="all">All Investors</option>
-            <option value="gp">GP Only</option>
-            <option value="select">Select Investors</option>
+            <option value="gp">GP Only (Internal)</option>
+            <option value="select">Specific Investors</option>
           </select>
+          <span style="font-size:.75rem;color:#9C9590;margin-top:4px;display:block;">Controls which investors can see this document in their portal</span>
+        </div>
+        <div class="form-group" id="investorSelectGroup" style="display:none;">
+          <label>Select Investors</label>
+          <div id="investorCheckboxList" style="max-height:160px;overflow-y:auto;border:1px solid #D4CFC9;border-radius:6px;padding:8px;background:#FFFFFF;display:flex;flex-direction:column;gap:6px;">
+            <span style="color:#9C9590;font-size:.82rem;">Loading investors...</span>
+          </div>
+          <span style="font-size:.75rem;color:#9C9590;margin-top:4px;display:block;">Only checked investors will see this document</span>
         </div>
       </div>
       <div class="modal-footer">

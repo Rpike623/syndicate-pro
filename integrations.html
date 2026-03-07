@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integrations — deeltrack</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dt-global.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js"></script>
+  <script src="js/sp-firebase.js"></script>
+  <style>
+    .integration-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .integration-card {
+      background: #FFFFFF;
+      border: 1px solid #E2DDD8;
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: box-shadow .15s;
+    }
+    .integration-card:hover { box-shadow: 0 4px 20px rgba(27,26,25,.08); }
+    .int-header { display: flex; align-items: center; gap: 14px; }
+    .int-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .int-name { font-weight: 700; font-size: 1rem; color: #1B1A19; }
+    .int-desc { font-size: .85rem; color: #6B6560; line-height: 1.5; }
+    .int-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .status-connected { background: rgba(45,154,107,.12); color: #0F5C35; }
+    .status-disconnected { background: #F0EDEA; color: #9C9590; }
+    .status-coming { background: rgba(243,121,37,.1); color: #7A3200; }
+    .int-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .btn-connect {
+      padding: 8px 18px;
+      border-radius: 7px;
+      font-size: .82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all .15s;
+    }
+    .btn-connect.available { background: #F37925; color: white; }
+    .btn-connect.available:hover { background: #D96515; }
+    .btn-connect.soon { background: #F0EDEA; color: #9C9590; cursor: not-allowed; }
+    .int-features { display: flex; flex-wrap: wrap; gap: 6px; }
+    .int-feature-tag {
+      font-size: .7rem;
+      padding: 2px 8px;
+      background: #F0EDEA;
+      color: #4A4642;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .section-header {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1B1A19;
+      margin: 32px 0 4px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #E2DDD8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .callout-banner {
+      background: #FFF8F0;
+      border: 1px solid #FDDCBB;
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: .85rem;
+      color: #7A3200;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+<div id="sidebar"></div>
+<div class="main">
+  <div class="top-bar">
+    <div class="page-title-block">
+      <h1 class="page-title">Integrations</h1>
+      <p class="page-subtitle">Connect deeltrack to your existing tools to automate payments, documents, and accounting</p>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="callout-banner">
+      <i class="fas fa-plug" style="font-size:1.1rem;margin-top:1px;flex-shrink:0;"></i>
+      <div>
+        <strong>Enable payment automation:</strong> Connect QuickBooks or ACH/Plaid to automatically record capital call receipts and distribution payments.
+        <a href="capital-calls.html" style="color:#F37925;text-decoration:none;margin-left:6px;">Go to Capital Calls →</a>
+        <a href="distributions.html" style="color:#F37925;text-decoration:none;margin-left:8px;">Go to Distributions →</a>
+      </div>
+    </div>
+
+    <div class="section-header"><i class="fas fa-calculator" style="color:#2CA01C;"></i> Accounting</div>
+    <div class="integration-grid">
+      <div class="integration-card">
+        <div class="int-header">
+          <div class="int-logo" style="background:#E8F5E2;color:#2CA01C;"><i class="fas fa-calculator"></i></div>
+          <div>
+            <div class="int-name">QuickBooks Online</div>
+            <span class="int-status status-coming"><i class="fas fa-clock"></i> Coming Soon</span>
+          </div>
+        </div>
+        <div class="int-desc">Sync capital call receipts, distribution payments, and fee income directly to QuickBooks as journal entries.</div>
+        <div class="int-features">
+          <span class="int-feature-tag">Journal Entries</span>
+          <span class="int-feature-tag">Bank Reconciliation</span>
+          <span class="int-feature-tag">Chart of Accounts</span>
+        </div>
+        <div class="int-footer">
+          <span style="font-size:.75rem;color:#9C9590;">Estimated: Q3 2026</span>
+          <button class="btn-connect soon" disabled>Coming Soon</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header"><i class="fas fa-file-signature" style="color:#F37925;"></i> Documents & eSignature</div>
+    <div class="integration-grid">
+      <div class="integration-card">
+        <div class="int-header">
+          <div class="int-logo" style="background:#FFF0E0;color:#F37925;"><i class="fas fa-signature"></i></div>
+          <div>
+            <div class="int-name">DocuSign</div>
+            <span class="int-status status-coming"><i class="fas fa-clock"></i> Coming Soon</span>
+          </div>
+        </div>
+        <div class="int-desc">Send subscription agreements, operating agreements, and capital call notices for e-signature directly from deeltrack.</div>
+        <div class="int-features">
+          <span class="int-feature-tag">eSignature</span>
+          <span class="int-feature-tag">Template Library</span>
+          <span class="int-feature-tag">Audit Trail</span>
+        </div>
+        <div class="int-footer">
+          <span style="font-size:.75rem;color:#9C9590;">Estimated: Q3 2026</span>
+          <button class="btn-connect soon" disabled>Coming Soon</button>
+        </div>
+      </div>
+
+      <div class="integration-card">
+        <div class="int-header">
+          <div class="int-logo" style="background:#E8F0FE;color:#1A73E8;"><i class="fab fa-google-drive"></i></div>
+          <div>
+            <div class="int-name">Google Drive</div>
+            <span class="int-status status-coming"><i class="fas fa-clock"></i> Coming Soon</span>
+          </div>
+        </div>
+        <div class="int-desc">Sync your Deal Room documents to Google Drive folders organized by deal and document type.</div>
+        <div class="int-features">
+          <span class="int-feature-tag">Auto-Sync</span>
+          <span class="int-feature-tag">Folder Structure</span>
+          <span class="int-feature-tag">Version History</span>
+        </div>
+        <div class="int-footer">
+          <span style="font-size:.75rem;color:#9C9590;">Estimated: Q4 2026</span>
+          <button class="btn-connect soon" disabled>Coming Soon</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header"><i class="fas fa-university" style="color:#6366F1;"></i> Payments & Banking</div>
+    <div class="integration-grid">
+      <div class="integration-card">
+        <div class="int-header">
+          <div class="int-logo" style="background:#EEF2FF;color:#6366F1;"><i class="fas fa-link"></i></div>
+          <div>
+            <div class="int-name">ACH / Plaid</div>
+            <span class="int-status status-coming"><i class="fas fa-clock"></i> Coming Soon</span>
+          </div>
+        </div>
+        <div class="int-desc">Enable ACH pull for capital calls and ACH push for distributions directly from investor bank accounts on file.</div>
+        <div class="int-features">
+          <span class="int-feature-tag">ACH Pull (Capital Calls)</span>
+          <span class="int-feature-tag">ACH Push (Distributions)</span>
+          <span class="int-feature-tag">Bank Verification</span>
+        </div>
+        <div class="int-footer">
+          <span style="font-size:.75rem;color:#9C9590;">Estimated: Q3 2026</span>
+          <button class="btn-connect soon" disabled>Coming Soon</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header"><i class="fas fa-users" style="color:#EC4899;"></i> CRM & Marketing</div>
+    <div class="integration-grid">
+      <div class="integration-card">
+        <div class="int-header">
+          <div class="int-logo" style="background:#FDF2F8;color:#EC4899;"><i class="fas fa-hubspot"></i></div>
+          <div>
+            <div class="int-name">HubSpot</div>
+            <span class="int-status status-coming"><i class="fas fa-clock"></i> Coming Soon</span>
+          </div>
+        </div>
+        <div class="int-desc">Sync investor contacts and pipeline deals between deeltrack and HubSpot for relationship management and fundraising workflows.</div>
+        <div class="int-features">
+          <span class="int-feature-tag">Contact Sync</span>
+          <span class="int-feature-tag">Deal Pipeline Sync</span>
+          <span class="int-feature-tag">Email Sequences</span>
+        </div>
+        <div class="int-footer">
+          <span style="font-size:.75rem;color:#9C9590;">Estimated: Q4 2026</span>
+          <button class="btn-connect soon" disabled>Coming Soon</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header"><i class="fas fa-code" style="color:#1B1A19;"></i> Developer</div>
+    <div class="integration-grid">
+      <div class="integration-card">
+        <div class="int-header">
+          <div class="int-logo" style="background:#F0EDEA;color:#1B1A19;"><i class="fas fa-key"></i></div>
+          <div>
+            <div class="int-name">REST API / Webhooks</div>
+            <span class="int-status status-coming"><i class="fas fa-clock"></i> Coming Soon</span>
+          </div>
+        </div>
+        <div class="int-desc">Webhook events for capital calls, distributions, and investor status changes. REST API for custom integrations.</div>
+        <div class="int-features">
+          <span class="int-feature-tag">Webhooks</span>
+          <span class="int-feature-tag">REST API</span>
+          <span class="int-feature-tag">API Keys</span>
+        </div>
+        <div class="int-footer">
+          <span style="font-size:.75rem;color:#9C9590;">Estimated: Q4 2026</span>
+          <button class="btn-connect soon" disabled>Coming Soon</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:40px;padding:20px;background:#F0EDEA;border-radius:10px;text-align:center;">
+      <div style="font-weight:700;margin-bottom:6px;color:#1B1A19;">Need an integration not listed here?</div>
+      <div style="color:#6B6560;font-size:.875rem;margin-bottom:14px;">Tell us what you're using and we'll prioritize it.</div>
+      <a href="mailto:admin@deeltrack.com?subject=Integration Request" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;border-radius:8px;background:#F37925;color:white;font-weight:600;font-size:.875rem;">
+        <i class="fas fa-envelope"></i> Request an Integration
+      </a>
+    </div>
+  </div>
+</div>
+<script>SP.requireGP();</script>
+</body>
+</html>

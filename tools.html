@@ -73,14 +73,18 @@
     /* Tool card */
     .tool-card{background:#111827;border:1px solid #1E293B;border-radius:var(--radius-md);padding:18px 20px;text-decoration:none;color:#F8FAFC;display:flex;flex-direction:column;gap:10px;transition:all .18s;position:relative;overflow:hidden;}
     .tool-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-md);}
-    .tool-card.stub{opacity:.65;}
-    .tool-card.stub:hover{border-color:#334155;transform:none;box-shadow:none;cursor:default;}
+    .tool-card.stub{opacity:.55;filter:grayscale(0.3);}
+    .tool-card.stub:hover{border-color:#D4CFC9;transform:none;box-shadow:none;cursor:not-allowed;opacity:.65;filter:grayscale(0);}
+    .tool-card.stub .tool-icon{background:rgba(156,149,144,0.12)!important;color:#9C9590!important;}
+    .tool-card.stub::after{content:"🔒 Coming Soon";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(27,26,25,.82);color:white;padding:6px 14px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;}
+    .tool-card.stub{position:relative;}
+    .tool-card.stub:hover::after{opacity:1;}
     .tool-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
     .tool-icon{width:36px;height:36px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
     .tool-name{font-size:.875rem;font-weight:600;line-height:1.3;}
     .tool-desc{font-size:.75rem;color:var(--text-secondary);line-height:1.5;}
     /* Coming soon badge */
-    .badge-soon{display:inline-flex;align-items:center;gap:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:20px;background:rgba(100,116,139,.15);color: #94A3B8;border:1px solid rgba(100,116,139,.25);}
+    .badge-soon{display:inline-flex;align-items:center;gap:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:20px;background:rgba(156,149,144,.15);color:#6B6560;border:1px solid rgba(156,149,144,.3);}
     /* No results */
     .no-results{text-align:center;padding:60px 20px;color:var(--text-muted);}
     .no-results i{font-size:2rem;opacity:.3;display:block;margin-bottom:12px;}
@@ -302,9 +306,9 @@ const TOOLS = {
 // ── Render ────────────────────────────────────────────────────────────────────
 function buildCard(tool) {
   const stubBadge = tool.stub
-    ? `<span class="badge-soon"><i class="fas fa-clock" style="font-size:.55rem;"></i> Coming Soon</span>`
+    ? `<span class="badge-soon"><i class="fas fa-lock" style="font-size:.55rem;"></i> Coming Soon</span>`
     : '';
-  return `<a href="${tool.stub ? 'javascript:void(0)' : tool.href}" class="tool-card ${tool.stub ? 'stub' : ''}" data-name="${tool.name.toLowerCase()}" data-desc="${tool.desc.toLowerCase()}" ${tool.stub ? 'title="This tool is coming soon"' : ''}>
+  return `<a href="${tool.stub ? 'javascript:void(0)' : tool.href}" class="tool-card ${tool.stub ? 'stub' : ''}" data-name="${tool.name.toLowerCase()}" data-desc="${tool.desc.toLowerCase()}" ${tool.stub ? 'title="Coming Soon — join the waitlist at deeltrack.com" onclick="return false;"' : ''}>
     <div class="tool-card-top">
       <div class="tool-icon" style="background:${colorToLight(tool.color)};color:${tool.color};">
         <i class="fas ${tool.icon}"></i>

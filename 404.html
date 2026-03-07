@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found — deeltrack</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F3F0ED;
+      color: #1B1A19;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    .container {
+      text-align: center;
+      max-width: 480px;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1B1A19;
+      margin-bottom: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .logo span { color: #F37925; }
+    .error-code {
+      font-size: 7rem;
+      font-weight: 800;
+      color: #F37925;
+      line-height: 1;
+      margin-bottom: 16px;
+      letter-spacing: -4px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #1B1A19;
+    }
+    p {
+      color: #6B6560;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-primary { background: #F37925; color: white; }
+    .btn-primary:hover { background: #D96515; }
+    .btn-secondary { background: #FFFFFF; color: #1B1A19; border: 1px solid #E2DDD8; }
+    .btn-secondary:hover { background: #F0EDEA; }
+    .path-display {
+      margin-top: 32px;
+      padding: 12px 16px;
+      background: #FFFFFF;
+      border: 1px solid #E2DDD8;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #9C9590;
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo"><span>deel</span>track</div>
+    <div class="error-code">404</div>
+    <h1>Page not found</h1>
+    <p>The page you're looking for doesn't exist or may have moved. Head back to the dashboard to continue.</p>
+    <div class="actions">
+      <a href="dashboard.html" class="btn btn-primary">
+        <i class="fas fa-home"></i> Go to Dashboard
+      </a>
+      <a href="deals.html" class="btn btn-secondary">
+        <i class="fas fa-building"></i> View Deals
+      </a>
+    </div>
+    <div class="path-display" id="pathDisplay"></div>
+  </div>
+  <script>
+    const path = window.location.pathname;
+    const el = document.getElementById('pathDisplay');
+    if (el && path) el.textContent = 'Requested: ' + path;
+  </script>
+</body>
+</html>

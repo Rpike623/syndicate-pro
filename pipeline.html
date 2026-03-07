@@ -413,6 +413,129 @@
       .main { margin-left: 0; }
       .form-row { grid-template-columns: 1fr; }
     }
+
+    /* ── Task Strip & Panel ───────────────────────────────────────────── */
+    .card-task-footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 7px 12px;
+      font-size: 0.72rem;
+      color: #9C9590;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .card-task-footer:hover { background: rgba(243,121,37,0.07); color: #F37925; }
+    .task-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .task-dot.done { background: #2D9A6B; }
+    .task-dot.overdue { background: #EF4444; }
+    .task-dot.pending { background: #E8890A; }
+
+    /* Task panel modal */
+    .task-panel-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 500;
+      align-items: flex-start;
+      justify-content: flex-end;
+      padding: 20px;
+    }
+    .task-panel-overlay.open { display: flex; }
+    .task-panel {
+      background: #FFFFFF;
+      border: 1px solid #E2DDD8;
+      border-radius: 12px;
+      width: 360px;
+      max-width: 95vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 40px rgba(27,26,25,.18);
+    }
+    .task-panel-header {
+      padding: 20px 20px 12px;
+      border-bottom: 1px solid #E2DDD8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .task-panel-title { font-weight: 700; font-size: .95rem; color: #1B1A19; }
+    .task-panel-body { padding: 16px 20px; }
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #F0EDEA;
+    }
+    .task-item:last-child { border-bottom: none; }
+    .task-cb { width: 18px; height: 18px; margin-top: 1px; cursor: pointer; flex-shrink: 0; accent-color: #2D9A6B; }
+    .task-label { flex: 1; font-size: .875rem; color: #1B1A19; line-height: 1.4; }
+    .task-label.done-label { text-decoration: line-through; color: #9C9590; }
+    .task-due-badge {
+      font-size: .7rem;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .task-due-badge.overdue { background: #FEE2E2; color: #DC2626; }
+    .task-due-badge.today { background: #FEF3C7; color: #D97706; }
+    .task-due-badge.upcoming { background: #F0EDEA; color: #6B6560; }
+    .task-add-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid #E2DDD8;
+      flex-wrap: wrap;
+    }
+    .task-add-row input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 12px;
+      border: 1px solid #D4CFC9;
+      border-radius: 6px;
+      font-size: .82rem;
+      background: #FFFFFF;
+      color: #1B1A19;
+      font-family: inherit;
+    }
+    .task-add-row input[type="date"] {
+      padding: 8px 10px;
+      border: 1px solid #D4CFC9;
+      border-radius: 6px;
+      font-size: .78rem;
+      background: #FFFFFF;
+      color: #1B1A19;
+      font-family: inherit;
+    }
+    .task-add-btn {
+      padding: 8px 14px;
+      background: #F37925;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 600;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .task-delete-btn {
+      background: none;
+      border: none;
+      color: #D4CFC9;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: .8rem;
+      flex-shrink: 0;
+    }
+    .task-delete-btn:hover { color: #EF4444; background: #FEE2E2; }
   </style>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
@@ -650,14 +773,14 @@
             const isUrgent = dueStr === 'Overdue';
             const investorCount = (deal.investors||[]).length;
             return `
-              <div class="pipeline-card" draggable="true" data-id="${deal.id}"
-                onclick="window.location.href='deal-detail.html?id=${deal.id}'"
-                ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event)">
+              <div class="pipeline-card" draggable="true" data-id="${deal.id}" data-navigate="deal-detail.html?id=${deal.id}"
+                ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="drop(event)"
+                onclick="pipelineCardClick(event,this)">
                 <div class="priority-indicator priority-${deal.priority||'medium'}"></div>
                 <div class="card-header">
                   <div class="card-title">${deal.name}</div>
-                  <div class="card-menu" onclick="event.stopPropagation();">
-                    <i class="fas fa-ellipsis-v" onclick="showCardMenu(event,'${deal.id}')"></i>
+                  <div class="card-menu no-navigate" onclick="event.stopPropagation();showCardMenu(event,'${deal.id}')">
+                    <i class="fas fa-ellipsis-v"></i>
                   </div>
                 </div>
                 <div class="card-meta">
@@ -671,6 +794,10 @@
                     ${investorCount ? `<span class="tag" style="background:rgba(99,102,241,0.15);color:#a78bfa;">${investorCount} investor${investorCount>1?'s':''}</span>` : ''}
                   </div>
                   ${deal.due ? `<div class="card-due ${isUrgent?'urgent':''}"><i class="fas fa-clock"></i> ${dueStr}</div>` : ''}
+                  ${renderTaskStrip(deal)}
+                </div>
+                <div class="card-task-footer no-navigate" onclick="event.stopPropagation();openTaskPanel('${deal.id}')">
+                  <i class="fas fa-tasks"></i> Tasks ${getTaskSummary(deal)}
                 </div>
               </div>`;
           }).join('');
@@ -686,6 +813,18 @@
 
     // ── Drag & drop stage movement ──────────────────────────────────────────────
     let dragId = null;
+    // Safe card click — only navigate if user didn't click a no-navigate child
+    function pipelineCardClick(e, card) {
+      // Ignore if click target (or ancestor up to card) has .no-navigate
+      let el = e.target;
+      while (el && el !== card) {
+        if (el.classList && el.classList.contains('no-navigate')) return;
+        el = el.parentElement;
+      }
+      const url = card.dataset.navigate;
+      if (url) window.location.href = url;
+    }
+
     function dragStart(e) { dragId = e.currentTarget.dataset.id; e.dataTransfer.effectAllowed = 'move'; }
     function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
     function drop(e) {
@@ -789,6 +928,115 @@
     loadDeals();
     renderPipeline();
     wireDropZones();
+  </script>
+
+  <!-- Task Panel Modal -->
+  <div class="task-panel-overlay" id="taskPanelOverlay" onclick="if(event.target===this)closeTaskPanel()">
+    <div class="task-panel">
+      <div class="task-panel-header">
+        <div>
+          <div class="task-panel-title"><i class="fas fa-tasks" style="color:#F37925;margin-right:6px;"></i><span id="taskPanelDealName">Tasks</span></div>
+          <div style="font-size:.75rem;color:#9C9590;margin-top:2px;" id="taskPanelMeta"></div>
+        </div>
+        <button onclick="closeTaskPanel()" style="background:#F0EDEA;border:none;width:30px;height:30px;border-radius:6px;cursor:pointer;color:#6B6560;font-size:.9rem;">x</button>
+      </div>
+      <div class="task-panel-body">
+        <div id="taskList"></div>
+        <div class="task-add-row">
+          <input type="text" id="newTaskText" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTask()">
+          <input type="date" id="newTaskDue" title="Due date (optional)">
+          <button class="task-add-btn" onclick="addTask()"><i class="fas fa-plus"></i> Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  var _taskDealId = null;
+  function getTasksForDeal(id) { try { return JSON.parse(localStorage.getItem('dt_tasks_'+id)||'[]'); } catch(e) { return []; } }
+  function saveTasksForDeal(id, t) { localStorage.setItem('dt_tasks_'+id, JSON.stringify(t)); }
+  function openTaskPanel(dealId) {
+    _taskDealId = dealId;
+    var deal = deals.find(function(d){return d.id===dealId;});
+    document.getElementById('taskPanelDealName').textContent = deal ? deal.name : 'Tasks';
+    var tasks = getTasksForDeal(dealId);
+    var done = tasks.filter(function(t){return t.done;}).length;
+    document.getElementById('taskPanelMeta').textContent = done+' of '+tasks.length+' completed';
+    renderTaskList(tasks);
+    document.getElementById('taskPanelOverlay').classList.add('open');
+    setTimeout(function(){ document.getElementById('newTaskText').focus(); }, 100);
+  }
+  function closeTaskPanel() {
+    document.getElementById('taskPanelOverlay').classList.remove('open');
+    _taskDealId = null;
+    renderPipeline();
+  }
+  function renderTaskList(tasks) {
+    var container = document.getElementById('taskList');
+    if (!tasks.length) {
+      container.innerHTML = '<div style="text-align:center;padding:24px;color:#9C9590;font-size:.85rem;"><i class="fas fa-check-circle" style="font-size:2rem;margin-bottom:8px;display:block;opacity:.3;"></i>No tasks yet.</div>';
+      return;
+    }
+    container.innerHTML = tasks.map(function(t,i){
+      var dueBadge = t.due ? getDueBadge(t.due) : '';
+      return '<div class="task-item"><input class="task-cb" type="checkbox"'+(t.done?' checked':'')+' onchange="toggleTask('+i+')"><span class="task-label'+(t.done?' done-label':'')+'">'+esc(t.text)+'</span>'+dueBadge+'<button class="task-delete-btn" onclick="deleteTask('+i+')" title="Delete"><i class="fas fa-times"></i></button></div>';
+    }).join('');
+  }
+  function getDueBadge(d) {
+    var now=new Date(); now.setHours(0,0,0,0);
+    var due=new Date(d+'T00:00:00');
+    var diff=Math.round((due-now)/86400000);
+    if(diff<0) return '<span class="task-due-badge overdue">Overdue</span>';
+    if(diff===0) return '<span class="task-due-badge today">Due today</span>';
+    if(diff<=3) return '<span class="task-due-badge today">In '+diff+'d</span>';
+    return '<span class="task-due-badge upcoming">'+due.toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</span>';
+  }
+  function toggleTask(idx) {
+    var tasks=getTasksForDeal(_taskDealId);
+    tasks[idx].done=!tasks[idx].done;
+    saveTasksForDeal(_taskDealId,tasks);
+    renderTaskList(tasks);
+    document.getElementById('taskPanelMeta').textContent=tasks.filter(function(t){return t.done;}).length+' of '+tasks.length+' completed';
+  }
+  function deleteTask(idx) {
+    var tasks=getTasksForDeal(_taskDealId);
+    tasks.splice(idx,1);
+    saveTasksForDeal(_taskDealId,tasks);
+    renderTaskList(tasks);
+  }
+  function addTask() {
+    var text=document.getElementById('newTaskText').value.trim();
+    if(!text) return;
+    var due=document.getElementById('newTaskDue').value;
+    var tasks=getTasksForDeal(_taskDealId);
+    tasks.push({id:Date.now(),text:text,due:due||null,done:false,createdAt:new Date().toISOString()});
+    saveTasksForDeal(_taskDealId,tasks);
+    renderTaskList(tasks);
+    document.getElementById('newTaskText').value='';
+    document.getElementById('newTaskDue').value='';
+    document.getElementById('taskPanelMeta').textContent=tasks.filter(function(t){return t.done;}).length+' of '+tasks.length+' completed';
+    document.getElementById('newTaskText').focus();
+  }
+  function renderTaskStrip(deal) {
+    var tasks=getTasksForDeal(deal.id);
+    if(!tasks.length) return '';
+    var now=new Date(); now.setHours(0,0,0,0);
+    var dots=tasks.slice(0,5).map(function(t){
+      var cls=t.done?'done':(t.due&&new Date(t.due+'T00:00:00')<now?'overdue':'pending');
+      return '<span class="task-dot '+cls+'" title="'+esc(t.text)+'"></span>';
+    }).join('');
+    return '<div style="display:flex;align-items:center;gap:4px;margin-top:6px;">'+dots+(tasks.length>5?'<span style="font-size:.65rem;color:#9C9590;">+'+(tasks.length-5)+'</span>':'')+'</div>';
+  }
+  function getTaskSummary(deal) {
+    var tasks=getTasksForDeal(deal.id);
+    if(!tasks.length) return '<span style="opacity:.5;">- none</span>';
+    var done=tasks.filter(function(t){return t.done;}).length;
+    var now=new Date(); now.setHours(0,0,0,0);
+    var overdue=tasks.filter(function(t){return !t.done&&t.due&&new Date(t.due+'T00:00:00')<now;}).length;
+    return '<span style="color:'+(overdue?'#EF4444':'#2D9A6B')+'">'+done+'/'+tasks.length+(overdue?' - '+overdue+' overdue':'')+'</span>';
+  }
+  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeTaskPanel(); });
   </script>
 </body>
 </html>
