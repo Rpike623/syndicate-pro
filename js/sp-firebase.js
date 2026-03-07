@@ -57,14 +57,7 @@ const SPFB = (function () {
       _auth    = firebase.auth();
       _auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
-      // Enable offline persistence (fallback for older SDKs)
-      // Note: This may fail if Firestore already started - that's OK, we have cache settings
-      try {
-        _db.enablePersistence({ synchronizeTabs: true })
-          .catch(() => { /* ignore - cache settings handle offline */ });
-      } catch (e) {
-        // Silent fail - persistence is optional, cache settings handle offline
-      }
+      // Note: enablePersistence removed - using FirestoreSettings.cache instead
 
       // Watch auth state
       _auth.onAuthStateChanged(fbUser => {
