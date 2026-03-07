@@ -254,20 +254,8 @@ const dealId = urlParams.get('id');
 
 let deal = null;
 
-// Wait for data to load before rendering
-function init() {
-  if (typeof SPData !== 'undefined' && SPData.onReady) {
-    SPData.onReady(render);
-  } else if (typeof SP !== 'undefined' && SP.getDeals) {
-    // Fallback: wait a moment for data to load
-    setTimeout(render, 500);
-  } else {
-    render(); // Just try anyway
-  }
-}
-
-// Start initialization when DOM is ready
-document.addEventListener('DOMContentLoaded', init);
+// Wait for Firestore data before rendering
+SP.onDataReady(render);
 
 function fmt$(n){if(!n)return'$0';if(n>=1e6)return'$'+(n/1e6).toFixed(2)+'M';if(n>=1e3)return'$'+(n/1e3).toFixed(0)+'K';return'$'+Number(n).toLocaleString();}
 function fmtFull$(n){return'$'+Number(n||0).toLocaleString();}
@@ -1117,12 +1105,7 @@ if(!dealId) {
       </div>`;
     }
   }
-  window.addEventListener('spdata-ready', _initialRender);
-  if (typeof SPData !== 'undefined' && SPData.isReady()) _initialRender();
-  // Fallback: if spdata-ready never fires, try after 2s
-  setTimeout(() => {
-    if (!deal) _initialRender();
-  }, 2000);
+  SP.onDataReady(_initialRender);
 }
 </script>
 </body>

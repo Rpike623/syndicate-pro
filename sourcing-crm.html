@@ -554,7 +554,7 @@ function showToast(msg) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-window.addEventListener('spdata-ready', load);
+SP.onDataReady(load);
 if (typeof SP !== 'undefined' && SP.getDeals && SP.getDeals().length) load();
 setTimeout(load, 600);
 

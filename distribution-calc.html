@@ -353,63 +353,18 @@ function setStep(n) {
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────
-let _initRetries = 0;
-
-// Pull deals from every possible storage location — belt + suspenders
-function _getAllDealsRaw() {
-  // 1. SPData cache (most fresh — Firestore-backed)
-  try {
-    if (typeof SPData !== 'undefined' && SPData.isReady && SPData.isReady()) {
-      const d = SPData.getDeals ? SPData.getDeals() : SP.getDeals();
-      if (d && d.length) return d;
-    }
-  } catch(e) {}
-
-  // 2. SP.getDeals() — sp-core or sp-firebase patched version
-  try {
-    const d = SP.getDeals ? SP.getDeals() : [];
-    if (d && d.length) return d;
-  } catch(e) {}
-
-  // 3. Scan ALL localStorage keys for anything that looks like a deals array
-  try {
-    const best = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const k = localStorage.key(i);
-      if (!k) continue;
-      if (k.includes('deals') || k.includes('_deals')) {
-        try {
-          const v = JSON.parse(localStorage.getItem(k) || '[]');
-          if (Array.isArray(v) && v.length > best.length) best.push(...v.filter(d=>d.id&&d.name));
-        } catch(e) {}
-      }
-    }
-    if (best.length) return best;
-  } catch(e) {}
-
-  return [];
-}
-
 function init() {
-  const deals = _getAllDealsRaw();
-
-  // If still empty, retry with backoff (SPData/Firebase may still be initializing)
-  if (!deals.length && _initRetries < 10) {
-    _initRetries++;
-    setTimeout(init, _initRetries * 300);
-    return;
-  }
+  // SP.getDeals() is now Firestore-backed (delegates to SPData when ready).
+  // This function MUST only be called after SP.onDataReady() fires.
+  const deals = SP.getDeals();
 
   const sel = document.getElementById('dealSelect');
   if (!sel) return;
 
-  // Don't re-populate if already has options beyond the placeholder
-  // (avoids duplicate entries if init fires multiple times)
   const currentVal = sel.value;
   sel.innerHTML = '<option value="">— Select a deal —</option>';
 
-  // Show ALL non-archived deals
-  const activeDeals = deals.filter(d => d.status !== 'archived');
+  const activeDeals = (deals || []).filter(d => d.status !== 'archived');
   activeDeals.forEach(d => {
     const invCount = (d.investors || []).length;
     const opt = document.createElement('option');
@@ -427,14 +382,11 @@ function init() {
     sel.appendChild(opt);
   }
 
-  // Restore previous selection if deal is still in list
   if (currentVal) sel.value = currentVal;
 
-  // Set default date to today if not already set
   const dateFld = document.getElementById('distDate');
   if (dateFld && !dateFld.value) dateFld.valueAsDate = new Date();
 
-  // Pre-select deal from URL param
   const urlDeal = new URLSearchParams(window.location.search).get('deal');
   if (urlDeal && sel.value !== urlDeal) { sel.value = urlDeal; onDealChange(); }
 }
@@ -442,11 +394,7 @@ function init() {
 // ── Deal selected ────────────────────────────────────────────────────────────
 function onDealChange() {
   const dealId = document.getElementById('dealSelect').value;
-  // getDealById may return null if SPData cache isn't ready — fall back to getDeals() scan
-  currentDeal = dealId
-    ? (SP.getDealById ? SP.getDealById(dealId) : null)
-      || (SP.getDeals ? SP.getDeals().find(d => d.id === dealId) : null)
-    : null;
+  currentDeal = dealId ? SP.getDealById(dealId) : null;
 
   document.getElementById('prefSummaryCard').style.display = currentDeal ? 'block' : 'none';
   document.getElementById('historyCard').style.display = currentDeal ? 'block' : 'none';
@@ -935,16 +883,9 @@ function resetForm() {
   setStep(1);
 }
 
-// Fire as soon as DOM is ready — no Firebase dependency for initial render
-function _tryInit() { if (document.getElementById('dealSelect')?.options.length <= 1) { _initRetries = 0; init(); } }
-_tryInit();
-// Re-run whenever Firebase/SPData finishes loading
-if (typeof SPFB !== 'undefined' && SPFB.onReady) SPFB.onReady(_tryInit);
-window.addEventListener('spdata-ready', _tryInit);
-// Belt-and-suspenders retries
-setTimeout(_tryInit, 500);
-setTimeout(_tryInit, 1500);
-setTimeout(_tryInit, 3500);
+// Single clean init: wait for Firestore data, then populate everything.
+// No retries, no localStorage scanning, no race conditions.
+SP.onDataReady(init);
 
 // Close wire report modal on Escape
 document.addEventListener('keydown', e => {

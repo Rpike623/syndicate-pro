@@ -195,7 +195,7 @@
             document.getElementById('perfTvpi').textContent = data.metrics.tvpi;
         }
 
-        window.addEventListener('spdata-ready', init);
+        SP.onDataReady(init);
         if(typeof SP_Statements !== 'undefined') init();
     </script>
 </body>

@@ -383,19 +383,7 @@ function v(id) {
   return el ? el.value.trim() : '';
 }
 
-loadSettings();
-
-// Also load from Firestore when ready
-window.addEventListener('spdata-ready', () => {
-  if (typeof SPFB !== 'undefined' && SPFB.isReady() && SPFB.getSettings) {
-    SPFB.getSettings().then(s => {
-      if (s && Object.keys(s).length) {
-        SP.save('settings', s);
-        loadSettings();
-      }
-    });
-  }
-});
+SP.onDataReady(loadSettings);
 </script>
 </body>
 </html>

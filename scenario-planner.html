@@ -210,8 +210,7 @@
             `).join('');
         }
 
-        window.addEventListener('spdata-ready', init);
-        if(typeof SPData !== 'undefined' && SPData.isReady()) init();
+        SP.onDataReady(init);
     </script>
 <script>SP.requireGP();</script>
 </body>

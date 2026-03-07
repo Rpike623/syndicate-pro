@@ -721,12 +721,54 @@ window.SP = (function () {
     );
   }
 
+  // ─── Data Ready Gate ─────────────────────────────────────────────────────────
+  // SP.onDataReady(cb) — guaranteed to fire AFTER Firestore data is available.
+  // If SPData is already initialized, fires immediately. Otherwise waits for
+  // spdata-ready event OR SPFB.onReady(). Use this instead of raw init() calls.
+  const _dataReadyQueue = [];
+  let _dataReady = false;
+
+  function _flushDataReady() {
+    if (_dataReady) return;
+    _dataReady = true;
+    while (_dataReadyQueue.length) {
+      try { _dataReadyQueue.shift()(); } catch(e) { console.error('SP.onDataReady callback error:', e); }
+    }
+  }
+
+  function onDataReady(cb) {
+    if (_dataReady || (typeof SPData !== 'undefined' && SPData.isReady && SPData.isReady())) {
+      _dataReady = true;
+      try { cb(); } catch(e) { console.error('SP.onDataReady callback error:', e); }
+      // Flush any queued callbacks too
+      while (_dataReadyQueue.length) {
+        try { _dataReadyQueue.shift()(); } catch(e) { console.error('SP.onDataReady callback error:', e); }
+      }
+      return;
+    }
+    _dataReadyQueue.push(cb);
+  }
+
+  // Listen for the event fired by sp-firebase.js after SPData.init() completes
+  window.addEventListener('spdata-ready', _flushDataReady);
+  // Also listen for SPFB.onReady if it's loaded after us
+  if (typeof SPFB !== 'undefined' && SPFB.onReady) {
+    SPFB.onReady(_flushDataReady);
+  } else {
+    // SPFB not loaded yet — re-check after a tick
+    setTimeout(() => {
+      if (typeof SPFB !== 'undefined' && SPFB.onReady) SPFB.onReady(_flushDataReady);
+    }, 0);
+  }
+
   // ─── Public API ─────────────────────────────────────────────────────────────
 
   return {
     // Session
     getSession, setSession, clearSession, isLoggedIn, isGP, isInvestor,
     getOrgId, makeOrgKey, simpleHash,
+    // Data ready gate
+    onDataReady,
     // Guards
     requireGP, requireInvestor, requireAuth,
     // Storage

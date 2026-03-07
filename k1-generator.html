@@ -342,19 +342,13 @@
 
 <script>
 // ── Auth ──────────────────────────────────────────────────────────────────────
-// Wait for SPData to finish loading before populating dropdowns
-if (typeof SPFB !== 'undefined' && SPFB.onReady) {
-  SPFB.onReady(() => init());
-} else {
-  window.addEventListener('spdata-ready', () => init());
-}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentDeal = null;
 let allocations  = [];
 
 function init() {
-  const deals = SP.getDeals ? SP.getDeals() : (SP.get('deals') || []);
+  const deals = SP.getDeals();
   const sel = document.getElementById('dealSelect');
   sel.innerHTML = '<option value="">Select a deal...</option>';
   deals.forEach(d => {
@@ -367,7 +361,7 @@ function init() {
   if (urlDeal) { sel.value = urlDeal; onDealChange(); }
 }
 
-window.addEventListener('spdata-ready', () => init());
+SP.onDataReady(init);
 
 function onDealChange() {
   const id = document.getElementById('dealSelect').value;
@@ -719,7 +713,7 @@ function saveK1Data() {
     };
 
     // Persist on the deal record
-    const deals = SP.getDeals ? SP.getDeals() : (SP.get('deals') || []);
+    const deals = SP.getDeals();
     const idx = deals.findIndex(d => d.id === currentDeal.id);
     if (idx >= 0) {
       if (!deals[idx].k1History) deals[idx].k1History = {};

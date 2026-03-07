@@ -1300,11 +1300,9 @@
           if (bc) bc.textContent = `Edit: ${d.name}`;
           document.title = `deeltrack | Edit ${d.name}`;
         }
-        // Try immediately (localStorage), retry when Firestore loads
-        _prefillFromDeal(SP.getDealById ? SP.getDealById(urlId) : SP.getDeals().find(d => d.id === urlId));
-        window.addEventListener('spdata-ready', () => {
-          _prefillFromDeal(SP.getDealById ? SP.getDealById(urlId) : SP.getDeals().find(d => d.id === urlId));
-        }, { once: true });
+        SP.onDataReady(() => {
+          _prefillFromDeal(SP.getDealById(urlId));
+        });
       } else {
         loadDraft(); // Restore draft only for new deals
       }

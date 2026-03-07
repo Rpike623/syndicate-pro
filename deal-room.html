@@ -195,18 +195,14 @@
 
   <script>
     SP.requireGP();
-    document.addEventListener('DOMContentLoaded', function() {
-      // Pre-select deal from URL param
+        SP.onDataReady(function() {
+      DealRoom.init();
       const urlDeal = new URLSearchParams(window.location.search).get('deal');
       if (urlDeal) {
-        window.addEventListener('spdata-ready', () => {
-          const sel = document.getElementById('dealSelect');
-          if (sel) { sel.value = urlDeal; DealRoom.loadDeal(); }
-        });
+        const sel = document.getElementById('dealSelect');
+        if (sel) { sel.value = urlDeal; DealRoom.loadDeal(); }
       }
-      DealRoom.init();
     });
-    window.addEventListener('spdata-ready', () => DealRoom.init());
   </script>
   <script src="js/sp-deal-room.js"></script>
 </div><!-- end .app -->

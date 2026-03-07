@@ -440,12 +440,9 @@ function init() {
   } else {
     render();
   }
-  // Also re-render when Firestore data loads
-  window.addEventListener('spdata-ready', render);
-  setTimeout(() => { if (!SP.getInvestorById(invId)) render(); }, 1500);
 }
 
-document.addEventListener('DOMContentLoaded', init);
+SP.onDataReady(init);
 </script>
 </body>
 </html>

@@ -1268,8 +1268,7 @@ document.getElementById('fAccredDate')?.addEventListener('change', function() {
   }
 });
 
-load(); updateStats(); filterTable();
-window.addEventListener('spdata-ready', function() { load(); updateStats(); filterTable(); });
+SP.onDataReady(function() { load(); updateStats(); filterTable(); });
 
 function showToast(msg, type) {
   const bg = type === 'error' ? '#ef4444' : '#10b981';

@@ -202,14 +202,40 @@ const SPFB = (function () {
         window.dispatchEvent(new CustomEvent('spdata-ready'));
       });
     } else {
-      // Fallback: old patchSPCore if SPData not loaded
+      // SPData not loaded — patch SP.* to Firestore writes, then do a one-time
+      // Firestore fetch so pages without sp-data.js still get real data.
       if (typeof window !== 'undefined' && typeof patchSPCore === 'function') {
-        window.setTimeout(() => patchSPCore(), 0);
+        patchSPCore(); // synchronous — patches SP.getDeals etc
       }
-      _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
-      _readyCallbacks = [];
-      // Fire spdata-ready even without SPData so pages don't hang
-      window.dispatchEvent(new CustomEvent('spdata-ready'));
+      // Fetch deals/investors/distributions from Firestore → localStorage
+      // THEN fire callbacks so SP.getDeals() returns real data.
+      if (_db && _orgId) {
+        Promise.all([
+          getDeals().then(deals => {
+            if (deals && deals.length) {
+              try { localStorage.setItem(SP.makeOrgKey('deals'), JSON.stringify(deals)); } catch(e) {}
+            }
+          }).catch(() => {}),
+          getInvestors().then(inv => {
+            if (inv && inv.length) {
+              try { localStorage.setItem(SP.makeOrgKey('investors'), JSON.stringify(inv)); } catch(e) {}
+            }
+          }).catch(() => {}),
+          getDistributions().then(dists => {
+            if (dists && dists.length) {
+              try { localStorage.setItem(SP.makeOrgKey('distributions'), JSON.stringify(dists)); } catch(e) {}
+            }
+          }).catch(() => {}),
+        ]).finally(() => {
+          _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
+          _readyCallbacks = [];
+          window.dispatchEvent(new CustomEvent('spdata-ready'));
+        });
+      } else {
+        _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
+        _readyCallbacks = [];
+        window.dispatchEvent(new CustomEvent('spdata-ready'));
+      }
     }
   }
 

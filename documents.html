@@ -1162,8 +1162,7 @@
       setTimeout(() => btn.innerHTML = originalText, 1500);
     }
     
-    loadSavedDeals();  // async — renders after Firebase sync
-    window.addEventListener('spdata-ready', loadSavedDeals);
+    SP.onDataReady(loadSavedDeals);
   </script>
 </body>
 </html>

@@ -236,9 +236,7 @@
             }
         }
 
-        window.addEventListener('spdata-ready', () => { syncInvestors(); });
-        if (typeof SPData !== 'undefined' && SPData.isReady()) syncInvestors();
-        setTimeout(syncInvestors, 800);
+        SP.onDataReady(syncInvestors);
     </script>
 </body>
 </html>

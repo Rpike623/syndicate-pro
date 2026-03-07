@@ -461,10 +461,8 @@
       setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2000);
     }
 
-    // Wait for SPData — don't call loadDeals() early (empty array race)
-    window.addEventListener('spdata-ready', function() {
+        SP.onDataReady(function() {
       loadDeals();
-      // Pre-select deal if coming from deal-detail page
       const urlDeal = new URLSearchParams(window.location.search).get('deal');
       if (urlDeal) {
         const sel = document.getElementById('callDeal');

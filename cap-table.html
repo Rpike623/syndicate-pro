@@ -115,12 +115,7 @@
             });
         }
 
-        if (typeof SPFB !== 'undefined' && SPFB.onReady) {
-          SPFB.onReady(() => init());
-        } else {
-          window.addEventListener('spdata-ready', init);
-          if (typeof SPData !== 'undefined' && SPData.isReady()) init();
-        }
+        SP.onDataReady(init);
     </script>
 </body>
 </html>

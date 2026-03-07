@@ -76,7 +76,7 @@
             new vis.Network(container, data, options);
         }
 
-        window.addEventListener('spdata-ready', init);
+        SP.onDataReady(init);
         if(typeof SPData !== 'undefined' && SPData.isReady()) init();
     </script>
 </body>

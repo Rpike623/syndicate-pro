@@ -1183,19 +1183,8 @@ function renderDeadlines() {
     renderActivity(activity); renderDeadlines();
   }
 
-  // Show cached/demo data immediately, then re-render when Firestore ready
-  _render();
-  window.addEventListener('spdata-ready', _render);
-
-  // Safety net: if spdata-ready never fires (pure localStorage mode), render after 1.5s
-  setTimeout(() => {
-    if (document.getElementById('kpiAUM')?.textContent === '$0' || 
-        document.getElementById('kpiAUM')?.textContent === '…') {
-      _render();
-    }
-  }, 1500);
-
-  // Demo data already seeded via loadDeals/loadInvestors above
+  // Render with Firestore data once ready
+  SP.onDataReady(_render);
 
   // ── Cloud sync indicator ────────────────────────────────────────────────────
   let _syncRetries = 0;
@@ -1230,7 +1219,7 @@ function renderDeadlines() {
   }
 
   updateSyncIndicator();
-  window.addEventListener('spdata-ready', updateSyncIndicator);
+  SP.onDataReady(updateSyncIndicator);
 
   // ── Push demo data to Firebase ─────────────────────────────────────────────
   async function pushDemoDataToFirebase() {

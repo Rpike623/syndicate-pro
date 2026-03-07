@@ -61,7 +61,7 @@
                 </tr>
             `).join('');
         }
-        window.addEventListener('spdata-ready', _render);
+        SP.onDataReady(_render);
         if(typeof SPData !== 'undefined' && SPData.isReady()) _render();
     </script>
 <script>SP.requireGP();</script>

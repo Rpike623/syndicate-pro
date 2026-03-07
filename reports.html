@@ -628,8 +628,7 @@ function openDealDrilldown(dealId) {
   modal.style.display = 'flex';
 }
 
-init();
-    window.addEventListener('spdata-ready', init);
+SP.onDataReady(init);
 </script>
 </body>
 </html>

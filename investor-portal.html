@@ -540,14 +540,7 @@ function render() {
   }
 }
 
-// Initialize
-window.addEventListener('spdata-ready', render);
-// Also try on load (localStorage data might already be there)
-document.addEventListener('DOMContentLoaded', () => {
-  render();
-  // If still empty after 2s, render again (Firestore may be loading)
-  setTimeout(render, 2000);
-});
+SP.onDataReady(render);
 </script>
 </body>
 </html>

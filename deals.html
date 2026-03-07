@@ -550,6 +550,6 @@ function exportCSV() {
 }
 
 load().then(() => { updateStats(); filterDeals(); });
-    window.addEventListener('spdata-ready', function() { load().then(() => { updateStats(); filterDeals(); }); });</script>
+    SP.onDataReady(function() { load().then(() => { updateStats(); filterDeals(); }); });</script>
 </body>
 </html>
