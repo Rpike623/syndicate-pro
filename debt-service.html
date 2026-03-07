@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debt Service | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-calculator"></i> Debt Service</h1>
+    </div>
+    <div class="content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><h2>Loan Calculator</h2></div>
+          <div class="card-body">
+            <div class="form-group"><label>Loan Amount</label><input type="number" id="dAmount" class="form-input" value="10000000" oninput="Debt.calc()"></div>
+            <div class="form-row">
+              <div class="form-group"><label>Interest Rate %</label><input type="number" id="dRate" class="form-input" value="6.5" step="0.1" oninput="Debt.calc()"></div>
+              <div class="form-group"><label>Term (years)</label><input type="number" id="dTerm" class="form-input" value="30" oninput="Debt.calc()"></div>
+            </div>
+            <div class="form-group"><label>Amortization (years)</label><input type="number" id="dAmort" class="form-input" value="30" oninput="Debt.calc()"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2>Results</h2></div>
+          <div class="card-body" id="dResults">
+            <div class="result-row"><span>Monthly P&I</span><strong id="dMonthly">$0</strong></div>
+            <div class="result-row"><span>Annual Debt Service</span><strong id="dAnnual">$0</strong></div>
+            <div class="result-row"><span>Total Interest</span><strong id="dTotalInt">$0</strong></div>
+            <div class="result-row"><span>Total Payments</span><strong id="dTotal">$0</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Amortization Schedule</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Year</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead><tbody id="amortTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Debt.init();}</script>
+  <script src="js/sp-debt-service.js"></script>
+</body>
+</html>

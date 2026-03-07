@@ -1161,6 +1161,9 @@ window.SP = (function () {
           { href:'property-performance.html', icon:'fa-chart-line', label:'Property Perf' },
           { href:'gp-dashboard-v3.html', icon:'fa-tachometer-alt', label:'GP Dashboard' },
           { href:'risk-register.html', icon:'fa-exclamation-triangle', label:'Risk' },
+          { href:'capex-tracker.html', icon:'fa-hammer', label:'CAPEX' },
+          { href:'debt-service.html', icon:'fa-calculator', label:'Debt Service' },
+          { href:'property-tax.html', icon:'fa-file-invoice-dollar', label:'Property Tax' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAPEX Tracker | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-hammer"></i> CAPEX Tracker</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="Capex.showModal()"><i class="fas fa-plus"></i> Add Project</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">Active Projects</span><span class="stat-value text-warning" id="statActive">0</span></div>
+        <div class="stat-card"><span class="stat-label">YTD Spent</span><span class="stat-value" id="statSpent">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Budget Remaining</span><span class="stat-value text-success" id="statBudget">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Avg Completion</span><span class="stat-value" id="statComplete">0%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>CAPEX Projects</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Project</th><th>Property</th><th>Budget</th><th>Spent</th><th>Progress</th><th>Status</th></tr></thead><tbody id="capexTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="capexModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Add Project</h2><button class="close" onclick="Capex.closeModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label>Project Name</label><input type="text" id="xName" class="form-input"></div>
+        <div class="form-group"><label>Property</label><select id="xProperty" class="form-select"><option>Sunset Apartments</option><option>Downtown Office</option><option>Industrial Portfolio</option><option>Coastal Retail</option></select></div>
+        <div class="form-row">
+          <div class="form-group"><label>Budget</label><input type="number" id="xBudget" class="form-input"></div>
+          <div class="form-group"><label>Status</label><select id="xStatus" class="form-select"><option>Planning</option><option>In Progress</option><option>Completed</option></select></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="Capex.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Capex.save()">Save</button></div>
+    </div>
+  </div>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Capex.init();}</script>
+  <script src="js/sp-capex.js"></script>
+</body>
+</html>
