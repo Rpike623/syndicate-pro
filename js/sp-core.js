@@ -1101,6 +1101,8 @@ window.SP = (function () {
           { href:'lease-expiry.html', icon:'fa-calendar-check', label:'Lease Expiry' },
           { href:'deal-milestones.html', icon:'fa-flag-checkered', label:'Milestones' },
           { href:'market-comps.html', icon:'fa-building', label:'Comps' },
+          { href:'capital-stack.html', icon:'fa-layer-group', label:'Capital Stack' },
+          { href:'investment-thesis.html', icon:'fa-lightbulb', label:'Thesis' },
         ], overflow:[
           { href:'deal-compare.html', icon:'fa-balance-scale', label:'Compare Deals' },
           { href:'deal-room.html', icon:'fa-folder-open', label:'Deal Room' },
@@ -1171,6 +1173,7 @@ window.SP = (function () {
           { href:'reservations.html', icon:'fa-hand-pointer', label:'Reservations' },
           { href:'vendors.html', icon:'fa-tools', label:'Vendors' },
           { href:'maintenance.html', icon:'fa-wrench', label:'Maintenance' },
+          { href:'property-inspections.html', icon:'fa-clipboard-check', label:'Inspections' },
           { href:'tasks.html', icon:'fa-tasks', label:'Tasks' },
           { href:'lease-tracking.html', icon:'fa-file-signature', label:'Leases' },
           { href:'quarterly-report.html', icon:'fa-quarterly-report', label:'Quarterly Report' },
