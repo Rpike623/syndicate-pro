@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CapEx Planner | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-hammer"></i> CapEx Planner</h1>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="card-header"><h2>Major Projects</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Project</th><th>Estimated Cost</th><th>Planned Date</th><th>Priority</th><th>Status</th></tr></thead><tbody id="capexTable"></tbody></table>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">Total Planned</span><span class="stat-value text-primary" id="statPlanned">$0</span></div>
+        <div class="stat-card"><span class="stat-label">CapEx Reserve</span><span class="stat-value text-success" id="statReserve">$0</span></div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}CapEx.init();}</script>
+  <script src="js/sp-capex.js"></script>
+</body>
+</html>
