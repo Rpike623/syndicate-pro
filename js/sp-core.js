@@ -1167,6 +1167,9 @@ window.SP = (function () {
           { href:'noi-analysis.html', icon:'fa-chart-pie', label:'NOI Analysis' },
           { href:'cashflow-forecast.html', icon:'fa-money-bill-wave', label:'Cash Flow' },
           { href:'lease-abstractor.html', icon:'fa-file-contract', label:'Lease Abstract' },
+          { href:'opex-benchmark.html', icon:'fa-balance-scale', label:'OpEx Benchmark' },
+          { href:'rent-escalator.html', icon:'fa-arrow-trend-up', label:'Rent Escalator' },
+          { href:'sf-analyzer.html', icon:'fa-ruler-combined', label:'SF Analyzer' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
