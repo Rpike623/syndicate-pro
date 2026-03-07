@@ -203,7 +203,7 @@
 
     function formatCurrency(num) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(num || 0); }
         async function loadDeals() {
-      const deals = SP.getDeals();
+      const deals = SP.getDeals() || [];
       const select = document.getElementById('callDeal');
       select.innerHTML = '<option value="">Select a deal...</option>' + deals.map(d => {
         const committed = (d.investors||[]).reduce((s,i)=>s+(i.committed||0),0);
@@ -461,7 +461,7 @@
       setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2000);
     }
 
-    loadDeals();
+    // Wait for SPData — don't call loadDeals() early (empty array race)
     window.addEventListener('spdata-ready', function() {
       loadDeals();
       // Pre-select deal if coming from deal-detail page

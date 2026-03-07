@@ -26,7 +26,11 @@ window.Compliance = {
   },
 
   loadDeals: async function() {
-    const deals = SP.getDeals ? SP.getDeals() : [];
+    // SP.getDeals() may return [] if SPData cache not ready — retry once via Firestore
+    let deals = SP.getDeals ? SP.getDeals() : [];
+    if (!deals.length && window.SPFB && SPFB.isReady && SPFB.isReady()) {
+      try { deals = await SPFB.getDeals(); } catch(e) {}
+    }
     this.deals = deals.length ? deals : this.generateDemoDeals();
   },
 

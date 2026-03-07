@@ -115,8 +115,12 @@
             });
         }
 
-        window.addEventListener('spdata-ready', init);
-        if(typeof SPData !== 'undefined' && SPData.isReady()) init();
+        if (typeof SPFB !== 'undefined' && SPFB.onReady) {
+          SPFB.onReady(() => init());
+        } else {
+          window.addEventListener('spdata-ready', init);
+          if (typeof SPData !== 'undefined' && SPData.isReady()) init();
+        }
     </script>
 </body>
 </html>

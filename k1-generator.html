@@ -342,16 +342,11 @@
 
 <script>
 // ── Auth ──────────────────────────────────────────────────────────────────────
-// SP.requireGP() handles auth guard; also use Firebase Auth state for init timing
-if (typeof firebase !== 'undefined' && firebase.auth) {
-  firebase.auth().onAuthStateChanged(user => {
-    if (!user && !SP.isLoggedIn()) { window.location.href = 'login.html'; return; }
-    init();
-  });
+// Wait for SPData to finish loading before populating dropdowns
+if (typeof SPFB !== 'undefined' && SPFB.onReady) {
+  SPFB.onReady(() => init());
 } else {
-  // Fallback: init directly if Firebase not available
-  SP.requireGP();
-  init();
+  window.addEventListener('spdata-ready', () => init());
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -361,6 +356,7 @@ let allocations  = [];
 function init() {
   const deals = SP.getDeals ? SP.getDeals() : (SP.get('deals') || []);
   const sel = document.getElementById('dealSelect');
+  sel.innerHTML = '<option value="">Select a deal...</option>';
   deals.forEach(d => {
     const o = document.createElement('option');
     o.value = d.id;

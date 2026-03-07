@@ -192,6 +192,8 @@ const SPFB = (function () {
       SPData.init(_db, _orgId, _spUser?.role || 'General Partner', _spUser?.email || '').then(() => {
         _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
         _readyCallbacks = [];
+        // CRITICAL: fire spdata-ready so pages using addEventListener get notified
+        window.dispatchEvent(new CustomEvent('spdata-ready'));
       }).catch(err => {
         console.error('SPData.init failed:', err);
         // Still fire callbacks so pages don't hang forever

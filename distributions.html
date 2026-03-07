@@ -613,11 +613,13 @@
       setTimeout(() => { toggleSplit(id); }, 300);
     }
 
-    window.addEventListener('spdata-ready', () => { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); });
-    if (typeof SPData !== 'undefined' && SPData.isReady()) { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); }
-    renderDistributions();
-    updateStats();
-    autoExpandFirst();
+    // Use SPFB.onReady so deals are loaded from Firestore before populating dropdowns
+    if (typeof SPFB !== 'undefined' && SPFB.onReady) {
+      SPFB.onReady(() => { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); });
+    } else {
+      window.addEventListener('spdata-ready', () => { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); });
+      if (typeof SPData !== 'undefined' && SPData.isReady()) { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); }
+    }
 
     function showToast(msg, type) {
       const bg = type === 'error' ? '#ef4444' : '#10b981';

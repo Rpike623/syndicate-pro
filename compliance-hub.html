@@ -292,17 +292,20 @@
       if (window.SP && SP.isLoggedIn) {
         initPage();
       } else {
-        document.addEventListener('sp-ready', initPage);
-      }
-    });
-
+        // Wait for both Firebase auth AND SPData before running compliance init
     function initPage() {
-      if (!SP.isLoggedIn()) {
-        window.location.href = 'login.html';
-        return;
+      if (!SP.isLoggedIn()) { window.location.href = 'login.html'; return; }
+      if (typeof SPFB !== 'undefined' && SPFB.onReady) {
+        SPFB.onReady(() => Compliance.init());
+      } else {
+        window.addEventListener('spdata-ready', () => Compliance.init());
+        Compliance.init();
       }
-      Compliance.init();
     }
+    document.addEventListener('sp-ready', initPage);
+    window.addEventListener('spdata-ready', () => {
+      if (SP.isLoggedIn()) Compliance.init();
+    });
   </script>
   <script src="js/sp-compliance.js"></script>
 </body>
