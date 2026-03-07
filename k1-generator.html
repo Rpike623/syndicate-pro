@@ -106,6 +106,7 @@
     .badge-draft { background: var(--warning-light); color: var(--warning); }
     .badge-ready { background: var(--success-light); color: var(--success); }
     .badge-sent { background: var(--accent-light); color: var(--accent); }
+    .badge-success { background: var(--success-light); color: var(--success); }
 
     /* ──────────────────── PRINT K-1 MODAL ──────────────────── */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 500; overflow-y: auto; padding: 32px 20px; }
@@ -182,6 +183,7 @@
         <button class="btn btn-secondary btn-sm" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
         <button class="btn btn-primary btn-sm" id="saveK1Btn" onclick="saveK1Data()"><i class="fas fa-save"></i> Save K-1 Data</button>
         <button class="btn btn-success btn-sm" id="batchPrintBtn" onclick="batchPrint()" disabled><i class="fas fa-print"></i> Print All K-1s</button>
+        <button class="btn btn-sm" style="background:var(--success-light);color:var(--success);border:1px solid var(--success);" onclick="markAllK1Sent()"><i class="fas fa-paper-plane"></i> Mark All Sent</button>
       </div>
     </div>
 
@@ -368,6 +370,7 @@ function onDealChange() {
   if (!id) { currentDeal = null; renderTable([]); return; }
   currentDeal = (SP.getDealById ? SP.getDealById(id) : (SP.get('deals')||[]).find(d=>d.id===id)) || null;
   if (!currentDeal) return;
+  loadK1Deliveries();
 
   // Auto-fill distributions total from sp-core
   const dists = (SP.getDistributions ? SP.getDistributions() : (SP.get('distributions')||[]))
@@ -466,6 +469,118 @@ function fmtC(n) {
 }
 function fmtPct(n) { return n.toFixed(4) + '%'; }
 
+// ── K-1 Delivery Tracking ─────────────────────────────────────────────────────
+// Tracks per-investor, per-deal, per-year delivery status in Firestore
+let _k1Deliveries = {}; // { investorId: { status, sentAt, sentBy, method } }
+
+function _k1DeliveryKey() {
+  const year = document.getElementById('taxYear')?.value || new Date().getFullYear();
+  return `k1_delivery_${currentDeal?.id}_${year}`;
+}
+
+function loadK1Deliveries() {
+  const key = _k1DeliveryKey();
+  try { _k1Deliveries = JSON.parse(localStorage.getItem(SP.makeOrgKey(key)) || '{}'); } catch(e) { _k1Deliveries = {}; }
+  // Also try Firestore
+  if (typeof SPFB !== 'undefined' && SPFB.isReady() && currentDeal) {
+    const year = document.getElementById('taxYear')?.value || new Date().getFullYear();
+    firebase.firestore().collection('orgs').doc(SP.getOrgId())
+      .collection('k1_deliveries').doc(`${currentDeal.id}_${year}`)
+      .get().then(snap => {
+        if (snap.exists) {
+          _k1Deliveries = snap.data().deliveries || {};
+          localStorage.setItem(SP.makeOrgKey(key), JSON.stringify(_k1Deliveries));
+          renderTable(allocations); // re-render with Firestore data
+        }
+      }).catch(() => {});
+  }
+}
+
+function markK1Sent(idx, method) {
+  const r = allocations[idx];
+  if (!r) return;
+  const session = SP.getSession();
+  _k1Deliveries[r.id] = {
+    status: 'sent',
+    sentAt: new Date().toISOString(),
+    sentBy: session?.email || 'unknown',
+    method: method || 'manual',
+  };
+  // Save locally
+  const key = _k1DeliveryKey();
+  localStorage.setItem(SP.makeOrgKey(key), JSON.stringify(_k1Deliveries));
+  // Save to Firestore
+  if (typeof SPFB !== 'undefined' && SPFB.isReady() && currentDeal) {
+    const year = document.getElementById('taxYear')?.value || new Date().getFullYear();
+    firebase.firestore().collection('orgs').doc(SP.getOrgId())
+      .collection('k1_deliveries').doc(`${currentDeal.id}_${year}`)
+      .set({ deliveries: _k1Deliveries, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+      .catch(e => console.warn('K1 delivery save failed:', e.message));
+  }
+  SP.logActivity('fa-file-alt', 'green', `K-1 marked as sent to <strong>${escH(r.name)}</strong> for ${currentDeal.name}`);
+  showToast(`K-1 marked as sent to ${r.name}`, 'success');
+  renderTable(allocations);
+}
+
+function unmarkK1Sent(idx) {
+  const r = allocations[idx];
+  if (!r) return;
+  delete _k1Deliveries[r.id];
+  const key = _k1DeliveryKey();
+  localStorage.setItem(SP.makeOrgKey(key), JSON.stringify(_k1Deliveries));
+  if (typeof SPFB !== 'undefined' && SPFB.isReady() && currentDeal) {
+    const year = document.getElementById('taxYear')?.value || new Date().getFullYear();
+    firebase.firestore().collection('orgs').doc(SP.getOrgId())
+      .collection('k1_deliveries').doc(`${currentDeal.id}_${year}`)
+      .set({ deliveries: _k1Deliveries, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+      .catch(() => {});
+  }
+  renderTable(allocations);
+}
+
+function markAllK1Sent() {
+  if (!allocations.length) return;
+  if (!confirm(`Mark all ${allocations.length} K-1s as sent?`)) return;
+  const session = SP.getSession();
+  allocations.forEach(r => {
+    if (!_k1Deliveries[r.id]) {
+      _k1Deliveries[r.id] = {
+        status: 'sent',
+        sentAt: new Date().toISOString(),
+        sentBy: session?.email || 'unknown',
+        method: 'batch',
+      };
+    }
+  });
+  const key = _k1DeliveryKey();
+  localStorage.setItem(SP.makeOrgKey(key), JSON.stringify(_k1Deliveries));
+  if (typeof SPFB !== 'undefined' && SPFB.isReady() && currentDeal) {
+    const year = document.getElementById('taxYear')?.value || new Date().getFullYear();
+    firebase.firestore().collection('orgs').doc(SP.getOrgId())
+      .collection('k1_deliveries').doc(`${currentDeal.id}_${year}`)
+      .set({ deliveries: _k1Deliveries, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+      .catch(() => {});
+  }
+  SP.logActivity('fa-file-alt', 'green', `All K-1s marked as sent for <strong>${currentDeal.name}</strong>`);
+  showToast(`All ${allocations.length} K-1s marked as sent`, 'success');
+  renderTable(allocations);
+}
+
+function k1StatusBadge(r, idx) {
+  const d = _k1Deliveries[r.id];
+  if (d && d.status === 'sent') {
+    const date = new Date(d.sentAt).toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    return `<span class="badge badge-success" style="cursor:pointer;" onclick="unmarkK1Sent(${idx})" title="Click to un-mark. Sent ${date} via ${d.method}"><i class="fas fa-paper-plane" style="margin-right:4px;"></i>Sent ${date}</span>`;
+  }
+  return `<span class="badge badge-ready"><i class="fas fa-check" style="margin-right:4px;"></i>Ready</span>`;
+}
+
+function k1DeliveryBtn(r, idx) {
+  const d = _k1Deliveries[r.id];
+  if (d && d.status === 'sent') return '';
+  return `<button class="btn btn-xs" style="background:var(--success-light);color:var(--success);border:1px solid var(--success);" onclick="markK1Sent(${idx},'manual')" title="Mark as sent"><i class="fas fa-paper-plane"></i></button>`;
+}
+
 // ── Render table ──────────────────────────────────────────────────────────────
 function renderTable(rows) {
   const tbody = document.getElementById('k1TableBody');
@@ -493,11 +608,12 @@ function renderTable(rows) {
       <td class="mono text-red">${r.line12 + r.line13 !== 0 ? fmtC(-(r.line12 + r.line13)) : '—'}</td>
       <td class="mono text-green">${fmtC(r.line19)}</td>
       <td class="mono">${fmtC(r.capEnd)}</td>
-      <td><span class="badge badge-ready"><i class="fas fa-check" style="margin-right:4px;"></i>Ready</span></td>
+      <td>${k1StatusBadge(r, i)}</td>
       <td>
-        <div style="display:flex;gap:6px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn btn-primary btn-xs" onclick="previewOne(${i})"><i class="fas fa-eye"></i> Preview</button>
           <button class="btn btn-secondary btn-xs" onclick="printOne(${i})"><i class="fas fa-print"></i></button>
+          ${k1DeliveryBtn(r, i)}
         </div>
       </td>
     </tr>`;

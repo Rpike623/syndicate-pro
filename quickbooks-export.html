@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | QuickBooks Export</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v2"></script>
+  <script src="js/sp-data.js?v2"></script>
+  <script src="js/sp-firebase.js?v2"></script>
+  <style>
+    :root { --accent:#F37925; --accent-hover:#D96515; --success:#2D9A6B; --warning:#E8890A; --danger:#D94F3D; --bg:#F3F3F3; --surface:#FFFFFF; --border:#E2DDD8; --text:#1B1A19; --text-muted:#6B6560; --text-light:#9C9590; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); display:flex; min-height:100vh; font-size:14px; }
+    .main { flex:1; margin-left:260px; min-height:100vh; display:flex; flex-direction:column; }
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;}}
+    .top-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 32px; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+    .top-bar h1 { font-size:17px; font-weight:700; color:var(--text); }
+    .top-bar p { font-size:12px; color:var(--text-muted); }
+    .mobile-menu-btn { display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 10px; cursor:pointer; }
+    @media(max-width:768px){.mobile-menu-btn{display:flex!important;} .top-bar{padding:0 14px;}}
+    .content { padding:28px 32px; flex:1; max-width:1100px; }
+    @media(max-width:768px){.content{padding:14px;}}
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; }
+    .card-hdr { padding:16px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .card-hdr h2 { font-size:14px; font-weight:700; color:var(--text); }
+    .card-hdr p { font-size:11px; color:var(--text-muted); margin:2px 0 0; }
+    .card-body { padding:22px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    @media(max-width:768px){.form-row{grid-template-columns:1fr;}}
+    .form-group { margin-bottom:0; }
+    .form-group label { display:block; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
+    .form-group select, .form-group input { width:100%; padding:10px 14px; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:14px; font-family:inherit; }
+    .form-group select:focus, .form-group input:focus { border-color:var(--accent); outline:none; box-shadow:0 0 0 3px rgba(243,121,37,0.1); }
+    table { width:100%; border-collapse:collapse; }
+    th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); padding:10px 14px; border-bottom:2px solid var(--border); background:#F8F6F4; text-align:left; }
+    td { padding:10px 14px; border-bottom:1px solid var(--border); font-size:13px; }
+    .mono { font-family:'JetBrains Mono',monospace; font-weight:600; }
+    .debit { color:var(--success); }
+    .credit { color:var(--danger); }
+    .btn { padding:10px 18px; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; border:none; font-family:inherit; display:inline-flex; align-items:center; gap:6px; transition:all .15s; }
+    .btn-primary { background:var(--accent); color:white; }
+    .btn-primary:hover { background:var(--accent-hover); }
+    .btn-secondary { background:var(--surface); color:var(--text); border:1px solid var(--border); }
+    .btn-secondary:hover { background:#F3F0ED; }
+    .btn:disabled { opacity:.4; cursor:not-allowed; }
+    .info-box { background:#F3F0ED; border-radius:10px; padding:16px 20px; margin-bottom:20px; font-size:13px; color:var(--text-muted); line-height:1.6; }
+    .info-box strong { color:var(--text); }
+    .summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+    .summary-tile { background:#F3F0ED; border-radius:8px; padding:14px 16px; }
+    .summary-tile .label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); margin-bottom:4px; }
+    .summary-tile .value { font-size:20px; font-weight:800; font-family:'JetBrains Mono',monospace; color:var(--text); }
+    .toast { position:fixed; bottom:20px; right:20px; background:var(--text); color:white; padding:12px 20px; border-radius:8px; font-size:13px; font-weight:500; z-index:9999; opacity:0; transition:opacity .3s; pointer-events:none; }
+    .toast.show { opacity:1; pointer-events:auto; }
+  </style>
+  <link rel="stylesheet" href="contrast-fix.css">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <main class="main">
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')">
+          <i class="fas fa-bars" style="color:var(--text-light);"></i>
+        </button>
+        <div>
+          <h1><i class="fas fa-file-export" style="color:var(--accent);margin-right:8px;font-size:16px;"></i>QuickBooks Export</h1>
+          <p>Generate IIF or CSV journal entries importable into QuickBooks Desktop & Online</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="info-box">
+        <strong><i class="fas fa-info-circle" style="color:var(--accent);margin-right:6px;"></i>How it works:</strong>
+        Select a deal and transaction type. deeltrack generates double-entry journal entries that you can import directly into QuickBooks.
+        <strong>Distributions</strong> debit the distribution payable account and credit each investor's equity account.
+        <strong>Capital calls</strong> debit cash and credit each investor's capital contribution account.
+      </div>
+
+      <!-- Config -->
+      <div class="card">
+        <div class="card-hdr">
+          <div>
+            <h2>Export Configuration</h2>
+            <p>Select deal, type, and chart of accounts mapping</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Deal / Entity</label>
+              <select id="qbDeal" onchange="onDealChange()">
+                <option value="">— Select a deal —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Transaction Type</label>
+              <select id="qbType" onchange="generate()">
+                <option value="distribution">Distribution</option>
+                <option value="capital_call">Capital Call</option>
+                <option value="management_fee">Management Fee</option>
+                <option value="acquisition_fee">Acquisition Fee</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Specific Distribution / Call</label>
+              <select id="qbTransaction" onchange="generate()">
+                <option value="">— All for this deal —</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Export Format</label>
+              <select id="qbFormat">
+                <option value="iif">IIF (QuickBooks Desktop)</option>
+                <option value="csv">CSV (QuickBooks Online)</option>
+              </select>
+            </div>
+          </div>
+          <details style="margin-top:8px;">
+            <summary style="font-size:12px;font-weight:600;color:var(--text-muted);cursor:pointer;">Chart of Accounts Mapping</summary>
+            <div style="margin-top:12px;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Cash / Bank Account</label>
+                  <input type="text" id="coaCash" value="Operating Account" placeholder="e.g. Chase Operating">
+                </div>
+                <div class="form-group">
+                  <label>Distribution Payable Account</label>
+                  <input type="text" id="coaDistPayable" value="Distributions Payable" placeholder="e.g. Distributions Payable">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>LP Equity Account Prefix</label>
+                  <input type="text" id="coaEquityPrefix" value="LP Equity - " placeholder="e.g. LP Equity - ">
+                </div>
+                <div class="form-group">
+                  <label>Management Fee Income</label>
+                  <input type="text" id="coaFeeIncome" value="Management Fee Income" placeholder="e.g. Mgmt Fee Income">
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary-grid" id="summaryGrid" style="display:none;"></div>
+
+      <!-- Journal Entry Preview -->
+      <div class="card" id="journalCard" style="display:none;">
+        <div class="card-hdr">
+          <div>
+            <h2>Journal Entry Preview</h2>
+            <p id="journalDesc">Double-entry journal entries</p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary" onclick="copyToClipboard()"><i class="fas fa-copy"></i> Copy</button>
+            <button class="btn btn-primary" onclick="downloadExport()"><i class="fas fa-download"></i> Download</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Memo</th>
+                <th>Account</th>
+                <th style="text-align:right;">Debit</th>
+                <th style="text-align:right;">Credit</th>
+              </tr>
+            </thead>
+            <tbody id="journalBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Raw export preview -->
+      <div class="card" id="rawCard" style="display:none;">
+        <div class="card-hdr">
+          <div>
+            <h2 id="rawTitle">IIF Export</h2>
+            <p>Ready to import — copy or download</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <pre id="rawPreview" style="background:#F3F0ED;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;overflow-x:auto;max-height:400px;line-height:1.6;white-space:pre-wrap;"></pre>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+SP.requireGP();
+
+function fmt$(n) {
+  return new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', minimumFractionDigits:2 }).format(Math.abs(n));
+}
+
+let currentDeal = null;
+let journalEntries = [];
+
+function init() {
+  const deals = SP.getDeals();
+  const sel = document.getElementById('qbDeal');
+  sel.innerHTML = '<option value="">— Select a deal —</option>';
+  deals.filter(d => d.status !== 'archived').forEach(d => {
+    const o = document.createElement('option');
+    o.value = d.id;
+    o.textContent = d.name || 'Unnamed Deal';
+    sel.appendChild(o);
+  });
+  const urlDeal = new URLSearchParams(location.search).get('deal');
+  if (urlDeal) { sel.value = urlDeal; onDealChange(); }
+}
+
+SP.onDataReady(init);
+
+function onDealChange() {
+  const id = document.getElementById('qbDeal').value;
+  currentDeal = id ? SP.getDealById(id) : null;
+  // Populate transaction dropdown
+  const txSel = document.getElementById('qbTransaction');
+  txSel.innerHTML = '<option value="">— All for this deal —</option>';
+  if (currentDeal) {
+    const type = document.getElementById('qbType').value;
+    if (type === 'distribution') {
+      const dists = SP.getDistributions().filter(d => d.dealId === id && d.status === 'posted');
+      dists.forEach(d => {
+        const o = document.createElement('option');
+        o.value = d.id;
+        o.textContent = `${d.period || d.date || 'Unknown'} — ${fmt$(d.totalAmount || 0)}`;
+        txSel.appendChild(o);
+      });
+    }
+  }
+  generate();
+}
+
+function generate() {
+  if (!currentDeal) {
+    document.getElementById('journalCard').style.display = 'none';
+    document.getElementById('rawCard').style.display = 'none';
+    document.getElementById('summaryGrid').style.display = 'none';
+    return;
+  }
+
+  const type = document.getElementById('qbType').value;
+  const txId = document.getElementById('qbTransaction').value;
+  const coaCash = document.getElementById('coaCash').value;
+  const coaDistPayable = document.getElementById('coaDistPayable').value;
+  const coaEquityPrefix = document.getElementById('coaEquityPrefix').value;
+  const coaFeeIncome = document.getElementById('coaFeeIncome').value;
+  const allInvestors = SP.getInvestors();
+
+  journalEntries = [];
+
+  if (type === 'distribution') {
+    let dists = SP.getDistributions().filter(d => d.dealId === currentDeal.id && d.status === 'posted');
+    if (txId) dists = dists.filter(d => d.id === txId);
+
+    dists.forEach(dist => {
+      const date = dist.date || new Date().toISOString().split('T')[0];
+      const memo = `${currentDeal.name} - ${dist.period || 'Distribution'} - ${date}`;
+
+      // Debit: Distribution Payable (total amount going out)
+      journalEntries.push({
+        date, memo,
+        account: coaDistPayable,
+        debit: dist.totalAmount || 0,
+        credit: 0,
+        name: '',
+        type: 'header'
+      });
+
+      // Credit: Each investor's equity account
+      (dist.recipients || []).forEach(r => {
+        const inv = allInvestors.find(i => i.id === r.investorId) || {};
+        const name = [inv.firstName, inv.lastName].filter(Boolean).join(' ') || inv.name || r.investorId;
+        journalEntries.push({
+          date, memo,
+          account: coaEquityPrefix + name,
+          debit: 0,
+          credit: r.amount || r.totalThisDist || 0,
+          name,
+          type: 'detail'
+        });
+      });
+
+      // If GP amount, credit GP equity
+      if (dist.gpAmount > 0) {
+        journalEntries.push({
+          date, memo,
+          account: 'GP Promote / Carried Interest',
+          debit: 0,
+          credit: dist.gpAmount,
+          name: 'GP',
+          type: 'detail'
+        });
+      }
+    });
+  } else if (type === 'capital_call') {
+    const calls = SP.load('capitalCalls', []).filter(c => c.dealId === currentDeal.id);
+    calls.forEach(call => {
+      const date = call.dueDate || new Date().toISOString().split('T')[0];
+      const memo = `${currentDeal.name} - Capital Call ${call.callNumber || ''} - ${date}`;
+
+      // Debit: Cash (money coming in)
+      journalEntries.push({
+        date, memo,
+        account: coaCash,
+        debit: call.amount || 0,
+        credit: 0,
+        name: '',
+        type: 'header'
+      });
+
+      // Credit: Each investor's capital contribution
+      const investors = currentDeal.investors || [];
+      investors.forEach(inv => {
+        const invRec = allInvestors.find(i => i.id === inv.investorId) || {};
+        const name = [invRec.firstName, invRec.lastName].filter(Boolean).join(' ') || invRec.name || inv.investorId;
+        const share = (inv.ownership || 0) / 100 * (call.amount || 0);
+        if (share > 0) {
+          journalEntries.push({
+            date, memo,
+            account: coaEquityPrefix + name,
+            debit: 0,
+            credit: share,
+            name,
+            type: 'detail'
+          });
+        }
+      });
+    });
+  } else if (type === 'management_fee') {
+    const feeRate = currentDeal.assetMgmtFee || 2;
+    const totalEquity = currentDeal.totalEquity || currentDeal.raise || 0;
+    const annualFee = totalEquity * feeRate / 100;
+    const quarterlyFee = annualFee / 4;
+    const date = new Date().toISOString().split('T')[0];
+    const memo = `${currentDeal.name} - Management Fee - ${date}`;
+
+    journalEntries.push({
+      date, memo,
+      account: coaCash,
+      debit: quarterlyFee,
+      credit: 0,
+      name: '',
+      type: 'header'
+    });
+    journalEntries.push({
+      date, memo,
+      account: coaFeeIncome,
+      debit: 0,
+      credit: quarterlyFee,
+      name: '',
+      type: 'detail'
+    });
+  } else if (type === 'acquisition_fee') {
+    const feeRate = currentDeal.acqFee || 3;
+    const purchasePrice = currentDeal.purchasePrice || 0;
+    const fee = purchasePrice * feeRate / 100;
+    const date = currentDeal.closeDate || new Date().toISOString().split('T')[0];
+    const memo = `${currentDeal.name} - Acquisition Fee - ${date}`;
+
+    journalEntries.push({
+      date, memo,
+      account: coaCash,
+      debit: fee,
+      credit: 0,
+      name: '',
+      type: 'header'
+    });
+    journalEntries.push({
+      date, memo,
+      account: 'Acquisition Fee Income',
+      debit: 0,
+      credit: fee,
+      name: '',
+      type: 'detail'
+    });
+  }
+
+  renderJournal();
+  renderRaw();
+  renderSummary();
+}
+
+function renderJournal() {
+  const card = document.getElementById('journalCard');
+  if (!journalEntries.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  const totalDebit = journalEntries.reduce((s, e) => s + e.debit, 0);
+  const totalCredit = journalEntries.reduce((s, e) => s + e.credit, 0);
+  const balanced = Math.abs(totalDebit - totalCredit) < 0.01;
+
+  document.getElementById('journalDesc').textContent =
+    `${journalEntries.length} line items — ${balanced ? '✓ Balanced' : '⚠ Imbalanced'}`;
+
+  document.getElementById('journalBody').innerHTML = journalEntries.map(e => `
+    <tr>
+      <td style="white-space:nowrap;">${e.date}</td>
+      <td style="font-size:12px;color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;">${esc(e.memo)}</td>
+      <td style="font-weight:${e.type==='header'?'700':'400'};">${e.type==='detail'?'&nbsp;&nbsp;&nbsp;&nbsp;':''}${esc(e.account)}</td>
+      <td class="mono debit" style="text-align:right;">${e.debit > 0 ? fmt$(e.debit) : ''}</td>
+      <td class="mono credit" style="text-align:right;">${e.credit > 0 ? fmt$(e.credit) : ''}</td>
+    </tr>
+  `).join('') + `
+    <tr style="border-top:2px solid var(--text);font-weight:700;">
+      <td colspan="3" style="text-align:right;">TOTAL</td>
+      <td class="mono" style="text-align:right;">${fmt$(totalDebit)}</td>
+      <td class="mono" style="text-align:right;">${fmt$(totalCredit)}</td>
+    </tr>`;
+}
+
+function renderSummary() {
+  const grid = document.getElementById('summaryGrid');
+  if (!journalEntries.length) { grid.style.display = 'none'; return; }
+  grid.style.display = 'grid';
+
+  const totalDebit = journalEntries.reduce((s, e) => s + e.debit, 0);
+  const details = journalEntries.filter(e => e.type === 'detail');
+  const type = document.getElementById('qbType').value;
+  const label = type === 'distribution' ? 'Distributed' : type === 'capital_call' ? 'Called' : 'Fee Amount';
+
+  grid.innerHTML = `
+    <div class="summary-tile">
+      <div class="label">Total ${label}</div>
+      <div class="value">${fmt$(totalDebit)}</div>
+    </div>
+    <div class="summary-tile">
+      <div class="label">Line Items</div>
+      <div class="value">${journalEntries.length}</div>
+    </div>
+    <div class="summary-tile">
+      <div class="label">Investors</div>
+      <div class="value">${details.filter(e => e.name && e.name !== 'GP').length}</div>
+    </div>`;
+}
+
+function renderRaw() {
+  const card = document.getElementById('rawCard');
+  if (!journalEntries.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
+
+  const format = document.getElementById('qbFormat').value;
+  document.getElementById('rawTitle').textContent = format === 'iif' ? 'IIF Export (QuickBooks Desktop)' : 'CSV Export (QuickBooks Online)';
+
+  let raw = '';
+  if (format === 'iif') {
+    raw = buildIIF();
+  } else {
+    raw = buildCSV();
+  }
+  document.getElementById('rawPreview').textContent = raw;
+}
+
+function buildIIF() {
+  let out = '!TRNS\tTRNSTYPE\tDATE\tACCNT\tNAME\tAMOUNT\tMEMO\n';
+  out += '!SPL\tTRNSTYPE\tDATE\tACCNT\tNAME\tAMOUNT\tMEMO\n';
+  out += '!ENDTRNS\n';
+
+  // Group by memo (one journal entry per distribution)
+  const groups = {};
+  journalEntries.forEach(e => {
+    if (!groups[e.memo]) groups[e.memo] = [];
+    groups[e.memo].push(e);
+  });
+
+  Object.values(groups).forEach(entries => {
+    const header = entries[0];
+    // TRNS line (first entry — the debit)
+    const debitEntry = entries.find(e => e.debit > 0) || header;
+    out += `TRNS\tGENERAL JOURNAL\t${formatIIFDate(debitEntry.date)}\t${debitEntry.account}\t${debitEntry.name}\t${debitEntry.debit.toFixed(2)}\t${debitEntry.memo}\n`;
+
+    // SPL lines (credits)
+    entries.filter(e => e.credit > 0).forEach(e => {
+      out += `SPL\tGENERAL JOURNAL\t${formatIIFDate(e.date)}\t${e.account}\t${e.name}\t-${e.credit.toFixed(2)}\t${e.memo}\n`;
+    });
+    out += 'ENDTRNS\n';
+  });
+
+  return out;
+}
+
+function buildCSV() {
+  let rows = [['Date', 'Transaction Type', 'Num', 'Name', 'Memo/Description', 'Account', 'Debit', 'Credit'].join(',')];
+  let num = 1;
+  const groups = {};
+  journalEntries.forEach(e => {
+    if (!groups[e.memo]) groups[e.memo] = [];
+    groups[e.memo].push(e);
+  });
+
+  Object.values(groups).forEach(entries => {
+    entries.forEach(e => {
+      rows.push([
+        e.date,
+        'Journal Entry',
+        num,
+        csvEsc(e.name),
+        csvEsc(e.memo),
+        csvEsc(e.account),
+        e.debit > 0 ? e.debit.toFixed(2) : '',
+        e.credit > 0 ? e.credit.toFixed(2) : '',
+      ].join(','));
+    });
+    num++;
+  });
+
+  return rows.join('\n');
+}
+
+function formatIIFDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()}`;
+}
+
+function csvEsc(s) {
+  if (!s) return '';
+  if (s.includes(',') || s.includes('"') || s.includes('\n')) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function downloadExport() {
+  const format = document.getElementById('qbFormat').value;
+  const raw = format === 'iif' ? buildIIF() : buildCSV();
+  const ext = format === 'iif' ? 'iif' : 'csv';
+  const dealName = (currentDeal?.name || 'export').replace(/[^a-zA-Z0-9]/g, '_');
+  const type = document.getElementById('qbType').value;
+  const filename = `${dealName}_${type}_${new Date().toISOString().split('T')[0]}.${ext}`;
+
+  const blob = new Blob([raw], { type: format === 'iif' ? 'text/plain' : 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`Downloaded ${filename}`);
+}
+
+function copyToClipboard() {
+  const format = document.getElementById('qbFormat').value;
+  const raw = format === 'iif' ? buildIIF() : buildCSV();
+  navigator.clipboard.writeText(raw).then(() => showToast('Copied to clipboard'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<i class="fas fa-check-circle" style="margin-right:8px;"></i>${msg}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
