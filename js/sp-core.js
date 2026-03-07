@@ -821,7 +821,7 @@ window.SP = (function () {
       // All SDKs loaded — load config then sp-firebase
       const cfg = document.createElement('script'); cfg.src = 'firebase-config.js';
       cfg.onload = () => {
-        const fb = document.createElement('script'); fb.src = 'js/sp-firebase.js';
+        const fb = document.createElement('script'); fb.src = 'js/sp-firebase.js?v=9246da8';
         fb.onload = () => { if (typeof SPFB !== 'undefined') SPFB.init(); };
         document.head.appendChild(fb);
       };
