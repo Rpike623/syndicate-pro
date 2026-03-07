@@ -1204,6 +1204,7 @@ window.SP = (function () {
           { href:'vendor-invoice.html', icon:'fa-file-invoice-dollar', label:'Invoices' },
           { href:'budget-variance.html', icon:'fa-chart-bar', label:'Budget Var' },
           { href:'notice-tracker.html', icon:'fa-envelope-open-text', label:'Notices' },
+          { href:'late-fees.html', icon:'fa-exclamation-circle', label:'Late Fees' },
           { href:'insurance-summary.html', icon:'fa-shield-alt', label:'Insurance' },
           { href:'utility-analysis.html', icon:'fa-chart-line', label:'Utility Analysis' },
           { href:'tax-calendar.html', icon:'fa-calendar-check', label:'Tax Calendar' },
@@ -1213,6 +1214,7 @@ window.SP = (function () {
           { href:'vendor-invoice.html', icon:'fa-file-invoice-dollar', label:'Invoices' },
           { href:'budget-variance.html', icon:'fa-chart-bar', label:'Budget Var' },
           { href:'notice-tracker.html', icon:'fa-envelope-open-text', label:'Notices' },
+          { href:'late-fees.html', icon:'fa-exclamation-circle', label:'Late Fees' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
