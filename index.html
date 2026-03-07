@@ -207,55 +207,9 @@
   </style>
   <link rel="stylesheet" href="contrast-fix.css">
   <style>
-    /* ── Splash page contrast fixes ── */
-    /* Force white/light text on all dark backgrounds */
-    body, body * { color: inherit; }
-
-    /* Hero headline */
-    h1, h2, h3, h4, h5, h6 { color: #F3F0ED !important; }
-
-    /* Body copy & descriptions */
-    p, li, span:not(.badge):not([class*="bg-"]) { color: #D4CFC9 !important; }
-
-    /* Explicit muted/secondary text stays readable */
-    [class*="text-dark-muted"], [class*="text-slate"], [class*="text-gray"] {
-      color: #9C9590 !important;
-    }
-
-    /* Feature cards — text inside dark cards */
-    .card p, [class*="bg-dark"] p,
-    [class*="rounded"] p { color: #C8C3BC !important; }
-
-    /* Nav links */
-    nav a { color: #E2DDD8 !important; }
-    nav a:hover { color: #FFFFFF !important; }
-
-    /* CTA buttons stay as-is — brand orange is fine */
-    a[class*="bg-brand"], button[class*="bg-brand"],
-    a[class*="bg-sky"], button[class*="bg-sky"] { color: #FFFFFF !important; }
-
-    /* Stat numbers / big display text */
-    [class*="text-brand"], [class*="text-sky"] { color: #F37925 !important; }
-
-    /* Footer */
-    footer, footer * { color: #9C9590 !important; }
-    footer a { color: #C8C3BC !important; }
-    footer a:hover { color: #F3F0ED !important; }
-
-    /* Feature/benefit section headings */
-    [class*="section"] h2,
-    [class*="section"] h3 { color: #F3F0ED !important; }
-
-    /* Grid feature cards */
-    [class*="grid"] [class*="rounded"] h3 { color: #F3F0ED !important; }
-    [class*="grid"] [class*="rounded"] p  { color: #C8C3BC !important; }
-
-    /* Testimonial / quote text */
-    blockquote, [class*="testimonial"] { color: #D4CFC9 !important; }
-
-    /* Pricing cards */
-    [class*="price"], [class*="plan"] h2,
-    [class*="plan"] h3 { color: #F3F0ED !important; }
+    /* Ensure contrast-fix.css doesn't bleed into the dark splash page */
+    /* All text on the splash is handled by Tailwind classes */
+    body { color: #F8FAFC; }
   </style>
 </head>
 <body class="antialiased selection:bg-brand-500 selection:text-white">

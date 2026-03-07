@@ -32,11 +32,13 @@
  */
 
 /* ── Body ─────────────────────────────────────────────────────────────── */
-html body { color: #1B1A19 !important; background: #F3F3F3 !important; }
+html body.app-page { color: #1B1A19 !important; background: #F3F3F3 !important; }
+/* App pages only — .main wrapper is injected by sp-core.js sidebar */
+html body .main { background: #F3F3F3; color: #1B1A19; }
 
 /* ── Headings & titles ───────────────────────────────────────────────── */
-html body h1, html body h2, html body h3,
-html body h4, html body h5, html body h6 { color: #1B1A19 !important; }
+html body .main h1, html body .main h2, html body .main h3,
+html body .main h4, html body .main h5, html body .main h6 { color: #1B1A19 !important; }
 html body .page-title, html body .card-title,
 html body .modal-title, html body .section-title:not(.sidebar .section-title) { color: #1B1A19 !important; }
 
