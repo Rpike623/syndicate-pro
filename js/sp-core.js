@@ -103,15 +103,16 @@ window.SP = (function () {
   }
 
   // All demo accounts share one org so data flows freely between GP and LP views
+  // Note: demo-gp2@deeltrack.com is EXCLUDED for data isolation testing
   const DEMO_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com'];
   const DEMO_ORG_ID = 'deeltrack_demo';
 
   function getOrgId() {
     const s = getSession();
     if (!s) return null;
-    // Demo accounts always share the same org
+    // Demo accounts always share the same org (except demo-gp2 which has its own org for testing)
     if (s.email && DEMO_EMAILS.includes(s.email.toLowerCase())) return DEMO_ORG_ID;
-    // v2.0 Priority: Use stored orgId
+    // v2.0 Priority: Use stored orgId (this is where Marcus gets his unique org)
     if (s.orgId) return s.orgId;
     // Fallback: derive from email
     return simpleHash(s.email.toLowerCase());
@@ -387,12 +388,16 @@ window.SP = (function () {
     const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'gp@deeltrack.com', 'philip@jchapmancpa.com', 'investor@deeltrack.com', 'demo-gp2@deeltrack.com'];
     demoEmails.forEach(demoEmail => {
       const existing = users.find(u => u.email === demoEmail);
+      // Marcus gets his own unique org for data isolation testing
+      const isMarcus = demoEmail === 'demo-gp2@deeltrack.com';
+      const marcusOrgId = 'marcus_rivera_org';
       if (!existing) {
-        const name = demoEmail.includes('philip') ? 'Phil Chapman' : demoEmail.includes('investor') ? 'Demo Investor' : 'Robert Pike';
+        const name = demoEmail.includes('philip') ? 'Phil Chapman' : demoEmail.includes('investor') ? 'Demo Investor' : demoEmail.includes('gp2') ? 'Marcus Rivera' : 'Robert Pike';
         const role = (demoEmail.includes('philip') || demoEmail.includes('investor@')) ? 'Investor' : 'General Partner';
-        users.push({ email: demoEmail, password: 'Demo1234!', name, role, orgId: DEMO_ORG_ID });
-      } else if (existing.orgId !== DEMO_ORG_ID) {
-        // Migrate existing demo user to shared org
+        const orgId = isMarcus ? marcusOrgId : DEMO_ORG_ID;
+        users.push({ email: demoEmail, password: 'Demo1234!', name, role, orgId });
+      } else if (existing.orgId !== DEMO_ORG_ID && existing.email !== 'demo-gp2@deeltrack.com') {
+        // Migrate existing demo user to shared org (but preserve Marcus's unique org for data isolation)
         existing.orgId = DEMO_ORG_ID;
       }
     });
