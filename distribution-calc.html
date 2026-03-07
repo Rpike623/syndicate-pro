@@ -229,8 +229,8 @@
           <div class="card" id="prefSummaryCard" style="display:none;margin-bottom:20px;">
             <div class="card-hdr">
               <div>
-                <h2><i class="fas fa-star" style="color:var(--warning);margin-right:6px;"></i>Pref Status</h2>
-                <p>Preferred return accrual for this deal</p>
+                <h2><i class="fas fa-star" style="color:var(--warning);margin-right:6px;"></i>Preferred Return Tracker</h2>
+                <p>How much pref has accrued, been paid, and is still owed per investor — calculated to today</p>
               </div>
             </div>
             <div class="card-body" id="prefSummaryBody"></div>
@@ -411,29 +411,68 @@ function renderPrefSummary() {
   const totalInvested = investors.reduce((s, i) => s + (i.committed || 0), 0);
 
   if (!prefRate) {
-    body.innerHTML = `<div style="color:#64748b;font-size:13px;">No preferred return configured on this deal. All distributions will be split pro-rata by ownership.</div>`;
+    body.innerHTML = '<div style="font-size:13px;color:#6B6560;padding:8px 0;">No preferred return configured on this deal. All distributions split pro-rata by ownership %.</div>';
     return;
   }
 
-  // Show per-investor pref status
+  // Compute per-investor pref state using the same engine as previewDistribution
+  const snap = (typeof SPMath !== 'undefined')
+    ? SPMath.computePrefSplits(currentDeal, postedDists, 0, new Date())
+    : [];
+
+  const totalPrefPaidAll = snap.reduce((s, p) => s + (p.prefPaidToDate || 0), 0);
+  const totalPrefAccruedAll = snap.reduce((s, p) => s + (p.totalPrefAccrued || 0), 0);
+  const totalPrefOutstanding = snap.reduce((s, p) => s + (p.prefRemainingBeforeDist || 0), 0);
+
+  const allInvestors = SP.getInvestors ? SP.getInvestors() : [];
+
+  const rows = snap.map(p => {
+    const inv = allInvestors.find(i => i.id === p.investorId) || {};
+    const name = [inv.firstName, inv.lastName].filter(Boolean).join(' ') || inv.name || p.investorId;
+    const paidPct = p.totalPrefAccrued > 0 ? Math.min(100, (p.prefPaidToDate / p.totalPrefAccrued) * 100) : 100;
+    const color = p.prefRemainingBeforeDist <= 0 ? '#2D9A6B' : (paidPct > 50 ? '#E8890A' : '#EF4444');
+    return `<tr>
+      <td style="font-size:.82rem;font-weight:600;color:#1B1A19;padding:8px 10px;">${name}</td>
+      <td style="font-size:.8rem;color:#6B6560;padding:8px 10px;font-family:monospace;">${p.daysHeld}d / ${p.yearsHeld.toFixed(2)}yr</td>
+      <td style="font-size:.8rem;padding:8px 10px;font-family:monospace;color:#1B1A19;">${fmt$(p.totalPrefAccrued)}</td>
+      <td style="font-size:.8rem;padding:8px 10px;font-family:monospace;color:#2D9A6B;">${fmt$(p.prefPaidToDate)}</td>
+      <td style="font-size:.8rem;padding:8px 10px;font-family:monospace;font-weight:700;color:${color};">${fmt$(p.prefRemainingBeforeDist)}</td>
+    </tr>`;
+  }).join('');
+
   body.innerHTML = `
-    <div style="margin-bottom:14px;padding:12px 14px;background:#0B1120;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Annual Pref Rate</div>
-        <div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#fbbf24;">${prefRate}%</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+      <div style="background:#F3F0ED;border-radius:7px;padding:12px 14px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6B6560;margin-bottom:4px;">Pref Rate</div>
+        <div style="font-size:20px;font-weight:800;font-family:monospace;color:#1B1A19;">${prefRate}%</div>
+        <div style="font-size:11px;color:#9C9590;">Annual, simple</div>
       </div>
-      <div>
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Total Invested</div>
-        <div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;">${fmt$(totalInvested)}</div>
+      <div style="background:#F3F0ED;border-radius:7px;padding:12px 14px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6B6560;margin-bottom:4px;">Total Accrued</div>
+        <div style="font-size:20px;font-weight:800;font-family:monospace;color:#1B1A19;">${fmt$(totalPrefAccruedAll)}</div>
+        <div style="font-size:11px;color:#9C9590;">Since deal start</div>
       </div>
-      <div>
-        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Pref Paid (Posted)</div>
-        <div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#34d399;">${fmt$(
-          postedDists.reduce((s, d) => s + (d.recipients || []).reduce((rs, r) => rs + (r.prefPaidThisDist || 0), 0), 0)
-        )}</div>
+      <div style="background:#F3F0ED;border-radius:7px;padding:12px 14px;">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6B6560;margin-bottom:4px;">Still Owed</div>
+        <div style="font-size:20px;font-weight:800;font-family:monospace;color:${totalPrefOutstanding > 0 ? '#EF4444' : '#2D9A6B'};">${fmt$(totalPrefOutstanding)}</div>
+        <div style="font-size:11px;color:#9C9590;">After ${postedDists.length} distribution${postedDists.length !== 1 ? 's' : ''}</div>
       </div>
     </div>
-    <div style="font-size:12px;color:#64748b;">${postedDists.length} distribution${postedDists.length !== 1 ? 's' : ''} posted for this deal</div>
+    ${snap.length ? `
+    <div style="border:1px solid #E2DDD8;border-radius:8px;overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#F0EDEA;">
+            <th style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#4A4642;padding:8px 10px;text-align:left;">Investor</th>
+            <th style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#4A4642;padding:8px 10px;text-align:left;">Hold Period</th>
+            <th style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#4A4642;padding:8px 10px;text-align:left;">Accrued</th>
+            <th style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#4A4642;padding:8px 10px;text-align:left;">Paid</th>
+            <th style="font-size:.7rem;font-weight:700;text-transform:uppercase;color:#4A4642;padding:8px 10px;text-align:left;">Remaining</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>` : '<div style="color:#9C9590;font-size:.82rem;">No investors linked to this deal yet.</div>'}
   `;
 }
 
@@ -493,48 +532,97 @@ function previewDistribution() {
     ? SPMath.computePrefSplits(currentDeal, postedDists, amount, distDate ? new Date(distDate) : new Date())
     : [];
 
-  // Calculate GP share using waterfall
-  let lpTotal = amount;
+  // ── In-hold distribution waterfall (correct pref-aware math) ──────────────
+  // Rule: pref accrued is ALWAYS paid to LPs first from every distribution.
+  // Only EXCESS above outstanding pref gets the GP promote split.
+  // The WaterfallCalculator models exit proceeds — do NOT use it here.
+
+  const prefRate   = parseFloat(currentDeal.prefReturn || currentDeal.wizardData?.prefReturn || 0);
+  const gpPromote  = parseFloat(currentDeal.gpPromote  || currentDeal.wizardData?.gpPromote  || 20);
+  const catchupRate= parseFloat(currentDeal.catchupRate|| currentDeal.wizardData?.catchupRate || 100);
+  const wfType     = currentDeal.waterfallType || currentDeal.wizardData?.waterfallType || 'catchup';
+
+  // How much pref is being satisfied in this distribution?
+  const totalPrefThisDist = prefSplits.length
+    ? prefSplits.reduce((s, p) => s + (p.prefPaidThisDist || 0), 0)
+    : 0;
+
+  // Excess = what remains after pref is paid out
+  let excessPool = Math.max(0, amount - totalPrefThisDist);
+
+  // GP gets promote only on the excess (above pref)
   let gpTotal = 0;
+  let lpTotal = 0;
   const tierData = [];
 
-  if (typeof WaterfallCalculator !== 'undefined') {
-    try {
-      const input = {
-        totalEquity: Number(currentDeal.totalEquity || currentDeal.raise || 1000000),
-        gpEquityPct: Number(currentDeal.gpEquity || 10),
-        lpEquityPct: Number(currentDeal.lpEquity || 90),
-        prefReturn: Number(currentDeal.prefReturn || 0),
-        gpPromotePct: Number(currentDeal.gpPromote || 20),
-        catchupRate: Number(currentDeal.catchupRate || 50),
-        exitMultiple: Number(currentDeal.exitMultiple || 1.8),
-        holdPeriod: Number(currentDeal.holdPeriod || 5),
-        waterfallType: currentDeal.waterfallType || 'simple'
-      };
-      const scenario = WaterfallCalculator.calculate(input);
-      const total = scenario.summary.totalProceeds || 1;
-      const lpShare = scenario.summary.lpTotal / total;
-      const gpShare = scenario.summary.gpTotal / total;
-      lpTotal = amount * lpShare;
-      gpTotal = amount * gpShare;
+  if (prefRate > 0 && totalPrefThisDist > 0) {
+    tierData.push({
+      name: 'Preferred Return',
+      desc: `${prefRate}% annual accrued pref — paid 100% to LPs before any GP promote`,
+      amount: totalPrefThisDist,
+      gp: 0,
+      lp: totalPrefThisDist,
+      type: 'tier-pref',
+    });
+  }
 
-      // Build tier data
-      scenario.waterfall.forEach(tier => {
-        const tierShare = tier.total / total;
+  if (excessPool > 0) {
+    // GP catch-up: GP gets catchupRate% of excess until GP has earned gpPromote% of (pref + catchup)
+    if ((wfType === 'catchup' || wfType === 'tiered') && totalPrefThisDist > 0) {
+      // GP catch-up target: gpPromote% of (pref + catchup combined)
+      // Solve: catchupToGP = gpPromote/100 * (prefPaid + catchupToGP)
+      // => catchupToGP * (1 - gpPromote/100) = gpPromote/100 * prefPaid
+      // => catchupToGP = (gpPromote/100 * prefPaid) / (1 - gpPromote/100)
+      const gpP = gpPromote / 100;
+      const catchupTarget = gpP > 0 && gpP < 1
+        ? parseFloat(((gpP / (1 - gpP)) * totalPrefThisDist).toFixed(2))
+        : 0;
+      const catchupToGP = Math.min(excessPool * (catchupRate / 100), catchupTarget, excessPool);
+      if (catchupToGP > 0) {
         tierData.push({
-          name: tier.name,
-          desc: tier.description,
-          amount: amount * tierShare,
-          gp: amount * (tier.gp / total),
-          lp: amount * (tier.lp / total),
-          type: tier.name.toLowerCase().includes('capital') ? 'tier-roc'
-              : tier.name.toLowerCase().includes('pref') ? 'tier-pref'
-              : tier.name.toLowerCase().includes('catch') ? 'tier-catchup' : 'tier-split',
+          name: 'GP Catch-Up',
+          desc: `GP receives ${catchupRate}% of distributions until GP has earned ${gpPromote}% of all pref + catch-up`,
+          amount: catchupToGP,
+          gp: catchupToGP,
+          lp: 0,
+          type: 'tier-catchup',
         });
-      });
-    } catch(e) {
-      console.warn('WaterfallCalculator error:', e);
+        gpTotal += catchupToGP;
+        excessPool = parseFloat((excessPool - catchupToGP).toFixed(2));
+      }
     }
+
+    // Residual split: GP promote% / LP (100-promote)%
+    if (excessPool > 0) {
+      const gpResidual  = parseFloat((excessPool * gpPromote / 100).toFixed(2));
+      const lpResidual  = parseFloat((excessPool - gpResidual).toFixed(2));
+      tierData.push({
+        name: 'Residual Split',
+        desc: `${100 - gpPromote}% LP / ${gpPromote}% GP promote on remaining excess`,
+        amount: excessPool,
+        gp: gpResidual,
+        lp: lpResidual,
+        type: 'tier-split',
+      });
+      gpTotal += gpResidual;
+    }
+  }
+
+  lpTotal = amount - gpTotal;
+
+  // Update prefSplits excessThisDist to reflect LP share of residual
+  // (prefSplits.excessThisDist was computed against full amount; adjust for GP take)
+  const lpExcessPool = Math.max(0, amount - totalPrefThisDist - gpTotal + 
+    (excessPool <= 0 ? 0 : 0)); // already correct — excessPool was deducted above
+  // Redistribute LP excess pro-rata among investors
+  if (prefSplits.length && gpTotal > 0) {
+    const totalOwnership = prefSplits.reduce((s, p) => s + (p.ownership || 0), 0) || 100;
+    const lpExcess = Math.max(0, amount - totalPrefThisDist - gpTotal);
+    prefSplits.forEach(p => {
+      const ownerFrac = totalOwnership > 0 ? (p.ownership || 0) / totalOwnership : 0;
+      p.excessThisDist = parseFloat((lpExcess * ownerFrac).toFixed(2));
+      p.totalThisDist  = parseFloat((p.prefPaidThisDist + p.excessThisDist).toFixed(2));
+    });
   }
 
   // Update summary tiles
@@ -607,11 +695,16 @@ function previewDistribution() {
   const prefRate = currentDeal.prefReturn || 0;
   if (prefRate > 0 && prefSplits.length) {
     const totalPrefPaid = prefSplits.reduce((s, p) => s + p.prefPaidThisDist, 0);
-    const totalPrefRem = prefSplits.reduce((s, p) => s + (p.prefRemaining || 0), 0);
+    const totalPrefRem = prefSplits.reduce((s, p) => s + (p.prefRemainingAfterDist || 0), 0);
     prefCallout.style.display = 'block';
     prefCallout.innerHTML = `<i class="fas fa-star" style="color:var(--warning);margin-right:6px;"></i>
-      <strong>Pref-aware split:</strong> This distribution satisfies <strong>${fmt$(totalPrefPaid)}</strong> in accumulated preferred return (${prefRate}% annual) before distributing excess pro-rata.
-      ${totalPrefRem > 0 ? ` After this distribution, <strong>${fmt$(totalPrefRem)}</strong> in pref remains outstanding.` : ' All outstanding pref is satisfied with this distribution.'}`;
+      <strong>Pref-aware distribution:</strong>
+      <strong>${fmt$(totalPrefPaid)}</strong> satisfies outstanding ${prefRate}% pref → 
+      <strong>${fmt$(gpTotal)}</strong> GP promote${wfType==='catchup'||wfType==='tiered'?' (incl. catch-up)':''} → 
+      <strong>${fmt$(lpTotal - totalPrefPaid)}</strong> LP excess.
+      ${totalPrefRem > 0
+        ? ` <span style="color:#EF4444;font-weight:600;">${fmt$(totalPrefRem)} pref still outstanding after this distribution.</span>`
+        : ' <span style="color:#2D9A6B;font-weight:600;">All outstanding pref fully satisfied.</span>'}`;
   } else {
     prefCallout.style.display = 'none';
   }
@@ -657,7 +750,7 @@ function executeDistribution() {
         prefPaidThisDist: ps.prefPaidThisDist,
         excessThisDist: ps.excessThisDist,
         prefPaidAfterDist: (ps.prefPaidToDate || 0) + ps.prefPaidThisDist,
-        prefRemainingAfterDist: ps.prefRemaining,
+        prefRemainingAfterDist: ps.prefRemainingAfterDist,
       };
     }
     const payout = lpTotal * ((inv.ownership || 0) / 100);
