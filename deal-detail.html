@@ -160,6 +160,7 @@
       .form-grid{grid-template-columns:1fr;}
     }
   </style>
+  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
 <div class="app"><aside class="sidebar" id="sidebar"></aside>
@@ -521,7 +522,8 @@ function printOA() {
   w.document.write(`<!DOCTYPE html><html><head><title>${deal.name} — Operating Agreement</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}
-    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style></head><body>${html}</body></html>`);
+    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style>  <link rel="stylesheet" href="contrast-fix.css">
+</head><body>${html}</body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 500);
 }
@@ -693,7 +695,8 @@ function printSubDoc(contentId) {
   w.document.write(`<!DOCTYPE html><html><head><title>Subscription Agreement</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}
-    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style></head><body>${content}</body></html>`);
+    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style>  <link rel="stylesheet" href="contrast-fix.css">
+</head><body>${content}</body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 400);
 }
@@ -758,7 +761,8 @@ function sendSubDoc(investorId) {
     .sig-line{border-top:1px solid #333;margin-top:40px;padding-top:8px;font-size:.85rem;}
     .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:5rem;color:rgba(0,0,0,.04);font-weight:700;pointer-events:none;}
     @media print{.no-print{display:none;}}
-    </style></head><body>
+    </style>  <link rel="stylesheet" href="contrast-fix.css">
+</head><body>
     <div class="watermark">DRAFT</div>
     <div class="no-print" style="background:#fef3c7;padding:12px 20px;margin-bottom:24px;border-radius:8px;font-family:sans-serif;font-size:.9rem;">
       ⚠️ <strong>Draft Document</strong> — This is a placeholder template. Have your attorney review before use.
