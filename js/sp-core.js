@@ -1173,6 +1173,9 @@ window.SP = (function () {
           { href:'exit-strategy.html', icon:'fa-door-open', label:'Exit Strategy' },
           { href:'refinance-calc.html', icon:'fa-house-medical', label:'Refinance' },
           { href:'investor-roi.html', icon:'fa-percent', label:'Investor ROI' },
+          { href:'purchase-sale.html', icon:'fa-handshake', label:'P&S' },
+          { href:'property-comparator.html', icon:'fa-scale-balanced', label:'Comparator' },
+          { href:'irr-calc.html', icon:'fa-calculator', label:'IRR Calc' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
