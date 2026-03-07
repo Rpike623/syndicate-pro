@@ -11,36 +11,27 @@
   <main class="main" id="main">
     <div class="dt-header">
       <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-shield-halved"></i> DSCR Calculator</h1>
+      <h1><i class="fas fa-balance-scale"></i> DSCR Calculator</h1>
     </div>
     <div class="content">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><h2>Income</h2></div>
-          <div class="card-body">
-            <div class="form-group"><label>Gross Income</label><input type="number" id="dIncome" class="form-input" value="1500000" oninput="DSCR.calc()"></div>
-            <div class="form-group"><label>Vacancy %</label><input type="number" id="dVacancy" class="form-input" value="5" oninput="DSCR.calc()"></div>
-            <div class="form-group"><label>Operating Exp %</label><input type="number" id="dOpex" class="form-input" value="40" oninput="DSCR.calc()"></div>
+      <div class="card">
+        <div class="card-header"><h2>Debt Coverage</h2></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label>Annual NOI</label><input type="number" id="dsNOI" class="form-input" value="250000"></div>
+            <div class="form-group"><label>Annual Debt Service</label><input type="number" id="dsDebt" class="form-input" value="180000"></div>
           </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h2>Debt</h2></div>
-          <div class="card-body">
-            <div class="form-group"><label>Loan Amount</label><input type="number" id="dLoan" class="form-input" value="10000000" oninput="DSCR.calc()"></div>
-            <div class="form-row">
-              <div class="form-group"><label>Rate %</label><input type="number" id="dRate" class="form-input" value="6.5" step="0.1" oninput="DSCR.calc()"></div>
-              <div class="form-group"><label>Term</label><select id="dTerm" class="form-select" onchange="DSCR.calc()"><option value="30">30yr</option><option value="15">15yr</option></select></div>
-            </div>
-          </div>
+          <button class="btn btn-primary" onclick="DSCR.calc()">Calculate DSCR</button>
         </div>
       </div>
       <div class="card">
-        <div class="card-header"><h2>Results</h2></div>
+        <div class="card-header"><h2>Ratio Results</h2></div>
         <div class="card-body">
-          <div class="result-row"><span>NOI</span><strong id="dNoi">$0</strong></div>
-          <div class="result-row"><span>Debt Service</span><strong id="dDebt">$0</strong></div>
-          <div class="result-row"><span>DSCR</span><strong id="dDscr">0x</strong></div>
-          <div class="result-row"><span>Status</span><strong id="dStatus">—</strong></div>
+          <div class="stats-row">
+            <div class="stat-card"><span class="stat-label">DSCR</span><span class="stat-value text-primary" id="dsRatio">0.00x</span></div>
+            <div class="stat-card"><span class="stat-label">Max Debt Service (1.25x)</span><span class="stat-value" id="dsMax">$0</span></div>
+            <div class="stat-card"><span class="stat-label">Required NOI (1.25x)</span><span class="stat-value" id="dsReq">$0</span></div>
+          </div>
         </div>
       </div>
     </div>
