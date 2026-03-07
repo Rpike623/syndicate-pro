@@ -928,12 +928,17 @@ function resetForm() {
   setStep(1);
 }
 
-// Re-run init (reset retry counter) whenever spdata-ready fires
+// Primary: use SPFB.onReady so we run after Firestore cache is populated
+if (typeof SPFB !== 'undefined' && SPFB.onReady) {
+  SPFB.onReady(() => { _initRetries = 0; init(); });
+}
+// Also listen for spdata-ready (fires after SPData.init completes)
 window.addEventListener('spdata-ready', () => { _initRetries = 0; init(); });
-// Also try immediately and after short delays as fallback
+// Immediate attempt (works if data already cached in localStorage)
 if (typeof SP !== 'undefined' && SP.getDeals) init();
-setTimeout(() => { _initRetries = 0; init(); }, 600);
-setTimeout(() => { _initRetries = 0; init(); }, 2000);
+// Fallback retries in case auth/Firestore takes a moment
+setTimeout(() => { if (document.getElementById('dealSelect')?.options.length <= 1) { _initRetries = 0; init(); } }, 1500);
+setTimeout(() => { if (document.getElementById('dealSelect')?.options.length <= 1) { _initRetries = 0; init(); } }, 4000);
 
 // Close wire report modal on Escape
 document.addEventListener('keydown', e => {
