@@ -11,40 +11,16 @@
   <main class="main" id="main">
     <div class="dt-header">
       <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-bolt"></i> Utility Tracker</h1>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="Utils.showModal()"><i class="fas fa-plus"></i> Add Bill</button>
-      </div>
+      <h1><i class="fas fa-lightbulb"></i> Utility Tracker</h1>
     </div>
     <div class="content">
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">This Month</span><span class="stat-value" id="statMonth">$0</span></div>
-        <div class="stat-card"><span class="stat-label">YTD</span><span class="stat-value" id="statYtd">$0</span></div>
-        <div class="stat-card"><span class="stat-label">Avg/Property</span><span class="stat-value" id="statAvg">$0</span></div>
-        <div class="stat-card"><span class="stat-label">Properties</span><span class="stat-value">4</span></div>
-      </div>
       <div class="card">
-        <div class="card-header"><h2>Utility Bills</h2></div>
+        <div class="card-header"><h2>Utility Costs</h2></div>
         <div class="card-body">
-          <table class="data-table"><thead><tr><th>Property</th><th>Type</th><th>Period</th><th>Usage</th><th>Cost</th><th>Status</th></tr></thead><tbody id="utilTable"></tbody></table>
+          <table class="data-table"><thead><tr><th>Property</th><th>Type</th><th>Monthly Avg</th><th>YTD</th></tr></thead><tbody><tr><td>Sunset Apartments</td><td>Electric</td><td>$4,200</td><td>$12,600</td></tr><tr><td>Sunset Apartments</td><td>Water</td><td>$2,100</td><td>$6,300</td></tr><tr><td>Downtown Lofts</td><td>Electric</td><td>$3,800</td><td>$11,400</td></tr></tbody></table>
         </div>
       </div>
     </div>
   </main>
-  <div id="utilModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <div class="modal-header"><h2>Add Utility</h2><button class="close" onclick="Utils.closeModal()">&times;</button></div>
-      <div class="modal-body">
-        <div class="form-group"><label>Property</label><select id="uProperty" class="form-select"><option>Sunset Apartments</option><option>Downtown Office</option><option>Industrial Portfolio</option><option>Coastal Retail</option></select></div>
-        <div class="form-row">
-          <div class="form-group"><label>Type</label><select id="uType" class="form-select"><option>Electric</option><option>Gas</option><option>Water</option><option>Trash</option></select></div>
-          <div class="form-group"><label>Cost</label><input type="number" id="uCost" class="form-input"></div>
-        </div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="Utils.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Utils.save()">Save</button></div>
-    </div>
-  </div>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Utils.init();}</script>
-  <script src="js/sp-utilities.js"></script>
 </body>
 </html>

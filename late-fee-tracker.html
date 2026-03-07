@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Late Fee Tracker | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-exclamation-circle"></i> Late Fee Tracker</h1>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">This Month</span><span class="stat-value text-warning">$450</span></div>
+        <div class="stat-card"><span class="stat-label">YTD</span><span class="stat-value">$2,850</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Late Fees</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Unit</th><th>Tenant</th><th>Days Late</th><th>Fee</th><th>Date</th></tr></thead><tbody><tr><td>102</td><td>Mike Brown</td><td>5</td><td>$75</td><td>2026-03-05</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
