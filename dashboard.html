@@ -332,28 +332,31 @@
         </div>
       </div>
 
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <a href="new-deal.html" class="qa-card">
-          <div class="qa-icon blue"><i class="fas fa-plus-circle"></i></div>
-          <div class="qa-label">New Deal</div>
-          <div class="qa-desc">Start modeling a new acquisition</div>
-        </a>
-        <a href="investors.html" class="qa-card">
-          <div class="qa-icon green"><i class="fas fa-user-plus"></i></div>
-          <div class="qa-label">Add Investor</div>
-          <div class="qa-desc">Onboard a new LP to your CRM</div>
-        </a>
-        <a href="documents.html" class="qa-card">
-          <div class="qa-icon amber"><i class="fas fa-file-signature"></i></div>
-          <div class="qa-label">Generate Document</div>
-          <div class="qa-desc">OA, PPM, Subscription Agreement</div>
-        </a>
-        <a href="capital-calls.html" class="qa-card">
-          <div class="qa-icon purple"><i class="fas fa-bell"></i></div>
-          <div class="qa-label">Capital Call</div>
-          <div class="qa-desc">Send notices to investors</div>
-        </a>
+      <!-- Quick Actions — deal-first workflow -->
+      <div style="margin-bottom:20px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#94A3B8;margin-bottom:12px;">Start Here</div>
+        <div class="quick-actions">
+          <a href="deals.html" class="qa-card">
+            <div class="qa-icon blue"><i class="fas fa-building"></i></div>
+            <div class="qa-label">Open a Deal</div>
+            <div class="qa-desc">Add investors, run distributions, issue capital calls — all from the deal page</div>
+          </a>
+          <a href="sourcing-crm.html" class="qa-card">
+            <div class="qa-icon green"><i class="fas fa-stream"></i></div>
+            <div class="qa-label">View Pipeline</div>
+            <div class="qa-desc">Track deals from sourcing through close with notes</div>
+          </a>
+          <a href="new-deal.html" class="qa-card">
+            <div class="qa-icon amber"><i class="fas fa-plus-circle"></i></div>
+            <div class="qa-label">New Deal</div>
+            <div class="qa-desc">Model a new acquisition — structure, waterfall, documents</div>
+          </a>
+          <a href="investors.html" class="qa-card">
+            <div class="qa-icon purple"><i class="fas fa-users"></i></div>
+            <div class="qa-label">Investors</div>
+            <div class="qa-desc">View all LPs, banking info, accreditation status</div>
+          </a>
+        </div>
       </div>
 
       <!-- Charts Row -->
@@ -1076,20 +1079,22 @@ function renderDealsTable(deals) {
     const committed = (d.investors||[]).reduce((s,i)=>s+(i.committed||0),0);
     const pct = d.raise > 0 ? Math.min(100,Math.round(committed/d.raise*100)) : 0;
     const barColor = pct>=75?'var(--success)':pct>=40?'var(--accent)':'var(--warning)';
-    return `<tr>
-      <td data-label="Deal"><div style="font-weight:600;">${d.name}</div><div style="font-size:0.75rem;color:var(--text-muted);">${d.location||'—'}</div></td>
+    return `<tr onclick="window.location.href='deal-detail.html?id=${d.id}'" style="cursor:pointer;" title="Open deal →">
+      <td data-label="Deal">
+        <div style="font-weight:700;color:#F8FAFC;">${d.name}</div>
+        <div style="font-size:11px;color:#94A3B8;">${d.location||'—'}</div>
+      </td>
       <td data-label="Type"><span class="badge ${typeMap[d.type]||'badge-sourcing'}">${typeLabel[d.type]||d.type||'—'}</span></td>
       <td data-label="Raise">
         <div class="money-val">${fmt$(d.raise||0)}</div>
         <div style="margin-top:4px;height:4px;background:var(--border-light);border-radius:4px;overflow:hidden;width:80px;display:inline-block;"><div style="height:100%;width:${pct}%;background:${barColor};border-radius:4px;"></div></div>
-        <div style="font-size:0.7rem;color:var(--text-muted);margin-top:2px;">${fmt$(committed)} (${pct}%)</div>
+        <div style="font-size:11px;color:#94A3B8;margin-top:2px;">${fmt$(committed)} (${pct}%) · ${(d.investors||[]).length} LP${(d.investors||[]).length!==1?'s':''}</div>
       </td>
       <td data-label="IRR" class="irr-val">${d.irr ? fmtPct(d.irr) : '—'}</td>
       <td data-label="Status"><span class="badge ${statusMap[d.status]||'badge-sourcing'}">${statusLabel[d.status]||d.status||'—'}</span></td>
-      <td data-label="Actions"><div class="action-btns">
-        <a href="deal-detail.html?id=${d.id}" class="btn-xs"><i class="fas fa-eye"></i></a>
-        <a href="new-deal.html?id=${d.id}" class="btn-xs"><i class="fas fa-calculator"></i></a>
-      </div></td>
+      <td data-label="Actions" onclick="event.stopPropagation()">
+        <a href="deal-detail.html?id=${d.id}" class="btn-xs" style="font-weight:700;"><i class="fas fa-arrow-right"></i> Open</a>
+      </td>
     </tr>`;
   }).join('');
 }

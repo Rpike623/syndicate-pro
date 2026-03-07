@@ -284,13 +284,8 @@ function render() {
   }
   document.getElementById('breadcrumbDealName').textContent = deal.name;
   document.getElementById('topActions').innerHTML = `
-    <a href="pipeline.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Pipeline</a>
-    <a href="new-deal.html?id=${deal.id}" class="btn btn-secondary"><i class="fas fa-calculator"></i> Model</a>
-    <button class="btn btn-secondary" onclick="duplicateDeal('${deal.id}')" title="Duplicate Deal"><i class="fas fa-copy"></i> Duplicate</button>
-    <button class="btn btn-secondary" onclick="shareTeaserLink('${deal.id}')" title="Share public teaser"><i class="fas fa-share-alt"></i> Share</button>
-    <button class="btn btn-primary" onclick="openAddInvModal()"><i class="fas fa-user-plus"></i> Add Investor</button>
-    <button class="btn btn-secondary" onclick="generateAI()"><i class="fas fa-robot"></i> AI Pitch</button>
-    <button class="btn btn-danger" onclick="confirmDelete()"><i class="fas fa-trash"></i></button>`;
+    <a href="deals.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> All Deals</a>
+    <button class="btn btn-danger" onclick="confirmDelete()" style="padding:9px 12px;" title="Delete deal"><i class="fas fa-trash"></i></button>`;
 
   const linked = deal.investors || [];
   const totalCommitted = linked.reduce((s,i)=>s+(i.committed||0),0);
@@ -298,6 +293,8 @@ function render() {
   const pctRaised = raise > 0 ? Math.min(100,(totalCommitted/raise*100)).toFixed(1) : 0;
   const dists = SP.getDistributions().filter(d=>d.dealId===deal.id);
   const totalDist = dists.reduce((s,d)=>s+(d.totalAmount||0),0);
+
+  const capitalCalls = SP.load('capitalCalls', []).filter(c => c.dealId === deal.id);
 
   document.getElementById('mainContent').innerHTML = `
     <!-- Hero -->
@@ -310,7 +307,6 @@ function render() {
         <div class="deal-badges">
           <span class="deal-badge badge-type">${TYPE_LABEL[deal.type]||deal.type||'—'}</span>
           <span class="deal-badge ${STATUS_BADGE[deal.status]||''}">${STATUS_LABEL[deal.status]||deal.status||'—'}</span>
-          <span class="deal-badge" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);">Added ${deal.added||'—'}</span>
         </div>
       </div>
       <div class="deal-metrics">
@@ -318,16 +314,54 @@ function render() {
         <div class="deal-metric"><div class="val">${deal.irr?deal.irr.toFixed(1)+'%':'—'}</div><div class="lbl">Target IRR</div></div>
         <div class="deal-metric"><div class="val">${deal.equity?deal.equity.toFixed(2)+'x':'—'}</div><div class="lbl">Equity Multiple</div></div>
         <div class="deal-metric"><div class="val">${linked.length}</div><div class="lbl">Investors</div></div>
+        <div class="deal-metric"><div class="val" style="color:#34d399;">${fmt$(totalDist)}</div><div class="lbl">Distributed</div></div>
       </div>
     </div>
 
-    <!-- Capital progress -->
-    <div class="card">
-      <div class="card-header"><div class="card-title">Capital Raise Progress</div><span style="font-size:.875rem;color:var(--text-secondary);">${fmtFull$(totalCommitted)} / ${fmtFull$(raise)}</span></div>
-      <div class="card-body">
+    <!-- ── DEAL ACTIONS — what do you want to do? ─────────────────────── -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:22px;">
+      <button onclick="openAddInvModal()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;font-family:inherit;" onmouseover="this.style.borderColor='#0ea5e9';this.style.background='rgba(14,165,233,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+        <div style="width:40px;height:40px;background:rgba(14,165,233,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#38bdf8;"><i class="fas fa-user-plus"></i></div>
+        <span style="font-size:13px;font-weight:700;">Add Investor</span>
+        <span style="font-size:11px;color:#94A3B8;text-align:center;">Link an LP to this deal</span>
+      </button>
+      <a href="distribution-calc.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#10b981';this.style.background='rgba(16,185,129,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+        <div style="width:40px;height:40px;background:rgba(16,185,129,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#34d399;"><i class="fas fa-bolt"></i></div>
+        <span style="font-size:13px;font-weight:700;">Run Distribution</span>
+        <span style="font-size:11px;color:#94A3B8;text-align:center;">Calculate &amp; pay investors</span>
+      </a>
+      <a href="capital-calls.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#f59e0b';this.style.background='rgba(245,158,11,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+        <div style="width:40px;height:40px;background:rgba(245,158,11,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fbbf24;"><i class="fas fa-hand-holding-usd"></i></div>
+        <span style="font-size:13px;font-weight:700;">Capital Call</span>
+        <span style="font-size:11px;color:#94A3B8;text-align:center;">Request funds from LPs</span>
+      </a>
+      <a href="deal-room.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#8b5cf6';this.style.background='rgba(139,92,246,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+        <div style="width:40px;height:40px;background:rgba(139,92,246,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#a78bfa;"><i class="fas fa-folder-open"></i></div>
+        <span style="font-size:13px;font-weight:700;">Deal Room</span>
+        <span style="font-size:11px;color:#94A3B8;text-align:center;">Upload &amp; share documents</span>
+      </a>
+      <a href="k1-generator.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+        <div style="width:40px;height:40px;background:rgba(148,163,184,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#CBD5E1;"><i class="fas fa-file-invoice-dollar"></i></div>
+        <span style="font-size:13px;font-weight:700;">Generate K-1s</span>
+        <span style="font-size:11px;color:#94A3B8;text-align:center;">Tax reports for LPs</span>
+      </a>
+      <a href="new-deal.html?id=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#F8FAFC;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+        <div style="width:40px;height:40px;background:rgba(148,163,184,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#CBD5E1;"><i class="fas fa-calculator"></i></div>
+        <span style="font-size:13px;font-weight:700;">Model / Edit</span>
+        <span style="font-size:11px;color:#94A3B8;text-align:center;">Update deal structure</span>
+      </a>
+    </div>
+
+    <!-- Capital progress bar -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-body" style="padding:16px 22px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:13px;font-weight:600;color:#F8FAFC;">Capital Raise Progress</span>
+          <span style="font-size:13px;color:#94A3B8;">${fmtFull$(totalCommitted)} raised of ${fmtFull$(raise)} target</span>
+        </div>
         <div class="cap-bar"><div class="cap-fill" style="width:${pctRaised}%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--text-secondary);margin-top:6px;">
-          <span><strong style="color:#F8FAFC;">${pctRaised}%</strong> raised</span>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#94A3B8;margin-top:6px;">
+          <span><strong style="color:#F8FAFC;">${pctRaised}%</strong> funded · ${linked.length} investor${linked.length!==1?'s':''}</span>
           <span>${fmtFull$(Math.max(0,raise-totalCommitted))} remaining</span>
         </div>
       </div>
@@ -335,12 +369,12 @@ function render() {
 
     <!-- Tabs -->
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('investors',this)"><i class="fas fa-users"></i> Investors (${linked.length})</button>
-      <button class="tab" onclick="switchTab('distributions',this)"><i class="fas fa-wallet"></i> Distributions (${dists.length})</button>
+      <button class="tab active" onclick="switchTab('investors',this)"><i class="fas fa-users"></i> Investors <span style="background:rgba(255,255,255,0.1);border-radius:99px;padding:1px 7px;font-size:11px;margin-left:4px;">${linked.length}</span></button>
+      <button class="tab" onclick="switchTab('distributions',this)"><i class="fas fa-wallet"></i> Distributions <span style="background:rgba(255,255,255,0.1);border-radius:99px;padding:1px 7px;font-size:11px;margin-left:4px;">${dists.length}</span></button>
+      <button class="tab" onclick="switchTab('capitalcalls',this)"><i class="fas fa-hand-holding-usd"></i> Capital Calls <span style="background:rgba(255,255,255,0.1);border-radius:99px;padding:1px 7px;font-size:11px;margin-left:4px;">${capitalCalls.length}</span></button>
       <button class="tab" onclick="switchTab('documents',this)"><i class="fas fa-file-contract"></i> Documents</button>
-      <button class="tab" onclick="switchTab('subscriptions',this)"><i class="fas fa-file-signature"></i> Sub Docs</button>
       <button class="tab" onclick="switchTab('compliance',this)"><i class="fas fa-shield-alt"></i> Compliance</button>
-      <button class="tab" onclick="switchTab('edit',this)"><i class="fas fa-edit"></i> Edit Deal</button>
+      <button class="tab" onclick="switchTab('edit',this)"><i class="fas fa-edit"></i> Edit</button>
     </div>
 
     <!-- Investors Tab -->
@@ -348,7 +382,7 @@ function render() {
       <div class="card">
         <div class="card-header">
           <div class="card-title">Linked Investors</div>
-          <button class="btn btn-primary" style="padding:8px 14px;font-size:.8rem;" onclick="openAddInvModal()"><i class="fas fa-plus"></i> Add Investor</button>
+          <button class="btn btn-primary" style="padding:8px 14px;font-size:.8rem;" onclick="openAddInvModal()"><i class="fas fa-user-plus"></i> Add Investor</button>
         </div>
         <div class="card-body" style="padding-top:0;">
           ${renderInvestorsTable(linked)}
@@ -358,13 +392,66 @@ function render() {
 
     <!-- Distributions Tab -->
     <div class="tab-panel" id="tab-distributions">
+      <!-- CTA to run a new distribution -->
+      <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.06));border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:700;font-size:15px;color:#F8FAFC;margin-bottom:3px;"><i class="fas fa-bolt" style="color:#34d399;margin-right:8px;"></i>Ready to run a distribution?</div>
+          <div style="font-size:13px;color:#94A3B8;">The Distribution Command Center calculates pref-aware splits and posts to each investor's ledger.</div>
+        </div>
+        <a href="distribution-calc.html?deal=${deal.id}" class="btn btn-primary" style="white-space:nowrap;background:#10b981;">
+          <i class="fas fa-bolt"></i> Run Distribution for This Deal
+        </a>
+      </div>
       <div class="card">
         <div class="card-header">
           <div class="card-title">Distribution History</div>
-          <a href="distributions.html?deal=${deal.id}" class="btn btn-primary" style="padding:8px 14px;font-size:.8rem;"><i class="fas fa-plus"></i> Record Distribution</a>
+          <a href="distributions.html" class="btn btn-secondary" style="padding:7px 12px;font-size:.8rem;"><i class="fas fa-history"></i> All Distributions</a>
         </div>
         <div class="card-body">
           ${renderDistributions(dists)}
+        </div>
+      </div>
+    </div>
+
+    <!-- Capital Calls Tab -->
+    <div class="tab-panel" id="tab-capitalcalls">
+      <!-- CTA to issue a capital call -->
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.05));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:700;font-size:15px;color:#F8FAFC;margin-bottom:3px;"><i class="fas fa-hand-holding-usd" style="color:#fbbf24;margin-right:8px;"></i>Need to call capital?</div>
+          <div style="font-size:13px;color:#94A3B8;">Issue a notice to all linked investors requesting their capital contribution.</div>
+        </div>
+        <a href="capital-calls.html?deal=${deal.id}" class="btn btn-primary" style="white-space:nowrap;background:#f59e0b;">
+          <i class="fas fa-hand-holding-usd"></i> Issue Capital Call
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Capital Call History</div>
+        </div>
+        <div class="card-body">
+          ${capitalCalls.length ? `
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead><tr>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Call #</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Amount</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Due Date</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Status</th>
+                </tr></thead>
+                <tbody>${capitalCalls.map(c => {
+                  const isOverdue = c.dueDate && new Date(c.dueDate) < new Date() && c.status !== 'received';
+                  const statusColor = c.status === 'received' ? '#34d399' : isOverdue ? '#f87171' : '#fbbf24';
+                  const statusLabel = c.status === 'received' ? 'Received' : isOverdue ? 'Overdue' : 'Pending';
+                  return `<tr>
+                    <td style="padding:12px 14px;color:#CBD5E1;">${c.callNumber||'Initial'}</td>
+                    <td style="padding:12px 14px;font-family:'JetBrains Mono',monospace;font-weight:700;">${fmtFull$(c.amount||0)}</td>
+                    <td style="padding:12px 14px;color:${isOverdue?'#f87171':'#94A3B8'};">${c.dueDate||'—'}</td>
+                    <td style="padding:12px 14px;"><span style="background:${statusColor}22;color:${statusColor};padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">${statusLabel}</span></td>
+                  </tr>`;
+                }).join('')}</tbody>
+              </table>
+            </div>` : `<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><p>No capital calls yet for this deal.</p></div>`}
         </div>
       </div>
     </div>
