@@ -22,6 +22,12 @@
   }
   link.href = base + 'css/dt-global.css';
   document.head.prepend(link);
+// Inject Dark Mode Overrides
+  const darkLink = document.createElement('link');
+  darkLink.id   = 'dt-dark-overrides';
+  darkLink.rel  = 'stylesheet';
+  darkLink.href = base + 'css/dt-dark-overrides.css';
+  document.head.appendChild(darkLink);
 
   // Also inject Font Awesome if not present
   if (!document.querySelector('link[href*="font-awesome"]')) {
