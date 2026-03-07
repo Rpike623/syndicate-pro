@@ -104,16 +104,16 @@ window.SP = (function () {
 
   // All demo accounts share one org so data flows freely between GP and LP views
   // Note: demo-gp2@deeltrack.com is EXCLUDED for data isolation testing
-  const DEMO_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com'];
+  const DEMO_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com','demo-gp2@deeltrack.com'];
   const DEMO_ORG_ID = 'deeltrack_demo';
 
   function getOrgId() {
     const s = getSession();
     if (!s) return null;
-    // Demo accounts always share the same org (except demo-gp2 which has its own org for testing)
-    if (s.email && DEMO_EMAILS.includes(s.email.toLowerCase())) return DEMO_ORG_ID;
-    // v2.0 Priority: Use stored orgId (this is where Marcus gets his unique org)
+    // v2.0 Priority: Use stored orgId FIRST - this is where Marcus gets his unique org
     if (s.orgId) return s.orgId;
+    // Demo accounts use shared org (except demo-gp2 which should have stored orgId from auth)
+    if (s.email && DEMO_EMAILS.includes(s.email.toLowerCase())) return DEMO_ORG_ID;
     // Fallback: derive from email
     return simpleHash(s.email.toLowerCase());
   }
