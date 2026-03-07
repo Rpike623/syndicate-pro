@@ -26,7 +26,7 @@
     /* Top bar */
     .top-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 32px; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; flex-shrink:0; }
     .top-bar h1 { font-size:17px; font-weight:700; color:#F8FAFC; margin:0; }
-    .top-bar p { font-size:12px; color:#64748b; margin:0; }
+    .top-bar p { font-size:12px; color: #94A3B8; margin:0; }
     .mobile-menu-btn { display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 10px; cursor:pointer; }
     @media(max-width:768px){.mobile-menu-btn{display:flex!important;} .top-bar{padding:0 14px;}}
 
@@ -36,7 +36,7 @@
 
     /* Step flow indicator */
     .steps { display:flex; gap:0; margin-bottom:28px; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-    .step { flex:1; padding:14px 20px; display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:#64748b; position:relative; }
+    .step { flex:1; padding:14px 20px; display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color: #94A3B8; position:relative; }
     .step.active { color:#F8FAFC; background:rgba(14,165,233,0.08); }
     .step.done { color:var(--success); }
     .step-num { width:24px; height:24px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; }
@@ -52,20 +52,20 @@
     .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
     .card-hdr { padding:16px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
     .card-hdr h2 { font-size:14px; font-weight:700; color:#F8FAFC; margin:0; }
-    .card-hdr p { font-size:11px; color:#64748b; margin:2px 0 0; }
+    .card-hdr p { font-size:11px; color: #94A3B8; margin:2px 0 0; }
     .card-body { padding:22px; }
 
     /* Form */
     .form-group { margin-bottom:18px; }
     .form-group:last-child { margin-bottom:0; }
-    .form-group label { display:block; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:7px; }
+    .form-group label { display:block; font-size:11px; font-weight:700; color: #94A3B8; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:7px; }
     .form-group input, .form-group select { width:100%; padding:11px 14px; background:#0B1120; border:1px solid var(--border); border-radius:8px; color:#F8FAFC; font-size:14px; font-family:inherit; outline:none; transition:border-color 0.15s; }
     .form-group input:focus, .form-group select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(14,165,233,0.1); }
 
     /* Summary tiles */
     .summary-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:20px 0; }
     .stile { background:#0B1120; border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
-    .stile-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#64748b; margin-bottom:4px; }
+    .stile-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color: #94A3B8; margin-bottom:4px; }
     .stile-val { font-size:20px; font-weight:800; font-family:'JetBrains Mono',monospace; letter-spacing:-0.03em; color:#F8FAFC; }
 
     /* Waterfall tier breakdown */
@@ -76,9 +76,9 @@
     .wf-tier.tier-catchup { border-left-color:var(--accent); }
     .wf-tier.tier-split { border-left-color:var(--success); }
     .wf-tier-name { font-size:12px; font-weight:600; color:#F8FAFC; flex:1; }
-    .wf-tier-desc { font-size:11px; color:#64748b; }
+    .wf-tier-desc { font-size:11px; color: #94A3B8; }
     .wf-tier-amount { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; color:#F8FAFC; text-align:right; }
-    .wf-tier-split { font-size:11px; color:#64748b; text-align:right; white-space:nowrap; }
+    .wf-tier-split { font-size:11px; color: #94A3B8; text-align:right; white-space:nowrap; }
 
     /* Pref tracking callout */
     .pref-callout { background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:14px 16px; margin:16px 0; font-size:12px; color:#fcd34d; line-height:1.6; }
@@ -92,7 +92,7 @@
     /* Ledger table */
     .table-scroll { overflow-x:auto; }
     table { width:100%; border-collapse:collapse; }
-    th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#64748b; padding:11px 16px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); text-align:left; white-space:nowrap; }
+    th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color: #94A3B8; padding:11px 16px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); text-align:left; white-space:nowrap; }
     th.right, td.right { text-align:right; }
     td { padding:13px 16px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13px; color:#E2E8F0; vertical-align:middle; }
     tr:hover td { background:rgba(255,255,255,0.025); }
@@ -106,7 +106,7 @@
     .status-executed { background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); }
 
     /* Empty state */
-    .empty-ledger { text-align:center; padding:60px 20px; color:#64748b; }
+    .empty-ledger { text-align:center; padding:60px 20px; color: #94A3B8; }
     .empty-ledger i { font-size:2rem; opacity:0.2; display:block; margin-bottom:14px; }
 
     /* Success banner */
@@ -258,7 +258,7 @@
 
             <!-- Waterfall tier breakdown -->
             <div style="padding:0 22px 16px;" id="tierSection" style="display:none;">
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin:16px 0 8px;">Waterfall Tiers</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94A3B8;margin:16px 0 8px;">Waterfall Tiers</div>
               <div class="waterfall-tiers" id="tierBreakdown"></div>
             </div>
 

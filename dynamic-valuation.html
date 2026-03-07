@@ -33,7 +33,7 @@
 
         .slider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
         .slider-group { margin-bottom: 24px; }
-        .slider-group label { display: flex; justify-content: space-between; font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 12px; }
+        .slider-group label { display: flex; justify-content: space-between; font-size: 0.75rem; text-transform: uppercase; color: #94A3B8; font-weight: 700; margin-bottom: 12px; }
         .slider-group input { width: 100%; height: 6px; border-radius: 3px; background: #1E293B; appearance: none; outline: none; }
         .slider-group input::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 3px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
 
@@ -48,7 +48,7 @@
         <div class="header">
             <div>
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Dynamic Asset Valuation</h1>
-                <p style="color: #64748b;">Mark-to-market modeling based on live NOI and market Cap Rates</p>
+                <p style="color:#94A3B8;">Mark-to-market modeling based on live NOI and market Cap Rates</p>
             </div>
             <select id="dealSelect" onchange="loadDeal()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; background: #111827; font-weight: 600;">
                 <option value="">— Select Asset —</option>
@@ -74,10 +74,10 @@
                 </div>
                 <div class="right-data">
                     <div style="background: #0B1120; padding: 20px; border-radius: 12px; border: 1px solid #1E293B;">
-                        <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Implied Unit Price</div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color:#94A3B8; text-transform: uppercase;">Implied Unit Price</div>
                         <div style="font-size: 1.5rem; font-weight: 700; margin-top: 4px;" id="vUnitPrice">$0</div>
                         
-                        <div style="font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 20px;">Net Equity Position</div>
+                        <div style="font-size: 0.7rem; font-weight: 700; color:#94A3B8; text-transform: uppercase; margin-top: 20px;">Net Equity Position</div>
                         <div style="font-size: 1.5rem; font-weight: 700; margin-top: 4px; color: var(--success);" id="vNetEquity">$0</div>
                     </div>
                 </div>

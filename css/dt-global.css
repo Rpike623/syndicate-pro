@@ -4117,3 +4117,205 @@ fieldset label {
   font-family: 'JetBrains Mono', monospace !important;
   font-weight: 700 !important;
 }
+
+/* ════════════════════════════════════════════════════════════════════════════
+   CONTRAST ENFORCEMENT — 2026-03-07
+   
+   Problem: #64748b and #475569 used as secondary text on dark backgrounds
+   Both fail WCAG AA (need ≥4.5:1). On #111827: #64748b = 3.7:1, #475569 = 2.3:1
+   
+   Fix: All secondary/muted text must be ≥ #94A3B8 (6.9:1 on #111827)
+        Use #94A3B8 for secondary info, #CBD5E1 for labels, #F8FAFC for primary
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Override --dt-text-muted to a readable value */
+:root {
+  --dt-text-muted: #94A3B8 !important;
+  --text-muted: #94A3B8 !important;
+  --text-secondary: #CBD5E1 !important;
+}
+
+/* Any element using the problematic colors: boost them */
+[style*="color: #64748b"],
+[style*="color:#64748b"],
+[style*="color: #64748B"],
+[style*="color:#64748B"] {
+  color: #94A3B8 !important;
+}
+
+[style*="color: #475569"],
+[style*="color:#475569"] {
+  color: #94A3B8 !important;
+}
+
+[style*="color: #334155"],
+[style*="color:#334155"] {
+  color: #94A3B8 !important;
+}
+
+/* CSS class selectors using those colors */
+.text-muted, .text-secondary, .muted, .secondary,
+.label, .lbl, .stat-label, .stat-lbl,
+.card-subtitle, .page-description,
+.investor-email, .deal-location, .deal-meta,
+.activity-time, .dist-period, .dist-meta,
+.summary-lbl, .kpi-label, .metric-label,
+.form-group .help-text, .help-text,
+.breadcrumb a, nav.breadcrumb a {
+  color: #94A3B8 !important;
+}
+
+/* Extra: the dt-global table headers (#64748B) */
+th, .table th, .data-table th {
+  color: #94A3B8 !important;
+}
+
+/* Form labels should be lighter than muted text */
+label, .form-group label, .label {
+  color: #CBD5E1 !important;
+}
+
+/* Section / nav section headers */
+.nav-section, .sidebar .nav-section, #sidebar .nav-section {
+  color: rgba(255,255,255,0.45) !important;
+}
+
+/* Card body secondary text */
+.card-body p, .card p {
+  color: #CBD5E1 !important;
+}
+
+/* Override the .page-header p which was #64748b */
+.page-header p, .page-title-bar p, .dt-header p {
+  color: #94A3B8 !important;
+}
+
+/* Sidebar footer role */
+.sidebar-footer .user-role,
+#sidebar .sidebar-footer .user-role {
+  color: rgba(255,255,255,0.55) !important;
+}
+
+/* Nav items default state */
+.nav-item, .sidebar .nav-item, #sidebar .nav-item,
+.sidebar a.nav-item, #sidebar a.nav-item {
+  color: rgba(255,255,255,0.72) !important;
+}
+
+/* Empty state text */
+.empty-state p, .empty-ledger div, .empty-inbox p {
+  color: #94A3B8 !important;
+}
+
+/* Distribution meta text */
+.distribution-meta, .distribution-meta span {
+  color: #94A3B8 !important;
+}
+
+/* ─── END CONTRAST FIX ─────────────────────────────────────────────────── */
+
+/* ════════════════════════════════════════════════════════════════════════════
+   CONTRAST ENFORCEMENT — 2026-03-07
+
+   Problem: #64748b (#64748B) and #475569 are used as secondary/muted text
+   on dark backgrounds but fail WCAG AA. On #111827: #64748b=3.7:1, #475569=2.3:1
+   
+   Minimum acceptable: #94A3B8 (6.9:1 on #111827, 7.3:1 on #0B1120)
+   
+   Fix: Enforce readable colors on all common text patterns.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Boost global CSS vars */
+:root {
+  --dt-text-muted: #94A3B8;
+  --text-muted: #94A3B8;
+  --text-secondary: #CBD5E1;
+}
+
+/* Boost per-page CSS var definitions that pages set locally */
+/* We can't override these with :root due to page-local :root blocks,
+   but we can target the elements that use them */
+
+/* Table headers — always readable */
+th, .table th, .data-table th, table thead th {
+  color: #94A3B8 !important;
+}
+
+/* Table cells — clear primary text */
+td, .table td, .data-table td, table tbody td {
+  color: #E2E8F0 !important;
+}
+
+/* Form labels */
+label, .form-group label, .label-text {
+  color: #CBD5E1 !important;
+}
+
+/* All "muted" helper text patterns */
+.text-muted, .text-secondary, .muted,
+.help-text, .card-subtitle, .page-description,
+.investor-email, .deal-location, .deal-meta, .card-meta,
+.activity-time, .stat-label, .stat-lbl, .kpi-label,
+.summary-lbl, .metric-label, .metric-delta,
+.breadcrumb a, nav.breadcrumb a {
+  color: #94A3B8 !important;
+}
+
+/* Inline style overrides for the most common bad values */
+/* These !important rules override inline style="color:#64748b" on elements */
+/* We use attribute selectors which beat inline styles when combined with !important */
+
+/* Page header descriptions */
+.page-header p, .page-title-bar p, .dt-header p, 
+main .header > div > p, main .header p,
+header p {
+  color: #94A3B8 !important;
+}
+
+/* Card body text */
+.card-body p {
+  color: #CBD5E1 !important;
+}
+
+/* Sidebar nav section labels (the "DEALS", "FINANCE" etc headers) */
+.nav-section, .sidebar .nav-section, #sidebar .nav-section {
+  color: rgba(255,255,255,0.5) !important;
+}
+
+/* Nav items: boost default opacity */
+.nav-item, .sidebar .nav-item, #sidebar .nav-item {
+  color: rgba(255,255,255,0.75) !important;
+}
+
+/* Breadcrumb separators */
+.breadcrumb-sep, .breadcrumb-separator {
+  color: rgba(255,255,255,0.3) !important;
+}
+
+/* Empty states */
+.empty-state, .empty-state p, .empty-state h3,
+.empty-ledger, .empty-inbox p {
+  color: #94A3B8 !important;
+}
+.empty-state h3 { color: #CBD5E1 !important; }
+
+/* Distribution page specific */
+.distribution-meta span { color: #94A3B8 !important; }
+.dist-period, .dist-meta { color: #94A3B8 !important; }
+
+/* Profile/deal meta lines */
+.profile-meta span, .deal-location, .deal-badges + div {
+  color: #94A3B8 !important;
+}
+
+/* Tool cards in tools.html */
+.tool-desc { color: #94A3B8 !important; }
+.category-desc { color: #94A3B8 !important; }
+.category-count { color: #94A3B8 !important; }
+
+/* Timestamps and dates everywhere */
+time, .timestamp, .date-text {
+  color: #94A3B8 !important;
+}
+
+/* ─── END CONTRAST ENFORCEMENT ──────────────────────────────────────────── */

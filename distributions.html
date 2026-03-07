@@ -222,8 +222,11 @@
           <div class="left-panel">
             <div class="card">
               <div class="card-header">
-                <div><h2 class="card-title">Distribution History</h2><p class="card-subtitle">All recorded distributions</p></div>
-                <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> Record Distribution</button>
+                <div><h2 class="card-title">Distribution History</h2><p class="card-subtitle">Click any distribution to see the per-investor split</p></div>
+                <div style="display:flex;gap:8px;">
+                  <a href="distribution-calc.html" class="btn btn-primary" style="padding:8px 16px;font-size:13px;text-decoration:none;"><i class="fas fa-bolt"></i> New Distribution</a>
+                  <button class="btn btn-secondary" onclick="openModal()" style="padding:8px 14px;font-size:13px;" title="Quick record (no pref calc)"><i class="fas fa-plus"></i></button>
+                </div>
               </div>
               <div class="card-body" id="distributionList">
                 <div class="empty-state">
@@ -298,7 +301,9 @@
     const formatCurrency = fmt$;
 
     // Helper to get deal name from dealId
-    function getDealName(dealId) {
+    // Priority: 1) stored dealName on the distribution object  2) lookup by ID  3) 'Unknown'
+    function getDealName(dealId, dist) {
+      if (dist?.dealName) return dist.dealName;
       if (!dealId) return 'Unknown';
       const deal = deals.find(d => d.id === dealId);
       return deal?.name || 'Unknown';
@@ -320,67 +325,147 @@
       return `<span style="display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;font-size:0.82rem;font-weight:700;padding:4px 12px;border-radius:99px;"><i class="fas fa-pencil-alt"></i> Draft</span>`;
     }
 
-    function prefHelpTooltip() {
-      return `<span style="cursor:help;margin-left:6px;position:relative;display:inline-flex;" title="Preferred return is satisfied first from each distribution. Once the pref hurdle is met for this period, excess cash is split pro-rata by ownership percentage."><i class="fas fa-info-circle" style="color:#64748b;font-size:0.75rem;"></i></span>`;
-    }
-
     // ── Render list ───────────────────────────────────────────────────────
     function renderDistributions() {
       distributions = SP.getDistributions();
       const container = document.getElementById('distributionList');
       if (!distributions.length) {
-        container.innerHTML = `<div class="empty-state"><div class="icon"><i class="fas fa-wallet"></i></div><h3>No distributions yet</h3><p>Create a draft, preview the pref-aware split, then post it to lock the ledger.</p></div>`;
+        container.innerHTML = `<div class="empty-state"><div class="icon"><i class="fas fa-wallet"></i></div><h3>No distributions yet</h3><p>Use the <a href="distribution-calc.html" style="color:var(--accent);">Distribution Command Center</a> to calculate splits and post your first distribution.</p></div>`;
         return;
       }
-      container.innerHTML = distributions.slice().reverse().map(dist => {
-        const totalPrefPaid = (dist.recipients||[]).reduce((s,r)=>s+(r.prefPaidThisDist||0),0);
-        const totalExcess   = (dist.recipients||[]).reduce((s,r)=>s+(r.excessThisDist||0),0);
+      container.innerHTML = distributions.slice().reverse().map((dist, idx) => {
         const isPosted = dist.status === 'posted';
-        const prefBreakdown = dist.prefAware
-          ? `<div style="margin-top:10px;padding:10px 14px;background:var(--border-light);border-radius:var(--radius);font-size:0.8rem;display:flex;gap:24px;flex-wrap:wrap;">
-               <span><i class="fas fa-star" style="color:#f59e0b;"></i> Pref Paid: <strong>${fmt$(totalPrefPaid)}</strong></span>
-               <span><i class="fas fa-chart-pie" style="color:#0ea5e9;"></i> Excess: <strong>${fmt$(totalExcess)}</strong></span>
-               <span><i class="fas fa-users" style="color:#64748b;"></i> ${(dist.recipients||[]).length} investors</span>
-             </div>`
-          : '';
-        const postBtn = !isPosted
-          ? `<button onclick="postDistribution('${dist.id}')" class="btn btn-success" style="margin-top:8px;padding:10px 20px;font-size:0.9rem;"><i class="fas fa-paper-plane"></i> Post Distribution</button>`
-          : '';
-        const draftWarning = !isPosted
-          ? `<div style="margin-top:10px;padding:10px 16px;background:#111827beb;border:1px solid #fde68a;border-radius:8px;font-size:0.82rem;color:#92400e;display:flex;align-items:center;gap:8px;">
-               <i class="fas fa-exclamation-triangle" style="color:#d97706;"></i>
-               <span><strong>Draft</strong> — This distribution will not affect investor calculations or pref tracking until you post it.</span>
-             </div>`
-          : '';
+        const recipients = dist.recipients || [];
+        const total = dist.totalAmount || dist.amount || 0;
+        const totalPrefPaid = recipients.reduce((s,r)=>s+(r.prefPaidThisDist||0),0);
+        const hasPref = dist.prefAware && totalPrefPaid > 0;
+        const distId = dist.id || 'dist_' + idx;
+        const dealName = getDealName(dist.dealId, dist);
+        const period = dist.period || (dist.quarter && dist.year ? dist.quarter + ' ' + dist.year : '');
+        const dateStr = dist.date ? new Date(dist.date + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+
+        // Build per-investor rows with bar charts — this is the value prop
+        const recipientRows = recipients.length
+          ? recipients.map(r => {
+              const investor = SP.getInvestorById ? SP.getInvestorById(r.investorId) : null;
+              const name = investor ? `${investor.firstName} ${investor.lastName}` : `Investor`;
+              const amount = r.amount || r.totalThisDist || 0;
+              const pct = total > 0 ? (amount / total * 100) : 0;
+              const pref = r.prefPaidThisDist || 0;
+              const excess = r.excessThisDist || amount;
+              const ownership = r.ownership || 0;
+              const barWidth = Math.min(100, Math.max(2, pct));
+              return `
+                <div class="investor-split-row" style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:white;flex-shrink:0;">
+                        ${((investor?.firstName?.[0]||'?') + (investor?.lastName?.[0]||'')).toUpperCase()}
+                      </div>
+                      <div>
+                        <div style="font-weight:600;font-size:14px;color:#F8FAFC;">${name}</div>
+                        <div style="font-size:11px;color:#94A3B8;">${ownership.toFixed(2)}% ownership</div>
+                      </div>
+                    </div>
+                    <div style="text-align:right;">
+                      <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:16px;color:#34d399;">${fmt$(amount)}</div>
+                      <div style="font-size:11px;color:#94A3B8;">${pct.toFixed(1)}% of total</div>
+                    </div>
+                  </div>
+                  <!-- Animated progress bar -->
+                  <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;margin-bottom:${hasPref?'6px':'0'};">
+                    <div class="split-bar" data-width="${barWidth}" style="height:100%;width:0%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:6px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);"></div>
+                  </div>
+                  ${hasPref && pref > 0 ? `
+                  <div style="display:flex;gap:12px;font-size:11px;color:#94A3B8;">
+                    <span><i class="fas fa-star" style="color:#f59e0b;margin-right:3px;"></i>Pref: <strong style="color:#fbbf24;">${fmt$(pref)}</strong></span>
+                    <span><i class="fas fa-chart-pie" style="color:#0ea5e9;margin-right:3px;"></i>Excess: <strong style="color:#38bdf8;">${fmt$(excess)}</strong></span>
+                  </div>` : ''}
+                </div>`;
+            }).join('') + `
+            <div style="padding:14px 0;display:flex;justify-content:space-between;font-weight:700;border-top:2px solid rgba(255,255,255,0.1);margin-top:4px;">
+              <span style="color:#94A3B8;font-size:13px;">${recipients.length} investor${recipients.length!==1?'s':''}</span>
+              <span style="font-family:'JetBrains Mono',monospace;color:#34d399;font-size:15px;">${fmt$(total)}</span>
+            </div>`
+          : `<div style="padding:20px;text-align:center;color:#94A3B8;font-size:13px;">No per-investor data recorded for this distribution.</div>`;
+
         return `
-        <div class="distribution-card" style="border-left:4px solid ${isPosted ? 'var(--success)' : '#f59e0b'};background:${isPosted ? '#111827' : '#111827df7'};">
-          <div class="distribution-header">
-            <div style="flex:1;">
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span class="distribution-title">${getDealName(dist.dealId)}${dist.period ? ' — ' + dist.period : (dist.quarter && dist.year ? ' — ' + dist.quarter + ' ' + dist.year : '')}</span>
+        <div class="distribution-card" style="border:1px solid ${isPosted ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'};border-left:4px solid ${isPosted ? '#10b981' : '#f59e0b'};border-radius:12px;margin-bottom:16px;overflow:hidden;background:#111827;">
+          <!-- Header — always visible, click to expand -->
+          <div onclick="toggleSplit('${distId}')" style="padding:18px 22px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;user-select:none;">
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                <span style="font-size:15px;font-weight:700;color:#F8FAFC;">${dealName}</span>
+                ${period ? `<span style="font-size:13px;color:#94A3B8;">— ${period}</span>` : ''}
                 ${statusBadge(dist.status)}
-                ${dist.prefAware ? `<span style="background:#fef3c7;color:#b45309;font-size:0.72rem;font-weight:600;padding:2px 8px;border-radius:99px;"><i class="fas fa-star"></i> Pref-Tracked</span>${prefHelpTooltip()}` : ''}
+                ${hasPref ? `<span style="background:rgba(245,158,11,0.15);color:#fbbf24;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;border:1px solid rgba(245,158,11,0.3);"><i class="fas fa-star"></i> Pref-Tracked</span>` : ''}
               </div>
-              <div style="font-size:.875rem;color:var(--text-secondary);margin-top:4px;">
-                <i class="fas fa-calendar"></i> ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'} &nbsp;·&nbsp;
-                <i class="fas fa-credit-card"></i> ${dist.method||'Wire'} &nbsp;·&nbsp;
-                <i class="fas fa-users"></i> ${(dist.recipients||[]).length||dist.investorCount||0} investors
-                ${isPosted && dist.postedAt ? `&nbsp;·&nbsp;<i class="fas fa-lock"></i> Posted ${new Date(dist.postedAt).toLocaleDateString()}` : ''}
+              <div style="font-size:12px;color:#94A3B8;display:flex;flex-wrap:wrap;gap:12px;">
+                <span><i class="fas fa-calendar"></i> ${dateStr}</span>
+                <span><i class="fas fa-credit-card"></i> ${dist.method||'Wire'}</span>
+                <span><i class="fas fa-users"></i> ${recipients.length} investor${recipients.length!==1?'s':''}</span>
+                ${isPosted && dist.postedAt ? `<span style="color:#34d399;"><i class="fas fa-lock"></i> Posted</span>` : ''}
               </div>
             </div>
-            <div style="text-align:right;">
-              <div class="distribution-amount">${fmt$(dist.totalAmount||dist.amount||0)}</div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:22px;color:#34d399;">${fmt$(total)}</div>
+              <div style="font-size:11px;color:#94A3B8;margin-top:2px;">
+                <i class="fas fa-chevron-down" id="chevron_${distId}" style="transition:transform 0.2s;"></i> breakdown
+              </div>
             </div>
           </div>
-          <div class="distribution-meta">
-            <span><i class="fas fa-building"></i> ${getDealName(dist.dealId)}</span>
-            <span>${dist.notes||''}</span>
+          
+          <!-- Draft warning -->
+          ${!isPosted ? `
+          <div style="margin:0 22px 12px;padding:10px 14px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;font-size:12px;color:#fcd34d;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+            <span><i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i><strong>Draft</strong> — Not locked. Won't affect pref tracking until posted.</span>
+            <button onclick="event.stopPropagation();postDistribution('${distId}')" class="btn btn-success" style="padding:6px 14px;font-size:12px;white-space:nowrap;"><i class="fas fa-lock"></i> Post Now</button>
+          </div>` : ''}
+
+          <!-- Expandable investor split breakdown -->
+          <div id="split_${distId}" style="display:none;border-top:1px solid rgba(255,255,255,0.08);">
+            <div style="padding:0 22px 16px;">
+              <!-- Pref summary bar if applicable -->
+              ${hasPref ? `
+              <div style="padding:12px 16px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;margin:16px 0;font-size:12px;color:#fcd34d;display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+                <span style="font-weight:700;color:#F8FAFC;"><i class="fas fa-info-circle" style="margin-right:4px;color:#f59e0b;"></i>How the pref split works:</span>
+                <span>Outstanding pref <strong style="color:#fbbf24;">${fmt$(totalPrefPaid)}</strong> satisfied first</span>
+                <span>Remaining <strong style="color:#38bdf8;">${fmt$(total - totalPrefPaid)}</strong> split by ownership %</span>
+              </div>` : ''}
+              <!-- Per-investor rows -->
+              ${recipientRows}
+            </div>
           </div>
-          ${prefBreakdown}
-          ${draftWarning}
-          ${postBtn}
         </div>`;
       }).join('');
+
+      // Animate bars after render
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.split-bar[data-width]').forEach(bar => {
+          setTimeout(() => {
+            bar.style.width = bar.dataset.width + '%';
+          }, 100);
+        });
+      });
+    }
+
+    // Toggle split panel with chevron animation
+    function toggleSplit(distId) {
+      const panel = document.getElementById('split_' + distId);
+      const chevron = document.getElementById('chevron_' + distId);
+      if (!panel) return;
+      const isOpen = panel.style.display !== 'none';
+      panel.style.display = isOpen ? 'none' : 'block';
+      if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+      // Trigger bar animations when opening
+      if (!isOpen) {
+        requestAnimationFrame(() => {
+          panel.querySelectorAll('.split-bar[data-width]').forEach(bar => {
+            bar.style.width = '0%';
+            setTimeout(() => { bar.style.width = bar.dataset.width + '%'; }, 50);
+          });
+        });
+      }
     }
 
     // ── Post a draft distribution ─────────────────────────────────────────
@@ -519,10 +604,20 @@
       updateStats();
     }
 
-    window.addEventListener('spdata-ready', () => { loadDeals(); renderDistributions(); updateStats(); });
-    if (typeof SPData !== 'undefined' && SPData.isReady()) { loadDeals(); renderDistributions(); updateStats(); }
+    function autoExpandFirst() {
+      // Auto-expand the most recent posted distribution to show the split immediately
+      const dists = SP.getDistributions().filter(d => d.status === 'posted');
+      if (!dists.length) return;
+      const first = dists[dists.length - 1]; // last in array = most recent (reversed in render)
+      const id = first.id || 'dist_0';
+      setTimeout(() => { toggleSplit(id); }, 300);
+    }
+
+    window.addEventListener('spdata-ready', () => { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); });
+    if (typeof SPData !== 'undefined' && SPData.isReady()) { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); }
     renderDistributions();
     updateStats();
+    autoExpandFirst();
 
     function showToast(msg, type) {
       const bg = type === 'error' ? '#ef4444' : '#10b981';

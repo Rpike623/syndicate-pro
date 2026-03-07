@@ -30,16 +30,16 @@
 
         .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin: 32px 0; border-top: 1px solid rgba(255,255,255,0.07); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 24px 0; }
         .sum-item { display: flex; flex-direction: column; }
-        .sum-label { font-size: 0.65rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px; }
+        .sum-label { font-size: 0.65rem; text-transform: uppercase; color: #94A3B8; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px; }
         .sum-val { font-size: 1.35rem; font-weight: 800; font-family: 'JetBrains Mono'; letter-spacing: -0.02em; }
 
         .performance-box { display: flex; gap: 40px; background: #0B1120; border-radius: 8px; padding: 16px 24px; margin-bottom: 32px; border: 1px solid #1E293B; }
         .perf-stat { display: flex; flex-direction: column; }
-        .perf-label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+        .perf-label { font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; margin-bottom: 4px; }
         .perf-val { font-size: 18px; font-weight: 800; color: #F8FAFC; }
 
         .txn-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-        .txn-table th { text-align: left; font-size: 0.7rem; color: #64748b; padding: 12px 16px; border-bottom: 2px solid #1E293B; text-transform: uppercase; letter-spacing: 1px; }
+        .txn-table th { text-align: left; font-size: 0.7rem; color: #94A3B8; padding: 12px 16px; border-bottom: 2px solid #1E293B; text-transform: uppercase; letter-spacing: 1px; }
         .txn-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.85rem; }
         .txn-amt { font-family: 'JetBrains Mono'; font-weight: 600; text-align: right; }
         
@@ -65,7 +65,7 @@
     <main class="main">
         <div class="no-print" style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; gap: 12px; align-items: center;">
-                <label style="font-size: 12px; font-weight: 700; color: #64748b;">VIEW STATEMENT FOR:</label>
+                <label style="font-size: 12px; font-weight: 700; color:#94A3B8;">VIEW STATEMENT FOR:</label>
                 <select id="investorSelect" onchange="loadStatement()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; font-weight: 600; font-family: inherit; font-size: 14px; min-width: 250px;">
                     <option value="">— Select Investor —</option>
                 </select>
@@ -78,11 +78,11 @@
                 <div>
                     <div style="font-size: 0.7rem; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 8px;">Capital Account Statement</div>
                     <h1 id="investorName" style="font-size: 2rem; margin-top: 4px; font-weight: 800; letter-spacing: -0.02em;">Select Investor</h1>
-                    <div id="investorEmail" style="color: #64748b; font-size: 0.95rem; margin-top: 4px;">—</div>
+                    <div id="investorEmail" style="color:#94A3B8; font-size: 0.95rem; margin-top: 4px;">—</div>
                 </div>
                 <div style="text-align: right;">
                     <div style="font-weight: 900; font-size: 1.4rem; color:#F8FAFC;">DEELTRACK LP</div>
-                    <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px; font-weight: 500;">Period Ending: March 31, 2026</div>
+                    <div style="color:#94A3B8; font-size: 0.85rem; margin-top: 4px; font-weight: 500;">Period Ending: March 31, 2026</div>
                     <div style="color: #94a3b8; font-size: 0.7rem; margin-top: 2px;">Statement ID: DT-2026-03-${Math.floor(Math.random()*9000)+1000}</div>
                 </div>
             </div>
@@ -123,7 +123,7 @@
                 </div>
             </div>
 
-            <h3 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin-bottom: 20px;">Institutional Transaction Activity</h3>
+            <h3 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color:#94A3B8; margin-bottom: 20px;">Institutional Transaction Activity</h3>
             <table class="txn-table">
                 <thead>
                     <tr>
