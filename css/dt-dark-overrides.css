@@ -76,12 +76,12 @@ table {
   color: #F8FAFC !important;
 }
 th {
-  background-color: var(--border-light) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
   border-bottom: 1px solid #1E293B !important;
-  color: var(--text-secondary) !important;
+  color: #94A3B8 !important;
 }
 td {
-  border-bottom: 1px solid var(--border-light) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 tr:hover td {
   background-color: rgba(14, 165, 233, 0.05) !important;
@@ -118,7 +118,7 @@ tr:hover td {
   border-bottom: 2px solid #1E293B !important;
 }
 .tab {
-  color: var(--text-secondary) !important;
+  color: #94A3B8 !important;
 }
 .tab:hover {
   color: #F8FAFC !important;
@@ -143,7 +143,7 @@ tr:hover td {
   border-bottom: 1px solid #1E293B !important;
 }
 .modal-footer {
-  border-top: 1px solid var(--border-light) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
 /* Miscellaneous generic fixes */
@@ -162,6 +162,7 @@ a:hover {
 .bg-white { background-color: #111827 !important; }
 .text-gray-900 { color: #F8FAFC !important; }
 .text-gray-800 { color: #F8FAFC !important; }
-.text-gray-600 { color: var(--text-secondary) !important; }
-.text-gray-500 { color: var(--text-muted) !important; }
+.text-gray-600 { color: #94A3B8 !important; }
+.text-gray-500 { color: #64748B !important; }
 
+.text-white { color: #F8FAFC !important; }
