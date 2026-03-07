@@ -1230,9 +1230,41 @@
       set('gpEquity', s.defGPEquity || '10');
       if (document.getElementById('lpEquity')) updateLP();
 
-      // Restore draft if exists
       const urlId = new URLSearchParams(window.location.search).get('id');
-      if (!urlId) loadDraft(); // don't overwrite when editing existing deal
+      if (urlId) {
+        // EDITING EXISTING DEAL — pre-fill wizard from existing deal data
+        function _prefillFromDeal(d) {
+          if (!d) return;
+          const s2 = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null && val !== '') el.value = val; };
+          const wd = d.wizardData || {};
+          s2('dealName', d.name);
+          s2('propertyAddress', d.location || wd.propertyAddress);
+          s2('propertyType', d.type || wd.propertyType);
+          s2('companyName', d.companyName || wd.companyName);
+          s2('state', d.state || wd.state);
+          s2('propertySize', d.units || wd.propertySize);
+          s2('purchasePrice', d.purchasePrice || wd.purchasePrice);
+          s2('loanAmount', d.loanAmount || wd.loanAmount);
+          s2('prefReturn', d.prefReturn || wd.prefReturn);
+          s2('gpPromote', d.gpPromote || wd.gpPromote);
+          s2('gpEquity', d.gpEquity || wd.gpEquity);
+          s2('acqFee', d.acqFee || wd.acqFee);
+          s2('assetMgmtFee', d.assetMgmtFee || wd.assetMgmtFee);
+          s2('minInvestment', d.minInvestment || wd.minInvestment);
+          if (d.waterfallType) { const wt = document.getElementById('waterfallType'); if (wt) wt.value = d.waterfallType; }
+          updateLP(); calculateCapital(); updateWaterfallPreview();
+          const bc = document.querySelector('.breadcrumb-current');
+          if (bc) bc.textContent = `Edit: ${d.name}`;
+          document.title = `deeltrack | Edit ${d.name}`;
+        }
+        // Try immediately (localStorage), retry when Firestore loads
+        _prefillFromDeal(SP.getDealById ? SP.getDealById(urlId) : SP.getDeals().find(d => d.id === urlId));
+        window.addEventListener('spdata-ready', () => {
+          _prefillFromDeal(SP.getDealById ? SP.getDealById(urlId) : SP.getDeals().find(d => d.id === urlId));
+        }, { once: true });
+      } else {
+        loadDraft(); // Restore draft only for new deals
+      }
 
       // Auto-save on any input change
       document.querySelectorAll('input, select, textarea').forEach(el => {
@@ -1521,8 +1553,8 @@
         units: parseInt(document.getElementById('propertySize')?.value) || 0,
         status: 'sourcing',
         added: deal.createdAt ? deal.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
-        investors: [],
-        documents: [],
+        // DO NOT override investors/documents — preserve existing data when editing
+        // These are set below using the existing deal's arrays if editing
         notes: '',
         // Full wizard data for documents/proforma
         wizardData: deal,
@@ -1543,9 +1575,20 @@
       };
       if (urlId) {
         const idx = spDeals.findIndex(d => d.id === urlId);
-        if (idx >= 0) { spDeals[idx] = { ...spDeals[idx], ...spDeal }; }
-        else { spDeals.unshift(spDeal); }
+        if (idx >= 0) {
+          // Preserve existing investors and documents when editing — never wipe them
+          spDeal.investors = spDeals[idx].investors || [];
+          spDeal.documents = spDeals[idx].documents || [];
+          spDeal.status = spDeals[idx].status || 'sourcing'; // Preserve status too
+          spDeals[idx] = { ...spDeals[idx], ...spDeal };
+        } else {
+          spDeal.investors = [];
+          spDeal.documents = [];
+          spDeals.unshift(spDeal);
+        }
       } else {
+        spDeal.investors = [];
+        spDeal.documents = [];
         spDeals.unshift(spDeal);
       }
       // Auto-generate Operating Agreement and store on the deal
