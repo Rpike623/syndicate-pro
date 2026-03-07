@@ -1,0 +1,151 @@
+
+/* Error - readable red on dark */
+html body .text-danger,
+html body .text-error,
+html body [class*="danger"],
+html body [class*="error"],
+html body .badge-danger,
+html body .badge-error,
+html body .status-danger,
+html body .status-error {
+  color: #f87171 !important;
+}
+
+/* Warning - readable amber on dark */
+html body .text-warning,
+html body [class*="warning"],
+html body .badge-warning,
+html body .status-warning {
+  color: #fbbf24 !important;
+}
+
+/* Info - readable blue on dark */
+html body .text-info,
+html body [class*="info"],
+html body .badge-info,
+html body .status-info {
+  color: #38bdf8 !important;
+}
+
+/* ============================================
+   BADGES & TAGS
+   ============================================ */
+html body .badge,
+html body [class*="badge"],
+html body .tag,
+html body [class*="tag"] {
+  color: #e2e8f0 !important;
+}
+
+/* ============================================
+   MODALS & OVERLAYS
+   ============================================ */
+html body .modal-overlay,
+html body .modal-backdrop,
+html body [class*="modal-overlay"],
+html body [class*="modal-backdrop"] {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+html body .modal-content,
+html body [class*="modal-content"] {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+html body .modal-header,
+html body .modal-footer {
+  border-color: #334155 !important;
+}
+
+/* ============================================
+   SPLASH PAGE (index.html) SPECIFIC FIXES
+   ============================================ */
+html body.index-page,
+html body.splash-page {
+  background-color: #0B1120 !important;
+}
+
+/* Hero section gradient backgrounds - keep readable */
+html body .hero-bg,
+html body [class*="hero"] {
+  background-color: #0B1120 !important;
+}
+
+/* Stats section */
+html body [class*="stats"],
+html body [class*="counter"],
+html body .stat-number {
+  color: #ffffff !important;
+}
+
+/* Feature cards */
+html body [class*="feature-card"],
+html body .feature-card {
+  background-color: #111827 !important;
+  border-color: #1e293b !important;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+html body footer,
+html body .footer,
+html body [class*="footer"] {
+  background-color: #050811 !important;
+  color: #94a3b8 !important;
+}
+html body footer a {
+  color: #38bdf8 !important;
+}
+
+/* ============================================
+   TABULAR DATA / MONOSPACE
+   ============================================ */
+html body code,
+html body pre,
+html body .font-mono,
+html body [class*="mono"],
+html body .stat-value {
+  color: #e2e8f0 !important;
+}
+
+/* ============================================
+   FORCE DARK ON ANY REMAINING LIGHT ELEMENTS
+   ============================================ */
+html body .bg-white,
+html body .bg-gray-50,
+html body .bg-gray-100,
+html body .bg-gray-200,
+html body [class*="bg-white"],
+html body [class*="bg-light"] {
+  background-color: #111827 !important;
+}
+
+html body .text-gray-900,
+html body .text-gray-800,
+html body .text-gray-700 {
+  color: #f1f5f9 !important;
+}
+
+html body .text-gray-600,
+html body .text-gray-500,
+html body .text-gray-400 {
+  color: #cbd5e1 !important;
+}
+
+/* ============================================
+   SCROLLBARS (make visible on dark)
+   ============================================ */
+html body ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+html body ::-webkit-scrollbar-track {
+  background: #0f172a !important;
+}
+html body ::-webkit-scrollbar-thumb {
+  background: #334155 !important;
+  border-radius: 4px;
+}
+html body ::-webkit-scrollbar-thumb:hover {
+  background: #475569 !important;
+}
