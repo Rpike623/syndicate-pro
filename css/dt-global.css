@@ -4012,3 +4012,92 @@ main > div:first-child > h1 {
 }
 
 /* ─── END TITLE FIX ──────────────────────────────────────────────────────── */
+
+/* ── FINAL CATCH-ALL: ensure key text elements are readable on dark theme ────
+   These override any per-page styles that might make text invisible.
+   Using high-specificity selectors.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Summary/stat value cells that use .val class */
+.summary-cell .val,
+.metric-cell .val,
+.stat-cell .val {
+  color: #F8FAFC !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700 !important;
+}
+
+/* Card titles everywhere */
+.card .card-title,
+.card-card .card-title {
+  color: #F8FAFC !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+
+/* Table header row */
+table thead tr th {
+  color: #64748B !important;
+  background: rgba(255,255,255,0.025) !important;
+}
+
+/* Table data rows */
+table tbody tr td {
+  color: #E2E8F0 !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* Input labels everywhere */
+.form-group > label,
+.form-group label,
+fieldset label {
+  color: #CBD5E1 !important;
+}
+
+/* h3 inside cards */
+.card h3,
+.card-body h3,
+.panel h3 {
+  color: #F8FAFC !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  margin-bottom: 12px !important;
+}
+
+/* h2 inside card headers */
+.card-header h2,
+.card-header > h2 {
+  color: #F8FAFC !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+}
+
+/* Metric values (common pattern: .metric-val, .metric-hero .metric-val) */
+.metric-val,
+.metric-hero .metric-val,
+.carry-val,
+.stat-val,
+.hero-num {
+  color: #F8FAFC !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* Description/subtitle text */
+.metric-delta,
+.metric-label,
+.carry-lbl,
+.stat-label,
+.widget-subtext {
+  color: #64748B !important;
+  font-size: 12px !important;
+}
+
+/* Specific: benchmarks metric comparison */
+.metric-compare,
+.benchmark-range {
+  color: #94A3B8 !important;
+  font-size: 12px !important;
+}
+
+/* ── END FINAL CATCH-ALL ─────────────────────────────────────────────────── */
