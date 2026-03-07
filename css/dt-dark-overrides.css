@@ -1,165 +1,44 @@
 /*
- * dt-dark-overrides.css — Deeltrack Dark Mode System
- * Loaded AFTER dt-global.css via sp-core.js injection.
- * All rules use !important to beat per-page inline :root definitions.
+ * dt-dark-overrides.css — MUBASIC LIGHT THEME
+ * Replaces the old dark-mode overrides with warm light palette variables.
+ * These override per-page :root definitions via !important.
  */
 
-/* ── Design Tokens ──────────────────────────────────────────────────────── */
 :root {
-  --primary: #0f172a !important;
-  --primary-light: #1e293b !important;
-  --secondary: #334155 !important;
+  --primary:        #1B1A19 !important;
+  --primary-light:  #3D3A37 !important;
+  --secondary:      #6B6560 !important;
 
-  --accent: #0ea5e9 !important;
-  --accent-hover: #0284c7 !important;
-  --accent-light: rgba(14,165,233,0.12) !important;
+  --accent:         #F37925 !important;
+  --accent-hover:   #D96515 !important;
+  --accent-light:   rgba(243,121,37,0.12) !important;
 
-  --success: #10b981 !important;
-  --success-light: rgba(16,185,129,0.12) !important;
-  --warning: #f59e0b !important;
-  --warning-light: rgba(245,158,11,0.12) !important;
-  --danger: #ef4444 !important;
-  --danger-light: rgba(239,68,68,0.12) !important;
-  --purple: #8b5cf6 !important;
-  --purple-light: rgba(139,92,246,0.12) !important;
+  --success:        #2D9A6B !important;
+  --success-light:  rgba(45,154,107,0.12) !important;
+  --warning:        #E8890A !important;
+  --warning-light:  rgba(232,137,10,0.12) !important;
+  --danger:         #D94F3D !important;
+  --danger-light:   rgba(217,79,61,0.12) !important;
+  --purple:         #7B5CC4 !important;
+  --purple-light:   rgba(192,168,230,0.2) !important;
 
-  /* Text — WHITE primary, light gray secondary, medium gray muted */
-  --text: #F1F5F9 !important;
-  --text-secondary: #CBD5E1 !important;
-  --text-muted: #94A3B8 !important;
+  --text:           #1B1A19 !important;
+  --text-secondary: #6B6560 !important;
+  --text-muted:     #9C9590 !important;
 
-  /* Borders — visible on dark backgrounds */
-  --border: #334155 !important;
-  --border-light: rgba(255,255,255,0.08) !important;
+  --border:         #E2DDD8 !important;
+  --border-light:   rgba(27,26,25,0.08) !important;
 
-  /* Backgrounds — layered for depth */
-  --bg: #0B1120 !important;
-  --bg-card: #111827 !important;
-  --bg-sidebar: #0a0f1e !important;
-}
+  --bg:             #F3F3F3 !important;
+  --bg-card:        #FFFFFF !important;
+  --bg-sidebar:     #1B1A19 !important;
+  --bg-surface:     #FFFFFF !important;
 
-/* ── Global text & background ─────────────────────────────────────────── */
-body {
-  background-color: var(--bg) !important;
-  color: var(--text) !important;
-}
-.app, .main, main {
-  background-color: var(--bg) !important;
-  color: var(--text) !important;
-}
+  --radius-sm:      6px !important;
+  --radius:         8px !important;
+  --radius-md:      12px !important;
 
-/* ── Top bar ──────────────────────────────────────────────────────────── */
-.top-bar, .dt-header, .page-header {
-  background: #0f172a !important;
-  border-bottom: 1px solid var(--border) !important;
-  color: var(--text) !important;
+  --shadow-sm:      0 1px 3px rgba(27,26,25,0.08) !important;
+  --shadow-md:      0 4px 8px rgba(27,26,25,0.10) !important;
+  --shadow-lg:      0 12px 24px rgba(27,26,25,0.12) !important;
 }
-
-/* ── Cards & Panels ───────────────────────────────────────────────────── */
-.card, .kpi-card, .info-card, .dashboard-card, .panel, .box,
-.glass-card, .lender-card, .pipeline-card {
-  background-color: var(--bg-card) !important;
-  border: 1px solid var(--border) !important;
-  color: var(--text) !important;
-}
-
-/* ── Tables ───────────────────────────────────────────────────────────── */
-table { color: var(--text) !important; }
-th {
-  background-color: #1e293b !important;
-  border-bottom: 2px solid var(--border) !important;
-  color: #E2E8F0 !important;
-}
-td {
-  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
-  color: #E2E8F0 !important;
-}
-tr:hover td {
-  background-color: rgba(14,165,233,0.06) !important;
-}
-
-/* ── Forms ─────────────────────────────────────────────────────────────── */
-input:not([type="checkbox"]):not([type="radio"]),
-select, textarea, .form-control {
-  background-color: #0f172a !important;
-  border: 1px solid var(--border) !important;
-  color: #F1F5F9 !important;
-}
-input::placeholder, textarea::placeholder {
-  color: #94A3B8 !important;
-}
-input:focus, select:focus, textarea:focus {
-  border-color: var(--accent) !important;
-  box-shadow: 0 0 0 3px rgba(14,165,233,0.15) !important;
-}
-
-/* ── Buttons ──────────────────────────────────────────────────────────── */
-.btn-primary, button.btn-primary, a.btn-primary {
-  background: linear-gradient(135deg, #0ea5e9, #0369a1) !important;
-  border: none !important;
-  color: #ffffff !important;
-}
-.btn-primary:hover {
-  background: linear-gradient(135deg, #38bdf8, #0284c7) !important;
-  box-shadow: 0 4px 12px rgba(14,165,233,0.3) !important;
-}
-.btn-secondary {
-  background-color: #1e293b !important;
-  border: 1px solid var(--border) !important;
-  color: #E2E8F0 !important;
-}
-.btn-secondary:hover {
-  background-color: #334155 !important;
-  border-color: var(--accent) !important;
-}
-
-/* ── Tabs ──────────────────────────────────────────────────────────────── */
-.tabs { border-bottom: 2px solid var(--border) !important; }
-.tab { color: #CBD5E1 !important; }
-.tab:hover { color: #ffffff !important; }
-.tab.active {
-  color: var(--accent) !important;
-  border-bottom-color: var(--accent) !important;
-}
-
-/* ── Headings ─────────────────────────────────────────────────────────── */
-h1, h2, h3, h4, h5, h6 { color: #F1F5F9 !important; }
-
-/* ── Links ────────────────────────────────────────────────────────────── */
-a:not(.nav-item):not(.btn):not(.btn-primary):not(.btn-secondary):not(.tab) {
-  color: #38bdf8 !important;
-}
-
-/* ── Modals ───────────────────────────────────────────────────────────── */
-.modal-overlay {
-  background: rgba(0,0,0,0.7) !important;
-  backdrop-filter: blur(4px) !important;
-}
-.modal {
-  background-color: var(--bg-card) !important;
-  border: 1px solid var(--border) !important;
-  color: var(--text) !important;
-}
-
-/* ── Badges (status indicators with text) ─────────────────────────────── */
-.badge { font-weight: 600 !important; }
-.badge-mf, .badge-ind, .badge-ret, .badge-off { color: inherit !important; }
-
-/* ── Content section backgrounds ──────────────────────────────────────── */
-.content { background-color: transparent !important; }
-
-/* ── Override leaky light-mode utility classes ─────────────────────────── */
-.bg-white { background-color: var(--bg-card) !important; }
-.bg-gray-50, .bg-gray-100 { background-color: #0f172a !important; }
-.text-gray-900 { color: #F1F5F9 !important; }
-.text-gray-800 { color: #F1F5F9 !important; }
-.text-gray-700 { color: #E2E8F0 !important; }
-.text-gray-600 { color: #CBD5E1 !important; }
-.text-gray-500 { color: #CBD5E1 !important; }
-.text-gray-400 { color: #CBD5E1 !important; }
-.text-muted { color: #94A3B8 !important; }
-.text-secondary { color: #CBD5E1 !important; }
-.border-gray-200, .border-gray-300 { border-color: var(--border) !important; }
-
-/* ── Sidebar link override to NOT be affected by generic a{} rule ────── */
-.sidebar a, #sidebar a { color: inherit !important; }

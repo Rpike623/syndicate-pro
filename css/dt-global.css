@@ -7,24 +7,60 @@
 /* ── Google Fonts ─────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   MUBASIC-INSPIRED THEME — warm light palette with bold typography
+   
+   Palette extracted from mubasic-test.webflow.io:
+   - Body bg:      #F3F3F3  (warm off-white)
+   - Text primary: #1B1A19  (near-black, warm)
+   - Accent amber: #FAC670  (golden yellow)
+   - Accent orange:#F37925  (vivid orange — primary interactive)
+   - Accent teal:  #91C3CE
+   - Accent sand:  #F5E1BE
+   - Accent lavender: #C0A8E6
+   - Surface:      #FFFFFF
+   - Sidebar:      #1B1A19  (dark warm sidebar)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 /* ── Design Tokens ────────────────────────────────────────────────────────── */
 :root {
-  --dt-sidebar-width: 260px;
-  --dt-primary:       #0f172a;
-  --dt-accent:        #0ea5e9;
-  --dt-accent2:       #38bdf8;
-  --dt-success:       #22c55e;
-  --dt-warning:       #f59e0b;
-  --dt-danger:        #ef4444;
-  --dt-bg:            #0B1120;
-  --dt-surface:       #111827;
-  --dt-border:        #1E293B;
-  --dt-text:          #F8FAFC;
-  --dt-text-muted:    #94A3B8;
-  --dt-radius:        12px;
-  --dt-shadow-sm:     0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --dt-shadow-md:     0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
-  --dt-shadow-lg:     0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+  --dt-sidebar-width: 240px;
+
+  /* Core palette */
+  --dt-bg:            #F3F3F3;
+  --dt-surface:       #FFFFFF;
+  --dt-surface-2:     #EDEBE8;
+  --dt-border:        #E2DDD8;
+  --dt-border-subtle: rgba(27,26,25,0.1);
+
+  /* Typography */
+  --dt-text:          #1B1A19;
+  --dt-text-muted:    #6B6560;
+  --dt-text-light:    #9C9590;
+  --dt-primary:       #1B1A19;
+
+  /* Brand accents — mubasic palette */
+  --dt-accent:        #F37925;    /* vivid orange — primary CTA */
+  --dt-accent-hover:  #D96515;    /* darker orange for hover */
+  --dt-accent-light:  rgba(243,121,37,0.12);
+  --dt-accent2:       #FAC670;    /* warm amber — highlights */
+  --dt-teal:          #91C3CE;
+  --dt-sand:          #F5E1BE;
+  --dt-lavender:      #C0A8E6;
+
+  /* Semantic */
+  --dt-success:       #2D9A6B;
+  --dt-success-light: rgba(45,154,107,0.12);
+  --dt-warning:       #F37925;
+  --dt-warning-light: rgba(243,121,37,0.12);
+  --dt-danger:        #D94F3D;
+  --dt-danger-light:  rgba(217,79,61,0.12);
+
+  /* Elevation */
+  --dt-radius:        10px;
+  --dt-shadow-sm:     0 1px 3px rgba(27,26,25,0.08), 0 1px 2px rgba(27,26,25,0.05);
+  --dt-shadow-md:     0 4px 8px -1px rgba(27,26,25,0.1), 0 2px 4px -1px rgba(27,26,25,0.06);
+  --dt-shadow-lg:     0 12px 24px -4px rgba(27,26,25,0.12), 0 4px 8px -2px rgba(27,26,25,0.06);
   --dt-transition:    all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -33,13 +69,13 @@
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 body { 
   font-family: 'Inter', system-ui, -apple-system, sans-serif; 
-  background: var(--dt-bg); 
-  color: var(--dt-text); 
+  background: var(--dt-bg) !important;
+  color: var(--dt-text) !important;
   display: block !important;
   min-height: 100vh;
 }
 
-/* ── SIDEBAR — forced correct layout ─────────────────────────────────────── */
+/* ── SIDEBAR — dark warm rail (matches mubasic's dark nav) ───────────────── */
 .sidebar,
 aside.sidebar,
 #sidebar {
@@ -50,14 +86,14 @@ aside.sidebar,
   top: 0 !important;
   left: 0 !important;
   height: 100vh !important;
-  background: #0a0f1e !important;
-  color: white !important;
+  background: #1B1A19 !important;
+  color: #F3F3F3 !important;
   z-index: 200 !important;
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
-  border-right: 1px solid rgba(255,255,255,0.05) !important;
-  box-shadow: 4px 0 24px rgba(0,0,0,0.15) !important;
+  border-right: none !important;
+  box-shadow: 2px 0 16px rgba(27,26,25,0.15) !important;
 }
 
 /* ── SIDEBAR HEADER ───────────────────────────────────────────────────────── */
@@ -137,17 +173,17 @@ aside.sidebar,
 
 .sidebar .nav-item:hover,
 #sidebar .nav-item:hover {
-  color: white !important;
-  background: rgba(255,255,255,0.07) !important;
-  border-left-color: rgba(14,165,233,0.4) !important;
+  color: #F3F3F3 !important;
+  background: rgba(243,121,37,0.12) !important;
+  border-left-color: rgba(243,121,37,0.5) !important;
 }
 
 .sidebar .nav-item.active,
 #sidebar .nav-item.active {
-  color: white !important;
-  background: rgba(14,165,233,0.15) !important;
-  border-left-color: #0ea5e9 !important;
-  font-weight: 600 !important;
+  color: #FAC670 !important;
+  background: rgba(243,121,37,0.18) !important;
+  border-left-color: #F37925 !important;
+  font-weight: 700 !important;
 }
 
 .sidebar .nav-item i,
@@ -228,17 +264,22 @@ main,
 /* ── BUTTONS ──────────────────────────────────────────────────────────────── */
 .btn-primary, button.btn-primary {
   background: var(--dt-accent) !important;
-  color: white !important;
+  color: #1B1A19 !important;
   border: none !important;
   border-radius: 8px !important;
   padding: 10px 20px !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   font-size: 14px !important;
   cursor: pointer !important;
   transition: var(--dt-transition) !important;
   font-family: inherit !important;
 }
-.btn-primary:hover { background: linear-gradient(135deg, #38bdf8, #0284c7) !important; transform: translateY(-1px) !important; box-shadow: 0 4px 12px rgba(14,165,233,0.3) !important; }
+.btn-primary:hover {
+  background: var(--dt-accent-hover) !important;
+  color: white !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(243,121,37,0.35) !important;
+}
 
 /* ── TABLES ───────────────────────────────────────────────────────────────── */
 table { border-collapse: collapse; width: 100%; }
@@ -248,35 +289,40 @@ th {
   text-transform: uppercase !important;
   letter-spacing: 0.08em !important;
   color: var(--dt-text-muted) !important;
-  background: #0B1120 !important;
+  background: var(--dt-surface-2) !important;
   padding: 12px 16px !important;
-  border-bottom: 2px solid var(--dt-border) !important;
+  border-bottom: 1px solid var(--dt-border) !important;
   text-align: left !important;
 }
 td {
   padding: 14px 16px !important;
-  border-bottom: 1px solid #f1f5f9 !important;
+  border-bottom: 1px solid var(--dt-border) !important;
   font-size: 14px !important;
+  color: var(--dt-text) !important;
   vertical-align: middle !important;
 }
-tr:hover td { background: #0B1120 !important; }
+tr:hover td { background: var(--dt-surface-2) !important; }
 tr:last-child td { border-bottom: none !important; }
 
 /* ── FORMS ────────────────────────────────────────────────────────────────── */
 input, select, textarea {
   font-family: inherit !important;
   font-size: 14px !important;
-  border: 1px solid var(--dt-border) !important;
+  border: 1.5px solid var(--dt-border) !important;
   border-radius: 8px !important;
   padding: 10px 14px !important;
   outline: none !important;
   transition: border-color 0.2s !important;
-  background: #111827 !important;
+  background: var(--dt-surface) !important;
   color: var(--dt-text) !important;
 }
 input:focus, select:focus, textarea:focus {
   border-color: var(--dt-accent) !important;
-  box-shadow: 0 0 0 3px rgba(14,165,233,0.1) !important;
+  box-shadow: 0 0 0 3px rgba(243,121,37,0.12) !important;
+}
+input::placeholder, textarea::placeholder {
+  color: var(--dt-text-light) !important;
+  opacity: 1 !important;
 }
 
 /* ── STATUS PILLS ─────────────────────────────────────────────────────────── */
@@ -290,11 +336,11 @@ input:focus, select:focus, textarea:focus {
   text-transform: uppercase !important;
   letter-spacing: 0.04em !important;
 }
-.pill-green, .badge-success  { background: #dcfce7 !important; color: #16a34a !important; }
-.pill-blue,  .badge-info     { background: #dbeafe !important; color: #0284c7 !important; }
-.pill-amber, .badge-warning  { background: #fef3c7 !important; color: #d97706 !important; }
-.pill-red,   .badge-danger   { background: #fee2e2 !important; color: #dc2626 !important; }
-.pill-purple,.badge-purple   { background: #ede9fe !important; color: #7c3aed !important; }
+.pill-green, .badge-success  { background: rgba(45,154,107,0.15) !important; color: #1A7A50 !important; }
+.pill-blue,  .badge-info     { background: rgba(145,195,206,0.25) !important; color: #2A7D8C !important; }
+.pill-amber, .badge-warning  { background: rgba(250,198,112,0.3) !important;  color: #8A5A00 !important; }
+.pill-red,   .badge-danger   { background: rgba(217,79,61,0.15) !important;   color: #A0281A !important; }
+.pill-purple,.badge-purple   { background: rgba(192,168,230,0.3) !important;  color: #6040A0 !important; }
 
 /* ── MONO NUMBERS ─────────────────────────────────────────────────────────── */
 .mono, .money, .num {
@@ -4319,3 +4365,365 @@ time, .timestamp, .date-text {
 }
 
 /* ─── END CONTRAST ENFORCEMENT ──────────────────────────────────────────── */
+
+/* ════════════════════════════════════════════════════════════════════════════
+   MUBASIC-INSPIRED LIGHT THEME OVERRIDES
+   Applied after all per-page styles — these WIN.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Global body/page background ────────────────────────────────────────── */
+html body,
+body {
+  background: #F3F3F3 !important;
+  color: #1B1A19 !important;
+}
+
+/* ── Main content area ───────────────────────────────────────────────────── */
+.main, main.main, main, #main,
+.portal-main {
+  background: #F3F3F3 !important;
+}
+
+/* ── Top bar: warm white ─────────────────────────────────────────────────── */
+.top-bar, header.top-bar,
+.dt-header, .topbar, .pl-header {
+  background: #FFFFFF !important;
+  border-bottom: 1.5px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+  box-shadow: 0 1px 3px rgba(27,26,25,0.06) !important;
+}
+.top-bar h1, .dt-header h1, .topbar h1, .pl-header h1 {
+  color: #1B1A19 !important;
+}
+.top-bar p, .dt-header p, .topbar p {
+  color: #6B6560 !important;
+}
+
+/* ── Cards / panels ──────────────────────────────────────────────────────── */
+.card, .gl-card, .card-card,
+.glass-card, .stat-card, .kpi-card,
+.settings-section, .deal-hero + .card,
+.form-section, .summary-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+  box-shadow: 0 1px 4px rgba(27,26,25,0.07) !important;
+}
+.card:hover, .stat-card:hover, .kpi-card:hover {
+  box-shadow: 0 4px 12px rgba(27,26,25,0.1) !important;
+}
+
+/* ── Card headers/bodies ─────────────────────────────────────────────────── */
+.card-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #E2DDD8 !important;
+}
+.card-title { color: #1B1A19 !important; }
+.card-subtitle { color: #6B6560 !important; }
+
+/* ── Typography throughout ───────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 { color: #1B1A19 !important; }
+p { color: #1B1A19 !important; }
+label { color: #3D3A37 !important; }
+
+/* Muted text — readable warm gray */
+.text-muted, .text-secondary, .muted,
+.help-text, .card-subtitle, .page-description,
+.investor-email, .deal-location, .card-meta,
+.activity-time, .stat-label, .stat-lbl, .kpi-label,
+.summary-lbl, .metric-label, .breadcrumb a,
+.table-footer-info, .category-desc,
+nav.breadcrumb a, .nav-section {
+  color: #6B6560 !important;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+thead, table thead { background: #EDEBE8 !important; }
+th, .table th, .data-table th, table thead th {
+  background: #EDEBE8 !important;
+  color: #6B6560 !important;
+  border-bottom: 1px solid #D8D4CE !important;
+}
+td, .table td, table tbody td {
+  background: transparent !important;
+  color: #1B1A19 !important;
+  border-bottom: 1px solid #EDEBE8 !important;
+}
+tr:hover td, table tbody tr:hover td {
+  background: #F7F4F0 !important;
+}
+
+/* ── Form inputs ─────────────────────────────────────────────────────────── */
+input, select, textarea,
+.form-input, .form-select, .input, .search-input {
+  background: #FFFFFF !important;
+  border: 1.5px solid #D8D4CE !important;
+  color: #1B1A19 !important;
+}
+input:focus, select:focus, textarea:focus,
+.form-input:focus, .form-select:focus {
+  border-color: #F37925 !important;
+  box-shadow: 0 0 0 3px rgba(243,121,37,0.12) !important;
+}
+input::placeholder, textarea::placeholder {
+  color: #9C9590 !important;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn-primary, button.btn-primary, a.btn-primary {
+  background: #F37925 !important;
+  color: #1B1A19 !important;
+  font-weight: 700 !important;
+  border: none !important;
+}
+.btn-primary:hover, button.btn-primary:hover {
+  background: #D96515 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(243,121,37,0.3) !important;
+}
+.btn-secondary, button.btn-secondary {
+  background: #FFFFFF !important;
+  color: #1B1A19 !important;
+  border: 1.5px solid #D8D4CE !important;
+  font-weight: 600 !important;
+}
+.btn-secondary:hover, button.btn-secondary:hover {
+  background: #F3F3F3 !important;
+  border-color: #9C9590 !important;
+}
+
+/* ── Deal/status badges ──────────────────────────────────────────────────── */
+.badge-mf        { background: rgba(145,195,206,0.25) !important; color: #2A7D8C !important; }
+.badge-ind       { background: rgba(45,154,107,0.15)  !important; color: #1A7A50 !important; }
+.badge-ret       { background: rgba(250,198,112,0.35) !important; color: #7A5000 !important; }
+.badge-off       { background: rgba(192,168,230,0.3)  !important; color: #5035A0 !important; }
+.badge-other, .badge-sourcing { background: rgba(156,149,144,0.2) !important; color: #5A5550 !important; }
+.badge-loi       { background: rgba(250,198,112,0.35) !important; color: #7A5000 !important; }
+.badge-dd        { background: rgba(145,195,206,0.3)  !important; color: #1A6070 !important; }
+.badge-closed    { background: rgba(45,154,107,0.15)  !important; color: #1A7A50 !important; }
+.badge-operating { background: rgba(192,168,230,0.3)  !important; color: #5035A0 !important; }
+.badge-active    { background: rgba(45,154,107,0.15)  !important; color: #1A7A50 !important; }
+.badge-verified  { background: rgba(45,154,107,0.15)  !important; color: #1A7A50 !important; }
+.badge-pending   { background: rgba(250,198,112,0.35) !important; color: #7A5000 !important; }
+.badge-expired   { background: rgba(217,79,61,0.15)   !important; color: #901800 !important; }
+.badge-inactive  { background: rgba(156,149,144,0.2)  !important; color: #5A5550 !important; }
+.badge-funded    { background: rgba(145,195,206,0.25) !important; color: #2A7D8C !important; }
+.badge-committed { background: rgba(250,198,112,0.35) !important; color: #7A5000 !important; }
+.badge-posted    { background: rgba(45,154,107,0.15)  !important; color: #1A7A50 !important; }
+.badge-draft     { background: rgba(250,198,112,0.3)  !important; color: #7A5000 !important; }
+
+/* ── IRR / positive numbers ──────────────────────────────────────────────── */
+.irr-val, .val-positive, td.irr, .text-success {
+  color: #1A7A50 !important;
+}
+.text-danger { color: #901800 !important; }
+.text-warning { color: #7A5000 !important; }
+.text-accent  { color: #F37925 !important; }
+
+/* ── Monospace numbers ────────────────────────────────────────────────────── */
+.font-mono, .mono, .money, .money-val,
+.stat-val, .kpi-value, .carry-val, .metric-val,
+.summary-val, .distribution-amount {
+  color: #1B1A19 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* ── KPI/stat values: warm weight ─────────────────────────────────────────── */
+.stat-val, .kpi-value, .stat-body .val {
+  color: #1B1A19 !important;
+  font-size: 26px !important;
+  font-weight: 800 !important;
+}
+.stat-label, .stat-lbl, .kpi-label {
+  color: #6B6560 !important;
+}
+
+/* ── Empty states ────────────────────────────────────────────────────────── */
+.empty-state, .empty-inbox, .empty-ledger {
+  color: #6B6560 !important;
+}
+.empty-state h3, .empty-inbox h3 { color: #3D3A37 !important; }
+.empty-state i { opacity: 0.25 !important; color: #9C9590 !important; }
+
+/* ── Modals ──────────────────────────────────────────────────────────────── */
+.modal, .modal-content {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+.modal-header { border-bottom: 1px solid #E2DDD8 !important; }
+.modal-title  { color: #1B1A19 !important; }
+.modal-footer { border-top: 1px solid #E2DDD8 !important; background: #F7F4F0 !important; }
+.modal-close  { background: #EDEBE8 !important; color: #6B6560 !important; }
+.modal-close:hover { background: rgba(217,79,61,0.12) !important; color: #901800 !important; }
+
+/* ── Dropdown selects ─────────────────────────────────────────────────────── */
+select option { background: #FFFFFF !important; color: #1B1A19 !important; }
+
+/* ── Breadcrumb ──────────────────────────────────────────────────────────── */
+.breadcrumb-current, .breadcrumb-sep { color: #1B1A19 !important; }
+.breadcrumb a:hover { color: #F37925 !important; }
+
+/* ── Scrollbars ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F3F3F3; }
+::-webkit-scrollbar-thumb { background: #D8D4CE; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9C9590; }
+
+/* ── Quick action cards (dashboard) ─────────────────────────────────────── */
+.qa-card, .quick-action-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+.qa-card:hover, .quick-action-card:hover {
+  border-color: #F37925 !important;
+  background: #FFF9F5 !important;
+}
+.qa-label { color: #1B1A19 !important; }
+.qa-desc  { color: #6B6560 !important; }
+
+/* ── Deal hero section ───────────────────────────────────────────────────── */
+.deal-hero {
+  background: linear-gradient(135deg, #1B1A19 0%, #3D3A37 100%) !important;
+  color: #F3F3F3 !important;
+}
+.deal-hero h1, .deal-hero .deal-location,
+.deal-hero .deal-title-block h1 {
+  color: #F3F3F3 !important;
+}
+.deal-metric { background: rgba(255,255,255,0.1) !important; }
+.deal-metric .val { color: #FAC670 !important; }
+.deal-metric .lbl { color: rgba(243,241,238,0.65) !important; }
+
+/* ── Activity feed ───────────────────────────────────────────────────────── */
+.activity-item { border-bottom-color: #EDEBE8 !important; }
+.activity-text { color: #1B1A19 !important; }
+.activity-time { color: #6B6560 !important; }
+
+/* ── Distribution cards ──────────────────────────────────────────────────── */
+.distribution-card {
+  background: #FFFFFF !important;
+  border-color: #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+.distribution-title { color: #1B1A19 !important; }
+.distribution-amount { color: #1A7A50 !important; }
+.distribution-meta span { color: #6B6560 !important; }
+
+/* ── Pipeline cards ──────────────────────────────────────────────────────── */
+.deal-card, .pipeline-card {
+  background: #FFFFFF !important;
+  border-color: #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+.deal-card:hover, .pipeline-card:hover {
+  border-color: #F37925 !important;
+  background: #FFFBF8 !important;
+}
+.card-name span, .deal-name { color: #1B1A19 !important; }
+.card-location, .deal-location { color: #6B6560 !important; }
+.card-notes { background: #F7F4F0 !important; border-color: #E2DDD8 !important; color: #3D3A37 !important; }
+.card-notes-placeholder { border-color: #D8D4CE !important; color: #9C9590 !important; }
+
+/* ── Pipeline column headers ─────────────────────────────────────────────── */
+.stage-col {
+  background: rgba(27,26,25,0.03) !important;
+  border-color: #E2DDD8 !important;
+}
+.col-header { background: #FFFFFF !important; border-bottom-color: #E2DDD8 !important; }
+.col-title  { color: #1B1A19 !important; }
+.col-count  { background: #EDEBE8 !important; color: #6B6560 !important; }
+.add-btn    { border-color: #D8D4CE !important; color: #6B6560 !important; }
+.add-btn:hover { border-color: #F37925 !important; color: #F37925 !important; background: rgba(243,121,37,0.06) !important; }
+
+/* ── Pipeline drawer ─────────────────────────────────────────────────────── */
+.drawer {
+  background: #FFFFFF !important;
+  border-left: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+.drawer-header { border-bottom-color: #E2DDD8 !important; }
+.drawer-footer { border-top-color: #E2DDD8 !important; background: #F7F4F0 !important; }
+.drawer-close  { background: #EDEBE8 !important; color: #6B6560 !important; }
+.drawer-overlay { background: rgba(27,26,25,0.4) !important; }
+.dl-row input, .dl-row select, .dl-row textarea {
+  background: #F7F4F0 !important;
+  border-color: #D8D4CE !important;
+  color: #1B1A19 !important;
+}
+.dl-row label { color: #6B6560 !important; }
+.stage-btn { background: #F3F3F3 !important; border-color: #D8D4CE !important; color: #6B6560 !important; }
+.stage-btn:hover { border-color: #9C9590 !important; color: #1B1A19 !important; }
+
+/* ── Tools page ──────────────────────────────────────────────────────────── */
+.tool-card {
+  background: #FFFFFF !important;
+  border-color: #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+.tool-card:hover { border-color: #F37925 !important; background: #FFFBF8 !important; }
+.tool-name  { color: #1B1A19 !important; }
+.tool-desc  { color: #6B6560 !important; }
+.category-title  { color: #1B1A19 !important; }
+.category-desc   { color: #6B6560 !important; }
+.category-header { border-bottom-color: #D8D4CE !important; }
+.category-count  { background: #EDEBE8 !important; color: #6B6560 !important; }
+
+/* ── Settings page ───────────────────────────────────────────────────────── */
+.settings-section .section-header { border-bottom-color: #E2DDD8 !important; background: #FFFFFF !important; }
+.section-title i { color: #F37925 !important; }
+
+/* ── Investor/deal detail profile ────────────────────────────────────────── */
+.profile-hero {
+  background: linear-gradient(135deg, #1B1A19, #3D3A37) !important;
+}
+.info-row { border-bottom-color: #EDEBE8 !important; }
+.info-label { color: #6B6560 !important; }
+.info-value { color: #1B1A19 !important; }
+
+/* ── Capital raise bar ────────────────────────────────────────────────────── */
+.cap-bar { background: #EDEBE8 !important; }
+.cap-fill { background: linear-gradient(90deg, #F37925, #FAC670) !important; }
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+.tabs { border-bottom: 2px solid #E2DDD8 !important; }
+.tab { color: #6B6560 !important; background: none !important; }
+.tab:hover { color: #1B1A19 !important; }
+.tab.active { color: #F37925 !important; border-bottom-color: #F37925 !important; font-weight: 700 !important; }
+
+/* ── Summary tiles (distribution command) ────────────────────────────────── */
+.stile { background: #F7F4F0 !important; border-color: #E2DDD8 !important; }
+.stile-val { color: #1B1A19 !important; }
+.stile-lbl { color: #6B6560 !important; }
+.summary-tile { background: #F7F4F0 !important; border-color: #E2DDD8 !important; }
+.summary-val  { color: #1B1A19 !important; }
+.summary-lbl  { color: #6B6560 !important; }
+
+/* ── Investor split bar ──────────────────────────────────────────────────── */
+.investor-split-row { border-bottom-color: #EDEBE8 !important; }
+.split-bar { background: linear-gradient(90deg, #F37925, #FAC670) !important; }
+
+/* ── Distribution status pills ───────────────────────────────────────────── */
+.status-pending  { background: rgba(250,198,112,0.25) !important; color: #7A5000 !important; border-color: rgba(250,198,112,0.5) !important; }
+.status-ready    { background: rgba(145,195,206,0.2)  !important; color: #1A6070 !important; border-color: rgba(145,195,206,0.5) !important; }
+.status-executed, .badge-posted { background: rgba(45,154,107,0.15) !important; color: #1A7A50 !important; border-color: rgba(45,154,107,0.3) !important; }
+
+/* ── Sidebar overlay ─────────────────────────────────────────────────────── */
+.sidebar-overlay { background: rgba(27,26,25,0.45) !important; }
+
+/* ── Notice/legal footer ─────────────────────────────────────────────────── */
+#dt-legal-footer {
+  background: #EDEBE8 !important;
+  color: #9C9590 !important;
+  border-top: 1px solid #D8D4CE !important;
+}
+
+/* ── Toast notifications ─────────────────────────────────────────────────── */
+#toast { box-shadow: 0 8px 24px rgba(27,26,25,0.15) !important; }
+
+/* ── PnL sections ────────────────────────────────────────────────────────── */
+.pnl-income  { background: rgba(45,154,107,0.08) !important; border-color: rgba(45,154,107,0.2) !important; }
+.pnl-expense { background: rgba(217,79,61,0.07)  !important; border-color: rgba(217,79,61,0.2)  !important; }
+
+/* ─── END MUBASIC THEME ─────────────────────────────────────────────────── */
