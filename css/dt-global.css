@@ -187,7 +187,8 @@ main,
   min-height: 100vh !important;
   background: var(--dt-bg) !important;
   width: calc(100% - var(--dt-sidebar-width)) !important;
-  padding: 32px 40px !important;
+  /* No padding here — handled by .content wrapper or per-page inline styles */
+  padding: 0;
 }
 
 /* ── TOP BAR ──────────────────────────────────────────────────────────────── */
@@ -3006,13 +3007,20 @@ tr:hover td {
   color: #F8FAFC !important;
 }
 
-/* ── 3. LAYOUT: strip redundant padding on .main so .content drives spacing */
-/* Pages use .main > .content for padding — don't double-pad */
+/* ── 3. LAYOUT: normalize .main padding
+   Strategy:
+   - Pages with .content inside .main: .main has no padding, .content handles it
+   - Pages without .content (dt-header pattern): their inline .main{padding:40px} 
+     is kept (no !important override) so they still breathe
+   - The original global had padding:32px 40px which caused double-padding on
+     pages that also had .content {padding:32px} — fix by removing from .main */
 .main,
 main.main,
 main,
 #main {
-  padding: 0 !important;
+  padding: 0;
+  /* NOTE: not using !important — allows per-page inline styles to set padding
+     for pages that don't use the .content wrapper pattern */
 }
 
 /* ── 4. CONTENT AREA: consistent padding ────────────────────────────────── */
@@ -3905,3 +3913,102 @@ html body .badge.badge-draft,
 html body .badge-draft     { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
 
 /* ─── END BADGE OVERRIDES ─────────────────────────────────────────────────── */
+
+/* ── CONTENT INSIDE .main WITHOUT A .content WRAPPER ─────────────────────────
+   Many tool/utility pages put content directly inside <main class="main">
+   (no intermediate .content div). After we zeroed out .main padding,
+   these pages have no breathing room. Fix: add padding to direct children
+   of .main that aren't the header/sidebar elements.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Any div/section directly inside main that ISN'T a header gets standard padding.
+   Using :not selectors to exclude headers so they stay flush. */
+main.main > div:not(.dt-header):not(.top-bar):not(.sidebar-overlay):not(.page-header),
+main.main > section:not(.dt-header) {
+  /* Applied only when there's no .content wrapper already handling this */
+}
+
+/* Simpler: pages that have .main > .card or .main > .grid directly 
+   need padding. We can't add it to .main without breaking pages that 
+   have .content. Solution: wrap it in the polished app shell standard.
+   
+   ACTUAL FIX: re-allow .main padding only on pages using dt-header pattern.
+   Pages with dt-header inside main get padding via .main > *:not(.dt-header) */
+main.main > *:not(.dt-header):not(.sidebar-overlay):not(.top-bar):not(header):not(nav):first-of-type {
+  /* Do nothing here — individual page wrappers handle it */
+}
+
+/* THE REAL FIX: pages with .dt-header directly in .main 
+   need a content wrapper. Since we can't add that without HTML changes,
+   we give .main a modest padding only when it doesn't have .content */
+
+/* Selector: main that contains dt-header but NOT .content */
+/* Can't do :has() selector in all browsers yet, so use a different approach:
+   Restore the original behavior — .main padding is 28px 32px, 
+   but .content adds its OWN padding (28px 32px), creating double pad.
+   The fix: let .main have 0 padding (as set), 
+   and ensure every page's .content handles the padding.
+   For pages WITHOUT .content: their inline .main{padding:40px} was being 
+   overridden by our !important — so restore reasonable padding for those. */
+
+/* Override our earlier padding:0 — instead let per-page inline styles win 
+   for pages that set .main {padding: 40px}. Remove the !important from main padding. */
+
+/* ── STANDALONE PAGE TITLES (no .dt-header or .top-bar) ──────────────────────
+   Many tool pages have <main class="main"> → <div style="margin-bottom:32px">
+   → <h1> as the title pattern. Without a sticky header bar, the title just
+   floats. We style these to look intentional.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* The .header class used by dynamic-valuation, scenario-planner etc */
+.header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  gap: 16px !important;
+  margin-bottom: 28px !important;
+  flex-wrap: wrap !important;
+}
+.header h1 {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: #F8FAFC !important;
+  margin: 0 0 4px 0 !important;
+  letter-spacing: -0.025em !important;
+}
+.header > div > p,
+.header > p {
+  font-size: 13px !important;
+  color: #64748B !important;
+  margin: 0 !important;
+}
+
+/* Generic page header inside .main (carry-tracker, gp-benchmarks pattern) */
+main.main > div:first-child > h1,
+main > div:first-child > h1 {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: #F8FAFC !important;
+  letter-spacing: -0.025em !important;
+}
+
+/* ── .page-header INSIDE MAIN (pages like distributions.html) ─────────────── */
+.page-header {
+  margin-bottom: 28px !important;
+}
+.page-header h1,
+.page-title {
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #F8FAFC !important;
+  letter-spacing: -0.03em !important;
+  margin: 0 0 4px 0 !important;
+}
+.page-description,
+.page-header p {
+  font-size: 13px !important;
+  color: #64748B !important;
+  margin: 0 !important;
+}
+
+/* ─── END TITLE FIX ──────────────────────────────────────────────────────── */

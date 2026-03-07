@@ -13,7 +13,7 @@
     <style>
         :root { --primary: #0f172a; --accent: #0ea5e9; --success: #10b981; --bg: #0B1120; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: var(--primary); display: flex; }
+        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
@@ -22,7 +22,7 @@
         .nav-label { font-size: 0.8rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.1em; }
         .matrix-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .matrix-table th { text-align: left; padding: 12px; font-size: 0.75rem; color: #64748b; background: #0B1120; }
-        .matrix-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+        .matrix-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.9rem; }
     </style>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>

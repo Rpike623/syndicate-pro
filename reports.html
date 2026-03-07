@@ -612,7 +612,7 @@ function openDealDrilldown(dealId) {
           <div style="font-size:.85rem;font-weight:700;margin-bottom:10px;"><i class="fas fa-users" style="color:#10b981;margin-right:6px;"></i>Linked Investors (${(deal.investors||[]).length})</div>
           ${(deal.investors||[]).length ? (deal.investors||[]).map(entry=>{
             const inv=SP.getInvestorById(entry.investorId)||{firstName:'?',lastName:'',email:''};
-            return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:.875rem;">
+            return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom: 1px solid rgba(255,255,255,0.07);font-size:.875rem;">
               <span style="font-weight:600;">${inv.firstName} ${inv.lastName}</span>
               <span style="font-family:'JetBrains Mono',monospace;color:#10b981;">${fmtFull$(entry.committed||0)} (${entry.ownership?entry.ownership.toFixed(2)+'%':'—'})</span>
             </div>`;

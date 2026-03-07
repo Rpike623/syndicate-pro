@@ -16,7 +16,7 @@
     <style>
         :root { --primary: #0f172a; --accent: #0ea5e9; --success: #10b981; --bg: #0B1120; --radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: var(--primary); display: flex; min-height: 100vh; font-size: 14px; }
+        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; min-height: 100vh; font-size: 14px; }
         
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
@@ -28,7 +28,7 @@
         /* Institutional Branding Bar */
         .statement-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #0ea5e9, #10b981); border-radius: var(--radius) var(--radius) 0 0; }
 
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin: 32px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; padding: 24px 0; }
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin: 32px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 24px 0; }
         .sum-item { display: flex; flex-direction: column; }
         .sum-label { font-size: 0.65rem; text-transform: uppercase; color: #64748b; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 8px; }
         .sum-val { font-size: 1.35rem; font-weight: 800; font-family: 'JetBrains Mono'; letter-spacing: -0.02em; }
@@ -40,7 +40,7 @@
 
         .txn-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
         .txn-table th { text-align: left; font-size: 0.7rem; color: #64748b; padding: 12px 16px; border-bottom: 2px solid #1E293B; text-transform: uppercase; letter-spacing: 1px; }
-        .txn-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
+        .txn-table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.85rem; }
         .txn-amt { font-family: 'JetBrains Mono'; font-weight: 600; text-align: right; }
         
         .type-pill { padding: 3px 8px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; }
@@ -81,7 +81,7 @@
                     <div id="investorEmail" style="color: #64748b; font-size: 0.95rem; margin-top: 4px;">—</div>
                 </div>
                 <div style="text-align: right;">
-                    <div style="font-weight: 900; font-size: 1.4rem; color: #0f172a;">DEELTRACK LP</div>
+                    <div style="font-weight: 900; font-size: 1.4rem; color:#F8FAFC;">DEELTRACK LP</div>
                     <div style="color: #64748b; font-size: 0.85rem; margin-top: 4px; font-weight: 500;">Period Ending: March 31, 2026</div>
                     <div style="color: #94a3b8; font-size: 0.7rem; margin-top: 2px;">Statement ID: DT-2026-03-${Math.floor(Math.random()*9000)+1000}</div>
                 </div>
