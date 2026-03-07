@@ -1193,6 +1193,7 @@ window.SP = (function () {
           { href:'renovation-tracker.html', icon:'fa-hammer', label:'Renovation' },
           { href:'valuation-model.html', icon:'fa-tags', label:'Valuation' },
           { href:'pm-agreement.html', icon:'fa-file-signature', label:'PM Agreement' },
+          { href:'unit-mix.html', icon:'fa-th', label:'Unit Mix' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
