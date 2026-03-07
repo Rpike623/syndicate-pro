@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Budget vs Actual | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-balance-scale-right"></i> Budget vs Actual</h1>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="card-header"><h2>Operating Budget</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th></tr></thead><tbody><tr><td>Repairs</td><td>$15,000</td><td>$12,500</td><td class="text-success">16.7%</td></tr><tr><td>Utilities</td><td>$8,000</td><td>$9,200</td><td class="text-danger">-15%</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
