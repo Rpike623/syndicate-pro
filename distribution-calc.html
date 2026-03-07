@@ -354,27 +354,62 @@ function setStep(n) {
 
 // ── Init ────────────────────────────────────────────────────────────────────
 let _initRetries = 0;
-function init() {
-  const deals = SP.getDeals ? SP.getDeals() : [];
 
-  // If SPData hasn't loaded yet, retry up to 8x with backoff
-  if (!deals.length && _initRetries < 8) {
+// Pull deals from every possible storage location — belt + suspenders
+function _getAllDealsRaw() {
+  // 1. Try SP.getDeals() — works if sp-core or SPData is ready
+  try {
+    const d = SP.getDeals ? SP.getDeals() : [];
+    if (d && d.length) return d;
+  } catch(e) {}
+
+  // 2. Scan localStorage for any org-scoped deals key
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.includes('_deals')) {
+        const v = JSON.parse(localStorage.getItem(k) || '[]');
+        if (Array.isArray(v) && v.length) return v;
+      }
+    }
+  } catch(e) {}
+
+  // 3. Legacy fallback keys
+  try {
+    const v = JSON.parse(localStorage.getItem('sp_deals') || '[]');
+    if (v.length) return v;
+  } catch(e) {}
+
+  return [];
+}
+
+function init() {
+  const deals = _getAllDealsRaw();
+
+  // If still empty, retry with backoff (SPData/Firebase may still be initializing)
+  if (!deals.length && _initRetries < 10) {
     _initRetries++;
-    setTimeout(init, _initRetries * 400);
+    setTimeout(init, _initRetries * 300);
     return;
   }
 
   const sel = document.getElementById('dealSelect');
   if (!sel) return;
+
+  // Don't re-populate if already has options beyond the placeholder
+  // (avoids duplicate entries if init fires multiple times)
+  const currentVal = sel.value;
   sel.innerHTML = '<option value="">— Select a deal —</option>';
 
-  // Show ALL deals — let GP pick even if no investors yet (they may be adding them)
+  // Show ALL non-archived deals
   const activeDeals = deals.filter(d => d.status !== 'archived');
   activeDeals.forEach(d => {
     const invCount = (d.investors || []).length;
     const opt = document.createElement('option');
     opt.value = d.id;
-    opt.textContent = d.name + (invCount ? ' (' + invCount + ' investor' + (invCount !== 1 ? 's' : '') + ')' : ' — no investors yet');
+    opt.textContent = d.name + (invCount
+      ? ' (' + invCount + ' investor' + (invCount !== 1 ? 's' : '') + ')'
+      : ' — no investors yet');
     sel.appendChild(opt);
   });
 
@@ -385,12 +420,16 @@ function init() {
     sel.appendChild(opt);
   }
 
-  // Set default date to today
-  document.getElementById('distDate').valueAsDate = new Date();
+  // Restore previous selection if deal is still in list
+  if (currentVal) sel.value = currentVal;
+
+  // Set default date to today if not already set
+  const dateFld = document.getElementById('distDate');
+  if (dateFld && !dateFld.value) dateFld.valueAsDate = new Date();
 
   // Pre-select deal from URL param
   const urlDeal = new URLSearchParams(window.location.search).get('deal');
-  if (urlDeal) { sel.value = urlDeal; onDealChange(); }
+  if (urlDeal && sel.value !== urlDeal) { sel.value = urlDeal; onDealChange(); }
 }
 
 // ── Deal selected ────────────────────────────────────────────────────────────
