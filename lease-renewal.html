@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lease Renewal | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-repeat"></i> Lease Renewal</h1>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">Expiring Soon</span><span class="stat-value text-warning">12</span></div>
+        <div class="stat-card"><span class="stat-label">Renewed</span><span class="stat-value text-success">8</span></div>
+        <div class="stat-card"><span class="stat-label">Renewal Rate</span><span class="stat-value">75%</span></div>
+        <div class="stat-card"><span class="stat-label">Avg Rent Increase</span><span class="stat-value">5%</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Renewal Candidates</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Unit</th><th>Tenant</th><th>Current Rent</th><th>Market Rent</th><th>Increase</th><th>Status</th></tr></thead><tbody>
+            <tr><td>101</td><td>John Smith</td><td>$1,650</td><td>$1,750</td><td class="text-success">+6%</td><td><span class="badge badge-success">Renewed</span></td></tr>
+            <tr><td>102</td><td>Sarah Williams</td><td>$1,250</td><td>$1,400</td><td class="text-success">+12%</td><td><span class="badge badge-warning">Pending</span></td></tr>
+            <tr><td>103</td><td>Mike Johnson</td><td>$1,700</td><td>$1,785</td><td class="text-success">+5%</td><td><span class="badge badge-success">Renewed</span></td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}}</script>
+</body>
+</html>
