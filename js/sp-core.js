@@ -1192,6 +1192,7 @@ window.SP = (function () {
           { href:'lead-calculator.html', icon:'fa-calculator', label:'Lead Calculator' },
           { href:'renovation-tracker.html', icon:'fa-hammer', label:'Renovation' },
           { href:'valuation-model.html', icon:'fa-tags', label:'Valuation' },
+          { href:'pm-agreement.html', icon:'fa-file-signature', label:'PM Agreement' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
