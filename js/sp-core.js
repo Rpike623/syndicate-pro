@@ -1200,11 +1200,13 @@ window.SP = (function () {
           { href:'tenant-application.html', icon:'fa-user-plus', label:'Tenant App' },
           { href:'lease-renewal.html', icon:'fa-repeat', label:'Renewals' },
           { href:'move-out.html', icon:'fa-sign-out-alt', label:'Move-Out' },
+          { href:'vendor-invoice.html', icon:'fa-file-invoice-dollar', label:'Invoices' },
           { href:'insurance-summary.html', icon:'fa-shield-alt', label:'Insurance' },
           { href:'utility-analysis.html', icon:'fa-chart-line', label:'Utility Analysis' },
           { href:'tenant-application.html', icon:'fa-user-plus', label:'Tenant App' },
           { href:'lease-renewal.html', icon:'fa-repeat', label:'Renewals' },
           { href:'move-out.html', icon:'fa-sign-out-alt', label:'Move-Out' },
+          { href:'vendor-invoice.html', icon:'fa-file-invoice-dollar', label:'Invoices' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
