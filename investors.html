@@ -522,7 +522,7 @@ function renderTable(list) {
     verified: (inv) => {
       if (!inv.accredExpiry) return '<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>';
       const daysLeft = Math.ceil((new Date(inv.accredExpiry) - today) / 86400000);
-      if (daysLeft <= 30 && daysLeft > 0) return `<span class="badge" style="background:#fef3c7;color:#b45309;"><i class="fas fa-exclamation-triangle"></i> Expires in ${daysLeft}d</span>`;
+      if (daysLeft <= 30 && daysLeft > 0) return `<span class="badge" style="background:rgba(245,158,11,0.15);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);"><i class="fas fa-exclamation-triangle"></i> Expires in ${daysLeft}d</span>`;
       return '<span class="badge badge-verified"><i class="fas fa-check-circle"></i> Verified</span>';
     },
     pending: () => '<span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>',
@@ -533,23 +533,28 @@ function renderTable(list) {
   tbody.innerHTML = list.map((inv, idx) => {
     // Count deals this investor is actually linked to
     const linkedDeals = allDeals.filter(d => Array.isArray(d.investors) && d.investors.some(i => i.investorId === inv.id));
+    const totalCommitted = linkedDeals.reduce((s,d)=>{
+      const e = d.investors.find(i=>i.investorId===inv.id); return s+(e?.committed||0);
+    }, 0);
     return `
-    <tr>
+    <tr style="cursor:pointer;" onclick="window.location.href='investor-detail.html?id=${inv.id}'">
       <td data-label="Investor">
         <div class="investor-cell">
           <div class="investor-av av-${idx%6}">${initials(inv)}</div>
-          <div><div class="investor-name"><a href="investor-detail.html?id=${inv.id}" style="color:inherit;text-decoration:none;">${inv.firstName} ${inv.lastName}</a></div><div class="investor-email">${inv.email}</div></div>
+          <div>
+            <div class="investor-name" style="font-weight:600;">${inv.firstName} ${inv.lastName}</div>
+            <div class="investor-email" style="font-size:11px;color:#64748b;">${inv.email}</div>
+          </div>
         </div>
       </td>
-      <td data-label="Phone" style="color:var(--text-secondary);font-size:0.85rem;">${inv.phone||'—'}</td>
       <td data-label="Accreditation">${(accBadge[inv.accredStatus]||accBadge.pending)(inv)}</td>
-      <td data-label="Invested" class="money">${fmt$(inv.totalInvested||0)}</td>
-      <td data-label="Deals" style="text-align:center;">
-        <span style="font-weight:600;">${linkedDeals.length}</span>
-        ${linkedDeals.length ? `<div style="font-size:0.7rem;color:var(--text-muted);">${linkedDeals.map(d=>d.name).slice(0,2).join(', ')}${linkedDeals.length>2?' +more':''}</div>` : ''}
+      <td data-label="Invested" style="font-family:'JetBrains Mono',monospace;font-weight:700;">${fmt$(totalCommitted||inv.totalInvested||0)}</td>
+      <td data-label="Deals">
+        <span style="font-weight:700;font-size:15px;">${linkedDeals.length}</span>
+        ${linkedDeals.length ? `<div style="font-size:11px;color:#64748b;margin-top:2px;">${linkedDeals.map(d=>d.name).slice(0,1).join('')}${linkedDeals.length>1?` +${linkedDeals.length-1} more`:''}</div>` : '<div style="font-size:11px;color:#475569;margin-top:2px;">No deals yet</div>'}
       </td>
       <td data-label="Status">${statusBadge[inv.status]||'—'}</td>
-      <td data-label="Actions">
+      <td data-label="Actions" onclick="event.stopPropagation();">
         <div class="action-btns">
           <button class="btn-xs" onclick="editInvestor('${inv.id}')" title="Edit"><i class="fas fa-edit"></i></button>
           <button class="btn-xs" onclick="openDealLinkModal('${inv.id}')" title="Link to Deal" style="color:var(--accent);"><i class="fas fa-link"></i></button>

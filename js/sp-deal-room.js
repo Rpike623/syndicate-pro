@@ -67,18 +67,40 @@ window.DealRoom = {
 
   generateDemoDocs: function() {
     const now = new Date();
-    const year = now.getFullYear();
+    const yr = now.getFullYear();
+    const deal = this.currentDeal || {};
+    const dealName = deal.name || 'Property';
+    const gp = (typeof SP !== 'undefined' && SP.load) ? (SP.load('settings', {}).firmName || 'GP Firm') : 'GP Firm';
+
+    // Generate simple HTML content for each doc type that can actually be viewed
+    const makeDoc = (html) => 'data:text/html;charset=utf-8,' + encodeURIComponent(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Georgia,serif;max-width:760px;margin:40px auto;padding:20px;line-height:1.8;color:#0f172a;background:#fff;} h1{font-size:1.4rem;border-bottom:2px solid #0f172a;padding-bottom:8px;} table{width:100%;border-collapse:collapse;} th,td{padding:8px 12px;border:1px solid #ddd;text-align:left;} th{background:#f1f5f9;font-weight:700;} .label{font-weight:700;} .placeholder{background:#fef9c3;border:1px solid #fbbf24;border-radius:6px;padding:10px 14px;font-size:0.85rem;color:#92400e;margin-bottom:20px;font-family:sans-serif;}</style></head><body>${html}</body></html>`);
+
     return [
-      { id: '1', name: 'Purchase Agreement', category: 'legal', uploadedBy: 'GP', date: `${year}-01-15`, size: '2.4 MB', access: 'all' },
-      { id: '2', name: 'Operating Agreement', category: 'legal', uploadedBy: 'GP', date: `${year}-01-18`, size: '1.1 MB', access: 'all' },
-      { id: '3', name: 'Title Policy', category: 'legal', uploadedBy: 'GP', date: `${year}-01-20`, size: '850 KB', access: 'all' },
-      { id: '4', name: 'Q1 2026 Financials', category: 'financial', uploadedBy: 'GP', date: `${year}-04-01`, size: '320 KB', access: 'all' },
-      { id: '5', name: 'Q4 2025 Financials', category: 'financial', uploadedBy: 'GP', date: `${year}-01-15`, size: '290 KB', access: 'all' },
-      { id: '6', name: 'Rent Roll - March 2026', category: 'financial', uploadedBy: 'GP', date: `${year}-04-05`, size: '180 KB', access: 'all' },
-      { id: '7', name: 'Property Photos', category: 'property', uploadedBy: 'GP', date: `${year}-01-10`, size: '15.2 MB', access: 'all' },
-      { id: '8', name: 'Inspection Report', category: 'property', uploadedBy: 'GP', date: `${year}-01-12`, size: '4.8 MB', access: 'all' },
-      { id: '9', name: 'Insurance Certificate', category: 'property', uploadedBy: 'GP', date: `${year}-01-15`, size: '420 KB', access: 'all' },
-      { id: '10', name: 'Investor Call Notes - Feb', category: 'correspondence', uploadedBy: 'GP', date: `${year}-02-28`, size: '45 KB', access: 'all' }
+      {
+        id: 'd_oa', name: 'Operating Agreement', category: 'legal',
+        uploadedBy: 'GP', date: `${yr}-01-15`, size: 'HTML', access: 'all',
+        fileUrl: makeDoc(`<div class="placeholder">⚠ DEMO DOCUMENT — for testing functionality only. Not for actual legal use.</div><h1>Operating Agreement — ${dealName}</h1><p><span class="label">Entity:</span> ${gp}</p><p><span class="label">Property:</span> ${dealName}</p><p><span class="label">Date:</span> January 15, ${yr}</p><h2>Capital Structure</h2><table><tr><th>Class</th><th>Ownership %</th><th>Investment</th></tr><tr><td>General Partner</td><td>10%</td><td>$${Math.round((deal.raise||1000000)*0.1).toLocaleString()}</td></tr><tr><td>Limited Partners</td><td>90%</td><td>$${Math.round((deal.raise||1000000)*0.9).toLocaleString()}</td></tr></table><h2>Distribution Waterfall</h2><p>1. Return of capital to all members pro-rata</p><p>2. ${deal.prefReturn||8}% preferred return to limited partners</p><p>3. GP catch-up (${deal.gpPromote||20}% of preferred paid)</p><p>4. Residual ${deal.gpPromote||20}% GP / ${100-(deal.gpPromote||20)}% LP</p>`)
+      },
+      {
+        id: 'd_sub', name: 'Subscription Agreement (Template)', category: 'legal',
+        uploadedBy: 'GP', date: `${yr}-01-18`, size: 'HTML', access: 'all',
+        fileUrl: makeDoc(`<div class="placeholder">⚠ DEMO DOCUMENT — template only.</div><h1>Subscription Agreement — ${dealName}</h1><p>This Subscription Agreement is entered into by the undersigned Limited Partner ("Subscriber") and ${gp} (the "Company").</p><h2>1. Subscription</h2><p>Subscriber agrees to invest $[AMOUNT] representing [OWNERSHIP]% of total equity.</p><h2>2. Accredited Investor</h2><p>Subscriber certifies they are an Accredited Investor as defined under SEC Rule 501.</p><h2>3. Representations</h2><p>Subscriber acknowledges the investment is illiquid and speculative.</p>`)
+      },
+      {
+        id: 'd_fin', name: 'Q1 2026 Financial Summary', category: 'financial',
+        uploadedBy: 'GP', date: `${yr}-04-01`, size: 'HTML', access: 'all',
+        fileUrl: makeDoc(`<div class="placeholder">⚠ DEMO — sample financial report format.</div><h1>Q1 ${yr} Financial Summary — ${dealName}</h1><table><tr><th>Metric</th><th>Q1 ${yr}</th><th>Budget</th></tr><tr><td>Gross Revenue</td><td>$${Math.round((deal.raise||1000000)*0.02).toLocaleString()}</td><td>$${Math.round((deal.raise||1000000)*0.019).toLocaleString()}</td></tr><tr><td>Operating Expenses</td><td>$${Math.round((deal.raise||1000000)*0.008).toLocaleString()}</td><td>$${Math.round((deal.raise||1000000)*0.009).toLocaleString()}</td></tr><tr><td>NOI</td><td>$${Math.round((deal.raise||1000000)*0.012).toLocaleString()}</td><td>$${Math.round((deal.raise||1000000)*0.01).toLocaleString()}</td></tr><tr><td>Occupancy</td><td>94.2%</td><td>95%</td></tr></table>`)
+      },
+      {
+        id: 'd_rr', name: 'Rent Roll — Current', category: 'financial',
+        uploadedBy: 'GP', date: `${yr}-04-05`, size: 'HTML', access: 'all',
+        fileUrl: makeDoc(`<div class="placeholder">⚠ DEMO — sample rent roll format. Upload your actual rent roll using the Upload button above.</div><h1>Rent Roll — ${dealName}</h1><p>As of ${new Date().toLocaleDateString()}</p><table><tr><th>Unit</th><th>Tenant</th><th>Lease Start</th><th>Lease End</th><th>Monthly Rent</th><th>Status</th></tr><tr><td>101</td><td>[Tenant Name]</td><td>Jan 1, ${yr}</td><td>Dec 31, ${yr}</td><td>$2,400</td><td>Current</td></tr><tr><td>102</td><td>[Tenant Name]</td><td>Mar 1, ${yr}</td><td>Feb 28, ${yr+1}</td><td>$2,350</td><td>Current</td></tr><tr><td>103</td><td>VACANT</td><td>—</td><td>—</td><td>—</td><td>Vacant</td></tr></table>`)
+      },
+      {
+        id: 'd_inspect', name: 'Property Inspection Report', category: 'property',
+        uploadedBy: 'GP', date: `${yr}-01-12`, size: 'HTML', access: 'all',
+        fileUrl: makeDoc(`<div class="placeholder">⚠ DEMO — sample inspection report. Replace with your actual report.</div><h1>Property Inspection Report — ${dealName}</h1><p><span class="label">Date:</span> January 12, ${yr}</p><p><span class="label">Inspector:</span> [Inspector Name & License]</p><h2>Summary</h2><p>Overall condition: <strong>Good</strong>. No major structural deficiencies identified.</p><h2>Items Requiring Attention</h2><table><tr><th>Item</th><th>Priority</th><th>Est. Cost</th></tr><tr><td>Roof — Minor repairs needed</td><td>Low</td><td>$8,000</td></tr><tr><td>HVAC Units — 3 units near end of life</td><td>Medium</td><td>$15,000</td></tr><tr><td>Parking lot resurfacing</td><td>Low</td><td>$12,000</td></tr></table>`)
+      },
     ];
   },
 

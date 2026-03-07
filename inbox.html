@@ -159,23 +159,9 @@
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
-<div class="app"><aside class="sidebar" id="sidebar"></aside>
-
-  <!-- Sidebar -->
-    <div class="sidebar-header">
-    <nav class="nav"></nav>
-      <a href="javascript:void(0)" onclick="SP.goHome()" class="logo"><img src="assets/logo-icon.svg" width="36" height="36" alt="dl"><span>deel<span style="color:#0ea5e9;">track</span></span></a>
-    </div>
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar" id="sidebarAvatar">GP</div>
-        <div class="user-details">
-          <div class="user-name" id="sidebarName">Loading…</div>
-          <div class="user-role">General Partner</div>
-        </div>
-      </div>
-    </div>
-  </aside>
+<div class="app">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
 
   <!-- Main -->
   <div class="main">
@@ -274,34 +260,60 @@ let selectedId  = null;
 let currentFilter = 'all';
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
-firebase.auth().onAuthStateChanged(user => {
-  if (!user) { window.location.href = 'login.html'; return; }
-  const name = user.displayName || user.email || 'GP';
-  document.getElementById('sidebarName').textContent = name;
-  document.getElementById('sidebarAvatar').textContent = name.charAt(0).toUpperCase();
-  loadInbox();
-});
+SP.requireGP();
 
-// ── Load messages from Firestore _inbox collection ────────────────────────────
+// Start load immediately — also retry when Firebase auth resolves
+loadInbox();
+if (typeof firebase !== 'undefined' && firebase.auth) {
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user && !SP.isLoggedIn()) { window.location.href = 'login.html'; return; }
+    loadInbox();
+  });
+}
+
+// ── Load messages from Firestore org-scoped inbox ─────────────────────────────
 async function loadInbox() {
-  try {
-    const db = firebase.firestore();
-    const snap = await db.collection('_inbox')
-      .orderBy('receivedAt', 'desc')
-      .limit(100)
-      .get();
+  const listEl = document.getElementById('inboxList');
+  listEl.innerHTML = `<div class="empty-inbox"><i class="fas fa-spinner fa-spin" style="opacity:0.5;"></i><p>Loading…</p></div>`;
 
-    allMessages = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  try {
+    // Try org-scoped inbox first (preferred), fallback to _inbox collection
+    const orgId = (typeof SPFB !== 'undefined' && SPFB.getOrgId()) || SP.getOrgId() || null;
+    let snap = null;
+
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+      const db = firebase.firestore();
+      try {
+        if (orgId) {
+          snap = await db.collection('orgs').doc(orgId).collection('inbox')
+            .orderBy('receivedAt', 'desc').limit(100).get();
+        }
+        // Fallback: try _inbox (legacy collection used by check-inbox.js)
+        if (!snap || snap.empty) {
+          snap = await db.collection('_inbox')
+            .orderBy('receivedAt', 'desc').limit(100).get();
+        }
+        allMessages = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (dbErr) {
+        console.warn('Firestore inbox unavailable:', dbErr.message);
+        allMessages = [];
+      }
+    } else {
+      allMessages = [];
+    }
+
     updateStats();
     renderList();
     updateLastRefreshed();
   } catch (e) {
     console.error('Inbox load error:', e);
-    document.getElementById('inboxList').innerHTML = `
+    // Show helpful empty state rather than error
+    listEl.innerHTML = `
       <div class="empty-inbox">
-        <i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i>
-        <h3>Could not load inbox</h3>
-        <p>${e.message}</p>
+        <i class="fas fa-inbox" style="color:var(--accent)"></i>
+        <h3>Inbox Connected</h3>
+        <p>No messages yet. Investor replies and bounce notifications will appear here when received at admin@deeltrack.com.</p>
+        <p style="margin-top:8px;font-size:11px;color:#475569;">To populate the inbox, use the Email Templates page to send updates and capital call notices to investors.</p>
       </div>`;
   }
 }

@@ -1,4 +1,10 @@
-  <title>deeltrack | Distribution Command Center </title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Distribution Command Center</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -11,352 +17,724 @@
   <script src="js/sp-math.js"></script>
   <script src="js/database.js"></script>
   <style>
-    :root { 
-      --accent: #0ea5e9; 
-      --success: #10b981; 
-      --bg: #0B1120;
-    }
+    :root { --accent:#0ea5e9; --success:#10b981; --warning:#f59e0b; --danger:#ef4444; --bg:#0B1120; --surface:#111827; --border:#1E293B; }
     * { margin:0; padding:0; box-sizing:border-box; }
-    body { 
-      font-family:'Inter', sans-serif; 
-      background: #0B1120;
-      color: #F8FAFC;
-      display:flex; min-height:100vh; font-size: 14px; 
-    }
-    .main { flex:1; margin-left:260px; padding:40px; max-width:1400px; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:#F8FAFC; display:flex; min-height:100vh; font-size:14px; }
+    .main { flex:1; margin-left:260px; min-height:100vh; display:flex; flex-direction:column; }
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;}}
 
-    /* ── Distribution Command Center UI ────────────────────────────────── */
-    .command-grid { display: grid; grid-template-columns: 380px 1fr; gap: 32px; }
-    @media(max-width:1024px){ .command-grid { grid-template-columns: 1fr; } }
-    
-    /* glass-card replaced with proper dark card */
-    .glass-card { 
-      background: #111827;
-      border: 1px solid #1E293B;
-      border-radius: 16px; 
-      padding: 32px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-    }
+    /* Top bar */
+    .top-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 32px; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; flex-shrink:0; }
+    .top-bar h1 { font-size:17px; font-weight:700; color:#F8FAFC; margin:0; }
+    .top-bar p { font-size:12px; color:#64748b; margin:0; }
+    .mobile-menu-btn { display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 10px; cursor:pointer; }
+    @media(max-width:768px){.mobile-menu-btn{display:flex!important;} .top-bar{padding:0 14px;}}
 
-    .form-group { margin-bottom: 20px; }
-    .label { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: block; }
-    .input { width: 100%; padding: 11px 14px; border-radius: 8px; border: 1px solid #1E293B; font-family: inherit; font-size: 14px; outline: none; transition: border-color 0.2s; background: #0B1120; color: #F8FAFC; }
-    .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(14,165,233,0.1); }
+    /* Layout */
+    .content { padding:28px 32px; flex:1; }
+    @media(max-width:768px){.content{padding:14px;}}
 
-    .exec-btn { 
-      width:100%; padding:14px; background: var(--accent); color: white; border: none; 
-      border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: all 0.2s;
-    }
-    .exec-btn:hover { background: #0284c7; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(14,165,233,0.3); }
-    .exec-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+    /* Step flow indicator */
+    .steps { display:flex; gap:0; margin-bottom:28px; background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    .step { flex:1; padding:14px 20px; display:flex; align-items:center; gap:10px; font-size:13px; font-weight:600; color:#64748b; position:relative; }
+    .step.active { color:#F8FAFC; background:rgba(14,165,233,0.08); }
+    .step.done { color:var(--success); }
+    .step-num { width:24px; height:24px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; }
+    .step.active .step-num { background:var(--accent); color:white; }
+    .step.done .step-num { background:var(--success); color:white; }
+    .step + .step::before { content:''; position:absolute; left:0; top:20%; bottom:20%; width:1px; background:var(--border); }
 
-    .summary-tile { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; background: #0B1120; border: 1px solid #1E293B; border-radius: 10px; }
-    .summary-val { font-size: 22px; font-weight: 800; font-family: 'JetBrains Mono', monospace; letter-spacing: -0.04em; color: #F8FAFC; }
-    .summary-lbl { font-size: 11px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 0.08em; }
+    /* Main grid */
+    .cmd-grid { display:grid; grid-template-columns:360px 1fr; gap:24px; align-items:start; }
+    @media(max-width:1100px){.cmd-grid{grid-template-columns:1fr;}}
 
-    .table { width: 100%; border-collapse: collapse; }
-    .table th { text-align: left; font-size: 11px; text-transform: uppercase; color: #64748b; padding: 11px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); letter-spacing: 0.08em; background: rgba(255,255,255,0.02); }
-    .table td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13.5px; color: #E2E8F0; }
-    .table tr:hover td { background: rgba(255,255,255,0.025); }
-    .table tr:last-child td { border-bottom: none; }
-    
-    .status-pill { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-    .status-pending  { background: rgba(245,158,11,0.15);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
-    .status-executed { background: rgba(16,185,129,0.15);  color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    /* Cards */
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+    .card-hdr { padding:16px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+    .card-hdr h2 { font-size:14px; font-weight:700; color:#F8FAFC; margin:0; }
+    .card-hdr p { font-size:11px; color:#64748b; margin:2px 0 0; }
+    .card-body { padding:22px; }
 
-    /* Info box */
-    .info-box { background: rgba(14,165,233,0.08); border: 1px solid rgba(14,165,233,0.2); border-radius: 10px; padding: 16px 18px; font-size: 13px; color: #93c5fd; line-height: 1.6; margin-bottom: 20px; }
+    /* Form */
+    .form-group { margin-bottom:18px; }
+    .form-group:last-child { margin-bottom:0; }
+    .form-group label { display:block; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:7px; }
+    .form-group input, .form-group select { width:100%; padding:11px 14px; background:#0B1120; border:1px solid var(--border); border-radius:8px; color:#F8FAFC; font-size:14px; font-family:inherit; outline:none; transition:border-color 0.15s; }
+    .form-group input:focus, .form-group select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(14,165,233,0.1); }
+
+    /* Summary tiles */
+    .summary-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:20px 0; }
+    .stile { background:#0B1120; border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
+    .stile-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#64748b; margin-bottom:4px; }
+    .stile-val { font-size:20px; font-weight:800; font-family:'JetBrains Mono',monospace; letter-spacing:-0.03em; color:#F8FAFC; }
+
+    /* Waterfall tier breakdown */
+    .waterfall-tiers { display:flex; flex-direction:column; gap:8px; margin:16px 0; }
+    .wf-tier { display:flex; align-items:center; gap:12px; padding:10px 14px; background:#0B1120; border-radius:8px; border-left:4px solid var(--border); }
+    .wf-tier.tier-roc  { border-left-color:#64748b; }
+    .wf-tier.tier-pref { border-left-color:var(--warning); }
+    .wf-tier.tier-catchup { border-left-color:var(--accent); }
+    .wf-tier.tier-split { border-left-color:var(--success); }
+    .wf-tier-name { font-size:12px; font-weight:600; color:#F8FAFC; flex:1; }
+    .wf-tier-desc { font-size:11px; color:#64748b; }
+    .wf-tier-amount { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; color:#F8FAFC; text-align:right; }
+    .wf-tier-split { font-size:11px; color:#64748b; text-align:right; white-space:nowrap; }
+
+    /* Pref tracking callout */
+    .pref-callout { background:rgba(245,158,11,0.07); border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:14px 16px; margin:16px 0; font-size:12px; color:#fcd34d; line-height:1.6; }
+    .pref-callout strong { color:#F8FAFC; }
+
+    /* Execute button */
+    .exec-btn { width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:all 0.2s; margin-top:4px; }
+    .exec-btn:hover { background:#0284c7; transform:translateY(-1px); box-shadow:0 8px 20px rgba(14,165,233,0.3); }
+    .exec-btn:disabled { opacity:0.45; cursor:not-allowed; transform:none; box-shadow:none; }
+
+    /* Ledger table */
+    .table-scroll { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; }
+    th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:#64748b; padding:11px 16px; border-bottom:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); text-align:left; white-space:nowrap; }
+    th.right, td.right { text-align:right; }
+    td { padding:13px 16px; border-bottom:1px solid rgba(255,255,255,0.06); font-size:13px; color:#E2E8F0; vertical-align:middle; }
+    tr:hover td { background:rgba(255,255,255,0.025); }
+    tr:last-child td { border-bottom:none; }
+    .mono { font-family:'JetBrains Mono',monospace; font-weight:600; }
+
+    /* Status */
+    .status-pill { padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; text-transform:uppercase; }
+    .status-pending  { background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); }
+    .status-ready    { background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3); }
+    .status-executed { background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); }
+
+    /* Empty state */
+    .empty-ledger { text-align:center; padding:60px 20px; color:#64748b; }
+    .empty-ledger i { font-size:2rem; opacity:0.2; display:block; margin-bottom:14px; }
+
+    /* Success banner */
+    .success-banner { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:18px 22px; margin-bottom:20px; display:none; }
+    .success-banner.show { display:flex; align-items:center; gap:14px; }
+
+    /* Posted distributions */
+    .dist-history { display:flex; flex-direction:column; gap:0; }
+    .dist-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .dist-row:last-child { border-bottom:none; }
   </style>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
-    <aside class="sidebar" id="sidebar"></aside>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
 
-    <main class="main">
-        <header style="margin-bottom:32px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:12px;">
-            <div>
-                <div style="font-size:11px; font-weight:800; color:var(--accent); text-transform:uppercase; letter-spacing:2.5px; margin-bottom:6px;">Finance · Treasury Operations</div>
-                <h1 style="font-size:1.75rem; font-weight:800; letter-spacing:-0.03em; color:#F8FAFC; margin:0;">Distribution Command Center</h1>
-                <p style="font-size:13px; color:#64748b; margin:4px 0 0;">Preview pref-aware splits, then post to lock the ledger</p>
-            </div>
-        </header>
-
-        <div class="command-grid">
-            <!-- Execution Panel -->
-            <div class="glass-card">
-                <div class="form-group">
-                    <label class="label">Primary Asset</label>
-                    <select id="dealSelect" class="input" onchange="previewDistribution()">
-                        <option value="">— Select Target Asset —</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="label">Distribution Amount ($)</label>
-                    <input type="number" id="distAmt" class="input" placeholder="0.00" oninput="previewDistribution()">
-                </div>
-                <div class="form-group">
-                    <label class="label">Distribution Date</label>
-                    <input type="date" id="distDate" class="input">
-                </div>
-
-                <div style="margin: 32px 0; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 24px;">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                        <div class="summary-tile">
-                            <span class="summary-lbl">LP Payouts</span>
-                            <span class="summary-val" id="lpSum" style="color:#34d399;">$0.00</span>
-                        </div>
-                        <div class="summary-tile">
-                            <span class="summary-lbl">GP Promote</span>
-                            <span class="summary-val" id="gpSum" style="color:var(--accent);">$0.00</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="info-box">
-                    <i class="fas fa-info-circle" style="color:var(--accent);margin-right:6px;"></i> <strong style="color:#F8FAFC;">Execute Protocol:</strong> Clicking execute will update ledgers in Firestore and notify <span id="lpCount">0</span> investors.
-                </div>
-
-                <button id="execBtn" class="exec-btn" onclick="executeDistribution()" disabled>
-                    <i class="fas fa-bolt"></i> Execute Distribution Run
-                </button>
-            </div>
-
-            <!-- Preview Ledger -->
-            <div class="glass-card" style="padding: 0; overflow: hidden;">
-                <div style="padding:18px 24px; border-bottom:1px solid rgba(255,255,255,0.07); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <div style="font-size:14px; font-weight:700; color:#F8FAFC;">Pro-Forma Distribution Ledger</div>
-                        <div style="font-size:11px; color:#64748b; margin-top:2px;">Preview only — post from Distributions page to lock</div>
-                    </div>
-                    <span class="status-pill status-pending" id="ledgerStatus">Pending Review</span>
-                </div>
-                <div style="max-height: 600px; overflow-y: auto;">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Investor Name</th>
-                                <th>Ownership %</th>
-                                <th style="text-align: right;">Calculated Yield</th>
-                                <th style="text-align: right;">Total Payout</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ledgerBody">
-                            <tr><td colspan="4" style="text-align:center; padding:100px; color:#94a3b8;">Awaiting asset and amount selection...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  <main class="main">
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')">
+          <i class="fas fa-bars" style="color:#94a3b8;"></i>
+        </button>
+        <div>
+          <h1><i class="fas fa-bolt" style="color:var(--accent);margin-right:8px;font-size:16px;"></i>Distribution Command Center</h1>
+          <p>Calculate pref-aware splits, preview the ledger, then post to lock it</p>
         </div>
-    </main>
+      </div>
+      <a href="distributions.html" class="btn btn-secondary" style="padding:8px 14px;font-size:13px;background:transparent;border:1px solid var(--border);color:#94a3b8;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+        <i class="fas fa-history"></i> View History
+      </a>
+    </div>
 
-    <script>
-        let currentLPs = [];
+    <div class="content">
 
-        function init() {
-            if (!window.SPData) return;
-            const deals = SPData.getDeals();
-            const sel = document.getElementById('dealSelect');
-            sel.innerHTML = '<option value="">— Select Target Asset —</option>';
-            deals.forEach(d => sel.add(new Option(d.name, d.id)));
-            document.getElementById('distDate').valueAsDate = new Date();
-        }
+      <!-- Step indicator -->
+      <div class="steps">
+        <div class="step active" id="step1">
+          <div class="step-num">1</div>
+          <span>Select Deal &amp; Amount</span>
+        </div>
+        <div class="step" id="step2">
+          <div class="step-num">2</div>
+          <span>Review Per-Investor Breakdown</span>
+        </div>
+        <div class="step" id="step3">
+          <div class="step-num">3</div>
+          <span>Post to Ledger</span>
+        </div>
+      </div>
 
-        function buildWaterfallInput(deal) {
-            const gpEquityPct = Number(deal.gpEquity ?? deal.wizardData?.gpEquity ?? 10);
-            const lpEquityPct = Number(deal.lpEquity ?? deal.wizardData?.lpEquity ?? (100 - gpEquityPct));
-            return {
-                totalEquity: Number(deal.totalEquity ?? deal.raise ?? 1000000),
-                gpEquityPct,
-                lpEquityPct,
-                prefReturn: Number(deal.prefReturn ?? deal.wizardData?.prefReturn ?? 0),
-                gpPromotePct: Number(deal.gpPromote ?? deal.wizardData?.gpPromote ?? 20),
-                catchupRate: Number(deal.catchupRate ?? deal.wizardData?.catchupRate ?? 50),
-                exitMultiple: Number(deal.exitMultiple ?? deal.wizardData?.exitMultiple ?? 1.8),
-                holdPeriod: Number(deal.holdPeriod ?? deal.wizardData?.holdPeriod ?? 5),
-                waterfallType: deal.waterfallType ?? deal.wizardData?.waterfallType ?? 'simple'
-            };
-        }
+      <!-- Success banner (shown after post) -->
+      <div class="success-banner" id="successBanner">
+        <i class="fas fa-check-circle" style="color:var(--success);font-size:1.5rem;flex-shrink:0;"></i>
+        <div>
+          <div style="font-weight:700;color:#F8FAFC;font-size:15px;">Distribution Posted Successfully</div>
+          <div style="font-size:13px;color:#94a3b8;margin-top:2px;">Ledger locked. Investor capital accounts updated. <a href="distributions.html" style="color:var(--accent);">View in Distributions →</a></div>
+        </div>
+      </div>
 
-        function formatCurrency(value) {
-            return `$${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-        }
+      <div class="cmd-grid">
 
-        function formatPercent(value) {
-            return `${Number(value || 0).toFixed(2)}%`;
-        }
+        <!-- ── LEFT: Configuration panel ─────────────────────────────── -->
+        <div>
+          <div class="card" style="margin-bottom:20px;">
+            <div class="card-hdr">
+              <div>
+                <h2>Distribution Setup</h2>
+                <p>Select a deal and enter the total amount to distribute</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Deal / Property</label>
+                <select id="dealSelect" onchange="onDealChange()">
+                  <option value="">— Select a deal —</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Total Distribution Amount ($)</label>
+                <input type="number" id="distAmt" placeholder="e.g. 125000" oninput="onAmountChange()" min="0" step="100">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="form-group">
+                  <label>Distribution Date</label>
+                  <input type="date" id="distDate">
+                </div>
+                <div class="form-group">
+                  <label>Period</label>
+                  <select id="distPeriod">
+                    <option value="Q1 2026">Q1 2026</option>
+                    <option value="Q4 2025">Q4 2025</option>
+                    <option value="Q3 2025">Q3 2025</option>
+                    <option value="Q2 2025">Q2 2025</option>
+                    <option value="Annual 2025">Annual 2025</option>
+                    <option value="Special">Special Distribution</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Payment Method</label>
+                <select id="distMethod">
+                  <option value="Wire">Wire Transfer</option>
+                  <option value="ACH">ACH</option>
+                  <option value="Check">Check</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
-        function renderTierChips(waterfall, distributionAmount, totalProceeds) {
-            const tierContainer = document.getElementById('tierBreakdown');
-            if (!tierContainer) return;
-            if (!waterfall.length || distributionAmount <= 0) {
-                tierContainer.innerHTML = '<div class="tier-chip">No tiers hit yet. Select a deal + amount to preview.</div>';
-                return;
-            }
+          <!-- Pref summary (shown after deal selected) -->
+          <div class="card" id="prefSummaryCard" style="display:none;margin-bottom:20px;">
+            <div class="card-hdr">
+              <div>
+                <h2><i class="fas fa-star" style="color:var(--warning);margin-right:6px;"></i>Pref Status</h2>
+                <p>Preferred return accrual for this deal</p>
+              </div>
+            </div>
+            <div class="card-body" id="prefSummaryBody"></div>
+          </div>
+        </div>
 
-            tierContainer.innerHTML = waterfall.map(tier => {
-                const tierShare = totalProceeds ? (tier.total / totalProceeds) : 0;
-                const tierAmount = distributionAmount * tierShare;
-                return `
-                    <div class="tier-chip">
-                        <div><strong>${tier.name}</strong></div>
-                        <div class="tier-values">
-                            <span>${formatCurrency(tierAmount)}</span>
-                            <span>${(tierShare * 100).toFixed(1)}%</span>
-                        </div>
-                        <small>${tier.description}</small>
-                        <div class="tier-values">
-                            <span>GP ${formatCurrency(tier.gp)}</span>
-                            <span>LP ${formatCurrency(tier.lp)}</span>
-                        </div>
-                    </div>`;
-            }).join('');
-        }
+        <!-- ── RIGHT: Preview ledger ──────────────────────────────────── -->
+        <div>
+          <div class="card">
+            <div class="card-hdr">
+              <div>
+                <h2>Pro-Forma Distribution Ledger</h2>
+                <p>Per-investor breakdown — pref satisfied first, then excess split by ownership</p>
+              </div>
+              <span class="status-pill status-pending" id="ledgerStatus">Awaiting Input</span>
+            </div>
 
-        function previewDistribution() {
-            const dealId = document.getElementById('dealSelect').value;
-            const amount = parseFloat(document.getElementById('distAmt').value) || 0;
-            const btn = document.getElementById('execBtn');
+            <!-- Totals summary row -->
+            <div class="summary-row" style="padding:0 22px;margin:16px 0 0;">
+              <div class="stile">
+                <div class="stile-lbl">Total Amount</div>
+                <div class="stile-val" id="totalSum">$0</div>
+              </div>
+              <div class="stile">
+                <div class="stile-lbl">To LPs</div>
+                <div class="stile-val" id="lpSum" style="color:#34d399;">$0</div>
+              </div>
+              <div class="stile">
+                <div class="stile-lbl">GP Promote</div>
+                <div class="stile-val" id="gpSum" style="color:var(--accent);">$0</div>
+              </div>
+            </div>
 
-            if (!dealId || amount <= 0) {
-                btn.disabled = true;
-                return;
-            }
+            <!-- Waterfall tier breakdown -->
+            <div style="padding:0 22px 16px;" id="tierSection" style="display:none;">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin:16px 0 8px;">Waterfall Tiers</div>
+              <div class="waterfall-tiers" id="tierBreakdown"></div>
+            </div>
 
-            const deal = SPData.getDeals().find(d => d.id === dealId);
-            if (!deal) return;
+            <!-- Per-investor table -->
+            <div class="table-scroll">
+              <table id="ledgerTable">
+                <thead>
+                  <tr>
+                    <th>Investor</th>
+                    <th class="right">Ownership</th>
+                    <th class="right">Pref Paid</th>
+                    <th class="right">Excess</th>
+                    <th class="right">Total Payout</th>
+                  </tr>
+                </thead>
+                <tbody id="ledgerBody">
+                  <tr>
+                    <td colspan="5">
+                      <div class="empty-ledger">
+                        <i class="fas fa-table"></i>
+                        <div style="font-weight:600;margin-bottom:4px;">Select a deal and enter an amount</div>
+                        <div style="font-size:12px;">The per-investor breakdown will appear here</div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-            const calculatorInput = buildWaterfallInput(deal);
-            const scenario = WaterfallCalculator.calculate(calculatorInput);
-            const lpShare = scenario.summary.lpTotal / (scenario.summary.totalProceeds || 1);
-            const gpShare = scenario.summary.gpTotal / (scenario.summary.totalProceeds || 1);
-            const lpTotal = amount * lpShare;
-            const gpTotal = amount * gpShare;
+            <!-- Pref callout (shown when pref is active) -->
+            <div class="pref-callout" id="prefCallout" style="display:none;margin:0 22px 16px;"></div>
 
-            document.getElementById('lpSum').textContent = formatCurrency(lpTotal);
-            document.getElementById('gpSum').textContent = formatCurrency(gpTotal);
-            document.getElementById('lpCount').textContent = (deal.investors || []).length;
+            <!-- Action buttons -->
+            <div style="padding:16px 22px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;">
+              <button id="execBtn" class="exec-btn" onclick="executeDistribution()" disabled style="flex:1;">
+                <i class="fas fa-bolt"></i> Post Distribution to Ledger
+              </button>
+              <button onclick="resetForm()" style="padding:12px 16px;background:transparent;border:1px solid var(--border);border-radius:8px;color:#94a3b8;cursor:pointer;font-family:inherit;font-size:13px;white-space:nowrap;" title="Reset form">
+                <i class="fas fa-redo"></i>
+              </button>
+            </div>
+          </div>
 
-            currentLPs = deal.investors || [];
+          <!-- Posted distributions for this deal (shown after deal selected) -->
+          <div class="card" id="historyCard" style="display:none;margin-top:20px;">
+            <div class="card-hdr">
+              <div>
+                <h2>Posted Distributions — This Deal</h2>
+                <p>Only posted distributions count toward the pref ledger</p>
+              </div>
+            </div>
+            <div class="card-body" id="historyBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 
-            // Only POSTED dists count toward the pref ledger
-            const priorDists = (SPData.getDistributions() || []).filter(d => d.dealId === dealId && d.status === 'posted');
-            const distDate   = document.getElementById('distDate').value;
-            const prefSplits = (typeof SPMath !== 'undefined' && currentLPs.length)
-                ? SPMath.computePrefSplits(deal, priorDists, amount, distDate ? new Date(distDate) : new Date())
-                : [];
+<script>
+SP.requireGP();
 
-            // Store on currentLPs for executeDistribution
-            currentLPs._prefSplits = prefSplits;
+let currentDeal = null;
+let currentLPs = [];
+let prefSplits = [];
 
-            const ledgerBody = document.getElementById('ledgerBody');
-            if (!currentLPs.length) {
-                ledgerBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No investors linked to this asset.</td></tr>';
-            } else {
-                // Update header to show pref columns
-                const thead = ledgerBody.closest('table')?.querySelector('thead tr');
-                if (thead && prefSplits.length && thead.children.length < 6) {
-                    thead.innerHTML = `
-                        <th>Investor</th>
-                        <th>Ownership</th>
-                        <th title="Amount from this distribution applied toward satisfying the investor's preferred return hurdle">Pref Paid <i class="fas fa-info-circle" style="font-size:0.6rem;opacity:0.5;"></i></th>
-                        <th title="Amount above the preferred return, split pro-rata by ownership percentage">Excess <i class="fas fa-info-circle" style="font-size:0.6rem;opacity:0.5;"></i></th>
-                        <th title="Preferred return still owed to this investor after this distribution">Pref Remaining <i class="fas fa-info-circle" style="font-size:0.6rem;opacity:0.5;"></i></th>
-                        <th style="text-align:right;">Total Payout</th>`;
-                }
-                ledgerBody.innerHTML = currentLPs.map(inv => {
-                    const investor = SPData.getInvestorById(inv.investorId);
-                    const ps = prefSplits.find(s => s.investorId === inv.investorId);
-                    const payout = ps ? ps.totalThisDist : lpTotal * ((inv.ownership ?? 0) / 100);
-                    const prefPaid = ps ? ps.prefPaidThisDist : 0;
-                    const excess = ps ? ps.excessThisDist : payout;
-                    const prefRem = ps ? ps.prefRemaining : null;
-                    return `
-                        <tr>
-                            <td data-label="Investor"><strong>${investor ? `${investor.firstName} ${investor.lastName}` : 'Unknown Investor'}</strong></td>
-                            <td data-label="Ownership" style="font-family: JetBrains Mono; font-weight: 500; font-size: 13px;">${inv.ownership ?? ps?.ownership?.toFixed(1) ?? 0}%</td>
-                            <td data-label="Pref Paid" style="color: #b45309; font-weight: 600; font-family: JetBrains Mono;">${formatCurrency(prefPaid)}</td>
-                            <td data-label="Excess" style="color: var(--accent); font-weight: 600; font-family: JetBrains Mono;">${formatCurrency(excess)}</td>
-                            <td data-label="Pref Rem." style="color: var(--text-secondary); font-size: 12px; font-family: JetBrains Mono;">${prefRem !== null ? formatCurrency(prefRem) : '—'}</td>
-                            <td data-label="Total Payout" style="text-align:right; font-family:'JetBrains Mono',monospace; font-weight:700; color:#34d399;">${formatCurrency(payout)}</td>
-                        </tr>`;
-                }).join('');
-            }
+// ── Format helpers ──────────────────────────────────────────────────────────
+function fmt$(n) {
+  const v = Number(n || 0);
+  return new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', minimumFractionDigits:0, maximumFractionDigits:0 }).format(v);
+}
+function fmtFull$(n) {
+  return new Intl.NumberFormat('en-US', { style:'currency', currency:'USD', minimumFractionDigits:2, maximumFractionDigits:2 }).format(Number(n || 0));
+}
+function fmtPct(n) { return (Number(n || 0).toFixed(2)) + '%'; }
 
-            // Tier breakdown container check
-        const tierContainer = document.getElementById('tierBreakdown');
-        if (tierContainer) renderTierChips(scenario.waterfall, amount, scenario.summary.totalProceeds);
+// ── Step indicator ──────────────────────────────────────────────────────────
+function setStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('step' + i);
+    el.classList.remove('active', 'done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  }
+}
 
-            btn.disabled = false;
-        }
+// ── Init ────────────────────────────────────────────────────────────────────
+function init() {
+  const deals = SP.getDeals ? SP.getDeals() : [];
+  const sel = document.getElementById('dealSelect');
+  sel.innerHTML = '<option value="">— Select a deal —</option>';
+  deals.filter(d => (d.investors || []).length > 0).forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.name + ' (' + (d.investors || []).length + ' investors)';
+    sel.appendChild(opt);
+  });
+  if (deals.filter(d => !(d.investors || []).length).length > 0) {
+    const grp = document.createElement('optgroup');
+    grp.label = 'No investors yet';
+    deals.filter(d => !(d.investors || []).length).forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d.id;
+      opt.textContent = d.name + ' (no investors)';
+      opt.disabled = true;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  }
 
-        async function executeDistribution() {
-            const btn = document.getElementById('execBtn');
-            const amount = parseFloat(document.getElementById('distAmt').value);
-            const dealId = document.getElementById('dealSelect').value;
+  // Set default date to today
+  document.getElementById('distDate').valueAsDate = new Date();
 
-            if (!dealId || isNaN(amount) || amount <= 0) return;
-            if (!confirm(`WARNING: You are about to execute an official distribution run of $${amount.toLocaleString()}. This action will update all investor ledgers in Firestore and notify LPs. Proceed?`)) return;
+  // Pre-select deal from URL param
+  const urlDeal = new URLSearchParams(window.location.search).get('deal');
+  if (urlDeal) { sel.value = urlDeal; onDealChange(); }
+}
 
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Executing Protocol...';
+// ── Deal selected ────────────────────────────────────────────────────────────
+function onDealChange() {
+  const dealId = document.getElementById('dealSelect').value;
+  currentDeal = dealId ? SP.getDealById(dealId) : null;
 
-            if (typeof SPFB !== 'undefined' && SPFB.isReady && SPFB.isReady()) {
-                try {
-                    const orgId = SPFB.getOrgId();
-                    const distId = 'DIST_' + Date.now();
-                    const deal = SPData.getDeals().find(d => d.id === dealId);
-                    const prefSplits = currentLPs._prefSplits || [];
-                    const recipients = (currentLPs || []).map(inv => {
-                        const ps = prefSplits.find(s => s.investorId === inv.investorId);
-                        return ps ? {
-                            investorId: inv.investorId,
-                            ownership: ps.ownership,
-                            invested: ps.invested,
-                            amount: ps.totalThisDist,
-                            prefPaidThisDist: ps.prefPaidThisDist,
-                            excessThisDist: ps.excessThisDist,
-                            prefRemaining: ps.prefRemaining,
-                            prefPaidToDate: ps.prefPaidToDate + ps.prefPaidThisDist,
-                        } : {
-                            investorId: inv.investorId,
-                            ownership: inv.ownership || 0,
-                            amount: 0,
-                            prefPaidThisDist: 0,
-                            excessThisDist: 0,
-                            prefRemaining: null,
-                            prefPaidToDate: null,
-                        };
-                    });
-                    await firebase.firestore().collection('orgs').doc(orgId).collection('distributions').doc(distId).set({
-                        dealId,
-                        dealName: deal ? deal.name : 'Unknown',
-                        date: document.getElementById('distDate').value,
-                        totalAmount: amount,
-                        status: 'posted',
-                        prefAware: prefSplits.length > 0,
-                        recipients,
-                        createdAt: new Date()
-                    });
+  document.getElementById('prefSummaryCard').style.display = currentDeal ? 'block' : 'none';
+  document.getElementById('historyCard').style.display = currentDeal ? 'block' : 'none';
 
-                    const status = document.getElementById('ledgerStatus');
-                    status.classList.remove('status-pending');
-                    status.classList.add('status-executed');
-                    status.textContent = 'Action Successfully Executed';
+  if (currentDeal) {
+    renderPrefSummary();
+    renderHistory();
+    setStep(document.getElementById('distAmt').value ? 2 : 1);
+  }
+  previewDistribution();
+}
 
-                    alert('Distribution run complete. Investor portals updated.');
-                    location.reload();
-                } catch (e) {
-                    alert('Command failed: ' + e.message);
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-bolt"></i> Execute Distribution Run';
-                }
-            }
-        }
+// ── Pref summary ─────────────────────────────────────────────────────────────
+function renderPrefSummary() {
+  if (!currentDeal) return;
+  const body = document.getElementById('prefSummaryBody');
+  const prefRate = currentDeal.prefReturn || 0;
+  const postedDists = SP.getDistributions().filter(d => d.dealId === currentDeal.id && d.status === 'posted');
+  const totalPosted = postedDists.reduce((s, d) => s + (d.totalAmount || 0), 0);
+  const investors = currentDeal.investors || [];
+  const totalInvested = investors.reduce((s, i) => s + (i.committed || 0), 0);
 
-        window.addEventListener('spdata-ready', init);
-        if (typeof SPData !== 'undefined' && SPData.isReady()) init();
-    </script>
+  if (!prefRate) {
+    body.innerHTML = `<div style="color:#64748b;font-size:13px;">No preferred return configured on this deal. All distributions will be split pro-rata by ownership.</div>`;
+    return;
+  }
+
+  // Show per-investor pref status
+  body.innerHTML = `
+    <div style="margin-bottom:14px;padding:12px 14px;background:#0B1120;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Annual Pref Rate</div>
+        <div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#fbbf24;">${prefRate}%</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Total Invested</div>
+        <div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;">${fmt$(totalInvested)}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:#64748b;text-transform:uppercase;font-weight:700;">Pref Paid (Posted)</div>
+        <div style="font-size:18px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#34d399;">${fmt$(
+          postedDists.reduce((s, d) => s + (d.recipients || []).reduce((rs, r) => rs + (r.prefPaidThisDist || 0), 0), 0)
+        )}</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#64748b;">${postedDists.length} distribution${postedDists.length !== 1 ? 's' : ''} posted for this deal</div>
+  `;
+}
+
+// ── History ──────────────────────────────────────────────────────────────────
+function renderHistory() {
+  if (!currentDeal) return;
+  const body = document.getElementById('historyBody');
+  const posted = SP.getDistributions().filter(d => d.dealId === currentDeal.id && d.status === 'posted');
+  if (!posted.length) {
+    body.innerHTML = `<div style="color:#64748b;font-size:13px;text-align:center;padding:20px;">No posted distributions yet for this deal.</div>`;
+    return;
+  }
+  body.innerHTML = posted.slice().reverse().map(d => `
+    <div class="dist-row">
+      <div>
+        <div style="font-weight:600;">${d.period || (d.quarter + ' ' + d.year) || '—'}</div>
+        <div style="font-size:11px;color:#64748b;">${d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString() : '—'} · ${(d.recipients || []).length} investors</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#34d399;">${fmt$(d.totalAmount || 0)}</div>
+    </div>`).join('') + `
+    <div style="padding:12px 0;border-top:2px solid var(--border);margin-top:8px;display:flex;justify-content:space-between;font-weight:700;">
+      <span>Total Posted</span>
+      <span style="font-family:'JetBrains Mono',monospace;color:#34d399;">${fmt$(posted.reduce((s,d)=>s+(d.totalAmount||0),0))}</span>
+    </div>`;
+}
+
+// ── Amount changed ──────────────────────────────────────────────────────────
+function onAmountChange() {
+  const amount = parseFloat(document.getElementById('distAmt').value) || 0;
+  if (currentDeal && amount > 0) setStep(2);
+  previewDistribution();
+}
+
+// ── Preview ─────────────────────────────────────────────────────────────────
+function previewDistribution() {
+  const dealId = document.getElementById('dealSelect').value;
+  const amount = parseFloat(document.getElementById('distAmt').value) || 0;
+  const btn = document.getElementById('execBtn');
+  const status = document.getElementById('ledgerStatus');
+
+  if (!dealId || amount <= 0 || !currentDeal) {
+    btn.disabled = true;
+    status.className = 'status-pill status-pending';
+    status.textContent = 'Awaiting Input';
+    return;
+  }
+
+  currentLPs = currentDeal.investors || [];
+
+  // Calculate pref splits
+  const postedDists = SP.getDistributions().filter(d => d.dealId === dealId && d.status === 'posted');
+  const distDate = document.getElementById('distDate').value;
+  prefSplits = (typeof SPMath !== 'undefined' && currentLPs.length)
+    ? SPMath.computePrefSplits(currentDeal, postedDists, amount, distDate ? new Date(distDate) : new Date())
+    : [];
+
+  // Calculate GP share using waterfall
+  let lpTotal = amount;
+  let gpTotal = 0;
+  const tierData = [];
+
+  if (typeof WaterfallCalculator !== 'undefined') {
+    try {
+      const input = {
+        totalEquity: Number(currentDeal.totalEquity || currentDeal.raise || 1000000),
+        gpEquityPct: Number(currentDeal.gpEquity || 10),
+        lpEquityPct: Number(currentDeal.lpEquity || 90),
+        prefReturn: Number(currentDeal.prefReturn || 0),
+        gpPromotePct: Number(currentDeal.gpPromote || 20),
+        catchupRate: Number(currentDeal.catchupRate || 50),
+        exitMultiple: Number(currentDeal.exitMultiple || 1.8),
+        holdPeriod: Number(currentDeal.holdPeriod || 5),
+        waterfallType: currentDeal.waterfallType || 'simple'
+      };
+      const scenario = WaterfallCalculator.calculate(input);
+      const total = scenario.summary.totalProceeds || 1;
+      const lpShare = scenario.summary.lpTotal / total;
+      const gpShare = scenario.summary.gpTotal / total;
+      lpTotal = amount * lpShare;
+      gpTotal = amount * gpShare;
+
+      // Build tier data
+      scenario.waterfall.forEach(tier => {
+        const tierShare = tier.total / total;
+        tierData.push({
+          name: tier.name,
+          desc: tier.description,
+          amount: amount * tierShare,
+          gp: amount * (tier.gp / total),
+          lp: amount * (tier.lp / total),
+          type: tier.name.toLowerCase().includes('capital') ? 'tier-roc'
+              : tier.name.toLowerCase().includes('pref') ? 'tier-pref'
+              : tier.name.toLowerCase().includes('catch') ? 'tier-catchup' : 'tier-split',
+        });
+      });
+    } catch(e) {
+      console.warn('WaterfallCalculator error:', e);
+    }
+  }
+
+  // Update summary tiles
+  document.getElementById('totalSum').textContent = fmt$(amount);
+  document.getElementById('lpSum').textContent = fmt$(lpTotal);
+  document.getElementById('gpSum').textContent = fmt$(gpTotal);
+
+  // Render tier breakdown
+  const tierSection = document.getElementById('tierSection');
+  const tierBreakdown = document.getElementById('tierBreakdown');
+  if (tierData.length > 0) {
+    tierSection.style.display = 'block';
+    tierBreakdown.innerHTML = tierData.map(t => `
+      <div class="wf-tier ${t.type}">
+        <div style="flex:1;">
+          <div class="wf-tier-name">${t.name}</div>
+          <div class="wf-tier-desc">${t.desc}</div>
+        </div>
+        <div>
+          <div class="wf-tier-amount">${fmt$(t.amount)}</div>
+          <div class="wf-tier-split">GP ${fmt$(t.gp)} / LP ${fmt$(t.lp)}</div>
+        </div>
+      </div>`).join('');
+  } else {
+    tierSection.style.display = 'none';
+  }
+
+  // Build per-investor ledger rows
+  const tbody = document.getElementById('ledgerBody');
+  if (!currentLPs.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-ledger"><i class="fas fa-users"></i><div style="font-weight:600;">No investors linked to this deal</div><div style="font-size:12px;margin-top:4px;"><a href="deal-detail.html?id=${dealId}" style="color:var(--accent);">Add investors on the deal page →</a></div></div></td></tr>`;
+    btn.disabled = true;
+    return;
+  }
+
+  // Update header for pref columns
+  const thead = document.querySelector('#ledgerTable thead tr');
+  thead.innerHTML = prefSplits.length
+    ? `<th>Investor</th><th class="right">Ownership</th><th class="right" title="Amount satisfying pref return hurdle">Pref Paid</th><th class="right" title="Above-pref excess split by ownership">Excess</th><th class="right">Total Payout</th>`
+    : `<th>Investor</th><th class="right">Ownership</th><th class="right" colspan="2">Pro-Rata Share</th><th class="right">Total Payout</th>`;
+
+  let totalCheck = 0;
+  tbody.innerHTML = currentLPs.map((inv, idx) => {
+    const investor = SP.getInvestorById ? SP.getInvestorById(inv.investorId) : null;
+    const name = investor ? `${investor.firstName} ${investor.lastName}` : `Investor ${idx + 1}`;
+    const email = investor?.email || '';
+    const ps = prefSplits.find(s => s.investorId === inv.investorId);
+    const payout = ps ? ps.totalThisDist : lpTotal * ((inv.ownership || 0) / 100);
+    const prefPaid = ps ? ps.prefPaidThisDist : 0;
+    const excess = ps ? ps.excessThisDist : payout;
+    totalCheck += payout;
+
+    return `<tr>
+      <td>
+        <div style="font-weight:600;">${name}</div>
+        ${email ? `<div style="font-size:11px;color:#64748b;">${email}</div>` : ''}
+      </td>
+      <td class="right mono">${fmtPct(inv.ownership)}</td>
+      <td class="right mono" style="color:#fbbf24;">${fmt$(prefPaid)}</td>
+      <td class="right mono" style="color:#94a3b8;">${fmt$(excess)}</td>
+      <td class="right mono" style="color:#34d399;font-size:15px;">${fmt$(payout)}</td>
+    </tr>`;
+  }).join('') + `<tr style="background:rgba(255,255,255,0.02);">
+    <td colspan="4" style="font-weight:700;font-size:13px;padding:13px 16px;">Total LP Distributions</td>
+    <td class="right mono" style="color:#34d399;font-weight:800;font-size:15px;">${fmt$(totalCheck)}</td>
+  </tr>`;
+
+  // Show pref callout if pref is active
+  const prefCallout = document.getElementById('prefCallout');
+  const prefRate = currentDeal.prefReturn || 0;
+  if (prefRate > 0 && prefSplits.length) {
+    const totalPrefPaid = prefSplits.reduce((s, p) => s + p.prefPaidThisDist, 0);
+    const totalPrefRem = prefSplits.reduce((s, p) => s + (p.prefRemaining || 0), 0);
+    prefCallout.style.display = 'block';
+    prefCallout.innerHTML = `<i class="fas fa-star" style="color:var(--warning);margin-right:6px;"></i>
+      <strong>Pref-aware split:</strong> This distribution satisfies <strong>${fmt$(totalPrefPaid)}</strong> in accumulated preferred return (${prefRate}% annual) before distributing excess pro-rata.
+      ${totalPrefRem > 0 ? ` After this distribution, <strong>${fmt$(totalPrefRem)}</strong> in pref remains outstanding.` : ' All outstanding pref is satisfied with this distribution.'}`;
+  } else {
+    prefCallout.style.display = 'none';
+  }
+
+  status.className = 'status-pill status-ready';
+  status.textContent = 'Ready to Post';
+  btn.disabled = false;
+  setStep(2);
+}
+
+// ── Execute / Post ──────────────────────────────────────────────────────────
+function executeDistribution() {
+  const amount = parseFloat(document.getElementById('distAmt').value) || 0;
+  const dealId = document.getElementById('dealSelect').value;
+  const date = document.getElementById('distDate').value;
+  const period = document.getElementById('distPeriod').value;
+  const method = document.getElementById('distMethod').value;
+
+  if (!dealId || !currentDeal || amount <= 0) { alert('Please select a deal and enter an amount.'); return; }
+  if (!currentLPs.length) { alert('No investors linked to this deal. Add investors first.'); return; }
+  if (!date) { alert('Please select a distribution date.'); return; }
+
+  const invCount = currentLPs.length;
+  if (!confirm(`Post distribution of ${fmt$(amount)} to ${invCount} investor${invCount !== 1 ? 's' : ''} for ${currentDeal.name}?\n\nThis will lock the distribution into the ledger and update all capital accounts.`)) return;
+
+  const btn = document.getElementById('execBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+
+  // Build recipients using pref splits if available
+  const lpTotal = parseFloat(document.getElementById('lpSum').textContent.replace(/[$,]/g, '')) || amount;
+  const gpTotal = parseFloat(document.getElementById('gpSum').textContent.replace(/[$,]/g, '')) || 0;
+
+  const recipients = currentLPs.map(inv => {
+    const ps = prefSplits.find(s => s.investorId === inv.investorId);
+    if (ps) {
+      return {
+        investorId: inv.investorId,
+        ownership: ps.ownership || inv.ownership || 0,
+        invested: ps.invested || inv.committed || 0,
+        amount: ps.totalThisDist,
+        totalThisDist: ps.totalThisDist,
+        prefPaidThisDist: ps.prefPaidThisDist,
+        excessThisDist: ps.excessThisDist,
+        prefPaidAfterDist: (ps.prefPaidToDate || 0) + ps.prefPaidThisDist,
+        prefRemainingAfterDist: ps.prefRemaining,
+      };
+    }
+    const payout = lpTotal * ((inv.ownership || 0) / 100);
+    return {
+      investorId: inv.investorId,
+      ownership: inv.ownership || 0,
+      invested: inv.committed || 0,
+      amount: payout,
+      totalThisDist: payout,
+      prefPaidThisDist: 0,
+      excessThisDist: payout,
+      prefPaidAfterDist: 0,
+      prefRemainingAfterDist: null,
+    };
+  });
+
+  const dist = {
+    id: 'dist' + Date.now(),
+    dealId,
+    dealName: currentDeal.name,
+    period,
+    date,
+    method,
+    totalAmount: amount,
+    amount,
+    gpAmount: gpTotal,
+    lpAmount: lpTotal,
+    investorCount: recipients.length,
+    prefAware: prefSplits.length > 0,
+    status: 'posted',
+    postedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    recipients,
+  };
+
+  // Save via SP layer (writes to localStorage + Firestore)
+  const dists = SP.getDistributions ? SP.getDistributions() : [];
+  dists.unshift(dist);
+  if (SP.saveDistributions) SP.saveDistributions(dists);
+
+  // Log activity
+  if (SP.logActivity) SP.logActivity('fa-wallet', 'green', `Distribution of <strong>${fmt$(amount)}</strong> posted for <strong>${currentDeal.name}</strong> — ${recipients.length} investors`);
+
+  // Show success
+  const status = document.getElementById('ledgerStatus');
+  status.className = 'status-pill status-executed';
+  status.textContent = 'Posted ✓';
+  btn.innerHTML = '<i class="fas fa-check"></i> Posted Successfully';
+
+  document.getElementById('successBanner').classList.add('show');
+  setStep(3);
+  renderHistory();
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Reset button after 3s
+  setTimeout(() => {
+    btn.innerHTML = '<i class="fas fa-bolt"></i> Post Distribution to Ledger';
+    btn.disabled = false;
+  }, 3000);
+}
+
+function resetForm() {
+  document.getElementById('dealSelect').value = '';
+  document.getElementById('distAmt').value = '';
+  document.getElementById('distDate').valueAsDate = new Date();
+  currentDeal = null;
+  currentLPs = [];
+  prefSplits = [];
+  document.getElementById('ledgerBody').innerHTML = `<tr><td colspan="5"><div class="empty-ledger"><i class="fas fa-table"></i><div style="font-weight:600;">Select a deal and enter an amount</div></div></td></tr>`;
+  document.getElementById('totalSum').textContent = '$0';
+  document.getElementById('lpSum').textContent = '$0';
+  document.getElementById('gpSum').textContent = '$0';
+  document.getElementById('ledgerStatus').className = 'status-pill status-pending';
+  document.getElementById('ledgerStatus').textContent = 'Awaiting Input';
+  document.getElementById('execBtn').disabled = true;
+  document.getElementById('prefSummaryCard').style.display = 'none';
+  document.getElementById('historyCard').style.display = 'none';
+  document.getElementById('successBanner').classList.remove('show');
+  document.getElementById('tierSection').style.display = 'none';
+  document.getElementById('prefCallout').style.display = 'none';
+  setStep(1);
+}
+
+window.addEventListener('spdata-ready', init);
+if (typeof SP !== 'undefined' && SP.getDeals && SP.getDeals().length) init();
+setTimeout(init, 800);
+</script>
 </body>
 </html>

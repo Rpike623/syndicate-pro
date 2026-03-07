@@ -119,60 +119,126 @@
             invs.forEach(i => sel.add(new Option(`${i.firstName} ${i.lastName}`, i.id)));
         }
 
+        function fmt$(n) {
+            return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n||0);
+        }
+        function fmtDate(d) {
+            if (!d) return '—';
+            const dt = new Date(d.includes('T') ? d : d + 'T00:00:00');
+            return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+        }
+
         function loadStatement() {
             const id = document.getElementById('investorSelect').value;
-            if(!id) return;
+            if (!id) return;
 
             const investor = SP.getInvestorById(id);
+            if (!investor) return;
+
             const deals = SP.getDeals();
-            const dists = SP.getDistributions();
+            const allDists = SP.getDistributions();
 
-            // Aggregation logic
-            const commitments = deals.reduce((s, d) => {
-                const entry = (d.investors || []).find(i => i.investorId === id);
-                return s + (entry?.committed || 0);
-            }, 0);
-
-            const received = dists.reduce((s, d) => {
-                const rec = (d.recipients || []).find(r => r.investorId === id);
-                return s + (rec?.amount || d.amount || 0);
-            }, 0);
-
-            // Populate UI
-            document.getElementById('lpName').textContent = `${investor.firstName} ${investor.lastName}`;
-            document.getElementById('lpEmail').textContent = investor.email;
-            document.getElementById('sCommitment').textContent = '$' + commitments.toLocaleString();
-            document.getElementById('sContributed').textContent = '$' + commitments.toLocaleString(); // Mock funded balance
-            document.getElementById('sDistributed').textContent = '$' + received.toLocaleString();
-            document.getElementById('sBalance').textContent = '$' + commitments.toLocaleString();
-
-            // Build Ledger
-            const rows = [];
+            // Build a list of deals this investor is in
+            const linkedEntries = [];
             deals.forEach(d => {
                 const entry = (d.investors || []).find(i => i.investorId === id);
-                if(entry) rows.push({ date: d.added, type: 'contribution', desc: `Capital Contribution: ${d.name}`, amount: entry.committed });
+                if (entry) linkedEntries.push({ deal: d, entry });
             });
-            dists.forEach(d => {
+
+            // Total committed across all deals
+            const totalCommitment = linkedEntries.reduce((s, { entry }) => s + (entry.committed || 0), 0);
+
+            // Distributions received (only posted ones count)
+            const myDists = [];
+            allDists.filter(d => d.status === 'posted').forEach(d => {
                 const rec = (d.recipients || []).find(r => r.investorId === id);
-                if(rec) rows.push({ date: d.date, type: 'distribution', desc: `Distribution Payment: ${d.dealName || 'Asset'}`, amount: rec.amount });
+                if (rec) myDists.push({ dist: d, rec });
+            });
+            const totalDistributed = myDists.reduce((s, { rec }) => s + (rec.amount || rec.totalThisDist || 0), 0);
+
+            // Capital balance = contributed - distributions returned
+            // Simple model: committed capital minus what's been distributed back
+            const endingBalance = Math.max(0, totalCommitment - totalDistributed);
+
+            // Update header
+            document.getElementById('lpName').textContent = `${investor.firstName} ${investor.lastName}`;
+            document.getElementById('lpEmail').textContent = investor.email;
+            const settings = SP.load('settings', {});
+            document.getElementById('orgName').textContent = settings.firmName || 'Your Firm';
+
+            // Update summary tiles
+            document.getElementById('sCommitment').textContent = fmt$(totalCommitment);
+            document.getElementById('sContributed').textContent = fmt$(totalCommitment);
+            document.getElementById('sDistributed').textContent = fmt$(totalDistributed);
+            document.getElementById('sBalance').textContent = fmt$(endingBalance);
+
+            // Build transaction ledger
+            const rows = [];
+
+            // Capital contributions (one per deal)
+            linkedEntries.forEach(({ deal, entry }) => {
+                const date = entry.linkedAt || deal.added || deal.closeDate;
+                rows.push({
+                    date,
+                    type: 'contribution',
+                    desc: `Capital Contribution — ${deal.name}`,
+                    amount: entry.committed || 0,
+                    sign: '+',
+                    color: '#34d399',
+                    dealId: deal.id,
+                });
             });
 
-            rows.sort((a,b) => new Date(b.date) - new Date(a.date));
+            // Distributions
+            myDists.forEach(({ dist, rec }) => {
+                const amount = rec.amount || rec.totalThisDist || 0;
+                const prefPaid = rec.prefPaidThisDist || 0;
+                const desc = prefPaid > 0
+                    ? `Distribution — ${dist.dealName || 'Asset'} (${dist.period || dist.quarter + ' ' + dist.year}) · incl. ${fmt$(prefPaid)} pref`
+                    : `Distribution — ${dist.dealName || 'Asset'} (${dist.period || (dist.quarter + ' ' + dist.year) || '—'})`;
+                rows.push({
+                    date: dist.date,
+                    type: 'distribution',
+                    desc,
+                    amount,
+                    sign: '',
+                    color: '#38bdf8',
+                });
+            });
 
-            document.getElementById('ledgerBody').innerHTML = rows.map(r => `
-                <tr>
-                    <td>${r.date}</td>
-                    <td><span class="type-pill type-${r.type}">${r.type}</span></td>
-                    <td>${r.desc}</td>
-                    <td style="text-align: right; font-family: 'JetBrains Mono'; font-weight: 600; color: ${r.type==='distribution'? 'var(--accent)' : 'var(--primary)'}">
-                        ${r.type==='distribution' ? '+' : ''}$${r.amount.toLocaleString()}
-                    </td>
-                </tr>
-            `).join('');
+            // Sort chronological
+            rows.sort((a, b) => new Date(a.date || '2020-01-01') - new Date(b.date || '2020-01-01'));
+
+            // Running balance
+            let runningBalance = 0;
+            const tableRows = rows.map(r => {
+                if (r.type === 'contribution') runningBalance += r.amount;
+                else runningBalance -= r.amount;
+                return `<tr>
+                    <td style="color:#94a3b8;white-space:nowrap;">${fmtDate(r.date)}</td>
+                    <td><span class="type-pill type-${r.type}">${r.type === 'contribution' ? 'Contribution' : 'Distribution'}</span></td>
+                    <td style="color:#E2E8F0;">${r.desc}</td>
+                    <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:${r.color};">${r.sign}${fmt$(r.amount)}</td>
+                    <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:${runningBalance>=0?'#F8FAFC':'#f87171'};">${fmt$(runningBalance)}</td>
+                </tr>`;
+            });
+
+            // Add Balance column header
+            const thead = document.querySelector('.ledger-table thead tr');
+            if (thead && thead.children.length < 5) {
+                thead.innerHTML = `<th>Date</th><th>Type</th><th>Description</th><th style="text-align:right;">Amount</th><th style="text-align:right;">Running Balance</th>`;
+            }
+
+            if (rows.length === 0) {
+                document.getElementById('ledgerBody').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#64748b;">No transactions found for this investor.</td></tr>`;
+            } else {
+                document.getElementById('ledgerBody').innerHTML = tableRows.join('');
+            }
         }
 
         window.addEventListener('spdata-ready', () => { syncInvestors(); });
-        if(typeof SPData !== 'undefined' && SPData.isReady()) syncInvestors();
+        if (typeof SPData !== 'undefined' && SPData.isReady()) syncInvestors();
+        setTimeout(syncInvestors, 800);
     </script>
 </body>
 </html>
