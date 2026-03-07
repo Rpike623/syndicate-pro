@@ -1,30 +1,198 @@
-/* contrast-fix.css — Light theme contrast corrections for mubasic-inspired palette */
+/* ── CSS Variable Overrides (cascade wins — loads after inline styles) ─── */
+:root {
+  --accent:        #F37925;
+  --accent-hover:  #D96515;
+  --accent-light:  rgba(243,121,37,0.12);
+  --accent-2:      #FAC670;
+  --success:       #2D9A6B;
+  --success-light: rgba(45,154,107,0.12);
+  --warning:       #E8890A;
+  --warning-light: rgba(232,137,10,0.12);
+  --danger:        #D94F3D;
+  --danger-light:  rgba(217,79,61,0.12);
+  --purple:        #7B5CC4;
+  --purple-light:  rgba(123,92,196,0.15);
+  --primary:       #1B1A19;
+  --primary-light: #3D3A37;
+  --secondary:     #6B6560;
+  --text:          #1B1A19;
+  --text-secondary:#6B6560;
+  --text-muted:    #9C9590;
+  --border:        #E2DDD8;
+  --border-light:  rgba(27,26,25,0.08);
+  --bg:            #F3F3F3;
+  --bg-card:       #FFFFFF;
+  --bg-sidebar:    #1B1A19;
+  --bg-surface:    #FFFFFF;
+}
 
-/* Ensure text is always readable on the warm light background */
+/* contrast-fix.css — WCAG AA Contrast Fix
+ * Loads after per-page inline <style> blocks — wins at equal specificity.
+ * Updated: 2026-03-07 via systematic contrast-audit.js audit.
+ */
+
+/* ── Body ─────────────────────────────────────────────────────────────── */
 html body { color: #1B1A19 !important; background: #F3F3F3 !important; }
 
-/* Status colors on light background */
-html body .text-danger,  html body [class*="danger"],  html body .badge-danger  { color: #901800 !important; }
-html body .text-warning, html body [class*="warning"], html body .badge-warning { color: #7A5000 !important; }
-html body .text-success, html body [class*="success"], html body .badge-success { color: #1A7A50 !important; }
-html body .text-info,    html body [class*="info"],    html body .badge-info    { color: #1A6070 !important; }
+/* ── Headings & titles ───────────────────────────────────────────────── */
+html body h1, html body h2, html body h3,
+html body h4, html body h5, html body h6 { color: #1B1A19 !important; }
+html body .page-title, html body .card-title,
+html body .modal-title, html body .section-title:not(.sidebar .section-title) { color: #1B1A19 !important; }
 
-/* Modals on light bg */
-html body .modal-content { background: #FFFFFF !important; color: #1B1A19 !important; }
-html body .modal-header, html body .modal-footer { border-color: #E2DDD8 !important; }
+/* ── KPI / stat values — must be dark readable text ─────────────────── */
+html body .kpi-value, html body .stat-value, html body .stat-val,
+html body .perf-val, html body .carry-val, html body .metric-val,
+html body .cohort-val, html body .val, html body .stile-val,
+html body .val-price, html body .rc-value, html body .bar-val,
+html body .om-kpi-value, html body .kpi-num { color: #1B1A19 !important; }
 
-/* Force light backgrounds on elements that hardcoded dark */
-html body .bg-white, html body .bg-gray-50  { background: #FFFFFF !important; }
+/* ── Secondary/muted text ───────────────────────────────────────────── */
+html body .kpi-label, html body .stat-label, html body .kpi-change.neutral,
+html body .text-muted, html body .muted { color: #6B6560 !important; }
 
-/* Text colors — warm scale */
-html body .text-gray-900, html body .text-gray-800 { color: #1B1A19 !important; }
-html body .text-gray-700, html body .text-gray-600 { color: #3D3A37 !important; }
-html body .text-gray-500, html body .text-gray-400 { color: #6B6560 !important; }
+/* ── KPI change indicators — ensure 4.5:1 on white bg ──────────────── */
+/* #2d9a6b (green) on #fff = 3.53:1 — fails normal text. Use #1A7A50 = 5.4:1 */
+html body .kpi-change.up, html body .change-up, html body .trend-up { color: #1A7A50 !important; }
+/* #d94f3d (red) on #fff = 4.09:1 — fails. Use #901800 = 7.2:1 */
+html body .kpi-change.down, html body .change-down, html body .trend-down { color: #901800 !important; }
 
-/* Monospace elements */
-html body code, html body pre, html body .font-mono { color: #1B1A19 !important; }
+/* ── View-all / action links — orange #f37925 = 2.77:1 on #fff. Use #a04400 ── */
+html body .view-all, html body .view-all-link,
+html body a.view-all, html body a.view-all-link { color: #a04400 !important; }
+html body .view-all:hover { color: #7a3300 !important; }
 
-/* Scrollbars */
-html body ::-webkit-scrollbar-track  { background: #F3F3F3 !important; }
-html body ::-webkit-scrollbar-thumb  { background: #D8D4CE !important; border-radius: 3px; }
+/* ── Badges — fix colors that fail on white card backgrounds ─────────── */
+/* badge-mf uses var(--accent) = #F37925 = 2.77:1 on white. Fix bg+text together */
+html body .badge-mf { background: rgba(243,121,37,0.12) !important; color: #7A3500 !important; }
+html body .badge-dd { background: rgba(145,195,206,0.25) !important; color: #1A6070 !important; }
+/* badge-operating uses var(--purple) = #7B5CC4 = 4.2:1 on white — close, darken */
+html body .badge-operating { background: rgba(123,92,196,0.12) !important; color: #5040A0 !important; }
+/* badge-sourcing uses var(--text-secondary) = #6B6560 on rgba bg — check */
+html body .badge-sourcing { background: rgba(107,101,96,0.12) !important; color: #3D3A37 !important; }
+/* badge-ind, badge-closed: var(--success) = #2D9A6B = 3.53:1 — fails normal text */
+html body .badge-ind, html body .badge-closed,
+html body .badge-ok { background: rgba(45,154,107,0.12) !important; color: #1A7A50 !important; }
+/* badge-ret, badge-soon: var(--warning) = #E8890A = 2.29:1 — fails */
+html body .badge-ret, html body .badge-soon { background: rgba(232,137,10,0.15) !important; color: #7A5000 !important; }
+/* badge-urgent: var(--danger) = #D94F3D = 4.09:1 — just under 4.5 */
+html body .badge-urgent { background: rgba(217,79,61,0.12) !important; color: #901800 !important; }
+/* General badge/pill fixes */
+html body .badge:not(.sidebar .badge) { border: none !important; }
+html body .badge-success { background: rgba(45,154,107,0.12) !important; color: #1A7A50 !important; }
+html body .badge-warning { background: rgba(232,137,10,0.15) !important; color: #7A5000 !important; }
+html body .badge-danger  { background: rgba(217,79,61,0.12) !important; color: #901800 !important; }
+html body .badge-info    { background: rgba(145,195,206,0.25) !important; color: #1A6070 !important; }
+
+/* ── Deadline badges ────────────────────────────────────────────────── */
+html body .deadline-badge { font-size: 0.7rem !important; }
+/* Already handled by badge-urgent/soon/ok above */
+
+/* ── Sync indicator / small muted spans ─────────────────────────────── */
+/* #9c9590 on #fff = 2.95:1 — fails. Darken to #6B6560 = 5.74:1 */
+html body .sync-status, html body .sync-text,
+html body span[class*="sync"], html body .last-sync { color: #6B6560 !important; }
+/* month labels in calendar */
+html body .month { color: #6B6560 !important; }
+
+/* ── Labels (field labels in cards/forms) ───────────────────────────── */
+/* #cbd5e1 on #fff = 1.48:1 — invisible. Use #6B6560 */
+html body label:not(.sidebar label):not(aside label) { color: #3D3A37 !important; }
+
+/* ── Legal footer links ─────────────────────────────────────────────── */
+html body #dt-legal-footer a { color: #6B6560 !important; }
+html body #dt-legal-footer a:hover { color: #3D3A37 !important; }
+
+/* ── Table headers ──────────────────────────────────────────────────── */
+html body th:not(.sidebar th) { background: #EDEBE8 !important; color: #3D3A37 !important; }
+html body td:not(.sidebar td) { color: #1B1A19 !important; }
+
+/* ── Modals ─────────────────────────────────────────────────────────── */
+html body .modal { background: #FFFFFF !important; color: #1B1A19 !important; }
+html body .modal-header { background: #FFFFFF !important; color: #1B1A19 !important; border-bottom-color: #E2DDD8 !important; }
+html body .modal-body { background: #FFFFFF !important; color: #1B1A19 !important; }
+html body .modal-footer { background: #F7F4F0 !important; color: #1B1A19 !important; border-top-color: #E2DDD8 !important; }
+
+/* ── Buttons ────────────────────────────────────────────────────────── */
+html body .btn-primary { color: #1B1A19 !important; }
+html body .btn-secondary:not(.sidebar .btn-secondary) {
+  background: #FFFFFF !important; color: #3D3A37 !important; border-color: #D8D4CE !important;
+}
+html body .btn-ghost:not(.sidebar .btn-ghost) { color: #3D3A37 !important; }
+html body .btn-outline:not(.sidebar .btn-outline) { color: #3D3A37 !important; border-color: #D8D4CE !important; }
+
+/* ── Search / inputs ────────────────────────────────────────────────── */
+html body input:not(.sidebar input):not([type=checkbox]):not([type=radio]),
+html body select:not(.sidebar select),
+html body textarea:not(.sidebar textarea) {
+  background: #FFFFFF !important; color: #1B1A19 !important; border-color: #D8D4CE !important;
+}
+html body input::placeholder, html body textarea::placeholder { color: #9C9590 !important; }
+
+/* ── Cards & surfaces ───────────────────────────────────────────────── */
+html body .card:not(.deal-hero .card):not(.profile-hero .card),
+html body .glass-card { background: #FFFFFF !important; color: #1B1A19 !important; }
+html body .stat-card, html body .kpi-card:not(.kpi-primary) { background: #FFFFFF !important; }
+
+/* ── Tabs ───────────────────────────────────────────────────────────── */
+html body .tab:not(.sidebar .tab) { color: #6B6560 !important; }
+html body .tab.active:not(.sidebar .tab.active) { color: #F37925 !important; }
+
+/* ── Breadcrumbs ────────────────────────────────────────────────────── */
+html body .breadcrumb-current { color: #1B1A19 !important; }
+
+/* ── Top bar ────────────────────────────────────────────────────────── */
+html body .top-bar, html body .topbar {
+  background: #FFFFFF !important; color: #1B1A19 !important; border-bottom-color: #E2DDD8 !important;
+}
+html body .top-bar h1, html body .top-bar .page-title,
+html body .topbar h1, html body .topbar .page-title { color: #1B1A19 !important; }
+
+/* ── Onboarding / progress banners ─────────────────────────────────── */
+/* The onboarding card has white text on light bg — needs to be made light */
+html body .onboarding-card, html body .checklist-card, html body .progress-card {
+  background: #FFFFFF !important; color: #1B1A19 !important;
+}
+html body .onboarding-step, html body .setup-step { color: #3D3A37 !important; }
+
+/* ── Dark-section exceptions — intentionally dark, keep white text ─── */
+html body .deal-hero { color: #FFFFFF !important; }
+html body .profile-hero { color: #FFFFFF !important; }
+html body .welcome-banner { color: #FFFFFF !important; }
+html body .om-cover { color: #FFFFFF !important; }
+html body .result-hero { color: #FFFFFF !important; }
+html body .memo-header { color: #FFFFFF !important; }
+html body .site-header { background: #1B1A19 !important; color: #F3F3F3 !important; }
+html body .email-body { background: #1B1A19 !important; color: #F3F3F3 !important; }
+html body .email-preview { background: #1B1A19 !important; color: #F3F3F3 !important; }
+html body .ep-header { background: #F37925 !important; color: #FFFFFF !important; }
+html body .ep-kpi { color: #F3F3F3 !important; }
+
+/* ── Progress steps in wizard ───────────────────────────────────────── */
+html body .step-desc:not(.active .step-desc):not(.done .step-desc) { color: #6B6560 !important; }
+html body .progress-title { color: #6B6560 !important; }
+html body .step-num:not(.active .step-num):not(.done .step-num) {
+  background: #EDEBE8 !important; color: #6B6560 !important;
+}
+html body .step.done .step-num { background: #2D9A6B !important; color: #FFFFFF !important; }
+html body .step.active .step-num { background: #F37925 !important; color: #FFFFFF !important; }
+
+/* ── Scrollbars ─────────────────────────────────────────────────────── */
+html body ::-webkit-scrollbar-track { background: #F3F3F3 !important; }
+html body ::-webkit-scrollbar-thumb { background: #D8D4CE !important; border-radius: 3px; }
 html body ::-webkit-scrollbar-thumb:hover { background: #9C9590 !important; }
+
+/* ── Focus outlines ─────────────────────────────────────────────────── */
+html body *:focus-visible { outline: 2px solid #F37925 !important; outline-offset: 2px !important; }
+
+/* ── Orange accent as TEXT needs darker shade for contrast ──────────────── */
+/* #F37925 = 2.77:1 on white — fails. Use #b85900 = 4.70:1 */
+html body .tab.active:not(.sidebar .tab.active) { color: #b85900 !important; border-bottom-color: #b85900 !important; }
+html body .text-accent { color: #b85900 !important; }
+html body .nav-section-label { color: rgba(255,255,255,0.55) !important; } /* sidebar — keep readable on dark */
+
+/* Active nav badge */
+html body .nav-badge, html body .unread-count { background: #D94F3D !important; color: #FFFFFF !important; }
+
+/* view-all override with !important at higher specificity */
+html body .view-all, html body a.view-all { color: #a04400 !important; }

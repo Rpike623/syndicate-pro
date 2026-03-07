@@ -42,3 +42,141 @@
   --shadow-md:      0 4px 8px rgba(27,26,25,0.10) !important;
   --shadow-lg:      0 12px 24px rgba(27,26,25,0.12) !important;
 }
+
+/
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FINAL AUTHORITY — Appended last, wins over all per-page <style> blocks.
+   Fixes white/near-white text that per-page CSS leaves on the light bg.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Body — always light theme */
+html body { background: #F3F3F3 !important; color: #1B1A19 !important; }
+
+/* Top bar */
+html body .top-bar,
+html body .topbar { background: #FFFFFF !important; color: #1B1A19 !important; border-bottom: 1px solid #E2DDD8 !important; }
+html body .top-bar h1, html body .top-bar .page-title,
+html body .topbar h1, html body .topbar .page-title { color: #1B1A19 !important; }
+
+/* Breadcrumbs */
+html body .breadcrumb-current { color: #1B1A19 !important; }
+html body .breadcrumb-sep { color: #9C9590 !important; }
+
+/* Headings & titles */
+html body h1, html body h2, html body h3, html body h4, html body h5, html body h6 { color: #1B1A19 !important; }
+html body .page-title, html body .card-title, html body .modal-title { color: #1B1A19 !important; }
+html body .section-title:not(.sidebar .section-title):not(aside .section-title) { color: #3D3A37 !important; }
+
+/* Labels */
+html body label:not(.sidebar label):not(aside label) { color: #3D3A37 !important; }
+
+/* Key values */
+html body .stat-value, html body .kpi-value, html body .stat-val,
+html body .perf-val, html body .carry-val, html body .metric-val,
+html body .cohort-val, html body .val, html body .stile-val { color: #1B1A19 !important; }
+
+/* Buttons: secondary/ghost/outline */
+html body .btn-secondary:not(.sidebar .btn-secondary) {
+  background: #FFFFFF !important; color: #3D3A37 !important; border: 1.5px solid #D8D4CE !important;
+}
+html body .btn-secondary:hover:not(.sidebar .btn-secondary:hover) {
+  background: #EDEBE8 !important; color: #1B1A19 !important;
+}
+html body .btn-ghost:not(.sidebar .btn-ghost) { color: #3D3A37 !important; }
+html body .btn-ghost:hover:not(.sidebar .btn-ghost:hover) { background: #EDEBE8 !important; color: #1B1A19 !important; }
+html body .btn-outline:not(.sidebar .btn-outline) { color: #3D3A37 !important; border-color: #D8D4CE !important; background: transparent !important; }
+html body .btn-outline:hover:not(.sidebar .btn-outline:hover) { background: #EDEBE8 !important; color: #1B1A19 !important; }
+
+/* Inputs */
+html body input:not(.sidebar input):not([type=checkbox]):not([type=radio]),
+html body select:not(.sidebar select),
+html body textarea:not(.sidebar textarea) {
+  background: #FFFFFF !important; color: #1B1A19 !important; border-color: #D8D4CE !important;
+}
+html body input::placeholder, html body textarea::placeholder { color: #9C9590 !important; }
+html body .search-input, html body .search-wrap input { background: #FFFFFF !important; color: #1B1A19 !important; }
+
+/* Tables */
+html body th:not(.sidebar th) { background: #EDEBE8 !important; color: #3D3A37 !important; }
+html body td:not(.sidebar td) { color: #1B1A19 !important; }
+
+/* Modals */
+html body .modal { background: #FFFFFF !important; color: #1B1A19 !important; }
+html body .modal-header { background: #FFFFFF !important; color: #1B1A19 !important; border-bottom: 1px solid #E2DDD8 !important; }
+html body .modal-body { background: #FFFFFF !important; color: #1B1A19 !important; }
+html body .modal-footer { background: #F7F4F0 !important; color: #1B1A19 !important; border-top: 1px solid #E2DDD8 !important; }
+
+/* Cards */
+html body .card:not(.deal-hero .card):not(.profile-hero .card):not(.hero .card),
+html body .gl-card, html body .glass-card { background: #FFFFFF !important; color: #1B1A19 !important; }
+html body .card-sub { color: #6B6560 !important; }
+html body .stat-card, html body .kpi-card:not(.kpi-primary),
+html body .metric-card { background: #FFFFFF !important; color: #1B1A19 !important; }
+
+/* Tabs */
+html body .tab:not(.sidebar .tab) { color: #6B6560 !important; }
+html body .tab.active:not(.sidebar .tab.active) { color: #F37925 !important; }
+
+/* Muted text */
+html body .stat-label, html body .kpi-label, html body .card-sub,
+html body .text-muted { color: #6B6560 !important; }
+
+/* Progress steps */
+html body .step-desc:not(.active .step-desc):not(.done .step-desc) { color: #6B6560 !important; }
+html body .progress-title:not(.active .progress-title) { color: #6B6560 !important; }
+html body .step-num:not(.active .step-num):not(.done .step-num) {
+  background: #EDEBE8 !important; color: #6B6560 !important; border-color: #D8D4CE !important;
+}
+html body .step.done .step-num { background: #2D9A6B !important; color: #FFFFFF !important; }
+html body .step.active .step-num { background: #F37925 !important; color: #FFFFFF !important; }
+
+/* Sourcing CRM */
+html body .stage-guide-item:not(.sidebar .stage-guide-item) {
+  background: #FFFFFF !important; color: #1B1A19 !important; border-color: #E2DDD8 !important;
+}
+html body .stage-guide-item:hover { background: #F7F4F0 !important; color: #1B1A19 !important; }
+html body .stage-btn { color: #3D3A37 !important; background: transparent !important; border-color: #D8D4CE !important; }
+
+/* Intentionally dark sections — keep white text */
+html body .site-header { background: #1B1A19 !important; color: #F3F3F3 !important; }
+html body .site-logo, html body .nav-links a { color: #F3F3F3 !important; }
+html body .header-cta { background: #F37925 !important; color: #FFFFFF !important; }
+html body .deal-hero, html body .profile-hero, html body .result-hero,
+html body .memo-header, html body .welcome-banner { color: #FFFFFF !important; }
+html body .deal-location:not(.card .deal-location) { color: rgba(255,255,255,0.85) !important; }
+html body .deal-metric .lbl { color: rgba(255,255,255,0.75) !important; }
+html body .welcome-banner p { color: rgba(255,255,255,0.85) !important; }
+html body .om-cover { color: #FFFFFF !important; }
+
+/* Email preview panes (intentionally dark) */
+html body .email-preview { background: #1B1A19 !important; color: #F3F3F3 !important; }
+html body .ep-header { background: #F37925 !important; color: #FFFFFF !important; }
+html body .ep-kpi { background: rgba(255,255,255,0.07) !important; color: #F3F3F3 !important; }
+html body .ep-footer { color: rgba(255,255,255,0.6) !important; }
+html body .email-body { background: #1B1A19 !important; color: #F3F3F3 !important; }
+html body .reply-composer { background: #F7F4F0 !important; color: #1B1A19 !important; }
+html body .reply-textarea { background: #FFFFFF !important; color: #1B1A19 !important; border-color: #D8D4CE !important; }
+
+/* Debt tracker */
+html body .loan-name, html body .loan-meta-value, html body .detail-value,
+html body .timeline-title, html body .timeline-loan { color: #1B1A19 !important; }
+html body .notes-area { background: #F7F4F0 !important; color: #1B1A19 !important; border-color: #D8D4CE !important; }
+
+/* Misc specifics */
+html body .drawer-title, html body .col-title, html body .empty-title,
+html body .inbox-item-subject, html body .om-h2, html body .om-team-name,
+html body .om-kpi-value, html body .val-price, html body .rc-value,
+html body .bar-val, html body .activity-text, html body .fx-rate,
+html body .card-name, html body .card-metric { color: #1B1A19 !important; }
+html body .card-notes, html body .count, html body .col-title { color: #6B6560 !important; }
+html body .billing-toggle { color: #3D3A37 !important; }
+
+/* Links on light bg — orange needs 4.5:1 minimum. #a04400 on #F3F3F3 = 6.32:1 */
+html body a.forgot-link, html body a.sign-up-link { color: #a04400 !important; }
+html body a.forgot-link:hover, html body a.sign-up-link:hover { color: #7a3300 !important; }
+
+/* Focus */
+html body *:focus-visible { outline: 2px solid #F37925 !important; outline-offset: 2px !important; }
+
+/* ─── END FINAL AUTHORITY ────────────────────────────────────────────────── */

@@ -29,6 +29,16 @@
   darkLink.href = base + 'css/dt-dark-overrides.css';
   document.head.appendChild(darkLink);
 
+  // Inject contrast-fix.css LAST — must load after inline <style> blocks
+  // to win the cascade and override per-page color conflicts
+  if (!document.getElementById('dt-contrast-fix')) {
+    const cfLink = document.createElement('link');
+    cfLink.id  = 'dt-contrast-fix';
+    cfLink.rel = 'stylesheet';
+    cfLink.href = base + 'contrast-fix.css';
+    document.head.appendChild(cfLink);
+  }
+
   // Also inject Font Awesome if not present
   if (!document.querySelector('link[href*="font-awesome"]')) {
     const fa = document.createElement('link');

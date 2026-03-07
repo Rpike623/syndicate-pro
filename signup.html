@@ -9,202 +9,51 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --primary: #0f172a;
-      --primary-light: #1e293b;
-      --accent: #0ea5e9;
-      --accent-hover: #0284c7;
-      --accent-light: rgba(14,165,233,0.15);
-      --success: #10b981;
-      --text: #F8FAFC;
-      --text-secondary: #94A3B8;
-      --border: #1E293B;
-      --bg: #0B1120;
-      --bg-card: #111827;
-      --radius: 8px;
-      --radius-md: 12px;
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --accent: #F37925; --accent-hover: #D96515;
+      --accent-light: rgba(243,121,37,0.12);
+      --success: #2D9A6B; --border: #E2DDD8;
+      --radius: 8px; --radius-md: 12px;
     }
-    
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      background: #F3F3F3 !important;
+      color: #1B1A19 !important;
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
     }
-    
     .auth-container {
-      width: 100%;
-      max-width: 520px;
-      background: #111827;
+      width: 100%; max-width: 520px;
+      background: #FFFFFF; border: 1px solid #E2DDD8;
       border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
+      box-shadow: 0 8px 32px rgba(27,26,25,0.1);
       padding: 48px;
     }
-    
-    .auth-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-    
-    .logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 24px;
-    }
-    
-    .logo-icon {
-      width: 44px;
-      height: 44px;
-      background: linear-gradient(135deg, var(--accent), #60a5fa);
-      border-radius: var(--radius);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.25rem;
-    }
-    
-    .auth-header h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    
-    .auth-header p {
-      color: var(--text-secondary);
-    }
-    
-    .plan-selected {
-      background: var(--accent-light);
-      border: 1px solid var(--accent);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .plan-name {
-      font-weight: 600;
-      color: var(--accent);
-    }
-    
-    .plan-price {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 700;
-    }
-    
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    label {
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 500;
-      color: #F8FAFC;
-      margin-bottom: 8px;
-    }
-    
-    input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1px solid #1E293B;
-      border-radius: var(--radius);
-      font-size: 1rem;
-      font-family: inherit;
-      background: #111827;
-      color: #F8FAFC;
-      transition: all 0.15s;
-    }
-    
-    input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-light);
-    }
-    
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: var(--radius);
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s;
-      text-decoration: none;
-      width: 100%;
-    }
-    
-    .btn-primary {
-      background: var(--accent);
-      color: white;
-    }
-    
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-    
-    .btn-outline {
-      background: transparent;
-      color: #F8FAFC;
-      border: 1px solid #1E293B;
-    }
-    
-    .divider {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin: 24px 0;
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-    
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-    
-    .terms {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      text-align: center;
-      margin-top: 16px;
-    }
-    
-    .terms a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-    
-    .auth-footer {
-      text-align: center;
-      margin-top: 24px;
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-    }
-    
-    .auth-footer a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-    }
+    .auth-header { text-align: center; margin-bottom: 32px; }
+    .logo { display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; }
+    .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg, #F37925, #FAC670); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.25rem; }
+    .auth-header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 8px; color: #1B1A19; }
+    .auth-header p { color: #6B6560; }
+    .plan-selected { background: rgba(243,121,37,0.08); border: 1px solid rgba(243,121,37,0.3); border-radius: var(--radius); padding: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .plan-name { font-weight: 600; color: #c85a00; }
+    .plan-price { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #1B1A19; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-size: 0.875rem; font-weight: 600; color: #3D3A37; margin-bottom: 8px; }
+    input { width: 100%; padding: 12px 16px; border: 1.5px solid #D8D4CE; border-radius: var(--radius); font-size: 1rem; font-family: inherit; background: #F7F4F0; color: #1B1A19; transition: all 0.15s; }
+    input:focus { outline: none; border-color: #F37925; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(243,121,37,0.15); }
+    input::placeholder { color: #9C9590; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; font-size: 1rem; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; width: 100%; }
+    .btn-primary { background: linear-gradient(135deg, #F37925, #D96515); color: #FFFFFF; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(243,121,37,0.3); }
+    .btn-outline { background: #FFFFFF; color: #3D3A37; border: 1.5px solid #D8D4CE; }
+    .btn-outline:hover { background: #F7F4F0; border-color: #9C9590; color: #1B1A19; }
+    .divider { display: flex; align-items: center; gap: 16px; margin: 24px 0; color: #9C9590; font-size: 0.875rem; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #D8D4CE; }
+    .terms { font-size: 0.75rem; color: #9C9590; text-align: center; margin-top: 16px; }
+    .terms a { color: #c85a00; text-decoration: none; }
+    .terms a:hover { text-decoration: underline; }
+    .auth-footer { text-align: center; margin-top: 24px; font-size: 0.875rem; color: #6B6560; }
+    .auth-footer a { color: #c85a00; text-decoration: none; font-weight: 600; }
+    .auth-footer a:hover { color: #a04400; }
   </style>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
@@ -219,13 +68,13 @@
     </div>
 
     <!-- Invite banner (shown when arriving via invite link) -->
-    <div id="inviteBanner" style="display:none;background:linear-gradient(135deg,#dbeafe,#ede9fe);border:1px solid #93c5fd;border-radius:12px;padding:16px 18px;margin-bottom:20px;display:none;align-items:flex-start;gap:12px;">
-      <div style="width:36px;height:36px;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;flex-shrink:0;">
+    <div id="inviteBanner" style="display:none;background:rgba(243,121,37,0.08);border:1px solid rgba(243,121,37,0.3);border-radius:12px;padding:16px 18px;margin-bottom:20px;align-items:flex-start;gap:12px;">
+      <div style="width:36px;height:36px;background:linear-gradient(135deg,#F37925,#FAC670);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:1rem;flex-shrink:0;">
         <i class="fas fa-envelope-open-text"></i>
       </div>
       <div>
-        <div style="font-weight:700;color:#1e40af;font-size:0.95rem;">You've been invited!</div>
-        <div style="font-size:0.82rem;color:#3730a3;margin-top:3px;" id="inviteBannerText">Your sponsor has added you to deeltrack. Create your free account to access your investor portal.</div>
+        <div style="font-weight:700;color:#c85a00;font-size:0.95rem;">You've been invited!</div>
+        <div style="font-size:0.82rem;color:#6B6560;margin-top:3px;" id="inviteBannerText">Your sponsor has added you to deeltrack. Create your free account to access your investor portal.</div>
       </div>
     </div>
 
@@ -268,7 +117,7 @@
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;margin-bottom:14px;">Investment Entity</div>
           <div class="form-group">
             <label>Investor Type</label>
-            <select id="entityType" style="width:100%;padding:11px 14px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#F8FAFC;font-family:inherit;font-size:14px;outline:none;">
+            <select id="entityType" style="width:100%;padding:11px 14px;background:#F7F4F0;border:1.5px solid #D8D4CE;border-radius:8px;color:#1B1A19;font-family:inherit;font-size:14px;outline:none;">
               <option value="individual">Individual</option>
               <option value="joint">Joint Tenants</option>
               <option value="llc">LLC / Partnership</option>

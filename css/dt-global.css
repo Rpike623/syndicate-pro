@@ -3050,7 +3050,7 @@ tr:hover td {
 .page-header h1,
 .page-title,
 .page-header .page-title {
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
 }
 
 /* ── 3. LAYOUT: normalize .main padding
@@ -3104,12 +3104,12 @@ header.top-bar {
 .card-title {
   font-size: 14px !important;
   font-weight: 700 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   letter-spacing: -0.01em !important;
 }
 .card-subtitle {
   font-size: 12px !important;
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
   margin-top: 2px !important;
   font-weight: 400 !important;
 }
@@ -3121,25 +3121,25 @@ header.top-bar {
 .content h1 {
   font-size: 22px !important;
   font-weight: 800 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   letter-spacing: -0.025em !important;
   margin: 0 0 4px 0 !important;
 }
 .content h2 {
   font-size: 16px !important;
   font-weight: 700 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   letter-spacing: -0.01em !important;
 }
 .content h3 {
   font-size: 14px !important;
   font-weight: 700 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
 }
 
 /* ── 8. EMPTY STATE: fix invisible h3 on dark bg ─────────────────────────── */
 .empty-state h3 {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
   font-size: 15px !important;
 }
 .empty-state p {
@@ -3149,7 +3149,7 @@ header.top-bar {
 
 /* ── 9. FORM LABELS: ensure readable on dark bg ─────────────────────────── */
 label {
-  color: #CBD5E1 !important;
+  color: #6B6560 !important;
   font-size: 13px !important;
   font-weight: 500 !important;
 }
@@ -3158,7 +3158,7 @@ label {
 .btn-secondary,
 button.btn-secondary {
   background: transparent !important;
-  color: #CBD5E1 !important;
+  color: #6B6560 !important;
   border: 1px solid #1E293B !important;
   border-radius: 8px !important;
   padding: 10px 20px !important;
@@ -3172,7 +3172,7 @@ button.btn-secondary {
 button.btn-secondary:hover {
   background: rgba(255,255,255,0.06) !important;
   border-color: #334155 !important;
-  color: #F8FAFC !important;
+  color: #6B6560 !important;
 }
 
 /* btn-xs (small action buttons in tables) */
@@ -3183,7 +3183,7 @@ button.btn-secondary:hover {
   border-radius: 6px !important;
   border: 1px solid #1E293B !important;
   background: transparent !important;
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
   cursor: pointer !important;
   transition: all 0.15s !important;
   display: inline-flex !important;
@@ -3256,7 +3256,7 @@ th.col-currency {
   font-weight: 800 !important;
   font-family: 'JetBrains Mono', monospace !important;
   letter-spacing: -0.03em !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   line-height: 1.1 !important;
 }
 .stat-card .lbl,
@@ -3305,7 +3305,7 @@ nav.breadcrumb {
 .breadcrumb a:hover { color: var(--dt-accent) !important; }
 .breadcrumb-sep,
 .breadcrumb-separator { color: #334155 !important; }
-.breadcrumb-current { color: #F8FAFC !important; font-weight: 600 !important; }
+.breadcrumb-current { color: #1B1A19 !important; font-weight: 600 !important; }
 
 /* ── 17. INPUT PLACEHOLDER: muted but readable ───────────────────────────── */
 input::placeholder,
@@ -3316,7 +3316,7 @@ textarea::placeholder {
 
 /* ── 18. LINK INSIDE TABLE: accessible color ─────────────────────────────── */
 td a {
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   text-decoration: none !important;
 }
 td a:hover {
@@ -3346,7 +3346,7 @@ td a:hover {
 .modal-title {
   font-size: 16px !important;
   font-weight: 700 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
 }
 .modal-body {
   padding: 20px 26px !important;
@@ -3367,7 +3367,7 @@ td a:hover {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
   transition: all 0.15s !important;
 }
 .modal-close:hover { background: rgba(239,68,68,0.2) !important; color: #ef4444 !important; }
@@ -3388,7 +3388,7 @@ td a:hover {
 .page-title-bar h1 {
   font-size: 18px !important;
   font-weight: 700 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   margin: 0 !important;
   letter-spacing: -0.02em !important;
 }
@@ -3405,18 +3405,18 @@ td a:hover {
 }
 
 /* ── 23. DEAL / PROPERTY TYPE BADGES ─────────────────────────────────────── */
-.badge-mf   { background: rgba(14,165,233,0.15) !important;  color: #38bdf8 !important; }
-.badge-ind  { background: rgba(16,185,129,0.15) !important;  color: #34d399 !important; }
-.badge-ret  { background: rgba(245,158,11,0.15) !important;  color: #fbbf24 !important; }
+.badge-mf   { background: rgba(145,195,206,0.25) !important;  color: #1A6070 !important; }
+.badge-ind  { background: rgba(45,154,107,0.15) !important;  color: #0F5C35 !important; }
+.badge-ret  { background: rgba(232,137,10,0.15) !important;  color: #6B4000 !important; }
 .badge-off  { background: rgba(139,92,246,0.15) !important;  color: #a78bfa !important; }
-.badge-other{ background: rgba(100,116,139,0.12)!important;  color: #94a3b8 !important; }
+.badge-other{ background: rgba(107,101,96,0.12) !important;  color: #3D3A37 !important; }
 
 /* Deal status badges */
-.badge-sourcing  { background: rgba(100,116,139,0.12)!important; color: #94a3b8 !important; }
-.badge-loi       { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
-.badge-dd        { background: rgba(14,165,233,0.15) !important; color: #38bdf8 !important; }
-.badge-closed    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
-.badge-operating { background: rgba(139,92,246,0.15) !important; color: #a78bfa !important; }
+.badge-sourcing  { background: rgba(107,101,96,0.12) !important; color: #3D3A37 !important; }
+.badge-loi       { background: rgba(232,137,10,0.15) !important; color: #6B4000 !important; }
+.badge-dd        { background: rgba(145,195,206,0.25) !important; color: #1A6070 !important; }
+.badge-closed    { background: rgba(45,154,107,0.15) !important; color: #0F5C35 !important; }
+.badge-operating { background: rgba(123,92,196,0.15) !important; color: #3D2080 !important; }
 .badge-active    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
 .badge-verified  { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
 .badge-pending   { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
@@ -3460,7 +3460,7 @@ td a:hover {
 .search-wrap input {
   background: #111827 !important;
   border: 1px solid #1E293B !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   border-radius: 8px !important;
   padding: 10px 12px 10px 36px !important;
   font-size: 13.5px !important;
@@ -3476,7 +3476,7 @@ td a:hover {
 .filter-bar select {
   background: #111827 !important;
   border: 1px solid #1E293B !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   border-radius: 8px !important;
   padding: 10px 14px !important;
   font-size: 13.5px !important;
@@ -3494,7 +3494,7 @@ td a:hover {
   padding: 8px 12px !important;
   border: none !important;
   background: #111827 !important;
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
   cursor: pointer !important;
   font-size: 13px !important;
   transition: all 0.15s !important;
@@ -3538,7 +3538,7 @@ td.irr {
 .dt-header h1 {
   font-size: 18px !important;
   font-weight: 700 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   margin: 0 !important;
   letter-spacing: -0.02em !important;
   flex: 1 !important;
@@ -3634,7 +3634,7 @@ main.main > .content,
   background: #111827 !important;
   border: 1px solid #1E293B !important;
   border-radius: 8px !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   font-size: 14px !important;
   font-family: inherit !important;
   transition: border-color 0.15s, box-shadow 0.15s !important;
@@ -3676,12 +3676,12 @@ main.main > .content,
   font-size: 14px !important;
 }
 .result-row:last-child { border-bottom: none !important; }
-.result-row span { color: #94A3B8 !important; }
+.result-row span { color: #6B6560 !important; }
 .result-row strong {
   font-family: 'JetBrains Mono', monospace !important;
   font-weight: 700 !important;
   font-size: 16px !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
 }
 .result-row strong.positive { color: #34d399 !important; }
 .result-row strong.negative { color: #f87171 !important; }
@@ -3742,7 +3742,7 @@ main.main > .content,
   font-weight: 800 !important;
   font-family: 'JetBrains Mono', monospace !important;
   letter-spacing: -0.03em !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   line-height: 1 !important;
   margin-bottom: 4px !important;
 }
@@ -3750,7 +3750,7 @@ main.main > .content,
 /* ── MUTED TEXT ──────────────────────────────────────────────────────────── */
 .text-muted,
 .text-secondary {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
   font-size: 12px !important;
 }
 .text-success { color: #34d399 !important; }
@@ -3812,7 +3812,7 @@ main.main > .content,
   padding: 22px 20px !important;
   text-align: center !important;
   text-decoration: none !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -3880,7 +3880,7 @@ main.main > .content,
 .distribution-title {
   font-size: 15px !important;
   font-weight: 700 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
 }
 .distribution-amount {
   font-family: 'JetBrains Mono', monospace !important;
@@ -3920,25 +3920,25 @@ main.main > .content,
    We need higher specificity to keep our color-coded badges meaningful.
    ────────────────────────────────────────────────────────────────────────── */
 html body .badge.badge-mf,
-html body .badge-mf     { background: rgba(14,165,233,0.15) !important; color: #38bdf8 !important; }
+html body .badge-mf     { background: rgba(145,195,206,0.25) !important; color: #1A6070 !important; }
 html body .badge.badge-ind,
-html body .badge-ind    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+html body .badge-ind    { background: rgba(45,154,107,0.15) !important; color: #0F5C35 !important; }
 html body .badge.badge-ret,
-html body .badge-ret    { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+html body .badge-ret    { background: rgba(232,137,10,0.15) !important; color: #6B4000 !important; }
 html body .badge.badge-off,
 html body .badge-off    { background: rgba(139,92,246,0.15) !important; color: #a78bfa !important; }
 html body .badge.badge-other,
-html body .badge-other  { background: rgba(100,116,139,0.12)!important; color: #94a3b8 !important; }
+html body .badge-other  { background: rgba(107,101,96,0.12) !important; color: #3D3A37 !important; }
 html body .badge.badge-sourcing,
-html body .badge-sourcing  { background: rgba(100,116,139,0.12)!important; color: #94a3b8 !important; }
+html body .badge-sourcing  { background: rgba(107,101,96,0.12) !important; color: #3D3A37 !important; }
 html body .badge.badge-loi,
-html body .badge-loi       { background: rgba(245,158,11,0.15) !important; color: #fbbf24 !important; }
+html body .badge-loi       { background: rgba(232,137,10,0.15) !important; color: #6B4000 !important; }
 html body .badge.badge-dd,
-html body .badge-dd        { background: rgba(14,165,233,0.15) !important; color: #38bdf8 !important; }
+html body .badge-dd        { background: rgba(145,195,206,0.25) !important; color: #1A6070 !important; }
 html body .badge.badge-closed,
-html body .badge-closed    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
+html body .badge-closed    { background: rgba(45,154,107,0.15) !important; color: #0F5C35 !important; }
 html body .badge.badge-operating,
-html body .badge-operating { background: rgba(139,92,246,0.15) !important; color: #a78bfa !important; }
+html body .badge-operating { background: rgba(123,92,196,0.15) !important; color: #3D2080 !important; }
 html body .badge.badge-active,
 html body .badge-active    { background: rgba(16,185,129,0.15) !important; color: #34d399 !important; }
 html body .badge.badge-verified,
@@ -4018,7 +4018,7 @@ main.main > *:not(.dt-header):not(.sidebar-overlay):not(.top-bar):not(header):no
 .header h1 {
   font-size: 20px !important;
   font-weight: 800 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   margin: 0 0 4px 0 !important;
   letter-spacing: -0.025em !important;
 }
@@ -4034,7 +4034,7 @@ main.main > div:first-child > h1,
 main > div:first-child > h1 {
   font-size: 20px !important;
   font-weight: 800 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   letter-spacing: -0.025em !important;
 }
 
@@ -4046,7 +4046,7 @@ main > div:first-child > h1 {
 .page-title {
   font-size: 22px !important;
   font-weight: 800 !important;
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   letter-spacing: -0.03em !important;
   margin: 0 0 4px 0 !important;
 }
@@ -4068,7 +4068,7 @@ main > div:first-child > h1 {
 .summary-cell .val,
 .metric-cell .val,
 .stat-cell .val {
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   font-family: 'JetBrains Mono', monospace !important;
   font-weight: 700 !important;
 }
@@ -4076,7 +4076,7 @@ main > div:first-child > h1 {
 /* Card titles everywhere */
 .card .card-title,
 .card-card .card-title {
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   font-size: 14px !important;
   font-weight: 700 !important;
 }
@@ -4097,14 +4097,14 @@ table tbody tr td {
 .form-group > label,
 .form-group label,
 fieldset label {
-  color: #CBD5E1 !important;
+  color: #6B6560 !important;
 }
 
 /* h3 inside cards */
 .card h3,
 .card-body h3,
 .panel h3 {
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   font-size: 15px !important;
   font-weight: 700 !important;
   margin-bottom: 12px !important;
@@ -4113,7 +4113,7 @@ fieldset label {
 /* h2 inside card headers */
 .card-header h2,
 .card-header > h2 {
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   font-size: 15px !important;
   font-weight: 700 !important;
   margin: 0 !important;
@@ -4125,7 +4125,7 @@ fieldset label {
 .carry-val,
 .stat-val,
 .hero-num {
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   font-family: 'JetBrains Mono', monospace !important;
 }
 
@@ -4142,7 +4142,7 @@ fieldset label {
 /* Specific: benchmarks metric comparison */
 .metric-compare,
 .benchmark-range {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
   font-size: 12px !important;
 }
 
@@ -4159,7 +4159,7 @@ fieldset label {
 .figure-val,
 .calc-val,
 .result-val {
-  color: #F8FAFC !important;
+  color: #1B1A19 !important;
   font-family: 'JetBrains Mono', monospace !important;
   font-weight: 700 !important;
 }
@@ -4186,17 +4186,17 @@ fieldset label {
 [style*="color:#64748b"],
 [style*="color: #64748B"],
 [style*="color:#64748B"] {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 [style*="color: #475569"],
 [style*="color:#475569"] {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 [style*="color: #334155"],
 [style*="color:#334155"] {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* CSS class selectors using those colors */
@@ -4208,17 +4208,17 @@ fieldset label {
 .summary-lbl, .kpi-label, .metric-label,
 .form-group .help-text, .help-text,
 .breadcrumb a, nav.breadcrumb a {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* Extra: the dt-global table headers (#64748B) */
 th, .table th, .data-table th {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* Form labels should be lighter than muted text */
 label, .form-group label, .label {
-  color: #CBD5E1 !important;
+  color: #6B6560 !important;
 }
 
 /* Section / nav section headers */
@@ -4228,12 +4228,12 @@ label, .form-group label, .label {
 
 /* Card body secondary text */
 .card-body p, .card p {
-  color: #CBD5E1 !important;
+  color: #6B6560 !important;
 }
 
 /* Override the .page-header p which was #64748b */
 .page-header p, .page-title-bar p, .dt-header p {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* Sidebar footer role */
@@ -4250,12 +4250,12 @@ label, .form-group label, .label {
 
 /* Empty state text */
 .empty-state p, .empty-ledger div, .empty-inbox p {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* Distribution meta text */
 .distribution-meta, .distribution-meta span {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* ─── END CONTRAST FIX ─────────────────────────────────────────────────── */
@@ -4284,7 +4284,7 @@ label, .form-group label, .label {
 
 /* Table headers — always readable */
 th, .table th, .data-table th, table thead th {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* Table cells — clear primary text */
@@ -4294,7 +4294,7 @@ td, .table td, .data-table td, table tbody td {
 
 /* Form labels */
 label, .form-group label, .label-text {
-  color: #CBD5E1 !important;
+  color: #6B6560 !important;
 }
 
 /* All "muted" helper text patterns */
@@ -4304,7 +4304,7 @@ label, .form-group label, .label-text {
 .activity-time, .stat-label, .stat-lbl, .kpi-label,
 .summary-lbl, .metric-label, .metric-delta,
 .breadcrumb a, nav.breadcrumb a {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* Inline style overrides for the most common bad values */
@@ -4315,12 +4315,12 @@ label, .form-group label, .label-text {
 .page-header p, .page-title-bar p, .dt-header p, 
 main .header > div > p, main .header p,
 header p {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* Card body text */
 .card-body p {
-  color: #CBD5E1 !important;
+  color: #6B6560 !important;
 }
 
 /* Sidebar nav section labels (the "DEALS", "FINANCE" etc headers) */
@@ -4341,27 +4341,27 @@ header p {
 /* Empty states */
 .empty-state, .empty-state p, .empty-state h3,
 .empty-ledger, .empty-inbox p {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
-.empty-state h3 { color: #CBD5E1 !important; }
+.empty-state h3 { color: #6B6560 !important; }
 
 /* Distribution page specific */
-.distribution-meta span { color: #94A3B8 !important; }
-.dist-period, .dist-meta { color: #94A3B8 !important; }
+.distribution-meta span { color: #6B6560 !important; }
+.dist-period, .dist-meta { color: #6B6560 !important; }
 
 /* Profile/deal meta lines */
 .profile-meta span, .deal-location, .deal-badges + div {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* Tool cards in tools.html */
-.tool-desc { color: #94A3B8 !important; }
-.category-desc { color: #94A3B8 !important; }
-.category-count { color: #94A3B8 !important; }
+.tool-desc { color: #6B6560 !important; }
+.category-desc { color: #6B6560 !important; }
+.category-count { color: #6B6560 !important; }
 
 /* Timestamps and dates everywhere */
 time, .timestamp, .date-text {
-  color: #94A3B8 !important;
+  color: #6B6560 !important;
 }
 
 /* ─── END CONTRAST ENFORCEMENT ──────────────────────────────────────────── */
@@ -4493,15 +4493,15 @@ input::placeholder, textarea::placeholder {
 }
 
 /* ── Deal/status badges ──────────────────────────────────────────────────── */
-.badge-mf        { background: rgba(145,195,206,0.25) !important; color: #2A7D8C !important; }
-.badge-ind       { background: rgba(45,154,107,0.15)  !important; color: #1A7A50 !important; }
-.badge-ret       { background: rgba(250,198,112,0.35) !important; color: #7A5000 !important; }
+.badge-mf        { background: rgba(145,195,206,0.25) !important; color: #1A6070 !important; }
+.badge-ind       { background: rgba(45,154,107,0.15) !important; color: #0F5C35 !important; }
+.badge-ret       { background: rgba(232,137,10,0.15) !important; color: #6B4000 !important; }
 .badge-off       { background: rgba(192,168,230,0.3)  !important; color: #5035A0 !important; }
-.badge-other, .badge-sourcing { background: rgba(156,149,144,0.2) !important; color: #5A5550 !important; }
-.badge-loi       { background: rgba(250,198,112,0.35) !important; color: #7A5000 !important; }
-.badge-dd        { background: rgba(145,195,206,0.3)  !important; color: #1A6070 !important; }
-.badge-closed    { background: rgba(45,154,107,0.15)  !important; color: #1A7A50 !important; }
-.badge-operating { background: rgba(192,168,230,0.3)  !important; color: #5035A0 !important; }
+.badge-other, .badge-sourcing { background: rgba(107,101,96,0.12) !important; color: #3D3A37 !important; }
+.badge-loi       { background: rgba(232,137,10,0.15) !important; color: #6B4000 !important; }
+.badge-dd        { background: rgba(145,195,206,0.25) !important; color: #1A6070 !important; }
+.badge-closed    { background: rgba(45,154,107,0.15) !important; color: #0F5C35 !important; }
+.badge-operating { background: rgba(123,92,196,0.15) !important; color: #3D2080 !important; }
 .badge-active    { background: rgba(45,154,107,0.15)  !important; color: #1A7A50 !important; }
 .badge-verified  { background: rgba(45,154,107,0.15)  !important; color: #1A7A50 !important; }
 .badge-pending   { background: rgba(250,198,112,0.35) !important; color: #7A5000 !important; }
@@ -5764,3 +5764,324 @@ html body .results h3 { color: #1B1A19 !important; }
 html body .investor-avatar { color: #FFFFFF !important; } /* colored gradient circle, white text correct */
 
 /* ─── END PAGE-SPECIFIC FIXES ────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIVE AUDIT FIXES — patterns found by running contrast-audit.js in browser
+   Run: 2026-03-07. Pages audited: login, dashboard, deals, investors, etc.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── #94a3b8 on white/light bg → 2.56:1, FAILS. Must be #6B6560 (4.6:1) ── */
+/* This is the most widespread failure: ~30+ instances across dashboard/deals */
+html body .kpi-change,
+html body .deal-meta,
+html body .deal-sub,
+html body .deal-location:not(.deal-hero .deal-location),
+html body .deal-metric-sub,
+html body .stat-sub,
+html body .card-meta,
+html body .activity-meta,
+html body .activity-time,
+html body .deadline-type,
+html body .deadline-name,
+html body .month,
+html body .day { color: #6B6560 !important; }
+
+/* #f37925 orange on white → 2.77:1, FAILS. Darken to #c85a00 (4.6:1) */
+html body .view-all,
+html body a.view-all,
+html body .view-all:not(.sidebar .view-all) { color: #a04400 !important; }
+
+html body .link-orange,
+html body a.link-orange { color: #a04400 !important; }
+
+/* #cbd5e1 label text on white → 1.48:1, invisible. Fix to #6B6560 */
+html body .kpi .label,
+html body .kpi-label,
+html body .stat-card .label,
+html body .stat-label { color: #6B6560 !important; }
+
+/* #f8fafc / near-white text on white card bg → invisible */
+html body .kpi-value,
+html body .kpi .value,
+html body .stat-value:not(.sidebar .stat-value) { color: #1B1A19 !important; }
+
+html body .deal-name,
+html body .deal-title,
+html body .deal-card .deal-name { color: #1B1A19 !important; }
+
+/* ── BADGE COLORS: all these fail on white bg ──────────────────────────── */
+/* #38bdf8 (blue-400) on white → 2.14:1. Use #0369a1 (blue-700) → 6.2:1 */
+/* #34d399 (green-400) on white → 1.92:1. Use #065f46 (green-800) → 8.1:1 */
+/* #fbbf24 (amber-400) on white → 1.67:1. Use #92400e (amber-800) → 6.5:1 */
+/* #a78bfa (purple-400) on white → 2.72:1. Use #5b21b6 (purple-700) → 5.9:1 */
+
+html body .badge:not(.pill-green):not(.pill-blue):not(.pill-amber):not(.pill-red):not(.pill-purple):not([class*="badge-"]) {
+  background: rgba(27,26,25,0.07) !important;
+  color: #3D3A37 !important;
+}
+
+/* Deal type / status badges — give them proper colored pill treatment */
+html body .badge-type,
+html body span.badge[class*="Multifamily"],
+html body span.badge[class*="Industrial"],
+html body span.badge[class*="Retail"],
+html body span.badge[class*="Office"],
+html body span.badge[class*="Mixed"] {
+  background: rgba(145,195,206,0.2) !important;
+  color: #1A6070 !important;
+}
+
+/* Status badges by text-based class or inline */
+html body .badge-raising,
+html body .badge-active,
+html body .badge-operating { background: rgba(123,92,196,0.15) !important; color: #3D2080 !important; }
+html body .badge-diligence,
+html body .badge-due-diligence,
+html body .badge-loi { background: rgba(232,137,10,0.15) !important; color: #6B4000 !important; }
+html body .badge-closed { background: rgba(45,154,107,0.15) !important; color: #0F5C35 !important; }
+
+/* ── ONBOARDING WIDGET (dashboard "Getting Started") ───────────────────── */
+html body .onboarding-step,
+html body .checklist-item,
+html body .step-item { color: #1B1A19 !important; }
+html body .onboarding-step span,
+html body .step-item span { color: #1B1A19 !important; }
+html body .onboarding-step.done span,
+html body .step-item.done span { color: #6B6560 !important; }
+html body .step-label,
+html body .checklist-label { color: #1B1A19 !important; }
+
+/* Getting Started widget header */
+html body .onboarding-widget,
+html body .getting-started,
+html body [class*="onboarding"],
+html body [class*="getting-started"] { color: #1B1A19 !important; }
+
+/* ── FOOTER LINKS (Terms/Privacy/Disclaimer) ────────────────────────────── */
+/* #f8f7f6 on #edebe8 → 1.11:1, near-invisible */
+html body #dt-legal-footer a,
+html body .legal-footer a,
+html body footer a:not(.sidebar footer a) { color: #6B6560 !important; }
+html body #dt-legal-footer a:hover,
+html body footer a:hover:not(.sidebar footer a:hover) { color: #1B1A19 !important; }
+html body #dt-legal-footer,
+html body .legal-footer { color: #9C9590 !important; }
+
+/* ── KPI CHANGE INDICATORS ───────────────────────────────────────────────── */
+/* #2d9a6b on white → 3.53:1 — fails AA normal text but passes large text */
+/* Fix to a slightly darker shade for normal-size text: #1A7A50 */
+html body .kpi-change.positive,
+html body .kpi-change.up,
+html body .metric-change.positive { color: #1A7A50 !important; }
+html body .kpi-change.negative,
+html body .kpi-change.down,
+html body .metric-change.negative { color: #901800 !important; }
+html body .kpi-change.neutral,
+html body .kpi-change { color: #6B6560 !important; }
+
+/* ── DEADLINE BADGES ─────────────────────────────────────────────────────── */
+/* #e8890a (amber) on white → 2.62:1, fails. Use #7a3d00 */
+html body .deadline-badge.coming-up,
+html body .deadline-badge[class*="coming"] { color: #7a3d00 !important; }
+/* #d94f3d (red) on white → 4.09:1 — passes large text, fails normal */
+html body .deadline-badge.urgent,
+html body .deadline-badge[class*="urgent"] { color: #8C1F10 !important; }
+/* #2d9a6b on white for scheduled — 3.53:1 fix */
+html body .deadline-badge.scheduled,
+html body .deadline-badge[class*="scheduled"] { color: #1A7A50 !important; }
+
+/* ── "Synced" / timestamp text ───────────────────────────────────────────── */
+/* #9c9590 on white → 2.95:1 — fails. Use #6B6560 (4.6:1) */
+html body .sync-indicator,
+html body .sync-text,
+html body .last-sync,
+html body .timestamp,
+html body .time-ago { color: #6B6560 !important; }
+
+/* ── INLINE BADGE FIX — colored text badges from JS-generated HTML ─────── */
+/* Dynamically generated badges with inline styles use slate/blue/green colors */
+/* Catch all small pill-shaped spans that have a light text color on white */
+html body .badge[style*="color: #38bdf8"],
+html body .badge[style*="color:#38bdf8"] { color: #0369a1 !important; background: rgba(3,105,161,0.1) !important; }
+html body .badge[style*="color: #34d399"],
+html body .badge[style*="color:#34d399"] { color: #065f46 !important; background: rgba(6,95,70,0.1) !important; }
+html body .badge[style*="color: #fbbf24"],
+html body .badge[style*="color:#fbbf24"] { color: #92400e !important; background: rgba(146,64,14,0.1) !important; }
+html body .badge[style*="color: #a78bfa"],
+html body .badge[style*="color:#a78bfa"] { color: #5b21b6 !important; background: rgba(91,33,182,0.1) !important; }
+html body .badge[style*="color: #94a3b8"],
+html body .badge[style*="color:#94a3b8"] { color: #6B6560 !important; background: rgba(27,26,25,0.07) !important; }
+
+/* Same for spans used as badges */
+html body span[style*="color: #38bdf8"],
+html body span[style*="color:#38bdf8"] { color: #0369a1 !important; }
+html body span[style*="color: #34d399"],
+html body span[style*="color:#34d399"] { color: #065f46 !important; }
+html body span[style*="color: #fbbf24"],
+html body span[style*="color:#fbbf24"] { color: #92400e !important; }
+html body span[style*="color: #a78bfa"],
+html body span[style*="color:#a78bfa"] { color: #5b21b6 !important; }
+html body span[style*="color: #94a3b8"],
+html body span[style*="color:#94a3b8"] { color: #6B6560 !important; }
+html body span[style*="color: #60a5fa"],
+html body span[style*="color:#60a5fa"] { color: #1d6fb8 !important; }
+
+/* Also catch inline style divs (deal location, card meta text) */
+html body div[style*="color: #94a3b8"],
+html body div[style*="color:#94a3b8"],
+html body p[style*="color: #94a3b8"],
+html body p[style*="color:#94a3b8"] { color: #6B6560 !important; }
+
+html body div[style*="color: #f8fafc"],
+html body div[style*="color:#f8fafc"],
+html body span[style*="color: #f8fafc"],
+html body span[style*="color:#f8fafc"],
+html body p[style*="color: #f8fafc"],
+html body p[style*="color:#f8fafc"] { color: #1B1A19 !important; }
+
+html body div[style*="color: #e2e8f0"],
+html body div[style*="color:#e2e8f0"],
+html body span[style*="color: #e2e8f0"],
+html body span[style*="color:#e2e8f0"] { color: #3D3A37 !important; }
+
+html body div[style*="color: #cbd5e1"],
+html body div[style*="color:#cbd5e1"],
+html body span[style*="color: #cbd5e1"],
+html body span[style*="color:#cbd5e1"],
+html body label[style*="color: #cbd5e1"],
+html body label[style*="color:#cbd5e1"] { color: #6B6560 !important; }
+
+/* ── SYNCED INDICATOR + ACTION BTN in top-bar ─────────────────────────── */
+html body #syncIndicator { color: #6B6560 !important; }
+html body .top-bar .btn,
+html body .top-bar button:not(.btn-primary):not(.btn-danger) {
+  color: #3D3A37 !important;
+}
+
+/* ── "Got it" / CTA buttons in blue (#3b82f6) ──────────────────────────── */
+/* #ffffff on #3b82f6 → 3.68:1 — fails AA normal. Darken button */
+html body .btn-blue,
+html body button[style*="background: #3b82f6"],
+html body button[style*="background:#3b82f6"] {
+  background: #1d6fb8 !important;
+  color: #FFFFFF !important;
+}
+
+/* ── CLOSE BUTTON / X in widgets ────────────────────────────────────────── */
+html body .close-btn,
+html body .dismiss-btn,
+html body button.close:not(.sidebar button.close) { color: #6B6560 !important; background: transparent !important; }
+html body .close-btn:hover,
+html body .dismiss-btn:hover { color: #1B1A19 !important; background: #EDEBE8 !important; }
+
+/* ── DASHBOARD: Onboarding checklist step text ──────────────────────────── */
+html body .step-text,
+html body .step-desc:not(.sidebar .step-desc),
+html body .checklist-step span { color: #1B1A19 !important; }
+html body .step-done,
+html body .step-completed { color: #6B6560 !important; }
+
+/* ── ACTIVE DEALS TABLE: deal sub-info ──────────────────────────────────── */
+html body .deal-info-sub,
+html body .deal-raise-text,
+html body .deal-lp-count { color: #6B6560 !important; }
+
+/* ── UPCOMING DEADLINES ──────────────────────────────────────────────────── */
+html body .deadline-item { color: #1B1A19 !important; }
+html body .deadline-date { color: #6B6560 !important; }
+
+/* ─── END LIVE AUDIT FIXES ──────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LIVE AUDIT FIXES — patterns found by running contrast-audit.js in browser
+   Run: 2026-03-07. Pages audited: login, dashboard, deals, investors, etc.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── #94a3b8 on white/light bg → 2.56:1, FAILS. Fix to #6B6560 (4.6:1) ── */
+html body .kpi-change,
+html body .deal-meta,
+html body .deal-sub,
+html body .stat-sub,
+html body .card-meta,
+html body .activity-meta,
+html body .activity-time,
+html body .deadline-type,
+html body .month,
+html body .day { color: #6B6560 !important; }
+
+/* #f37925 orange links on white → 2.77:1, FAILS. Darken to #c85a00 */
+html body .view-all:not(.sidebar .view-all),
+html body a.view-all { color: #a04400 !important; }
+
+/* #cbd5e1 label on white → 1.48:1, near-invisible. Fix to #6B6560 */
+html body .kpi .label,
+html body .kpi-label,
+html body .stat-label { color: #6B6560 !important; }
+
+/* #f8fafc on white card → 1.05:1, invisible */
+html body .kpi-value,
+html body .kpi .value { color: #1B1A19 !important; }
+html body .deal-name,
+html body .deal-title { color: #1B1A19 !important; }
+
+/* ── BADGE COLORS on white bg — all fail, need darker shades ────────────── */
+/* Catch inline-style badges from JS with light colors */
+html body span[style*="color: #38bdf8"], html body span[style*="color:#38bdf8"],
+html body div[style*="color: #38bdf8"],  html body div[style*="color:#38bdf8"]  { color: #0369a1 !important; }
+html body span[style*="color: #34d399"], html body span[style*="color:#34d399"],
+html body div[style*="color: #34d399"],  html body div[style*="color:#34d399"]  { color: #065f46 !important; }
+html body span[style*="color: #fbbf24"], html body span[style*="color:#fbbf24"],
+html body div[style*="color: #fbbf24"],  html body div[style*="color:#fbbf24"]  { color: #92400e !important; }
+html body span[style*="color: #a78bfa"], html body span[style*="color:#a78bfa"],
+html body div[style*="color: #a78bfa"],  html body div[style*="color:#a78bfa"]  { color: #5b21b6 !important; }
+html body span[style*="color: #94a3b8"], html body span[style*="color:#94a3b8"],
+html body div[style*="color: #94a3b8"],  html body div[style*="color:#94a3b8"],
+html body p[style*="color: #94a3b8"],    html body p[style*="color:#94a3b8"]    { color: #6B6560 !important; }
+html body span[style*="color: #60a5fa"], html body span[style*="color:#60a5fa"],
+html body div[style*="color: #60a5fa"],  html body div[style*="color:#60a5fa"]  { color: #1d6fb8 !important; }
+html body span[style*="color: #f8fafc"], html body span[style*="color:#f8fafc"],
+html body div[style*="color: #f8fafc"],  html body div[style*="color:#f8fafc"],
+html body p[style*="color: #f8fafc"],    html body p[style*="color:#f8fafc"]    { color: #1B1A19 !important; }
+html body span[style*="color: #e2e8f0"], html body span[style*="color:#e2e8f0"],
+html body div[style*="color: #e2e8f0"],  html body div[style*="color:#e2e8f0"]  { color: #3D3A37 !important; }
+html body span[style*="color: #cbd5e1"], html body span[style*="color:#cbd5e1"],
+html body div[style*="color: #cbd5e1"],  html body div[style*="color:#cbd5e1"],
+html body label[style*="color: #cbd5e1"],html body label[style*="color:#cbd5e1"] { color: #6B6560 !important; }
+
+/* ── FOOTER LINKS ────────────────────────────────────────────────────────── */
+/* #f8f7f6 on #edebe8 → 1.11:1, near-invisible */
+html body #dt-legal-footer a,
+html body .legal-footer a { color: #6B6560 !important; }
+html body #dt-legal-footer,
+html body .legal-footer { color: #9C9590 !important; background: #EDEBE8 !important; }
+
+/* ── KPI CHANGE / DELTA INDICATORS ──────────────────────────────────────── */
+/* #2d9a6b on white → 3.53:1 fails AA normal text. Use #1A7A50 */
+html body .kpi-change { color: #6B6560 !important; }
+html body .delta-positive, html body .change-positive { color: #1A7A50 !important; }
+html body .delta-negative, html body .change-negative { color: #8C1F10 !important; }
+
+/* ── DEADLINE BADGE COLORS ───────────────────────────────────────────────── */
+/* #e8890a on white → 2.62:1. Use #7a3d00 */
+html body .deadline-badge { font-size: 10px !important; font-weight: 700 !important; }
+html body .deadline-badge.urgent    { background: rgba(217,79,61,0.12)  !important; color: #8C1F10 !important; }
+html body .deadline-badge.coming-up { background: rgba(232,137,10,0.12) !important; color: #7a3d00 !important; }
+html body .deadline-badge.scheduled { background: rgba(45,154,107,0.12) !important; color: #1A7A50 !important; }
+
+/* ── SYNC INDICATOR ──────────────────────────────────────────────────────── */
+html body #syncIndicator,
+html body .sync-indicator { color: #6B6560 !important; }
+
+/* ── GOT IT / BLUE ACTION BUTTONS ────────────────────────────────────────── */
+html body button[style*="background: #3b82f6"],
+html body button[style*="background:#3b82f6"],
+html body .btn-blue { background: #1d6fb8 !important; color: #FFFFFF !important; }
+
+/* ── CLOSE / DISMISS BUTTONS ─────────────────────────────────────────────── */
+html body .close-btn:not(.sidebar .close-btn),
+html body button.dismiss:not(.sidebar button.dismiss) {
+  color: #6B6560 !important; background: transparent !important;
+}
+html body .close-btn:hover { color: #1B1A19 !important; background: #EDEBE8 !important; }
+
+/* ─── END LIVE AUDIT FIXES ──────────────────────────────────────────────── */
