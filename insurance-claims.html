@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance Claims | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-file-contract"></i> Insurance Claims</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="Claims.showModal()"><i class="fas fa-plus"></i> File Claim</button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card"><span class="stat-label">Open Claims</span><span class="stat-value text-warning" id="statOpen">0</span></div>
+        <div class="stat-card"><span class="stat-label">Closed</span><span class="stat-value text-success" id="statClosed">0</span></div>
+        <div class="stat-card"><span class="stat-label">Total Paid</span><span class="stat-value" id="statPaid">$0</span></div>
+        <div class="stat-card"><span class="stat-label">Pending</span><span class="stat-value" id="statPending">$0</span></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Claims History</h2></div>
+        <div class="card-body">
+          <table class="data-table"><thead><tr><th>Property</th><th>Type</th><th>Date</th><th>Amount</th><th>Status</th><th>Resolution</th></tr></thead><tbody id="claimsTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="claimModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header"><h2>File Claim</h2><button class="close" onclick="Claims.closeModal()">&times;</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label>Property</label><select id="cProperty" class="form-select"><option>Sunset Apartments</option><option>Downtown Office</option><option>Industrial Portfolio</option><option>Coastal Retail</option></select></div>
+        <div class="form-row">
+          <div class="form-group"><label>Type</label><select id="cType" class="form-select"><option>Water Damage</option><option>Fire</option><option>Liability</option><option>Storm</option><option>Theft</option></select></div>
+          <div class="form-group"><label>Estimated Amount</label><input type="number" id="cAmount" class="form-input"></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" onclick="Claims.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Claims.save()">File Claim</button></div>
+    </div>
+  </div>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Claims.init();}</script>
+  <script src="js/sp-claims.js"></script>
+</body>
+</html>
