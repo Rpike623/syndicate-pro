@@ -167,7 +167,10 @@ const SPFB = (function () {
     console.info('SPFB: local session found but no Firebase token — awaiting login form');
   }
 
+  let _markReadyCalled = false;
   function _markReady() {
+    if (_markReadyCalled) return; // idempotent — only run once
+    _markReadyCalled = true;
     _ready = true;
     // Sync Firebase user into SP session so requireGP/requireInvestor work on every page
     if (_spUser && typeof SP !== 'undefined') {
