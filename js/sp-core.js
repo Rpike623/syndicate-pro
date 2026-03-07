@@ -1196,7 +1196,9 @@ window.SP = (function () {
           { href:'unit-mix.html', icon:'fa-th', label:'Unit Mix' },
           { href:'loi-generator.html', icon:'fa-envelope', label:'LOI Generator' },
           { href:'insurance-summary.html', icon:'fa-shield-alt', label:'Insurance' },
+          { href:'tenant-application.html', icon:'fa-user-plus', label:'Tenant App' },
           { href:'insurance-summary.html', icon:'fa-shield-alt', label:'Insurance' },
+          { href:'tenant-application.html', icon:'fa-user-plus', label:'Tenant App' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
