@@ -357,27 +357,34 @@ let _initRetries = 0;
 
 // Pull deals from every possible storage location — belt + suspenders
 function _getAllDealsRaw() {
-  // 1. Try SP.getDeals() — works if sp-core or SPData is ready
+  // 1. SPData cache (most fresh — Firestore-backed)
+  try {
+    if (typeof SPData !== 'undefined' && SPData.isReady && SPData.isReady()) {
+      const d = SPData.getDeals ? SPData.getDeals() : SP.getDeals();
+      if (d && d.length) return d;
+    }
+  } catch(e) {}
+
+  // 2. SP.getDeals() — sp-core or sp-firebase patched version
   try {
     const d = SP.getDeals ? SP.getDeals() : [];
     if (d && d.length) return d;
   } catch(e) {}
 
-  // 2. Scan localStorage for any org-scoped deals key
+  // 3. Scan ALL localStorage keys for anything that looks like a deals array
   try {
+    const best = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && k.includes('_deals')) {
-        const v = JSON.parse(localStorage.getItem(k) || '[]');
-        if (Array.isArray(v) && v.length) return v;
+      if (!k) continue;
+      if (k.includes('deals') || k.includes('_deals')) {
+        try {
+          const v = JSON.parse(localStorage.getItem(k) || '[]');
+          if (Array.isArray(v) && v.length > best.length) best.push(...v.filter(d=>d.id&&d.name));
+        } catch(e) {}
       }
     }
-  } catch(e) {}
-
-  // 3. Legacy fallback keys
-  try {
-    const v = JSON.parse(localStorage.getItem('sp_deals') || '[]');
-    if (v.length) return v;
+    if (best.length) return best;
   } catch(e) {}
 
   return [];
@@ -928,17 +935,16 @@ function resetForm() {
   setStep(1);
 }
 
-// Primary: use SPFB.onReady so we run after Firestore cache is populated
-if (typeof SPFB !== 'undefined' && SPFB.onReady) {
-  SPFB.onReady(() => { _initRetries = 0; init(); });
-}
-// Also listen for spdata-ready (fires after SPData.init completes)
-window.addEventListener('spdata-ready', () => { _initRetries = 0; init(); });
-// Immediate attempt (works if data already cached in localStorage)
-if (typeof SP !== 'undefined' && SP.getDeals) init();
-// Fallback retries in case auth/Firestore takes a moment
-setTimeout(() => { if (document.getElementById('dealSelect')?.options.length <= 1) { _initRetries = 0; init(); } }, 1500);
-setTimeout(() => { if (document.getElementById('dealSelect')?.options.length <= 1) { _initRetries = 0; init(); } }, 4000);
+// Fire as soon as DOM is ready — no Firebase dependency for initial render
+function _tryInit() { if (document.getElementById('dealSelect')?.options.length <= 1) { _initRetries = 0; init(); } }
+_tryInit();
+// Re-run whenever Firebase/SPData finishes loading
+if (typeof SPFB !== 'undefined' && SPFB.onReady) SPFB.onReady(_tryInit);
+window.addEventListener('spdata-ready', _tryInit);
+// Belt-and-suspenders retries
+setTimeout(_tryInit, 500);
+setTimeout(_tryInit, 1500);
+setTimeout(_tryInit, 3500);
 
 // Close wire report modal on Escape
 document.addEventListener('keydown', e => {
