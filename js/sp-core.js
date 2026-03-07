@@ -384,7 +384,7 @@ window.SP = (function () {
     // Seed demo GP — accept both old and new demo emails
     // ALL demo accounts share ONE org so data is visible across sessions
     const DEMO_ORG_ID = 'deeltrack_demo';
-    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'gp@deeltrack.com', 'philip@jchapmancpa.com', 'investor@deeltrack.com'];
+    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'gp@deeltrack.com', 'philip@jchapmancpa.com', 'investor@deeltrack.com', 'demo-gp2@deeltrack.com'];
     demoEmails.forEach(demoEmail => {
       const existing = users.find(u => u.email === demoEmail);
       if (!existing) {
