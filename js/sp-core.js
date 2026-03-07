@@ -1003,8 +1003,7 @@ window.SP = (function () {
       if (logoEl) {
         const href = logoEl.getAttribute('href') || 'dashboard.html';
         logoEl.outerHTML = `<a href="${href}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="34" height="34" style="flex-shrink:0;"><defs><linearGradient id="sgl1" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><linearGradient id="sgl2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9" opacity="0.9"/><stop offset="100%" stop-color="#0369a1" opacity="0.9"/></linearGradient></defs><g transform="translate(4,0)"><circle cx="12" cy="18" r="10" fill="none" stroke="url(#sgl2)" stroke-width="4"/><path d="M 22 4 L 22 32" stroke="url(#sgl1)" stroke-width="5" stroke-linecap="round"/></g></svg>
-          <span style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.3px;">deel<span style="color:#0ea5e9;">track</span></span>
+          <span style="display:flex;align-items:center;gap:0;text-decoration:none;"><span style="font-size:1.25rem;font-weight:900;color:#F3F3F3;letter-spacing:-0.04em;line-height:1;">deel</span><span style="font-size:1.25rem;font-weight:900;color:#F37925;letter-spacing:-0.04em;line-height:1;">track</span></span>
         </a>`;
       }
     } else {
@@ -1014,8 +1013,7 @@ window.SP = (function () {
         const header = document.createElement('div');
         header.className = 'sidebar-header';
         header.innerHTML = `<a href="dashboard.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="34" height="34" style="flex-shrink:0;"><defs><linearGradient id="sgl1" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><linearGradient id="sgl2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9" opacity="0.9"/><stop offset="100%" stop-color="#0369a1" opacity="0.9"/></linearGradient></defs><g transform="translate(4,0)"><circle cx="12" cy="18" r="10" fill="none" stroke="url(#sgl2)" stroke-width="4"/><path d="M 22 4 L 22 32" stroke="url(#sgl1)" stroke-width="5" stroke-linecap="round"/></g></svg>
-          <span style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.3px;">deel<span style="color:#0ea5e9;">track</span></span>
+          <span style="display:flex;align-items:center;gap:0;text-decoration:none;"><span style="font-size:1.25rem;font-weight:900;color:#F3F3F3;letter-spacing:-0.04em;line-height:1;">deel</span><span style="font-size:1.25rem;font-weight:900;color:#F37925;letter-spacing:-0.04em;line-height:1;">track</span></span>
         </a>`;
         const innerNav = document.createElement('nav');
         innerNav.className = 'nav';
@@ -1040,8 +1038,7 @@ window.SP = (function () {
         const hdr = document.createElement('div');
         hdr.className = 'sidebar-header';
         hdr.innerHTML = `<a href="dashboard.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="32" height="32" style="flex-shrink:0;"><defs><linearGradient id="sgl1b" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><linearGradient id="sgl2b" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9" opacity="0.9"/><stop offset="100%" stop-color="#0369a1" opacity="0.9"/></linearGradient></defs><g transform="translate(4,0)"><circle cx="12" cy="18" r="10" fill="none" stroke="url(#sgl2b)" stroke-width="4"/><path d="M 22 4 L 22 32" stroke="url(#sgl1b)" stroke-width="5" stroke-linecap="round"/></g></svg>
-          <span style="font-size:1.15rem;font-weight:800;color:white;letter-spacing:-0.02em;">deel<span style="color:#0ea5e9;">track</span></span>
+          <span style="display:flex;align-items:center;gap:0;text-decoration:none;"><span style="font-size:1.25rem;font-weight:900;color:#F3F3F3;letter-spacing:-0.04em;line-height:1;">deel</span><span style="font-size:1.25rem;font-weight:900;color:#F37925;letter-spacing:-0.04em;line-height:1;">track</span></span>
         </a>`;
         sb.insertBefore(hdr, sb.firstChild);
       }

@@ -4727,3 +4727,1040 @@ select option { background: #FFFFFF !important; color: #1B1A19 !important; }
 .pnl-expense { background: rgba(217,79,61,0.07)  !important; border-color: rgba(217,79,61,0.2)  !important; }
 
 /* ─── END MUBASIC THEME ─────────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTRAST FIX — FINAL AUTHORITY SECTION
+   ▸ This section is the LAST block in the file.
+   ▸ All rules here override every earlier block in this file.
+   ▸ Purpose: eliminate WCAG contrast failures on the mubasic light theme.
+   ▸ Light theme: body bg = #F3F3F3, surface = #FFFFFF
+   ▸ Safe dark sections (sidebar, deal-hero) are explicitly excluded.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 0. BODY ───────────────────────────────────────────────────────────── */
+html body,
+html body {
+  background: #F3F3F3 !important;
+  color: #1B1A19 !important;
+}
+
+/* ── 2. ALL HEADINGS ────────────────────────────────────────────────────── */
+html body h1, html body h2, html body h3,
+html body h4, html body h5, html body h6 {
+  color: #1B1A19 !important;
+}
+
+/* ── 3. PAGE HEADER / TITLE AREA ────────────────────────────────────────── */
+html body .page-header h1,
+html body .page-title,
+html body .dt-header h1,
+html body .header h1,
+html body .breadcrumb-current,
+html body .breadcrumb-sep,
+html body .breadcrumb-separator {
+  color: #1B1A19 !important;
+}
+html body .breadcrumb a { color: #6B6560 !important; }
+html body .breadcrumb a:hover { color: #F37925 !important; }
+
+/* ── 4. TOP BAR ─────────────────────────────────────────────────────────── */
+html body .top-bar,
+html body .topbar,
+html body header.top-bar,
+html body .pl-header {
+  background: #FFFFFF !important;
+  border-bottom: 1.5px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .top-bar .page-title,
+html body .topbar .page-title,
+html body .top-bar h1,
+html body .topbar h1 {
+  color: #1B1A19 !important;
+}
+html body .top-bar .user-name,
+html body .topbar .user-name {
+  color: #1B1A19 !important;
+}
+html body .top-bar .user-role,
+html body .topbar .user-role {
+  color: #6B6560 !important;
+}
+
+/* ── 5. CARDS & PANELS ──────────────────────────────────────────────────── */
+html body .card,
+html body .gl-card,
+html body .card-card,
+html body .glass-card,
+html body .stat-card,
+html body .kpi-card:not(.kpi-primary),
+html body .metric-card,
+html body .form-section,
+html body .summary-card,
+html body .settings-section,
+html body .result-card,
+html body .qa-card,
+html body .quick-action-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .card-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #E2DDD8 !important;
+}
+html body .card-title,
+html body .card .card-title,
+html body .stat-card .card-title {
+  color: #1B1A19 !important;
+}
+html body .card-subtitle,
+html body .card-meta {
+  color: #6B6560 !important;
+}
+html body .card h2, html body .card h3 { color: #1B1A19 !important; }
+html body .card p { color: #3D3A37 !important; }
+
+/* ── 6. STAT / KPI VALUES ───────────────────────────────────────────────── */
+html body .stat-value,
+html body .stat-val,
+html body .kpi-value,
+html body .carry-val,
+html body .metric-val,
+html body .perf-val,
+html body .summary-val,
+html body .result-val,
+html body .hero-num,
+html body .val {
+  color: #1B1A19 !important;
+}
+html body .stat-label,
+html body .stat-lbl,
+html body .kpi-label,
+html body .metric-label {
+  color: #6B6560 !important;
+}
+
+/* ── 7. TABLE ───────────────────────────────────────────────────────────── */
+html body table thead,
+html body thead,
+html body table thead tr {
+  background: #EDEBE8 !important;
+}
+html body th,
+html body table th,
+html body thead th {
+  background: #EDEBE8 !important;
+  color: #6B6560 !important;
+  border-bottom: 1px solid #D8D4CE !important;
+}
+html body td,
+html body table td {
+  background: transparent !important;
+  color: #1B1A19 !important;
+  border-bottom: 1px solid #EDEBE8 !important;
+}
+html body tr:hover td,
+html body table tbody tr:hover td {
+  background: #F7F4F0 !important;
+}
+html body td a,
+html body table td a {
+  color: #F37925 !important;
+  text-decoration: none !important;
+}
+html body td a:hover,
+html body table td a:hover {
+  color: #D96515 !important;
+  text-decoration: underline !important;
+}
+
+/* ── 8. FORMS & INPUTS ──────────────────────────────────────────────────── */
+html body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html body select,
+html body textarea,
+html body .form-input,
+html body .form-select,
+html body .search-input,
+html body .search-wrap input,
+html body .notes-area {
+  background: #FFFFFF !important;
+  border: 1.5px solid #D8D4CE !important;
+  color: #1B1A19 !important;
+}
+html body input:focus,
+html body select:focus,
+html body textarea:focus,
+html body .search-input:focus,
+html body .search-wrap input:focus {
+  border-color: #F37925 !important;
+  box-shadow: 0 0 0 3px rgba(243,121,37,0.12) !important;
+}
+html body input::placeholder,
+html body textarea::placeholder,
+html body .search-input::placeholder,
+html body .search-wrap input::placeholder {
+  color: #9C9590 !important;
+  opacity: 1 !important;
+}
+html body label,
+html body .form-group label,
+html body .form-group > label,
+html body .input-label {
+  color: #3D3A37 !important;
+}
+
+/* ── 9. BUTTONS ─────────────────────────────────────────────────────────── */
+/* btn-primary: orange bg, dark text for contrast on orange */
+html body .btn-primary,
+html body button.btn-primary,
+html body a.btn-primary {
+  background: #F37925 !important;
+  color: #1B1A19 !important;
+  border: none !important;
+  font-weight: 700 !important;
+}
+html body .btn-primary:hover,
+html body button.btn-primary:hover {
+  background: #D96515 !important;
+  color: #FFFFFF !important;
+}
+/* btn-secondary: white bg, dark text */
+html body .btn-secondary,
+html body button.btn-secondary {
+  background: #FFFFFF !important;
+  color: #1B1A19 !important;
+  border: 1.5px solid #D8D4CE !important;
+  font-weight: 600 !important;
+}
+html body .btn-secondary:hover,
+html body button.btn-secondary:hover {
+  background: #F3F3F3 !important;
+  border-color: #9C9590 !important;
+  color: #1B1A19 !important;
+}
+/* btn-success: green bg, white text */
+html body .btn-success,
+html body button.btn-success {
+  background: #2D9A6B !important;
+  color: #FFFFFF !important;
+  border: none !important;
+}
+html body .btn-success:hover,
+html body button.btn-success:hover {
+  background: #1E7A52 !important;
+  color: #FFFFFF !important;
+}
+/* btn-danger: red bg, white text */
+html body .btn-danger,
+html body button.btn-danger {
+  background: #D94F3D !important;
+  color: #FFFFFF !important;
+  border: none !important;
+}
+html body .btn-danger:hover { background: #B83A2A !important; color: #FFFFFF !important; }
+/* btn-ghost / btn-outline */
+html body .btn-ghost,
+html body .btn-outline,
+html body button.btn-ghost {
+  background: transparent !important;
+  color: #3D3A37 !important;
+  border: 1.5px solid #D8D4CE !important;
+}
+html body .btn-ghost:hover,
+html body .btn-outline:hover {
+  background: #F3F3F3 !important;
+  color: #1B1A19 !important;
+  border-color: #9C9590 !important;
+}
+/* btn-xs (small table action buttons) */
+html body .btn-xs {
+  background: transparent !important;
+  color: #6B6560 !important;
+  border: 1px solid #D8D4CE !important;
+}
+html body .btn-xs:hover {
+  background: #F3F3F3 !important;
+  color: #1B1A19 !important;
+  border-color: #9C9590 !important;
+}
+/* btn-print / export buttons */
+html body .btn-print {
+  background: #EDEBE8 !important;
+  color: #3D3A37 !important;
+  border: 1px solid #D8D4CE !important;
+}
+/* Other common button types */
+html body .view-btn { background: transparent !important; color: #6B6560 !important; border: 1px solid #D8D4CE !important; }
+html body .view-btn.active { background: #F37925 !important; color: #FFFFFF !important; border-color: #F37925 !important; }
+html body .filter-btn { background: transparent !important; color: #6B6560 !important; border: 1px solid #D8D4CE !important; }
+html body .filter-btn.active, html body .filter-btn:hover { background: #F37925 !important; color: #FFFFFF !important; border-color: #F37925 !important; }
+html body .exec-btn { background: #2D9A6B !important; color: #FFFFFF !important; border: none !important; }
+html body .exec-btn:hover { background: #1E7A52 !important; color: #FFFFFF !important; }
+html body .select-deal-btn { background: #EDEBE8 !important; color: #3D3A37 !important; border: 1px solid #D8D4CE !important; }
+html body .select-deal-btn:hover { background: #F37925 !important; color: #FFFFFF !important; border-color: #F37925 !important; }
+html body .btn-approve { background: #2D9A6B !important; color: #FFFFFF !important; }
+html body .btn-confirm { background: #2D9A6B !important; color: #FFFFFF !important; }
+html body .cta-btn { background: #F37925 !important; color: #1B1A19 !important; font-weight: 700 !important; }
+
+/* ── 10. MODAL ──────────────────────────────────────────────────────────── */
+html body .modal,
+html body .modal-content,
+html body .modal-container {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .modal-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid #E2DDD8 !important;
+}
+html body .modal-title { color: #1B1A19 !important; }
+html body .modal-body { color: #1B1A19 !important; }
+html body .modal-footer {
+  background: #F7F4F0 !important;
+  border-top: 1px solid #E2DDD8 !important;
+}
+html body .modal-close {
+  background: #EDEBE8 !important;
+  color: #6B6560 !important;
+  border: none !important;
+}
+html body .modal-close:hover {
+  background: rgba(217,79,61,0.12) !important;
+  color: #901800 !important;
+}
+
+/* ── 11. ACTIVITY & TIMELINE ────────────────────────────────────────────── */
+html body .activity-text { color: #1B1A19 !important; }
+html body .activity-time,
+html body .timeline-date { color: #6B6560 !important; }
+html body .activity-item { border-bottom-color: #EDEBE8 !important; }
+html body .timeline-title { color: #1B1A19 !important; }
+html body .timeline-loan { color: #3D3A37 !important; }
+
+/* ── 12. USER AVATAR / NAME in top-bar area ─────────────────────────────── */
+/* (sidebar versions are handled by sidebar rules and keep white text) */
+html body .main .user-name,
+html body .top-bar .user-name,
+html body .topbar .user-name,
+html body .content .user-name {
+  color: #1B1A19 !important;
+}
+html body .main .user-role,
+html body .top-bar .user-role,
+html body .topbar .user-role,
+html body .content .user-role {
+  color: #6B6560 !important;
+}
+
+/* ── 13. COMMON TEXT CLASSES ────────────────────────────────────────────── */
+html body .page-description,
+html body .section-description,
+html body .card-sub,
+html body .investor-email,
+html body .deal-type-badge,
+html body .help-text,
+html body .info-note {
+  color: #6B6560 !important;
+}
+html body .text-muted,
+html body .muted {
+  color: #6B6560 !important;
+}
+html body .text-secondary {
+  color: #6B6560 !important;
+}
+/* Mono / financial values */
+html body .font-mono,
+html body .mono,
+html body .money,
+html body .money-val {
+  color: #1B1A19 !important;
+}
+html body .text-success,
+html body .irr-val,
+html body .val-positive { color: #1A7A50 !important; }
+html body .text-danger  { color: #901800 !important; }
+html body .text-warning { color: #7A5000 !important; }
+html body .text-accent  { color: #D96515 !important; }
+
+/* ── 14. SECTION/WIDGET HEADINGS inside .main ───────────────────────────── */
+html body .main h1,
+html body .main h2,
+html body .main h3,
+html body .main h4,
+html body .content h1,
+html body .content h2,
+html body .content h3,
+html body .content h4 {
+  color: #1B1A19 !important;
+}
+html body .main p,
+html body .content p {
+  color: #3D3A37 !important;
+}
+html body .section-header { color: #1B1A19 !important; }
+
+/* ── 15. LOAN / DEBT TRACKER ────────────────────────────────────────────── */
+html body .loan-card,
+html body .loan-card-body,
+html body .loan-detail-section,
+html body .timeline-section {
+  background: #FFFFFF !important;
+  border-color: #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .loan-name { color: #1B1A19 !important; }
+html body .loan-meta-value { color: #1B1A19 !important; }
+html body .detail-value { color: #1B1A19 !important; }
+html body .detail-label { color: #6B6560 !important; }
+html body .badge-floating { background: rgba(217,79,61,0.12) !important; color: #901800 !important; }
+html body .badge-paidoff  { background: rgba(45,154,107,0.12) !important; color: #1A7A50 !important; }
+
+/* ── 16. INBOX / EMAIL COMPONENTS ──────────────────────────────────────── */
+html body .inbox-item,
+html body .email-item,
+html body .message-item {
+  background: #FFFFFF !important;
+  border-bottom-color: #EDEBE8 !important;
+  color: #1B1A19 !important;
+}
+html body .inbox-item:hover,
+html body .email-item:hover {
+  background: #F7F4F0 !important;
+}
+html body .inbox-item.unread { background: #FFFBF8 !important; }
+html body .email-body,
+html body .message-body {
+  background: #FFFFFF !important;
+  color: #1B1A19 !important;
+  border: 1px solid #E2DDD8 !important;
+}
+html body .reply-composer {
+  background: #F7F4F0 !important;
+  border-top: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .sender-name { color: #1B1A19 !important; }
+html body .message-preview { color: #6B6560 !important; }
+html body .message-date { color: #6B6560 !important; }
+
+/* ── 17. DEAL-TEASER / PUBLIC-FACING PAGES ──────────────────────────────── */
+html body .site-header {
+  background: #1B1A19 !important;
+  color: #F3F3F3 !important;
+}
+html body .site-header a,
+html body .site-header .logo { color: #F3F3F3 !important; }
+/* Hero section stays dark */
+html body .hero-section,
+html body .teaser-header,
+html body .om-cover {
+  background: linear-gradient(135deg, #1B1A19, #3D3A37) !important;
+  color: #F3F3F3 !important;
+}
+html body .hero-section h1,
+html body .hero-section h2,
+html body .hero-section p,
+html body .teaser-header h1,
+html body .teaser-header p {
+  color: #F3F3F3 !important;
+}
+html body .hero-location,
+html body .hero-metric .lbl {
+  color: rgba(243,241,238,0.75) !important;
+}
+/* Highlight/metric cards below hero */
+html body .teaser-highlights,
+html body .highlights,
+html body .metric {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .highlight-label { color: #6B6560 !important; }
+html body .highlight-value { color: #1B1A19 !important; }
+html body .teaser-stat { background: #FFFFFF !important; border-color: #E2DDD8 !important; color: #1B1A19 !important; }
+html body .teaser-footer { background: #1B1A19 !important; color: rgba(243,241,238,0.7) !important; }
+html body .teaser-footer a { color: rgba(243,241,238,0.9) !important; }
+
+/* ── 18. DISTRIBUTION CALC / WATERFALL ──────────────────────────────────── */
+html body .wf-tier {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .tier-label { color: #1B1A19 !important; }
+html body .tier-desc  { color: #6B6560 !important; }
+html body .tier-num   { background: #F37925 !important; color: #FFFFFF !important; }
+html body .waterfall-explainer {
+  background: #FFFFFF !important;
+  color: #1B1A19 !important;
+}
+html body .summary-item {
+  background: #F7F4F0 !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .summary-hint div { background: #F7F4F0 !important; color: #3D3A37 !important; }
+html body .tier-bar,
+html body .input-group {
+  background: #EDEBE8 !important;
+  border-color: #D8D4CE !important;
+}
+
+/* ── 19. K-1 GENERATOR ──────────────────────────────────────────────────── */
+html body .k1-box-title,
+html body .k1-section-title {
+  background: #1B1A19 !important;
+  color: #F3F3F3 !important;
+}
+html body .k1-warning {
+  background: rgba(217,79,61,0.1) !important;
+  color: #901800 !important;
+  border: 1px solid rgba(217,79,61,0.25) !important;
+}
+html body .k1-line-num { background: #EDEBE8 !important; color: #6B6560 !important; }
+
+/* ── 20. INVESTOR PORTAL / WELCOME BANNER ───────────────────────────────── */
+html body .welcome-banner {
+  background: linear-gradient(135deg, #1B1A19, #3D3A37) !important;
+  color: #F3F3F3 !important;
+}
+html body .welcome-banner h1,
+html body .welcome-banner p {
+  color: #F3F3F3 !important;
+}
+
+/* ── 21. OM BUILDER / INVESTOR UPDATE ──────────────────────────────────── */
+html body .om-nav {
+  background: #1B1A19 !important;
+  color: #F3F3F3 !important;
+}
+html body .om-nav a,
+html body .om-nav button { color: rgba(243,241,238,0.85) !important; }
+html body .om-section h2 { color: #1B1A19 !important; }
+html body .om-label { color: #6B6560 !important; }
+html body .email-preview,
+html body .om-preview {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .ep-kpi {
+  background: #F7F4F0 !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .ep-footer {
+  background: #1B1A19 !important;
+  color: rgba(243,241,238,0.75) !important;
+}
+html body .highlight-card {
+  background: linear-gradient(135deg, #1B1A19, #3D3A37) !important;
+  color: #F3F3F3 !important;
+}
+html body .video-placeholder { background: #1B1A19 !important; color: #F3F3F3 !important; }
+
+/* ── 22. CAPITAL ACCOUNT / STATEMENT ───────────────────────────────────── */
+html body .statement-header {
+  background: #1B1A19 !important;
+  color: #F3F3F3 !important;
+}
+html body .statement-header h1,
+html body .statement-header p { color: #F3F3F3 !important; }
+html body .performance-box {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .ledger-table th { background: #EDEBE8 !important; color: #6B6560 !important; }
+html body .val { color: #1B1A19 !important; }
+
+/* ── 23. SOURCING CRM / PIPELINE ────────────────────────────────────────── */
+html body .pipeline-col {
+  background: #F7F4F0 !important;
+  border: 1px solid #E2DDD8 !important;
+}
+html body .pipeline-col .col-title { color: #1B1A19 !important; }
+html body .inline-note-input input {
+  background: #FFFFFF !important;
+  color: #1B1A19 !important;
+  border-color: #D8D4CE !important;
+}
+
+/* ── 24. MISC DARK COMPONENTS ───────────────────────────────────────────── */
+html body .result-box {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .result-box h3 { color: #1B1A19 !important; }
+html body .result-box .result-val { color: #1B1A19 !important; }
+html body .workflow-step {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .phase-header {
+  background: #EDEBE8 !important;
+  color: #1B1A19 !important;
+  border-bottom: 1px solid #D8D4CE !important;
+}
+html body .task:hover { background: #F7F4F0 !important; }
+html body .task-assignee { background: #EDEBE8 !important; color: #3D3A37 !important; }
+html body .insight-item {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .calendar-task {
+  background: rgba(243,121,37,0.1) !important;
+  color: #7A3000 !important;
+  border-left: 3px solid #F37925 !important;
+}
+html body .chat-main {
+  background: #F7F4F0 !important;
+  color: #1B1A19 !important;
+}
+html body .chat-item { background: #FFFFFF !important; border-bottom-color: #EDEBE8 !important; }
+html body .retention-bar { background: #EDEBE8 !important; }
+html body .loyalty-table th { background: #EDEBE8 !important; color: #6B6560 !important; }
+html body .trend-canvas { background: #FFFFFF !important; border: 1px solid #E2DDD8 !important; }
+html body .matrix-table th { background: #EDEBE8 !important; color: #6B6560 !important; }
+html body .comparison-table th { background: #EDEBE8 !important; color: #6B6560 !important; }
+html body .sens-table th { background: #EDEBE8 !important; color: #6B6560 !important; }
+html body .sens-neutral { background: #F7F4F0 !important; color: #1B1A19 !important; }
+html body .recon-table th { background: #EDEBE8 !important; color: #6B6560 !important; }
+html body .deal-scoring-card { background: #FFFFFF !important; border-color: #E2DDD8 !important; color: #1B1A19 !important; }
+html body .hud-total { background: #EDEBE8 !important; color: #1B1A19 !important; }
+html body .timer-badge { background: rgba(243,121,37,0.15) !important; color: #7A3000 !important; }
+html body .chip-time { background: #EDEBE8 !important; color: #3D3A37 !important; }
+html body .asset-row { background: #FFFFFF !important; border-color: #E2DDD8 !important; color: #1B1A19 !important; }
+html body .je-section pre { background: #F7F4F0 !important; color: #1B1A19 !important; border: 1px solid #E2DDD8 !important; }
+
+/* ── 25. LEGAL / NOTICE BANNERS ─────────────────────────────────────────── */
+html body #dt-legal-footer,
+html body .dt-legal-footer {
+  background: #EDEBE8 !important;
+  color: #6B6560 !important;
+  border-top: 1px solid #D8D4CE !important;
+}
+html body .platform-notice,
+html body .notice-banner {
+  background: rgba(243,121,37,0.08) !important;
+  color: #7A3000 !important;
+  border: 1px solid rgba(243,121,37,0.2) !important;
+}
+
+/* ── 26. BADGES & STATUS PILLS ──────────────────────────────────────────── */
+html body .badge-info,
+html body .badge-blue {
+  background: rgba(145,195,206,0.25) !important;
+  color: #2A7D8C !important;
+  border: 1px solid rgba(145,195,206,0.4) !important;
+}
+html body .badge-secondary {
+  background: #EDEBE8 !important;
+  color: #6B6560 !important;
+  border: 1px solid #D8D4CE !important;
+}
+html body .column-count,
+html body .doc-count,
+html body .stage-count,
+html body .task-col h3 .count {
+  background: #F37925 !important;
+  color: #FFFFFF !important;
+}
+
+/* ── 27. WIZARD / ONBOARDING STEPS ─────────────────────────────────────── */
+html body .wizard-step.active .step-num,
+html body .onboarding-stepper .step.active span,
+html body .dr-tab.active {
+  background: #F37925 !important;
+  color: #FFFFFF !important;
+}
+html body .wizard-step.completed .step-num {
+  background: #2D9A6B !important;
+  color: #FFFFFF !important;
+}
+html body .doc-item input:checked + .doc-check {
+  background: #F37925 !important;
+  color: #FFFFFF !important;
+}
+
+/* ── 28. HEATMAP LEVELS ─────────────────────────────────────────────────── */
+html body .level-0 { background: #EDEBE8 !important; color: #9C9590 !important; }
+html body .level-1 { background: rgba(145,195,206,0.3) !important; color: #2A7D8C !important; }
+html body .level-2 { background: rgba(145,195,206,0.6) !important; color: #1A6070 !important; }
+html body .level-3 { background: #91C3CE !important; color: #0A3040 !important; }
+html body .level-4 { background: #F37925 !important; color: #FFFFFF !important; }
+
+/* ── 29. SCORE CIRCLES / GAUGES ─────────────────────────────────────────── */
+html body .score-circle {
+  background: linear-gradient(135deg, #F37925, #FAC670) !important;
+  color: #FFFFFF !important;
+}
+
+/* ── 30. KPIPRIMARY CARDS (intentional accent card) ─────────────────────── */
+html body .kpi-card.kpi-primary {
+  background: linear-gradient(135deg, #F37925 0%, #FAC670 100%) !important;
+  color: #1B1A19 !important;
+}
+html body .kpi-card.kpi-primary .kpi-label,
+html body .kpi-card.kpi-primary .kpi-icon { color: rgba(27,26,25,0.65) !important; }
+html body .kpi-card.kpi-primary .kpi-value { color: #1B1A19 !important; font-weight: 800 !important; }
+
+/* ── 31. CARRY TRACKER ──────────────────────────────────────────────────── */
+html body .card-box {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .card-box h3 { color: #1B1A19 !important; }
+html body .carry-val { color: #1B1A19 !important; }
+
+/* ── 32. EMPTY STATES ───────────────────────────────────────────────────── */
+html body .empty-state,
+html body .empty-inbox,
+html body .empty-ledger {
+  color: #6B6560 !important;
+}
+html body .empty-state h3,
+html body .empty-inbox h3 { color: #3D3A37 !important; }
+html body .empty-state i  { color: #9C9590 !important; opacity: 0.4 !important; }
+html body .empty-title { color: #1B1A19 !important; }
+html body .empty-desc  { color: #6B6560 !important; }
+
+/* ── 33. MISC DARK BG ELEMENTS WITHOUT SPECIAL SEMANTIC MEANING ─────────── */
+html body .progress-bar,
+html body .progress-track {
+  background: #EDEBE8 !important;
+}
+
+/* ── 34. LOGIN PAGE (has !important body bg override) ─────────────────────
+   login.html has body { background: !important } so we need the html selector */
+html.login-page body, body.login-page {
+  background: #F3F3F3 !important;
+  color: #1B1A19 !important;
+}
+html body .brand-tagline { color: #6B6560 !important; }
+html body .card-sub { color: #6B6560 !important; }
+html body .login-card, html body .auth-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+
+/* ── 35. RESPONSIVE: ensure mobile doesn't reintroduce dark ─────────────── */
+@media (max-width: 768px) {
+  html body .main,
+  html body .content,
+  html body .page-content {
+    background: #F3F3F3 !important;
+    color: #1B1A19 !important;
+  }
+}
+
+/* ─── END CONTRAST FIX — FINAL AUTHORITY ─────────────────────────────────── */
+
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ADDITIONAL TARGETED FIXES — covers uncovered classes found in page audit
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Section titles & widget headers */
+html body .section-title:not(.k1-section-title),
+html body .widget-header {
+  color: #6B6560 !important;
+}
+html body .page-title, html body .page-header-title { color: #1B1A19 !important; }
+
+/* User avatar — colored circles, white text inside is fine (good contrast on gradient) */
+/* .user-avatar intentionally keeps white text — it's on a colored gradient background */
+
+/* User name/role in any container outside sidebar */
+html body .main .user-role,
+html body .content .user-role,
+html body .user-role:not(.sidebar .user-role):not(#sidebar .user-role):not(.sidebar-footer .user-role) {
+  color: #6B6560 !important;
+}
+html body .main .user-name,
+html body .content .user-name {
+  color: #1B1A19 !important;
+}
+
+/* KPI icon (dashboard icon containers) */
+html body .kpi-icon:not(.kpi-primary .kpi-icon) {
+  color: #F37925 !important;
+}
+
+/* Toast notifications (generic) */
+html body .toast,
+html body #toast {
+  background: #1B1A19 !important;
+  color: #F3F3F3 !important;
+  border: none !important;
+}
+
+/* OM builder & investor update specific */
+html body .snav-item { color: rgba(243,241,238,0.7) !important; }
+html body .snav-item:hover,
+html body .snav-item.active { color: #F3F3F3 !important; }
+html body .snav-item.active .snav-num {
+  background: #F37925 !important;
+  color: #FFFFFF !important;
+}
+html body .om-label { color: #6B6560 !important; }
+
+/* Deal teaser specific */
+html body .site-logo { color: #F3F3F3 !important; }
+html body .header-cta { color: #F3F3F3 !important; }
+html body .cta-card { background: #FFFFFF !important; border: 1px solid #E2DDD8 !important; color: #1B1A19 !important; }
+html body .cta-card p { color: #3D3A37 !important; }
+html body .cta-form-group label { color: #3D3A37 !important; }
+html body .hl-dot i { color: #F37925 !important; }
+
+/* Distribution calc step indicators */
+html body .step .step-num { background: #EDEBE8 !important; color: #6B6560 !important; border-color: #D8D4CE !important; }
+html body .step.active .step-num { background: #F37925 !important; color: #FFFFFF !important; }
+html body .step.done .step-num  { background: #2D9A6B !important; color: #FFFFFF !important; }
+html body .card-hdr h2 { color: #1B1A19 !important; }
+
+/* Investor/deal avatar color circles — white text fine on colored gradient */
+/* .investor-av intentionally uses colored gradient backgrounds */
+
+/* Stile (summary tile variant) */
+html body .stile {
+  background: #F7F4F0 !important;
+  border: 1px solid #E2DDD8 !important;
+}
+html body .stile .stile-val { color: #1B1A19 !important; }
+html body .stile .stile-lbl { color: #6B6560 !important; }
+
+/* ─── END ADDITIONAL TARGETED FIXES ─────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PAGE-SPECIFIC & REMAINING FIXES — second pass
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── TABS (everywhere) ──────────────────────────────────────────────────── */
+html body .tab { color: #6B6560 !important; background: transparent !important; border: none !important; }
+html body .tab:hover { color: #1B1A19 !important; background: rgba(27,26,25,0.04) !important; }
+html body .tab.active { color: #F37925 !important; border-bottom-color: #F37925 !important; font-weight: 700 !important; background: transparent !important; }
+html body .tab-content { color: #1B1A19 !important; }
+
+/* ── SOURCING CRM ────────────────────────────────────────────────────────── */
+html body .stage-guide-item { color: #3D3A37 !important; }
+html body .stage-guide-item:hover { background: #F7F4F0 !important; color: #1B1A19 !important; }
+html body .card-name { color: #1B1A19 !important; font-weight: 600 !important; }
+html body .drawer-title { color: #1B1A19 !important; }
+html body .stage-btn:hover { background: #F3F3F3 !important; color: #1B1A19 !important; border-color: #9C9590 !important; }
+html body .note-text { color: #3D3A37 !important; }
+
+/* ── WATERFALL GUIDE ─────────────────────────────────────────────────────── */
+html body .guide h1, html body .guide h2, html body .guide h3 { color: #1B1A19 !important; }
+html body .example {
+  background: #F7F4F0 !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .example h3 { color: #1B1A19 !important; }
+html body .decision-tree {
+  background: #F7F4F0 !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .decision-tree h3 { color: #1B1A19 !important; }
+html body .toc {
+  background: #FFFBF8 !important;
+  border: 1px solid rgba(243,121,37,0.2) !important;
+  color: #1B1A19 !important;
+}
+html body .toc a { color: #D96515 !important; }
+
+/* ── NEW DEAL WIZARD ─────────────────────────────────────────────────────── */
+html body .progress-title { color: #1B1A19 !important; }
+html body .step-desc { color: #6B6560 !important; }
+html body .waterfall-preview {
+  background: #F7F4F0 !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .tier-number {
+  background: #F37925 !important;
+  color: #FFFFFF !important;
+}
+html body .doc-icon { color: #F37925 !important; }
+html body .preview-toggle { color: #6B6560 !important; }
+
+/* ── OM BUILDER ──────────────────────────────────────────────────────────── */
+html body .om-tagline { color: #6B6560 !important; }
+html body .om-chip { background: #EDEBE8 !important; color: #3D3A37 !important; }
+html body .om-cover-meta-value { color: #FAC670 !important; } /* on dark cover bg */
+html body .om-h2 { color: #1B1A19 !important; }
+html body .om-kpi-value { color: #1B1A19 !important; font-weight: 800 !important; }
+html body .om-team-name { color: #1B1A19 !important; }
+
+/* ── PRICING PAGE ────────────────────────────────────────────────────────── */
+html body .nav-links a:hover { color: #F37925 !important; background: transparent !important; }
+html body .badge-green { background: rgba(45,154,107,0.15) !important; color: #1A7A50 !important; }
+html body .popular-badge { background: #F37925 !important; color: #1B1A19 !important; }
+html body .cta-section {
+  background: linear-gradient(135deg, #1B1A19, #3D3A37) !important;
+  color: #F3F3F3 !important;
+}
+html body .cta-section h2 { color: #F3F3F3 !important; }
+html body .cta-section p { color: rgba(243,241,238,0.8) !important; }
+
+/* ── DEAL DETAIL ─────────────────────────────────────────────────────────── */
+html body .deal-location { color: #6B6560 !important; }
+html body .inv-av { width: 28px; height: 28px; } /* keep avatar style, just ensure size */
+
+/* ── DEAL TEASER ─────────────────────────────────────────────────────────── */
+html body .cta-success { color: #1B1A19 !important; }
+html body .cta-success h4 { color: #1B1A19 !important; }
+html body .cta-success p { color: #6B6560 !important; }
+html body .firm-logo-circle {
+  background: #EDEBE8 !important;
+  color: #3D3A37 !important;
+  border: 2px solid #D8D4CE !important;
+}
+
+/* ── DISTRIBUTION CALC ───────────────────────────────────────────────────── */
+html body .wf-tier-name { color: #1B1A19 !important; font-weight: 700 !important; }
+html body .wf-tier-amount { color: #1A7A50 !important; font-weight: 800 !important; }
+html body .pref-callout { background: rgba(250,198,112,0.15) !important; border: 1px solid rgba(250,198,112,0.4) !important; color: #7A5000 !important; }
+html body .pref-callout strong { color: #7A5000 !important; }
+
+/* ── EXIT CALC ───────────────────────────────────────────────────────────── */
+html body .result-hero-sub { color: rgba(243,241,238,0.8) !important; }  /* inside dark .result-hero */
+html body .rc-value { color: #1B1A19 !important; font-weight: 800 !important; }
+html body .bar-val { color: #1B1A19 !important; }
+
+/* ── INVESTOR DETAIL ─────────────────────────────────────────────────────── */
+html body .profile-meta { color: #6B6560 !important; }  /* below the hero on light bg */
+
+/* ── DOCUMENTS ───────────────────────────────────────────────────────────── */
+html body .doc-type.selected .icon {
+  background: #F37925 !important;
+  color: #FFFFFF !important;
+}
+
+/* ── INBOX ───────────────────────────────────────────────────────────────── */
+html body .inbox-avatar,
+html body .meta-avatar {
+  /* colored gradient circles — keep white text (good contrast on gradient) */
+  color: #FFFFFF !important;
+}
+
+/* ── INVESTOR PORTAL ─────────────────────────────────────────────────────── */
+html body .portal-logo { color: #F3F3F3 !important; } /* inside dark sidebar */
+html body .portal-nav a:hover { color: #F3F3F3 !important; background: rgba(255,255,255,0.08) !important; }
+
+/* ── LENDER CRM ──────────────────────────────────────────────────────────── */
+html body .btn-sm:hover {
+  background: #F37925 !important;
+  color: #FFFFFF !important;
+  border-color: #F37925 !important;
+}
+
+/* ── TOOLS PAGE ──────────────────────────────────────────────────────────── */
+html body .category-title { color: #1B1A19 !important; }
+html body .tool-card { background: #FFFFFF !important; border: 1px solid #E2DDD8 !important; color: #1B1A19 !important; }
+html body .tool-card:hover { border-color: #F37925 !important; }
+
+/* ── ACCREDITATION — tr:hover ────────────────────────────────────────────── */
+/* Already handled by general tr:hover td rule — no separate fix needed */
+
+/* ── CAP TABLE ───────────────────────────────────────────────────────────── */
+html body .type-lp { background: rgba(145,195,206,0.25) !important; color: #2A7D8C !important; }
+
+/* ── CRM ─────────────────────────────────────────────────────────────────── */
+html body .activity-icon {
+  background: rgba(243,121,37,0.15) !important;
+  color: #D96515 !important;
+}
+
+/* ── CURRENCY CENTER ─────────────────────────────────────────────────────── */
+html body .fx-rate { color: #1B1A19 !important; font-weight: 700 !important; }
+
+/* ── DEAL COMPARE ────────────────────────────────────────────────────────── */
+html body .summary-winner {
+  background: rgba(45,154,107,0.1) !important;
+  color: #1A7A50 !important;
+  border: 1px solid rgba(45,154,107,0.3) !important;
+}
+
+/* ── DISTRIBUTION RECONCILIATION ────────────────────────────────────────── */
+html body .btn-recon {
+  background: #2D9A6B !important;
+  color: #FFFFFF !important;
+  border: none !important;
+}
+
+/* ── DYNAMIC VALUATION ───────────────────────────────────────────────────── */
+html body .val-price { color: #1B1A19 !important; font-weight: 800 !important; }
+
+/* ── EMAIL TEMPLATES ─────────────────────────────────────────────────────── */
+html body .email-header {
+  background: #1B1A19 !important;
+  color: #F3F3F3 !important;
+}
+html body .email-header h2, html body .email-header p { color: #F3F3F3 !important; }
+
+/* ── IC MEMO BUILDER ─────────────────────────────────────────────────────── */
+html body .memo-header {
+  background: #1B1A19 !important;
+  color: #F3F3F3 !important;
+}
+html body .memo-header h1, html body .memo-header p { color: #F3F3F3 !important; }
+
+/* ── INVESTOR RETENTION ──────────────────────────────────────────────────── */
+html body .cohort-val { color: #1B1A19 !important; font-weight: 700 !important; }
+
+/* ── INVESTOR UPDATE ─────────────────────────────────────────────────────── */
+html body .ep-header {
+  background: #1B1A19 !important;
+  color: #F3F3F3 !important;
+}
+html body .ep-header h1, html body .ep-header p { color: #F3F3F3 !important; }
+
+/* login page .btn-login uses inline styles from login.html directly */
+
+/* ── PIPELINE ────────────────────────────────────────────────────────────── */
+html body .card-menu:hover { background: #F7F4F0 !important; color: #1B1A19 !important; }
+
+/* ── PORTFOLIO HEALTH ────────────────────────────────────────────────────── */
+html body .score-warn {
+  background: rgba(217,79,61,0.1) !important;
+  color: #901800 !important;
+  border: 1px solid rgba(217,79,61,0.25) !important;
+}
+
+/* ── SETTINGS ────────────────────────────────────────────────────────────── */
+/* toast already handled globally */
+
+/* ── TASK MANAGER ────────────────────────────────────────────────────────── */
+html body .action-icon:hover {
+  background: #F7F4F0 !important;
+  color: #1B1A19 !important;
+}
+
+/* ── UNDERWRITING CALC ───────────────────────────────────────────────────── */
+html body .results {
+  background: #F7F4F0 !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .results h3 { color: #1B1A19 !important; }
+
+/* ── WIRE CONFIRM ────────────────────────────────────────────────────────── */
+/* .status-pending already handled in global section */
+
+/* ── FUNDRAISING ─────────────────────────────────────────────────────────── */
+html body .investor-avatar { color: #FFFFFF !important; } /* colored gradient circle, white text correct */
+
+/* ─── END PAGE-SPECIFIC FIXES ────────────────────────────────────────────── */

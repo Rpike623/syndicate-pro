@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-page="auth">
 <head>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
@@ -19,53 +19,114 @@
   <script src="js/sp-core.js"></script>
   <script src="js/sp-firebase.js"></script>
   <style>
-    :root { --accent: #0ea5e9; --accent-hover: #0284c7; --success: #10b981; --danger: #ef4444; --border: #1E293B; --text: #F8FAFC; --radius: 8px; --radius-md: 12px; }
+    :root {
+      --accent: #F37925; --accent-hover: #D96515;
+      --success: #2D9A6B; --danger: #D94F3D;
+      --border: #E2DDD8; --text: #1B1A19;
+      --radius: 8px; --radius-md: 12px;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Sora', sans-serif; background: #0B1120 !important; min-height: 100vh; display: flex !important; align-items: center; justify-content: center; padding: 20px; position: relative; overflow: hidden; }
-    body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(59,130,246,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.05) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
-    body::after { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at center, rgba(59,130,246,0.08) 0%, transparent 60%); pointer-events: none; }
+    body {
+      font-family: 'Sora', sans-serif;
+      background: #F3F3F3 !important;
+      color: #1B1A19 !important;
+      min-height: 100vh; display: flex !important;
+      align-items: center; justify-content: center;
+      padding: 20px; position: relative; overflow: hidden;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(243,121,37,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(243,121,37,0.04) 1px, transparent 1px);
+      background-size: 60px 60px; pointer-events: none;
+    }
+    body::after {
+      content: ''; position: fixed; top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(ellipse at center, rgba(243,121,37,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
     .login-wrap { width: 100%; max-width: 420px; position: relative; z-index: 10; }
     .brand { text-align: center; margin-bottom: 32px; }
     .brand-logo { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
-    .brand-icon { width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent), #60a5fa); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 0 30px rgba(59,130,246,0.4); }
-    .brand-name { font-size: 1.6rem; font-weight: 700; color: white; }
-    .brand-name span { color: #60a5fa; }
-    .brand-tagline { color: rgba(255,255,255,0.95); font-size: 0.9rem; margin-top: 8px; font-weight: 400; }
-    .card { background: #111827; border: 1px solid var(--border); border-radius: 18px; padding: 36px; box-shadow: 0 32px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(99,102,241,0.08); }
-    .card-title { font-size: 1.4rem; font-weight: 700; color: white; margin-bottom: 4px; }
-    .card-sub { color: rgba(255,255,255,0.95); font-size: 0.9rem; margin-bottom: 28px; }
+    .brand-icon {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, #F37925, #FAC670);
+      border-radius: var(--radius-md); display: flex; align-items: center;
+      justify-content: center; font-size: 1.5rem;
+      box-shadow: 0 0 24px rgba(243,121,37,0.25);
+    }
+    .brand-name { font-size: 1.6rem; font-weight: 700; color: #1B1A19; }
+    .brand-name span { color: #F37925; }
+    .brand-tagline { color: #6B6560; font-size: 0.9rem; margin-top: 8px; font-weight: 400; }
+    .card {
+      background: #FFFFFF; border: 1px solid #E2DDD8;
+      border-radius: 18px; padding: 36px;
+      box-shadow: 0 8px 32px rgba(27,26,25,0.1), 0 2px 8px rgba(27,26,25,0.06);
+    }
+    .card-title { font-size: 1.4rem; font-weight: 700; color: #1B1A19; margin-bottom: 4px; }
+    .card-sub { color: #6B6560; font-size: 0.9rem; margin-bottom: 28px; }
     .form-group { margin-bottom: 20px; }
-    label { display: block; font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.9); margin-bottom: 8px; letter-spacing: 0.02em; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; color: #3D3A37; margin-bottom: 8px; letter-spacing: 0.02em; }
     .input-wrap { position: relative; }
-    .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.85); font-size: 0.9rem; pointer-events: none; }
-    input[type=email], input[type=password] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px 12px 40px; font-size: 0.95rem; color: white; font-family: 'Inter', sans-serif; transition: all 0.2s; outline: none; }
-    input::placeholder { color: rgba(255,255,255,0.7); }
-    input:focus { border-color: var(--accent); background: rgba(59,130,246,0.08); box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
-    .toggle-pw { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.85); cursor: pointer; font-size: 0.9rem; border: none; background: none; }
-    .toggle-pw:hover { color: rgba(255,255,255,0.75); }
+    .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #9C9590; font-size: 0.9rem; pointer-events: none; }
+    input[type=email], input[type=password] {
+      width: 100%; background: #F7F4F0; border: 1.5px solid #D8D4CE;
+      border-radius: var(--radius); padding: 12px 14px 12px 40px;
+      font-size: 0.95rem; color: #1B1A19; font-family: 'Inter', sans-serif;
+      transition: all 0.2s; outline: none;
+    }
+    input::placeholder { color: #9C9590; }
+    input:focus { border-color: #F37925; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(243,121,37,0.15); }
+    .toggle-pw { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: #9C9590; cursor: pointer; font-size: 0.9rem; border: none; background: none; }
+    .toggle-pw:hover { color: #3D3A37; }
     .form-options { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: rgba(255,255,255,0.95); font-size: 0.9rem; }
+    .checkbox-label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #3D3A37; font-size: 0.9rem; }
     .checkbox-label input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
-    .forgot-link { font-size: 0.85rem; color: var(--accent); text-decoration: none; font-weight: 500; }
-    .forgot-link:hover { text-decoration: underline; }
-    .btn-login { width: 100%; padding: 14px; background: linear-gradient(135deg, #0ea5e9, #0369a1); color: white; border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(59,130,246,0.35); }
+    .forgot-link { font-size: 0.85rem; color: #a04400; text-decoration: none; font-weight: 500; }
+    .forgot-link:hover { text-decoration: underline; color: #a04400; }
+    .btn-login {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #F37925, #D96515);
+      color: #FFFFFF; border: none; border-radius: var(--radius);
+      font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(243,121,37,0.35); }
     .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .alert { padding: 12px 16px; border-radius: var(--radius); font-size: 0.875rem; margin-bottom: 20px; display: none; align-items: center; gap: 10px; }
     .alert.show { display: flex; }
-    .alert-error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
-    .alert-success { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+    .alert-error { background: rgba(217,79,61,0.1); border: 1px solid rgba(217,79,61,0.3); color: #8C1F10; }
+    .alert-success { background: rgba(45,154,107,0.1); border: 1px solid rgba(45,154,107,0.3); color: #0F5C35; }
     .divider { display: flex; align-items: center; gap: 12px; margin: 24px 0; }
-    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--bg); }
-    .divider span { color: rgba(255,255,255,0.85); font-size: 0.75rem; }
-    .demo-box { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); border-radius: var(--radius); padding: 14px 16px; }
-    .demo-box p { font-size: 0.8rem; color: rgba(255,255,255,0.95); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-    .demo-cred { font-size: 0.85rem; color: rgba(255,255,255,0.9); display: flex; justify-content: space-between; margin-bottom: 4px; }
-    .demo-cred span { font-family: monospace; color: #60a5fa; }
-    .fill-demo { margin-top: 10px; width: 100%; padding: 8px; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); color: #60a5fa; border-radius: var(--radius); font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
-    .fill-demo:hover { background: rgba(59,130,246,0.25); }
-    .card-footer { text-align: center; margin-top: 24px; color: rgba(255,255,255,0.75); font-size: 0.875rem; }
-    .card-footer a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #D8D4CE; }
+    .divider span { color: #6B6560; font-size: 0.75rem; }
+    #googleBtn {
+      width: 100%; padding: 13px;
+      background: #FFFFFF; border: 1.5px solid #D8D4CE;
+      border-radius: var(--radius); color: #1B1A19;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      font-family: 'Sora', sans-serif; display: flex; align-items: center;
+      justify-content: center; gap: 10px; transition: all 0.2s;
+    }
+    #googleBtn:hover { background: #F7F4F0; border-color: #9C9590; }
+    .demo-box {
+      background: rgba(243,121,37,0.06); border: 1px solid rgba(243,121,37,0.2);
+      border-radius: var(--radius); padding: 14px 16px;
+    }
+    .demo-box p { font-size: 0.8rem; color: #6B6560; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .demo-cred { font-size: 0.85rem; color: #3D3A37; display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .demo-cred span { font-family: monospace; color: #a04400; font-weight: 600; }
+    .fill-demo {
+      margin-top: 10px; width: 100%; padding: 8px;
+      background: rgba(243,121,37,0.08); border: 1px solid rgba(243,121,37,0.25);
+      color: #a04400; border-radius: var(--radius);
+      font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .fill-demo:hover { background: rgba(243,121,37,0.15); }
+    .card-footer { text-align: center; margin-top: 24px; color: #6B6560; font-size: 0.875rem; }
+    .card-footer a { color: #a04400; text-decoration: none; font-weight: 600; }
+    .card-footer a:hover { color: #a04400; }
   </style>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
@@ -105,7 +166,7 @@
         <button type="submit" class="btn-login" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Sign In</button>
       </form>
       <div class="divider"><span>or</span></div>
-      <button type="button" id="googleBtn" onclick="googleSignIn()" style="width:100%;padding:13px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:var(--radius);color:white;font-size:0.95rem;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;">
+      <button type="button" id="googleBtn" onclick="googleSignIn()">
         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
         Continue with Google
       </button>
