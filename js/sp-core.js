@@ -1176,6 +1176,9 @@ window.SP = (function () {
           { href:'purchase-sale.html', icon:'fa-handshake', label:'P&S' },
           { href:'property-comparator.html', icon:'fa-scale-balanced', label:'Comparator' },
           { href:'irr-calc.html', icon:'fa-calculator', label:'IRR Calc' },
+          { href:'equity-multiple.html', icon:'fa-coins', label:'Equity Multiple' },
+          { href:'yield-converter.html', icon:'fa-arrow-right-arrow-left', label:'Yield Convert' },
+          { href:'dscr-calc.html', icon:'fa-shield-halved', label:'DSCR Calc' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
