@@ -6085,3 +6085,168 @@ html body button.dismiss:not(.sidebar button.dismiss) {
 html body .close-btn:hover { color: #1B1A19 !important; background: #EDEBE8 !important; }
 
 /* ─── END LIVE AUDIT FIXES ──────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BADGE SYSTEM — DEFINITIVE FINAL RULES (appended last, always wins)
+   Resolves conflicts from multiple prior fix passes.
+   
+   CONTEXT MAPPING:
+   - .badge-active      = investor is Active (green)
+   - .badge-verified    = accreditation Verified (green)
+   - .badge-inactive    = investor Inactive (neutral)
+   - .badge-pending     = accreditation Pending (amber)
+   - .badge-expired     = accreditation Expired (red)
+   - .badge-posted      = distribution Posted (green)
+   - .badge-draft       = distribution Draft (amber)
+   - .badge-operating   = deal status Operating (blue-green)
+   - .badge-raising     = deal status Raising Capital (purple)
+   - .badge-loi         = deal LOI stage (amber)
+   - .badge-closed      = deal Closed (neutral)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Investor status badges */
+html body .badge-active   { background: rgba(45,154,107,0.12) !important; color: #0F5C35 !important; border: none !important; }
+html body .badge-verified { background: rgba(45,154,107,0.12) !important; color: #0F5C35 !important; border: none !important; }
+html body .badge-inactive { background: rgba(107,101,96,0.12) !important; color: #4A4642 !important; border: none !important; }
+html body .badge-pending  { background: rgba(232,137,10,0.12) !important; color: #6B4000 !important; border: none !important; }
+html body .badge-expired  { background: rgba(217,79,61,0.12)  !important; color: #8C1F10 !important; border: none !important; }
+html body .badge-posted   { background: rgba(45,154,107,0.12) !important; color: #0F5C35 !important; border: none !important; }
+html body .badge-draft    { background: rgba(232,137,10,0.12) !important; color: #6B4000 !important; border: none !important; }
+
+/* Deal status badges */
+html body .badge-operating   { background: rgba(45,154,107,0.12)  !important; color: #0F5C35 !important; border: none !important; }
+html body .badge-raising,
+html body .badge-fundraising { background: rgba(123,92,196,0.12)  !important; color: #3D2080 !important; border: none !important; }
+html body .badge-loi,
+html body .badge-diligence,
+html body .badge-due-diligence { background: rgba(232,137,10,0.12) !important; color: #6B4000 !important; border: none !important; }
+html body .badge-closed,
+html body .badge-exited      { background: rgba(107,101,96,0.12)  !important; color: #4A4642 !important; border: none !important; }
+html body .badge-sourcing    { background: rgba(243,121,37,0.12)  !important; color: #7A3200 !important; border: none !important; }
+
+/* ─── END BADGE SYSTEM ──────────────────────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FINAL READABILITY SWEEP — 2026-03-08
+   Fixes: deal names invisible, capital-calls dark cards, deal-detail 
+   action cards, table headers, notice banner overlap, p color on light bg.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── TABLE CONTENT: deal/investor names must always be readable ──────────── */
+html body td div,
+html body td span:not(.badge):not([class*="badge"]),
+html body td .deal-name,
+html body td .investor-name,
+html body .deal-row .deal-title,
+html body .deal-list-name,
+html body tbody td:first-child div { color: #1B1A19 !important; }
+
+html body td .deal-location,
+html body td .investor-email,
+html body td .text-muted,
+html body td small,
+html body td [style*="font-size:11px"],
+html body td [style*="font-size: 11px"] { color: #6B6560 !important; }
+
+/* ── TABLE HEADERS ────────────────────────────────────────────────────────── */
+html body thead,
+html body thead tr { background: #F0EDEA !important; }
+html body thead th,
+html body th { 
+  color: #4A4642 !important; 
+  background: #F0EDEA !important;
+  border-bottom: 1px solid #E2DDD8 !important;
+}
+
+/* ── STAT / KPI CARDS — light theme always ───────────────────────────────── */
+html body .stat-card,
+html body .kpi-card,
+html body .kpi,
+html body .metric-card,
+html body .summary-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .stat-card .val,
+html body .stat-card .value,
+html body .stat-card .stat-value,
+html body .kpi-card .val,
+html body .kpi-card .kpi-value,
+html body .kpi-value { color: #1B1A19 !important; }
+
+html body .stat-card .lbl,
+html body .stat-card .label,
+html body .stat-card .stat-label,
+html body .kpi-card .label,
+html body .kpi-card .kpi-label,
+html body .kpi-label { color: #6B6560 !important; }
+
+/* Capital calls specific stat row */
+html body .stats-row .stat-card,
+html body .cc-stats .stat-card,
+html body [class*="stat-row"] .stat-card { background: #FFFFFF !important; }
+
+/* ── DEAL DETAIL: hero section & action cards ────────────────────────────── */
+/* Hero banner — keep intentionally dark */
+html body .deal-hero,
+html body .hero-banner,
+html body .deal-header-card { background: #1B1A19 !important; }
+html body .deal-hero *,
+html body .hero-banner *,
+html body .deal-header-card * { color: #F3F0ED !important; }
+
+/* Action cards — force light so labels show */
+html body .action-card,
+html body .quick-action,
+html body .action-grid .card,
+html body .actions-grid .card,
+html body .action-btn-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2DDD8 !important;
+  color: #1B1A19 !important;
+}
+html body .action-card span,
+html body .action-card p,
+html body .action-card label,
+html body .quick-action span,
+html body .quick-action p { color: #1B1A19 !important; }
+
+/* ── NOTICE BANNER — push content down, don't cover it ──────────────────── */
+html body #dt-notice-banner,
+html body .notice-banner,
+html body [id*="notice-banner"] {
+  position: relative !important;
+  top: auto !important;
+  z-index: 10 !important;
+}
+
+/* ── PARAGRAPH TEXT — never invisible ───────────────────────────────────── */
+/* sp-theme-institutional set p { color: #475569 } which is OK on white but
+   was being overridden. Ensure readable on all light surfaces. */
+html body main p,
+html body .content p,
+html body .card p,
+html body .modal p { color: #4A4642 !important; }
+
+/* ── FORM INPUTS — light theme ───────────────────────────────────────────── */
+html body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.sidebar input),
+html body select:not(.sidebar select),
+html body textarea:not(.sidebar textarea) {
+  background: #FFFFFF !important;
+  color: #1B1A19 !important;
+  border-color: #D4CFC9 !important;
+}
+html body input::placeholder,
+html body textarea::placeholder { color: #9C9590 !important; }
+
+/* ── DEAL TYPE / PROPERTY TYPE BADGES ───────────────────────────────────── */
+html body .badge-multifamily  { background: rgba(243,121,37,0.10) !important; color: #7A3200 !important; }
+html body .badge-industrial   { background: rgba(107,101,96,0.12) !important; color: #3D3A37 !important; }
+html body .badge-retail       { background: rgba(123,92,196,0.12) !important; color: #3D2080 !important; }
+html body .badge-hospitality  { background: rgba(232,137,10,0.12) !important; color: #6B4000 !important; }
+html body .badge-self-storage { background: rgba(45,154,107,0.12) !important; color: #0F5C35 !important; }
+html body .badge-office       { background: rgba(27,26,25,0.08)   !important; color: #3D3A37 !important; }
+html body .badge-mixed-use    { background: rgba(123,92,196,0.10) !important; color: #3D2080 !important; }
+
+/* ─── END FINAL READABILITY SWEEP ──────────────────────────────────────── */

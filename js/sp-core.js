@@ -844,7 +844,7 @@ window.SP = (function () {
     m.src = 'js/sp-math.js';
     m.onload = () => {
       const t = document.createElement('script');
-      t.src = 'js/sp-theme.js';
+      t.src = 'js/sp-theme.js?v=20260308';
       document.head.appendChild(t);
 
       const a = document.createElement('script');
@@ -877,7 +877,7 @@ window.SP = (function () {
 (function loadTheme() {
   if (typeof document === 'undefined') return;
   const s = document.createElement('script');
-  s.src = 'js/sp-theme.js';
+  s.src = 'js/sp-theme.js?v=20260308';
   document.head.appendChild(s);
 })();
 
@@ -906,13 +906,18 @@ window.SP = (function () {
     if (!dismissed && !document.getElementById('dt-notice-banner')) {
       const banner = document.createElement('div');
       banner.id = 'dt-notice-banner';
-      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1e293b;color:rgba(255,255,255,.85);padding:14px 24px;display:flex;align-items:center;gap:16px;z-index:9000;font-family:Inter,sans-serif;font-size:.8rem;box-shadow:0 -4px 20px rgba(0,0,0,.3);flex-wrap:wrap;';
+      banner.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#1B1A19;color:rgba(243,240,237,.85);padding:12px 24px;display:flex;align-items:center;gap:16px;z-index:9000;font-family:Inter,sans-serif;font-size:.78rem;box-shadow:0 -2px 12px rgba(27,26,25,.15);flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.1);';
       banner.innerHTML = `
         <div style="flex:1;min-width:200px;">
-          <strong style="color:white;">Notice:</strong> deeltrack is organizational software — not a broker-dealer or investment adviser. Generated documents require independent professional review.
-          <a href="disclaimer.html" style="color:#0ea5e9;margin-left:8px;">Full Disclaimer</a>
+          <strong style="color:#F3F0ED;">Notice:</strong> deeltrack is organizational software — not a broker-dealer or investment adviser. Generated documents require independent professional review.
+          <a href="disclaimer.html" style="color:#F37925;margin-left:8px;text-decoration:none;">Full Disclaimer</a>
         </div>
-        <button onclick="localStorage.setItem('dt_notice_dismissed','1');document.getElementById('dt-notice-banner').remove()" style="background:#3b82f6;color:white;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600;white-space:nowrap;flex-shrink:0;">Got it</button>`;
+        <button onclick="localStorage.setItem('dt_notice_dismissed','1');document.getElementById('dt-notice-banner').remove();document.body.style.paddingBottom=''" style="background:#F37925;color:white;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.78rem;font-weight:600;white-space:nowrap;flex-shrink:0;">Got it</button>`;
+      // Add bottom padding so content isn't hidden behind the banner
+      setTimeout(() => {
+        const h = banner.offsetHeight;
+        if (h > 0) document.body.style.paddingBottom = h + 'px';
+      }, 100);
       document.body.appendChild(banner);
     }
   });

@@ -314,41 +314,41 @@ function render() {
         <div class="deal-metric"><div class="val">${deal.irr?deal.irr.toFixed(1)+'%':'—'}</div><div class="lbl">Target IRR</div></div>
         <div class="deal-metric"><div class="val">${deal.equity?deal.equity.toFixed(2)+'x':'—'}</div><div class="lbl">Equity Multiple</div></div>
         <div class="deal-metric"><div class="val">${linked.length}</div><div class="lbl">Investors</div></div>
-        <div class="deal-metric"><div class="val" style="color:#34d399;">${fmt$(totalDist)}</div><div class="lbl">Distributed</div></div>
+        <div class="deal-metric"><div class="val" style="color:#0F5C35;">${fmt$(totalDist)}</div><div class="lbl">Distributed</div></div>
       </div>
     </div>
 
     <!-- ── DEAL ACTIONS — what do you want to do? ─────────────────────── -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:22px;">
-      <button onclick="openAddInvModal()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;font-family:inherit;" onmouseover="this.style.borderColor='#0ea5e9';this.style.background='rgba(14,165,233,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <button onclick="openAddInvModal()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;font-family:inherit;" onmouseover="this.style.borderColor='#0ea5e9';this.style.background='rgba(14,165,233,0.07)'" onmouseout="this.style.borderColor='#E2DDD8';this.style.background='#FFFFFF'">
         <div style="width:40px;height:40px;background:rgba(14,165,233,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#38bdf8;"><i class="fas fa-user-plus"></i></div>
         <span style="font-size:13px;font-weight:700;">Add Investor</span>
-        <span style="font-size:11px;color:#94A3B8;text-align:center;">Link an LP to this deal</span>
+        <span style="font-size:11px;color:#6B6560;text-align:center;">Link an LP to this deal</span>
       </button>
-      <a href="distribution-calc.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#10b981';this.style.background='rgba(16,185,129,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <a href="distribution-calc.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#10b981';this.style.background='rgba(16,185,129,0.07)'" onmouseout="this.style.borderColor='#E2DDD8';this.style.background='#FFFFFF'">
         <div style="width:40px;height:40px;background:rgba(16,185,129,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#34d399;"><i class="fas fa-bolt"></i></div>
         <span style="font-size:13px;font-weight:700;">Run Distribution</span>
-        <span style="font-size:11px;color:#94A3B8;text-align:center;">Calculate &amp; pay investors</span>
+        <span style="font-size:11px;color:#6B6560;text-align:center;">Calculate &amp; pay investors</span>
       </a>
-      <a href="capital-calls.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#f59e0b';this.style.background='rgba(245,158,11,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <a href="capital-calls.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#f59e0b';this.style.background='rgba(245,158,11,0.07)'" onmouseout="this.style.borderColor='#E2DDD8';this.style.background='#FFFFFF'">
         <div style="width:40px;height:40px;background:rgba(245,158,11,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fbbf24;"><i class="fas fa-hand-holding-usd"></i></div>
         <span style="font-size:13px;font-weight:700;">Capital Call</span>
-        <span style="font-size:11px;color:#94A3B8;text-align:center;">Request funds from LPs</span>
+        <span style="font-size:11px;color:#6B6560;text-align:center;">Request funds from LPs</span>
       </a>
-      <a href="deal-room.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#8b5cf6';this.style.background='rgba(139,92,246,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <a href="deal-room.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#8b5cf6';this.style.background='rgba(139,92,246,0.07)'" onmouseout="this.style.borderColor='#E2DDD8';this.style.background='#FFFFFF'">
         <div style="width:40px;height:40px;background:rgba(139,92,246,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#a78bfa;"><i class="fas fa-folder-open"></i></div>
         <span style="font-size:13px;font-weight:700;">Deal Room</span>
-        <span style="font-size:11px;color:#94A3B8;text-align:center;">Upload &amp; share documents</span>
+        <span style="font-size:11px;color:#6B6560;text-align:center;">Upload &amp; share documents</span>
       </a>
-      <a href="k1-generator.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <a href="k1-generator.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#E2DDD8';this.style.background='#FFFFFF'">
         <div style="width:40px;height:40px;background:rgba(148,163,184,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#6B6560;"><i class="fas fa-file-invoice-dollar"></i></div>
         <span style="font-size:13px;font-weight:700;">Generate K-1s</span>
-        <span style="font-size:11px;color:#94A3B8;text-align:center;">Tax reports for LPs</span>
+        <span style="font-size:11px;color:#6B6560;text-align:center;">Tax reports for LPs</span>
       </a>
-      <a href="new-deal.html?id=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#111827;border:1px solid #1E293B;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#1E293B';this.style.background='#111827'">
+      <a href="new-deal.html?id=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#94a3b8';this.style.background='rgba(148,163,184,0.07)'" onmouseout="this.style.borderColor='#E2DDD8';this.style.background='#FFFFFF'">
         <div style="width:40px;height:40px;background:rgba(148,163,184,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#6B6560;"><i class="fas fa-calculator"></i></div>
         <span style="font-size:13px;font-weight:700;">Model / Edit</span>
-        <span style="font-size:11px;color:#94A3B8;text-align:center;">Update deal structure</span>
+        <span style="font-size:11px;color:#6B6560;text-align:center;">Update deal structure</span>
       </a>
     </div>
 
