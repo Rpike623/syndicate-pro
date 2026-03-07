@@ -887,7 +887,7 @@ window.SP = (function () {
       banner.innerHTML = `
         <div style="flex:1;min-width:200px;">
           <strong style="color:white;">Notice:</strong> deeltrack is organizational software — not a broker-dealer or investment adviser. Generated documents require independent professional review.
-          <a href="disclaimer.html" style="color:#60a5fa;margin-left:8px;">Full Disclaimer</a>
+          <a href="disclaimer.html" style="color:#0ea5e9;margin-left:8px;">Full Disclaimer</a>
         </div>
         <button onclick="localStorage.setItem('dt_notice_dismissed','1');document.getElementById('dt-notice-banner').remove()" style="background:#3b82f6;color:white;border:none;padding:8px 18px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.8rem;font-weight:600;white-space:nowrap;flex-shrink:0;">Got it</button>`;
       document.body.appendChild(banner);
@@ -990,13 +990,8 @@ window.SP = (function () {
       if (logoEl) {
         const href = logoEl.getAttribute('href') || 'dashboard.html';
         logoEl.outerHTML = `<a href="${href}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="34" height="34" style="flex-shrink:0;">
-            <circle cx="16" cy="16" r="15" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
-            <circle cx="16" cy="16" r="15" fill="none" stroke="#3b82f6" stroke-width="1.5"/>
-            <rect x="7" y="5" width="3.5" height="22" rx="1.5" fill="#3b82f6"/>
-            <path d="M 13 11 L 23 16 L 13 21" stroke="#3b82f6" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.3px;">deel<span style="color:#60a5fa;">track</span></span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="34" height="34" style="flex-shrink:0;"><defs><linearGradient id="sgl1" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><linearGradient id="sgl2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9" opacity="0.9"/><stop offset="100%" stop-color="#0369a1" opacity="0.9"/></linearGradient></defs><g transform="translate(4,0)"><circle cx="12" cy="18" r="10" fill="none" stroke="url(#sgl2)" stroke-width="4"/><path d="M 22 4 L 22 32" stroke="url(#sgl1)" stroke-width="5" stroke-linecap="round"/></g></svg>
+          <span style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.3px;">deel<span style="color:#0ea5e9;">track</span></span>
         </a>`;
       }
     } else {
@@ -1006,12 +1001,8 @@ window.SP = (function () {
         const header = document.createElement('div');
         header.className = 'sidebar-header';
         header.innerHTML = `<a href="dashboard.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="34" height="34" style="flex-shrink:0;">
-            <circle cx="16" cy="16" r="15" fill="#1e3a5f" stroke="#3b82f6" stroke-width="1.5"/>
-            <rect x="7" y="5" width="3.5" height="22" rx="1.5" fill="#3b82f6"/>
-            <path d="M 13 11 L 23 16 L 13 21" stroke="#3b82f6" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.3px;">deel<span style="color:#60a5fa;">track</span></span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="34" height="34" style="flex-shrink:0;"><defs><linearGradient id="sgl1" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><linearGradient id="sgl2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9" opacity="0.9"/><stop offset="100%" stop-color="#0369a1" opacity="0.9"/></linearGradient></defs><g transform="translate(4,0)"><circle cx="12" cy="18" r="10" fill="none" stroke="url(#sgl2)" stroke-width="4"/><path d="M 22 4 L 22 32" stroke="url(#sgl1)" stroke-width="5" stroke-linecap="round"/></g></svg>
+          <span style="font-size:1.2rem;font-weight:700;color:white;letter-spacing:-0.3px;">deel<span style="color:#0ea5e9;">track</span></span>
         </a>`;
         const innerNav = document.createElement('nav');
         innerNav.className = 'nav';
@@ -1036,12 +1027,8 @@ window.SP = (function () {
         const hdr = document.createElement('div');
         hdr.className = 'sidebar-header';
         hdr.innerHTML = `<a href="dashboard.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" style="flex-shrink:0;">
-            <circle cx="16" cy="16" r="16" fill="#1e3a5f"/>
-            <rect x="7" y="5" width="3.5" height="22" rx="1.75" fill="#6366f1"/>
-            <path d="M 13 11 L 23 16 L 13 21" stroke="#818cf8" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span style="font-size:1.15rem;font-weight:800;color:white;letter-spacing:-0.02em;">deel<span style="color:#818cf8;">track</span></span>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="32" height="32" style="flex-shrink:0;"><defs><linearGradient id="sgl1b" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0284c7"/><stop offset="100%" stop-color="#38bdf8"/></linearGradient><linearGradient id="sgl2b" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0ea5e9" opacity="0.9"/><stop offset="100%" stop-color="#0369a1" opacity="0.9"/></linearGradient></defs><g transform="translate(4,0)"><circle cx="12" cy="18" r="10" fill="none" stroke="url(#sgl2b)" stroke-width="4"/><path d="M 22 4 L 22 32" stroke="url(#sgl1b)" stroke-width="5" stroke-linecap="round"/></g></svg>
+          <span style="font-size:1.15rem;font-weight:800;color:white;letter-spacing:-0.02em;">deel<span style="color:#0ea5e9;">track</span></span>
         </a>`;
         sb.insertBefore(hdr, sb.firstChild);
       }

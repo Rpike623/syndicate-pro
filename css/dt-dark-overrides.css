@@ -1,104 +1,165 @@
-/* Deeltrack Dark Mode Overrides - Applied globally via shared stylesheet inject */
+/*
+ * dt-dark-overrides.css — Deeltrack Dark Mode System
+ * Loaded AFTER dt-global.css via sp-core.js injection.
+ * All rules use !important to beat per-page inline :root definitions.
+ */
+
+/* ── Design Tokens ──────────────────────────────────────────────────────── */
 :root {
-  /* Core Colors */
   --primary: #0f172a !important;
-  --primary-light: #1e293b !important; 
+  --primary-light: #1e293b !important;
   --secondary: #334155 !important;
-  
-  /* Accent from splash - Electric blue/teal */
-  --accent: #0ea5e9 !important; 
+
+  --accent: #0ea5e9 !important;
   --accent-hover: #0284c7 !important;
-  --accent-light: rgba(14, 165, 233, 0.15) !important;
-  
+  --accent-light: rgba(14,165,233,0.12) !important;
+
   --success: #10b981 !important;
-  --success-light: rgba(16, 185, 129, 0.15) !important;
+  --success-light: rgba(16,185,129,0.12) !important;
   --warning: #f59e0b !important;
-  --warning-light: rgba(245, 158, 11, 0.15) !important;
+  --warning-light: rgba(245,158,11,0.12) !important;
   --danger: #ef4444 !important;
-  --danger-light: rgba(239, 68, 68, 0.15) !important;
+  --danger-light: rgba(239,68,68,0.12) !important;
   --purple: #8b5cf6 !important;
-  --purple-light: rgba(139, 92, 246, 0.15) !important;
-  
-  /* HIGH CONTRAST TEXT & Backgrounds */
-  --text: #ffffff !important; 
-  --text-secondary: #cbd5e1 !important; /* Lighter gray for readability */
-  --text-muted: #94a3b8 !important; /* Ensure minimum contrast */
-  
+  --purple-light: rgba(139,92,246,0.12) !important;
+
+  /* Text — WHITE primary, light gray secondary, medium gray muted */
+  --text: #F1F5F9 !important;
+  --text-secondary: #CBD5E1 !important;
+  --text-muted: #94A3B8 !important;
+
+  /* Borders — visible on dark backgrounds */
   --border: #334155 !important;
-  --border-light: rgba(255, 255, 255, 0.1) !important;
-  
-  --bg: #090e1a !important;     /* Deep navy black */
-  --bg-card: #151e32 !important; /* Distinctly lighter than bg but still dark */
-  --bg-sidebar: #0f172a !important;
+  --border-light: rgba(255,255,255,0.08) !important;
+
+  /* Backgrounds — layered for depth */
+  --bg: #0B1120 !important;
+  --bg-card: #111827 !important;
+  --bg-sidebar: #0a0f1e !important;
 }
 
-/* Global resets for pages that use generic names */
-body, .app, .main {
+/* ── Global text & background ─────────────────────────────────────────── */
+body {
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+}
+.app, .main, main {
   background-color: var(--bg) !important;
   color: var(--text) !important;
 }
 
-/* Base Cards */
-.card, .glass-card, .kpi-card, .info-card, .dashboard-card, 
-.panel, .modal, .box {
+/* ── Top bar ──────────────────────────────────────────────────────────── */
+.top-bar, .dt-header, .page-header {
+  background: #0f172a !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* ── Cards & Panels ───────────────────────────────────────────────────── */
+.card, .kpi-card, .info-card, .dashboard-card, .panel, .box,
+.glass-card, .lender-card, .pipeline-card {
   background-color: var(--bg-card) !important;
   border: 1px solid var(--border) !important;
   color: var(--text) !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Tables */
+/* ── Tables ───────────────────────────────────────────────────────────── */
 table { color: var(--text) !important; }
 th {
   background-color: #1e293b !important;
   border-bottom: 2px solid var(--border) !important;
-  color: #f8fafc !important; /* Brightest for headers */
-  font-weight: 700 !important;
+  color: #E2E8F0 !important;
 }
-td { border-bottom: 1px solid var(--border) !important; color: #e2e8f0 !important; }
-tr:hover td { background-color: rgba(14, 165, 233, 0.1) !important; color: #ffffff !important; }
+td {
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+  color: #E2E8F0 !important;
+}
+tr:hover td {
+  background-color: rgba(14,165,233,0.06) !important;
+}
 
-/* Buttons */
+/* ── Forms ─────────────────────────────────────────────────────────────── */
+input:not([type="checkbox"]):not([type="radio"]),
+select, textarea, .form-control {
+  background-color: #0f172a !important;
+  border: 1px solid var(--border) !important;
+  color: #F1F5F9 !important;
+}
+input::placeholder, textarea::placeholder {
+  color: #94A3B8 !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.15) !important;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
 .btn-primary, button.btn-primary, a.btn-primary {
   background: linear-gradient(135deg, #0ea5e9, #0369a1) !important;
   border: none !important;
   color: #ffffff !important;
-  font-weight: 600 !important;
 }
 .btn-primary:hover {
   background: linear-gradient(135deg, #38bdf8, #0284c7) !important;
-  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(14,165,233,0.3) !important;
 }
-
 .btn-secondary {
   background-color: #1e293b !important;
-  border: 1px solid #475569 !important;
-  color: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  color: #E2E8F0 !important;
 }
-.btn-secondary:hover { background-color: #334155 !important; border-color: var(--accent) !important; }
+.btn-secondary:hover {
+  background-color: #334155 !important;
+  border-color: var(--accent) !important;
+}
 
-/* Tabs */
+/* ── Tabs ──────────────────────────────────────────────────────────────── */
 .tabs { border-bottom: 2px solid var(--border) !important; }
-.tab { color: #cbd5e1 !important; font-weight: 600 !important; }
+.tab { color: #CBD5E1 !important; }
 .tab:hover { color: #ffffff !important; }
-.tab.active { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
-
-/* Inputs */
-input, select, textarea, .form-control {
-  background-color: #0f172a !important;
-  border: 1px solid #475569 !important;
-  color: #ffffff !important;
+.tab.active {
+  color: var(--accent) !important;
+  border-bottom-color: var(--accent) !important;
 }
-input::placeholder, textarea::placeholder { color: #94a3b8 !important; }
 
-/* Links and General Text Overrides */
-a { color: #38bdf8 !important; }
-a:hover { color: #7dd3fc !important; }
-h1, h2, h3, h4, h5, h6 { color: #ffffff !important; }
+/* ── Headings ─────────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 { color: #F1F5F9 !important; }
 
-/* Extreme Overrides for gray-on-gray */
-.text-gray-400, .text-gray-500, .text-gray-600 { color: #e2e8f0 !important; }
-.text-muted, .text-secondary { color: #cbd5e1 !important; }
-.text-gray-900, .text-gray-800, .text-gray-700 { color: #ffffff !important; }
-.bg-gray-100, .bg-gray-50, .bg-white { background-color: var(--bg-card) !important; }
+/* ── Links ────────────────────────────────────────────────────────────── */
+a:not(.nav-item):not(.btn):not(.btn-primary):not(.btn-secondary):not(.tab) {
+  color: #38bdf8 !important;
+}
+
+/* ── Modals ───────────────────────────────────────────────────────────── */
+.modal-overlay {
+  background: rgba(0,0,0,0.7) !important;
+  backdrop-filter: blur(4px) !important;
+}
+.modal {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* ── Badges (status indicators with text) ─────────────────────────────── */
+.badge { font-weight: 600 !important; }
+.badge-mf, .badge-ind, .badge-ret, .badge-off { color: inherit !important; }
+
+/* ── Content section backgrounds ──────────────────────────────────────── */
+.content { background-color: transparent !important; }
+
+/* ── Override leaky light-mode utility classes ─────────────────────────── */
+.bg-white { background-color: var(--bg-card) !important; }
+.bg-gray-50, .bg-gray-100 { background-color: #0f172a !important; }
+.text-gray-900 { color: #F1F5F9 !important; }
+.text-gray-800 { color: #F1F5F9 !important; }
+.text-gray-700 { color: #E2E8F0 !important; }
+.text-gray-600 { color: #CBD5E1 !important; }
+.text-gray-500 { color: #CBD5E1 !important; }
+.text-gray-400 { color: #CBD5E1 !important; }
+.text-muted { color: #94A3B8 !important; }
+.text-secondary { color: #CBD5E1 !important; }
 .border-gray-200, .border-gray-300 { border-color: var(--border) !important; }
+
+/* ── Sidebar link override to NOT be affected by generic a{} rule ────── */
+.sidebar a, #sidebar a { color: inherit !important; }
