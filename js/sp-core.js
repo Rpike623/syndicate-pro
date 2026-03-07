@@ -1170,6 +1170,9 @@ window.SP = (function () {
           { href:'opex-benchmark.html', icon:'fa-balance-scale', label:'OpEx Benchmark' },
           { href:'rent-escalator.html', icon:'fa-arrow-trend-up', label:'Rent Escalator' },
           { href:'sf-analyzer.html', icon:'fa-ruler-combined', label:'SF Analyzer' },
+          { href:'exit-strategy.html', icon:'fa-door-open', label:'Exit Strategy' },
+          { href:'refinance-calc.html', icon:'fa-house-medical', label:'Refinance' },
+          { href:'investor-roi.html', icon:'fa-percent', label:'Investor ROI' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
