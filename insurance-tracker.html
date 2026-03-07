@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insurance Tracker | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-shield-alt"></i> Insurance Tracker</h1>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="card-header">
+          <h2>Add Policy</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label>Property</label><input type="text" id="itProperty" class="form-input" placeholder="Property name or address"></div>
+            <div class="form-group"><label>Policy Type</label><select id="itType" class="form-input">
+              <option value="Property">Property</option>
+              <option value="Liability">Liability</option>
+              <option value="Flood">Flood</option>
+              <option value="Wind/Hurricane">Wind/Hurricane</option>
+              <option value="Umbrella">Umbrella</option>
+              <option value="D&O">D&O</option>
+              <option value="E&O">E&O</option>
+            </select></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Carrier</label><input type="text" id="itCarrier" class="form-input" placeholder="Insurance company"></div>
+            <div class="form-group"><label>Policy Number</label><input type="text" id="itPolicyNum" class="form-input" placeholder="POL-XXXXX"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Premium ($)</label><input type="number" id="itPremium" class="form-input" value="2500"></div>
+            <div class="form-group"><label>Coverage ($)</label><input type="number" id="itCoverage" class="form-input" value="500000"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Start Date</label><input type="date" id="itStart" class="form-input"></div>
+            <div class="form-group"><label>Renewal Date</label><input type="date" id="itRenewal" class="form-input"></div>
+          </div>
+          <div style="margin-top:16px;"><button class="btn btn-primary" onclick="InsuranceTracker.add()"><i class="fas fa-plus"></i> Add Policy</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h2>Policy Summary</h2>
+        </div>
+        <div class="card-body">
+          <div class="result-row"><span>Total Policies</span><strong id="itTotalPolicies">0</strong></div>
+          <div class="result-row"><span>Total Premium (Annual)</span><strong id="itTotalPremium">$0</strong></div>
+          <div class="result-row"><span>Expiring in 30 Days</span><strong id="itExpiringSoon" class="text-warning">0</strong></div>
+          <div class="result-row"><span>Total Coverage</span><strong id="itTotalCoverage">$0</strong></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h2>Policies</h2>
+        </div>
+        <div class="card-body">
+          <div class="data-table-wrapper">
+            <table class="data-table" id="itTable">
+              <thead>
+                <tr><th>Property</th><th>Type</th><th>Carrier</th><th>Premium</th><th>Renewal</th><th>Days</th><th>Action</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}InsuranceTracker.init();}</script>
+  <script src="js/sp-insurance-tracker.js"></script>
+</body>
+</html>

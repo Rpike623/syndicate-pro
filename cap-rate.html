@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cap Rate Calculator | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-percent"></i> Cap Rate Calculator</h1>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="card-header"><h2>Property Information</h2></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label>Purchase Price ($)</label><input type="number" id="crPrice" class="form-input" value="500000" oninput="CapRateCalc.calc()"></div>
+            <div class="form-group"><label>Gross Operating Income (Annual $)</label><input type="number" id="crGross" class="form-input" value="60000" oninput="CapRateCalc.calc()"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Operating Expenses (Annual $)</label><input type="number" id="crExpenses" class="form-input" value="18000" oninput="CapRateCalc.calc()"></div>
+            <div class="form-group"><label>Vacancy Rate (%)</label><input type="number" id="crVacancy" class="form-input" value="5" oninput="CapRateCalc.calc()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Results</h2></div>
+        <div class="card-body">
+          <div class="result-row"><span>Net Operating Income (NOI)</span><strong id="crNOI">$0</strong></div>
+          <div class="result-row"><span>Cap Rate</span><strong id="crCapRate">0%</strong></div>
+          <div class="result-row"><span>Effective Gross Income</span><strong id="crEGI">$0</strong></div>
+          <div class="result-row"><span>Operating Expense Ratio</span><strong id="crOER">0%</strong></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Quick Valuation</h2></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label>Target Cap Rate (%)</label><input type="number" id="crTarget" class="form-input" value="6" step="0.25" oninput="CapRateCalc.valuation()"></div>
+          </div>
+          <div class="result-row"><span>Implied Value at Target Cap Rate</span><strong id="crValue">$0</strong></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}CapRateCalc.init();}</script>
+  <script src="js/sp-cap-rate.js"></script>
+</body>
+</html>

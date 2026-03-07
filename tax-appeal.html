@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Property Tax Appeal | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-gavel"></i> Property Tax Appeal</h1>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="card-header"><h2>Property Information</h2></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label>Property Address</label><input type="text" id="taAddress" class="form-input" placeholder="123 Main St, City, ST"></div>
+            <div class="form-group"><label>Assessed Value ($)</label><input type="number" id="taAssessed" class="form-input" value="350000" oninput="TaxAppeal.calc()"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Market Value Estimate ($)</label><input type="number" id="taMarket" class="form-input" value="300000" oninput="TaxAppeal.calc()"></div>
+            <div class="form-group"><label>Tax Rate ($ per $1000)</label><input type="number" id="taRate" class="form-input" value="2.5" step="0.1" oninput="TaxAppeal.calc()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Assessment Analysis</h2></div>
+        <div class="card-body">
+          <div class="result-row"><span>Current Annual Tax</span><strong id="taCurrentTax">$0</strong></div>
+          <div class="result-row"><span>Fair Market Value Tax</span><strong id="taFairTax">$0</strong></div>
+          <div class="result-row"><span>Assessment Ratio</span><strong id="taRatio">0%</strong></div>
+          <div class="result-row"><span>Potential Tax Savings</span><strong id="taSavings" class="text-success">$0</strong></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Appeal Strategy</h2></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label>Comp Sales (last 12 months)</label><input type="number" id="taComps" class="form-input" value="3" oninput="TaxAppeal.strategy()"></div>
+            <div class="form-group"><label>Avg Comp Price ($)</label><input type="number" id="taAvgComp" class="form-input" value="290000" oninput="TaxAppeal.strategy()"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Comparable Sq Ft</label><input type="number" id="taCompSqft" class="form-input" value="1900" oninput="TaxAppeal.strategy()"></div>
+            <div class="form-group"><label>Subject Sq Ft</label><input type="number" id="taSubjectSqft" class="form-input" value="2000" oninput="TaxAppeal.strategy()"></div>
+          </div>
+          <div class="result-row" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);"><span>Recommended Appeal Value</span><strong id="taRecommend" class="text-accent">$0</strong></div>
+          <div class="result-row"><span>Appeal Success Range</span><strong id="taRange">$0 - $0</strong></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Checklist</h2></div>
+        <div class="card-body">
+          <div class="checklist"><label><input type="checkbox" id="taCheck1"><span>Pull county assessment data</span></label></div>
+          <div class="checklist"><label><input type="checkbox" id="taCheck2"><span>Collect comparable sales (last 24 months)</span></label></div>
+          <div class="checklist"><label><input type="checkbox" id="taCheck3"><span>Get professional appraisal ($400-600)</span></label></div>
+          <div class="checklist"><label><input type="checkbox" id="taCheck4"><span>Document property condition issues</span></label></div>
+          <div class="checklist"><label><input type="checkbox" id="taCheck5"><span>Check for exemption eligibility</span></label></div>
+          <div class="checklist"><label><input type="checkbox" id="taCheck6"><span>File appeal before deadline</span></label></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}TaxAppeal.init();}</script>
+  <script src="js/sp-tax-appeal.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amortization Calculator | Deeltrack</title>
+  <script src="js/sp-core.js"></script>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-calendar-alt"></i> Amortization Calculator</h1>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="card-header"><h2>Loan Details</h2></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label>Loan Amount ($)</label><input type="number" id="amLoanAmount" class="form-input" value="300000" oninput="AmortizationCalc.calc()"></div>
+            <div class="form-group"><label>Annual Interest Rate (%)</label><input type="number" id="amRate" class="form-input" value="6.5" step="0.125" oninput="AmortizationCalc.calc()"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Loan Term (Years)</label><input type="number" id="amTerm" class="form-input" value="30" oninput="AmortizationCalc.calc()"></div>
+            <div class="form-group"><label>Down Payment ($)</label><input type="number" id="amDown" class="form-input" value="60000" oninput="AmortizationCalc.calc()"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Summary</h2></div>
+        <div class="card-body">
+          <div class="result-row"><span>Monthly Payment</span><strong id="amMonthly">$0</strong></div>
+          <div class="result-row"><span>Total Interest</span><strong id="amTotalInterest">$0</strong></div>
+          <div class="result-row"><span>Total Cost</span><strong id="amTotalCost">$0</strong></div>
+          <div class="result-row"><span>Total Purchase Price</span><strong id="amTotalPrice">$0</strong></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Amortization Schedule</h2></div>
+        <div class="card-body">
+          <div class="data-table-wrapper">
+            <table class="data-table" id="amSchedule">
+              <thead>
+                <tr><th>#</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}AmortizationCalc.init();}</script>
+  <script src="js/sp-amortization.js"></script>
+</body>
+</html>

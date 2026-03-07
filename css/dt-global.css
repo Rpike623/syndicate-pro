@@ -1002,6 +1002,15 @@ input:focus, select:focus, textarea:focus {
 
 .text-success { color: var(--dt-success) !important; }
 .text-danger { color: var(--dt-danger) !important; }
+.text-warning { color: var(--dt-warning) !important; }
+.text-accent { color: var(--dt-accent) !important; }
+
+.result-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--dt-border); }
+.result-row:last-child { border-bottom: none; }
+
+.checklist { padding: 8px 0; }
+.checklist label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.checklist input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--dt-accent); }
 
 @media (max-width: 768px) {
   .pnl-grid {
