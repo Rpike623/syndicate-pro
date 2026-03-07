@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Kill any service worker immediately before anything else loads -->
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if(window.caches)caches.keys().then(k=>k.forEach(c=>caches.delete(c)));}</script>
-  <title>Capital Calls — deeltrack</title>
+  <title>deeltrack | Capital Calls </title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -105,7 +106,7 @@
 </head>
 <body>
   <div class="app"><aside class="sidebar" id="sidebar"></aside>
-      <div class="sidebar-header"><div class="logo"><div class="logo-icon">◆</div><span>deeltrack</span></div></div>
+      <div class="sidebar-header"><div class="logo"><img src="assets/logo-icon.svg" width="36" height="36" alt="dl"><span>deel<span style="color:#0ea5e9;">track</span></span></div></div>
     <nav class="nav"></nav>
       <div class="sidebar-footer"><div class="user-info"><div class="user-avatar">GP</div><div class="user-details"><div class="user-name">General Partner</div><div class="user-role">Administrator</div></div></div></div>
     </aside>

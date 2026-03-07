@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack — Deal Detail</title>
+  <title>deeltrack | Deal Detail</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -518,6 +519,7 @@ function printOA() {
   const html = deal.generatedOA || '';
   const w = window.open('', '_blank');
   w.document.write(`<!DOCTYPE html><html><head><title>${deal.name} — Operating Agreement</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}
     h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style></head><body>${html}</body></html>`);
   w.document.close();
@@ -689,6 +691,7 @@ function printSubDoc(contentId) {
   if (!content) return;
   const w = window.open('', '_blank');
   w.document.write(`<!DOCTYPE html><html><head><title>Subscription Agreement</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}
     h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style></head><body>${content}</body></html>`);
   w.document.close();
@@ -745,6 +748,7 @@ function sendSubDoc(investorId) {
 
   // Generate printable sub doc
   const subDocHtml = `<!DOCTYPE html><html><head><style>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:40px;line-height:1.7;}
     h1{font-size:1.4rem;text-align:center;text-transform:uppercase;margin-bottom:4px;}
     .subtitle{text-align:center;color:#94a3b8;margin-bottom:40px;}

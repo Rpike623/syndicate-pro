@@ -1,0 +1,25 @@
+<!-- 
+CONCEPT 1: "The Capital Flow" (Deployed Concept)
+This concept uses overlapping geometric shapes (layers/bars) representing the tranches/waterfall of a deal and the flow of capital.
+The three layered vertical elements convey structured finance and multi-tier distribution networks building up, which is exactly what a syndicator does. It uses the established electric teal/blue gradients.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" width="200" height="48">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+  </defs>
+  <!-- Icon: Overlapping structured bars -->
+  <g transform="translate(0, 8)">
+    <rect x="0" y="16" width="8" height="16" rx="4" fill="url(#grad1)" />
+    <rect x="12" y="8" width="8" height="24" rx="4" fill="url(#grad2)" />
+    <rect x="24" y="0" width="8" height="32" rx="4" fill="url(#grad1)" opacity="0.8" />
+  </g>
+  <!-- Wordmark -->
+  <text x="44" y="34" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="28" font-weight="700" fill="#F8FAFC" letter-spacing="-0.5">deel<tspan fill="#38bdf8">track</tspan></text>
+</svg>

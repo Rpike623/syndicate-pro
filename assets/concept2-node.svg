@@ -1,0 +1,22 @@
+<!-- 
+CONCEPT 2: "The Network/Node" (Alternative)
+This concept visualizes the GP as the central node connecting multiple LPs and deals. It uses connected dots in a network graph topology. Very abstract, clean, data-oriented.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" width="200" height="48">
+  <defs>
+    <linearGradient id="gradNode" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+  </defs>
+  <!-- Icon: Abstract Network -->
+  <g transform="translate(6, 8)">
+    <circle cx="16" cy="16" r="8" fill="url(#gradNode)" />
+    <circle cx="4" cy="4" r="4" fill="#0ea5e9" opacity="0.6" />
+    <circle cx="4" cy="28" r="4" fill="#0ea5e9" opacity="0.6" />
+    <circle cx="28" cy="8" r="4" fill="#0ea5e9" opacity="0.8" />
+    <path d="M7 6L13 13 M6 26L12 19 M25 9L19 14" stroke="#e2e8f0" stroke-width="1.5" stroke-linecap="round" opacity="0.3" />
+  </g>
+  <!-- Wordmark -->
+  <text x="48" y="34" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="28" font-weight="700" fill="#F8FAFC" letter-spacing="-0.5">deel<tspan fill="#38bdf8">track</tspan></text>
+</svg>
