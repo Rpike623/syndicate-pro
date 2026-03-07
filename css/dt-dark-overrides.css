@@ -1,6 +1,6 @@
 /* Deeltrack Dark Mode Overrides - Applied globally via shared stylesheet inject */
 :root {
-  /* Core Colors overriding local root definitions in many files */
+  /* Core Colors */
   --primary: #0f172a !important;
   --primary-light: #1e293b !important; 
   --secondary: #334155 !important;
@@ -19,150 +19,86 @@
   --purple: #8b5cf6 !important;
   --purple-light: rgba(139, 92, 246, 0.15) !important;
   
-  /* Texts & Backgrounds */
-  --text: #F8FAFC !important;
-  --text-secondary: #94A3B8 !important;
-  --text-muted: #64748B !important;
+  /* HIGH CONTRAST TEXT & Backgrounds */
+  --text: #ffffff !important; 
+  --text-secondary: #cbd5e1 !important; /* Lighter gray for readability */
+  --text-muted: #94a3b8 !important; /* Ensure minimum contrast */
   
-  --border: #1E293B !important;
-  --border-light: rgba(255, 255, 255, 0.05) !important;
+  --border: #334155 !important;
+  --border-light: rgba(255, 255, 255, 0.1) !important;
   
-  --bg: #0B1120 !important;
-  --bg-card: #111827 !important;
-  --bg-sidebar: #050811 !important;
+  --bg: #090e1a !important;     /* Deep navy black */
+  --bg-card: #151e32 !important; /* Distinctly lighter than bg but still dark */
+  --bg-sidebar: #0f172a !important;
 }
 
 /* Global resets for pages that use generic names */
 body, .app, .main {
-  background-color: #0B1120 !important;
-  color: #F8FAFC !important;
-}
-
-.top-bar, .dt-header {
-  background: rgba(11, 17, 32, 0.85) !important;
-  backdrop-filter: blur(12px) !important;
-  border-bottom: 1px solid #1E293B !important;
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
 }
 
 /* Base Cards */
 .card, .glass-card, .kpi-card, .info-card, .dashboard-card, 
 .panel, .modal, .box {
-  background-color: #111827 !important;
-  border: 1px solid #1E293B !important;
-  color: #F8FAFC !important;
-  box-shadow: 0 10px 40px -10px rgba(14, 165, 233, 0.15) !important;
-}
-
-/* Hover effect from splash */
-.card:hover, .lender-card:hover, .deal-card:hover, .pipeline-card:hover {
-  border-color: var(--accent) !important;
-  box-shadow: 0 10px 40px -10px rgba(14, 165, 233, 0.15) !important;
-}
-
-/* Forms & Inputs */
-input, select, textarea, .form-control {
-  background-color: #0B1120 !important;
-  border: 1px solid #1E293B !important;
-  color: #F8FAFC !important;
-}
-
-input:focus, select:focus, textarea:focus, .form-control:focus {
-  border-color: var(--accent) !important;
-  box-shadow: 0 10px 40px -10px rgba(14, 165, 233, 0.15) !important;
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Tables */
-table {
-  color: #F8FAFC !important;
-}
+table { color: var(--text) !important; }
 th {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  border-bottom: 1px solid #1E293B !important;
-  color: #94A3B8 !important;
+  background-color: #1e293b !important;
+  border-bottom: 2px solid var(--border) !important;
+  color: #f8fafc !important; /* Brightest for headers */
+  font-weight: 700 !important;
 }
-td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-}
-tr:hover td {
-  background-color: rgba(14, 165, 233, 0.05) !important;
-}
-.table-wrap, .table-container, .table-responsive {
-  border: 1px solid #1E293B !important;
-  background-color: #111827 !important;
-}
+td { border-bottom: 1px solid var(--border) !important; color: #e2e8f0 !important; }
+tr:hover td { background-color: rgba(14, 165, 233, 0.1) !important; color: #ffffff !important; }
 
 /* Buttons */
-.btn-primary {
+.btn-primary, button.btn-primary, a.btn-primary {
   background: linear-gradient(135deg, #0ea5e9, #0369a1) !important;
   border: none !important;
-  color: white !important;
-  transition: all 0.3s ease !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
 }
 .btn-primary:hover {
   background: linear-gradient(135deg, #38bdf8, #0284c7) !important;
-  box-shadow: 0 10px 40px -10px rgba(14, 165, 233, 0.15) !important;
+  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;
 }
 
 .btn-secondary {
-  background-color: #111827 !important;
-  border: 1px solid #1E293B !important;
-  color: #F8FAFC !important;
+  background-color: #1e293b !important;
+  border: 1px solid #475569 !important;
+  color: #ffffff !important;
 }
-.btn-secondary:hover {
-  background-color: var(--primary-light) !important;
-  border-color: var(--accent) !important;
-}
+.btn-secondary:hover { background-color: #334155 !important; border-color: var(--accent) !important; }
 
 /* Tabs */
-.tabs {
-  border-bottom: 2px solid #1E293B !important;
-}
-.tab {
-  color: #94A3B8 !important;
-}
-.tab:hover {
-  color: #F8FAFC !important;
-}
-.tab.active {
-  color: var(--accent) !important;
-  border-bottom-color: var(--accent) !important;
-}
+.tabs { border-bottom: 2px solid var(--border) !important; }
+.tab { color: #cbd5e1 !important; font-weight: 600 !important; }
+.tab:hover { color: #ffffff !important; }
+.tab.active { color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
 
-/* Sidebar Specific */
-.sidebar, #sidebar {
-  background-color: var(--bg-sidebar) !important;
-  border-right: 1px solid #1E293B !important;
+/* Inputs */
+input, select, textarea, .form-control {
+  background-color: #0f172a !important;
+  border: 1px solid #475569 !important;
+  color: #ffffff !important;
 }
+input::placeholder, textarea::placeholder { color: #94a3b8 !important; }
 
-/* Modals */
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.7) !important;
-  backdrop-filter: blur(4px) !important;
-}
-.modal-header {
-  border-bottom: 1px solid #1E293B !important;
-}
-.modal-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
-}
+/* Links and General Text Overrides */
+a { color: #38bdf8 !important; }
+a:hover { color: #7dd3fc !important; }
+h1, h2, h3, h4, h5, h6 { color: #ffffff !important; }
 
-/* Miscellaneous generic fixes */
-h1, h2, h3, h4, h5, h6 {
-  color: #F8FAFC !important;
-}
-
-a {
-  color: var(--accent) !important;
-}
-a:hover {
-  color: var(--accent-hover) !important;
-}
-
-/* Override existing !important white backgrounds where possible */
-.bg-white { background-color: #111827 !important; }
-.text-gray-900 { color: #F8FAFC !important; }
-.text-gray-800 { color: #F8FAFC !important; }
-.text-gray-600 { color: #94A3B8 !important; }
-.text-gray-500 { color: #64748B !important; }
-
-.text-white { color: #F8FAFC !important; }
+/* Extreme Overrides for gray-on-gray */
+.text-gray-400, .text-gray-500, .text-gray-600 { color: #e2e8f0 !important; }
+.text-muted, .text-secondary { color: #cbd5e1 !important; }
+.text-gray-900, .text-gray-800, .text-gray-700 { color: #ffffff !important; }
+.bg-gray-100, .bg-gray-50, .bg-white { background-color: var(--bg-card) !important; }
+.border-gray-200, .border-gray-300 { border-color: var(--border) !important; }
