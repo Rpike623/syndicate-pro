@@ -1180,6 +1180,9 @@ window.SP = (function () {
           { href:'yield-converter.html', icon:'fa-arrow-right-arrow-left', label:'Yield Convert' },
           { href:'dscr-calc.html', icon:'fa-shield-halved', label:'DSCR Calc' },
           { href:'hud-closing.html', icon:'fa-file-invoice', label:'HUD Closing' },
+          { href:'exchange-1031.html', icon:'fa-exchange-alt', label:'1031 Exchange' },
+          { href:'cost-segregation.html', icon:'fa-layer-group', label:'Cost Segregation' },
+          { href:'bonus-depreciation.html', icon:'fa-bolt', label:'Bonus Depr' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
