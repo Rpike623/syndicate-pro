@@ -1164,6 +1164,9 @@ window.SP = (function () {
           { href:'capex-tracker.html', icon:'fa-hammer', label:'CAPEX' },
           { href:'debt-service.html', icon:'fa-calculator', label:'Debt Service' },
           { href:'property-tax.html', icon:'fa-file-invoice-dollar', label:'Property Tax' },
+          { href:'noi-analysis.html', icon:'fa-chart-pie', label:'NOI Analysis' },
+          { href:'cashflow-forecast.html', icon:'fa-money-bill-wave', label:'Cash Flow' },
+          { href:'lease-abstractor.html', icon:'fa-file-contract', label:'Lease Abstract' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
