@@ -1184,6 +1184,7 @@ window.SP = (function () {
           { href:'cost-segregation.html', icon:'fa-layer-group', label:'Cost Segregation' },
           { href:'bonus-depreciation.html', icon:'fa-bolt', label:'Bonus Depr' },
           { href:'jv-partnership.html', icon:'fa-handshake', label:'JV Partnership' },
+          { href:'due-diligence.html', icon:'fa-search', label:'Due Diligence' },
         ], overflow:[
           { href:'executive-summary.html', icon:'fa-file-invoice', label:'Executive PDF' },
           { href:'recapitalization.html', icon:'fa-money-bill-wave', label:'Recapitalization' },
