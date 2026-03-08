@@ -33,11 +33,16 @@
     /* ── Navigation ── */
     .nav { position:fixed; top:0; width:100%; z-index:100; background:rgba(255,255,255,0.92); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); transition:all 0.3s; }
     .nav-inner { max-width:1200px; margin:0 auto; padding:0 24px; display:flex; justify-content:space-between; align-items:center; height:72px; }
-    .nav-logo { font-size:1.35rem; font-weight:800; color:var(--text); text-decoration:none; display:flex; align-items:center; gap:8px; }
-    .nav-logo span { color:var(--accent); }
+    .nav-logo { text-decoration:none; display:flex; align-items:center; }
+    .nav-logo img { height:36px; }
     .nav-links { display:flex; align-items:center; gap:32px; }
     .nav-links a { font-size:0.875rem; font-weight:500; color:var(--text-secondary); text-decoration:none; transition:color 0.2s; }
     .nav-links a:hover { color:var(--text); }
+    .mobile-toggle { display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 10px; cursor:pointer; color:var(--text-secondary); font-size:1.1rem; }
+    .mobile-menu { display:none; position:fixed; top:72px; left:0; right:0; background:var(--surface); border-bottom:1px solid var(--border); padding:16px 24px; z-index:99; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+    .mobile-menu.open { display:flex; flex-direction:column; gap:16px; }
+    .mobile-menu a { font-size:1rem; font-weight:500; color:var(--text-secondary); text-decoration:none; padding:8px 0; }
+    .mobile-menu .btn { justify-content:center; }
     .btn { display:inline-flex; align-items:center; gap:8px; padding:10px 20px; border-radius:8px; font-size:0.875rem; font-weight:600; text-decoration:none; border:none; cursor:pointer; transition:all 0.2s; font-family:inherit; }
     .btn-primary { background:var(--accent); color:white; }
     .btn-primary:hover { background:var(--accent-hover); transform:translateY(-1px); box-shadow:0 4px 12px rgba(243,121,37,0.3); }
@@ -124,8 +129,7 @@
     /* ── Footer ── */
     .footer { background:var(--dark-bg); padding:40px 24px; }
     .footer-inner { max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
-    .footer-logo { font-size:1.1rem; font-weight:700; color:white; }
-    .footer-logo span { color:var(--accent); }
+    .footer-logo img { height:28px; }
     .footer-links { display:flex; gap:24px; }
     .footer-links a { font-size:0.8rem; color:rgba(255,255,255,0.5); text-decoration:none; transition:color 0.2s; }
     .footer-links a:hover { color:white; }
@@ -134,11 +138,17 @@
     /* ── Responsive ── */
     @media(max-width:768px) {
       .nav-links { display:none; }
+      .mobile-toggle { display:block; }
       .features-grid { grid-template-columns:1fr; }
       .steps { grid-template-columns:1fr; gap:32px; }
       .portal-grid { grid-template-columns:1fr; }
       .stats-inner { grid-template-columns:1fr; gap:24px; }
+      .hero { padding:120px 20px 60px; }
       .hero h1 { font-size:2.2rem; }
+      .hero p { font-size:1rem; }
+      .section { padding:60px 20px; }
+      .section-header h2 { font-size:1.75rem; }
+      .cta h2 { font-size:1.75rem; }
       .footer-inner { flex-direction:column; text-align:center; }
     }
     @media(max-width:1024px) {
@@ -151,7 +161,7 @@
   <!-- Navigation -->
   <nav class="nav" id="navbar">
     <div class="nav-inner">
-      <a href="/" class="nav-logo">deel<span>track</span></a>
+      <a href="/" class="nav-logo"><img src="assets/logo-full-light.svg" alt="deeltrack" height="36"></a>
       <div class="nav-links">
         <a href="#features">Features</a>
         <a href="#how-it-works">How It Works</a>
@@ -159,8 +169,18 @@
         <a href="login.html">Log In</a>
         <a href="login.html" class="btn btn-primary">Get Started <i class="fas fa-arrow-right" style="font-size:11px;"></i></a>
       </div>
+      <button class="mobile-toggle" onclick="document.getElementById('mobileMenu').classList.toggle('open')" aria-label="Menu">
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
   </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#features" onclick="document.getElementById('mobileMenu').classList.remove('open')">Features</a>
+    <a href="#how-it-works" onclick="document.getElementById('mobileMenu').classList.remove('open')">How It Works</a>
+    <a href="#portal" onclick="document.getElementById('mobileMenu').classList.remove('open')">Investor Portal</a>
+    <a href="login.html">Log In</a>
+    <a href="login.html" class="btn btn-primary">Get Started</a>
+  </div>
 
   <!-- Hero -->
   <section class="hero">
@@ -326,7 +346,7 @@
   <!-- Footer -->
   <footer class="footer">
     <div class="footer-inner">
-      <div class="footer-logo">deel<span>track</span></div>
+      <div class="footer-logo"><img src="assets/logo-full.svg" alt="deeltrack" height="28"></div>
       <div class="footer-links">
         <a href="#features">Features</a>
         <a href="login.html">Log In</a>
