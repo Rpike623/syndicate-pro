@@ -348,11 +348,16 @@ function render() {
   // Helper: resolve deal name from dist record or deals list
   const _resolveDealName = (d) => {
     if (d.dealName) return d.dealName;
-    const deal = SP.getDeals().find(dl => dl.id === d.dealId);
+    const deal = allDeals.find(dl => dl.id === d.dealId);
     return deal ? deal.name : 'Unknown Deal';
   };
   // Helper: safe period string
-  const _distPeriod = (d) => d.period || (d.quarter && d.year ? d.quarter + ' ' + d.year : null) || '—';
+  const _distPeriod = (d) => {
+    if (d.period) return d.period;
+    if (d.quarter && d.year) return d.quarter + ' ' + d.year;
+    if (d.date) return new Date(d.date + 'T00:00:00').toLocaleDateString();
+    return '—';
+  };
 
   allDists.forEach(d => {
     if (!Array.isArray(d.recipients)) return;
@@ -412,7 +417,7 @@ function render() {
       return `<div class="dist-item">
         <div>
           <div class="dist-deal">${_resolveDealName(dist)}</div>
-          <div class="dist-period">${_distPeriod(dist)} · ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'}</div>
+          <div class="dist-period">${_distPeriod(dist)} · ${dist.method||'Wire'}</div>
         </div>
         <div class="dist-amount">${fmtFull$(amount)}</div>
       </div>`;
@@ -460,7 +465,6 @@ function render() {
           <div class="dist-deal">${_resolveDealName(dist)}</div>
           <div class="dist-period">
             ${_distPeriod(dist)} ·
-            ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'} ·
             ${dist.method||'Wire'}
           </div>
           ${r.prefPaidThisDist > 0 ? `<div style="font-size:.72rem;color:var(--warning);margin-top:3px;"><i class="fas fa-star"></i> Pref: ${fmtFull$(r.prefPaidThisDist)} + Excess: ${fmtFull$(r.excessThisDist||0)}</div>` : ''}
@@ -504,7 +508,15 @@ function render() {
   const accredEl = document.getElementById('accredStatus');
   if (inv) {
     const today = new Date();
-    const expiry = inv.accredExpiry ? new Date(inv.accredExpiry) : null;
+    let expiry = null;
+    if (inv.accredExpiry) {
+      // Handle Firestore Timestamp objects, ISO strings, or date strings
+      if (inv.accredExpiry.toDate) expiry = inv.accredExpiry.toDate();
+      else if (inv.accredExpiry.seconds) expiry = new Date(inv.accredExpiry.seconds * 1000);
+      else expiry = new Date(inv.accredExpiry);
+      // Validate the date is real
+      if (isNaN(expiry.getTime())) expiry = null;
+    }
     const daysLeft = expiry ? Math.ceil((expiry - today) / 86400000) : null;
 
     if (inv.accredStatus === 'verified' && (daysLeft === null || daysLeft > 30)) {
@@ -515,15 +527,15 @@ function render() {
           <div style="font-size:.82rem;color:#6ee7b7;margin-top:2px;">Method: ${inv.accredMethod||'On file'}${expiry ? ' · Expires: '+expiry.toLocaleDateString() : ''}</div>
         </div>
       </div>`;
-    } else if (inv.accredStatus === 'verified' && daysLeft !== null && daysLeft <= 30) {
+    } else if (inv.accredStatus === 'verified' && daysLeft !== null && daysLeft <= 30 && daysLeft > 0) {
       accredEl.innerHTML = `<div class="accred-card accred-warn">
         <i class="fas fa-exclamation-triangle" style="color:var(--warning);font-size:1.2rem;"></i>
         <div>
-          <div style="font-weight:600;color:var(--warning);">Accreditation Expiring in ${daysLeft} days</div>
-          <div style="font-size:.82rem;color:#fcd34d;margin-top:2px;">Contact your GP to renew before ${expiry.toLocaleDateString()}.</div>
+          <div style="font-weight:600;color:var(--warning);">Accreditation Expiring in ${daysLeft} day${daysLeft!==1?'s':''}</div>
+          <div style="font-size:.82rem;color:#fcd34d;margin-top:2px;">Contact your GP to renew before ${expiry ? expiry.toLocaleDateString() : 'expiration'}.</div>
         </div>
       </div>`;
-    } else if (inv.accredStatus === 'expired') {
+    } else if (inv.accredStatus === 'expired' || (daysLeft !== null && daysLeft <= 0)) {
       accredEl.innerHTML = `<div class="accred-card accred-exp">
         <i class="fas fa-times-circle" style="color:var(--danger);font-size:1.2rem;"></i>
         <div>
