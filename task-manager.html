@@ -15,7 +15,7 @@
       --text: #1B1A19; --text-muted: #9C9590; --border: rgba(255,255,255,0.06); --radius: 16px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; min-height: 100vh; }
+    body { background: #F3F3F3; color: #1B1A19; min-height: 100vh; }
     h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
     .app { display: flex; min-height: 100vh; }
     
@@ -31,27 +31,27 @@
     
     .main { flex: 1; margin-left: 260px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid #1E293B; background: var(--bg-panel); }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid #E2DDD8; background: var(--bg-panel); }
     .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
     
     .content { padding: 32px; max-width: 1200px; }
     
     .views { display: flex; gap: 8px; margin-bottom: 24px; }
-    .view-btn { padding: 10px 20px; border-radius: 10px; border: 1px solid #1E293B; background: #111827; color: var(--text-muted); font-size: 14px; cursor: pointer; }
-    .view-btn.active { border-color: var(--accent); color: #F8FAFC; background: rgba(139,92,246,0.1); }
+    .view-btn { padding: 10px 20px; border-radius: 10px; border: 1px solid #E2DDD8; background: #FFFFFF; color: var(--text-muted); font-size: 14px; cursor: pointer; }
+    .view-btn.active { border-color: var(--accent); color: #1B1A19; background: rgba(139,92,246,0.1); }
     
     .task-filters { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-    .filter-chip { padding: 8px 16px; border-radius: 20px; border: 1px solid #1E293B; background: #111827; color: var(--text-muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-    .filter-chip.active { border-color: var(--accent); color: #F8FAFC; }
+    .filter-chip { padding: 8px 16px; border-radius: 20px; border: 1px solid #E2DDD8; background: #FFFFFF; color: var(--text-muted); font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .filter-chip.active { border-color: var(--accent); color: #1B1A19; }
     .filter-chip.overdue { border-color: var(--danger); color: var(--danger); }
     .filter-chip.today { border-color: var(--warning); color: var(--warning); }
     .filter-chip.upcoming { border-color: var(--accent-2); color: var(--accent-2); }
     
-    .task-list { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); }
-    .task-item { display: grid; grid-template-columns: 40px 1fr 150px 120px 100px; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #1E293B; align-items: center; }
+    .task-list { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); }
+    .task-item { display: grid; grid-template-columns: 40px 1fr 150px 120px 100px; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #E2DDD8; align-items: center; }
     .task-item:last-child { border-bottom: none; }
     .task-item:hover { background: var(--bg-hover); }
-    .task-checkbox { width: 24px; height: 24px; border-radius: 6px; border: 2px solid #1E293B; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .task-checkbox { width: 24px; height: 24px; border-radius: 6px; border: 2px solid #E2DDD8; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .task-checkbox.checked { background: var(--success); border-color: var(--success); }
     .task-content h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
     .task-content p { font-size: 13px; color: var(--text-muted); }
@@ -66,13 +66,13 @@
     .task-due.upcoming { color: var(--text-muted); }
     .task-actions { display: flex; gap: 8px; }
     .action-icon { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; }
-    .action-icon:hover { color: #F8FAFC; }
+    .action-icon:hover { color: #1B1A19; }
     
     .calendar-view { display: none; grid-template-columns: repeat(7, 1fr); gap: 8px; }
     .calendar-view.active { display: grid; }
-    .calendar-day { background: #111827; border: 1px solid #1E293B; border-radius: 12px; padding: 12px; min-height: 120px; }
+    .calendar-day { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: 12px; padding: 12px; min-height: 120px; }
     .calendar-day-header { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-    .calendar-task { background: #0B1120; padding: 8px; border-radius: 8px; font-size: 12px; margin-bottom: 6px; cursor: pointer; }
+    .calendar-task { background: #F3F3F3; padding: 8px; border-radius: 8px; font-size: 12px; margin-bottom: 6px; cursor: pointer; }
     .calendar-task.dd { border-left: 3px solid var(--accent); }
     .calendar-task.loi { border-left: 3px solid var(--accent-2); }
     .calendar-task.closing { border-left: 3px solid var(--success); }
@@ -84,7 +84,6 @@
       .task-tag, .task-due, .task-actions { display: none; }
     }
   </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
   <div class="app"><aside class="sidebar" id="sidebar"></aside>

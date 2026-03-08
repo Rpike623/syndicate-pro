@@ -14,34 +14,33 @@
       --text: #1B1A19; --text-secondary: #6B6560; --border: #E2DDD8; --bg: #F3F3F3; --bg-card: #FFFFFF;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #0B1120; display: flex; min-height: 100vh; }
+    body { background: #F3F3F3; display: flex; min-height: 100vh; }
     /* sidebar CSS moved to dt-global.css */
     .nav { padding: 24px 12px; }
     /* .nav-item CSS moved to dt-global.css */
     /* .nav-item.active CSS moved to dt-global.css */
     .main { flex: 1; margin-left: 260px; padding: 32px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-    .progress-bar { background: #1E293B; height: 8px; border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
+    .progress-bar { background: #E2DDD8; height: 8px; border-radius: 4px; margin-bottom: 32px; overflow: hidden; }
     .progress-fill { background: var(--success); height: 100%; width: 0%; transition: width 0.5s; }
     .checklist-container { max-width: 800px; }
-    .phase { background: #111827; border: 1px solid #1E293B; border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
-    .phase-header { background: #0B1120; padding: 16px 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #1E293B; }
+    .phase { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .phase-header { background: #F3F3F3; padding: 16px 24px; font-weight: 600; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #E2DDD8; }
     .phase-progress { margin-left: auto; font-size: 0.875rem; color: var(--text-secondary); }
-    .task { display: flex; align-items: center; padding: 16px 24px; border-bottom: 1px solid #1E293B; cursor: pointer; transition: background 0.2s; }
-    .task:hover { background: #0B1120; }
+    .task { display: flex; align-items: center; padding: 16px 24px; border-bottom: 1px solid #E2DDD8; cursor: pointer; transition: background 0.2s; }
+    .task:hover { background: #F3F3F3; }
     .task:last-child { border-bottom: none; }
-    .task-checkbox { width: 24px; height: 24px; border: 2px solid #1E293B; border-radius: 6px; margin-right: 16px; display: flex; align-items: center; justify-content: center; }
+    .task-checkbox { width: 24px; height: 24px; border: 2px solid #E2DDD8; border-radius: 6px; margin-right: 16px; display: flex; align-items: center; justify-content: center; }
     .task.completed .task-checkbox { background: var(--success); border-color: var(--success); color: white; }
     .task.completed .task-text { text-decoration: line-through; color: var(--text-secondary); }
     .task-meta { margin-left: auto; font-size: 0.8rem; color: var(--text-secondary); }
-    .task-assignee { background: #0B1120; padding: 4px 12px; border-radius: 12px; margin-left: 12px; }
+    .task-assignee { background: #F3F3F3; padding: 4px 12px; border-radius: 12px; margin-left: 12px; }
     .urgent { color: var(--danger); font-weight: 600; }
     .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; }
     .btn-primary { background: var(--accent); color: white; }
     .add-task { display: flex; gap: 12px; margin-top: 16px; padding: 0 24px 24px; }
-    .add-task input { flex: 1; padding: 10px; border: 1px solid #1E293B; border-radius: 6px; }
+    .add-task input { flex: 1; padding: 10px; border: 1px solid #E2DDD8; border-radius: 6px; }
   </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
   <aside id="sidebar" class="sidebar">
@@ -60,7 +59,7 @@
         <h1>Deal Closing Checklist</h1>
         <p style="color: var(--text-secondary);">Track every item needed to get to closing</p>
       </div>
-      <select id="dealSelect" style="padding: 10px; border: 1px solid #1E293B; border-radius: 8px;">
+      <select id="dealSelect" style="padding: 10px; border: 1px solid #E2DDD8; border-radius: 8px;">
         <option>Select a deal...</option>
       </select>
     </div>

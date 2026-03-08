@@ -11,27 +11,26 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --success: #2D9A6B; --warning: #E8890A; --danger: #D94F3D; --bg: #F3F3F3; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:#0B1120;color: #F8FAFC;display:flex;min-height:100vh;}
+        body { background: #F3F3F3;color: #1B1A19;display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .health-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
-        .property-card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; position: relative; overflow: hidden; }
+        .property-card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; position: relative; overflow: hidden; }
         
         .health-score { position: absolute; top: 20px; right: 24px; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono'; font-weight: 800; font-size: 1.1rem; }
         .score-good { background: #f0fdf4; color: var(--success); border: 2px solid var(--success); }
-        .score-warn { background: #111827beb; color: var(--warning); border: 2px solid var(--warning); }
+        .score-warn { background: #FFFFFFbeb; color: var(--warning); border: 2px solid var(--warning); }
         .score-bad { background: #fef2f2; color: var(--danger); border: 2px solid var(--danger); }
 
         .metric-row { display: flex; justify-content: space-between; margin-bottom: 12px; align-items: center; }
-        .m-lbl { font-size: 0.75rem; color: #94A3B8; font-weight: 600; text-transform: uppercase; }
+        .m-lbl { font-size: 0.75rem; color: #6B6560; font-weight: 600; text-transform: uppercase; }
         .m-val { font-size: 0.9rem; font-weight: 700; font-family: 'JetBrains Mono'; }
         
-        .progress-bar { height: 6px; background: #0B1120; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        .progress-bar { height: 6px; background: #F3F3F3; border-radius: 3px; overflow: hidden; margin-top: 4px; }
         .progress-fill { height: 100%; background: var(--accent); }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -39,7 +38,7 @@
     <main class="main">
         <div style="margin-bottom: 32px;">
             <h1 style="font-size: 1.6rem; font-weight: 800;">Portfolio Health Dashboard</h1>
-            <p style="color:#94A3B8;">Mark-to-market performance assessment across active assets</p>
+            <p style="color: #6B6560;">Mark-to-market performance assessment across active assets</p>
         </div>
 
         <div class="health-grid">
@@ -47,7 +46,7 @@
             <div class="property-card">
                 <div class="health-score score-good">94</div>
                 <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 4px;">The Hudson Portfolio</div>
-                <div style="font-size: 0.75rem; color:#94A3B8; margin-bottom: 24px;">Houston, TX • 248 Units</div>
+                <div style="font-size: 0.75rem; color: #6B6560; margin-bottom: 24px;">Houston, TX • 248 Units</div>
                 
                 <div class="metric-row">
                     <span class="m-lbl">Occupancy</span>
@@ -66,7 +65,7 @@
             <div class="property-card">
                 <div class="health-score score-warn">72</div>
                 <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 4px;">Riverside Flats</div>
-                <div style="font-size: 0.75rem; color:#94A3B8; margin-bottom: 24px;">Austin, TX • 96 Units</div>
+                <div style="font-size: 0.75rem; color: #6B6560; margin-bottom: 24px;">Austin, TX • 96 Units</div>
                 
                 <div class="metric-row">
                     <span class="m-lbl">Occupancy</span>
@@ -85,7 +84,7 @@
             <div class="property-card">
                 <div class="health-score score-good">88</div>
                 <div style="font-weight: 800; font-size: 1.1rem; margin-bottom: 4px;">Meridian Industrial</div>
-                <div style="font-size: 0.75rem; color:#94A3B8; margin-bottom: 24px;">Dallas, TX • 750k SF</div>
+                <div style="font-size: 0.75rem; color: #6B6560; margin-bottom: 24px;">Dallas, TX • 750k SF</div>
                 
                 <div class="metric-row">
                     <span class="m-lbl">Occupancy</span>
@@ -108,7 +107,7 @@
                     <div style="font-size: 2.5rem; font-weight: 800; font-family: 'JetBrains Mono'; margin-top: 4px;">1.42x</div>
                 </div>
                 <div style="height: 60px; width: 2px; background: rgba(255,255,255,0.1);"></div>
-                <p style="font-size: 0.9rem; color: #94a3b8; line-height: 1.6; max-width: 500px;">
+                <p style="font-size: 0.9rem; color: #6B6560; line-height: 1.6; max-width: 500px;">
                     <strong>Institutional Insight:</strong> Weighted portfolio health is "Green." Riverside Flats (Austin) is currently under-performing on occupancy (88.2%) due to the ongoing phase 2 renovation. No lender covenant breaches projected for 2026.
                 </p>
             </div>

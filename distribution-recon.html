@@ -16,16 +16,16 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --success: #2D9A6B; --bg: #F3F3F3; --radius: 12px; }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; min-height: 100vh; }
+        body { background: #F3F3F3; color: #1B1A19; display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
-        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         
         .recon-table { width: 100%; border-collapse: collapse; }
-        .recon-table th { text-align: left; padding: 12px 16px; font-size: 0.75rem; color: #94A3B8; background: #0B1120; border-bottom: 2px solid #1E293B; }
+        .recon-table th { text-align: left; padding: 12px 16px; font-size: 0.75rem; color: #6B6560; background: #F3F3F3; border-bottom: 2px solid #E2DDD8; }
         .recon-table td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.85rem; vertical-align: middle; }
         
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
@@ -35,7 +35,6 @@
         .recon-val { font-family: 'JetBrains Mono'; font-weight: 600; }
         .btn-confirm { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -44,7 +43,7 @@
         <div class="header">
             <div>
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Distribution Reconciliation</h1>
-                <p style="color:#94A3B8;">Verify calculated LP payments against external bank ledger exports</p>
+                <p style="color: #6B6560;">Verify calculated LP payments against external bank ledger exports</p>
             </div>
             <button class="btn btn-primary" onclick="alert('Import CSV from Bank...')"><i class="fas fa-file-import"></i> Sync Bank Data</button>
         </div>
@@ -63,21 +62,21 @@
                 <tbody id="reconBody">
                     <!-- Seed Data -->
                     <tr>
-                        <td><strong>Phil Chapman</strong><br><span style="font-size: 0.72rem; color:#94A3B8;">philip@jchapmancpa.com</span></td>
+                        <td><strong>Phil Chapman</strong><br><span style="font-size: 0.72rem; color: #6B6560;">philip@jchapmancpa.com</span></td>
                         <td class="recon-val">$14,875.00</td>
                         <td class="recon-val">$14,875.00</td>
                         <td><span style="color: var(--success); font-weight: 700;">$0.00</span></td>
                         <td><div style="display:flex; align-items:center;"><div class="status-dot dot-match"></div><span style="font-size:0.75rem; font-weight:700; color:var(--success);">MATCHED</span></div></td>
                     </tr>
                     <tr>
-                        <td><strong>Sarah Chen</strong><br><span style="font-size: 0.72rem; color:#94A3B8;">s.chen@capital.com</span></td>
+                        <td><strong>Sarah Chen</strong><br><span style="font-size: 0.72rem; color: #6B6560;">s.chen@capital.com</span></td>
                         <td class="recon-val">$29,750.00</td>
                         <td class="recon-val">$29,250.00</td>
                         <td><span style="color: #ef4444; font-weight: 700;">($500.00)</span></td>
                         <td style="display:flex; gap:10px; align-items:center;"><div class="status-dot dot-mismatch"></div> <button class="btn-confirm">Adjust Ledger</button></td>
                     </tr>
                     <tr>
-                        <td><strong>James Hartwell</strong><br><span style="font-size: 0.72rem; color:#94A3B8;">j.hartwell@email.com</span></td>
+                        <td><strong>James Hartwell</strong><br><span style="font-size: 0.72rem; color: #6B6560;">j.hartwell@email.com</span></td>
                         <td class="recon-val">$14,875.00</td>
                         <td class="recon-val">$14,875.00</td>
                         <td><span style="color: var(--success); font-weight: 700;">$0.00</span></td>
@@ -89,15 +88,15 @@
 
         <div style="margin-top: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
             <div class="card" style="text-align: center;">
-                <div style="font-size: 0.7rem; font-weight: 700; color:#94A3B8; text-transform: uppercase;">Total Reconciled</div>
+                <div style="font-size: 0.7rem; font-weight: 700; color: #6B6560; text-transform: uppercase;">Total Reconciled</div>
                 <div style="font-size: 1.5rem; font-weight: 800; color: var(--success);">$59,500</div>
             </div>
             <div class="card" style="text-align: center;">
-                <div style="font-size: 0.7rem; font-weight: 700; color:#94A3B8; text-transform: uppercase;">Unresolved Variance</div>
+                <div style="font-size: 0.7rem; font-weight: 700; color: #6B6560; text-transform: uppercase;">Unresolved Variance</div>
                 <div style="font-size: 1.5rem; font-weight: 800; color: #ef4444;">($500)</div>
             </div>
             <div class="card" style="text-align: center;">
-                <div style="font-size: 0.7rem; font-weight: 700; color:#94A3B8; text-transform: uppercase;">Audit Readiness</div>
+                <div style="font-size: 0.7rem; font-weight: 700; color: #6B6560; text-transform: uppercase;">Audit Readiness</div>
                 <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">94%</div>
             </div>
         </div>

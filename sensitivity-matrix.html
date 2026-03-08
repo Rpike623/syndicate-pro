@@ -18,25 +18,24 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --bg: #F3F3F3; --radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; min-height: 100vh; }
+        body { background: #F3F3F3; color: #1B1A19; display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         
         .sens-table { width: 100%; border-collapse: collapse; text-align: center; }
-        .sens-table th { padding: 12px; font-size: 0.75rem; color: #94A3B8; background: #0B1120; border: 1px solid #1E293B; }
-        .sens-table td { padding: 12px; font-family: 'JetBrains Mono'; font-size: 0.85rem; border: 1px solid #1E293B; }
+        .sens-table th { padding: 12px; font-size: 0.75rem; color: #6B6560; background: #F3F3F3; border: 1px solid #E2DDD8; }
+        .sens-table td { padding: 12px; font-family: 'JetBrains Mono'; font-size: 0.85rem; border: 1px solid #E2DDD8; }
         .sens-val { font-weight: 700; }
         .sens-positive { color: #10b981; }
         .sens-negative { color: #ef4444; }
-        .sens-neutral { background: #0B1120; font-weight: 800; }
+        .sens-neutral { background: #F3F3F3; font-weight: 800; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -45,9 +44,9 @@
         <div class="header">
             <div>
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Market Sensitivity Analysis</h1>
-                <p style="color:#94A3B8;">Underwriting stress-test across varying Cap Rate and Rent Growth scenarios</p>
+                <p style="color: #6B6560;">Underwriting stress-test across varying Cap Rate and Rent Growth scenarios</p>
             </div>
-            <select id="dealSelect" onchange="generateMatrix()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; background: #111827; font-weight: 600;">
+            <select id="dealSelect" onchange="generateMatrix()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #E2DDD8; background: #FFFFFF; font-weight: 600;">
                 <option value="">— Select Deal —</option>
             </select>
         </div>
@@ -64,8 +63,8 @@
         </div>
 
         <div class="card">
-            <div class="card-title"><i class="fas fa-info-circle" style="color:#94A3B8;"></i> Dynamic Basis Analysis</div>
-            <p style="font-size: 0.85rem; color:#94A3B8; line-height: 1.6;">
+            <div class="card-title"><i class="fas fa-info-circle" style="color: #6B6560;"></i> Dynamic Basis Analysis</div>
+            <p style="font-size: 0.85rem; color: #6B6560; line-height: 1.6;">
                 This matrix shows the impact of changing market conditions on deal performance. The center column represents your <strong>Base Case Underwriting</strong>. Shifts to the left assume tighter market conditions (lower cap rates/higher growth), while shifts to the right model expansion and stress.
             </p>
         </div>
@@ -91,7 +90,7 @@
             pHtml += '</tr></thead><tbody>';
             
             grow.forEach(g => {
-                pHtml += `<tr><td style="font-weight:700; color:#64748b;">${g > 0 ? '+' : ''}${g}%</td>`;
+                pHtml += `<tr><td style="font-weight:700; color: #9C9590;">${g > 0 ? '+' : ''}${g}%</td>`;
                 caps.forEach(c => {
                     const price = ((deal.raise * 4) * (1 + (g/100))) / (c/100);
                     const isBase = (g === 0 && c === baseCap);
@@ -108,7 +107,7 @@
             iHtml += '</tr></thead><tbody>';
             
             grow.forEach(g => {
-                iHtml += `<tr><td style="font-weight:700; color:#64748b;">${g > 0 ? '+' : ''}${g}%</td>`;
+                iHtml += `<tr><td style="font-weight:700; color: #9C9590;">${g > 0 ? '+' : ''}${g}%</td>`;
                 caps.forEach(c => {
                     const baseIrr = deal.irr || 18.4;
                     const delta = (baseCap - c) * 4 + (g * 1.5);

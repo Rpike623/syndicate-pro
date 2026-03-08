@@ -29,7 +29,7 @@
       --radius-sm:6px;--radius:8px;--radius-md:12px;
     }
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:#0B1120;color:#F8FAFC;line-height:1.5;-webkit-font-smoothing:antialiased;}
+    body { background: #F3F3F3;color: #1B1A19;line-height:1.5;-webkit-font-smoothing:antialiased;}
     .app{display:flex;min-height:100vh;}
     /* sidebar CSS moved to dt-global.css */
     /* .sidebar-header CSS moved to dt-global.css */
@@ -46,17 +46,17 @@
     .user-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--success),#34d399);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;color:white;flex-shrink:0;}
     .user-details{flex:1;}.user-name{font-size:.9rem;font-weight:600;}.user-role{font-size:.75rem;color:rgba(255,255,255,.65);}
     .main{flex:1;margin-left:260px;min-height:100vh;}
-    .top-bar{background:#111827;border-bottom:1px solid #1E293B;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
+    .top-bar{background: #FFFFFF;border-bottom: 1px solid #E2DDD8;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;}
     .top-left{display:flex;align-items:center;gap:16px;}
-    .mobile-menu-btn{display:none;background:none;border:1px solid #1E293B;border-radius:var(--radius);padding:8px 10px;cursor:pointer;}
+    .mobile-menu-btn{display:none;background:none;border: 1px solid #E2DDD8;border-radius:var(--radius);padding:8px 10px;cursor:pointer;}
     .breadcrumb{display:flex;align-items:center;gap:8px;font-size:.875rem;color:var(--text-secondary);}
     .breadcrumb a{color:var(--text-secondary);text-decoration:none;}.breadcrumb a:hover{color:var(--accent);}
     .breadcrumb-sep{color:var(--text-muted);}
-    .breadcrumb-current{color:#F8FAFC;font-weight:600;}
+    .breadcrumb-current{color: #1B1A19;font-weight:600;}
     .top-actions{display:flex;gap:10px;align-items:center;}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;font-size:.875rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;font-family:'Inter',sans-serif;}
     .btn-primary{background:var(--accent);color:white;}.btn-primary:hover{background:var(--accent-hover);}
-    .btn-secondary{background:#111827;color:#F8FAFC;border:1px solid #1E293B;}.btn-secondary:hover{background:var(--border-light);}
+    .btn-secondary{background: #FFFFFF;color: #1B1A19;border: 1px solid #E2DDD8;}.btn-secondary:hover{background:var(--border-light);}
     .btn-danger{background:var(--danger-light);color:var(--danger);border:1px solid var(--danger);}.btn-danger:hover{background:var(--danger);color:white;}
     .content{padding:32px;}
     /* Deal header */
@@ -68,7 +68,7 @@
     .deal-badges{display:flex;gap:8px;flex-wrap:wrap;}
     .deal-badge{padding:5px 14px;border-radius:20px;font-size:.75rem;font-weight:600;}
     .badge-type{background:rgba(59,130,246,.25);color:#93c5fd;}
-    .badge-status-sourcing{background:rgba(148,163,184,.2);color:#94a3b8;}
+    .badge-status-sourcing{background:rgba(148,163,184,.2);color: #6B6560;}
     .badge-status-loi{background:rgba(245,158,11,.2);color:#fbbf24;}
     .badge-status-dd{background:rgba(59,130,246,.2);color:#93c5fd;}
     .badge-status-operating{background:rgba(16,185,129,.2);color:#6ee7b7;}
@@ -78,13 +78,13 @@
     .deal-metric .val{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
     .deal-metric .lbl{font-size:.72rem;color:rgba(255,255,255,.65);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
     /* Tabs */
-    .tabs{display:flex;gap:0;border-bottom:2px solid #1E293B;margin-bottom:24px;}
+    .tabs{display:flex;gap:0;border-bottom: 2px solid #E2DDD8;margin-bottom:24px;}
     .tab{padding:12px 20px;font-size:.9rem;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;}
-    .tab:hover{color:#F8FAFC;}
+    .tab:hover{color: #1B1A19;}
     .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
     .tab-panel{display:none;}.tab-panel.active{display:block;}
     /* Cards */
-    .card{background:#111827;border:1px solid #1E293B;border-radius:var(--radius-md);margin-bottom:20px;}
+    .card{background: #FFFFFF;border: 1px solid #E2DDD8;border-radius:var(--radius-md);margin-bottom:20px;}
     .card-header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:center;}
     .card-title{font-size:1rem;font-weight:700;}
     .card-body{padding:20px 24px 24px;}
@@ -103,7 +103,7 @@
     .badge-exited{background:var(--border-light);color:var(--text-secondary);}
     .money{font-family:'JetBrains Mono',monospace;font-weight:600;}
     .pct{font-family:'JetBrains Mono',monospace;color:#6B6560;}
-    .btn-xs{padding:5px 10px;font-size:.75rem;font-weight:600;border-radius:var(--radius-sm);border:1px solid #1E293B;background:#111827;color:var(--text-secondary);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;}
+    .btn-xs{padding:5px 10px;font-size:.75rem;font-weight:600;border-radius:var(--radius-sm);border: 1px solid #E2DDD8;background: #FFFFFF;color:var(--text-secondary);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;}
     .btn-xs:hover{background:var(--accent);color:white;border-color:var(--accent);}
     .btn-xs.danger:hover{background:var(--danger);border-color:var(--danger);}
     /* Capital summary bar */
@@ -114,7 +114,7 @@
     .dist-item:last-child{border-bottom:none;}
     /* Document grid */
     .doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;}
-    .doc-card{background:var(--border-light);border:1px solid #1E293B;border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:all .15s;}
+    .doc-card{background:var(--border-light);border: 1px solid #E2DDD8;border-radius:var(--radius);padding:16px;text-align:center;cursor:pointer;transition:all .15s;}
     .doc-card:hover{border-color:var(--accent);background:var(--accent-light);}
     .doc-icon{font-size:1.5rem;color:var(--accent);margin-bottom:8px;}
     .doc-name{font-size:.8rem;font-weight:600;}
@@ -123,12 +123,12 @@
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
     .form-group{margin-bottom:0;}
     .form-group label{display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;}
-    .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border:1px solid #1E293B;border-radius:var(--radius);font-size:.9rem;color:#F8FAFC;background:#111827;outline:none;transition:all .15s;font-family:'Inter',sans-serif;}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;border: 1px solid #E2DDD8;border-radius:var(--radius);font-size:.9rem;color: #1B1A19;background: #FFFFFF;outline:none;transition:all .15s;font-family:'Inter',sans-serif;}
     .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
     /* Modal */
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
     .modal-overlay.open{display:flex;}
-    .modal{background:#111827;border-radius:var(--radius-md);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+    .modal{background: #FFFFFF;border-radius:var(--radius-md);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
     .modal-header{padding:24px 28px 0;display:flex;justify-content:space-between;align-items:center;}
     .modal-title{font-size:1.1rem;font-weight:700;}
     .modal-close{width:32px;height:32px;border:none;background:var(--border-light);border-radius:var(--radius-sm);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
@@ -160,7 +160,6 @@
       .form-grid{grid-template-columns:1fr;}
     }
   </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
 <div class="app"><aside class="sidebar" id="sidebar"></aside>
@@ -345,10 +344,10 @@ function render() {
       <div class="card-body" style="padding:16px 22px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <span style="font-size:13px;font-weight:600;color:#1B1A19;">Capital Raise Progress</span>
-          <span style="font-size:13px;color:#94A3B8;">${fmtFull$(totalCommitted)} raised of ${fmtFull$(raise)} target</span>
+          <span style="font-size:13px;color: #6B6560;">${fmtFull$(totalCommitted)} raised of ${fmtFull$(raise)} target</span>
         </div>
         <div class="cap-bar"><div class="cap-fill" style="width:${pctRaised}%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:#94A3B8;margin-top:6px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color: #6B6560;margin-top:6px;">
           <span><strong style="color:#1B1A19;">${pctRaised}%</strong> funded · ${linked.length} investor${linked.length!==1?'s':''}</span>
           <span>${fmtFull$(Math.max(0,raise-totalCommitted))} remaining</span>
         </div>
@@ -384,7 +383,7 @@ function render() {
       <div style="background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.06));border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
         <div>
           <div style="font-weight:700;font-size:15px;color:#1B1A19;margin-bottom:3px;"><i class="fas fa-bolt" style="color:#34d399;margin-right:8px;"></i>Ready to run a distribution?</div>
-          <div style="font-size:13px;color:#94A3B8;">The Distribution Command Center calculates pref-aware splits and posts to each investor's ledger.</div>
+          <div style="font-size:13px;color: #6B6560;">The Distribution Command Center calculates pref-aware splits and posts to each investor's ledger.</div>
         </div>
         <a href="distribution-calc.html?deal=${deal.id}" class="btn btn-primary" style="white-space:nowrap;background:#10b981;">
           <i class="fas fa-bolt"></i> Run Distribution for This Deal
@@ -407,7 +406,7 @@ function render() {
       <div style="background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.05));border:1px solid rgba(245,158,11,0.25);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;">
         <div>
           <div style="font-weight:700;font-size:15px;color:#1B1A19;margin-bottom:3px;"><i class="fas fa-hand-holding-usd" style="color:#fbbf24;margin-right:8px;"></i>Need to call capital?</div>
-          <div style="font-size:13px;color:#94A3B8;">Issue a notice to all linked investors requesting their capital contribution.</div>
+          <div style="font-size:13px;color: #6B6560;">Issue a notice to all linked investors requesting their capital contribution.</div>
         </div>
         <a href="capital-calls.html?deal=${deal.id}" class="btn btn-primary" style="white-space:nowrap;background:#f59e0b;">
           <i class="fas fa-hand-holding-usd"></i> Issue Capital Call
@@ -422,10 +421,10 @@ function render() {
             <div style="overflow-x:auto;">
               <table style="width:100%;border-collapse:collapse;">
                 <thead><tr>
-                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Call #</th>
-                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Amount</th>
-                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Due Date</th>
-                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Status</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color: #6B6560;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Call #</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color: #6B6560;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Amount</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color: #6B6560;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Due Date</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color: #6B6560;background:rgba(255,255,255,.02);border-bottom:1px solid rgba(255,255,255,.08);">Status</th>
                 </tr></thead>
                 <tbody>${capitalCalls.map(c => {
                   const isOverdue = c.dueDate && new Date(c.dueDate) < new Date() && c.status !== 'received';
@@ -434,7 +433,7 @@ function render() {
                   return `<tr>
                     <td style="padding:12px 14px;color:#6B6560;">${c.callNumber||'Initial'}</td>
                     <td style="padding:12px 14px;font-family:'JetBrains Mono',monospace;font-weight:700;">${fmtFull$(c.amount||0)}</td>
-                    <td style="padding:12px 14px;color:${isOverdue?'#f87171':'#94A3B8'};">${c.dueDate||'—'}</td>
+                    <td style="padding:12px 14px;color:${isOverdue?'#f87171':'#6B6560'};">${c.dueDate||'—'}</td>
                     <td style="padding:12px 14px;"><span style="background:${statusColor}22;color:${statusColor};padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;">${statusLabel}</span></td>
                   </tr>`;
                 }).join('')}</tbody>
@@ -469,7 +468,7 @@ function render() {
         </div>
         <div class="card-body">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-            <div style="border:1px solid #1E293B; border-radius:8px; padding:20px;">
+            <div style="border: 1px solid #E2DDD8; border-radius:8px; padding:20px;">
               <div style="font-weight:700; font-size:0.9rem; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
                 <i class="fas fa-landmark" style="color:var(--warning);"></i> SEC Form D
               </div>
@@ -479,7 +478,7 @@ function render() {
                  <button class="btn btn-secondary" style="width:100%;" onclick="markFormDFiled('${deal.id}')">Mark as Filed</button>`
               }
             </div>
-            <div style="border:1px solid #1E293B; border-radius:8px; padding:20px;">
+            <div style="border: 1px solid #E2DDD8; border-radius:8px; padding:20px;">
               <div style="font-weight:700; font-size:0.9rem; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
                 <i class="fas fa-fingerprint" style="color:var(--accent);"></i> Audit Trail
               </div>
@@ -559,7 +558,7 @@ function renderDocumentsTab() {
         </div>
       </div>
       ${hasOA ? `
-        <div id="oaPreview" style="display:none;border-top:1px solid #1E293B;padding:32px;background:#fafafa;">
+        <div id="oaPreview" style="display:none;border-top:1px solid #E2DDD8;padding:32px;background:#fafafa;">
           ${deal.generatedOA}
         </div>` : ''}
     </div>
@@ -599,7 +598,6 @@ function printOA() {
   w.document.write(`<!DOCTYPE html><html><head><title>${deal.name} — Operating Agreement</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}
-    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style>  <link rel="stylesheet" href="contrast-fix.css">
 </head><body>${html}</body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 500);
@@ -748,7 +746,7 @@ function viewSubDoc(investorId) {
   }
   const invName = inv.firstName ? `${inv.firstName} ${inv.lastName}` : 'Investor';
   modal.innerHTML = `
-    <div style="background: #111827;border-radius:12px;width:100%;max-width:860px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 64px rgba(0,0,0,.5);">
+    <div style="background: #FFFFFF;border-radius:12px;width:100%;max-width:860px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 64px rgba(0,0,0,.5);">
       <div style="background: #0ea5e9;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
         <div>
           <div style="color:white;font-weight:700;font-family:'Sora',sans-serif;">Subscription Agreement</div>
@@ -772,7 +770,6 @@ function printSubDoc(contentId) {
   w.document.write(`<!DOCTYPE html><html><head><title>Subscription Agreement</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <style>body{font-family:Georgia,serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.8;}
-    h1,h2,h3{font-family:sans-serif;}@media print{@page{margin:1in}}</style>  <link rel="stylesheet" href="contrast-fix.css">
 </head><body>${content}</body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 400);
@@ -831,14 +828,13 @@ function sendSubDoc(investorId) {
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     body{font-family:Georgia,serif;max-width:720px;margin:40px auto;padding:40px;line-height:1.7;}
     h1{font-size:1.4rem;text-align:center;text-transform:uppercase;margin-bottom:4px;}
-    .subtitle{text-align:center;color:#94a3b8;margin-bottom:40px;}
-    h2{font-size:1rem;margin:28px 0 12px;border-bottom:1px solid #1E293B;padding-bottom:4px;}
+    .subtitle{text-align:center;color: #6B6560;margin-bottom:40px;}
+    h2{font-size:1rem;margin:28px 0 12px;border-bottom: 1px solid #E2DDD8;padding-bottom:4px;}
     .field{border-bottom:1px solid #333;display:inline-block;min-width:200px;margin:0 8px;}
     .sig-block{margin-top:60px;display:grid;grid-template-columns:1fr 1fr;gap:60px;}
     .sig-line{border-top:1px solid #333;margin-top:40px;padding-top:8px;font-size:.85rem;}
     .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:5rem;color:rgba(0,0,0,.04);font-weight:700;pointer-events:none;}
     @media print{.no-print{display:none;}}
-    </style>  <link rel="stylesheet" href="contrast-fix.css">
 </head><body>
     <div class="watermark">DRAFT</div>
     <div class="no-print" style="background:#fef3c7;padding:12px 20px;margin-bottom:24px;border-radius:8px;font-family:sans-serif;font-size:.9rem;">

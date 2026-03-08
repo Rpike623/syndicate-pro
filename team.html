@@ -16,28 +16,27 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --bg: #F3F3F3; --radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; min-height: 100vh; }
+        body { background: #F3F3F3; color: #1B1A19; display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
-        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; font-size: 0.75rem; color: #94A3B8; padding: 12px 20px; background: #0B1120; border-bottom: 1px solid #1E293B; }
+        th { text-align: left; font-size: 0.75rem; color: #6B6560; padding: 12px 20px; background: #F3F3F3; border-bottom: 1px solid #E2DDD8; }
         td { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.9rem; vertical-align: middle; }
         
         .role-badge { padding: 4px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
         .role-admin { background: rgba(239,68,68,0.15); color: #f87171; }
         .role-junior { background: rgba(14,165,233,0.15); color: #38bdf8; }
-        .role-limited { background: #f3f4f6; color: #94A3B8; }
+        .role-limited { background: #f3f4f6; color: #6B6560; }
 
         .btn { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; font-size: 0.875rem; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: var(--accent); color: white; }
-        .btn-secondary { background: #111827; border: 1px solid #1E293B; }
+        .btn-secondary { background: #FFFFFF; border: 1px solid #E2DDD8; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -46,7 +45,7 @@
         <div class="header">
             <div>
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Team Management</h1>
-                <p style="color:#94A3B8;">Manage internal staff access and collaborator permissions</p>
+                <p style="color: #6B6560;">Manage internal staff access and collaborator permissions</p>
             </div>
             <button class="btn btn-primary" onclick="inviteMember()"><i class="fas fa-plus"></i> Invite Member</button>
         </div>
@@ -67,7 +66,7 @@
                     <tr>
                         <td>
                             <div style="font-weight: 600;">Robert Pike (You)</div>
-                            <div style="font-size: 0.75rem; color:#94A3B8;">robert@pikecapital.com</div>
+                            <div style="font-size: 0.75rem; color: #6B6560;">robert@pikecapital.com</div>
                         </td>
                         <td><span class="role-badge role-admin">Owner / Admin</span></td>
                         <td><span style="color: #10b981; font-size: 0.75rem;"><i class="fas fa-circle"></i> Active Now</span></td>
@@ -77,10 +76,10 @@
                     <tr>
                         <td>
                             <div style="font-weight: 600;">Sarah Miller</div>
-                            <div style="font-size: 0.75rem; color:#94A3B8;">s.miller@pikecapital.com</div>
+                            <div style="font-size: 0.75rem; color: #6B6560;">s.miller@pikecapital.com</div>
                         </td>
                         <td><span class="role-badge role-junior">Junior Analyst</span></td>
-                        <td><span style="color: #94a3b8; font-size: 0.75rem;"><i class="fas fa-circle"></i> Offline</span></td>
+                        <td><span style="color: #6B6560; font-size: 0.75rem;"><i class="fas fa-circle"></i> Offline</span></td>
                         <td>Feb 20, 2026</td>
                         <td style="text-align: right;"><button class="btn-xs"><i class="fas fa-ellipsis-v"></i></button></td>
                     </tr>

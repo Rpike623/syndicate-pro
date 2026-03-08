@@ -11,33 +11,32 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --bg: #F3F3F3; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:#0B1120;color: #F8FAFC;display:flex;min-height:100vh;}
+        body { background: #F3F3F3;color: #1B1A19;display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
-        .om-container { max-width: 1000px; margin: 0 auto; background: #111827; border: 1px solid #1E293B; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow: hidden; }
+        .om-container { max-width: 1000px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow: hidden; }
         .om-hero { height: 400px; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.8), url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; padding: 60px; color: white; }
         
-        .om-nav { background: #0B1120; border-bottom: 1px solid #1E293B; display: flex; gap: 32px; padding: 0 60px; height: 60px; align-items: center; }
-        .om-nav a { text-decoration: none; color: #94A3B8; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: color 0.2s; }
+        .om-nav { background: #F3F3F3; border-bottom: 1px solid #E2DDD8; display: flex; gap: 32px; padding: 0 60px; height: 60px; align-items: center; }
+        .om-nav a { text-decoration: none; color: #6B6560; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; transition: color 0.2s; }
         .om-nav a:hover, .om-nav a.active { color: var(--accent); }
 
         .om-body { padding: 60px; }
         .om-section { margin-bottom: 64px; }
         .om-section h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
-        .om-section h2::after { content: ''; flex: 1; height: 2px; background: #0B1120; }
+        .om-section h2::after { content: ''; flex: 1; height: 2px; background: #F3F3F3; }
 
         .video-placeholder { width: 100%; aspect-ratio: 16/9; background: #0ea5e9; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; cursor: pointer; position: relative; overflow: hidden; }
         .video-placeholder i { font-size: 4rem; opacity: 0.8; transition: transform 0.2s; }
         .video-placeholder:hover i { transform: scale(1.1); opacity: 1; }
 
         .highlights-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-        .highlight-card { padding: 24px; background: #0B1120; border-radius: 12px; border: 1px solid #1E293B; text-align: center; }
+        .highlight-card { padding: 24px; background: #F3F3F3; border-radius: 12px; border: 1px solid #E2DDD8; text-align: center; }
         .highlight-val { font-size: 1.5rem; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--accent); }
-        .highlight-lbl { font-size: 0.75rem; color: #94A3B8; font-weight: 700; margin-top: 4px; }
+        .highlight-lbl { font-size: 0.75rem; color: #6B6560; font-weight: 700; margin-top: 4px; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -87,7 +86,7 @@
 
                 <section class="om-section">
                     <h2><i class="fas fa-location-dot" style="color: #f43f5e;"></i> Market Context</h2>
-                    <p style="line-height: 1.8; color:#94A3B8;">
+                    <p style="line-height: 1.8; color: #6B6560;">
                         Pecan Hollow is strategically positioned within 5 miles of the new Amazon Fulfillment Center and the BNSF Intermodal Hub. Fort Worth North has experienced 4.2% annual rent growth over the past 36 months, with vacancy rates consistently below 5%.
                     </p>
                 </section>

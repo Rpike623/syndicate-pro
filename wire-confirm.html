@@ -11,23 +11,22 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --success: #2D9A6B; --bg: #F3F3F3; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:#0B1120;color: #F8FAFC;display:flex;min-height:100vh;}
+        body { background: #F3F3F3;color: #1B1A19;display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         
         .wire-table { width: 100%; border-collapse: collapse; }
-        .wire-table th { text-align: left; font-size: 0.7rem; color: #94A3B8; padding: 12px 16px; border-bottom: 2px solid #1E293B; text-transform: uppercase; }
+        .wire-table th { text-align: left; font-size: 0.7rem; color: #6B6560; padding: 12px 16px; border-bottom: 2px solid #E2DDD8; text-transform: uppercase; }
         .wire-table td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.85rem; }
         
         .status-pill { padding: 4px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
-        .status-pending { background: #111827beb; color: #fbbf24; }
+        .status-pending { background: #FFFFFFbeb; color: #fbbf24; }
         .status-confirmed { background: rgba(16,185,129,0.15); color: #34d399; }
         
         .btn-confirm { padding: 6px 12px; background: var(--success); color: white; border: none; border-radius: 6px; font-size: 0.7rem; font-weight: 700; cursor: pointer; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -36,9 +35,9 @@
         <div style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Wire Confirmation Center</h1>
-                <p style="color:#94A3B8;">Verifying Proof of Funds and reconciled bank wires for active offerings</p>
+                <p style="color: #6B6560;">Verifying Proof of Funds and reconciled bank wires for active offerings</p>
             </div>
-            <div style="background: #0B1120; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;">
+            <div style="background: #F3F3F3; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700;">
                 Raise Reconciled: <span style="color: var(--accent);">84%</span>
             </div>
         </div>
@@ -57,18 +56,18 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>Phil Chapman</strong><br><span style="font-size: 0.7rem; color:#94A3B8;">philip@jchapmancpa.com</span></td>
+                        <td><strong>Phil Chapman</strong><br><span style="font-size: 0.7rem; color: #6B6560;">philip@jchapmancpa.com</span></td>
                         <td style="font-family: 'JetBrains Mono'; font-weight: 700;">$250,000</td>
                         <td><a href="#" style="color: var(--accent); text-decoration: none;"><i class="fas fa-file-pdf"></i> wire_receipt.pdf</a></td>
                         <td><span class="status-pill status-pending">Awaiting Verify</span></td>
                         <td style="text-align: right;"><button class="btn-confirm">Confirm Receipt</button></td>
                     </tr>
                     <tr>
-                        <td><strong>Sarah Chen</strong><br><span style="font-size: 0.7rem; color:#94A3B8;">s.chen@capital.com</span></td>
+                        <td><strong>Sarah Chen</strong><br><span style="font-size: 0.7rem; color: #6B6560;">s.chen@capital.com</span></td>
                         <td style="font-family: 'JetBrains Mono'; font-weight: 700;">$500,000</td>
                         <td><a href="#" style="color: var(--accent); text-decoration: none;"><i class="fas fa-file-pdf"></i> citybank_wire.pdf</a></td>
                         <td><span class="status-pill status-confirmed">Confirmed</span></td>
-                        <td style="text-align: right;"><span style="color: #94a3b8; font-size: 0.7rem;">Mar 03, 4:12 PM</span></td>
+                        <td style="text-align: right;"><span style="color: #6B6560; font-size: 0.7rem;">Mar 03, 4:12 PM</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -77,7 +76,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
             <div class="card" style="background: var(--primary); color: white; border: none;">
                 <h3>Automatic LP Notification</h3>
-                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 10px;">
+                <p style="font-size: 0.8rem; color: #6B6560; margin-top: 10px;">
                     When you click "Confirm Receipt," the LP is instantly emailed a branded confirmation and their portal HUD is updated to <strong>"FUNDED"</strong>.
                 </p>
             </div>
@@ -85,7 +84,7 @@
                 <h3>Escrow Account Snapshot</h3>
                 <div style="margin-top: 16px;">
                     <div style="font-size: 1.5rem; font-weight: 800; font-family: 'JetBrains Mono';">$1,450,000</div>
-                    <div style="font-size: 0.7rem; color:#94A3B8; text-transform: uppercase; margin-top: 4px;">Total Received vs. $5.5M Target</div>
+                    <div style="font-size: 0.7rem; color: #6B6560; text-transform: uppercase; margin-top: 4px;">Total Received vs. $5.5M Target</div>
                 </div>
             </div>
         </div>

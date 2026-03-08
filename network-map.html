@@ -17,19 +17,18 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --bg: #F3F3F3; --radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; min-height: 100vh; }
+        body { background: #F3F3F3; color: #1B1A19; display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
-        .map-container { background: #111827; border: 1px solid #1E293B; border-radius: 16px; height: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .map-container { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: 16px; height: 600px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         #networkGraph { height: 100%; width: 100%; }
         
-        .overlay-card { position: absolute; top: 20px; right: 20px; width: 280px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); border: 1px solid #1E293B; border-radius: 12px; padding: 20px; z-index: 10; }
-        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.8rem; font-weight: 600; color: #94A3B8; }
+        .overlay-card { position: absolute; top: 20px; right: 20px; width: 280px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); border: 1px solid #E2DDD8; border-radius: 12px; padding: 20px; z-index: 10; }
+        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.8rem; font-weight: 600; color: #6B6560; }
         .dot { width: 10px; height: 10px; border-radius: 50%; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -37,7 +36,7 @@
     <main class="main">
         <div style="margin-bottom: 32px;">
             <h1 style="font-size: 1.6rem; font-weight: 800;">Investor Network Map</h1>
-            <p style="color:#94A3B8;">Visualizing relationships between Limited Partners and Deal Entities</p>
+            <p style="color: #6B6560;">Visualizing relationships between Limited Partners and Deal Entities</p>
         </div>
 
         <div class="map-container">

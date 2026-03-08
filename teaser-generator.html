@@ -22,7 +22,7 @@
       --radius: 16px;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; min-height: 100vh; }
+    body { background: #F3F3F3; color: #1B1A19; min-height: 100vh; }
     h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
     .app { display: flex; min-height: 100vh; }
     
@@ -39,48 +39,47 @@
     
     .main { flex: 1; margin-left: 260px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid #1E293B; background: var(--bg-panel); }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 32px; border-bottom: 1px solid #E2DDD8; background: var(--bg-panel); }
     .btn { padding: 10px 20px; border-radius: 10px; border: none; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
     .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
-    .btn-ghost { background: #111827; border: 1px solid #1E293B; color: var(--text-muted); }
+    .btn-ghost { background: #FFFFFF; border: 1px solid #E2DDD8; color: var(--text-muted); }
     
     .content { padding: 32px; max-width: 1400px; display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
     
     /* Form Side */
-    .form-panel { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; }
+    .form-panel { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; }
     .panel-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 24px; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 12px; text-transform: uppercase; color: var(--text-muted); }
-    .form-group input, .form-group select, .form-group textarea { padding: 12px; border-radius: 10px; border: 1px solid #1E293B; background: #0B1120; color: #F8FAFC; font-size: 14px; }
+    .form-group input, .form-group select, .form-group textarea { padding: 12px; border-radius: 10px; border: 1px solid #E2DDD8; background: #F3F3F3; color: #1B1A19; font-size: 14px; }
     .form-group textarea { min-height: 80px; resize: vertical; }
     .form-group.full-width { grid-column: 1 / -1; }
     
     /* Preview Side */
-    .preview-panel { background: #111827; border-radius: var(--radius); overflow: hidden; color: #1a1a2e; }
+    .preview-panel { background: #FFFFFF; border-radius: var(--radius); overflow: hidden; color: #1a1a2e; }
     .teaser-header { background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; padding: 40px; }
     .teaser-logo { font-family: 'Space Grotesk'; font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; }
     .teaser-logo span { color: #a855f7; }
     .teaser-title { font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
     .teaser-subtitle { font-size: 1.1rem; opacity: 0.8; }
-    .teaser-highlights { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 30px 40px; background: #0B1120; border-bottom: 1px solid #1E293B; }
+    .teaser-highlights { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 30px 40px; background: #F3F3F3; border-bottom: 1px solid #E2DDD8; }
     .highlight { text-align: center; }
     .highlight-value { font-family: 'Space Grotesk'; font-size: 1.75rem; font-weight: 700; color: #a855f7; }
-    .highlight-label { font-size: 12px; color: #94A3B8; text-transform: uppercase; margin-top: 4px; }
+    .highlight-label { font-size: 12px; color: #6B6560; text-transform: uppercase; margin-top: 4px; }
     .teaser-body { padding: 40px; }
     .teaser-section { margin-bottom: 32px; }
     .teaser-section h3 { font-size: 1.1rem; margin-bottom: 12px; color: #1a1a2e; }
-    .teaser-section p { font-size: 14px; line-height: 1.7; color: #94A3B8; }
+    .teaser-section p { font-size: 14px; line-height: 1.7; color: #6B6560; }
     .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .metric { background: #0B1120; padding: 16px; border-radius: 10px; }
-    .metric-label { font-size: 11px; text-transform: uppercase; color: #94A3B8; margin-bottom: 4px; }
+    .metric { background: #F3F3F3; padding: 16px; border-radius: 10px; }
+    .metric-label { font-size: 11px; text-transform: uppercase; color: #6B6560; margin-bottom: 4px; }
     .metric-value { font-family: 'Space Grotesk'; font-size: 1.25rem; font-weight: 600; }
-    .teaser-footer { background: #0B1120; padding: 24px 40px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1E293B; }
-    .contact-info { font-size: 13px; color: #94A3B8; }
+    .teaser-footer { background: #F3F3F3; padding: 24px 40px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2DDD8; }
+    .contact-info { font-size: 13px; color: #6B6560; }
     .contact-info strong { color: #1a1a2e; }
     .cta-btn { background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; padding: 14px 28px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; }
   </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
   <div class="app"><aside class="sidebar" id="sidebar"></aside>
@@ -241,11 +240,11 @@
         const formPanel = document.querySelector('.form-panel, .sidebar-form, form, .inputs');
         if (formPanel) {
           const loaderDiv = document.createElement('div');
-          loaderDiv.style.cssText = 'margin-bottom:20px;padding:14px;background: #0B1120;border:1px solid #1E293B;border-radius:8px;';
+          loaderDiv.style.cssText = 'margin-bottom:20px;padding:14px;background: #F3F3F3;border: 1px solid #E2DDD8;border-radius:8px;';
           loaderDiv.innerHTML = `
-            <label style="display:block;font-size:.8rem;font-weight:600;color:#64748b;margin-bottom:8px;"><i class="fas fa-bolt" style="color:#0ea5e9;margin-right:4px;"></i> Load from Existing Deal</label>
+            <label style="display:block;font-size:.8rem;font-weight:600;color: #9C9590;margin-bottom:8px;"><i class="fas fa-bolt" style="color:#0ea5e9;margin-right:4px;"></i> Load from Existing Deal</label>
             <div style="display:flex;gap:8px;">
-              <select id="teaserDealSelect" style="flex:1;padding:9px 12px;border:1px solid #1E293B;border-radius:8px;font-family:'Inter',sans-serif;font-size:.875rem;outline:none;">
+              <select id="teaserDealSelect" style="flex:1;padding:9px 12px;border: 1px solid #E2DDD8;border-radius:8px;font-family:'Inter',sans-serif;font-size:.875rem;outline:none;">
                 <option value="">— Pick a deal —</option>
                 ${deals.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}
               </select>

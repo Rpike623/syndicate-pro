@@ -16,16 +16,16 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --bg: #F3F3F3; --radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; min-height: 100vh; }
+        body { background: #F3F3F3; color: #1B1A19; display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .matrix { display: grid; grid-template-columns: 120px repeat(3, 1fr); gap: 12px; margin-top: 32px; }
-        .matrix-header { font-size: 0.75rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; text-align: center; padding: 12px; }
-        .matrix-side { font-size: 0.75rem; font-weight: 700; color: #94A3B8; text-transform: uppercase; display: flex; align-items: center; justify-content: flex-end; padding-right: 16px; }
+        .matrix-header { font-size: 0.75rem; font-weight: 700; color: #6B6560; text-transform: uppercase; text-align: center; padding: 12px; }
+        .matrix-side { font-size: 0.75rem; font-weight: 700; color: #6B6560; text-transform: uppercase; display: flex; align-items: center; justify-content: flex-end; padding-right: 16px; }
         
-        .matrix-cell { height: 140px; background: #111827; border: 1px solid #1E293B; border-radius: 8px; padding: 12px; overflow-y: auto; }
+        .matrix-cell { height: 140px; background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: 8px; padding: 12px; overflow-y: auto; }
         .matrix-cell.high-risk { background: rgba(239,68,68,0.15); border-color: #fca5a5; }
         .matrix-cell.med-risk { background: #ffedd5; border-color: #fdba74; }
         .matrix-cell.low-risk { background: rgba(16,185,129,0.15); border-color: #86efac; }
@@ -34,7 +34,6 @@
         
         .risk-lbl { font-size: 0.65rem; font-weight: 700; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -42,10 +41,10 @@
     <main class="main">
         <div style="margin-bottom: 32px;">
             <h1 style="font-size: 1.6rem; font-weight: 800;">Portfolio Risk Matrix</h1>
-            <p style="color:#94A3B8;">Visualizing deal concentration across Leverage and Market volatility</p>
+            <p style="color: #6B6560;">Visualizing deal concentration across Leverage and Market volatility</p>
         </div>
 
-        <div class="card" style="background: #111827; border: 1px solid #1E293B; border-radius: 16px; padding: 32px;">
+        <div class="card" style="background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: 16px; padding: 32px;">
             <div class="matrix">
                 <!-- Headers -->
                 <div></div>
@@ -76,12 +75,12 @@
         <div class="card" style="margin-top: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
             <div>
                 <h3 style="font-size: 1rem; margin-bottom: 12px;">Concentration Analysis</h3>
-                <p style="font-size: 0.85rem; color:#94A3B8; line-height: 1.6;">
+                <p style="font-size: 0.85rem; color: #6B6560; line-height: 1.6;">
                     Your portfolio currently has a <strong>25% concentration</strong> in high-leverage value-add assets (Pecan Hollow). We recommend targeting core-plus acquisitions for the next two quarters to rebalance the risk profile.
                 </p>
             </div>
-            <div style="background: #0B1120; border-radius: 8px; padding: 16px; border: 1px solid #1E293B;">
-                <div style="font-size: 0.7rem; font-weight: 700; color:#94A3B8; text-transform: uppercase; margin-bottom: 8px;">Weighted Avg Portfolio LTV</div>
+            <div style="background: #F3F3F3; border-radius: 8px; padding: 16px; border: 1px solid #E2DDD8;">
+                <div style="font-size: 0.7rem; font-weight: 700; color: #6B6560; text-transform: uppercase; margin-bottom: 8px;">Weighted Avg Portfolio LTV</div>
                 <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">68.4%</div>
             </div>
         </div>

@@ -18,19 +18,19 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --success: #2D9A6B; --bg: #F3F3F3; --radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; min-height: 100vh; }
+        body { background: #F3F3F3; color: #1B1A19; display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
         .card-title { font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         
         .metric-hero { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
-        .metric-val { font-size: 2.5rem; font-weight: 800; font-family: 'JetBrains Mono'; color: #F8FAFC; }
+        .metric-val { font-size: 2.5rem; font-weight: 800; font-family: 'JetBrains Mono'; color: #1B1A19; }
         .metric-delta { font-size: 0.9rem; font-weight: 600; color: var(--success); }
-        .metric-label { font-size: 0.8rem; text-transform: uppercase; color: #94A3B8; font-weight: 700; letter-spacing: 0.05em; }
+        .metric-label { font-size: 0.8rem; text-transform: uppercase; color: #6B6560; font-weight: 700; letter-spacing: 0.05em; }
 
         .benchmark-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
         .benchmark-row:last-child { border-bottom: none; }
@@ -38,7 +38,6 @@
         .bm-val { font-family: 'JetBrains Mono'; font-weight: 600; font-size: 0.85rem; }
         .percentile-tag { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; background: rgba(16,185,129,0.15); color: #34d399; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -46,7 +45,7 @@
     <main class="main">
         <div style="margin-bottom: 32px;">
             <h1 style="font-size: 1.6rem; font-weight: 800;">GP Performance Benchmarks</h1>
-            <p style="color:#94A3B8;">Internal performance metrics compared to regional market averages</p>
+            <p style="color: #6B6560;">Internal performance metrics compared to regional market averages</p>
         </div>
 
         <div class="grid">
@@ -91,15 +90,15 @@
         <div class="card">
             <div class="card-title"><i class="fas fa-balance-scale" style="color: var(--accent);"></i> Efficiency Ratios</div>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                <div style="padding: 16px; border-radius: 8px; background: #0B1120; border: 1px solid #1E293B;">
+                <div style="padding: 16px; border-radius: 8px; background: #F3F3F3; border: 1px solid #E2DDD8;">
                     <div class="metric-label" style="font-size: 0.65rem;">Capex Yield On Cost</div>
                     <div style="font-size: 1.25rem; font-weight: 700; margin-top: 4px;">14.2%</div>
                 </div>
-                <div style="padding: 16px; border-radius: 8px; background: #0B1120; border: 1px solid #1E293B;">
+                <div style="padding: 16px; border-radius: 8px; background: #F3F3F3; border: 1px solid #E2DDD8;">
                     <div class="metric-label" style="font-size: 0.65rem;">Investor Acquisition Cost</div>
                     <div style="font-size: 1.25rem; font-weight: 700; margin-top: 4px;">$1,420</div>
                 </div>
-                <div style="padding: 16px; border-radius: 8px; background: #0B1120; border: 1px solid #1E293B;">
+                <div style="padding: 16px; border-radius: 8px; background: #F3F3F3; border: 1px solid #E2DDD8;">
                     <div class="metric-label" style="font-size: 0.65rem;">Days to Fundraise (Avg)</div>
                     <div style="font-size: 1.25rem; font-weight: 700; margin-top: 4px;">18 Days</div>
                 </div>

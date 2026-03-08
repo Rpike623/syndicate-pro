@@ -11,28 +11,27 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --bg: #F3F3F3; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:#0B1120;color: #F8FAFC;display:flex;min-height:100vh;}
+        body { background: #F3F3F3;color: #1B1A19;display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         
         .fx-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-        .fx-card { background: #111827; border: 1px solid #1E293B; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
-        .fx-pair { font-weight: 700; font-size: 0.9rem; color: #94A3B8; }
-        .fx-rate { font-family: 'JetBrains Mono'; font-weight: 600; color: #F8FAFC; }
+        .fx-card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .fx-pair { font-weight: 700; font-size: 0.9rem; color: #6B6560; }
+        .fx-rate { font-family: 'JetBrains Mono'; font-weight: 600; color: #1B1A19; }
         .fx-delta { font-size: 0.75rem; font-weight: 600; }
         .delta-up { color: #10b981; }
         .delta-down { color: #ef4444; }
 
         .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #94A3B8; margin-bottom: 8px; }
-        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #1E293B; font-family: 'Inter'; font-size: 0.9rem; }
+        label { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #6B6560; margin-bottom: 8px; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #E2DDD8; font-family: 'Inter'; font-size: 0.9rem; }
         
-        .result-box { background: #0B1120; padding: 20px; border-radius: 12px; text-align: center; }
+        .result-box { background: #F3F3F3; padding: 20px; border-radius: 12px; text-align: center; }
         .result-val { font-size: 2rem; font-weight: 800; color: var(--accent); font-family: 'JetBrains Mono'; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -40,7 +39,7 @@
     <main class="main">
         <div style="margin-bottom: 32px;">
             <h1 style="font-size: 1.6rem; font-weight: 800;">Currency & Transaction Center</h1>
-            <p style="color:#94A3B8;">Managing offshore capital flows and real-time exchange sensitization</p>
+            <p style="color: #6B6560;">Managing offshore capital flows and real-time exchange sensitization</p>
         </div>
 
         <div class="fx-grid">
@@ -69,7 +68,7 @@
                     </div>
                     <div class="result-box">
                         <div class="result-val" id="usdResult">$108,400</div>
-                        <div style="font-size: 0.75rem; color:#94A3B8; text-transform: uppercase; margin-top: 4px;">Equivalent USD Position</div>
+                        <div style="font-size: 0.75rem; color: #6B6560; text-transform: uppercase; margin-top: 4px;">Equivalent USD Position</div>
                     </div>
                 </div>
             </div>
@@ -77,10 +76,10 @@
             <!-- Tax Treaties Card -->
             <div class="card">
                 <h3>Foreign LP Tax Withholding</h3>
-                <p style="font-size: 0.85rem; color:#94A3B8; margin-top: 8px;">Automated treaty analysis for international members.</p>
+                <p style="font-size: 0.85rem; color: #6B6560; margin-top: 8px;">Automated treaty analysis for international members.</p>
                 <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
                     <div style="padding: 12px; background: #dcfce7; border-radius: 8px; border: 1px solid #10b981; font-size: 0.8rem; color: #16a34a; font-weight: 600;"><i class="fas fa-certificate"></i> UK-US Treaty Active (0.0% Withholding)</div>
-                    <div style="padding: 12px; background: #111827beb; border-radius: 8px; border: 1px solid #f59e0b; font-size: 0.8rem; color: #92400e; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> German Treaty Review Required (15% Default)</div>
+                    <div style="padding: 12px; background: #FFFFFFbeb; border-radius: 8px; border: 1px solid #f59e0b; font-size: 0.8rem; color: #92400e; font-weight: 600;"><i class="fas fa-exclamation-triangle"></i> German Treaty Review Required (15% Default)</div>
                 </div>
             </div>
         </div>

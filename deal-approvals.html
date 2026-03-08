@@ -11,27 +11,26 @@
     <style>
         :root { --primary: #1B1A19; --accent: #F37925; --bg: #F3F3F3; --radius: 12px; }
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Inter',sans-serif;background:#0B1120;color: #F8FAFC;display:flex;min-height:100vh;}
+        body { background: #F3F3F3;color: #1B1A19;display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        .card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+        .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         
-        .workflow-step { display: flex; gap: 20px; align-items: flex-start; padding: 20px; border-radius: 10px; background: #0B1120; border: 1px solid #1E293B; margin-bottom: 12px; position: relative; }
+        .workflow-step { display: flex; gap: 20px; align-items: flex-start; padding: 20px; border-radius: 10px; background: #F3F3F3; border: 1px solid #E2DDD8; margin-bottom: 12px; position: relative; }
         .workflow-step.completed { border-left: 4px solid var(--success); background: #f0fdf4; }
         .workflow-step.active { border-left: 4px solid var(--accent); background: rgba(14,165,233,0.08); }
         
-        .step-icon { width: 40px; height: 40px; border-radius: 50%; background: #111827; border: 1px solid #1E293B; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .step-icon { width: 40px; height: 40px; border-radius: 50%; background: #FFFFFF; border: 1px solid #E2DDD8; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
         .workflow-step.completed .step-icon { color: var(--success); border-color: var(--success); }
         .workflow-step.active .step-icon { color: var(--accent); border-color: var(--accent); }
 
         .step-content { flex: 1; }
         .step-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
-        .step-meta { font-size: 0.75rem; color: #94A3B8; }
+        .step-meta { font-size: 0.75rem; color: #6B6560; }
         
         .btn-approve { padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -40,9 +39,9 @@
         <div style="margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Investment Approval Center</h1>
-                <p style="color:#94A3B8;">Managing the 'Underwriting to Close' workflow for internal stakeholders</p>
+                <p style="color: #6B6560;">Managing the 'Underwriting to Close' workflow for internal stakeholders</p>
             </div>
-            <select style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; background: #111827; font-weight: 600;">
+            <select style="padding: 10px 16px; border-radius: 8px; border: 1px solid #E2DDD8; background: #FFFFFF; font-weight: 600;">
                 <option>Pecan Hollow — Series A</option>
             </select>
         </div>
@@ -74,7 +73,7 @@
                     <div class="step-title">Funding & Loan Commitment</div>
                     <div class="step-meta">Requires final Term Sheet executed</div>
                 </div>
-                <div style="color: #94a3b8; font-size: 0.7rem; font-weight: 700;">LOCKED</div>
+                <div style="color: #6B6560; font-size: 0.7rem; font-weight: 700;">LOCKED</div>
             </div>
 
             <div class="workflow-step">
@@ -83,13 +82,13 @@
                     <div class="step-title">General Counsel PPM Sign-off</div>
                     <div class="step-meta">Legal review of Operating Agreement</div>
                 </div>
-                <div style="color: #94a3b8; font-size: 0.7rem; font-weight: 700;">LOCKED</div>
+                <div style="color: #6B6560; font-size: 0.7rem; font-weight: 700;">LOCKED</div>
             </div>
         </div>
 
         <div class="card" style="background: #0ea5e9; color: white; border: none;">
             <h3>Strategic Compliance Note</h3>
-            <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 10px; line-height: 1.6;">
+            <p style="font-size: 0.85rem; color: #6B6560; margin-top: 10px; line-height: 1.6;">
                 Closing cannot occur until 100% of "Initial Pro Forma" and "PPM Sign-off" milestones are digitally stamped. This provides a clear audit trail for the eventual Form D filing.
             </p>
         </div>
