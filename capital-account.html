@@ -194,8 +194,8 @@
                 const amount = rec.amount || rec.totalThisDist || 0;
                 const prefPaid = rec.prefPaidThisDist || 0;
                 const desc = prefPaid > 0
-                    ? `Distribution — ${dist.dealName || 'Asset'} (${dist.period || dist.quarter + ' ' + dist.year}) · incl. ${fmt$(prefPaid)} pref`
-                    : `Distribution — ${dist.dealName || 'Asset'} (${dist.period || (dist.quarter + ' ' + dist.year) || '—'})`;
+                    ? `Distribution — ${dist.dealName || 'Asset'} (${dist.period || (dist.quarter && dist.year ? dist.quarter + ' ' + dist.year : '—')}) · incl. ${fmt$(prefPaid)} pref`
+                    : `Distribution — ${dist.dealName || 'Asset'} (${dist.period || ((dist.quarter && dist.year ? dist.quarter + ' ' + dist.year : '—')) || '—'})`;
                 rows.push({
                     date: dist.date,
                     type: 'distribution',

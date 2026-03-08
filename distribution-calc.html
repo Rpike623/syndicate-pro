@@ -495,7 +495,7 @@ function renderHistory() {
   body.innerHTML = posted.slice().reverse().map(d => `
     <div class="dist-row">
       <div>
-        <div style="font-weight:600;">${d.period || (d.quarter + ' ' + d.year) || '—'}</div>
+        <div style="font-weight:600;">${d.period || (d.quarter && d.year ? d.quarter + ' ' + d.year : null) || '—'}</div>
         <div style="font-size:11px;color:var(--text-muted);">${d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString() : '—'} · ${(d.recipients || []).length} investors</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">

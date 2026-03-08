@@ -403,7 +403,7 @@ function render() {
       return `<div class="dist-item">
         <div>
           <div class="dist-deal">${dist.dealName || 'Unknown Deal'}</div>
-          <div class="dist-period">${dist.period || (dist.quarter+' '+dist.year) || '—'} · ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'}</div>
+          <div class="dist-period">${dist.period || ((dist.quarter && dist.year ? dist.quarter+' '+dist.year : '—')) || '—'} · ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'}</div>
         </div>
         <div class="dist-amount">${fmtFull$(amount)}</div>
       </div>`;
@@ -450,7 +450,7 @@ function render() {
         <div>
           <div class="dist-deal">${dist.dealName||'Unknown Deal'}</div>
           <div class="dist-period">
-            ${dist.period||(dist.quarter+' '+dist.year)||'—'} ·
+            ${dist.period||((dist.quarter && dist.year ? dist.quarter+' '+dist.year : '—'))||'—'} ·
             ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'} ·
             ${dist.method||'Wire'}
           </div>

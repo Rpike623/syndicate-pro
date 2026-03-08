@@ -332,7 +332,7 @@ function render() {
               <div class="dist-item">
                 <div>
                   <div style="font-weight:600;">${d.dealName || 'Unknown Deal'}</div>
-                  <div style="font-size:.78rem;color:var(--text-muted);">${d.period || (d.quarter + ' ' + d.year) || '—'} · ${d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString() : '—'}</div>
+                  <div style="font-size:.78rem;color:var(--text-muted);">${d.period || ((d.quarter && d.year ? d.quarter + ' ' + d.year : '—')) || '—'} · ${d.date ? new Date(d.date + 'T00:00:00').toLocaleDateString() : '—'}</div>
                   ${r.prefPaidThisDist > 0 ? `<div style="font-size:.72rem;color:var(--warning);margin-top:2px;"><i class="fas fa-star"></i> Pref: ${fmtFull$(r.prefPaidThisDist)} + Excess: ${fmtFull$(r.excessThisDist || 0)}</div>` : ''}
                 </div>
                 <div style="text-align:right;">
