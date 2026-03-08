@@ -479,7 +479,8 @@
       distributions[idx].status = 'posted';
       distributions[idx].postedAt = new Date().toISOString();
       SP.saveDistributions(distributions);
-      SP.logActivity('fa-lock','green',`Distribution for <strong>${distributions[idx].dealName}</strong> posted — ledger locked.`);
+      const _postDealName = distributions[idx].dealName || (SP.getDeals().find(d => d.id === distributions[idx].dealId)||{}).name || 'Unknown Deal';
+      SP.logActivity('fa-lock','green',`Distribution for <strong>${_postDealName}</strong> posted — ledger locked.`);
       renderDistributions();
       updateStats();
     }

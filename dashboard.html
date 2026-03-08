@@ -1107,7 +1107,7 @@ function renderActivity(activity) {
     <div class="activity-item">
       <div class="activity-icon ${a.color}"><i class="fas ${a.icon}"></i></div>
       <div class="activity-body">
-        <div class="activity-text">${a.text}</div>
+        <div class="activity-text">${(a.text||'').replace(/<strong>undefined<\/strong>/g,'<strong>a deal</strong>').replace(/undefined/g,'—')}</div>
         <div class="activity-time">${a.time}</div>
       </div>
     </div>`).join('');
