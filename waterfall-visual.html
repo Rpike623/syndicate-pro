@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Waterfall Visualizer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v2"></script>
+  <script src="js/sp-data.js?v2"></script>
+  <script src="js/sp-firebase.js?v2"></script>
+  <style>
+    :root { --accent:#F37925; --accent-hover:#D96515; --success:#2D9A6B; --warning:#E8890A; --danger:#D94F3D; --bg:#F3F3F3; --surface:#FFFFFF; --border:#E2DDD8; --text:#1B1A19; --text-muted:#6B6560; --text-light:#9C9590; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); display:flex; min-height:100vh; font-size:14px; }
+    .main { flex:1; margin-left:260px; min-height:100vh; display:flex; flex-direction:column; }
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;}}
+    .top-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 32px; height:60px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+    .top-bar h1 { font-size:17px; font-weight:700; }
+    .top-bar p { font-size:12px; color:var(--text-muted); }
+    .mobile-menu-btn { display:none; background:none; border:1px solid var(--border); border-radius:8px; padding:8px 10px; cursor:pointer; }
+    @media(max-width:768px){.mobile-menu-btn{display:flex!important;} .top-bar{padding:0 14px;}}
+    .content { padding:28px 32px; flex:1; max-width:900px; margin:0 auto; }
+    @media(max-width:768px){.content{padding:14px;}}
+
+    /* Config bar */
+    .config-bar { display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap; align-items:end; }
+    .config-bar .form-group { flex:1; min-width:180px; }
+    .config-bar label { display:block; font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:5px; }
+    .config-bar select, .config-bar input { width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text); font-size:14px; font-family:inherit; }
+
+    /* Waterfall visualization */
+    .waterfall { display:flex; flex-direction:column; gap:0; position:relative; }
+    .wf-pool { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px 24px; text-align:center; margin-bottom:4px; position:relative; overflow:hidden; }
+    .wf-pool-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-bottom:6px; }
+    .wf-pool-amount { font-size:32px; font-weight:900; font-family:'JetBrains Mono',monospace; letter-spacing:-0.03em; }
+    .wf-pool-sub { font-size:12px; color:var(--text-muted); margin-top:4px; }
+    .wf-pool .fill-bar { position:absolute; bottom:0; left:0; height:4px; border-radius:0 0 16px 16px; transition:width 0.8s ease-out; }
+
+    /* Arrow connector */
+    .wf-arrow { text-align:center; padding:8px 0; color:var(--text-light); font-size:18px; }
+
+    /* Tier */
+    .wf-tier { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 24px; margin-bottom:4px; display:flex; align-items:center; gap:20px; position:relative; overflow:hidden; transition:all 0.3s; }
+    .wf-tier:hover { box-shadow:0 4px 12px rgba(27,26,25,0.08); }
+    .wf-tier-icon { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+    .wf-tier-body { flex:1; }
+    .wf-tier-name { font-size:15px; font-weight:700; margin-bottom:2px; }
+    .wf-tier-desc { font-size:12px; color:var(--text-muted); line-height:1.5; }
+    .wf-tier-amounts { text-align:right; flex-shrink:0; }
+    .wf-tier-total { font-size:20px; font-weight:800; font-family:'JetBrains Mono',monospace; }
+    .wf-tier-split { font-size:11px; color:var(--text-muted); margin-top:2px; }
+    .wf-tier .fill-bar { position:absolute; bottom:0; left:0; height:3px; transition:width 0.8s ease-out; }
+
+    /* Recipients */
+    .wf-recipients { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+    @media(max-width:600px){.wf-recipients{grid-template-columns:1fr;}}
+    .wf-recipient { background:#F3F0ED; border-radius:10px; padding:16px; display:flex; justify-content:space-between; align-items:center; }
+    .wf-recipient-label { font-size:13px; font-weight:600; }
+    .wf-recipient-sub { font-size:11px; color:var(--text-muted); }
+    .wf-recipient-amount { font-size:18px; font-weight:800; font-family:'JetBrains Mono',monospace; }
+
+    /* Animate in */
+    .wf-tier.animate-in { animation:slideUp 0.5s ease-out; }
+    @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Explainer callout */
+    .explainer { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px 24px; margin-top:24px; }
+    .explainer h3 { font-size:14px; font-weight:700; margin-bottom:8px; }
+    .explainer p { font-size:13px; color:var(--text-muted); line-height:1.7; }
+    .explainer strong { color:var(--text); }
+  </style>
+  <link rel="stylesheet" href="contrast-fix.css">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <main class="main">
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')">
+          <i class="fas fa-bars" style="color:var(--text-light);"></i>
+        </button>
+        <div>
+          <h1><i class="fas fa-water" style="color:var(--accent);margin-right:8px;font-size:16px;"></i>Waterfall Visualizer</h1>
+          <p>See exactly how your deal's cash flow splits between LPs and GP at each tier</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="config-bar">
+        <div class="form-group">
+          <label>Deal</label>
+          <select id="dealSelect" onchange="onDealChange()">
+            <option value="">— Select a deal —</option>
+          </select>
+        </div>
+        <div class="form-group" style="max-width:200px;">
+          <label>Cash to Distribute</label>
+          <input type="number" id="cashAmount" value="1000000" min="0" step="10000" oninput="render()">
+        </div>
+        <div class="form-group" style="max-width:160px;">
+          <label>Scenario</label>
+          <select id="scenario" onchange="applyScenario()">
+            <option value="custom">Custom Amount</option>
+            <option value="1x">1× Return (Get Money Back)</option>
+            <option value="1.5x">1.5× Return</option>
+            <option value="2x">2× Return (Double)</option>
+            <option value="3x">3× Return (Home Run)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="waterfall"></div>
+
+      <div class="explainer" id="explainer" style="display:none;">
+        <h3><i class="fas fa-lightbulb" style="color:var(--warning);margin-right:6px;"></i>How This Waterfall Works</h3>
+        <div id="explainerText"></div>
+      </div>
+    </div>
+  </main>
+
+<script>
+SP.requireGP();
+
+let currentDeal = null;
+
+function fmt$(n) {
+  const v = Math.abs(n);
+  if (v >= 1e6) return '$' + (v/1e6).toFixed(2) + 'M';
+  if (v >= 1e3) return '$' + (v/1e3).toFixed(0) + 'K';
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits:0, maximumFractionDigits:0 });
+}
+function fmtFull$(n) {
+  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits:0, maximumFractionDigits:0 });
+}
+
+function init() {
+  const deals = SP.getDeals();
+  const sel = document.getElementById('dealSelect');
+  sel.innerHTML = '<option value="">— Select a deal —</option>';
+  deals.filter(d => d.status !== 'archived').forEach(d => {
+    sel.appendChild(Object.assign(document.createElement('option'), { value:d.id, textContent:d.name }));
+  });
+  const urlDeal = new URLSearchParams(location.search).get('deal');
+  if (urlDeal) { sel.value = urlDeal; onDealChange(); }
+}
+
+SP.onDataReady(init);
+
+function onDealChange() {
+  currentDeal = SP.getDealById(document.getElementById('dealSelect').value);
+  if (currentDeal) {
+    const equity = currentDeal.totalEquity || currentDeal.raise || 0;
+    document.getElementById('cashAmount').value = equity; // Default to 1x return
+  }
+  render();
+}
+
+function applyScenario() {
+  if (!currentDeal) return;
+  const equity = currentDeal.totalEquity || currentDeal.raise || 0;
+  const s = document.getElementById('scenario').value;
+  const multipliers = { '1x':1, '1.5x':1.5, '2x':2, '3x':3 };
+  if (multipliers[s]) document.getElementById('cashAmount').value = equity * multipliers[s];
+  render();
+}
+
+function render() {
+  const container = document.getElementById('waterfall');
+  const explainer = document.getElementById('explainer');
+  if (!currentDeal) { container.innerHTML = ''; explainer.style.display = 'none'; return; }
+
+  const cash = parseFloat(document.getElementById('cashAmount').value) || 0;
+  const equity = currentDeal.totalEquity || currentDeal.raise || 0;
+  const prefRate = currentDeal.prefReturn || 0;
+  const gpPromote = currentDeal.gpPromote || 20;
+  const gpEquity = currentDeal.gpEquity || 10;
+  const lpEquity = 100 - gpEquity;
+  const holdYears = currentDeal.holdPeriod || 5;
+
+  // Calculate waterfall tiers
+  let remaining = cash;
+  const tiers = [];
+
+  // Tier 1: Return of Capital
+  const roc = Math.min(remaining, equity);
+  const lpRoc = roc * lpEquity / 100;
+  const gpRoc = roc * gpEquity / 100;
+  remaining -= roc;
+  tiers.push({
+    name: 'Return of Capital',
+    desc: 'Investors get their original investment back first — dollar for dollar.',
+    icon: 'fa-undo', color: '#6B6560',
+    total: roc, lpShare: lpRoc, gpShare: gpRoc,
+    lpPct: lpEquity, gpPct: gpEquity
+  });
+
+  // Tier 2: Preferred Return
+  if (prefRate > 0 && remaining > 0) {
+    const totalPref = equity * lpEquity / 100 * prefRate / 100 * holdYears;
+    const prefPaid = Math.min(remaining, totalPref);
+    remaining -= prefPaid;
+    tiers.push({
+      name: `${prefRate}% Preferred Return`,
+      desc: `LPs receive a ${prefRate}% annual return on their invested capital before the GP gets any promote. This accrues over ${holdYears} years = ${(prefRate * holdYears).toFixed(0)}% total.`,
+      icon: 'fa-star', color: '#E8890A',
+      total: prefPaid, lpShare: prefPaid, gpShare: 0,
+      lpPct: 100, gpPct: 0
+    });
+  }
+
+  // Tier 3: GP Catch-up
+  if (prefRate > 0 && remaining > 0) {
+    const totalPref = equity * lpEquity / 100 * prefRate / 100 * holdYears;
+    const catchupTarget = (gpPromote / 100) / (1 - gpPromote / 100) * totalPref;
+    const catchup = Math.min(remaining, catchupTarget);
+    remaining -= catchup;
+    if (catchup > 0) {
+      tiers.push({
+        name: 'GP Catch-Up',
+        desc: `The GP receives 100% of distributions until they've earned ${gpPromote}% of all profits distributed so far. This "catches up" the GP to their target promote.`,
+        icon: 'fa-bolt', color: '#F37925',
+        total: catchup, lpShare: 0, gpShare: catchup,
+        lpPct: 0, gpPct: 100
+      });
+    }
+  }
+
+  // Tier 4: Residual Split
+  if (remaining > 0) {
+    const lpRes = remaining * (100 - gpPromote) / 100;
+    const gpRes = remaining * gpPromote / 100;
+    tiers.push({
+      name: 'Residual Split',
+      desc: `Everything above the pref + catch-up splits ${100 - gpPromote}/${gpPromote} between LPs and GP. This is the "promote" or "carried interest."`,
+      icon: 'fa-handshake', color: '#2D9A6B',
+      total: remaining, lpShare: lpRes, gpShare: gpRes,
+      lpPct: 100 - gpPromote, gpPct: gpPromote
+    });
+  }
+
+  // Calculate totals
+  const totalLP = tiers.reduce((s, t) => s + t.lpShare, 0);
+  const totalGP = tiers.reduce((s, t) => s + t.gpShare, 0);
+  const lpMultiple = equity > 0 ? (totalLP / (equity * lpEquity / 100)).toFixed(2) : '0.00';
+  const gpMultiple = equity > 0 ? (totalGP / (equity * gpEquity / 100)).toFixed(2) : '0.00';
+
+  // Render
+  let html = '';
+
+  // Pool
+  html += `
+    <div class="wf-pool">
+      <div class="wf-pool-label">Total Cash to Distribute</div>
+      <div class="wf-pool-amount">${fmtFull$(cash)}</div>
+      <div class="wf-pool-sub">${equity > 0 ? (cash / equity).toFixed(2) + '× equity multiple' : ''}</div>
+      <div class="fill-bar" style="width:100%;background:var(--accent);"></div>
+    </div>
+    <div class="wf-arrow"><i class="fas fa-arrow-down"></i></div>`;
+
+  // Tiers
+  let consumed = 0;
+  tiers.forEach((t, i) => {
+    consumed += t.total;
+    const pctOfTotal = cash > 0 ? (t.total / cash * 100) : 0;
+    html += `
+      <div class="wf-tier animate-in" style="animation-delay:${i * 0.15}s;">
+        <div class="wf-tier-icon" style="background:${t.color}22;color:${t.color};"><i class="fas ${t.icon}"></i></div>
+        <div class="wf-tier-body">
+          <div class="wf-tier-name">${t.name}</div>
+          <div class="wf-tier-desc">${t.desc}</div>
+        </div>
+        <div class="wf-tier-amounts">
+          <div class="wf-tier-total" style="color:${t.color};">${fmtFull$(t.total)}</div>
+          <div class="wf-tier-split">LP ${t.lpPct}% / GP ${t.gpPct}%</div>
+        </div>
+        <div class="fill-bar" style="width:${pctOfTotal}%;background:${t.color};"></div>
+      </div>`;
+    if (i < tiers.length - 1) html += '<div class="wf-arrow"><i class="fas fa-arrow-down"></i></div>';
+  });
+
+  // Recipients summary
+  html += `
+    <div style="margin-top:20px;">
+      <div class="wf-recipients">
+        <div class="wf-recipient">
+          <div>
+            <div class="wf-recipient-label">Limited Partners (LPs)</div>
+            <div class="wf-recipient-sub">${lpEquity}% equity · ${lpMultiple}× return</div>
+          </div>
+          <div class="wf-recipient-amount" style="color:var(--success);">${fmtFull$(totalLP)}</div>
+        </div>
+        <div class="wf-recipient">
+          <div>
+            <div class="wf-recipient-label">General Partner (GP)</div>
+            <div class="wf-recipient-sub">${gpEquity}% equity · ${gpMultiple}× return</div>
+          </div>
+          <div class="wf-recipient-amount" style="color:var(--accent);">${fmtFull$(totalGP)}</div>
+        </div>
+      </div>
+    </div>`;
+
+  container.innerHTML = html;
+
+  // Explainer
+  explainer.style.display = '';
+  const moic = equity > 0 ? (cash / equity) : 0;
+  let expText = `<p>This deal has <strong>${fmtFull$(equity)}</strong> total equity with a <strong>${lpEquity}/${gpEquity}</strong> LP/GP split.`;
+  if (prefRate > 0) {
+    expText += ` LPs receive a <strong>${prefRate}% preferred return</strong> before the GP earns any promote.`;
+  }
+  expText += ` Above the pref hurdle, profits split <strong>${100-gpPromote}/${gpPromote}</strong> LP/GP.</p>`;
+  expText += `<p style="margin-top:8px;">At a <strong>${moic.toFixed(2)}× exit</strong>, LPs receive <strong>${fmtFull$(totalLP)}</strong> (${lpMultiple}× on their capital) and the GP receives <strong>${fmtFull$(totalGP)}</strong> (${gpMultiple}× on their co-invest).</p>`;
+  if (moic < 1) {
+    expText += `<p style="margin-top:8px;color:var(--danger);"><strong>⚠ This is a loss scenario.</strong> Investors do not receive their full capital back.</p>`;
+  }
+  document.getElementById('explainerText').innerHTML = expText;
+}
+</script>
+</body>
+</html>
