@@ -20,36 +20,35 @@
             --bear: #D94F3D; --base: #F37925; --bull: #2D9A6B;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; min-height: 100vh; }
+        body { background: #F3F3F3; color: #1B1A19; display: flex; min-height: 100vh; }
         /* sidebar CSS moved to dt-global.css */
         .main { flex: 1; margin-left: 260px; padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
-        .card { background: #111827; border: 1px solid #1E293B; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.5)%; }
+        .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06)%; }
         
         .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
-        .scenario-card { border-top: 4px solid #1E293B; }
+        .scenario-card { border-top: 4px solid #E2DDD8; }
         .scenario-bear { border-top-color: var(--bear); }
         .scenario-base { border-top-color: var(--base); }
         .scenario-bull { border-top-color: var(--bull); }
         
         .scenario-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
         .input-group { margin-bottom: 16px; }
-        .input-group label { display: block; font-size: 0.75rem; color: #94A3B8; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid #1E293B; border-radius: 6px; font-family: 'JetBrains Mono'; }
+        .input-group label { display: block; font-size: 0.75rem; color: #6B6560; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #E2DDD8; border-radius: 6px; font-family: 'JetBrains Mono'; }
         
-        .results { margin-top: 20px; padding-top: 20px; border-top: 1px dashed #1E293B; }
+        .results { margin-top: 20px; padding-top: 20px; border-top: 1px dashed #E2DDD8; }
         .res-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
         .res-val { font-weight: 700; font-family: 'JetBrains Mono'; }
         
         .comparison-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
-        .comparison-table th { text-align: left; font-size: 0.75rem; color: #94A3B8; padding: 12px; background: #0B1120; }
+        .comparison-table th { text-align: left; font-size: 0.75rem; color: #6B6560; padding: 12px; background: #F3F3F3; }
         .comparison-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.07); }
 
         @media (max-width: 1024px) { .scenario-grid { grid-template-columns: 1fr; } }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body><aside class="sidebar" id="sidebar"></aside>
 
@@ -57,9 +56,9 @@
         <div class="header">
             <div>
                 <h1 style="font-size: 1.6rem; font-weight: 800;">Exit Scenario Planner</h1>
-                <p style="color:#94A3B8;">Sensitize deal exits across Bear, Base, and Bull cases</p>
+                <p style="color: #6B6560;">Sensitize deal exits across Bear, Base, and Bull cases</p>
             </div>
-            <select id="dealSelect" onchange="loadDealData()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; background: #111827; font-weight: 600;">
+            <select id="dealSelect" onchange="loadDealData()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #E2DDD8; background: #FFFFFF; font-weight: 600;">
                 <option value="">— Select Deal —</option>
             </select>
         </div>
@@ -122,7 +121,7 @@
 
         <div class="card">
             <div class="scenario-title"><i class="fas fa-table"></i> GP Catch-up & Promote Analysis</div>
-            <p style="font-size: 0.85rem; color:#94A3B8; margin-bottom: 20px;">Net Profit Breakdown across scenarios</p>
+            <p style="font-size: 0.85rem; color: #6B6560; margin-bottom: 20px;">Net Profit Breakdown across scenarios</p>
             <table class="comparison-table">
                 <thead>
                     <tr>

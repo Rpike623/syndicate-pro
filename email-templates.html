@@ -52,8 +52,8 @@
     
     body {
       font-family: 'Inter', sans-serif;
-      background: #0B1120;
-      color: #F8FAFC;
+      background: #F3F3F3;
+      color: #1B1A19;
       display: flex;
       min-height: 100vh;
     }
@@ -115,9 +115,9 @@
     }
     
     .template-card {
-      background: #111827;
+      background: #FFFFFF;
       border-radius: var(--radius-md);
-      border: 1px solid #1E293B;
+      border: 1px solid #E2DDD8;
       padding: 24px;
       cursor: pointer;
       transition: 0.2s;
@@ -145,9 +145,9 @@
     .template-card p { font-size: 0.9rem; color: var(--text-secondary); }
     
     .card {
-      background: #111827;
+      background: #FFFFFF;
       border-radius: var(--radius-md);
-      border: 1px solid #1E293B;
+      border: 1px solid #E2DDD8;
       padding: 24px;
       margin-bottom: 24px;
       box-shadow: var(--shadow-sm);
@@ -174,7 +174,7 @@
     
     select, input, textarea {
       padding: 10px 12px;
-      border: 1px solid #1E293B;
+      border: 1px solid #E2DDD8;
       border-radius: var(--radius);
       font-size: 0.95rem;
       transition: 0.2s;
@@ -204,8 +204,8 @@
     
     .btn-primary { background: var(--accent); color: white; }
     .btn-primary:hover { background: var(--accent-hover); }
-    .btn-outline { background: #111827; border: 1px solid #1E293B; color: #F8FAFC; }
-    .btn-outline:hover { background: #0B1120; }
+    .btn-outline { background: #FFFFFF; border: 1px solid #E2DDD8; color: #1B1A19; }
+    .btn-outline:hover { background: #F3F3F3; }
     .btn-success { background: var(--success); color: white; }
     
     /* Email Preview */
@@ -219,7 +219,7 @@
     .email-container {
       max-width: 600px;
       margin: 0 auto;
-      background: #111827;
+      background: #FFFFFF;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
@@ -264,7 +264,6 @@
       .two-col { grid-template-columns: 1fr; }
     }
   </style>
-  <link rel="stylesheet" href="contrast-fix.css">
 </head>
 <body>
 
@@ -273,10 +272,10 @@
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('visible');"></div>
 
   <main class="main">
-    <div style="background:#111827;border-bottom:1px solid #1E293B;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;">
+    <div style="background: #FFFFFF;border-bottom: 1px solid #E2DDD8;padding:16px 32px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;">
       <div>
         <h1 style="font-size:1.25rem;font-weight:700;">Email Templates</h1>
-        <p style="font-size:.8rem;color:#94A3B8;">Professional communications for your investors</p>
+        <p style="font-size:.8rem;color: #6B6560;">Professional communications for your investors</p>
       </div>
     </div>
     <div style="padding:32px;">
@@ -583,11 +582,11 @@
             <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">
               <i class="fas fa-users"></i> Send To
             </label>
-            <div id="recipientContainer" style="max-height:180px;overflow-y:auto;border:1px solid #1E293B;border-radius:8px;padding:8px;background:#111827;">
+            <div id="recipientContainer" style="max-height:180px;overflow-y:auto;border: 1px solid #E2DDD8;border-radius:8px;padding:8px;background: #FFFFFF;">
               <label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:.85rem;cursor:pointer;">
                 <input type="checkbox" id="allInvestors" onchange="toggleAll(this)" checked style="accent-color:var(--accent);"> All Investors (${investors.length})
               </label>
-              <hr style="border:none;border-top:1px solid #1E293B;margin:6px 0;">
+              <hr style="border:none;border-top:1px solid #E2DDD8;margin:6px 0;">
               ${investors.map(inv => `
                 <label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:.82rem;cursor:pointer;">
                   <input type="checkbox" class="inv-checkbox" value="${inv.email}" data-name="${inv.firstName} ${inv.lastName}" checked style="accent-color:var(--accent);">
