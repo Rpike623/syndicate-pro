@@ -158,6 +158,10 @@
                   <div style="background:#F0FDF4;border:1px solid #A7F3D0;border-radius:5px;padding:6px 10px;margin-top:6px;font-size:.72rem;color:#065F46;display:flex;align-items:center;gap:6px;">
                     <i class="fas fa-lock"></i> Wire instructions are encrypted. <a href="integrations.html" style="color:#065F46;font-weight:600;text-decoration:underline;">Enable ACH automation</a> to skip manual wiring.
                   </div>
+                  <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:5px;padding:8px 10px;margin-top:6px;font-size:.72rem;color:#92400E;display:flex;align-items:flex-start;gap:6px;">
+                    <i class="fas fa-exclamation-triangle" style="margin-top:2px;flex-shrink:0;"></i>
+                    <div><strong>Wire Fraud Prevention:</strong> Capital call notices will include a disclaimer: "Always verify wire instructions by calling your sponsor directly before sending funds. Do not rely solely on email."</div>
+                  </div>
                 </div>
                 <div style="display: flex; gap: 12px; margin-top: 24px;">
                   <button class="btn btn-primary" onclick="generateNotice()" style="flex: 1;"><i class="fas fa-file-alt"></i> Generate Notice</button>
@@ -284,6 +288,9 @@
           </div>` : ''}
           <div class="section" style="margin-top: 32px;">
             <p>Please remit funds by the due date. Failure to contribute may result in dilution or other remedies per the Operating Agreement.</p>
+            <div style="margin-top:20px;padding:10px 14px;background:#FEF3C7;border:1px solid #FCD34D;border-radius:6px;font-size:0.78rem;color:#92400E;">
+              <strong>⚠ Wire Fraud Warning:</strong> Always verify wire instructions by calling your sponsor directly at a known phone number before sending any funds. Do not rely solely on email. deeltrack will never ask you to change wire instructions via email.
+            </div>
             <p style="margin-top: 24px;">Sincerely,<br><strong>${gpName}</strong><br>Managing Member</p>
           </div>
         </div>

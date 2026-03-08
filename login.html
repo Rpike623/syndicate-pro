@@ -135,7 +135,7 @@
   <div class="login-wrap">
     <div class="brand">
       <a href="javascript:void(0)" onclick="SP.goHome()" class="brand-logo">
-        <img src="assets/logo-full.svg" height="48" alt="deeltrack">
+        <img src="assets/logo-full-light.svg" height="48" alt="deeltrack">
       </a>
       <p class="brand-tagline">Real Estate Syndication Platform</p>
     </div>
@@ -172,13 +172,10 @@
         Continue with Google
       </button>
 
-      <div class="divider"><span>Demo Credentials</span></div>
-      <div class="demo-box">
-        <p>Try it instantly</p>
-        <div class="demo-cred">Email: <span>gp@deeltrack.com</span></div>
-        <div class="demo-cred">Password: <span>Demo1234!</span></div>
-        <button class="fill-demo" onclick="fillDemo()"><i class="fas fa-magic"></i> Fill Demo Credentials</button>
-      </div>
+      <div class="divider"><span>or</span></div>
+      <button type="button" class="fill-demo" onclick="fillDemo()" style="width:100%;padding:12px;border-radius:var(--radius);border:1px solid var(--border);background:#FFFFFF;font-family:inherit;font-size:0.9rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text);transition:all 0.15s;">
+        <i class="fas fa-play-circle" style="color:var(--accent);"></i> Try the Demo — No signup needed
+      </button>
       <div class="card-footer">Don't have an account? <a href="signup.html">Sign up free</a></div>
     </div>
   </div>
@@ -212,6 +209,8 @@
   function fillDemo() {
     document.getElementById('email').value = 'gp@deeltrack.com';
     document.getElementById('password').value = 'Demo1234!';
+    // Auto-submit after a brief moment so user sees the fields fill
+    setTimeout(() => { document.getElementById('loginForm').dispatchEvent(new Event('submit', {cancelable:true})); }, 300);
   }
 
   async function googleSignIn() {
