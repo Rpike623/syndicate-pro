@@ -345,6 +345,15 @@ function render() {
   // Distributions for this investor
   const allDists = SP.getDistributions().filter(d => d.status === 'posted');
   const myDists = [];
+  // Helper: resolve deal name from dist record or deals list
+  const _resolveDealName = (d) => {
+    if (d.dealName) return d.dealName;
+    const deal = SP.getDeals().find(dl => dl.id === d.dealId);
+    return deal ? deal.name : 'Unknown Deal';
+  };
+  // Helper: safe period string
+  const _distPeriod = (d) => d.period || (d.quarter && d.year ? d.quarter + ' ' + d.year : null) || '—';
+
   allDists.forEach(d => {
     if (!Array.isArray(d.recipients)) return;
     const r = d.recipients.find(r =>
@@ -402,8 +411,8 @@ function render() {
       const amount = r.amount || r.totalThisDist || 0;
       return `<div class="dist-item">
         <div>
-          <div class="dist-deal">${dist.dealName || 'Unknown Deal'}</div>
-          <div class="dist-period">${dist.period || ((dist.quarter && dist.year ? dist.quarter+' '+dist.year : '—')) || '—'} · ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'}</div>
+          <div class="dist-deal">${_resolveDealName(dist)}</div>
+          <div class="dist-period">${_distPeriod(dist)} · ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'}</div>
         </div>
         <div class="dist-amount">${fmtFull$(amount)}</div>
       </div>`;
@@ -448,9 +457,9 @@ function render() {
       const amount = r.amount || r.totalThisDist || 0;
       return `<div class="dist-item">
         <div>
-          <div class="dist-deal">${dist.dealName||'Unknown Deal'}</div>
+          <div class="dist-deal">${_resolveDealName(dist)}</div>
           <div class="dist-period">
-            ${dist.period||((dist.quarter && dist.year ? dist.quarter+' '+dist.year : '—'))||'—'} ·
+            ${_distPeriod(dist)} ·
             ${dist.date ? new Date(dist.date+'T00:00:00').toLocaleDateString() : '—'} ·
             ${dist.method||'Wire'}
           </div>
@@ -498,20 +507,20 @@ function render() {
     const expiry = inv.accredExpiry ? new Date(inv.accredExpiry) : null;
     const daysLeft = expiry ? Math.ceil((expiry - today) / 86400000) : null;
 
-    if (inv.accredStatus === 'verified' && daysLeft > 30) {
+    if (inv.accredStatus === 'verified' && (daysLeft === null || daysLeft > 30)) {
       accredEl.innerHTML = `<div class="accred-card accred-ok">
         <i class="fas fa-check-circle" style="color:var(--success);font-size:1.2rem;"></i>
         <div>
           <div style="font-weight:600;color:var(--success);">Accredited Investor — Verified</div>
-          <div style="font-size:.82rem;color:#6ee7b7;margin-top:2px;">Method: ${inv.accredMethod||'On file'} · Expires: ${expiry ? expiry.toLocaleDateString() : 'N/A'}</div>
+          <div style="font-size:.82rem;color:#6ee7b7;margin-top:2px;">Method: ${inv.accredMethod||'On file'}${expiry ? ' · Expires: '+expiry.toLocaleDateString() : ''}</div>
         </div>
       </div>`;
-    } else if (inv.accredStatus === 'verified' && daysLeft <= 30) {
+    } else if (inv.accredStatus === 'verified' && daysLeft !== null && daysLeft <= 30) {
       accredEl.innerHTML = `<div class="accred-card accred-warn">
         <i class="fas fa-exclamation-triangle" style="color:var(--warning);font-size:1.2rem;"></i>
         <div>
           <div style="font-weight:600;color:var(--warning);">Accreditation Expiring in ${daysLeft} days</div>
-          <div style="font-size:.82rem;color:#fcd34d;margin-top:2px;">Contact your GP to renew before ${expiry?.toLocaleDateString()}.</div>
+          <div style="font-size:.82rem;color:#fcd34d;margin-top:2px;">Contact your GP to renew before ${expiry.toLocaleDateString()}.</div>
         </div>
       </div>`;
     } else if (inv.accredStatus === 'expired') {
