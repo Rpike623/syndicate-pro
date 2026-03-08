@@ -226,7 +226,7 @@ SP.requireGP();
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible');}
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('visible');}
 const session=SP.getSession();
-if(session?.name){document.getElementById('gpName').textContent=session.name;}
+if(session?.name){const _gpEl=document.getElementById('gpName');if(_gpEl)_gpEl.textContent=session.name;}
 
 function fmt$(n){if(!n)return'$0';if(n>=1e9)return'$'+(n/1e9).toFixed(1)+'B';if(n>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(n>=1e3)return'$'+(n/1e3).toFixed(0)+'K';return'$'+n;}
 function fmtFull$(n){return'$'+Number(n||0).toLocaleString();}

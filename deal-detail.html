@@ -246,7 +246,7 @@ function toggleSidebar(){document.getElementById('sidebar').classList.toggle('op
 function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sidebarOverlay').classList.remove('visible');}
 
 const session = SP.getSession();
-if(session?.name) document.getElementById('gpName').textContent = session.name;
+if(session?.name) { const _gpEl = document.getElementById('gpName'); if(_gpEl) _gpEl.textContent = session.name; }
 
 const urlParams = new URLSearchParams(window.location.search);
 const dealId = urlParams.get('id');
