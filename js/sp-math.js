@@ -164,6 +164,16 @@ const SPMath = (() => {
       r.prefRemainingAfterDist   = parseFloat(Math.max(0, r.prefRemainingBeforeDist - r.prefPaidThisDist).toFixed(2));
     });
 
+    // Pass 4 — penny reconciliation: ensure sum of totalThisDist === newAmount exactly
+    const distSum = results.reduce((s, r) => s + r.totalThisDist, 0);
+    const diff = parseFloat((newAmount - distSum).toFixed(2));
+    if (diff !== 0 && results.length > 0) {
+      // Apply rounding diff to the largest investor (least % impact)
+      const largest = results.reduce((a, b) => b.totalThisDist > a.totalThisDist ? b : a);
+      largest.excessThisDist = parseFloat((largest.excessThisDist + diff).toFixed(2));
+      largest.totalThisDist  = parseFloat((largest.prefPaidThisDist + largest.excessThisDist).toFixed(2));
+    }
+
     return results;
   }
 
