@@ -40,19 +40,21 @@ const SPFB = (function () {
 
   // ── Init ────────────────────────────────────────────────────────────────────
   function init() {
+    if (_ready || _db) return; // Already initialized — prevent double-init
     if (typeof firebase === 'undefined') {
       console.warn('SPFB: Firebase SDK not loaded — offline mode');
       _offlineMode = true;
       return;
     }
     try {
+      _db = firebase.firestore();
       // Configure Firestore with cache settings (replaces deprecated enablePersistence)
-      const firestoreSettings = {
-        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
-      };
-      
-      _db      = firebase.firestore();
-      _db.settings(firestoreSettings);
+      try {
+        const cacheSize = firebase.firestore.CACHE_SIZE_UNLIMITED || 104857600; // 100MB fallback
+        _db.settings({ cacheSizeBytes: cacheSize });
+      } catch(settingsErr) {
+        // Settings already applied or not supported — safe to ignore
+      }
       _storage = (typeof firebase.storage === 'function') ? firebase.storage() : null;
       _auth    = firebase.auth();
       _auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
