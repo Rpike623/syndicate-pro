@@ -13,36 +13,44 @@
     <script src="firebase-config.js"></script>
     <script src="js/sp-core.js?v2"></script>
     <script src="js/sp-data.js?v2"></script>
+    <script src="js/sp-firebase.js?v2"></script>
     <script src="js/sp-math.js"></script>
     <style>
-        :root { --primary: #1B1A19; --accent: #F37925; --bg: #F3F3F3; --radius: 12px; }
+        :root { --accent: #F37925; --accent-hover: #D96515; --success: #2D9A6B; --warning: #E8890A; --danger: #D94F3D; --bg: #F3F3F3; --surface: #FFFFFF; --border: #E2DDD8; --text: #1B1A19; --text-muted: #6B6560; --text-light: #9C9590; --radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0B1120; color: #F8FAFC; display: flex; min-height: 100vh; }
-        /* sidebar CSS moved to dt-global.css */
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
         .main { flex: 1; margin-left: 260px; padding: 40px; }
-    @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
-        
+        @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
+
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
-        .statement-card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-        .statement-header { background: #0ea5e9; color: white; padding: 32px; display: flex; justify-content: space-between; }
+        .header h1 { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+        .header p { color: var(--text-muted); }
+        .statement-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .statement-header { background: var(--accent); color: white; padding: 32px; display: flex; justify-content: space-between; }
+        .statement-header .sub { color: rgba(255,255,255,0.75); }
         .statement-body { padding: 32px; }
-        
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #1E293B; border: 1px solid #1E293B; }
-        .summary-cell { background: #111827; padding: 20px; }
-        .val { font-family: 'JetBrains Mono'; font-weight: 700; font-size: 1.1rem; color: #F8FAFC; }
-        .lbl { font-size: 0.72rem; text-transform: uppercase; color: #94A3B8; margin-top: 4px; font-weight: 600; }
+
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+        @media (max-width: 900px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+        .summary-cell { background: var(--surface); padding: 20px; }
+        .val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.1rem; color: var(--text); }
+        .lbl { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
 
         .ledger-table { width: 100%; border-collapse: collapse; margin-top: 32px; }
-        .ledger-table th { text-align: left; padding: 12px 16px; font-size: 0.75rem; color: #94A3B8; background: #0B1120; border-bottom: 2px solid #1E293B; }
-        .ledger-table td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.07); font-size: 0.875rem; }
-        
-        .type-pill { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-        .type-contribution { background: rgba(16,185,129,0.15); color: #34d399; }
-        .type-distribution { background: rgba(14,165,233,0.15); color: #38bdf8; }
+        .ledger-table th { text-align: left; padding: 12px 16px; font-size: 0.75rem; color: var(--text-muted); background: #F8F6F4; border-bottom: 2px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+        .ledger-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
+        .ledger-table tr:hover td { background: #F8F6F4; }
 
-        .btn-print { padding: 10px 20px; background: #111827; border: 1px solid #1E293B; border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+        .type-pill { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .type-contribution { background: rgba(45,154,107,0.12); color: var(--success); }
+        .type-distribution { background: rgba(243,121,37,0.12); color: var(--accent); }
+
+        .btn-print { padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; color: var(--text); }
+        .btn-print:hover { background: #F8F6F4; }
+
+        #investorSelect { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 600; margin-right: 12px; font-family: inherit; }
     </style>
-  <link rel="stylesheet" href="contrast-fix.css">
+
 </head>
 <body>
     <aside class="sidebar" id="sidebar"></aside>
@@ -50,11 +58,11 @@
     <main class="main">
         <div class="header">
             <div>
-                <h1 style="font-size: 1.6rem; font-weight: 800;">Capital Accounts</h1>
-                <p style="color:#94A3B8;">Member-level ledger of all individual contributions and distributions</p>
+                <h1>Capital Accounts</h1>
+                <p>Member-level ledger of all individual contributions and distributions</p>
             </div>
             <div>
-                <select id="investorSelect" onchange="loadStatement()" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #1E293B; background: #111827; font-weight: 600; margin-right: 12px;"></select>
+                <select id="investorSelect" onchange="loadStatement()"></select>
                 <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print Statement</button>
             </div>
         </div>
@@ -63,11 +71,11 @@
             <div class="statement-header">
                 <div>
                     <div style="font-size: 1.25rem; font-weight: 700;">Member Capital Account</div>
-                    <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;" id="orgName">Pike Capital Partners</div>
+                    <div style="font-size: 0.85rem; color: rgba(255,255,255,0.75); margin-top: 4px;" id="orgName">Pike Capital Partners</div>
                 </div>
                 <div style="text-align: right;">
                     <div style="font-weight: 600;" id="lpName">Phil Chapman</div>
-                    <div style="font-size: 0.85rem; color: #94a3b8;" id="lpEmail">philip@jchapmancpa.com</div>
+                    <div style="font-size: 0.85rem; color: rgba(255,255,255,0.75);" id="lpEmail">philip@jchapmancpa.com</div>
                 </div>
             </div>
 
@@ -193,9 +201,11 @@
             myDists.forEach(({ dist, rec }) => {
                 const amount = rec.amount || rec.totalThisDist || 0;
                 const prefPaid = rec.prefPaidThisDist || 0;
+                const _dName = dist.dealName || (deals.find(dl => dl.id === dist.dealId)||{}).name || 'Asset';
+                const _dPeriod = dist.period || (dist.quarter && dist.year ? dist.quarter + ' ' + dist.year : null) || '—';
                 const desc = prefPaid > 0
-                    ? `Distribution — ${dist.dealName || 'Asset'} (${dist.period || (dist.quarter && dist.year ? dist.quarter + ' ' + dist.year : '—')}) · incl. ${fmt$(prefPaid)} pref`
-                    : `Distribution — ${dist.dealName || 'Asset'} (${dist.period || ((dist.quarter && dist.year ? dist.quarter + ' ' + dist.year : '—')) || '—'})`;
+                    ? `Distribution — ${_dName} (${_dPeriod}) · incl. ${fmt$(prefPaid)} pref`
+                    : `Distribution — ${_dName} (${_dPeriod})`;
                 rows.push({
                     date: dist.date,
                     type: 'distribution',
@@ -215,11 +225,11 @@
                 if (r.type === 'contribution') runningBalance += r.amount;
                 else runningBalance -= r.amount;
                 return `<tr>
-                    <td style="color:#94a3b8;white-space:nowrap;">${fmtDate(r.date)}</td>
+                    <td style="color:var(--text-muted);white-space:nowrap;">${fmtDate(r.date)}</td>
                     <td><span class="type-pill type-${r.type}">${r.type === 'contribution' ? 'Contribution' : 'Distribution'}</span></td>
-                    <td style="color:#3D3A37;">${r.desc}</td>
-                    <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:${r.color};">${r.sign}${fmt$(r.amount)}</td>
-                    <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:${runningBalance>=0?'#F8FAFC':'#f87171'};">${fmt$(runningBalance)}</td>
+                    <td>${r.desc}</td>
+                    <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:${r.type === 'contribution' ? 'var(--success)' : 'var(--accent)'};">${r.sign}${fmt$(r.amount)}</td>
+                    <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:${runningBalance>=0?'var(--text)':'var(--danger)'};">${fmt$(runningBalance)}</td>
                 </tr>`;
             });
 
@@ -230,7 +240,7 @@
             }
 
             if (rows.length === 0) {
-                document.getElementById('ledgerBody').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:#64748b;">No transactions found for this investor.</td></tr>`;
+                document.getElementById('ledgerBody').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted);">No transactions found for this investor.</td></tr>`;
             } else {
                 document.getElementById('ledgerBody').innerHTML = tableRows.join('');
             }

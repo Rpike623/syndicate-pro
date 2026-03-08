@@ -38,7 +38,8 @@
     .form-group label { display:block; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; }
     .form-group select, .form-group input { width:100%; padding:10px 14px; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:14px; font-family:inherit; }
     .form-group select:focus, .form-group input:focus { border-color:var(--accent); outline:none; box-shadow:0 0 0 3px rgba(243,121,37,0.1); }
-    table { width:100%; border-collapse:collapse; }
+    .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    table { width:100%; border-collapse:collapse; min-width:700px; }
     th { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-muted); padding:10px 14px; border-bottom:2px solid var(--border); background:#F8F6F4; text-align:left; }
     td { padding:10px 14px; border-bottom:1px solid var(--border); font-size:13px; }
     .mono { font-family:'JetBrains Mono',monospace; font-weight:600; }
@@ -177,8 +178,8 @@
                 <th>Date</th>
                 <th>Memo</th>
                 <th>Account</th>
-                <th style="text-align:right;min-width:100px;">Debit</th>
-                <th style="text-align:right;min-width:100px;">Credit</th>
+                <th style="text-align:right;min-width:110px;">Debit</th>
+                <th style="text-align:right;min-width:110px;">Credit</th>
               </tr>
             </thead>
             <tbody id="journalBody"></tbody>
