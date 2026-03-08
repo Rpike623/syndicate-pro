@@ -843,8 +843,23 @@ window.SP = (function () {
 
   document.addEventListener('DOMContentLoaded', function () {
     if (typeof firebase !== 'undefined') {
-      // Firebase already loaded (e.g. login.html injected it)
-      if (typeof SPFB !== 'undefined') { SPFB.init(); }
+      // Firebase SDKs already loaded via <script> tags
+      if (typeof SPFB !== 'undefined') {
+        SPFB.init();
+      } else {
+        // SDKs present but sp-firebase.js not loaded yet — load it
+        const hasSPFB = Array.from(document.querySelectorAll('script[src]')).some(s => s.src.includes('sp-firebase'));
+        if (!hasSPFB) {
+          const cfg = document.createElement('script'); cfg.src = 'firebase-config.js';
+          cfg.onload = () => {
+            const fb = document.createElement('script'); fb.src = 'js/sp-firebase.js?v2';
+            fb.onload = () => { if (typeof SPFB !== 'undefined') SPFB.init(); };
+            document.head.appendChild(fb);
+          };
+          document.head.appendChild(cfg);
+        }
+        // If sp-firebase.js is in <head> as a sync script, it will load and call SPFB.init() on its own
+      }
       return;
     }
 
