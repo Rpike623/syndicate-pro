@@ -116,7 +116,7 @@ html body .modal-body { background: #FFFFFF !important; color: #1B1A19 !importan
 html body .modal-footer { background: #F7F4F0 !important; color: #1B1A19 !important; border-top-color: #E2DDD8 !important; }
 
 /* ── Buttons ────────────────────────────────────────────────────────── */
-html body .btn-primary { color: #1B1A19 !important; }
+html body .btn-primary { color: #FFFFFF !important; }
 html body .btn-secondary:not(.sidebar .btn-secondary) {
   background: #FFFFFF !important; color: #3D3A37 !important; border-color: #D8D4CE !important;
 }

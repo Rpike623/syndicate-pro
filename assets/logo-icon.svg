@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36">
   <defs>
     <linearGradient id="gradLens1" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#0284c7" />
-      <stop offset="100%" stop-color="#38bdf8" />
+      <stop offset="0%" stop-color="#D96515" />
+      <stop offset="100%" stop-color="#F37925" />
     </linearGradient>
     <linearGradient id="gradLens2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0ea5e9" opacity="0.9" />
-      <stop offset="100%" stop-color="#0369a1" opacity="0.9" />
+      <stop offset="0%" stop-color="#F37925" opacity="0.9" />
+      <stop offset="100%" stop-color="#D96515" opacity="0.9" />
     </linearGradient>
   </defs>
   <g transform="translate(4, 0)">

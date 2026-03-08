@@ -214,6 +214,15 @@ const SPEmail = (function () {
   }
 
   async function _sendOne(to, subject, html, text, templateId, vars) {
+    // Guard: suppress emails for demo org — prevents bouncebacks from fake addresses
+    if (typeof SP !== 'undefined') {
+      const orgId = SP.getOrgId ? SP.getOrgId() : (SP.getSession && SP.getSession()?.orgId);
+      if (orgId === 'deeltrack_demo' || orgId === 'marcus_rivera_org') {
+        console.log('[SPEmail] Demo org — suppressing email to', to);
+        return { status: 'suppressed', to, method: 'demo-guard', reason: 'Demo account — emails not sent' };
+      }
+    }
+
     // Method 1: Firebase Cloud Function (preferred — uses GoDaddy SMTP)
     if (typeof firebase !== 'undefined' && typeof SPFB !== 'undefined' && SPFB.isReady()) {
       try {

@@ -264,7 +264,7 @@ main,
 /* ── BUTTONS ──────────────────────────────────────────────────────────────── */
 .btn-primary, button.btn-primary {
   background: var(--dt-accent) !important;
-  color: #1B1A19 !important;
+  color: #FFFFFF !important;
   border: none !important;
   border-radius: 8px !important;
   padding: 10px 20px !important;
@@ -4472,7 +4472,7 @@ input::placeholder, textarea::placeholder {
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 .btn-primary, button.btn-primary, a.btn-primary {
   background: #F37925 !important;
-  color: #1B1A19 !important;
+  color: #FFFFFF !important;
   font-weight: 700 !important;
   border: none !important;
 }
@@ -4911,12 +4911,12 @@ html body .input-label {
 }
 
 /* ── 9. BUTTONS ─────────────────────────────────────────────────────────── */
-/* btn-primary: orange bg, dark text for contrast on orange */
+/* btn-primary: orange bg, white text */
 html body .btn-primary,
 html body button.btn-primary,
 html body a.btn-primary {
   background: #F37925 !important;
-  color: #1B1A19 !important;
+  color: #FFFFFF !important;
   border: none !important;
   font-weight: 700 !important;
 }
