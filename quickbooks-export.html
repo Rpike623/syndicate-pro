@@ -238,7 +238,7 @@ function onDealChange() {
   if (currentDeal) {
     const type = document.getElementById('qbType').value;
     if (type === 'distribution') {
-      const dists = SP.getDistributions().filter(d => d.dealId === id && d.status === 'posted');
+      const dists = SP.getDistributions().filter(d => d.dealId === id && (!d.status || d.status === 'posted'));
       dists.forEach(d => {
         const o = document.createElement('option');
         o.value = d.id;
@@ -269,7 +269,7 @@ function generate() {
   journalEntries = [];
 
   if (type === 'distribution') {
-    let dists = SP.getDistributions().filter(d => d.dealId === currentDeal.id && d.status === 'posted');
+    let dists = SP.getDistributions().filter(d => d.dealId === currentDeal.id && (!d.status || d.status === 'posted'));
     if (txId) dists = dists.filter(d => d.id === txId);
 
     dists.forEach(dist => {
