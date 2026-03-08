@@ -582,7 +582,7 @@
 
     function openLenderModal() { document.getElementById('lenderModal').classList.add('open'); }
     function closeLenderModal() { document.getElementById('lenderModal').classList.remove('open'); }
-    function saveLender() {
+    async function saveLender() {
       const name = document.getElementById('lenderName').value;
       if (!name) return alert('Lender name required');
       const newLender = {
