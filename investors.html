@@ -57,19 +57,19 @@
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } .sidebar, #sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; } .sidebar.open, #sidebar.open { transform: translateX(0) !important; } }
     .top-bar { background: #FFFFFF; border-bottom: 1px solid #E2DDD8; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
     .top-left { display: flex; align-items: center; gap: 16px; }
-    .mobile-menu-btn { display: none; background: none; border: 1px solid #1E293B; border-radius: var(--radius); padding: 8px 10px; cursor: pointer; }
+    .mobile-menu-btn { display: none; background: none; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 8px 10px; cursor: pointer; }
     .page-title-bar h1 { font-size: 1.25rem; font-weight: 700; }
     .page-title-bar p { font-size: 0.8rem; color: var(--text-secondary); }
     .top-actions { display: flex; gap: 10px; align-items: center; }
     .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; font-size: 0.875rem; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; transition: all 0.15s; text-decoration: none; font-family: 'Inter', sans-serif; }
     .btn-primary { background: var(--accent); color: white; }
     .btn-primary:hover { background: var(--accent-hover); }
-    .btn-secondary { background: #FFFFFF; color: #3D3A37; border: 1px solid #1E293B; }
+    .btn-secondary { background: #FFFFFF; color: #3D3A37; border: 1px solid #E2DDD8; }
     .btn-secondary:hover { background: var(--border-light); }
     .content { padding: 32px; }
     /* Stats */
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-    .stat-card { background: #111827; border: 1px solid #1E293B; border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; gap: 14px; }
+    .stat-card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius-md); padding: 20px; display: flex; align-items: center; gap: 14px; }
     .stat-icon { width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
     .stat-icon.blue { background: var(--accent-light); color: var(--accent); }
     .stat-icon.green { background: var(--success-light); color: var(--success); }
@@ -81,9 +81,9 @@
     .toolbar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
     .search-wrap { position: relative; flex: 1; min-width: 200px; }
     .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.875rem; }
-    .search-input { width: 100%; padding: 10px 12px 10px 36px; border: 1px solid #1E293B; border-radius: var(--radius); font-size: 0.875rem; background: #FFFFFF; color: #1B1A19; outline: none; transition: all 0.15s; font-family: 'Inter', sans-serif; }
+    .search-input { width: 100%; padding: 10px 12px 10px 36px; border: 1px solid #E2DDD8; border-radius: var(--radius); font-size: 0.875rem; background: #FFFFFF; color: #1B1A19; outline: none; transition: all 0.15s; font-family: 'Inter', sans-serif; }
     .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-    select { padding: 10px 14px; border: 1px solid #1E293B; border-radius: var(--radius); font-size: 0.875rem; background: #FFFFFF; color: #1B1A19; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; }
+    select { padding: 10px 14px; border: 1px solid #E2DDD8; border-radius: var(--radius); font-size: 0.875rem; background: #FFFFFF; color: #1B1A19; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; }
     /* Table */
     .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius-md); overflow: hidden; }
     .table-scroll { overflow-x: auto; }
@@ -103,7 +103,7 @@
     .badge-inactive { background: var(--border-light); color: var(--text-secondary); }
     .money { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
     .action-btns { display: flex; gap: 6px; }
-    .btn-xs { padding: 5px 10px; font-size: 0.75rem; font-weight: 600; border-radius: var(--radius-sm); border: 1px solid #1E293B; background: #111827; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; font-family: 'Inter', sans-serif; }
+    .btn-xs { padding: 5px 10px; font-size: 0.75rem; font-weight: 600; border-radius: var(--radius-sm); border: 1px solid #E2DDD8; background: #FFFFFF; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 4px; font-family: 'Inter', sans-serif; }
     .btn-xs:hover { background: var(--accent); color: white; border-color: var(--accent); }
     .btn-xs.danger:hover { background: var(--danger); border-color: var(--danger); }
     .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
@@ -115,7 +115,7 @@
     /* Modal */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.open { display: flex; }
-    .modal { background: #111827; border-radius: var(--radius-md); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+    .modal { background: #FFFFFF; border-radius: var(--radius-md); width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
     .modal-header { padding: 24px 28px 0; display: flex; justify-content: space-between; align-items: center; }
     .modal-title { font-size: 1.2rem; font-weight: 700; }
     .modal-close { width: 32px; height: 32px; border: none; background: var(--border-light); border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 0.9rem; }
@@ -124,7 +124,7 @@
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .form-group { margin-bottom: 18px; }
     .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #1E293B; border-radius: var(--radius); font-size: 0.9rem; color: #F8FAFC; background: #111827; outline: none; transition: all 0.15s; font-family: 'Inter', sans-serif; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #E2DDD8; border-radius: var(--radius); font-size: 0.9rem; color: #1B1A19; background: #FFFFFF; outline: none; transition: all 0.15s; font-family: 'Inter', sans-serif; }
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
     .form-group textarea { resize: vertical; min-height: 80px; }
     .modal-footer { padding: 0 28px 24px; display: flex; justify-content: flex-end; gap: 10px; }
@@ -313,7 +313,7 @@
       <div class="form-group" style="margin-top:16px;"><label>Notes</label><textarea id="fNotes" placeholder="Investment preferences, communication history, etc."></textarea></div>
       <div class="form-group">
         <label><i class="fas fa-paperclip" style="margin-right:4px;color:var(--accent);"></i>Accreditation Document</label>
-        <div id="accredDocZone" style="border:2px dashed #1E293B;border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:all .2s;position:relative;" onclick="document.getElementById('accredDocFile').click()">
+        <div id="accredDocZone" style="border:2px dashed #E2DDD8;border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:all .2s;position:relative;" onclick="document.getElementById('accredDocFile').click()">
           <div id="accredDocLabel" style="font-size:.82rem;color:var(--text-muted);"><i class="fas fa-cloud-upload-alt" style="margin-right:6px;"></i>Click to upload CPA letter, attorney letter, or verification doc (PDF/JPG, max 5MB)</div>
           <input type="file" id="accredDocFile" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleAccredDoc(event)">
         </div>
@@ -342,7 +342,7 @@
       </div>
       <div style="margin-bottom:16px;">
         <label style="display:block;font-size:.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">Upload CSV File</label>
-        <input type="file" id="csvFile" accept=".csv,text/csv" onchange="handleCSVFile(event)" style="width:100%;padding:10px;border:1px solid #1E293B;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:.875rem;">
+        <input type="file" id="csvFile" accept=".csv,text/csv" onchange="handleCSVFile(event)" style="width:100%;padding:10px;border:1px solid #E2DDD8;border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:.875rem;">
       </div>
       <div id="csvPreviewArea"></div>
     </div>
@@ -376,7 +376,7 @@
           <i class="fas fa-link" style="margin-right:4px;"></i>Personal Invite Link
         </label>
         <div style="display:flex;gap:8px;">
-          <input type="text" id="inviteLinkInput" readonly style="flex:1;padding:10px 12px;border:1px solid #1E293B;border-radius:var(--radius);font-size:0.8rem;background:var(--border-light);color:var(--text-secondary);font-family:monospace;">
+          <input type="text" id="inviteLinkInput" readonly style="flex:1;padding:10px 12px;border:1px solid #E2DDD8;border-radius:var(--radius);font-size:0.8rem;background:var(--border-light);color:var(--text-secondary);font-family:monospace;">
           <button class="btn btn-secondary" onclick="copyInviteLink()" id="copyBtn" style="padding:10px 14px;white-space:nowrap;">
             <i class="fas fa-copy"></i> Copy
           </button>
@@ -389,12 +389,12 @@
         <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;">
           <i class="fas fa-envelope" style="margin-right:4px;"></i>Email Preview
         </label>
-        <div style="border:1px solid #1E293B;border-radius:var(--radius);overflow:hidden;">
-          <div style="background:var(--border-light);padding:10px 14px;border-bottom:1px solid #1E293B;font-size:0.8rem;color:var(--text-secondary);">
+        <div style="border:1px solid #E2DDD8;border-radius:var(--radius);overflow:hidden;">
+          <div style="background:var(--border-light);padding:10px 14px;border-bottom:1px solid #E2DDD8;font-size:0.8rem;color:var(--text-secondary);">
             <div><strong>To:</strong> <span id="inviteToLine">—</span></div>
             <div style="margin-top:3px;"><strong>Subject:</strong> <span id="inviteSubjectLine">You've been invited to deeltrack</span></div>
           </div>
-          <div id="inviteEmailBody" style="padding:16px;font-size:0.85rem;line-height:1.7;color:#1B1A19;background: #111827;white-space:pre-wrap;max-height:220px;overflow-y:auto;"></div>
+          <div id="inviteEmailBody" style="padding:16px;font-size:0.85rem;line-height:1.7;color:#1B1A19;background: #FFFFFF;white-space:pre-wrap;max-height:220px;overflow-y:auto;"></div>
         </div>
       </div>
     </div>
@@ -995,7 +995,7 @@ async function sendInviteEmail() {
           <div style="background:#6366f1;padding:24px;border-radius:8px 8px 0 0;text-align:center;">
             <h1 style="color:white;margin:0;">You're invited to deeltrack</h1>
           </div>
-          <div style="background: #0B1120;padding:32px;border-radius:0 0 8px 8px;border:1px solid #1E293B;">
+          <div style="background: #F3F3F3;padding:32px;border-radius:0 0 8px 8px;border:1px solid #E2DDD8;">
             <p style="white-space:pre-line;color:#475569;">${_inviteBody}</p>
           </div>
         </div>`,
@@ -1042,7 +1042,7 @@ async function sendInviteViaDeeltrack() {
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     <tr>
       <td align="center" style="padding:40px 20px;">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background: #111827;border-radius:12px;overflow:hidden;box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background: #FFFFFF;border-radius:12px;overflow:hidden;box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
           <!-- Header -->
           <tr>
             <td style="background:linear-gradient(135deg,#6366f1,#818cf8);padding:32px 40px;text-align:center;">
@@ -1057,7 +1057,7 @@ async function sendInviteViaDeeltrack() {
               <p style="color:#475569;font-size:16px;line-height:1.6;margin:0 0 20px;">Hi ${_inviteEmail.split('@')[0].replace(/\./g,' ').replace(/\b\w/g,l=>l.toUpperCase())},</p>
               <p style="color:#475569;font-size:16px;line-height:1.6;margin:0 0 24px;"><strong>${document.getElementById('inviteSubjectLine').textContent.replace(/.*—\s*/,'')}</strong> has added you as an investor on deeltrack.</p>
               
-              <div style="background: #0B1120;border-radius:8px;padding:24px;margin:24px 0;">
+              <div style="background: #F3F3F3;border-radius:8px;padding:24px;margin:24px 0;">
                 <h3 style="color:#1e293b;margin:0 0 16px;font-size:18px;font-weight:600;">Your investor portal includes:</h3>
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                   <tr>
@@ -1079,12 +1079,12 @@ async function sendInviteViaDeeltrack() {
                 <a href="${document.getElementById('inviteLinkInput').value}" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#818cf8);color:#ffffff;text-decoration:none;padding:16px 32px;border-radius:8px;font-weight:600;font-size:16px;box-shadow: 0 4px 12px rgba(0,0,0,0.5)>
               </div>
               
-              <p style="color:#64748b;font-size:14px;line-height:1.5;margin:24px 0 0;padding-top:24px;border-top:1px solid #1E293B;">This link is personalized for you and will pre-fill your information. If you have any questions, simply reply to this email.</p>
+              <p style="color:#64748b;font-size:14px;line-height:1.5;margin:24px 0 0;padding-top:24px;border-top:1px solid #E2DDD8;">This link is personalized for you and will pre-fill your information. If you have any questions, simply reply to this email.</p>
             </td>
           </tr>
           <!-- Footer -->
           <tr>
-            <td style="background:#0B1120;padding:24px 40px;text-align:center;">
+            <td style="background:#F3F3F3;padding:24px 40px;text-align:center;">
               <p style="color:#94a3b8;font-size:13px;margin:0;">Powered by deeltrack · Real Estate Syndication Platform</p>
               <p style="color:#6B6560;font-size:12px;margin:8px 0 0;">This invitation was sent on behalf of your sponsor</p>
             </td>
@@ -1208,7 +1208,7 @@ function handleCSVFile(e) {
       <div style="margin-bottom:12px;padding:12px;background:var(--success-light);border:1px solid var(--success);border-radius:var(--radius);font-size:.85rem;">
         <strong>${news.length} new investors</strong> will be added &nbsp;·&nbsp; ${dupes.length} duplicates skipped
       </div>
-      <div style="max-height:220px;overflow-y:auto;border:1px solid #1E293B;border-radius:var(--radius);">
+      <div style="max-height:220px;overflow-y:auto;border:1px solid #E2DDD8;border-radius:var(--radius);">
         <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
           <thead><tr style="background:var(--border-light);">
             <th style="padding:8px 12px;text-align:left;">Name</th>

@@ -52,8 +52,8 @@
     
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0B1120;
-      color: #F8FAFC;
+      background: #F3F3F3;
+      color: #1B1A19;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
     }
@@ -157,8 +157,8 @@
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
     
     .top-bar {
-      background: #111827;
-      border-bottom: 1px solid #1E293B;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2DDD8;
       padding: 16px 32px;
       display: flex;
       justify-content: space-between;
@@ -175,7 +175,7 @@
     
     .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
     .breadcrumb a:hover { color: var(--accent); }
-    .breadcrumb-current { color: #F8FAFC; font-weight: 600; }
+    .breadcrumb-current { color: #1B1A19; font-weight: 600; }
     
     .wizard-actions {
       display: flex;
@@ -207,11 +207,11 @@
     }
     
     .btn-secondary {
-      background: #111827;
-      color: #F8FAFC;
-      border: 1px solid #1E293B;
+      background: #FFFFFF;
+      color: #1B1A19;
+      border: 1px solid #E2DDD8;
     }
-    .btn-secondary:hover { background: #0B1120; }
+    .btn-secondary:hover { background: #F3F3F3; }
     
     .content {
       flex: 1;
@@ -246,8 +246,8 @@
     
     /* Form Styles */
     .form-section {
-      background: #111827;
-      border: 1px solid #1E293B;
+      background: #FFFFFF;
+      border: 1px solid #E2DDD8;
       border-radius: var(--radius-md);
       padding: 24px;
       margin-bottom: 24px;
@@ -281,7 +281,7 @@
     label {
       font-size: 0.875rem;
       font-weight: 500;
-      color: #F8FAFC;
+      color: #1B1A19;
     }
     
     .required::after {
@@ -291,7 +291,7 @@
     
     input, select, textarea {
       padding: 12px 16px;
-      border: 1px solid #1E293B;
+      border: 1px solid #E2DDD8;
       border-radius: var(--radius);
       font-size: 0.95rem;
       font-family: inherit;
@@ -342,7 +342,7 @@
     
     /* Waterfall Builder */
     .waterfall-preview {
-      background: #0B1120;
+      background: #F3F3F3;
       border: 1px solid var(--border-light);
       border-radius: var(--radius);
       padding: 24px;
@@ -362,7 +362,7 @@
       display: flex;
       align-items: center;
       padding: 12px 16px;
-      background: #111827;
+      background: #FFFFFF;
       border-radius: var(--radius);
       margin-bottom: 8px;
       border-left: 4px solid var(--accent);
@@ -418,7 +418,7 @@
       align-items: flex-start;
       gap: 12px;
       padding: 20px;
-      border: 2px solid #1E293B;
+      border: 2px solid #E2DDD8;
       border-radius: var(--radius);
       cursor: pointer;
       transition: all 0.15s;
@@ -442,7 +442,7 @@
     .doc-icon {
       width: 40px;
       height: 40px;
-      background: #0B1120;
+      background: #F3F3F3;
       border-radius: var(--radius);
       display: flex;
       align-items: center;
@@ -473,8 +473,8 @@
     }
     
     .summary-card {
-      background: #111827;
-      border: 1px solid #1E293B;
+      background: #FFFFFF;
+      border: 1px solid #E2DDD8;
       border-radius: var(--radius-md);
       padding: 24px;
     }
@@ -556,8 +556,8 @@
       top: 0;
       width: 360px;
       height: 100vh;
-      background: #111827;
-      border-left: 1px solid #1E293B;
+      background: #FFFFFF;
+      border-left: 1px solid #E2DDD8;
       padding: 24px;
       overflow-y: auto;
       z-index: 50;
@@ -792,7 +792,7 @@
                   <label>Total Capital Required</label>
                   <div class="input-prefix">
                     <span class="prefix">$</span>
-                    <input type="text" id="totalCapital" readonly style="background: #0B1120; font-weight: 600;">
+                    <input type="text" id="totalCapital" readonly style="background: #F3F3F3; font-weight: 600;">
                   </div>
                 </div>
               </div>
@@ -827,7 +827,7 @@
                 
                 <div class="form-group">
                   <label>LTV</label>
-                  <input type="text" id="ltv" readonly style="background: #0B1120;">
+                  <input type="text" id="ltv" readonly style="background: #F3F3F3;">
                 </div>
               </div>
             </div>
@@ -839,7 +839,7 @@
                   <label class="required">Total Equity</label>
                   <div class="input-prefix">
                     <span class="prefix">$</span>
-                    <input type="text" id="totalEquity" readonly style="background: #0B1120; font-weight: 600;">
+                    <input type="text" id="totalEquity" readonly style="background: #F3F3F3; font-weight: 600;">
                   </div>
                 </div>
                 
@@ -850,7 +850,7 @@
                 
                 <div class="form-group">
                   <label>LP Equity %</label>
-                  <input type="text" id="lpEquity" value="90" readonly style="background: #0B1120;">
+                  <input type="text" id="lpEquity" value="90" readonly style="background: #F3F3F3;">
                 </div>
                 
                 <div class="form-group">
@@ -962,9 +962,9 @@
               </div>
 
               <!-- Cash Flow Waterfall Chart -->
-              <div style="background:#111827;border:1px solid #1E293B;border-radius:var(--radius-md);padding:20px;margin-top:20px;">
+              <div style="background:#FFFFFF;border:1px solid #E2DDD8;border-radius:var(--radius-md);padding:20px;margin-top:20px;">
                 <div style="font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><i class="fas fa-chart-bar" style="color:var(--accent);"></i>Projected Cash Flow Waterfall (Hold Period)</div>
-                <div id="cashFlowChart" style="height:200px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:2px solid #1E293B;border-left:2px solid #1E293B;"></div>
+                <div id="cashFlowChart" style="height:200px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:2px solid #E2DDD8;border-left:2px solid #E2DDD8;"></div>
                 <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:.7rem;color:var(--text-muted);">
                   <span>Year 1</span><span>Year 2</span><span>Year 3</span><span>Year 4</span><span>Year 5</span>
                 </div>
@@ -1229,8 +1229,8 @@
             </div>
 
             <!-- OA inline preview on success screen -->
-            <div id="successOASection" style="display:none;margin:24px 0;border:1px solid #1E293B;border-radius:12px;overflow:hidden;">
-              <div style="background:var(--surface-2);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1E293B;">
+            <div id="successOASection" style="display:none;margin:24px 0;border:1px solid #E2DDD8;border-radius:12px;overflow:hidden;">
+              <div style="background:var(--surface-2);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E2DDD8;">
                 <div>
                   <div style="font-weight:700;font-size:.95rem;">Operating Agreement</div>
                   <div style="font-size:.78rem;color:var(--text-secondary);">Auto-generated from your deal terms — review before use</div>
@@ -1241,7 +1241,7 @@
                   <button class="btn btn-secondary" style="padding:7px 12px;font-size:.8rem;" onclick="downloadSuccessOA()"><i class="fas fa-download"></i> Word</button>
                 </div>
               </div>
-              <div id="successOAContent" style="display:none;max-height:500px;overflow-y:auto;background: #111827;padding:0;"></div>
+              <div id="successOAContent" style="display:none;max-height:500px;overflow-y:auto;background: #FFFFFF;padding:0;"></div>
             </div>
 
             <div class="success-actions" style="margin-top:16px;">
@@ -1760,19 +1760,19 @@
           <strong>⚠ PLACEHOLDER DOCUMENT:</strong> This Operating Agreement was auto-generated from your deal inputs for reference purposes. Have your attorney review and finalize before use with actual investors.
         </div>
         <p>THIS OPERATING AGREEMENT ("<strong>Agreement</strong>") is entered into as of ${today}, by and among the Members listed on Schedule A attached hereto.</p>
-        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #1E293B;padding-bottom:6px;">ARTICLE I — FORMATION</h2>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE I — FORMATION</h2>
         <p><strong>1.1 Formation.</strong> The Members hereby form a limited liability company pursuant to the ${state} Limited Liability Company Act.</p>
         <p><strong>1.2 Name.</strong> The name of the Company shall be <strong>${gpName}</strong>.</p>
         <p><strong>1.3 Principal Office.</strong> The principal office shall be at ${address || '[ADDRESS ON FILE]'}.</p>
         <p><strong>1.4 Purpose.</strong> To acquire, own, operate, and dispose of real property known as <strong>${d.name}</strong>, located at ${d.location || '[PROPERTY ADDRESS]'}, and all activities necessary or incidental thereto.</p>
         <p><strong>1.5 Duration.</strong> The Company shall have perpetual existence unless dissolved in accordance with Article VIII.</p>
-        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #1E293B;padding-bottom:6px;">ARTICLE II — CAPITAL CONTRIBUTIONS</h2>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE II — CAPITAL CONTRIBUTIONS</h2>
         <p><strong>2.1 Total Capitalization.</strong> The total equity raise shall be <strong>$${equity.toLocaleString()}</strong>.</p>
         <p><strong>2.2 General Partner.</strong> ${gpName} shall contribute <strong>${gpPct}%</strong> of total equity ($${Math.round(equity * gpPct / 100).toLocaleString()}).</p>
         <p><strong>2.3 Limited Partners.</strong> Limited Partners shall collectively contribute <strong>${lpPct}%</strong> of total equity ($${Math.round(equity * lpPct / 100).toLocaleString()}).</p>
         <p><strong>2.4 Minimum Investment.</strong> The minimum investment per Limited Partner is $${(d.minInvestment || 50000).toLocaleString()}.</p>
         <p><strong>2.5 Capital Accounts.</strong> A separate Capital Account shall be maintained for each Member in accordance with Treasury Regulations § 1.704-1(b)(2)(iv).</p>
-        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #1E293B;padding-bottom:6px;">ARTICLE III — DISTRIBUTIONS AND WATERFALL</h2>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE III — DISTRIBUTIONS AND WATERFALL</h2>
         <p><strong>3.1 Distribution Priority.</strong> Distributable Cash shall be distributed in the following order:</p>
         <blockquote style="border-left:3px solid #0ea5e9;padding:8px 16px;margin:12px 0;background:#f0f9ff;">
           <p><strong>(a) Return of Capital:</strong> 100% to Members pro-rata until each Member has received a full return of their capital contribution;</p>
@@ -1782,27 +1782,27 @@
         </blockquote>
         <p><strong>3.2 Timing.</strong> The GP shall distribute Distributable Cash within 60 days after each fiscal quarter end.</p>
         <p><strong>3.3 Tax Distributions.</strong> The GP may make tax distributions to Members sufficient to cover federal and state income tax liabilities on allocated income.</p>
-        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #1E293B;padding-bottom:6px;">ARTICLE IV — MANAGEMENT</h2>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE IV — MANAGEMENT</h2>
         <p><strong>4.1 Managing Member.</strong> <strong>${gpName}</strong>, acting through ${gpRep}, shall serve as the sole Managing Member with full authority to manage the Company.</p>
         <p><strong>4.2 LP Restrictions.</strong> Limited Partners shall have no right to participate in management and no authority to bind the Company.</p>
         <p><strong>4.3 GP Fees.</strong> The GP shall receive: (a) Acquisition Fee of <strong>${d.acqFee || 3}%</strong> of purchase price at closing; (b) Asset Management Fee of <strong>${d.assetMgmtFee || 2}%</strong> of gross revenues annually.</p>
         <p><strong>4.4 Major Decisions.</strong> The following require approval of a majority-in-interest of Limited Partners: (a) sale or refinancing of the Property; (b) material alteration of the business plan; (c) incurring debt in excess of 125% of budgeted amounts.</p>
         <p><strong>4.5 GP Removal.</strong> The GP may be removed for Cause (fraud, gross negligence, willful misconduct, or material breach not cured within 30 days) by vote of 66.7% in interest of Limited Partners.</p>
-        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #1E293B;padding-bottom:6px;">ARTICLE V — TRANSFERS</h2>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE V — TRANSFERS</h2>
         <p><strong>5.1 Restrictions.</strong> No Member may transfer their interest without prior written consent of the GP, which may be withheld in the GP's sole discretion.</p>
         <p><strong>5.2 Right of First Refusal.</strong> Before any permitted transfer, the Company shall have a 30-day right of first refusal at the proposed transfer price.</p>
         <p><strong>5.3 No Withdrawal.</strong> No Member has the right to withdraw or demand return of their capital contribution prior to dissolution.</p>
-        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #1E293B;padding-bottom:6px;">ARTICLE VI — ACCOUNTING AND TAX</h2>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE VI — ACCOUNTING AND TAX</h2>
         <p><strong>6.1 Fiscal Year.</strong> The fiscal year of the Company shall be the calendar year.</p>
         <p><strong>6.2 Reporting.</strong> The GP shall provide quarterly updates and annual financial statements to all Members.</p>
         <p><strong>6.3 K-1s.</strong> The Company shall file IRS Form 1065 and provide Schedule K-1s to all Members by March 15 of each year.</p>
         <p><strong>6.4 Tax Matters Partner.</strong> The GP shall serve as the Tax Matters Partner / Partnership Representative.</p>
-        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #1E293B;padding-bottom:6px;">ARTICLE VII — STATE-SPECIFIC PROVISIONS</h2>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE VII — STATE-SPECIFIC PROVISIONS</h2>
         ${stateClause}
-        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #1E293B;padding-bottom:6px;">ARTICLE VIII — DISSOLUTION</h2>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE VIII — DISSOLUTION</h2>
         <p><strong>8.1 Events.</strong> The Company dissolves upon: (a) sale of the Property; (b) unanimous consent; (c) judicial dissolution; (d) entry of decree of dissolution.</p>
         <p><strong>8.2 Winding Up.</strong> Upon dissolution, the GP (or a liquidating trustee) shall wind up the Company's affairs and distribute assets: first to creditors, then to Members per Article III.</p>
-        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #1E293B;padding-bottom:6px;">ARTICLE IX — GENERAL PROVISIONS</h2>
+        <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE IX — GENERAL PROVISIONS</h2>
         <p><strong>9.1 Governing Law.</strong> This Agreement is governed by the laws of ${state}.</p>
         <p><strong>9.2 Amendments.</strong> This Agreement may be amended by the GP with approval of a majority-in-interest of Limited Partners.</p>
         <p><strong>9.3 Entire Agreement.</strong> This Agreement constitutes the entire agreement and supersedes all prior understandings.</p>
@@ -1826,13 +1826,13 @@
             </div>
           </div>
         </div>
-        <div style="margin-top:40px;border-top:1px solid #1E293B;padding-top:20px;">
+        <div style="margin-top:40px;border-top:1px solid #E2DDD8;padding-top:20px;">
           <h3 style="font-size:.9rem;">SCHEDULE A — MEMBERS</h3>
           <table style="width:100%;border-collapse:collapse;margin-top:12px;font-size:.85rem;">
-            <thead><tr style="background: #0B1120;"><th style="padding:8px;border:1px solid #1E293B;text-align:left;">Member Name</th><th style="padding:8px;border:1px solid #1E293B;">Capital Contribution</th><th style="padding:8px;border:1px solid #1E293B;">Ownership %</th><th style="padding:8px;border:1px solid #1E293B;">Role</th></tr></thead>
+            <thead><tr style="background: #F3F3F3;"><th style="padding:8px;border:1px solid #E2DDD8;text-align:left;">Member Name</th><th style="padding:8px;border:1px solid #E2DDD8;">Capital Contribution</th><th style="padding:8px;border:1px solid #E2DDD8;">Ownership %</th><th style="padding:8px;border:1px solid #E2DDD8;">Role</th></tr></thead>
             <tbody>
-              <tr><td style="padding:8px;border:1px solid #1E293B;">${gpName}</td><td style="padding:8px;border:1px solid #1E293B;text-align:center;">$${Math.round(equity * gpPct / 100).toLocaleString()}</td><td style="padding:8px;border:1px solid #1E293B;text-align:center;">${gpPct}%</td><td style="padding:8px;border:1px solid #1E293B;text-align:center;">General Partner</td></tr>
-              <tr><td style="padding:8px;border:1px solid #1E293B;color:#64748b;font-style:italic;">[Limited Partners — added on investment]</td><td style="padding:8px;border:1px solid #1E293B;text-align:center;">$${Math.round(equity * lpPct / 100).toLocaleString()}</td><td style="padding:8px;border:1px solid #1E293B;text-align:center;">${lpPct}%</td><td style="padding:8px;border:1px solid #1E293B;text-align:center;">Limited Partners</td></tr>
+              <tr><td style="padding:8px;border:1px solid #E2DDD8;">${gpName}</td><td style="padding:8px;border:1px solid #E2DDD8;text-align:center;">$${Math.round(equity * gpPct / 100).toLocaleString()}</td><td style="padding:8px;border:1px solid #E2DDD8;text-align:center;">${gpPct}%</td><td style="padding:8px;border:1px solid #E2DDD8;text-align:center;">General Partner</td></tr>
+              <tr><td style="padding:8px;border:1px solid #E2DDD8;color:#64748b;font-style:italic;">[Limited Partners — added on investment]</td><td style="padding:8px;border:1px solid #E2DDD8;text-align:center;">$${Math.round(equity * lpPct / 100).toLocaleString()}</td><td style="padding:8px;border:1px solid #E2DDD8;text-align:center;">${lpPct}%</td><td style="padding:8px;border:1px solid #E2DDD8;text-align:center;">Limited Partners</td></tr>
             </tbody>
           </table>
         </div>
