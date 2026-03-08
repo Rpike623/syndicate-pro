@@ -761,6 +761,33 @@ window.SP = (function () {
     }, 0);
   }
 
+  // ── FAILSAFE: poll for data readiness ──────────────────────────────────────
+  // Covers edge cases where spdata-ready fires before listeners register,
+  // dynamic script loading races, or SP.onDataReady is called after _dataReady
+  // was set but the check somehow missed. Polls every 500ms up to 15s.
+  let _failsafeChecks = 0;
+  const _failsafeInterval = setInterval(() => {
+    _failsafeChecks++;
+    if (_failsafeChecks > 30) { clearInterval(_failsafeInterval); return; } // give up after 15s
+    if (_dataReady) {
+      // Already flushed — but check if new callbacks snuck in
+      if (_dataReadyQueue.length) {
+        while (_dataReadyQueue.length) {
+          try { _dataReadyQueue.shift()(); } catch(e) { console.error('SP.onDataReady callback error:', e); }
+        }
+      }
+      clearInterval(_failsafeInterval);
+      return;
+    }
+    // Check if data is actually available even though event was missed
+    const hasData = (typeof SPData !== 'undefined' && SPData.isReady && SPData.isReady())
+      || (typeof SP !== 'undefined' && SP.getDeals && SP.getDeals().length > 0);
+    if (hasData) {
+      _flushDataReady();
+      clearInterval(_failsafeInterval);
+    }
+  }, 500);
+
   // ─── Public API ─────────────────────────────────────────────────────────────
 
   return {
