@@ -1119,7 +1119,7 @@ window.SP = (function () {
       if (logoEl) {
         const href = logoEl.getAttribute('href') || 'dashboard.html';
         logoEl.outerHTML = `<a href="${href}" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <span style="display:flex;align-items:center;gap:0;text-decoration:none;"><span style="font-size:1.25rem;font-weight:900;color:#F3F3F3;letter-spacing:-0.04em;line-height:1;">deel</span><span style="font-size:1.25rem;font-weight:900;color:#F37925;letter-spacing:-0.04em;line-height:1;">track</span></span>
+          <img src="assets/logo-icon.svg" width="28" height="28" alt="dt" style="border-radius:6px;flex-shrink:0;"><span style="display:flex;align-items:center;gap:0;"><span style="font-size:1.25rem;font-weight:900;color:#F3F3F3;letter-spacing:-0.04em;line-height:1;">deel</span><span style="font-size:1.25rem;font-weight:900;color:#F37925;letter-spacing:-0.04em;line-height:1;">track</span></span>
         </a>`;
       }
     } else {
@@ -1129,7 +1129,7 @@ window.SP = (function () {
         const header = document.createElement('div');
         header.className = 'sidebar-header';
         header.innerHTML = `<a href="dashboard.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <span style="display:flex;align-items:center;gap:0;text-decoration:none;"><span style="font-size:1.25rem;font-weight:900;color:#F3F3F3;letter-spacing:-0.04em;line-height:1;">deel</span><span style="font-size:1.25rem;font-weight:900;color:#F37925;letter-spacing:-0.04em;line-height:1;">track</span></span>
+          <img src="assets/logo-icon.svg" width="28" height="28" alt="dt" style="border-radius:6px;flex-shrink:0;"><span style="display:flex;align-items:center;gap:0;"><span style="font-size:1.25rem;font-weight:900;color:#F3F3F3;letter-spacing:-0.04em;line-height:1;">deel</span><span style="font-size:1.25rem;font-weight:900;color:#F37925;letter-spacing:-0.04em;line-height:1;">track</span></span>
         </a>`;
         const innerNav = document.createElement('nav');
         innerNav.className = 'nav';
@@ -1154,7 +1154,7 @@ window.SP = (function () {
         const hdr = document.createElement('div');
         hdr.className = 'sidebar-header';
         hdr.innerHTML = `<a href="dashboard.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-          <span style="display:flex;align-items:center;gap:0;text-decoration:none;"><span style="font-size:1.25rem;font-weight:900;color:#F3F3F3;letter-spacing:-0.04em;line-height:1;">deel</span><span style="font-size:1.25rem;font-weight:900;color:#F37925;letter-spacing:-0.04em;line-height:1;">track</span></span>
+          <img src="assets/logo-icon.svg" width="28" height="28" alt="dt" style="border-radius:6px;flex-shrink:0;"><span style="display:flex;align-items:center;gap:0;"><span style="font-size:1.25rem;font-weight:900;color:#F3F3F3;letter-spacing:-0.04em;line-height:1;">deel</span><span style="font-size:1.25rem;font-weight:900;color:#F37925;letter-spacing:-0.04em;line-height:1;">track</span></span>
         </a>`;
         sb.insertBefore(hdr, sb.firstChild);
       }
