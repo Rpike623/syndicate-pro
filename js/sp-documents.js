@@ -12,6 +12,73 @@ const SPDocs = (function() {
     return '$' + Number(num).toLocaleString();
   }
 
+  // ─── WATERFALL LANGUAGE BUILDER ────────────────────────────────────────────
+  // Generates Article III distribution priority language based on waterfall type
+
+  function buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2Hurdle, tier2GPSplit, tier3GPSplit, tier2Catchup) {
+    // Simple Split: no pref, no catch-up — straight split from dollar one
+    if (wfType === 'simple') {
+      return `
+<ol type="a">
+  <li style="margin-bottom: 8px;"><strong>First (Return of Capital):</strong> 100% to all Members in proportion to their unreturned Capital Contributions, until each Member has received a full return of their invested capital;</li>
+  <li style="margin-bottom: 8px;"><strong>Second (Profit Split):</strong> Thereafter, the balance shall be distributed <strong>${promote}% to the Managing Member</strong> and <strong>${lpResidual}% to the Limited Members</strong>, pro-rata based on each Limited Member's percentage interest.</li>
+</ol>
+<p style="margin-top: 8px;"><em>This structure provides no preferred return or catch-up. All profits above return of capital are split according to the fixed ratio set forth above.</em></p>`;
+    }
+
+    // Preferred Return only: pref to LPs, then straight split — no catch-up
+    if (wfType === 'pref') {
+      return `
+<ol type="a">
+  <li style="margin-bottom: 8px;"><strong>First (Return of Capital):</strong> 100% to all Members in proportion to their unreturned Capital Contributions, until each Member has received a full return of their invested capital;</li>
+  <li style="margin-bottom: 8px;"><strong>Second (Preferred Return):</strong> 100% to the Limited Members, in proportion to their accrued but unpaid Preferred Return, until each Limited Member has received a cumulative, non-compounding return of <strong>${pref}% per annum</strong> on their unreturned capital;</li>
+  <li style="margin-bottom: 8px;"><strong>Third (Profit Split):</strong> Thereafter, the balance shall be distributed <strong>${promote}% to the Managing Member</strong> and <strong>${lpResidual}% to the Limited Members</strong>, pro-rata based on each Limited Member's percentage interest.</li>
+</ol>
+<p style="margin-top: 8px;"><em>Note: This structure does not include a GP catch-up provision. The Managing Member participates only in distributions above the Preferred Return threshold at the ${promote}/${lpResidual} split ratio.</em></p>`;
+    }
+
+    // Preferred Return + GP Catch-Up (the standard syndication waterfall)
+    if (wfType === 'catchup') {
+      return `
+<ol type="a">
+  <li style="margin-bottom: 8px;"><strong>First (Return of Capital):</strong> 100% to all Members in proportion to their unreturned Capital Contributions, until each Member has received a full return of their invested capital;</li>
+  <li style="margin-bottom: 8px;"><strong>Second (Preferred Return):</strong> 100% to the Limited Members, in proportion to their accrued but unpaid Preferred Return, until each Limited Member has received a cumulative, non-compounding return of <strong>${pref}% per annum</strong> on their unreturned capital;</li>
+  <li style="margin-bottom: 8px;"><strong>Third (GP Catch-Up):</strong> <strong>${catchupRate}%</strong> to the Managing Member and <strong>${100 - catchupRate}%</strong> to the Limited Members until the Managing Member has received <strong>${promote}%</strong> of all cumulative distributions made under subsections (b) and (c) combined;</li>
+  <li style="margin-bottom: 8px;"><strong>Fourth (Residual Split):</strong> Thereafter, the balance shall be distributed <strong>${promote}% to the Managing Member</strong> and <strong>${lpResidual}% to the Limited Members</strong>, pro-rata based on each Limited Member's percentage interest.</li>
+</ol>`;
+    }
+
+    // Multi-Tier Promote: pref, optional catch-up, then escalating GP splits at IRR hurdles
+    if (wfType === 'tiered') {
+      const tier2LP = 100 - tier2GPSplit;
+      const tier3LP = 100 - tier3GPSplit;
+      const catchupClause = tier2Catchup === 'yes'
+        ? `<li style="margin-bottom: 8px;"><strong>Third (GP Catch-Up):</strong> <strong>${catchupRate || 100}%</strong> to the Managing Member${(catchupRate && catchupRate < 100) ? ` and <strong>${100 - catchupRate}%</strong> to the Limited Members` : ''} until the Managing Member has received <strong>${tier2GPSplit}%</strong> of all cumulative distributions made under subsections (b) and (c) combined;</li>`
+        : '';
+      const tierLetterAfterCatchup = tier2Catchup === 'yes' ? 'd' : 'c';
+      const nextLetter = tier2Catchup === 'yes' ? 'e' : 'd';
+
+      return `
+<ol type="a">
+  <li style="margin-bottom: 8px;"><strong>First (Return of Capital):</strong> 100% to all Members in proportion to their unreturned Capital Contributions, until each Member has received a full return of their invested capital;</li>
+  <li style="margin-bottom: 8px;"><strong>Second (Preferred Return):</strong> 100% to the Limited Members, in proportion to their accrued but unpaid Preferred Return, until each Limited Member has received a cumulative, non-compounding return of <strong>${pref}% per annum</strong> on their unreturned capital;</li>
+  ${catchupClause}
+  <li style="margin-bottom: 8px;"><strong>Tier 2 — Below ${tier2Hurdle}% IRR (subsection ${tierLetterAfterCatchup}):</strong> <strong>${tier2GPSplit}% to the Managing Member</strong> and <strong>${tier2LP}% to the Limited Members</strong>, until the Limited Members have achieved an internal rate of return equal to <strong>${tier2Hurdle}%</strong> on their invested capital;</li>
+  <li style="margin-bottom: 8px;"><strong>Tier 3 — Above ${tier2Hurdle}% IRR (subsection ${nextLetter}):</strong> Thereafter, the balance shall be distributed <strong>${tier3GPSplit}% to the Managing Member</strong> and <strong>${tier3LP}% to the Limited Members</strong>, pro-rata based on each Limited Member's percentage interest.</li>
+</ol>
+<p style="margin-top: 8px;"><em>For purposes of this Section, "internal rate of return" or "IRR" means the discount rate at which the net present value of all distributions to a Limited Member, measured from the date of such Member's capital contribution, equals zero.</em></p>`;
+    }
+
+    // Fallback: same as catchup
+    return `
+<ol type="a">
+  <li style="margin-bottom: 8px;"><strong>First (Return of Capital):</strong> 100% to all Members in proportion to their unreturned Capital Contributions, until each Member has received a full return of their invested capital;</li>
+  <li style="margin-bottom: 8px;"><strong>Second (Preferred Return):</strong> 100% to the Limited Members, in proportion to their accrued but unpaid Preferred Return, until each Limited Member has received a cumulative, non-compounding return of <strong>${pref}% per annum</strong> on their unreturned capital;</li>
+  <li style="margin-bottom: 8px;"><strong>Third (GP Catch-Up):</strong> 100% to the Managing Member until the Managing Member has received <strong>${promote}%</strong> of all cumulative distributions made under subsections (b) and (c) combined;</li>
+  <li style="margin-bottom: 8px;"><strong>Fourth (Residual Split):</strong> Thereafter, the balance shall be distributed <strong>${promote}% to the Managing Member</strong> and <strong>${lpResidual}% to the Limited Members</strong>.</li>
+</ol>`;
+  }
+
   // ─── OPERATING AGREEMENT ───────────────────────────────────────────────────
 
   function generateOA(deal, gpName, gpRep, firmAddress, state, minInvest, linkedInvestors) {
@@ -27,6 +94,13 @@ const SPDocs = (function() {
     const loc = safe(deal.location, '[PROPERTY LOCATION]');
     const dealName = safe(deal.name, '[DEAL NAME]');
     const companyName = safe(deal.companyName || gpName, '[COMPANY NAME]');
+    const wfType = deal.waterfallType || 'catchup';
+    const catchupRate = deal.catchupRate || 50;
+    const wizData = deal.wizardData || deal;
+    const tier2Hurdle = wizData.tier2Hurdle || 12;
+    const tier2GPSplit = wizData.tier2GPSplit || 30;
+    const tier3GPSplit = wizData.tier3GPSplit || 40;
+    const tier2Catchup = wizData.tier2Catchup || 'yes';
 
     const stateRules = {
       'TX': `<p><strong>Tax Treatment.</strong> The Company intends to be treated as a partnership for federal income tax purposes and under Texas Tax Code § 171.0002. The Managing Member shall make such elections.</p><p><strong>Franchise Tax.</strong> The Company acknowledges its obligations under Texas Tax Code Chapter 171 regarding franchise tax and shall file all necessary reports.</p><p><strong>Community Property.</strong> Each Married Member agrees that their spouse's interest, if any, is subject to the provisions of this Agreement, and each such spouse consents hereto pursuant to Texas Family Code § 3.104.</p>`,
@@ -71,12 +145,7 @@ const SPDocs = (function() {
 <h2 style="font-size: 12pt; text-align: center; margin-top: 30px; text-decoration: underline;">ARTICLE III: DISTRIBUTIONS & WATERFALL</h2>
 <p><strong>3.1 Distributable Cash.</strong> "Distributable Cash" means all cash funds of the Company on hand from operations or capital events, less amounts required for debt service, operating expenses, and reasonable reserves as determined by the Managing Member.</p>
 <p><strong>3.2 Distribution Priority (The Waterfall).</strong> Except as otherwise provided upon liquidation, Distributable Cash shall be distributed to the Members in the following order of priority:</p>
-<ol type="a">
-  <li style="margin-bottom: 8px;"><strong>First (Return of Capital):</strong> 100% to all Members in proportion to their unreturned Capital Contributions, until their Capital Account balances have been reduced to zero;</li>
-  <li style="margin-bottom: 8px;"><strong>Second (Preferred Return):</strong> 100% to the Limited Members, in proportion to their accrued but unpaid Preferred Return, until each Limited Member has received a cumulative, non-compounding return of <strong>${pref}% per annum</strong> on their unreturned capital;</li>
-  <li style="margin-bottom: 8px;"><strong>Third (GP Catch-Up):</strong> 100% to the Managing Member until the Managing Member has received <strong>${promote}%</strong> of all distributions made under subsection (b) and this subsection (c) combined;</li>
-  <li style="margin-bottom: 8px;"><strong>Fourth (Residual Split):</strong> Thereafter, the balance shall be distributed <strong>${promote}% to the Managing Member</strong> and <strong>${lpResidual}% to the Limited Members</strong>.</li>
-</ol>
+${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2Hurdle, tier2GPSplit, tier3GPSplit, tier2Catchup)}
 <p><strong>3.3 Tax Distributions.</strong> To the extent legally and financially permissible, the Managing Member shall use commercially reasonable efforts to make distributions to the Members sufficient to cover federal and state income tax liabilities reasonably expected to result from the allocation of Company taxable income.</p>
 
 <h2 style="font-size: 12pt; text-align: center; margin-top: 30px; text-decoration: underline;">ARTICLE IV: MANAGEMENT AND FEES</h2>
@@ -258,6 +327,7 @@ ${stateSection}
     const lpPct    = deal.lpEquity  || 90;
     const pref     = deal.prefReturn || 8;
     const promote  = deal.gpPromote  || 20;
+    const lpResidual = 100 - promote;
     const acqFee   = deal.acqFee     || 3;
     const mgmtFee  = deal.assetMgmtFee || 2;
     const dealName = safe(deal.name, '[PROPERTY NAME]');
@@ -267,6 +337,13 @@ ${stateSection}
     const gpBio    = settings?.gpBio || '[Managing Member biography to be inserted here.]';
     const secExemption = settings?.defSEC === '506c' ? 'Rule 506(c)' : 'Rule 506(b)';
     const counsel  = settings?.defCounsel || '[Legal Counsel Name, Firm]';
+    const wfType = deal.waterfallType || 'catchup';
+    const catchupRate = deal.catchupRate || 50;
+    const wizData = deal.wizardData || deal;
+    const tier2Hurdle = wizData.tier2Hurdle || 12;
+    const tier2GPSplit = wizData.tier2GPSplit || 30;
+    const tier3GPSplit = wizData.tier3GPSplit || 40;
+    const tier2Catchup = wizData.tier2Catchup || 'yes';
 
     return `
 <div style="font-family: 'Times New Roman', Times, serif; font-size: 10.5pt; line-height: 1.55; color: #000; background: #fff; padding: 48px; max-width: 900px; margin: 0 auto;">
@@ -312,8 +389,11 @@ ${stateSection}
     ['GP Equity Contribution', `${gpPct}% of total equity (${fmtMoney(equity*gpPct/100)})`],
     ['LP Equity Raise', `${lpPct}% of total equity (${fmtMoney(equity*lpPct/100)})`],
     ['Minimum Investment', fmtMoney(min)],
-    ['Preferred Return', `${pref}% per annum, non-compounding`],
-    ['GP Promote', `${promote}% of profits above the preferred return`],
+    ['Preferred Return', wfType === 'simple' ? 'N/A — Simple split structure' : `${pref}% per annum, non-compounding`],
+    ['GP Promote / Structure', wfType === 'simple' ? `${promote}/${lpResidual} GP/LP split on all profits above return of capital`
+      : wfType === 'pref' ? `${promote}% of profits above the preferred return (no catch-up)`
+      : wfType === 'tiered' ? `${tier2GPSplit}% up to ${tier2Hurdle}% IRR, then ${tier3GPSplit}% above`
+      : `${promote}% of profits above the preferred return (with catch-up)`],
     ['Acquisition Fee', `${acqFee}% of purchase price, paid at closing`],
     ['Asset Management Fee', `${mgmtFee}% of gross revenues, paid monthly`],
     ['Offering Exemption', `${secExemption} of Regulation D`],
@@ -355,12 +435,7 @@ ${stateSection}
 <!-- Section 5: Distribution Waterfall -->
 <h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 5 — DISTRIBUTION WATERFALL</h2>
 <p>All Distributable Cash (as defined in the Operating Agreement) shall be distributed in the following order:</p>
-<ol style="padding-left:24px;">
-  <li style="margin-bottom:8px;"><strong>Return of Capital:</strong> 100% to all Members, pro-rata, until each Member has received a full return of their capital contribution.</li>
-  <li style="margin-bottom:8px;"><strong>Preferred Return:</strong> 100% to the Limited Members until they have received a cumulative, non-compounding preferred return of <strong>${pref}% per annum</strong> on their invested capital.</li>
-  <li style="margin-bottom:8px;"><strong>GP Catch-Up:</strong> 100% to the Managing Member until it has received <strong>${promote}%</strong> of all amounts distributed in tier (2) and (3) combined.</li>
-  <li style="margin-bottom:8px;"><strong>Residual Split:</strong> ${promote}% to the Managing Member / ${100-promote}% to the Limited Members on all remaining cash.</li>
-</ol>
+${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2Hurdle, tier2GPSplit, tier3GPSplit, tier2Catchup)}
 
 <!-- Section 6: Risk Factors -->
 <h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 6 — RISK FACTORS</h2>

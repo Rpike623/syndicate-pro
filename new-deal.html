@@ -1617,6 +1617,10 @@
         gpPromote: parseFloat(document.getElementById('gpPromote').value) || 30,
         waterfallType: document.getElementById('waterfallType').value,
         catchupRate: parseFloat(document.getElementById('catchupRate').value) || 50,
+        tier2Hurdle: parseFloat(document.getElementById('tier2Hurdle')?.value) || 12,
+        tier2GPSplit: parseFloat(document.getElementById('tier2GPSplit')?.value) || 30,
+        tier3GPSplit: parseFloat(document.getElementById('tier3GPSplit')?.value) || 40,
+        tier2Catchup: document.getElementById('tier2Catchup')?.value || 'yes',
         exitMultiple: parseFloat(document.getElementById('exitMultiple')?.value) || 1.8,
         holdPeriod: parseFloat(document.getElementById('holdPeriod')?.value) || 5,
         acqFee: parseFloat(document.getElementById('acqFee').value) || 3,
@@ -1725,6 +1729,42 @@
       showStep('success');
     }
     
+    function buildFallbackWaterfall(d, pref, promote, residualLP) {
+      const wfType = d.waterfallType || 'catchup';
+      const catchupRate = d.catchupRate || 50;
+      const t2Hurdle = d.tier2Hurdle || (d.wizardData || {}).tier2Hurdle || 12;
+      const t2GP = d.tier2GPSplit || (d.wizardData || {}).tier2GPSplit || 30;
+      const t3GP = d.tier3GPSplit || (d.wizardData || {}).tier3GPSplit || 40;
+      const t2Catchup = d.tier2Catchup || (d.wizardData || {}).tier2Catchup || 'yes';
+
+      const roc = `<p><strong>(a) Return of Capital:</strong> 100% to Members pro-rata until each Member has received a full return of their capital contribution;</p>`;
+      const prefTier = `<p><strong>(b) Preferred Return:</strong> 100% to Limited Partners until they have received a cumulative preferred return of <strong>${pref}% per annum</strong> on invested capital;</p>`;
+
+      if (wfType === 'simple') {
+        return `${roc}
+          <p><strong>(b) Profit Split:</strong> <strong>${promote}% to GP</strong> and <strong>${residualLP}% to Limited Partners</strong> on all remaining Distributable Cash.</p>
+          <p><em>No preferred return or catch-up. All profits split at the fixed ratio above.</em></p>`;
+      }
+      if (wfType === 'pref') {
+        return `${roc}${prefTier}
+          <p><strong>(c) Profit Split:</strong> <strong>${promote}% to GP</strong> and <strong>${residualLP}% to Limited Partners</strong> on all remaining Distributable Cash.</p>
+          <p><em>No GP catch-up. GP participates only above the preferred return.</em></p>`;
+      }
+      if (wfType === 'tiered') {
+        const catchupLine = t2Catchup === 'yes'
+          ? `<p><strong>(c) GP Catch-Up:</strong> ${catchupRate || 100}% to GP${(catchupRate && catchupRate < 100) ? ` / ${100 - catchupRate}% to LPs` : ''} until GP has received ${t2GP}% of all distributions under (b) and (c);</p>` : '';
+        const letter1 = t2Catchup === 'yes' ? 'd' : 'c';
+        const letter2 = t2Catchup === 'yes' ? 'e' : 'd';
+        return `${roc}${prefTier}${catchupLine}
+          <p><strong>(${letter1}) Tier 2 — Up to ${t2Hurdle}% IRR:</strong> ${t2GP}% to GP / ${100 - t2GP}% to LPs;</p>
+          <p><strong>(${letter2}) Tier 3 — Above ${t2Hurdle}% IRR:</strong> ${t3GP}% to GP / ${100 - t3GP}% to LPs on all remaining cash.</p>`;
+      }
+      // catchup (default)
+      return `${roc}${prefTier}
+          <p><strong>(c) GP Catch-Up:</strong> ${catchupRate}% to GP / ${100 - catchupRate}% to LPs until the GP has received <strong>${promote}%</strong> of all distributions made under (b) and (c) combined;</p>
+          <p><strong>(d) Residual Split:</strong> <strong>${promote}% to GP</strong> and <strong>${residualLP}% to Limited Partners</strong> on all remaining Distributable Cash.</p>`;
+    }
+
     function autoGenerateOA(d) {
       const settings = SP.load('settings', {});
       const gpName = settings.firmName || d.companyName || d.name + ' GP, LLC';
@@ -1775,10 +1815,7 @@
         <h2 style="font-size:1.1rem;margin:24px 0 8px;border-bottom:1px solid #E2DDD8;padding-bottom:6px;">ARTICLE III — DISTRIBUTIONS AND WATERFALL</h2>
         <p><strong>3.1 Distribution Priority.</strong> Distributable Cash shall be distributed in the following order:</p>
         <blockquote style="border-left:3px solid #0ea5e9;padding:8px 16px;margin:12px 0;background:#f0f9ff;">
-          <p><strong>(a) Return of Capital:</strong> 100% to Members pro-rata until each Member has received a full return of their capital contribution;</p>
-          <p><strong>(b) Preferred Return:</strong> 100% to Limited Partners until they have received a cumulative preferred return of <strong>${pref}% per annum</strong> on invested capital;</p>
-          <p><strong>(c) GP Catch-Up:</strong> 100% to the General Partner until the GP has received <strong>${promote}%</strong> of all distributions made under (b) and (c) combined;</p>
-          <p><strong>(d) Residual Split:</strong> <strong>${promote}% to GP</strong> and <strong>${residualLP}% to Limited Partners</strong> on all remaining Distributable Cash.</p>
+          ${buildFallbackWaterfall(d, pref, promote, residualLP)}
         </blockquote>
         <p><strong>3.2 Timing.</strong> The GP shall distribute Distributable Cash within 60 days after each fiscal quarter end.</p>
         <p><strong>3.3 Tax Distributions.</strong> The GP may make tax distributions to Members sufficient to cover federal and state income tax liabilities on allocated income.</p>
