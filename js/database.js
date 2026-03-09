@@ -351,15 +351,18 @@ class WaterfallCalculator {
     let catchupAmount = 0;
     let catchupToGP = 0;
     
-    if (deal.waterfallType === 'catchup' && remainingCash > 0) {
-      const targetGPProfit = profit * (gpPromotePct / 100);
-      const currentGPProfit = rocToGP;
-      const gpShortfall = Math.max(0, targetGPProfit - currentGPProfit);
+    if (deal.waterfallType === 'catchup' && remainingCash > 0 && prefAmount > 0) {
+      // Standard catch-up: GP should have earned gpPromotePct% of (pref + catch-up)
+      // Formula: catchupToGP = (gpP / (1 - gpP)) × prefAmount
+      // This ensures after catch-up, GP's share of (pref + catchup) = gpPromotePct%
+      const gpP = (gpPromotePct || 0) / 100;
+      const catchupTarget = (gpP > 0 && gpP < 1)
+        ? prefAmount * (gpP / (1 - gpP))
+        : 0;
       
-      if (gpShortfall > 0 && catchupRate > 0) {
-        const catchupPool = gpShortfall / (catchupRate / 100);
-        catchupAmount = Math.min(remainingCash, catchupPool);
-        catchupToGP = catchupAmount * (catchupRate / 100);
+      if (catchupTarget > 0 && catchupRate > 0) {
+        catchupAmount = Math.min(remainingCash, catchupTarget);
+        catchupToGP = catchupAmount; // 100% of catch-up goes to GP
         remainingCash -= catchupAmount;
         
         waterfall.push({

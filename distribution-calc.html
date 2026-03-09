@@ -571,7 +571,7 @@ function previewDistribution() {
   const prefRate    = parseFloat(currentDeal.prefReturn || currentDeal.wizardData?.prefReturn || 0);
   const gpPromote   = parseFloat(currentDeal.gpPromote  || currentDeal.wizardData?.gpPromote  || 20);
   const catchupRate = parseFloat(currentDeal.catchupRate || currentDeal.wizardData?.catchupRate || 100);
-  const wfType      = currentDeal.waterfallType || currentDeal.wizardData?.waterfallType || 'catchup';
+  const wfType      = currentDeal.waterfallType || currentDeal.wizardData?.waterfallType || 'pref';
   const distType    = (document.getElementById('distType')?.value || 'periodic').toLowerCase();
   const isExit      = distType === 'exit' || distType === 'disposition' || distType === 'refinance';
 

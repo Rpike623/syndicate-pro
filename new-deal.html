@@ -887,9 +887,9 @@
                 <div class="form-group">
                   <label class="required">Waterfall Type</label>
                   <select id="waterfallType" onchange="updateWaterfallPreview();toggleTieredFields()">
-                    <option value="simple">Simple Split</option>
-                    <option value="pref">Preferred Return</option>
-                    <option value="catchup" selected>Pref + GP Catch-Up</option>
+                    <option value="simple">Simple Split (no pref)</option>
+                    <option value="pref" selected>Preferred Return (standard)</option>
+                    <option value="catchup">Pref + GP Catch-Up (advanced)</option>
                     <option value="tiered">Multi-Tier Promote (3 Tiers)</option>
                   </select>
                   <span class="help-text">Multi-Tier = 8% pref → 70/30 to hurdle IRR → 60/40 thereafter</span>
@@ -1730,7 +1730,7 @@
     }
     
     function buildFallbackWaterfall(d, pref, promote, residualLP) {
-      const wfType = d.waterfallType || 'catchup';
+      const wfType = d.waterfallType || 'pref';
       const catchupRate = d.catchupRate || 50;
       const t2Hurdle = d.tier2Hurdle || (d.wizardData || {}).tier2Hurdle || 12;
       const t2GP = d.tier2GPSplit || (d.wizardData || {}).tier2GPSplit || 30;

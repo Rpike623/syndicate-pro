@@ -94,7 +94,7 @@ var SPDocs = (function() {
     const loc = safe(deal.location, '[PROPERTY LOCATION]');
     const dealName = safe(deal.name, '[DEAL NAME]');
     const companyName = safe(deal.companyName || gpName, '[COMPANY NAME]');
-    const wfType = deal.waterfallType || 'catchup';
+    const wfType = deal.waterfallType || 'pref';
     const catchupRate = deal.catchupRate || 50;
     const wizData = deal.wizardData || deal;
     const tier2Hurdle = wizData.tier2Hurdle || 12;
@@ -442,7 +442,7 @@ ${stateSection}
     const gpBio    = settings?.gpBio || '[Managing Member biography to be inserted here.]';
     const secExemption = settings?.defSEC === '506c' ? 'Rule 506(c)' : 'Rule 506(b)';
     const counsel  = settings?.defCounsel || '[Legal Counsel Name, Firm]';
-    const wfType = deal.waterfallType || 'catchup';
+    const wfType = deal.waterfallType || 'pref';
     const catchupRate = deal.catchupRate || 50;
     const wizData = deal.wizardData || deal;
     const tier2Hurdle = wizData.tier2Hurdle || 12;
