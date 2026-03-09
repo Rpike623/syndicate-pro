@@ -907,10 +907,10 @@
                   <span class="help-text">GP's share of profits above the pref (e.g. 20 = 80/20 split)</span>
                 </div>
                 
-                <div class="form-group">
+                <div class="form-group" id="catchupRateGroup" style="display:none;">
                   <label>Catch-Up Rate</label>
-                  <input type="number" id="catchupRate" value="50" onchange="updateWaterfallPreview()">
-                  <span class="help-text">% of distributions to GP during catch-up until GP has earned their promote share</span>
+                  <input type="number" id="catchupRate" value="100" onchange="updateWaterfallPreview()">
+                  <span class="help-text">% of distributions to GP during catch-up (typically 100%)</span>
                 </div>
               </div>
 
@@ -1573,7 +1573,9 @@
     function toggleTieredFields() {
       const type = document.getElementById('waterfallType').value;
       const el = document.getElementById('tieredFields');
+      const cuEl = document.getElementById('catchupRateGroup');
       if (el) el.style.display = type === 'tiered' ? 'block' : 'none';
+      if (cuEl) cuEl.style.display = type === 'catchup' ? 'block' : 'none';
     }
     
     function populateReview() {

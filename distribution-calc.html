@@ -40,7 +40,7 @@
     .step.active { color:var(--text); background:rgba(243,121,37,0.06); }
     .step.done { color:var(--success); }
     .step-num { width:24px; height:24px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; flex-shrink:0; color:var(--text-muted); }
-    .step.active .step-num { background:var(--accent); color:white; }
+    .step.active .step-num { background:var(--accent); color:#1B1A19; }
     .step.done .step-num { background:var(--success); color:white; }
     .step + .step::before { content:''; position:absolute; left:0; top:20%; bottom:20%; width:1px; background:var(--border); }
 
@@ -85,7 +85,7 @@
     .pref-callout strong { color:#1B1A19 !important; }
 
     /* Execute button */
-    .exec-btn { width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:all 0.2s; margin-top:4px; }
+    .exec-btn { width:100%; padding:14px; background:var(--accent); color:#1B1A19; border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:all 0.2s; margin-top:4px; }
     .exec-btn:hover { background:var(--accent-hover); transform:translateY(-1px); box-shadow:0 8px 20px rgba(243,121,37,0.25); }
     .exec-btn:disabled { opacity:0.45; cursor:not-allowed; transform:none; box-shadow:none; }
 
@@ -166,7 +166,7 @@
           <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">Ledger locked. Investor capital accounts updated. <a href="distributions.html" style="color:var(--accent);">View in Distributions →</a></div>
         </div>
         <div style="display:flex;gap:10px;flex-shrink:0;flex-wrap:wrap;">
-          <button onclick="showWireReport()" style="background:#F37925;color:white;border:none;padding:9px 18px;border-radius:7px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;white-space:nowrap;">
+          <button onclick="showWireReport()" style="background:#F37925;color:#1B1A19;border:none;padding:9px 18px;border-radius:7px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;white-space:nowrap;">
             <i class="fas fa-file-invoice-dollar"></i> Wire Report
           </button>
           <button onclick="printWireReport()" style="background:#FFFFFF;color:var(--text);border:1px solid #E2DDD8;padding:9px 18px;border-radius:7px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;white-space:nowrap;">
@@ -508,7 +508,7 @@ function renderHistory() {
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${fmt$(d.totalAmount || 0)}</div>
-        <button onclick="event.stopPropagation();openHistWireReport('${d.id}')" title="Wire Instructions Report" style="background:rgba(243,121,37,.12);color:#F37925;border:none;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:.72rem;font-weight:700;font-family:inherit;white-space:nowrap;"><i class="fas fa-file-invoice-dollar"></i> Wires</button>
+        <button onclick="event.stopPropagation();openHistWireReport('${d.id}')" title="Wire Instructions Report" style="background:rgba(243,121,37,.15);color:#993B00;border:none;padding:4px 10px;border-radius:5px;cursor:pointer;font-size:.72rem;font-weight:700;font-family:inherit;white-space:nowrap;"><i class="fas fa-file-invoice-dollar"></i> Wires</button>
       </div>
     </div>`).join('') + `
     <div style="padding:12px 0;border-top:2px solid var(--border);margin-top:8px;display:flex;justify-content:space-between;font-weight:700;">
@@ -1136,7 +1136,7 @@ function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;'
         <div style="font-size:.75rem;color:rgba(243,240,237,.5);margin-top:2px;">Confidential — for wire processing only</div>
       </div>
       <div style="display:flex;gap:10px;">
-        <button onclick="printWireReport()" style="background:#F37925;color:white;border:none;padding:8px 16px;border-radius:6px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;">
+        <button onclick="printWireReport()" style="background:#F37925;color:#1B1A19;border:none;padding:8px 16px;border-radius:6px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;">
           <i class="fas fa-print"></i> Print / PDF
         </button>
         <button onclick="document.getElementById('wireReportModal').style.display='none'" style="background:rgba(255,255,255,.1);color:white;border:none;width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;">×</button>
