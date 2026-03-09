@@ -18,6 +18,7 @@
   <script src="js/sp-firebase.js?v6"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-documents.js"></script>
+  <script src="js/sp-esign.js?v6"></script>
   <style>
     :root {
       --primary: #1B1A19;--accent: #F37925;--accent-hover:#D96515;--accent-light: rgba(243,121,37,0.12);
@@ -912,6 +913,7 @@ function renderInvestorsTable(linked) {
         <td class="pct">${entry.ownership?entry.ownership.toFixed(2)+'%':'—'}</td>
         <td><span class="badge ${BADGE[entry.status]||'badge-committed'}">${entry.status||'committed'}</span></td>
         <td><div style="display:flex;gap:6px;">
+          ${typeof SPEsign !== 'undefined' ? `<button class="btn-xs" onclick="sendForSignature('${entry.investorId}')" title="Send Subscription Agreement for Signature" style="color:var(--accent);"><i class="fas fa-file-signature"></i></button>` : ''}
           ${!SP.getInvestorById(entry.investorId)?`<button class="btn-xs" onclick="importInvestorToCRM('${entry.investorId}')" title="Add to CRM" style="color:var(--success);"><i class="fas fa-user-plus"></i></button>`:''}
           <button class="btn-xs danger" onclick="removeInvestor('${entry.investorId}')"><i class="fas fa-unlink"></i></button>
         </div></td>
@@ -984,6 +986,35 @@ function importInvestorToCRM(invId) {
   if (!investors.find(i=>i.id===invId)) { investors.unshift(inv); SP.saveInvestors(investors); }
   SP.logActivity('fa-user-plus','green',`<strong>${name}</strong> added to CRM from deal`);
   render();
+}
+
+async function sendForSignature(invId) {
+  const inv = SP.getInvestorById(invId);
+  if (!inv) { alert('Investor not found.'); return; }
+  
+  // Check if already sent
+  if (typeof SPEsign !== 'undefined') {
+    const existing = SPEsign.getRequestForInvestor(dealId, invId);
+    if (existing) {
+      if (!confirm(`A signing request was already sent to ${inv.email} on ${new Date(existing.sentAt).toLocaleDateString()}.\n\nSend another one?`)) return;
+    }
+  }
+  
+  const deal = SP.getDealById(dealId);
+  const settings = SP.load('settings', {});
+  if (!confirm(`Send Subscription Agreement to ${inv.firstName} ${inv.lastName} (${inv.email}) for ${deal.name}?`)) return;
+  
+  const result = await SPEsign.createSubscriptionAgreement(deal, inv, {
+    name: settings.firmName || 'GP',
+    email: settings.gpEmail || ''
+  });
+  
+  if (result.success) {
+    alert(`✅ Signing request sent to ${result.sentTo}\n\nThey'll receive an email with a link to sign the subscription agreement.`);
+    render(); // refresh to show signature status
+  } else {
+    alert(`❌ Failed to send: ${result.error}`);
+  }
 }
 
 function removeInvestor(invId) {
