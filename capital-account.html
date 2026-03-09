@@ -19,7 +19,7 @@
         :root { --accent: #F37925; --accent-hover: #D96515; --success: #2D9A6B; --warning: #E8890A; --danger: #D94F3D; --bg: #F3F3F3; --surface: #FFFFFF; --border: #E2DDD8; --text: #1B1A19; --text-muted: #6B6560; --text-light: #9C9590; --radius: 12px; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        .main { flex: 1; margin-left: var(--dt-sidebar-width); padding: 40px; }
         @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
 
         .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }

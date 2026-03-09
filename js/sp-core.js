@@ -21,7 +21,7 @@
     base = window.location.origin + dir;
   }
   link.href = base + 'css/dt-global.css';
-  document.head.prepend(link);
+  document.head.appendChild(link);
 // Inject Dark Mode Overrides
   const darkLink = document.createElement('link');
   darkLink.id   = 'dt-dark-overrides';
@@ -1039,15 +1039,28 @@ window.SP = (function () {
       document.body.appendChild(overlay);
     }
 
-    // Ensure mobile menu button exists in top-bar
-    const topLeft = document.querySelector('.top-left, .top-bar');
-    if (topLeft && !document.querySelector('.mobile-menu-btn')) {
+    // Ensure mobile menu button exists — always first in top-bar or top-left
+    if (!document.querySelector('.mobile-menu-btn')) {
       const btn = document.createElement('button');
       btn.className = 'mobile-menu-btn';
-      btn.style.cssText = 'display:none;background:none;border:1px solid #e2e8f0;border-radius:8px;padding:8px 10px;cursor:pointer;align-items:center;justify-content:center;';
-      btn.innerHTML = '<i class="fas fa-bars" style="color:#64748b;"></i>';
+      btn.style.cssText = 'display:none;background:none;border:1px solid #e2e8f0;border-radius:8px;width:40px;height:40px;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;';
+      btn.innerHTML = '<i class="fas fa-bars" style="color:#64748b;font-size:1rem;"></i>';
       btn.onclick = () => { sidebar.classList.toggle('open'); overlay.classList.toggle('visible'); };
-      topLeft.insertBefore(btn, topLeft.firstChild);
+      // Prefer top-left, then top-bar, then create a minimal top-bar
+      const target = document.querySelector('.top-left') || document.querySelector('.top-bar, header.top-bar');
+      if (target) {
+        target.insertBefore(btn, target.firstChild);
+      } else {
+        // No top-bar at all — create a minimal one at top of .main
+        const main = document.querySelector('.main, main, #main');
+        if (main) {
+          const bar = document.createElement('header');
+          bar.className = 'top-bar';
+          bar.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 16px;';
+          bar.appendChild(btn);
+          main.insertBefore(bar, main.firstChild);
+        }
+      }
     }
 
     // Wire existing mobile-menu-btn if present but not functional

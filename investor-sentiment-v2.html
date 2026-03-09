@@ -13,7 +13,7 @@
         *{margin:0;padding:0;box-sizing:border-box;}
         body { background: #F3F3F3;color: #1B1A19;display:flex;min-height:100vh;}
         /* sidebar CSS moved to dt-global.css */
-        .main { flex: 1; margin-left: 260px; padding: 40px; }
+        .main { flex: 1; margin-left: var(--dt-sidebar-width); padding: 40px; }
     @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
         .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
         

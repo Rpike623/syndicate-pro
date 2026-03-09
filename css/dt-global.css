@@ -429,6 +429,28 @@ input::placeholder, textarea::placeholder {
     gap: 8px !important;
     align-items: center !important;
   }
+  /* Hamburger always leftmost on mobile — in any header variant */
+  .mobile-menu-btn,
+  .top-bar .mobile-menu-btn,
+  .top-left .mobile-menu-btn,
+  .dt-header .mobile-menu-btn {
+    order: -1 !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: none !important;
+    border: 1px solid #E2DDD8 !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+  }
+  .mobile-menu-btn i {
+    color: #6B6560 !important;
+    font-size: 1rem !important;
+  }
   .top-left { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
   .top-actions { 
     flex-wrap: nowrap !important; 
