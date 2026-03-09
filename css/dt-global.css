@@ -5711,8 +5711,13 @@ html body .meta-avatar {
 }
 
 /* ── INVESTOR PORTAL ─────────────────────────────────────────────────────── */
-html body .portal-logo { color: #F3F3F3 !important; } /* inside dark sidebar */
-html body .portal-nav a:hover { color: #F3F3F3 !important; background: rgba(255,255,255,0.08) !important; }
+html body .portal-logo { color: #1B1A19 !important; } /* dark text on white header */
+html body .portal-nav a { color: #4B4540 !important; }
+html body .portal-nav a:hover { color: #1B1A19 !important; background: rgba(0,0,0,0.04) !important; }
+html body .portal-nav a.active { color: #F37925 !important; border-bottom-color: #F37925 !important; }
+html body .portal-header .btn-secondary { color: #1B1A19 !important; }
+html body .welcome-banner h1, html body .welcome-banner span { color: #FFFFFF !important; }
+html body .welcome-banner p { color: rgba(255,255,255,0.7) !important; }
 
 /* ── LENDER CRM ──────────────────────────────────────────────────────────── */
 html body .btn-sm:hover {

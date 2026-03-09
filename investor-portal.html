@@ -40,7 +40,7 @@
     .portal-user{display:flex;align-items:center;gap:12px;font-size:.875rem;color:var(--text-secondary);}
     .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:.82rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;}
     .btn-secondary{background:var(--bg-card);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border-light);}
-    .btn-primary{background:var(--accent);color:var(--text);}.btn-primary:hover{background:var(--accent-hover);}
+    .btn-primary{background:var(--accent);color:#FFFFFF;}.btn-primary:hover{background:var(--accent-hover);}
     @media(max-width:768px){.portal-nav{display:none;}}
     /* Mobile nav */
     .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg-card);border:1px solid var(--border);padding:6px 0;z-index:50;justify-content:space-around;}
@@ -93,7 +93,7 @@
     .badge-active{background:var(--success-light);color:var(--success);}
     /* Welcome banner */
     .welcome-banner{background:linear-gradient(135deg,#1B1A19,#2D2926);border-radius:var(--radius-md);padding:28px;margin-bottom:24px;}
-    .welcome-banner h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;}
+    .welcome-banner h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;color:#FFFFFF;}
     .welcome-banner p{color:rgba(255,255,255,.6);font-size:.9rem;}
     /* Profile form */
     .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
@@ -202,10 +202,8 @@
   <!-- Documents -->
   <div class="portal-page" id="page-documents">
     <h2 style="margin-bottom:20px;font-size:1.25rem;">My Documents</h2>
-    <div class="card">
-      <div class="card-body" id="docsContent">
-        <div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents available yet. Your GP will share documents here.</p></div>
-      </div>
+    <div id="docsContent">
+      <div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents available yet. Your GP will share documents here.</p></div>
     </div>
   </div>
 
@@ -220,7 +218,7 @@
           <i class="fas fa-clock" style="color:var(--warning);font-size:1.2rem;"></i>
           <div>
             <div style="font-weight:600;color:var(--warning);">Accreditation Pending</div>
-            <div style="font-size:.82rem;color:#fcd34d;margin-top:2px;">Your GP has not yet verified your accredited investor status.</div>
+            <div style="font-size:.82rem;color:var(--text-secondary);margin-top:2px;">Your GP has not yet verified your accredited investor status.</div>
           </div>
         </div>
       </div>
@@ -479,44 +477,110 @@ function render() {
     distContent.innerHTML = '<div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>';
   }
 
-  // Documents page
+  // Documents page — organized by deal
   const docsContent = document.getElementById('docsContent');
-  // Show documents from deals this investor is linked to
-  const dealIds = linkedEntries.map(({ deal }) => deal.id);
-  // For now show deal-level generated docs (OAs etc)
-  const sharedDocs = [];
+  const dealDocMap = {}; // dealId → { dealName, docs[] }
+
+  // Collect docs per deal
   linkedEntries.forEach(({ deal }) => {
-    if (deal.generatedOA) sharedDocs.push({ name: `${deal.name} — Operating Agreement`, type: 'OA', date: deal.oaGeneratedAt, dealId: deal.id });
+    if (!dealDocMap[deal.id]) dealDocMap[deal.id] = { dealName: deal.name, location: deal.location, docs: [] };
+
+    // Operating Agreement
+    if (deal.generatedOA) {
+      dealDocMap[deal.id].docs.push({ name: 'Operating Agreement', icon: 'fa-file-contract', type: 'OA', date: deal.oaGeneratedAt, dealId: deal.id });
+    }
+
+    // Offering Memorandum (check for generated OM)
+    if (deal.generatedOM || deal.omGeneratedAt) {
+      dealDocMap[deal.id].docs.push({ name: 'Offering Memorandum', icon: 'fa-book', type: 'OM', date: deal.omGeneratedAt, dealId: deal.id });
+    }
+
+    // Subscription Agreement
+    if (deal.subAgreement) {
+      dealDocMap[deal.id].docs.push({ name: 'Subscription Agreement', icon: 'fa-file-signature', type: 'Sub', date: deal.subAgreementDate });
+    }
+
+    // Deal room files (uploaded documents from GP)
+    if (Array.isArray(deal.files)) {
+      deal.files.forEach(f => {
+        dealDocMap[deal.id].docs.push({ name: f.name || f.fileName, icon: 'fa-file', type: f.category || 'File', date: f.uploadedAt || f.date, url: f.url || f.downloadUrl });
+      });
+    }
+
+    // Deal documents collection
+    if (Array.isArray(deal.documents)) {
+      deal.documents.forEach(f => {
+        dealDocMap[deal.id].docs.push({ name: f.name || f.title, icon: 'fa-file-alt', type: f.type || 'Document', date: f.date || f.uploadedAt, url: f.url || f.downloadUrl });
+      });
+    }
   });
-  // Also pull K-1s from vault that belong to this investor
+
+  // K-1s from vault
   const VAULT_KEY = 'sp_k1_vault';
   let myK1s = [];
   try {
     const vault = JSON.parse(localStorage.getItem(SP.makeOrgKey(VAULT_KEY)) || '[]');
-    myK1s = vault.filter(v => v.investorId === inv.id && v.status === 'sent');
+    myK1s = vault.filter(v => v.investorId === inv?.id && v.status === 'sent');
   } catch(e) {}
-
   myK1s.forEach(k => {
-    const deal = deals.find(d => d.id === k.dealId);
-    sharedDocs.push({ name: `${k.taxYear} K-1 — ${deal ? deal.name : 'Deal'}`, type: 'K-1', date: k.sentAt || k.uploadedAt, fileData: k.fileData, isK1: true });
+    if (!dealDocMap[k.dealId]) {
+      const deal = allDeals.find(d => d.id === k.dealId);
+      dealDocMap[k.dealId] = { dealName: deal ? deal.name : 'Unknown Deal', location: deal?.location, docs: [] };
+    }
+    dealDocMap[k.dealId].docs.push({ name: `${k.taxYear} K-1`, icon: 'fa-file-invoice-dollar', type: 'K-1', date: k.sentAt || k.uploadedAt, fileData: k.fileData, isK1: true });
   });
 
-  if (sharedDocs.length) {
-    docsContent.innerHTML = sharedDocs.map(doc => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:36px;height:36px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;"><i class="fas ${doc.isK1 ? 'fa-file-invoice-dollar' : 'fa-file-contract'}"></i></div>
-          <div>
-            <div style="font-weight:600;font-size:.875rem;">${doc.name}</div>
-            <div style="font-size:.75rem;color:var(--text-muted);">${doc.type} · ${doc.date ? new Date(doc.date).toLocaleDateString() : '—'}</div>
+  // Also check distributions for statements (each posted dist can be a "statement")
+  myDists.forEach(({ dist }) => {
+    if (!dealDocMap[dist.dealId]) return;
+    dealDocMap[dist.dealId].docs.push({
+      name: `Distribution Statement — ${_distPeriod(dist)}`,
+      icon: 'fa-receipt',
+      type: 'Statement',
+      date: dist.postedAt || dist.date,
+      isDist: true
+    });
+  });
+
+  const dealEntries = Object.entries(dealDocMap).filter(([_, v]) => v.docs.length > 0);
+
+  if (dealEntries.length) {
+    docsContent.innerHTML = dealEntries.map(([dealId, { dealName, location, docs }]) => {
+      const docRows = docs.sort((a,b) => {
+        const da = a.date ? new Date(a.date).getTime() : 0;
+        const db = b.date ? new Date(b.date).getTime() : 0;
+        return db - da;
+      }).map(doc => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:36px;height:36px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;">
+              <i class="fas ${doc.icon}"></i>
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:.875rem;">${doc.name}</div>
+              <div style="font-size:.75rem;color:var(--text-muted);">${doc.type}${doc.date ? ' · ' + new Date(doc.date).toLocaleDateString() : ''}</div>
+            </div>
           </div>
+          ${doc.url
+            ? `<a href="${doc.url}" target="_blank" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-download"></i> Download</a>`
+            : doc.dealId
+              ? `<a href="deal-detail.html?id=${doc.dealId}" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-eye"></i> View</a>`
+              : ''}
+        </div>`).join('');
+
+      return `<div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div>
+            <span style="font-weight:700;"><i class="fas fa-building" style="color:var(--accent);margin-right:8px;"></i>${dealName}</span>
+            ${location ? `<span style="font-size:.78rem;color:var(--text-muted);margin-left:8px;">${location}</span>` : ''}
+          </div>
+          <span class="badge badge-operating" style="font-size:.7rem;">${docs.length} doc${docs.length!==1?'s':''}</span>
         </div>
-        ${doc.isK1 && doc.fileData
-          ? `<button onclick="window.open('').document.write('<embed src=&quot;${doc.fileData.substring(0,50)}...&quot; type=&quot;application/pdf&quot; width=&quot;100%&quot; height=&quot;100%&quot;>')" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-download"></i> View</button>`
-          : doc.dealId ? `<a href="deal-detail.html?id=${doc.dealId}" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-eye"></i> View</a>` : ''}
-      </div>`).join('');
+        <div class="card-body" style="padding:4px 20px;">${docRows}</div>
+      </div>`;
+    }).join('');
   } else {
-    docsContent.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents shared yet. Your GP will post documents here.</p></div>';
+    docsContent.innerHTML = '<div class="card"><div class="card-body"><div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents shared yet. Your GP will post documents here.</p></div></div></div>';
   }
 
   // Accreditation status
@@ -539,7 +603,7 @@ function render() {
         <i class="fas fa-check-circle" style="color:var(--success);font-size:1.2rem;"></i>
         <div>
           <div style="font-weight:600;color:var(--success);">Accredited Investor — Verified</div>
-          <div style="font-size:.82rem;color:#6ee7b7;margin-top:2px;">Method: ${inv.accredMethod||'On file'}${expiry ? ' · Expires: '+expiry.toLocaleDateString() : ''}</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:2px;">Method: ${inv.accredMethod||'On file'}${expiry ? ' · Expires: '+expiry.toLocaleDateString() : ''}</div>
         </div>
       </div>`;
     } else if (inv.accredStatus === 'verified' && daysLeft !== null && daysLeft <= 30 && daysLeft > 0) {
@@ -547,7 +611,7 @@ function render() {
         <i class="fas fa-exclamation-triangle" style="color:var(--warning);font-size:1.2rem;"></i>
         <div>
           <div style="font-weight:600;color:var(--warning);">Accreditation Expiring in ${daysLeft} day${daysLeft!==1?'s':''}</div>
-          <div style="font-size:.82rem;color:#fcd34d;margin-top:2px;">Contact your GP to renew before ${expiry ? expiry.toLocaleDateString() : 'expiration'}.</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:2px;">Contact your GP to renew before ${expiry ? expiry.toLocaleDateString() : 'expiration'}.</div>
         </div>
       </div>`;
     } else if (inv.accredStatus === 'expired' || (daysLeft !== null && daysLeft <= 0)) {
@@ -555,7 +619,7 @@ function render() {
         <i class="fas fa-times-circle" style="color:var(--danger);font-size:1.2rem;"></i>
         <div>
           <div style="font-weight:600;color:var(--danger);">Accreditation Expired</div>
-          <div style="font-size:.82rem;color:#fca5a5;margin-top:2px;">Contact your GP to renew your accreditation before investing further.</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:2px;">Contact your GP to renew your accreditation before investing further.</div>
         </div>
       </div>`;
     }
