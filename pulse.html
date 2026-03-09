@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Pulse</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v3"></script>
+  <script src="js/sp-data.js?v2"></script>
+  <script src="js/sp-firebase.js?v2"></script>
+  <style>
+    :root{--accent:#F37925;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--info:#3B82F6;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+    .main{flex:1;margin-left:var(--dt-sidebar-width);padding:32px 40px;}
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;padding:16px;}}
+
+    .page-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:28px;}
+    .page-top h1{font-size:1.5rem;font-weight:800;}
+    .page-top p{color:var(--muted);font-size:.88rem;margin-top:2px;}
+
+    /* Score card */
+    .score-bar{display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+    .score-card{flex:1;min-width:140px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;}
+    .score-card .sc-num{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:1.8rem;}
+    .score-card .sc-label{font-size:.7rem;text-transform:uppercase;color:var(--muted);font-weight:600;letter-spacing:.05em;margin-top:4px;}
+    .sc-critical{color:var(--danger);}
+    .sc-warning{color:var(--warning);}
+    .sc-info{color:var(--info);}
+    .sc-clean{color:var(--success);}
+
+    /* Health score ring */
+    .health-ring{position:relative;width:80px;height:80px;margin:0 auto 8px;}
+    .health-ring svg{transform:rotate(-90deg);}
+    .health-ring .score-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:1.3rem;}
+
+    /* Category sections */
+    .pulse-section{margin-bottom:24px;}
+    .section-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:pointer;user-select:none;}
+    .section-header h2{font-size:1rem;font-weight:700;}
+    .section-header .count{background:var(--border);color:var(--muted);padding:2px 8px;border-radius:12px;font-size:.72rem;font-weight:700;}
+    .section-header .count.has-items{background:rgba(243,121,37,.12);color:var(--accent);}
+    .section-header .chevron{color:var(--muted);font-size:.7rem;transition:transform .2s;}
+    .section-header .chevron.open{transform:rotate(90deg);}
+
+    /* Finding cards */
+    .findings{display:flex;flex-direction:column;gap:8px;}
+    .finding{display:flex;gap:14px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;align-items:flex-start;transition:all .15s;}
+    .finding:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.04);}
+    .finding .sev{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+    .sev-critical{background:var(--danger);}
+    .sev-warning{background:var(--warning);}
+    .sev-info{background:var(--info);}
+    .sev-tip{background:var(--success);}
+    .finding .f-body{flex:1;min-width:0;}
+    .finding .f-title{font-size:.88rem;font-weight:600;margin-bottom:2px;}
+    .finding .f-desc{font-size:.8rem;color:var(--muted);line-height:1.5;}
+    .finding .f-action{flex-shrink:0;}
+    .finding .f-action a{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:6px;font-size:.75rem;font-weight:600;color:var(--accent);background:rgba(243,121,37,.08);text-decoration:none;white-space:nowrap;transition:all .15s;}
+    .finding .f-action a:hover{background:rgba(243,121,37,.16);}
+
+    .all-clear{text-align:center;padding:40px 24px;color:var(--success);}
+    .all-clear i{font-size:2rem;display:block;margin-bottom:8px;}
+    .all-clear h3{font-weight:700;margin-bottom:4px;}
+    .all-clear p{color:var(--muted);font-size:.85rem;}
+
+    .timestamp{font-size:.75rem;color:var(--muted);margin-top:24px;text-align:center;}
+  </style>
+</head>
+<body>
+  <aside id="sidebar" class="sidebar"></aside>
+  <main class="main">
+    <div class="page-top">
+      <div>
+        <h1><i class="fas fa-heartbeat" style="color:var(--accent);"></i> Pulse</h1>
+        <p>Platform health check — things that may need your attention</p>
+      </div>
+      <div>
+        <button onclick="runPulse()" style="padding:10px 18px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:600;font-family:inherit;font-size:.85rem;display:inline-flex;align-items:center;gap:8px;"><i class="fas fa-sync-alt"></i> Refresh</button>
+      </div>
+    </div>
+
+    <div class="score-bar" id="scoreBar"></div>
+    <div id="pulseBody"></div>
+    <div class="timestamp" id="timestamp"></div>
+  </main>
+
+  <script>
+    SP.requireGP();
+
+    const fmt$ = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n||0);
+    const daysBetween = (a,b) => Math.round((new Date(b) - new Date(a)) / 86400000);
+    const today = new Date().toISOString().split('T')[0];
+
+    function runPulse() {
+      const deals = SP.getDeals();
+      const investors = SP.getInvestors();
+      const distributions = SP.getDistributions();
+      const settings = SP.load('settings', {});
+
+      const findings = [];
+
+      // ════════════ DEAL CHECKS ════════════
+      deals.forEach(d => {
+        const invCount = (d.investors || []).length;
+        const equity = d.totalEquity || d.raise || 0;
+        const committed = (d.investors || []).reduce((s, i) => s + (i.committed || 0), 0);
+        const status = (d.status || '').toLowerCase();
+
+        // Closed but under-raised
+        if (status === 'closed' && equity > 0 && committed < equity * 0.95) {
+          findings.push({ cat: 'deals', sev: 'warning', title: `${d.name} — closed but under target raise`,
+            desc: `Status is "Closed" but only ${fmt$(committed)} of ${fmt$(equity)} committed (${(committed/equity*100).toFixed(0)}%). Update the target raise or change the status.`,
+            link: `deal-detail.html?id=${d.id}`, linkText: 'View Deal' });
+        }
+
+        // Operating but no distributions
+        if ((status === 'operating' || status === 'closed') && distributions.filter(x => x.dealId === d.id && x.status === 'posted').length === 0) {
+          findings.push({ cat: 'deals', sev: 'info', title: `${d.name} — operating with no distributions posted`,
+            desc: `This deal is in "${d.status}" status but has no posted distributions. Expected if pre-stabilization.`,
+            link: `distributions.html`, linkText: 'Distributions' });
+        }
+
+        // No investors
+        if (invCount === 0 && status !== 'loi' && status !== 'dd') {
+          findings.push({ cat: 'deals', sev: 'warning', title: `${d.name} — no investors linked`,
+            desc: `This deal has no investors attached. Add investors from the deal detail page.`,
+            link: `deal-detail.html?id=${d.id}`, linkText: 'Add Investors' });
+        }
+
+        // No OA generated
+        if (!d.generatedOA && (status === 'raising' || status === 'operating' || status === 'closed')) {
+          findings.push({ cat: 'docs', sev: 'warning', title: `${d.name} — no Operating Agreement generated`,
+            desc: `Active deal without a generated OA. Generate one from Deal Detail for your deal room.`,
+            link: `deal-detail.html?id=${d.id}`, linkText: 'Generate OA' });
+        }
+
+        // Missing key fields
+        const missing = [];
+        if (!d.location) missing.push('location');
+        if (!d.type) missing.push('property type');
+        if (!d.companyName) missing.push('entity name');
+        if (equity === 0) missing.push('equity/raise amount');
+        if (missing.length > 0) {
+          findings.push({ cat: 'deals', sev: 'info', title: `${d.name} — missing ${missing.join(', ')}`,
+            desc: `Incomplete deal profile. Fill in missing fields for better reporting and document generation.`,
+            link: `new-deal.html?edit=${d.id}`, linkText: 'Edit Deal' });
+        }
+
+        // Stale pipeline — in DD/LOI for 90+ days
+        if ((status === 'dd' || status === 'loi') && d.added) {
+          const age = daysBetween(d.added, today);
+          if (age > 90) {
+            findings.push({ cat: 'deals', sev: 'info', title: `${d.name} — in ${d.status} for ${age} days`,
+              desc: `This deal has been in the pipeline for over 3 months. Update the status or move to closed/dead.`,
+              link: `deal-detail.html?id=${d.id}`, linkText: 'Update Status' });
+          }
+        }
+
+        // Raising but past projected close
+        if (status === 'raising' && d.closeDate && new Date(d.closeDate) < new Date()) {
+          findings.push({ cat: 'deals', sev: 'warning', title: `${d.name} — past projected close date`,
+            desc: `Close date was ${d.closeDate} but status is still "Raising". Update the date or change status.`,
+            link: `deal-detail.html?id=${d.id}`, linkText: 'View Deal' });
+        }
+
+        // Over-distributed
+        const totalDist = distributions.filter(x => x.dealId === d.id && x.status === 'posted')
+          .reduce((s, x) => s + (x.recipients || []).reduce((ss, r) => ss + (r.amount || r.totalThisDist || 0), 0), 0);
+        if (totalDist > equity * 2 && equity > 0) {
+          findings.push({ cat: 'finance', sev: 'critical', title: `${d.name} — distributions exceed 2x equity`,
+            desc: `${fmt$(totalDist)} distributed on ${fmt$(equity)} equity. Verify distribution records are correct.`,
+            link: `capital-account.html?dealId=${d.id}`, linkText: 'Capital Accounts' });
+        }
+
+        // Unusual terms
+        const pref = d.prefReturn || 0;
+        const promote = d.gpPromote || 0;
+        if (pref > 15) {
+          findings.push({ cat: 'deals', sev: 'info', title: `${d.name} — pref return is ${pref}%`,
+            desc: `Preferred return above 15% is uncommon. Verify this is intentional.`,
+            link: `deal-detail.html?id=${d.id}`, linkText: 'Review Terms' });
+        }
+        if (promote > 50) {
+          findings.push({ cat: 'deals', sev: 'info', title: `${d.name} — GP promote is ${promote}%`,
+            desc: `GP promote above 50% is unusual. Verify this is intentional.`,
+            link: `deal-detail.html?id=${d.id}`, linkText: 'Review Terms' });
+        }
+      });
+
+      // ════════════ INVESTOR CHECKS ════════════
+      investors.forEach(inv => {
+        const name = `${inv.firstName} ${inv.lastName}`;
+
+        // Accreditation expired
+        if (inv.accreditationExpiry) {
+          const daysLeft = daysBetween(today, inv.accreditationExpiry);
+          if (daysLeft < 0) {
+            findings.push({ cat: 'investors', sev: 'critical', title: `${name} — accreditation expired`,
+              desc: `Expired ${Math.abs(daysLeft)} days ago (${inv.accreditationExpiry}). Re-verify before accepting new capital.`,
+              link: `investor-detail.html?id=${inv.id}`, linkText: 'View Investor' });
+          } else if (daysLeft <= 30) {
+            findings.push({ cat: 'investors', sev: 'warning', title: `${name} — accreditation expiring in ${daysLeft} days`,
+              desc: `Expires ${inv.accreditationExpiry}. Reach out to re-verify before it lapses.`,
+              link: `investor-detail.html?id=${inv.id}`, linkText: 'View Investor' });
+          }
+        }
+
+        // No email
+        if (!inv.email) {
+          findings.push({ cat: 'investors', sev: 'warning', title: `${name} — no email address`,
+            desc: `This investor has no email on file. Required for K-1 delivery, distribution notices, and portal access.`,
+            link: `investor-detail.html?id=${inv.id}`, linkText: 'Add Email' });
+        }
+
+        // Not linked to any deal
+        const linkedDeals = deals.filter(d => (d.investors || []).some(i => i.investorId === inv.id));
+        if (linkedDeals.length === 0) {
+          findings.push({ cat: 'investors', sev: 'info', title: `${name} — not linked to any deal`,
+            desc: `This investor exists in your CRM but isn't attached to any deal.`,
+            link: `investor-detail.html?id=${inv.id}`, linkText: 'View Profile' });
+        }
+
+        // $0 commitment in a deal
+        deals.forEach(d => {
+          const entry = (d.investors || []).find(i => i.investorId === inv.id);
+          if (entry && (!entry.committed || entry.committed === 0)) {
+            findings.push({ cat: 'investors', sev: 'warning', title: `${name} — $0 committed in ${d.name}`,
+              desc: `Linked to this deal but with no commitment amount. Update their commitment or remove from the deal.`,
+              link: `deal-detail.html?id=${d.id}`, linkText: 'Fix Commitment' });
+          }
+        });
+      });
+
+      // Duplicate emails
+      const emailMap = {};
+      investors.forEach(inv => {
+        if (inv.email) {
+          const e = inv.email.toLowerCase();
+          if (!emailMap[e]) emailMap[e] = [];
+          emailMap[e].push(`${inv.firstName} ${inv.lastName}`);
+        }
+      });
+      Object.entries(emailMap).forEach(([email, names]) => {
+        if (names.length > 1) {
+          findings.push({ cat: 'investors', sev: 'warning', title: `Duplicate email: ${email}`,
+            desc: `Shared by: ${names.join(', ')}. This may cause issues with portal access and distribution tracking.`,
+            link: 'investors.html', linkText: 'Review Investors' });
+        }
+      });
+
+      // ════════════ DISTRIBUTION CHECKS ════════════
+      distributions.forEach(d => {
+        const dealName = deals.find(dl => dl.id === d.dealId)?.name || 'Unknown Deal';
+
+        // Draft for 30+ days
+        if (d.status === 'draft' && d.date) {
+          const age = daysBetween(d.date, today);
+          if (age > 30) {
+            findings.push({ cat: 'finance', sev: 'warning', title: `${dealName} — draft distribution sitting ${age} days`,
+              desc: `A distribution dated ${d.date} is still in draft. Post it or delete if no longer needed.`,
+              link: 'distributions.html', linkText: 'Distributions' });
+          }
+        }
+
+        // Posted but no recipients
+        if (d.status === 'posted' && (!d.recipients || d.recipients.length === 0)) {
+          findings.push({ cat: 'finance', sev: 'critical', title: `${dealName} — posted distribution with no recipients`,
+            desc: `This distribution is marked as posted but has no investor allocations. Verify the data.`,
+            link: 'distributions.html', linkText: 'Review' });
+        }
+      });
+
+      // ════════════ SETTINGS CHECKS ════════════
+      if (!settings.firmName) {
+        findings.push({ cat: 'setup', sev: 'info', title: 'Firm name not configured',
+          desc: 'Set your firm name in Settings. It appears on generated documents, K-1s, and investor communications.',
+          link: 'settings.html', linkText: 'Settings' });
+      }
+      if (!settings.gpFullName) {
+        findings.push({ cat: 'setup', sev: 'info', title: 'GP representative name not set',
+          desc: 'Used for signature blocks on OAs, subscription docs, and distribution notices.',
+          link: 'settings.html', linkText: 'Settings' });
+      }
+      if (!settings.firmAddress) {
+        findings.push({ cat: 'setup', sev: 'info', title: 'Firm address not configured',
+          desc: 'Appears on legal documents and investor correspondence.',
+          link: 'settings.html', linkText: 'Settings' });
+      }
+
+      // ════════════ RENDER ════════════
+      renderPulse(findings);
+    }
+
+    function renderPulse(findings) {
+      const critical = findings.filter(f => f.sev === 'critical');
+      const warnings = findings.filter(f => f.sev === 'warning');
+      const infos = findings.filter(f => f.sev === 'info');
+      const total = findings.length;
+
+      // Health score: 100 - (critical*15 + warnings*5 + info*1), floor 0
+      const score = Math.max(0, Math.min(100, 100 - (critical.length * 15 + warnings.length * 5 + infos.length * 1)));
+      const scoreColor = score >= 80 ? 'var(--success)' : score >= 50 ? 'var(--warning)' : 'var(--danger)';
+      const circumference = 2 * Math.PI * 34;
+      const offset = circumference - (score / 100) * circumference;
+
+      document.getElementById('scoreBar').innerHTML = `
+        <div class="score-card">
+          <div class="health-ring">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="#E2DDD8" stroke-width="6"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="${scoreColor}" stroke-width="6" stroke-linecap="round"
+                stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" style="transition:stroke-dashoffset .8s ease;"/>
+            </svg>
+            <div class="score-text" style="color:${scoreColor};">${score}</div>
+          </div>
+          <div class="sc-label">Health Score</div>
+        </div>
+        <div class="score-card"><div class="sc-num sc-critical">${critical.length}</div><div class="sc-label">Critical</div></div>
+        <div class="score-card"><div class="sc-num sc-warning">${warnings.length}</div><div class="sc-label">Warnings</div></div>
+        <div class="score-card"><div class="sc-num sc-info">${infos.length}</div><div class="sc-label">Suggestions</div></div>
+        <div class="score-card"><div class="sc-num sc-clean">${total === 0 ? '✓' : total}</div><div class="sc-label">${total === 0 ? 'All Clear' : 'Total Items'}</div></div>
+      `;
+
+      const categories = [
+        { key: 'deals', label: 'Deals', icon: 'fa-building' },
+        { key: 'investors', label: 'Investors', icon: 'fa-users' },
+        { key: 'finance', label: 'Distributions & Finance', icon: 'fa-dollar-sign' },
+        { key: 'docs', label: 'Documents', icon: 'fa-file-contract' },
+        { key: 'setup', label: 'Platform Setup', icon: 'fa-cog' },
+      ];
+
+      let html = '';
+      categories.forEach(cat => {
+        const items = findings.filter(f => f.cat === cat.key);
+        // Sort: critical first, then warning, then info
+        items.sort((a, b) => { const order = { critical: 0, warning: 1, info: 2, tip: 3 }; return (order[a.sev] || 9) - (order[b.sev] || 9); });
+        const hasItems = items.length > 0;
+
+        html += `<div class="pulse-section">
+          <div class="section-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none';this.querySelector('.chevron').classList.toggle('open');">
+            <i class="fas ${cat.icon}" style="color:${hasItems ? 'var(--accent)' : 'var(--muted)'};font-size:.9rem;"></i>
+            <h2>${cat.label}</h2>
+            <span class="count ${hasItems ? 'has-items' : ''}">${items.length}</span>
+            <i class="fas fa-chevron-right chevron ${hasItems ? 'open' : ''}"></i>
+          </div>
+          <div class="findings" ${hasItems ? '' : 'style="display:none;"'}>`;
+
+        if (items.length === 0) {
+          html += `<div class="all-clear"><i class="fas fa-check-circle"></i><h3>All clear</h3><p>No issues found in ${cat.label.toLowerCase()}</p></div>`;
+        } else {
+          items.forEach(f => {
+            html += `<div class="finding">
+              <div class="sev sev-${f.sev}"></div>
+              <div class="f-body">
+                <div class="f-title">${f.title}</div>
+                <div class="f-desc">${f.desc}</div>
+              </div>
+              ${f.link ? `<div class="f-action"><a href="${f.link}"><i class="fas fa-arrow-right"></i> ${f.linkText || 'Fix'}</a></div>` : ''}
+            </div>`;
+          });
+        }
+
+        html += `</div></div>`;
+      });
+
+      document.getElementById('pulseBody').innerHTML = html;
+      document.getElementById('timestamp').textContent = `Last checked: ${new Date().toLocaleString()}`;
+    }
+
+    SP.onDataReady(runPulse);
+  </script>
+</body>
+</html>

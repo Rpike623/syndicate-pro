@@ -1198,6 +1198,7 @@ window.SP = (function () {
         // ── Home ─────────────────────────────────────────────────
         { id:'home', items:[
           { href:'dashboard.html', icon:'fa-th-large', label:'Dashboard' },
+          { href:'pulse.html',     icon:'fa-heartbeat', label:'Pulse' },
         ]},
         // ── Deals ────────────────────────────────────────────────
         { id:'deals', title:'DEALS', items:[
