@@ -666,9 +666,9 @@ function previewDistribution() {
       }
 
       // Tier 2: Split at t2GPSplit% until t2Hurdle% IRR equivalent is reached
-      // Approximate: tier 2 pool = invested × (t2Hurdle - prefRate)/100 × yearsHeld
+      // Compound: pool = equity × ((1+hurdle)^years - (1+pref)^years)
       const avgYears = prefSplits.length ? prefSplits.reduce((s,p) => s + p.yearsHeld, 0) / prefSplits.length : 1;
-      const tier2Pool = Math.max(0, totalLPInvested * ((t2Hurdle - prefRate) / 100) * avgYears);
+      const tier2Pool = Math.max(0, totalLPInvested * (Math.pow(1 + t2Hurdle/100, avgYears) - Math.pow(1 + prefRate/100, avgYears)));
       const tier2Actual = Math.min(remaining, tier2Pool);
       if (tier2Actual > 0) {
         const t2GP = parseFloat((tier2Actual * t2GPSplit / 100).toFixed(2));
@@ -854,32 +854,42 @@ async function executeDistribution() {
   const lpTotal = parseFloat(document.getElementById('lpSum').textContent.replace(/[$,]/g, '')) || amount;
   const gpTotal = parseFloat(document.getElementById('gpSum').textContent.replace(/[$,]/g, '')) || 0;
 
+  // Calculate per-investor return of capital (pro-rata by committed amount)
+  const rocTier = tierData.find(t => t.type === 'tier-roc');
+  const totalROC = rocTier ? rocTier.amount : 0;
+
   const recipients = currentLPs.map(inv => {
     const ps = prefSplits.find(s => s.investorId === inv.investorId);
+    const invested = ps?.invested || inv.committed || 0;
+    const totalInv = currentLPs.reduce((s, i) => s + (i.committed || 0), 0);
+    const rocShare = totalInv > 0 ? parseFloat((totalROC * (invested / totalInv)).toFixed(2)) : 0;
+
     if (ps) {
       return {
         investorId: inv.investorId,
         ownership: ps.ownership || inv.ownership || 0,
-        invested: ps.invested || inv.committed || 0,
+        invested,
         amount: ps.totalThisDist,
         totalThisDist: ps.totalThisDist,
         prefPaidThisDist: ps.prefPaidThisDist,
         excessThisDist: ps.excessThisDist,
         prefPaidAfterDist: (ps.prefPaidToDate || 0) + ps.prefPaidThisDist,
         prefRemainingAfterDist: ps.prefRemainingAfterDist,
+        returnOfCapital: rocShare,
       };
     }
     const payout = lpTotal * ((inv.ownership || 0) / 100);
     return {
       investorId: inv.investorId,
       ownership: inv.ownership || 0,
-      invested: inv.committed || 0,
+      invested,
       amount: payout,
       totalThisDist: payout,
       prefPaidThisDist: 0,
       excessThisDist: payout,
       prefPaidAfterDist: 0,
       prefRemainingAfterDist: null,
+      returnOfCapital: rocShare,
     };
   });
 

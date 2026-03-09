@@ -19,17 +19,30 @@ const SPMath = (() => {
 
   // 3. XIRR Approximation (Newton-Raphson method)
   function xirr(cashflows, dates, estimate = 0.1) {
+    if (!cashflows || !dates || cashflows.length < 2 || cashflows.length !== dates.length) return 0;
+    // Guard: if all cashflows are zero or no positive cashflows, return 0 or -1
+    if (cashflows.every(c => c === 0)) return 0;
+    const hasPositive = cashflows.some(c => c > 0);
+    const hasNegative = cashflows.some(c => c < 0);
+    if (!hasPositive && hasNegative) return -1; // total loss
+    if (hasPositive && !hasNegative) return Infinity; // free money (shouldn't happen)
     let result = estimate;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 100; i++) {
       let f = 0, df = 0;
       for (let j = 0; j < cashflows.length; j++) {
         const days = (dates[j] - dates[0]) / (365 * 24 * 60 * 60 * 1000);
-        f  += cashflows[j] / Math.pow(1 + result, days);
+        const denom = Math.pow(1 + result, days);
+        if (!isFinite(denom) || denom === 0) { result = estimate * 0.5; break; }
+        f  += cashflows[j] / denom;
         df -= days * cashflows[j] / Math.pow(1 + result, days + 1);
       }
-      result -= f / df;
+      if (df === 0 || !isFinite(df)) break; // avoid division by zero
+      const delta = f / df;
+      result -= delta;
+      if (!isFinite(result)) return 0; // diverged
+      if (Math.abs(delta) < 1e-8) break; // converged
     }
-    return result;
+    return isFinite(result) ? result : 0;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -103,11 +116,15 @@ const SPMath = (() => {
 
     // Pass 1 — compute each investor's pref accrual
     const results = investors.map(inv => {
-      const invested = parseFloat(inv.committed || inv.amount || 0);
+      // Guard: strip commas from committed amounts, handle missing values
+      const rawCommitted = String(inv.committed || inv.amount || 0).replace(/,/g, '');
+      const invested = parseFloat(rawCommitted) || 0;
       // Pref clock starts when investor funded, or deal close
-      const invStartMs = inv.linkedAt
-        ? new Date(inv.linkedAt).getTime()
-        : dealStartMs;
+      let invStartMs = dealStartMs;
+      if (inv.linkedAt) {
+        const parsed = new Date(inv.linkedAt).getTime();
+        if (isFinite(parsed)) invStartMs = parsed; // only use if valid date
+      }
       const holdMs    = Math.max(0, distMs - invStartMs);
       const daysHeld  = holdMs / (24 * 3600 * 1000);
       const yearsHeld = daysHeld / 365.25;
