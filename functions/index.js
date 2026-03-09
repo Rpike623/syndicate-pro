@@ -216,6 +216,67 @@ exports.onDistributionCreated = onDocumentCreated(
   }
 );
 
+// ── Stripe Checkout Session Creator ────────────────────────────────────────────
+/**
+ * createCheckoutSession — callable function to create a Stripe Checkout Session
+ * Called from sp-billing.js with { plan: 'per_deal' | 'enterprise', quantity: N }
+ */
+exports.createCheckoutSession = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+
+    const { plan, quantity } = request.data;
+    if (!plan || !['per_deal', 'enterprise'].includes(plan)) {
+      throw new HttpsError('invalid-argument', 'Invalid plan.');
+    }
+
+    const stripeConfig = await getStripeConfig();
+    const stripe = Stripe(stripeConfig.secretKey);
+    const planConfig = stripeConfig.plans?.[plan];
+    if (!planConfig?.priceId) throw new HttpsError('internal', 'Plan price not configured.');
+
+    const trialDays = stripeConfig.trialDays || 90;
+
+    // Check if user already has a Stripe customer ID
+    const userDoc = await db.collection('users').doc(uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const existingCustomerId = userData.subscription?.stripeCustomerId;
+
+    // Build line items
+    const lineItems = [{
+      price: planConfig.priceId,
+      quantity: plan === 'per_deal' ? (quantity || 1) : 1,
+    }];
+
+    // Create checkout session
+    const sessionParams = {
+      mode: 'subscription',
+      client_reference_id: uid,
+      line_items: lineItems,
+      subscription_data: {
+        trial_period_days: trialDays,
+        metadata: { firebaseUid: uid, plan },
+      },
+      success_url: 'https://deeltrack.com/settings.html?billing=success&plan=' + plan,
+      cancel_url: 'https://deeltrack.com/settings.html?billing=cancel',
+      metadata: { firebaseUid: uid, plan },
+    };
+
+    // Reuse existing customer if they have one
+    if (existingCustomerId) {
+      sessionParams.customer = existingCustomerId;
+    } else {
+      sessionParams.customer_email = userData.email || request.auth.token?.email;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
+
+    return { sessionId: session.id, url: session.url };
+  }
+);
+
 // ── Stripe Webhook ─────────────────────────────────────────────────────────────
 /**
  * stripeWebhook — HTTP endpoint for Stripe webhook events

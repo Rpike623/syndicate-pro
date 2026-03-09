@@ -187,44 +187,34 @@ const SPBilling = (function () {
 
   // ── Stripe Checkout ───────────────────────────────────────────────────────────
 
-  function getPaymentLinks() {
-    const settings = (typeof SP !== 'undefined') ? SP.load('settings', {}) : {};
-    return {
-      
-      pro:        settings.stripePerDealLink         || null,
-      enterprise: settings.stripeEnterpriseLink  || null,
-      portal:     settings.stripePortalLink      || null,
-    };
-  }
-
-  function checkout(planId) {
-    const links = getPaymentLinks();
-    const link  = links[planId];
-
-    if (!link) {
-      // Show setup modal for admin / show upgrade page for users
-      _showNoLinkModal(planId);
+  async function checkout(planId) {
+    if (!['per_deal', 'enterprise'].includes(planId)) {
+      alert('Invalid plan: ' + planId);
       return;
     }
 
-    // Append Firebase UID as client_reference_id (webhook uses this to identify user)
-    const firebaseUser = (typeof firebase !== 'undefined') ? firebase.auth().currentUser : null;
-    const uid   = firebaseUser?.uid ||
-                  (typeof SPFB !== 'undefined' && SPFB.getUser()?.uid) || 'unknown';
-    const email = firebaseUser?.email ||
-                  (typeof SPFB !== 'undefined' && SPFB.getUser()?.email) ||
-                  (typeof SP !== 'undefined' && SP.getSession()?.email) || '';
+    // Count active deals for per-deal billing
+    let quantity = 1;
+    if (planId === 'per_deal' && typeof SP !== 'undefined') {
+      const deals = SP.getDeals();
+      const activeStatuses = ['raising', 'operating', 'closed', 'dd', 'loi'];
+      quantity = deals.filter(d => activeStatuses.includes((d.status || '').toLowerCase())).length || 1;
+    }
 
-    const url = new URL(link);
-    // client_reference_id = Firebase UID — parsed by stripeWebhook Cloud Function
-    url.searchParams.set('client_reference_id', uid);
-    if (email) url.searchParams.set('prefilled_email', email);
-    // Add success/cancel redirect back to billing settings
-    const base = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
-    url.searchParams.set('success_url', base + 'settings.html?billing=success&plan=' + planId);
-    url.searchParams.set('cancel_url',  base + 'settings.html?billing=cancel');
+    // Call Cloud Function to create Checkout Session
+    try {
+      const createCheckout = firebase.functions().httpsCallable('createCheckoutSession');
+      const result = await createCheckout({ plan: planId, quantity });
 
-    window.location.href = url.toString();
+      if (result.data?.url) {
+        window.location.href = result.data.url;
+      } else {
+        throw new Error('No checkout URL returned');
+      }
+    } catch (err) {
+      console.error('[Billing] Checkout error:', err);
+      alert('Could not start checkout. Please try again or contact admin@deeltrack.com.\n\n' + (err.message || ''));
+    }
   }
 
   function openCustomerPortal() {
