@@ -5530,15 +5530,18 @@ html body #toast {
   border: none !important;
 }
 
-/* OM builder & investor update specific */
-html body .snav-item { color: rgba(243,241,238,0.7) !important; }
-html body .snav-item:hover,
-html body .snav-item.active { color: #F3F3F3 !important; }
+/* OM builder & investor update specific — light card bg, dark text */
+html body .snav-item { color: #6B6560 !important; }
+html body .snav-item:hover { color: #1B1A19 !important; }
+html body .snav-item.active { color: #F37925 !important; font-weight: 600 !important; }
+html body .snav-item .snav-num { background: #E2DDD8 !important; color: #6B6560 !important; }
 html body .snav-item.active .snav-num {
   background: #F37925 !important;
   color: #FFFFFF !important;
 }
-html body .om-label { color: #6B6560 !important; }
+html body .om-label,
+html body .fl,
+html body .sec-label { color: #6B6560 !important; }
 
 /* Deal teaser specific */
 html body .site-logo { color: #F3F3F3 !important; }
