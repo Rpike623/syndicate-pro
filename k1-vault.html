@@ -15,6 +15,10 @@
   <script src="js/sp-core.js?v3"></script>
   <script src="js/sp-data.js?v2"></script>
   <script src="js/sp-firebase.js?v2"></script>
+  <!-- PDF parsing for bulk K-1 upload -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script>if(typeof pdfjsLib!=='undefined')pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
   <style>
     :root{--accent:#F37925;--accent-hover:#D96515;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -86,6 +90,7 @@
         <p>Upload and manage actual K-1 documents — each investor sees only their own</p>
       </div>
       <div>
+        <button class="btn" onclick="openBulkUpload()"><i class="fas fa-file-import"></i> Bulk Upload</button>
         <button class="btn btn-primary" onclick="openUpload()"><i class="fas fa-upload"></i> Upload K-1</button>
       </div>
     </div>
@@ -140,7 +145,73 @@
         </div>
       </div>
     </div>
+    <!-- Bulk Upload Modal -->
+    <div class="modal-bg" id="bulkModal">
+      <div class="modal" style="width:640px;max-height:90vh;overflow-y:auto;">
+        <div class="modal-header">
+          <h2><i class="fas fa-file-import" style="color:var(--accent);margin-right:8px;"></i> Bulk K-1 Upload</h2>
+          <button onclick="closeBulk()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);">&times;</button>
+        </div>
+        <div class="modal-body" id="bulkBody">
+          <!-- Step 1: Upload + Deal/Year selection -->
+          <div id="bulkStep1">
+            <p style="font-size:.85rem;color:var(--muted);margin-bottom:20px;">Upload a merged K-1 PDF from your CPA. Deeltrack will split it by partner and match each K-1 to the correct investor automatically.</p>
+            <label>Tax Year</label>
+            <select id="bulkYear"></select>
+            <label>Deal / Entity</label>
+            <select id="bulkDeal"></select>
+            <label>Merged K-1 PDF</label>
+            <div class="vc-upload" onclick="document.getElementById('bulkFile').click();" id="bulkDropZone">
+              <i class="fas fa-cloud-upload-alt"></i> Click to select merged K-1 PDF
+              <input type="file" id="bulkFile" accept=".pdf" onchange="bulkFileSelected()" style="display:none;">
+            </div>
+            <div id="bulkFileName" style="font-size:.8rem;color:var(--muted);margin-top:6px;"></div>
+            <div style="margin-top:20px;">
+              <button class="btn btn-primary" onclick="startBulkParse()" id="bulkParseBtn"><i class="fas fa-magic"></i> Parse & Match</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Review matches -->
+          <div id="bulkStep2" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+              <div>
+                <div style="font-weight:700;font-size:.95rem;">Review Matches</div>
+                <div style="font-size:.8rem;color:var(--muted);" id="bulkSummary"></div>
+              </div>
+              <div style="display:flex;gap:8px;">
+                <button class="btn" onclick="showBulkStep1()"><i class="fas fa-arrow-left"></i> Back</button>
+                <button class="btn btn-primary" onclick="saveBulkK1s()" id="bulkSaveBtn"><i class="fas fa-check"></i> Save All</button>
+              </div>
+            </div>
+            <div id="bulkMatches" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+
+          <!-- Step 3: Done -->
+          <div id="bulkStep3" style="display:none;text-align:center;padding:40px 0;">
+            <i class="fas fa-check-circle" style="font-size:3rem;color:var(--success);margin-bottom:16px;display:block;"></i>
+            <h3 style="margin-bottom:8px;">K-1s Saved</h3>
+            <p id="bulkDoneMsg" style="color:var(--muted);margin-bottom:20px;"></p>
+            <button class="btn btn-primary" onclick="closeBulk();render();">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
+
+  <style>
+    .match-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;}
+    .match-card.matched{border-left:3px solid var(--success);}
+    .match-card.unmatched{border-left:3px solid var(--warning);}
+    .match-pages{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted);background:#F8F6F4;padding:4px 10px;border-radius:6px;white-space:nowrap;}
+    .match-name{font-weight:600;font-size:.88rem;flex:1;}
+    .match-extracted{font-size:.75rem;color:var(--muted);margin-top:2px;}
+    .match-select{padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:.82rem;min-width:180px;}
+    .match-icon{font-size:.9rem;}
+    .match-icon.ok{color:var(--success);}
+    .match-icon.warn{color:var(--warning);}
+    .progress-bar{width:100%;height:6px;background:#E2DDD8;border-radius:3px;overflow:hidden;margin:12px 0;}
+    .progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s;}
+  </style>
 
   <script>
     SP.requireGP();
@@ -362,6 +433,305 @@
       const vault = getVault();
       saveVault(vault.filter(v => v.id !== id));
       render();
+    }
+
+    // ════════════ BULK K-1 UPLOAD ════════════
+
+    let bulkParsedK1s = []; // [{pages:[0,1], extractedName:'', matchedInvestorId:'', pdfBytes:null}]
+    let bulkPdfBytes = null;
+
+    function openBulkUpload() {
+      document.getElementById('bulkModal').classList.add('active');
+      showBulkStep1();
+      // Populate year/deal selects
+      const currentYear = new Date().getFullYear();
+      const yearSel = document.getElementById('bulkYear');
+      yearSel.innerHTML = '';
+      for (let y = currentYear; y >= currentYear - 5; y--) yearSel.add(new Option(y, y));
+      const dealSel = document.getElementById('bulkDeal');
+      dealSel.innerHTML = '<option value="">— Select Deal —</option>';
+      SP.getDeals().forEach(d => dealSel.add(new Option(d.name, d.id)));
+    }
+    function closeBulk() {
+      document.getElementById('bulkModal').classList.remove('active');
+      bulkParsedK1s = [];
+      bulkPdfBytes = null;
+    }
+    function showBulkStep1() {
+      document.getElementById('bulkStep1').style.display = '';
+      document.getElementById('bulkStep2').style.display = 'none';
+      document.getElementById('bulkStep3').style.display = 'none';
+    }
+
+    function bulkFileSelected() {
+      const file = document.getElementById('bulkFile').files[0];
+      if (file) {
+        document.getElementById('bulkFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+        document.getElementById('bulkDropZone').innerHTML = '<i class="fas fa-check-circle" style="color:var(--success);"></i> ' + file.name + '<input type="file" id="bulkFile" accept=".pdf" onchange="bulkFileSelected()" style="display:none;">';
+      }
+    }
+
+    async function startBulkParse() {
+      const file = document.getElementById('bulkFile').files?.[0];
+      const dealId = document.getElementById('bulkDeal').value;
+      if (!file) { alert('Please select a merged K-1 PDF.'); return; }
+      if (!dealId) { alert('Please select a deal.'); return; }
+
+      const btn = document.getElementById('bulkParseBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Parsing PDF...';
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        bulkPdfBytes = new Uint8Array(arrayBuffer);
+
+        // Step 1: Extract text from every page using pdf.js
+        const pdf = await pdfjsLib.getDocument({ data: bulkPdfBytes }).promise;
+        const totalPages = pdf.numPages;
+        const pageTexts = [];
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await pdf.getPage(i);
+          const tc = await page.getTextContent();
+          const text = tc.items.map(item => item.str).join(' ');
+          pageTexts.push(text);
+        }
+
+        // Step 2: Detect K-1 boundaries — each K-1 starts with a page containing "Schedule K-1" or "Part II"
+        // and has the partner name in Box E (Part II - Information About the Partner)
+        const k1Starts = [];
+        pageTexts.forEach((text, idx) => {
+          // K-1 first pages typically contain these markers
+          if (text.match(/Schedule K-1/i) && (text.match(/Part II/i) || text.match(/Partner.s identifying/i) || text.match(/Information About the Partner/i))) {
+            k1Starts.push(idx);
+          }
+        });
+
+        // If no K-1 markers found, fall back to assuming every 2 pages
+        if (k1Starts.length === 0) {
+          for (let i = 0; i < totalPages; i += 2) k1Starts.push(i);
+        }
+
+        // Step 3: Extract partner names from each K-1's first page
+        const investors = SP.getInvestors();
+        bulkParsedK1s = [];
+
+        for (let ki = 0; ki < k1Starts.length; ki++) {
+          const startPage = k1Starts[ki];
+          const endPage = ki + 1 < k1Starts.length ? k1Starts[ki + 1] - 1 : totalPages - 1;
+          const pageRange = [];
+          for (let p = startPage; p <= endPage; p++) pageRange.push(p);
+
+          const firstPageText = pageTexts[startPage];
+          const extractedName = extractPartnerName(firstPageText);
+          const match = matchInvestor(extractedName, investors);
+
+          bulkParsedK1s.push({
+            pages: pageRange,
+            extractedName: extractedName || '(could not extract)',
+            matchedInvestorId: match ? match.id : '',
+            matchConfidence: match ? match.confidence : 0,
+          });
+        }
+
+        // Step 4: Show review
+        renderBulkMatches();
+        document.getElementById('bulkStep1').style.display = 'none';
+        document.getElementById('bulkStep2').style.display = '';
+
+      } catch (err) {
+        console.error('[Bulk K-1]', err);
+        alert('Error parsing PDF: ' + err.message);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-magic"></i> Parse & Match';
+    }
+
+    function extractPartnerName(text) {
+      // Strategy 1: Look for text between "Part II" and common subsequent markers
+      // K-1 Box E format: "E  Partner's name, address, city, state, and ZIP code"
+      // The partner name typically appears after "Part II" section header
+
+      // Try to find name after Box E marker
+      let match = text.match(/(?:Partner.s?\s+name|Part\s+II[\s\S]{0,50}?Information\s+About\s+the\s+Partner)[\s:]*([A-Z][A-Za-z\-\'\.]+[\s]+[A-Z][A-Za-z\-\'\.]+(?:\s+[A-Z][A-Za-z\-\'\.]+)?)/i);
+      if (match) return match[1].trim();
+
+      // Strategy 2: Look for "E " followed by a name pattern (common in tax software output)
+      match = text.match(/\bE\s{2,}([A-Z][a-z]+[\s]+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/);
+      if (match) return match[1].trim();
+
+      // Strategy 3: Look for name-like patterns near "partner" keyword
+      match = text.match(/partner[\s\S]{0,40}?([A-Z][a-z]+\s+(?:[A-Z]\.?\s+)?[A-Z][a-z]+)/i);
+      if (match) return match[1].trim();
+
+      // Strategy 4: Look for LLC/Trust patterns (entity investors)
+      match = text.match(/(?:Part\s+II|Partner)[\s\S]{0,100}?([A-Z][A-Za-z\s&\-]+(?:LLC|Trust|LP|Inc|Corp|Foundation))/i);
+      if (match) return match[1].trim();
+
+      return '';
+    }
+
+    function matchInvestor(extractedName, investors) {
+      if (!extractedName) return null;
+      const normalized = extractedName.toLowerCase().replace(/[^a-z\s]/g, '').trim();
+      if (!normalized) return null;
+
+      let bestMatch = null;
+      let bestScore = 0;
+
+      investors.forEach(inv => {
+        const fullName = `${inv.firstName} ${inv.lastName}`.toLowerCase();
+        const reverseName = `${inv.lastName} ${inv.firstName}`.toLowerCase();
+
+        // Exact match
+        if (normalized === fullName || normalized === reverseName) {
+          if (1.0 > bestScore) { bestMatch = inv; bestScore = 1.0; }
+          return;
+        }
+
+        // Contains both first and last name
+        const first = inv.firstName.toLowerCase();
+        const last = inv.lastName.toLowerCase();
+        if (normalized.includes(first) && normalized.includes(last)) {
+          const score = 0.9;
+          if (score > bestScore) { bestMatch = inv; bestScore = score; }
+          return;
+        }
+
+        // Fuzzy: Levenshtein-like similarity
+        const sim = similarity(normalized, fullName);
+        const simRev = similarity(normalized, reverseName);
+        const maxSim = Math.max(sim, simRev);
+        if (maxSim > 0.6 && maxSim > bestScore) {
+          bestMatch = inv;
+          bestScore = maxSim;
+        }
+      });
+
+      return bestMatch ? { id: bestMatch.id, confidence: bestScore } : null;
+    }
+
+    function similarity(a, b) {
+      // Simple trigram similarity
+      const triA = new Set(), triB = new Set();
+      for (let i = 0; i <= a.length - 3; i++) triA.add(a.substring(i, i + 3));
+      for (let i = 0; i <= b.length - 3; i++) triB.add(b.substring(i, i + 3));
+      if (triA.size === 0 || triB.size === 0) return 0;
+      let intersection = 0;
+      triA.forEach(t => { if (triB.has(t)) intersection++; });
+      return intersection / Math.max(triA.size, triB.size);
+    }
+
+    function renderBulkMatches() {
+      const investors = SP.getInvestors();
+      const matched = bulkParsedK1s.filter(k => k.matchedInvestorId).length;
+      document.getElementById('bulkSummary').textContent = `Found ${bulkParsedK1s.length} K-1s · ${matched} auto-matched · ${bulkParsedK1s.length - matched} need review`;
+
+      const invOptions = investors.map(i => `<option value="${i.id}">${i.firstName} ${i.lastName}</option>`).join('');
+
+      document.getElementById('bulkMatches').innerHTML = bulkParsedK1s.map((k, idx) => {
+        const isMatched = !!k.matchedInvestorId;
+        const inv = isMatched ? investors.find(i => i.id === k.matchedInvestorId) : null;
+        const confPct = (k.matchConfidence * 100).toFixed(0);
+        const pages = k.pages.map(p => p + 1).join(', ');
+
+        return `<div class="match-card ${isMatched ? 'matched' : 'unmatched'}">
+          <div class="match-icon ${isMatched ? 'ok' : 'warn'}">
+            <i class="fas ${isMatched ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+          </div>
+          <div style="flex:1;">
+            <div class="match-name">${k.extractedName}</div>
+            <div class="match-extracted">${isMatched ? `Matched → ${inv.firstName} ${inv.lastName} (${confPct}% confidence)` : 'No auto-match — select investor below'}</div>
+          </div>
+          <div class="match-pages">pg ${pages}</div>
+          <select class="match-select" id="bulkInv${idx}" onchange="bulkParsedK1s[${idx}].matchedInvestorId=this.value;">
+            <option value="">— Assign —</option>
+            ${invOptions}
+          </select>
+        </div>`;
+      }).join('');
+
+      // Pre-select matched investors in dropdowns
+      bulkParsedK1s.forEach((k, idx) => {
+        if (k.matchedInvestorId) {
+          document.getElementById('bulkInv' + idx).value = k.matchedInvestorId;
+        }
+      });
+    }
+
+    async function saveBulkK1s() {
+      const taxYear = parseInt(document.getElementById('bulkYear').value);
+      const dealId = document.getElementById('bulkDeal').value;
+      const vault = getVault();
+      let saved = 0, skipped = 0;
+
+      const btn = document.getElementById('bulkSaveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Splitting & Saving...';
+
+      try {
+        // Load the source PDF with pdf-lib for splitting
+        const srcDoc = await PDFLib.PDFDocument.load(bulkPdfBytes);
+
+        for (const k of bulkParsedK1s) {
+          if (!k.matchedInvestorId) { skipped++; continue; }
+
+          // Extract this K-1's pages into a new PDF
+          const newDoc = await PDFLib.PDFDocument.create();
+          const copiedPages = await newDoc.copyPages(srcDoc, k.pages);
+          copiedPages.forEach(p => newDoc.addPage(p));
+          const pdfBytes = await newDoc.save();
+
+          // Convert to data URL for storage
+          const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+          const dataUrl = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+
+          vault.push({
+            id: 'k1_' + Date.now() + '_' + saved,
+            taxYear,
+            dealId,
+            investorId: k.matchedInvestorId,
+            fileName: `K1_${taxYear}_${k.extractedName.replace(/\s+/g, '_') || 'investor'}.pdf`,
+            fileSize: pdfBytes.byteLength,
+            fileData: dataUrl,
+            status: 'uploaded',
+            uploadedAt: new Date().toISOString(),
+            uploadedBy: SP.getSession().email || 'GP',
+            bulkImport: true,
+          });
+
+          // Firebase Storage upload
+          try {
+            if (typeof firebase !== 'undefined' && firebase.storage) {
+              const orgId = SP.getOrgId();
+              const inv = SP.getInvestors().find(i => i.id === k.matchedInvestorId);
+              const invName = inv ? `${inv.firstName}_${inv.lastName}` : k.matchedInvestorId;
+              const storagePath = `orgs/${orgId}/k1/${taxYear}/${k.matchedInvestorId}_${dealId}_K1_${invName}.pdf`;
+              firebase.storage().ref(storagePath).put(new Blob([pdfBytes], { type: 'application/pdf' }));
+            }
+          } catch (e) { /* skip */ }
+
+          saved++;
+        }
+
+        saveVault(vault);
+
+        // Show done
+        document.getElementById('bulkStep2').style.display = 'none';
+        document.getElementById('bulkStep3').style.display = '';
+        document.getElementById('bulkDoneMsg').textContent = `${saved} K-1s saved to vault. ${skipped ? skipped + ' skipped (unassigned).' : ''}`;
+
+      } catch (err) {
+        console.error('[Bulk Save]', err);
+        alert('Error saving K-1s: ' + err.message);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-check"></i> Save All';
     }
 
     SP.onDataReady(init);
