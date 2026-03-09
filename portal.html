@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | My Investments</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v2"></script>
+  <script src="js/sp-data.js?v2"></script>
+  <script src="js/sp-firebase.js?v2"></script>
+  <style>
+    :root {
+      --accent:#F37925;--accent-hover:#D96515;--accent-light:rgba(243,121,37,0.12);
+      --success:#2D9A6B;--success-light:rgba(45,154,107,0.12);
+      --warning:#E8890A;--warning-light:rgba(232,137,10,0.12);
+      --danger:#D94F3D;--danger-light:rgba(217,79,61,0.12);
+      --purple:#7B5CC4;--purple-light:rgba(123,92,196,0.15);
+      --text:#1B1A19;--text-secondary:#6B6560;--text-muted:#9C9590;
+      --border:#E2DDD8;--border-light:rgba(27,26,25,0.08);
+      --bg:#F3F3F3;--bg-card:#FFFFFF;--bg-sidebar:#050811;
+      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);
+      --radius-sm:6px;--radius:8px;--radius-md:12px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;}
+    /* Header */
+    .portal-header{background:var(--bg-card);border:1px solid var(--border);padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:60px;position:sticky;top:0;z-index:50;}
+    .portal-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;text-decoration:none;color:var(--text);}
+    .portal-nav{display:flex;gap:0;align-items:center;}
+    .portal-nav a{padding:0 16px;height:60px;display:flex;align-items:center;color:var(--text-secondary);text-decoration:none;font-size:.875rem;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;}
+    .portal-nav a:hover{color:var(--text);}
+    .portal-nav a.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .portal-user{display:flex;align-items:center;gap:12px;font-size:.875rem;color:var(--text-secondary);}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:.82rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;}
+    .btn-secondary{background:var(--bg-card);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border-light);}
+    .btn-primary{background:var(--accent);color:#FFFFFF;}.btn-primary:hover{background:var(--accent-hover);color:#FFFFFF;}
+    @media(max-width:768px){.portal-nav{display:none;}}
+    /* Mobile nav */
+    .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg-card);border:1px solid var(--border);padding:6px 0;z-index:50;justify-content:space-around;}
+    @media(max-width:768px){.mobile-nav{display:flex;}}
+    .mobile-nav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;color:var(--text-muted);font-size:.7rem;text-decoration:none;transition:color .15s;}
+    .mobile-nav a.active,.mobile-nav a:hover{color:var(--accent);}
+    .mobile-nav i{font-size:1.1rem;}
+    /* Content */
+    .portal-main{padding:24px;max-width:1000px;margin:0 auto;padding-bottom:80px;}
+    @media(max-width:768px){.portal-main{padding:16px;padding-bottom:90px;}}
+    /* Pages */
+    .portal-page{display:none;}.portal-page.active{display:block;}
+    /* KPI row */
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+    @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+    @media(max-width:480px){.kpi-row{grid-template-columns:1fr 1fr;}}
+    .kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;}
+    .kpi-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);display:block;margin-bottom:6px;}
+    .kpi-value{font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;display:block;}
+    .kpi-value.green{color:var(--success);}
+    /* Cards */
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:20px;overflow:hidden;}
+    .card-header{padding:16px 20px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.95rem;}
+    .card-body{padding:20px;}
+    /* Deal cards */
+    .deal-list{}
+    .deal-item{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border-light);}
+    .deal-item:last-child{border-bottom:none;}
+    .deal-name{font-weight:600;margin-bottom:3px;}
+    .deal-meta{font-size:.78rem;color:var(--text-muted);}
+    .deal-nums{text-align:right;}
+    .deal-nums .invested{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;}
+    .deal-nums .ownership{font-size:.75rem;color:var(--text-muted);margin-top:2px;}
+    /* Distribution items */
+    .dist-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);}
+    .dist-item:last-child{border-bottom:none;}
+    .dist-deal{font-weight:600;font-size:.875rem;}
+    .dist-period{font-size:.75rem;color:var(--text-muted);margin-top:2px;}
+    .dist-amount{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);font-size:1rem;}
+    /* Empty state */
+    .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);}
+    .empty-state i{font-size:2rem;opacity:.3;display:block;margin-bottom:12px;}
+    .empty-state p{font-size:.875rem;}
+    /* Badge */
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600;}
+    .badge-operating{background:var(--purple-light);color:var(--purple);}
+    .badge-closed{background:var(--success-light);color:var(--success);}
+    .badge-funded{background:var(--accent-light);color:var(--accent);}
+    .badge-committed{background:var(--warning-light);color:var(--warning);}
+    .badge-active{background:var(--success-light);color:var(--success);}
+    /* Welcome banner */
+    .welcome-banner{background:linear-gradient(135deg,#1B1A19,#2D2A27);border-radius:var(--radius-md);padding:28px;margin-bottom:24px;color:white;}
+    .welcome-banner h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;color:white;}
+    .welcome-banner p{color:rgba(255,255,255,.6);font-size:.9rem;}
+    /* Profile form */
+    .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    @media(max-width:640px){.profile-grid{grid-template-columns:1fr;}}
+    .form-group{display:flex;flex-direction:column;gap:6px;}
+    .form-group label{font-size:.8rem;font-weight:600;color:var(--text-secondary);}
+    .form-group input{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;color:var(--text);background:var(--bg-card);outline:none;font-family:'Inter',sans-serif;}
+    .form-group input:focus{border-color:var(--accent);}
+    .form-group input[readonly]{background:var(--border-light);color:var(--text-muted);}
+    /* Accreditation status card */
+    .accred-card{border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+    .accred-ok{background:var(--success-light);border:1px solid var(--success);}
+    .accred-warn{background:var(--warning-light);border:1px solid var(--warning);}
+    .accred-exp{background:var(--danger-light);border:1px solid var(--danger);}
+  </style>
+  
+</head>
+<body>
+
+<!-- Header -->
+<header class="portal-header">
+  <a href="portal.html" class="portal-logo">
+    <img src="assets/logo-full-light.svg" alt="deeltrack" height="28">
+  </a>
+  <nav class="portal-nav">
+    <a href="#" class="active" onclick="showPage('dashboard',this)">Dashboard</a>
+    <a href="#" onclick="showPage('investments',this)">My Investments</a>
+    <a href="#" onclick="showPage('distributions',this)">Distributions</a>
+    <a href="#" onclick="showPage('documents',this)">Documents</a>
+    <a href="#" onclick="showPage('profile',this)">Profile</a>
+  </nav>
+  <div class="portal-user">
+    <span id="headerName" style="color:#1B1A19;font-weight:500;"></span>
+    <button class="btn btn-secondary" onclick="SP.logout()">
+      <i class="fas fa-sign-out-alt"></i> Sign Out
+    </button>
+  </div>
+</header>
+
+<!-- Login Gate -->
+<div id="portal-login-gate" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:40px;max-width:400px;width:90%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.08);">
+    <img src="assets/logo-full-light.svg" alt="deeltrack" height="32" style="margin-bottom:24px;">
+    <h2 style="font-size:1.25rem;font-weight:700;margin-bottom:8px;">Investor Portal</h2>
+    <p style="font-size:.875rem;color:var(--text-secondary);margin-bottom:24px;">Sign in to view your investments, distributions, and documents.</p>
+    <form onsubmit="portalLogin(event)" style="text-align:left;">
+      <div style="margin-bottom:14px;">
+        <label style="font-size:.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px;">Email</label>
+        <input type="email" id="portalEmail" required placeholder="you@email.com" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;outline:none;">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="font-size:.8rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px;">Password</label>
+        <input type="password" id="portalPass" required placeholder="••••••••" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:.9rem;font-family:inherit;outline:none;">
+      </div>
+      <button type="submit" style="width:100%;padding:12px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;">Sign In</button>
+      <div id="portalLoginError" style="color:var(--danger);font-size:.8rem;margin-top:12px;display:none;"></div>
+    </form>
+    <p style="font-size:.78rem;color:var(--text-muted);margin-top:20px;">Don't have an account? Contact your GP for an invite link.</p>
+  </div>
+</div>
+
+<!-- Main content -->
+<main class="portal-main">
+
+  <!-- Dashboard -->
+  <div class="portal-page active" id="page-dashboard">
+    <div class="welcome-banner">
+      <h1>Welcome back, <span id="welcomeName">Investor</span></h1>
+      <p id="welcomeSub">Here's your investment portfolio overview</p>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <span class="kpi-label">Total Invested</span>
+        <span class="kpi-value" id="kpiInvested">$0</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Active Deals</span>
+        <span class="kpi-value" id="kpiDeals">0</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Total Distributions</span>
+        <span class="kpi-value green" id="kpiDist">$0</span>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Avg Deal IRR</span>
+        <span class="kpi-value" id="kpiIrr">—</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span><i class="fas fa-building" style="color:var(--accent);margin-right:8px;"></i>My Properties</span>
+        <a href="#" onclick="showPage('investments',document.querySelector('[onclick*=investments]'))" style="font-size:.78rem;color:var(--accent);text-decoration:none;">View all →</a>
+      </div>
+      <div class="card-body" id="dashDeals">
+        <div class="empty-state"><i class="fas fa-building"></i><p>No deals linked yet. Your GP will add you to deals once committed.</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span><i class="fas fa-wallet" style="color:var(--success);margin-right:8px;"></i>Recent Distributions</span></div>
+      <div class="card-body" id="dashDists">
+        <div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Investments -->
+  <div class="portal-page" id="page-investments">
+    <h2 style="margin-bottom:20px;font-size:1.25rem;">My Investments</h2>
+    <div id="investmentsContent">
+      <div class="empty-state"><i class="fas fa-building"></i><p>No investments found.</p></div>
+    </div>
+  </div>
+
+  <!-- Distributions -->
+  <div class="portal-page" id="page-distributions">
+    <h2 style="margin-bottom:20px;font-size:1.25rem;">Distribution History</h2>
+    <div class="card">
+      <div class="card-body" id="distContent">
+        <div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Documents -->
+  <div class="portal-page" id="page-documents">
+    <h2 style="margin-bottom:20px;font-size:1.25rem;">My Documents</h2>
+    <div class="card">
+      <div class="card-body" id="docsContent">
+        <div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents available yet. Your GP will share documents here.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div class="portal-page" id="page-profile">
+    <h2 style="margin-bottom:20px;font-size:1.25rem;">My Profile</h2>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header">Accreditation Status</div>
+      <div class="card-body" id="accredStatus">
+        <div class="accred-card accred-warn">
+          <i class="fas fa-clock" style="color:var(--warning);font-size:1.2rem;"></i>
+          <div>
+            <div style="font-weight:600;color:var(--warning);">Accreditation Pending</div>
+            <div style="font-size:.82rem;color:#fcd34d;margin-top:2px;">Your GP has not yet verified your accredited investor status.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span>Contact Information</span>
+        <button class="btn btn-primary" style="padding:6px 14px;font-size:.8rem;" onclick="saveProfile()"><i class="fas fa-save"></i> Save</button>
+      </div>
+      <div class="card-body">
+        <div class="profile-grid">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="profFirst" placeholder="First name">
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="profLast" placeholder="Last name">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="profEmail" readonly>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="profPhone" placeholder="(555) 000-0000">
+          </div>
+          <div class="form-group" style="grid-column:1/-1;">
+            <label>Mailing Address</label>
+            <input type="text" id="profAddress" placeholder="123 Main St, City, State 00000">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Mobile bottom nav -->
+<nav class="mobile-nav">
+  <a href="#" class="active" onclick="showPage('dashboard',this)"><i class="fas fa-home"></i>Home</a>
+  <a href="#" onclick="showPage('investments',this)"><i class="fas fa-building"></i>Deals</a>
+  <a href="#" onclick="showPage('distributions',this)"><i class="fas fa-wallet"></i>Distributions</a>
+  <a href="#" onclick="showPage('documents',this)"><i class="fas fa-file"></i>Docs</a>
+  <a href="#" onclick="showPage('profile',this)"><i class="fas fa-user"></i>Profile</a>
+</nav>
+
+<script>
+// Gate: if not logged in, show inline login instead of redirecting
+(function() {
+  const session = SP.getSession();
+  if (!session || !session.loggedIn) {
+    // Show login overlay after a short delay (let Firebase auth check first)
+    setTimeout(() => {
+      const s2 = SP.getSession();
+      if (s2 && s2.loggedIn) return; // Auth came through
+      document.getElementById('portal-login-gate').style.display = 'flex';
+      document.querySelector('.portal-main').style.display = 'none';
+    }, 2000);
+  }
+})();
+
+// ── Portal Login ──────────────────────────────────────────────────────────
+async function portalLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('portalEmail').value.trim();
+  const pass = document.getElementById('portalPass').value;
+  const errEl = document.getElementById('portalLoginError');
+  errEl.style.display = 'none';
+
+  try {
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+      await firebase.auth().signInWithEmailAndPassword(email, pass);
+      // Wait for SP to pick up the session
+      setTimeout(() => {
+        document.getElementById('portal-login-gate').style.display = 'none';
+        document.querySelector('.portal-main').style.display = '';
+        render();
+      }, 1500);
+    } else {
+      // Fallback to SP local auth
+      const result = SP.authenticate(email, pass);
+      if (result) {
+        document.getElementById('portal-login-gate').style.display = 'none';
+        document.querySelector('.portal-main').style.display = '';
+        render();
+      } else {
+        errEl.textContent = 'Invalid email or password.';
+        errEl.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    errEl.textContent = err.message || 'Login failed.';
+    errEl.style.display = 'block';
+  }
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function fmt$(n) {
+  if (!n && n !== 0) return '—';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
+  return '$' + Number(n).toLocaleString();
+}
+function fmtFull$(n) { return '$' + Number(n||0).toLocaleString(); }
+
+function showPage(name, el) {
+  document.querySelectorAll('.portal-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name)?.classList.add('active');
+  // Update desktop nav
+  document.querySelectorAll('.portal-nav a').forEach(a => a.classList.remove('active'));
+  // Update mobile nav
+  document.querySelectorAll('.mobile-nav a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function saveProfile() {
+  const inv = SP.getCurrentInvestorRecord();
+  if (!inv) return;
+  const investors = SP.getInvestors();
+  const idx = investors.findIndex(i => i.id === inv.id);
+  if (idx < 0) return;
+  investors[idx] = {
+    ...investors[idx],
+    firstName: document.getElementById('profFirst').value.trim() || inv.firstName,
+    lastName:  document.getElementById('profLast').value.trim() || inv.lastName,
+    phone:     document.getElementById('profPhone').value.trim(),
+    address:   document.getElementById('profAddress').value.trim(),
+  };
+  SP.saveInvestors(investors);
+  showToast('Profile saved!');
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:80px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:#10b981;color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;';
+  t.innerHTML = '<i class="fas fa-check-circle"></i>' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 2500);
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function render() {
+  const session = SP.getSession();
+  if (!session) return;
+
+  const firstName = session.name ? session.name.split(' ')[0] : 'Investor';
+  document.getElementById('headerName').textContent = session.name || session.email;
+  document.getElementById('welcomeName').textContent = firstName;
+
+  // Find this investor's record
+  const inv = SP.getCurrentInvestorRecord();
+
+  // Get all deals and find ones linked to this investor
+  const allDeals = SP.getDeals();
+  const linkedEntries = []; // { deal, entry }
+  allDeals.forEach(d => {
+    if (!Array.isArray(d.investors)) return;
+    const entry = d.investors.find(i =>
+      i.investorId === inv?.id ||
+      (inv?.email && SP.getInvestorById(i.investorId)?.email?.toLowerCase() === session.email?.toLowerCase())
+    );
+    if (entry) linkedEntries.push({ deal: d, entry });
+  });
+
+  const totalInvested = linkedEntries.reduce((s, { entry }) => s + (entry.committed || 0), 0);
+
+  // Distributions for this investor
+  const allDists = SP.getDistributions().filter(d => d.status === 'posted');
+  const myDists = [];
+  // Helper: resolve deal name from dist record or deals list
+  const _resolveDealName = (d) => {
+    if (d.dealName) return d.dealName;
+    const deal = allDeals.find(dl => dl.id === d.dealId);
+    return deal ? deal.name : 'Unknown Deal';
+  };
+  // Helper: safe period string
+  const _distPeriod = (d) => {
+    if (d.period) return d.period;
+    if (d.quarter && d.year) return d.quarter + ' ' + d.year;
+    if (d.date) return new Date(d.date + 'T00:00:00').toLocaleDateString();
+    return '—';
+  };
+
+  allDists.forEach(d => {
+    if (!Array.isArray(d.recipients)) return;
+    const r = d.recipients.find(r =>
+      r.investorId === inv?.id ||
+      (inv?.email && SP.getInvestorById(r.investorId)?.email?.toLowerCase() === session.email?.toLowerCase())
+    );
+    if (r) myDists.push({ dist: d, r });
+  });
+  const totalDist = myDists.reduce((s, { r }) => s + (r.amount || r.totalThisDist || 0), 0);
+
+  // Average IRR
+  const irrs = linkedEntries.map(({ deal }) => deal.irr).filter(Boolean);
+  const avgIrr = irrs.length ? (irrs.reduce((a,b)=>a+b,0)/irrs.length).toFixed(1) + '%' : '—';
+
+  // KPIs
+  document.getElementById('kpiInvested').textContent = fmt$(totalInvested);
+  document.getElementById('kpiDeals').textContent = linkedEntries.length;
+  document.getElementById('kpiDist').textContent = fmt$(totalDist);
+  document.getElementById('kpiIrr').textContent = avgIrr;
+
+  // Welcome subtitle
+  if (totalInvested > 0) {
+    document.getElementById('welcomeSub').textContent =
+      `You have ${linkedEntries.length} active investment${linkedEntries.length!==1?'s':''} totaling ${fmtFull$(totalInvested)}`;
+  }
+
+  // Dashboard deals
+  const dashDealsEl = document.getElementById('dashDeals');
+  if (linkedEntries.length) {
+    dashDealsEl.innerHTML = linkedEntries.slice(0,5).map(({ deal, entry }) => {
+      const STATUS_BADGE = {operating:'badge-operating',closed:'badge-closed',dd:'badge-active',loi:'badge-committed'};
+      const STATUS_LABEL = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',operating:'Operating',closed:'Closed'};
+      return `<div class="deal-item">
+        <div>
+          <div class="deal-name">${deal.name}</div>
+          <div class="deal-meta">
+            ${deal.location || '—'} · <span class="badge ${STATUS_BADGE[deal.status]||'badge-committed'}">${STATUS_LABEL[deal.status]||deal.status||'—'}</span>
+            · ${entry.ownership ? entry.ownership.toFixed(2)+'% ownership' : '—'}
+          </div>
+        </div>
+        <div class="deal-nums">
+          <div class="invested">${fmtFull$(entry.committed||0)}</div>
+          <div class="ownership">IRR: ${deal.irr ? deal.irr.toFixed(1)+'%' : '—'}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    dashDealsEl.innerHTML = '<div class="empty-state"><i class="fas fa-building"></i><p>No deals linked to your account yet.<br>Contact your GP to get added to a deal.</p></div>';
+  }
+
+  // Dashboard distributions
+  const dashDistsEl = document.getElementById('dashDists');
+  if (myDists.length) {
+    dashDistsEl.innerHTML = myDists.slice(-5).reverse().map(({ dist, r }) => {
+      const amount = r.amount || r.totalThisDist || 0;
+      return `<div class="dist-item">
+        <div>
+          <div class="dist-deal">${_resolveDealName(dist)}</div>
+          <div class="dist-period">${_distPeriod(dist)} · ${dist.method||'Wire'}</div>
+        </div>
+        <div class="dist-amount">${fmtFull$(amount)}</div>
+      </div>`;
+    }).join('');
+  } else {
+    dashDistsEl.innerHTML = '<div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions yet.</p></div>';
+  }
+
+  // Investments page
+  const invContent = document.getElementById('investmentsContent');
+  if (linkedEntries.length) {
+    invContent.innerHTML = linkedEntries.map(({ deal, entry }) => {
+      const dealDists = myDists.filter(({ dist }) => dist.dealId === deal.id);
+      const dealDistTotal = dealDists.reduce((s, { r }) => s + (r.amount||r.totalThisDist||0), 0);
+      return `<div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div>
+            <div style="font-weight:700;">${deal.name}</div>
+            <div style="font-size:.78rem;color:var(--text-muted);font-weight:400;margin-top:2px;">${deal.location||'—'} · ${deal.type||'—'}</div>
+          </div>
+          <span class="badge ${deal.status==='operating'?'badge-operating':deal.status==='closed'?'badge-closed':'badge-committed'}">${deal.status||'—'}</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex-wrap:wrap;">
+            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Invested</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;">${fmtFull$(entry.committed||0)}</div></div>
+            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Ownership</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;">${entry.ownership ? entry.ownership.toFixed(4)+'%' : '—'}</div></div>
+            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Target IRR</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${deal.irr ? deal.irr.toFixed(1)+'%' : '—'}</div></div>
+            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Distributions</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${fmtFull$(dealDistTotal)}</div></div>
+          </div>
+          ${deal.prefReturn ? `<div style="margin-top:14px;padding:10px 14px;background:var(--border-light);border-radius:var(--radius);font-size:.82rem;color:var(--text-secondary);"><i class="fas fa-star" style="color:#f59e0b;margin-right:6px;"></i>Preferred return: <strong style="color:#1B1A19;">${deal.prefReturn}% per annum</strong> · GP promote: ${deal.gpPromote||'—'}%</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    invContent.innerHTML = '<div class="empty-state"><i class="fas fa-building"></i><p>No investments yet.</p></div>';
+  }
+
+  // Distributions page
+  const distContent = document.getElementById('distContent');
+  if (myDists.length) {
+    distContent.innerHTML = myDists.slice().reverse().map(({ dist, r }) => {
+      const amount = r.amount || r.totalThisDist || 0;
+      return `<div class="dist-item">
+        <div>
+          <div class="dist-deal">${_resolveDealName(dist)}</div>
+          <div class="dist-period">
+            ${_distPeriod(dist)} ·
+            ${dist.method||'Wire'}
+          </div>
+          ${r.prefPaidThisDist > 0 ? `<div style="font-size:.72rem;color:var(--warning);margin-top:3px;"><i class="fas fa-star"></i> Pref: ${fmtFull$(r.prefPaidThisDist)} + Excess: ${fmtFull$(r.excessThisDist||0)}</div>` : ''}
+        </div>
+        <div class="dist-amount">${fmtFull$(amount)}</div>
+      </div>`;
+    }).join('') + `<div style="padding:14px 0;border-top:2px solid #E2DDD8;margin-top:8px;display:flex;justify-content:space-between;font-weight:700;">
+      <span>Total Received</span>
+      <span style="font-family:'JetBrains Mono',monospace;color:var(--success);">${fmtFull$(totalDist)}</span>
+    </div>`;
+  } else {
+    distContent.innerHTML = '<div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>';
+  }
+
+  // Documents page
+  const docsContent = document.getElementById('docsContent');
+  // Show documents from deals this investor is linked to
+  const dealIds = linkedEntries.map(({ deal }) => deal.id);
+  // For now show deal-level generated docs (OAs etc)
+  const sharedDocs = [];
+  linkedEntries.forEach(({ deal }) => {
+    if (deal.generatedOA) sharedDocs.push({ name: `${deal.name} — Operating Agreement`, type: 'OA', date: deal.oaGeneratedAt, dealId: deal.id });
+  });
+  if (sharedDocs.length) {
+    docsContent.innerHTML = sharedDocs.map(doc => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;"><i class="fas fa-file-contract"></i></div>
+          <div>
+            <div style="font-weight:600;font-size:.875rem;">${doc.name}</div>
+            <div style="font-size:.75rem;color:var(--text-muted);">${doc.type} · ${doc.date ? new Date(doc.date).toLocaleDateString() : '—'}</div>
+          </div>
+        </div>
+        <a href="portal.html?id=${doc.dealId}" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-eye"></i> View</a>
+      </div>`).join('');
+  } else {
+    docsContent.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents shared yet. Your GP will post documents here.</p></div>';
+  }
+
+  // Accreditation status
+  const accredEl = document.getElementById('accredStatus');
+  if (inv) {
+    const today = new Date();
+    let expiry = null;
+    if (inv.accredExpiry) {
+      // Handle Firestore Timestamp objects, ISO strings, or date strings
+      if (inv.accredExpiry.toDate) expiry = inv.accredExpiry.toDate();
+      else if (inv.accredExpiry.seconds) expiry = new Date(inv.accredExpiry.seconds * 1000);
+      else expiry = new Date(inv.accredExpiry);
+      // Validate the date is real
+      if (isNaN(expiry.getTime())) expiry = null;
+    }
+    const daysLeft = expiry ? Math.ceil((expiry - today) / 86400000) : null;
+
+    if (inv.accredStatus === 'verified' && (daysLeft === null || daysLeft > 30)) {
+      accredEl.innerHTML = `<div class="accred-card accred-ok">
+        <i class="fas fa-check-circle" style="color:var(--success);font-size:1.2rem;"></i>
+        <div>
+          <div style="font-weight:600;color:var(--success);">Accredited Investor — Verified</div>
+          <div style="font-size:.82rem;color:#6ee7b7;margin-top:2px;">Method: ${inv.accredMethod||'On file'}${expiry ? ' · Expires: '+expiry.toLocaleDateString() : ''}</div>
+        </div>
+      </div>`;
+    } else if (inv.accredStatus === 'verified' && daysLeft !== null && daysLeft <= 30 && daysLeft > 0) {
+      accredEl.innerHTML = `<div class="accred-card accred-warn">
+        <i class="fas fa-exclamation-triangle" style="color:var(--warning);font-size:1.2rem;"></i>
+        <div>
+          <div style="font-weight:600;color:var(--warning);">Accreditation Expiring in ${daysLeft} day${daysLeft!==1?'s':''}</div>
+          <div style="font-size:.82rem;color:#fcd34d;margin-top:2px;">Contact your GP to renew before ${expiry ? expiry.toLocaleDateString() : 'expiration'}.</div>
+        </div>
+      </div>`;
+    } else if (inv.accredStatus === 'expired' || (daysLeft !== null && daysLeft <= 0)) {
+      accredEl.innerHTML = `<div class="accred-card accred-exp">
+        <i class="fas fa-times-circle" style="color:var(--danger);font-size:1.2rem;"></i>
+        <div>
+          <div style="font-weight:600;color:var(--danger);">Accreditation Expired</div>
+          <div style="font-size:.82rem;color:#fca5a5;margin-top:2px;">Contact your GP to renew your accreditation before investing further.</div>
+        </div>
+      </div>`;
+    }
+  }
+
+  // Profile
+  if (inv) {
+    const v = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    v('profFirst', inv.firstName);
+    v('profLast', inv.lastName);
+    v('profEmail', session.email);
+    v('profPhone', inv.phone);
+    v('profAddress', inv.address);
+  } else {
+    // Investor record not found — show email only
+    const el = document.getElementById('profEmail');
+    if (el) el.value = session.email || '';
+  }
+}
+
+SP.onDataReady(render);
+</script>
+</body>
+</html>
