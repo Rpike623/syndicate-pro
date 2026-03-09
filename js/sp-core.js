@@ -493,34 +493,20 @@ window.SP = (function () {
     save('investors', investors);
 
     function makeOA(deal, gpName, gpRep) {
+      // Use the professional SPDocs generator if available
+      if (typeof SPDocs !== 'undefined' && SPDocs.generateOA) {
+        const state = deal.state || 'TX';
+        const minInv = deal.minInvestment || 50000;
+        const addr = '500 Throckmorton St, Suite 800, Fort Worth, TX 76102';
+        return SPDocs.generateOA(deal, gpName, gpRep, addr, state, minInv, []);
+      }
+      // Minimal fallback if sp-documents.js hasn't loaded yet
       const state = deal.state || 'TX';
-      const sc = state === 'TX' ? '<p><strong>Tax Treatment.</strong> The Company elects partnership treatment under Texas Tax Code § 171.0002.</p><p><strong>Community Property.</strong> Spousal consent obtained per Texas Family Code § 3.104.</p>' : '<p><strong>Charging Order.</strong> Sole remedy per Delaware LLC Act Section 18-703.</p>';
-      const today = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
       const equity = deal.totalEquity || deal.raise || 0;
-      return `<div style="font-family:Georgia,serif;line-height:1.8;">
-        <div style="background:#fef9c3;border:1px solid #fbbf24;border-radius:6px;padding:12px 16px;margin-bottom:24px;font-size:.8rem;font-family:sans-serif;color:#78350f;"><strong>⚠ PLACEHOLDER DOCUMENT</strong> — Auto-generated for reference. Have your attorney review before use with actual investors.</div>
-        <h1 style="text-align:center;font-size:1.4rem;">${deal.companyName || gpName}</h1>
-        <p style="text-align:center;color:#64748b;">A ${state} Limited Liability Company — Operating Agreement — ${today}</p>
-        <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE I — FORMATION</h2>
-        <p><strong>1.2 Name.</strong> ${deal.companyName || gpName}.</p>
-        <p><strong>1.4 Purpose.</strong> Acquire, own, and operate <strong>${deal.name}</strong> at ${deal.location}.</p>
-        <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE II — CAPITAL</h2>
-        <p><strong>2.1 Total Equity:</strong> $${equity.toLocaleString()} &nbsp;·&nbsp; GP: ${deal.gpEquity||10}% &nbsp;/&nbsp; LP: ${deal.lpEquity||90}%</p>
-        <p><strong>2.4 Minimum Investment:</strong> $${(deal.minInvestment||50000).toLocaleString()}</p>
-        <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">ARTICLE III — DISTRIBUTIONS</h2>
-        <p><strong>Waterfall:</strong> (a) Return of capital; (b) ${deal.prefReturn||8}% preferred return to LPs; (c) GP catch-up to ${deal.gpPromote||20}%; (d) ${deal.gpPromote||20}/${100-(deal.gpPromote||20)} GP/LP split on remaining cash.</p>
-        <p><strong>Fees:</strong> Acquisition fee ${deal.acqFee||3}% · Asset management fee ${deal.assetMgmtFee||2}% of gross revenues.</p>
-        <h2 style="font-size:1rem;margin-top:20px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">STATE PROVISIONS (${state})</h2>
-        ${sc}
-        <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;">
-          <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:40px;"></div><div>${gpRep}, Managing Member</div></div>
-          <div><div style="border-top:1px solid #333;padding-top:6px;margin-top:40px;"></div><div>Limited Partners (See Schedule A)</div></div>
-        </div>
-      </div>`;
+      const pref = deal.prefReturn || 8;
+      const promote = deal.gpPromote || 20;
+      return '<div style="font-family:Times New Roman,serif;padding:40px;"><p style="text-align:center;font-weight:bold;">OPERATING AGREEMENT OF ' + (deal.companyName || gpName) + '</p><p style="text-align:center;">A ' + state + ' Limited Liability Company</p><p>Total Equity: $' + equity.toLocaleString() + ' · Pref: ' + pref + '% · Promote: ' + promote + '%</p><p style="font-size:9pt;border:1px solid #999;padding:8px;margin-top:24px;">DRAFT — This placeholder was generated because the full document generator was not available at seed time. Re-generate from Deal Detail to get the complete 12-article operating agreement.</p></div>';
     }
-
-    const oa1 = makeOA({name:'Riverside Flats',location:'Austin, TX',state:'TX',raise:4200000,totalEquity:4200000,gpEquity:10,lpEquity:90,prefReturn:8,gpPromote:20,acqFee:3,assetMgmtFee:2,minInvestment:100000,companyName:'Riverside Flats Capital LLC'}, 'Pike Capital Management LLC', 'Robert Pike');
-    const oa2 = makeOA({name:'The Hudson Portfolio',location:'Houston, TX',state:'TX',raise:12000000,totalEquity:12000000,gpEquity:10,lpEquity:90,prefReturn:8,gpPromote:20,acqFee:3,assetMgmtFee:2,minInvestment:250000,companyName:'Hudson Portfolio Capital LLC'}, 'Pike Capital Management LLC', 'Robert Pike');
 
     const deals = [
       {
@@ -538,7 +524,7 @@ window.SP = (function () {
         status:'operating', location:'Austin, TX', added:'2025-11-10', closeDate:'2025-11-15', units:96, state:'TX',
         companyName:'Riverside Flats Capital LLC', purchasePrice:21000000, loanAmount:16800000,
         totalEquity:4200000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
-        generatedOA: oa1, oaGeneratedAt:'2025-11-10T09:00:00.000Z',
+        // OA generated below after deals array is built
         investors:[
           {investorId:'di1',committed:250000,ownership:5.95,status:'active',linkedAt:'2025-11-15T10:00:00.000Z',subStatus:'signed'},
           {investorId:'di2',committed:500000,ownership:11.9,status:'active',linkedAt:'2025-11-15T10:00:00.000Z',subStatus:'funded'},
@@ -562,7 +548,7 @@ window.SP = (function () {
         status:'operating', location:'Houston, TX', added:'2026-01-15', closeDate:'2026-01-20', units:248, state:'TX',
         companyName:'Hudson Portfolio Capital LLC', purchasePrice:60000000, loanAmount:48000000,
         totalEquity:12000000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
-        generatedOA: oa2, oaGeneratedAt:'2026-01-15T09:00:00.000Z',
+        // OA generated below after deals array is built
         investors:[
           {investorId:'di1',committed:400000,ownership:3.33,status:'active',linkedAt:'2026-01-20T10:00:00.000Z',subStatus:'funded'},
           {investorId:'di2',committed:500000,ownership:4.17,status:'active',linkedAt:'2026-01-20T10:00:00.000Z',subStatus:'funded'},
@@ -586,6 +572,24 @@ window.SP = (function () {
         due: new Date(Date.now() + 12*86400000).toISOString().split('T')[0]
       },
     ];
+
+    // Generate professional OAs for ALL demo deals
+    // If SPDocs isn't loaded yet, load it synchronously via XHR
+    if (typeof SPDocs === 'undefined') {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'js/sp-documents.js', false); // synchronous
+        xhr.send();
+        if (xhr.status === 200) { eval(xhr.responseText); }
+      } catch(e) { console.warn('[seed] Could not load sp-documents.js:', e); }
+    }
+    const _gpName = 'Pike Capital Management LLC';
+    const _gpRep = 'Robert Pike';
+    deals.forEach(d => {
+      d.generatedOA = makeOA(d, _gpName, _gpRep);
+      d.oaGeneratedAt = new Date().toISOString();
+    });
+
     save('deals', deals);
 
     // ── Distributions — pref-aware, status:'posted' so pref engine counts them ──
