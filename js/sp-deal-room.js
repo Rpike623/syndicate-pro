@@ -59,6 +59,21 @@ window.DealRoom = {
     const stored = localStorage.getItem(`sp_dealroom_docs_${dealId}`);
     if (stored) {
       this.documents = JSON.parse(stored);
+      // Upgrade stale placeholder OAs — if the OA contains "DEMO DOCUMENT" or is
+      // a short placeholder, replace it with the real generated OA from the deal
+      const oaDoc = this.documents.find(d => d.id === 'd_oa');
+      if (oaDoc && oaDoc.fileUrl) {
+        const decoded = decodeURIComponent(oaDoc.fileUrl.replace('data:text/html;charset=utf-8,', ''));
+        const isPlaceholder = decoded.includes('DEMO DOCUMENT') || decoded.includes('PLACEHOLDER') || decoded.length < 2000;
+        if (isPlaceholder && this.currentDeal) {
+          const freshDocs = this.generateDemoDocs();
+          const freshOA = freshDocs.find(d => d.id === 'd_oa');
+          const freshSub = freshDocs.find(d => d.id === 'd_sub');
+          if (freshOA) { const idx = this.documents.findIndex(d => d.id === 'd_oa'); if (idx >= 0) this.documents[idx] = freshOA; }
+          if (freshSub) { const idx = this.documents.findIndex(d => d.id === 'd_sub'); if (idx >= 0) this.documents[idx] = freshSub; }
+          this.saveDocuments();
+        }
+      }
     } else {
       this.documents = this.generateDemoDocs();
     }

@@ -1,7 +1,7 @@
 // sp-documents.js
 // Thorough legal document generation for SyndicatePro
 
-const SPDocs = (function() {
+var SPDocs = (function() {
 
   function safe(val, def = '[____]') {
     return val !== undefined && val !== null && val !== '' ? val : def;
