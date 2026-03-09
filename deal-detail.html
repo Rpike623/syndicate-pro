@@ -210,9 +210,20 @@
     <div class="modal-body">
       <div class="form-group" style="margin-bottom:16px;">
         <label>Select Investor *</label>
-        <select id="aiInvestorSel" onchange="aiAutoFill()">
+        <select id="aiInvestorSel" onchange="aiSelectChanged()">
           <option value="">— Choose investor —</option>
+          <option value="__new__">+ Create New Investor</option>
         </select>
+      </div>
+      <!-- Inline new investor form -->
+      <div id="aiNewInvForm" style="display:none;background:#F8F6F4;border:1px solid #E2DDD8;border-radius:8px;padding:16px;margin-bottom:16px;">
+        <div style="font-size:.78rem;font-weight:700;color:#6B6560;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;">New Investor</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group"><label>First Name *</label><input type="text" id="aiNewFirst" placeholder="Sarah"></div>
+          <div class="form-group"><label>Last Name *</label><input type="text" id="aiNewLast" placeholder="Chen"></div>
+        </div>
+        <div class="form-group" style="margin-top:8px;"><label>Email *</label><input type="email" id="aiNewEmail" placeholder="sarah@example.com"></div>
+        <div class="form-group" style="margin-top:8px;"><label>Phone</label><input type="tel" id="aiNewPhone" placeholder="(555) 123-4567"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div class="form-group">
@@ -1002,7 +1013,10 @@ function openAddInvModal() {
 function closeAddInvModal(){document.getElementById('addInvModal').classList.remove('open');}
 function handleAddInvOverlay(e){if(e.target===document.getElementById('addInvModal'))closeAddInvModal();}
 
-function aiAutoFill() {}
+function aiSelectChanged() {
+  const val = document.getElementById('aiInvestorSel').value;
+  document.getElementById('aiNewInvForm').style.display = val === '__new__' ? '' : 'none';
+}
 function aiCalcOwnership() {
   const raise = SP.getDealById(dealId)?.raise || 0;
   const committed = parseFloat(document.getElementById('aiCommitted').value)||0;
@@ -1010,9 +1024,40 @@ function aiCalcOwnership() {
 }
 
 function saveAddInv() {
-  const invId = document.getElementById('aiInvestorSel').value;
+  let invId = document.getElementById('aiInvestorSel').value;
   const committed = parseFloat(document.getElementById('aiCommitted').value)||0;
   const status = document.getElementById('aiStatus').value;
+
+  // Create new investor if selected
+  if (invId === '__new__') {
+    const first = document.getElementById('aiNewFirst').value.trim();
+    const last = document.getElementById('aiNewLast').value.trim();
+    const email = document.getElementById('aiNewEmail').value.trim();
+    const phone = document.getElementById('aiNewPhone').value.trim();
+    if (!first || !last) { alert('Enter first and last name.'); return; }
+    if (!email) { alert('Enter an email address.'); return; }
+
+    // Check for duplicate email
+    const existing = SP.getInvestors().find(i => i.email && i.email.toLowerCase() === email.toLowerCase());
+    if (existing) { alert(`An investor with email ${email} already exists (${existing.firstName} ${existing.lastName}). Select them from the dropdown instead.`); return; }
+
+    // Create the investor in the CRM
+    const newInv = {
+      id: 'i' + Date.now(),
+      firstName: first,
+      lastName: last,
+      email,
+      phone,
+      accreditation: 'pending',
+      status: 'active',
+      addedAt: new Date().toISOString(),
+    };
+    const investors = SP.getInvestors();
+    investors.push(newInv);
+    SP.save('investors', investors);
+    invId = newInv.id;
+  }
+
   if(!invId){alert('Select an investor.');return;}
   if(!committed){alert('Enter committed amount.');return;}
   const raise = SP.getDealById(dealId)?.raise||0;
