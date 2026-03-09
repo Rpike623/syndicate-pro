@@ -4,7 +4,8 @@
  */
 
 const { onCall, HttpsError, onRequest } = require('firebase-functions/v2/https');
-const { onDocumentCreated }  = require('firebase-functions/v2/firestore');
+const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/firestore');
+const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { initializeApp }      = require('firebase-admin/app');
 const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const Stripe = require('stripe');
@@ -647,5 +648,189 @@ exports.stripeWebhook = onRequest(
       console.error(`Error processing ${event.type}:`, err);
       res.status(500).send(`Processing error: ${err.message}`);
     }
+  }
+);
+
+// ── Deal Count Sync — update Stripe subscription quantity ──────────────────────
+
+const ACTIVE_DEAL_STATUSES = ['raising', 'operating', 'closed', 'dd', 'loi', 'due diligence'];
+
+/**
+ * Count active deals for an org and update Stripe subscription quantity.
+ * Called by the scheduled function and the deal-change trigger.
+ */
+async function syncDealCountForOrg(orgId) {
+  if (!orgId) return;
+
+  // Get org subscription
+  const orgDoc = await db.collection('orgs').doc(orgId).get();
+  if (!orgDoc.exists) return;
+  const orgData = orgDoc.data();
+  const sub = orgData.subscription;
+
+  // Skip if not on per_deal plan or not active
+  if (!sub || sub.plan !== 'per_deal' || sub.status !== 'active') return;
+  if (!sub.stripeSubscriptionId) {
+    console.log(`[syncDeals] org=${orgId} — no Stripe subscription ID, skipping`);
+    return;
+  }
+
+  // Count active deals
+  const dealsSnap = await db.collection('orgs').doc(orgId).collection('deals').get();
+  let activeCount = 0;
+  dealsSnap.forEach(doc => {
+    const deal = doc.data();
+    const status = (deal.status || '').toLowerCase().trim();
+    if (ACTIVE_DEAL_STATUSES.includes(status)) activeCount++;
+  });
+
+  // Minimum 1 (Stripe doesn't allow quantity 0 on active subscriptions)
+  activeCount = Math.max(1, activeCount);
+
+  // Update Stripe subscription quantity
+  try {
+    const stripeConfig = await getStripeConfig();
+    const stripe = Stripe(stripeConfig.secretKey);
+
+    const subscription = await stripe.subscriptions.retrieve(sub.stripeSubscriptionId);
+    const itemId = subscription.items.data[0]?.id;
+    if (!itemId) {
+      console.error(`[syncDeals] org=${orgId} — no subscription item found`);
+      return;
+    }
+
+    const currentQty = subscription.items.data[0]?.quantity || 0;
+    if (currentQty === activeCount) {
+      console.log(`[syncDeals] org=${orgId} — quantity unchanged at ${activeCount}`);
+      return;
+    }
+
+    await stripe.subscriptions.update(sub.stripeSubscriptionId, {
+      items: [{ id: itemId, quantity: activeCount }],
+      proration_behavior: 'create_prorations', // pro-rate mid-cycle changes
+    });
+
+    // Update Firestore with current count
+    await db.collection('orgs').doc(orgId).set({
+      subscription: { activeDealCount: activeCount, lastSyncedAt: FieldValue.serverTimestamp() }
+    }, { merge: true });
+
+    console.log(`✅ [syncDeals] org=${orgId} — updated quantity ${currentQty} → ${activeCount}`);
+  } catch (err) {
+    console.error(`[syncDeals] org=${orgId} error:`, err.message);
+  }
+}
+
+/**
+ * Scheduled function — runs daily at 2 AM CT (7 AM UTC) to sync all orgs.
+ * Catches any deal changes that the trigger might have missed.
+ */
+exports.syncDealCounts = onSchedule(
+  { schedule: 'every day 07:00', region: 'us-central1', timeZone: 'America/Chicago' },
+  async () => {
+    console.log('[syncDealCounts] Daily sync starting...');
+
+    // Find all orgs with active per_deal subscriptions
+    const orgsSnap = await db.collection('orgs')
+      .where('subscription.plan', '==', 'per_deal')
+      .where('subscription.status', '==', 'active')
+      .get();
+
+    let synced = 0;
+    for (const doc of orgsSnap.docs) {
+      await syncDealCountForOrg(doc.id);
+      synced++;
+    }
+
+    console.log(`[syncDealCounts] Done — synced ${synced} orgs`);
+  }
+);
+
+/**
+ * Firestore trigger — when a deal document is created or updated,
+ * re-sync the deal count if the status changed.
+ */
+exports.onDealChanged = onDocumentUpdated(
+  { document: 'orgs/{orgId}/deals/{dealId}', region: 'us-central1' },
+  async (event) => {
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+    const orgId = event.params.orgId;
+
+    // Only re-sync if status changed
+    const oldStatus = (before.status || '').toLowerCase().trim();
+    const newStatus = (after.status || '').toLowerCase().trim();
+    if (oldStatus === newStatus) return;
+
+    console.log(`[onDealChanged] org=${orgId} deal=${event.params.dealId} status: ${oldStatus} → ${newStatus}`);
+    await syncDealCountForOrg(orgId);
+  }
+);
+
+/**
+ * Firestore trigger — when a new deal is created, re-sync count.
+ */
+exports.onDealCreated = onDocumentCreated(
+  { document: 'orgs/{orgId}/deals/{dealId}', region: 'us-central1' },
+  async (event) => {
+    const orgId = event.params.orgId;
+    console.log(`[onDealCreated] org=${orgId} deal=${event.params.dealId}`);
+    await syncDealCountForOrg(orgId);
+  }
+);
+
+/**
+ * getSubscriptionStatus — callable function for the frontend to get current billing info.
+ */
+exports.getSubscriptionStatus = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+
+    const userDoc = await db.collection('users').doc(uid).get();
+    if (!userDoc.exists) return { plan: 'free', status: 'none' };
+
+    const userData = userDoc.data();
+    const orgId = userData.orgId;
+    let sub = userData.subscription || {};
+
+    // If org-level subscription exists, prefer it
+    if (orgId) {
+      const orgDoc = await db.collection('orgs').doc(orgId).get();
+      if (orgDoc.exists && orgDoc.data().subscription) {
+        sub = orgDoc.data().subscription;
+      }
+    }
+
+    // Get live data from Stripe if we have a subscription ID
+    if (sub.stripeSubscriptionId) {
+      try {
+        const stripeConfig = await getStripeConfig();
+        const stripe = Stripe(stripeConfig.secretKey);
+        const stripeSub = await stripe.subscriptions.retrieve(sub.stripeSubscriptionId);
+
+        return {
+          plan: sub.plan || 'free',
+          status: stripeSub.status, // 'trialing', 'active', 'past_due', 'canceled'
+          trialEnd: stripeSub.trial_end ? new Date(stripeSub.trial_end * 1000).toISOString() : null,
+          currentPeriodEnd: stripeSub.current_period_end ? new Date(stripeSub.current_period_end * 1000).toISOString() : null,
+          cancelAtPeriodEnd: stripeSub.cancel_at_period_end,
+          quantity: stripeSub.items.data[0]?.quantity || 1,
+          activeDealCount: sub.activeDealCount || null,
+        };
+      } catch (err) {
+        console.error('[getSubscriptionStatus] Stripe error:', err.message);
+      }
+    }
+
+    // Fallback to Firestore data
+    return {
+      plan: sub.plan || 'free',
+      status: sub.status || 'none',
+      trialEnd: sub.trialEnd || null,
+      currentPeriodEnd: sub.currentPeriodEnd || null,
+      activeDealCount: sub.activeDealCount || null,
+    };
   }
 );

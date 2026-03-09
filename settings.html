@@ -260,13 +260,68 @@
           <div class="section-title"><i class="fas fa-credit-card" style="color:var(--accent);"></i> Billing & Subscription</div>
         </div>
         <div class="section-body" id="billingSection">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:20px;" id="billingInfo">
             <div>
-              <div style="font-weight:700;font-size:.95rem;" id="billingPlan">Loading...</div>
+              <div style="font-weight:700;font-size:.95rem;" id="billingPlan">Loading subscription status...</div>
               <div style="font-size:.82rem;color:var(--muted);" id="billingStatus"></div>
             </div>
             <div style="display:flex;gap:8px;" id="billingActions"></div>
           </div>
+          <script>
+          (function loadBillingStatus() {
+            if (typeof firebase === 'undefined' || !firebase.functions) {
+              document.getElementById('billingPlan').textContent = 'No active subscription';
+              return;
+            }
+            firebase.auth().onAuthStateChanged(async function(user) {
+              if (!user) {
+                document.getElementById('billingPlan').textContent = 'Sign in to view subscription';
+                return;
+              }
+              try {
+                const getStatus = firebase.functions().httpsCallable('getSubscriptionStatus');
+                const result = await getStatus();
+                const s = result.data;
+                const planEl = document.getElementById('billingPlan');
+                const statusEl = document.getElementById('billingStatus');
+                const actionsEl = document.getElementById('billingActions');
+
+                if (s.status === 'active' || s.status === 'trialing') {
+                  const planName = s.plan === 'per_deal' ? 'Per Deal' : s.plan === 'enterprise' ? 'Enterprise' : s.plan;
+                  const statusBadge = s.status === 'trialing'
+                    ? '<span style="background:rgba(243,121,37,.12);color:#F37925;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:8px;">TRIAL</span>'
+                    : '<span style="background:rgba(45,154,107,.12);color:#2D9A6B;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:8px;">ACTIVE</span>';
+
+                  planEl.innerHTML = planName + ' Plan ' + statusBadge;
+
+                  let details = [];
+                  if (s.status === 'trialing' && s.trialEnd) {
+                    const daysLeft = Math.ceil((new Date(s.trialEnd) - new Date()) / 86400000);
+                    details.push('Trial ends in ' + daysLeft + ' days');
+                  }
+                  if (s.plan === 'per_deal' && s.quantity) {
+                    details.push(s.quantity + ' active deal' + (s.quantity !== 1 ? 's' : '') + ' · $' + (s.quantity * 49) + '/mo');
+                  }
+                  if (s.currentPeriodEnd) {
+                    details.push('Next billing: ' + new Date(s.currentPeriodEnd).toLocaleDateString());
+                  }
+                  statusEl.textContent = details.join(' · ');
+
+                  // Hide plan cards if already subscribed
+                  document.getElementById('billingCards').style.display = 'none';
+                  actionsEl.innerHTML = '<button class="btn" onclick="SPBilling.openCustomerPortal()" style="font-size:.82rem;"><i class="fas fa-cog"></i> Manage Subscription</button>';
+                } else {
+                  planEl.textContent = 'No active subscription';
+                  statusEl.textContent = 'Choose a plan below to get started';
+                }
+              } catch (err) {
+                console.warn('[Billing] Could not load status:', err);
+                document.getElementById('billingPlan').textContent = 'No active subscription';
+                document.getElementById('billingStatus').textContent = 'Choose a plan below to get started';
+              }
+            });
+          })();
+          </script>
           <div style="display:flex;gap:12px;flex-wrap:wrap;" id="billingCards">
             <div onclick="SPBilling.checkout('per_deal')" style="flex:1;min-width:220px;border:1px solid var(--border);border-radius:10px;padding:20px;cursor:pointer;transition:all .15s;background:var(--surface);" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
               <div style="font-weight:700;margin-bottom:4px;">Per Deal</div>

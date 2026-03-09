@@ -1196,11 +1196,40 @@ window.SP = (function () {
               <div class="user-role" style="font-size:11px;color:rgba(255,255,255,0.45);">${s?.role || 'GP'}</div>
             </div>
           </div>
+          <div id="sidebarPlanBadge" style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px;display:none;"></div>
           <button class="logout-btn" onclick="SP.logout()" style="width:100%;padding:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;color:#f87171;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:all 0.15s;" onmouseenter="this.style.background='rgba(239,68,68,0.2)'" onmouseleave="this.style.background='rgba(239,68,68,0.1)'">
             <i class="fas fa-sign-out-alt"></i> Sign Out
           </button>`;
         sb.appendChild(footer);
       }
+
+      // Load plan badge in sidebar
+      try {
+        if (typeof firebase !== 'undefined' && firebase.functions) {
+          firebase.auth().onAuthStateChanged(async function(u) {
+            if (!u) return;
+            try {
+              const getStatus = firebase.functions().httpsCallable('getSubscriptionStatus');
+              const r = await getStatus();
+              const badge = document.getElementById('sidebarPlanBadge');
+              if (!badge) return;
+              const d = r.data;
+              if (d.status === 'trialing') {
+                const days = Math.ceil((new Date(d.trialEnd) - new Date()) / 86400000);
+                badge.innerHTML = '<i class="fas fa-clock" style="margin-right:4px;"></i> Trial · ' + days + ' days left';
+                badge.style.display = '';
+                badge.style.color = '#F37925';
+              } else if (d.status === 'active') {
+                const planName = d.plan === 'per_deal' ? 'Per Deal' : d.plan === 'enterprise' ? 'Enterprise' : d.plan;
+                const qty = d.plan === 'per_deal' && d.quantity ? ' · ' + d.quantity + ' deals' : '';
+                badge.innerHTML = '<i class="fas fa-check-circle" style="margin-right:4px;color:#2D9A6B;"></i> ' + planName + qty;
+                badge.style.display = '';
+                badge.style.color = 'rgba(255,255,255,0.55)';
+              }
+            } catch(e) { /* silent */ }
+          });
+        }
+      } catch(e) { /* silent */ }
     }
 
     // Rebuild sidebar nav completely — ensures every page has the correct full nav
