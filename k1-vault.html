@@ -84,16 +84,16 @@
 <body>
   <aside id="sidebar" class="sidebar"></aside>
   <main class="main">
-    <div class="page-top">
-      <div>
-        <h1><i class="fas fa-vault" style="color:var(--accent);"></i> K-1 Vault</h1>
-        <p>Upload and manage actual K-1 documents — each investor sees only their own</p>
-      </div>
-      <div>
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-vault" style="color:var(--accent);margin-right:8px;"></i> K-1 Vault</h1>
+      <div class="header-actions">
         <button class="btn" onclick="openBulkUpload()"><i class="fas fa-file-import"></i> Bulk Upload</button>
         <button class="btn btn-primary" onclick="openUpload()"><i class="fas fa-upload"></i> Upload K-1</button>
       </div>
     </div>
+    <div class="content" style="padding:28px 32px;">
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:24px;">Upload and manage actual K-1 documents — each investor sees only their own.</p>
 
     <div class="stats-row" id="statsRow"></div>
 
@@ -196,6 +196,7 @@
         </div>
       </div>
     </div>
+    </div><!-- end .content -->
   </main>
 
   <style>

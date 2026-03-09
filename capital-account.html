@@ -91,20 +91,21 @@
 <body>
   <aside id="sidebar" class="sidebar"></aside>
   <main class="main">
-    <div class="page-top">
-      <div>
-        <h1 id="pageTitle"><i class="fas fa-landmark" style="color:var(--accent);"></i> Capital Accounts</h1>
-        <p id="pageDesc">Select a deal to view each partner's capital balance in that entity</p>
-      </div>
-      <div id="topActions">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1 id="pageTitle"><i class="fas fa-landmark" style="color:var(--accent);margin-right:8px;"></i> Capital Accounts</h1>
+      <div class="header-actions">
         <button class="btn" onclick="window.print()" style="display:none;" id="printBtn"><i class="fas fa-print"></i> Print</button>
         <button class="btn" onclick="showPicker()" style="display:none;" id="backBtn"><i class="fas fa-arrow-left"></i> All Deals</button>
       </div>
     </div>
+    <div class="content" style="padding:28px 32px;">
+      <p id="pageDesc" style="color:var(--muted);font-size:.88rem;margin-bottom:24px;">Select a deal to view each partner's capital balance in that entity</p>
 
     <div id="dealPicker" class="deal-tiles"></div>
     <div id="dealHeader" class="deal-header" style="display:none;"></div>
     <div id="partnerTable" class="partner-card" style="display:none;"></div>
+    </div><!-- end .content -->
   </main>
 
   <script>

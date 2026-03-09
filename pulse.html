@@ -76,19 +76,19 @@
 <body>
   <aside id="sidebar" class="sidebar"></aside>
   <main class="main">
-    <div class="page-top">
-      <div>
-        <h1><i class="fas fa-heartbeat" style="color:var(--accent);"></i> Pulse</h1>
-        <p>Platform health check — things that may need your attention</p>
-      </div>
-      <div>
-        <button onclick="runPulse()" style="padding:10px 18px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-weight:600;font-family:inherit;font-size:.85rem;display:inline-flex;align-items:center;gap:8px;"><i class="fas fa-sync-alt"></i> Refresh</button>
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-heartbeat" style="color:var(--accent);margin-right:8px;"></i> Pulse</h1>
+      <div class="header-actions">
+        <button class="btn" onclick="runPulse()"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
     </div>
+    <div class="content" style="padding:28px 32px;">
 
     <div class="score-bar" id="scoreBar"></div>
     <div id="pulseBody"></div>
     <div class="timestamp" id="timestamp"></div>
+    </div><!-- end .content -->
   </main>
 
   <script>

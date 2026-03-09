@@ -1039,6 +1039,23 @@ window.SP = (function () {
       document.body.appendChild(overlay);
     }
 
+    // Auto-inject dt-header if page has no header bar at all
+    const mainEl = document.querySelector('.main, main, #main');
+    if (mainEl && !document.querySelector('.dt-header') && !document.querySelector('.top-bar') && !document.querySelector('header.top-bar')) {
+      // Try to extract page title from first h1 or document.title
+      const existingH1 = mainEl.querySelector('h1');
+      const titleText = existingH1 ? existingH1.innerHTML : (document.title.split('|').pop() || '').trim();
+      const header = document.createElement('div');
+      header.className = 'dt-header';
+      header.innerHTML = `<button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button><h1>${titleText}</h1><div class="header-actions"></div>`;
+      mainEl.insertBefore(header, mainEl.firstChild);
+      // If we grabbed the h1 from a page-top div, hide the original to avoid duplication
+      if (existingH1) {
+        const pageTop = existingH1.closest('.page-top, .header');
+        if (pageTop) pageTop.style.display = 'none';
+      }
+    }
+
     // Ensure mobile menu button exists — always first in top-bar or top-left
     if (!document.querySelector('.mobile-menu-btn')) {
       const btn = document.createElement('button');
