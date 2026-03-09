@@ -632,13 +632,13 @@ function previewDistribution() {
   }
 
   // ── GP Promote Logic ─────────────────────────────────────────────────────
-  // Industry standard: periodic distributions (operating cash flow) are LP-only.
-  // GP promote only applies on exit/disposition/refinance events.
-  // Periodic: pref → excess pro-rata to LPs. No GP promote.
-  // Exit:     pref → catch-up (if applicable) → residual split with GP promote.
-  const gpPromoteApplies = isExit || wfType === 'simple'; // simple = always split
+  // Waterfall applies to ALL distributions — periodic and exit (American style).
+  // Once pref is fully satisfied, GP earns promote on excess above pref.
+  // Periodic: pref → catch-up (if applicable) → residual split with GP promote.
+  // Exit:     return of capital → pref → catch-up → residual split.
+  // If pref is NOT fully satisfied, all distributions go to LPs — no GP promote.
 
-  if (remaining > 0 && prefFullySatisfied && gpPromoteApplies) {
+  if (remaining > 0 && prefFullySatisfied) {
 
     // ── Tiered Waterfall ─────────────────────────────────────────────────
     if (wfType === 'tiered') {
@@ -708,11 +708,12 @@ function previewDistribution() {
     }
 
   } else if (remaining > 0) {
-    // Periodic distribution OR pref not fully satisfied — ALL to LPs
-    const reason = !prefFullySatisfied
-      ? 'Pref not fully satisfied — all distributions to LPs until pref is current'
-      : 'Periodic distribution — excess above pref split pro-rata to LPs (GP promote applies on exit only)';
-    tierData.push({ name: !prefFullySatisfied ? 'LP Priority' : 'LP Pro-Rata Excess', desc: reason, amount: remaining, gp: 0, lp: remaining, type: 'tier-pref' });
+    // Pref not fully satisfied — ALL remaining goes to LPs (no GP promote)
+    tierData.push({
+      name: 'LP Priority',
+      desc: 'Pref not fully satisfied — all distributions to LPs until pref is current',
+      amount: remaining, gp: 0, lp: remaining, type: 'tier-pref',
+    });
     lpTotal += remaining;
     remaining = 0;
   }
