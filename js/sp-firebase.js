@@ -85,11 +85,12 @@ const SPFB = (function () {
     const localName    = localSession?.name  || fbUser.displayName || localEmail;
     const localRole    = localSession?.role  || 'General Partner';
 
-    // OrgId: prefer localStorage orgId (for data isolation), else derive from email
-    // Special case: demo-gp2@deeltrack.com (Marcus Rivera) gets unique org for testing
-    const isMarcus = localEmail.toLowerCase() === 'demo-gp2@deeltrack.com';
-    const marcusOrgId = 'marcus_rivera_org';
-    const derivedOrgId = isMarcus ? marcusOrgId : (localEmail ? _hashEmail(localEmail) : fbUser.uid);
+    // OrgId: demo emails share deeltrack_demo org; Marcus gets unique org; everyone else gets hash
+    const emailLower = localEmail.toLowerCase();
+    const DEMO_ORG_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com'];
+    const isMarcus = emailLower === 'demo-gp2@deeltrack.com';
+    const isDemo = DEMO_ORG_EMAILS.includes(emailLower);
+    const derivedOrgId = isMarcus ? 'marcus_rivera_org' : isDemo ? 'deeltrack_demo' : (localEmail ? _hashEmail(localEmail) : fbUser.uid);
 
     _db.collection('users').doc(fbUser.uid).get().then(doc => {
       if (doc.exists) {
@@ -178,14 +179,24 @@ const SPFB = (function () {
     if (_spUser && typeof SP !== 'undefined') {
       const existing = SP.getSession();
       // ALWAYS sync session when Firebase user exists — this fixes data isolation
-      // The orgId from Firebase Auth is the source of truth, not localStorage
+      // Demo accounts MUST use deeltrack_demo regardless of what Firestore says
+      const DEMO_ORG_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com'];
+      const emailLc = (_spUser.email || '').toLowerCase();
+      const resolvedOrg = DEMO_ORG_EMAILS.includes(emailLc) ? 'deeltrack_demo'
+        : emailLc === 'demo-gp2@deeltrack.com' ? 'marcus_rivera_org'
+        : (_spUser.orgId || _orgId || existing?.orgId);
       if (_spUser && _spUser.email) {
+        // If Firestore doc has wrong orgId for demo user, fix it
+        if (DEMO_ORG_EMAILS.includes(emailLc) && _spUser.orgId !== 'deeltrack_demo' && _spUser.uid && _db) {
+          _db.collection('users').doc(_spUser.uid).update({ orgId: 'deeltrack_demo' }).catch(() => {});
+          _spUser.orgId = 'deeltrack_demo';
+        }
+        _orgId = resolvedOrg;
         SP.setSession({
           email:     _spUser.email,
           name:      _spUser.name || _spUser.displayName || _spUser.email,
           role:      _spUser.role || 'General Partner',
-          // CRITICAL: Always use Firebase orgId for data isolation
-          orgId:     _spUser.orgId || _orgId || existing?.orgId,
+          orgId:     resolvedOrg,
           loggedIn:  true,
           loginTime: Date.now(),
           uid:       _spUser.uid,
