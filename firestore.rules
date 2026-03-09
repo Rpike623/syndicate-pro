@@ -88,6 +88,13 @@ service cloud.firestore {
       match /settings/{settingId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
       }
+
+      // Generic custom data store (k1_vault, dealroom_docs_*, investor_updates, etc.)
+      // GP can read/write all; investors can read (filtered client-side by investorId)
+      match /custom_data/{docId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+      }
     }
   }
 }

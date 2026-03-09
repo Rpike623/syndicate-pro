@@ -375,8 +375,54 @@ const SPData = (() => {
       return true;
     };
 
-    // SP.load — intercept data keys
+    // ── Firestore-backed custom data (k1_vault, dealroom_docs_*, etc.) ────────
+    // Every SP.load/SP.save key goes through Firestore. localStorage is ONLY a cache.
+    const _customCache = {};
+    const _customLoaded = new Set();
     const _origLoad = SP.load.bind(SP);
+    const _origSave = SP.save.bind(SP);
+
+    // Synchronous read from cache/localStorage; async Firestore hydration happens on init
+    function _customGet(key, def) {
+      if (key in _customCache) return _customCache[key];
+      // Fall back to localStorage cache (will be overwritten by Firestore on hydration)
+      const lsVal = _origLoad(key, def);
+      _customCache[key] = lsVal;
+      // Trigger async Firestore load if not already loaded
+      if (!_customLoaded.has(key) && _db && _orgId) {
+        _customLoaded.add(key);
+        _col('custom_data').doc(_sanitizeKey(key)).get().then(doc => {
+          if (doc.exists && doc.data().value !== undefined) {
+            _customCache[key] = doc.data().value;
+            // Sync Firestore → localStorage cache
+            try { _origSave(key, doc.data().value); } catch(e) {}
+          } else if (lsVal !== undefined && lsVal !== null && (Array.isArray(lsVal) ? lsVal.length : Object.keys(lsVal).length)) {
+            // localStorage has data Firestore doesn't — seed Firestore
+            _col('custom_data').doc(_sanitizeKey(key))
+              .set({ value: lsVal, key, orgId: _orgId, updatedAt: _ts() })
+              .catch(() => {});
+          }
+        }).catch(() => {});
+      }
+      return lsVal;
+    }
+
+    function _customSet(key, value) {
+      _customCache[key] = value;
+      // Write to Firestore (primary)
+      if (_db && _orgId) {
+        _col('custom_data').doc(_sanitizeKey(key))
+          .set({ value, key, orgId: _orgId, updatedAt: _ts() }, { merge: true })
+          .catch(e => console.warn('SPData: custom save to Firestore failed for', key, e.message));
+      }
+      // Write to localStorage (cache only)
+      try { _origSave(key, value); } catch(e) {}
+    }
+
+    // Firestore doc IDs can't contain / so sanitize keys like 'dealroom_docs_deal123'
+    function _sanitizeKey(key) { return key.replace(/[\/\.]/g, '_'); }
+
+    // SP.load — Firestore-first for ALL keys
     SP.load = function(key, def) {
       if (key === 'deals')          return getDeals();
       if (key === 'investors')      return getInvestors();
@@ -384,20 +430,19 @@ const SPData = (() => {
       if (key === 'capitalCalls')   return getCapitalCalls();
       if (key === 'settings')       return getSettings();
       if (key === 'activity')       return getActivity();
-      return _origLoad(key, def);
+      return _customGet(key, def);
     };
 
-    // SP.save — intercept data keys
-    const _origSave = SP.save.bind(SP);
+    // SP.save — Firestore-first for ALL keys
     SP.save = function(key, value) {
       if (key === 'deals')          { saveDeals(Array.isArray(value) ? value : [value]); return; }
       if (key === 'capitalCalls')   { saveCapitalCalls(Array.isArray(value) ? value : [value]); return; }
       if (key === 'distributions')  { saveDistributions(Array.isArray(value) ? value : [value]); return; }
       if (key === 'settings')       { saveSettings(value); return; }
-      _origSave(key, value);
+      _customSet(key, value);
     };
 
-    console.log('SPData: SP.* patched — Firestore is the single source of truth');
+    console.log('SPData: SP.* patched — ALL data routes through Firestore. localStorage is cache only.');
   }
 
   return {
