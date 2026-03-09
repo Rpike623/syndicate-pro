@@ -149,6 +149,15 @@
       .content { padding: 16px; }
       .stats-row { grid-template-columns: 1fr 1fr; }
       .form-row { grid-template-columns: 1fr; }
+      /* Hide less-critical table columns on mobile */
+      .investor-table th:nth-child(2),
+      .investor-table td:nth-child(2),
+      .investor-table th:nth-child(4),
+      .investor-table td:nth-child(4),
+      .investor-table th:nth-child(5),
+      .investor-table td:nth-child(5),
+      .investor-table th:nth-child(7),
+      .investor-table td:nth-child(7) { display: none; }
     }
   </style>
   <link rel="stylesheet" href="contrast-fix.css">
@@ -195,7 +204,7 @@
 
       <div class="card">
         <div class="table-scroll">
-          <table>
+          <table class="investor-table">
             <thead>
               <tr>
                 <th>Investor</th>

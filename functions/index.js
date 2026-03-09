@@ -834,3 +834,122 @@ exports.getSubscriptionStatus = onCall(
     };
   }
 );
+
+// ── K-1 Available Notification ────────────────────────────────────────────────
+/**
+ * onK1StatusChanged — when a K-1 vault entry is marked as 'sent',
+ * email the investor that their K-1 is available in the portal.
+ */
+exports.onK1StatusChanged = onDocumentUpdated(
+  { document: 'orgs/{orgId}/k1vault/{k1Id}', region: 'us-central1' },
+  async (event) => {
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+    const orgId = event.params.orgId;
+
+    // Only fire when status changes to 'sent'
+    if (before.status === after.status || after.status !== 'sent') return;
+    if (!after.investorId) return;
+
+    const invDoc = await db.collection('orgs').doc(orgId).collection('investors').doc(after.investorId).get();
+    if (!invDoc.exists) return;
+    const inv = invDoc.data();
+    if (!inv.email) return;
+
+    // Get deal name
+    let dealName = 'your investment';
+    if (after.dealId) {
+      const dealDoc = await db.collection('orgs').doc(orgId).collection('deals').doc(after.dealId).get();
+      if (dealDoc.exists) dealName = dealDoc.data().name || dealName;
+    }
+
+    const firstName = inv.firstName || inv.name || 'Investor';
+    const taxYear = after.taxYear || new Date().getFullYear();
+
+    try {
+      const token = await getGraphToken();
+      await graphSendMail(inv.email,
+        `📄 Your ${taxYear} K-1 is ready — ${dealName}`,
+        `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+          <div style="background:#F37925;padding:24px;border-radius:8px 8px 0 0;text-align:center;">
+            <h1 style="color:white;margin:0;font-size:1.3rem;">📄 Your ${taxYear} K-1 is Ready</h1>
+          </div>
+          <div style="background:#f8fafc;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;">
+            <p>Hi ${firstName},</p>
+            <p>Your Schedule K-1 for <strong>${dealName}</strong> (tax year ${taxYear}) is now available in your investor portal.</p>
+            <div style="text-align:center;margin:28px 0;">
+              <a href="https://deeltrack.com/investor-portal.html" style="background:#F37925;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem;display:inline-block;">View in Portal →</a>
+            </div>
+            <p style="color:#64748b;font-size:.85rem;">You can download the PDF from your Documents section. Please share it with your tax preparer for your ${taxYear} filing.</p>
+            <p style="color:#94a3b8;font-size:.75rem;text-align:center;margin-top:32px;">deeltrack — Investor management platform</p>
+          </div>
+        </div>`,
+        token
+      );
+      console.log(`✅ K-1 notification sent to ${inv.email} for ${dealName} ${taxYear}`);
+    } catch (e) {
+      console.error('K-1 notification error:', e.message);
+    }
+  }
+);
+
+// ── Distribution Posted Notification ──────────────────────────────────────────
+/**
+ * onDistributionPosted — when a distribution status changes to 'posted',
+ * email all recipients. Covers the case where GP creates as draft then posts later.
+ */
+exports.onDistributionPosted = onDocumentUpdated(
+  { document: 'orgs/{orgId}/distributions/{distId}', region: 'us-central1' },
+  async (event) => {
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+    const orgId = event.params.orgId;
+
+    // Only fire when status changes to 'posted'
+    if (before.status === after.status || after.status !== 'posted') return;
+
+    let dealName = after.dealName || null;
+    if (!dealName && after.dealId) {
+      const dealDoc = await db.collection('orgs').doc(orgId).collection('deals').doc(after.dealId).get();
+      dealName = dealDoc.exists ? (dealDoc.data().name || 'your investment') : 'your investment';
+    }
+    dealName = dealName || 'your investment';
+
+    const token = await getGraphToken();
+
+    for (const recipient of (after.recipients || [])) {
+      if (!recipient.investorId) continue;
+      const invDoc = await db.collection('orgs').doc(orgId).collection('investors').doc(recipient.investorId).get();
+      if (!invDoc.exists) continue;
+      const inv = invDoc.data();
+      if (!inv.email) continue;
+
+      const firstName = inv.firstName || inv.name || 'Investor';
+      const amount = Number(recipient.amount || recipient.totalThisDist || 0);
+      const period = after.period || (after.quarter && after.year ? after.quarter + ' ' + after.year : '') || '';
+
+      await graphSendMail(inv.email,
+        `💰 Distribution Posted — ${dealName}${period ? ' | ' + period : ''}`,
+        `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+          <div style="background:#2D9A6B;padding:24px;border-radius:8px 8px 0 0;text-align:center;">
+            <h1 style="color:white;margin:0;font-size:1.3rem;">💰 Distribution Posted</h1>
+          </div>
+          <div style="background:#f8fafc;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;">
+            <p>Hi ${firstName},</p>
+            <p>A distribution has been posted for <strong>${dealName}</strong>${period ? ' (' + period + ')' : ''}.</p>
+            <div style="background:white;border:2px solid #2D9A6B;border-radius:8px;padding:20px;margin:20px 0;text-align:center;">
+              <p style="margin:0;font-size:1.75rem;font-weight:700;color:#2D9A6B;">$${amount.toLocaleString()}</p>
+              <p style="margin:4px 0 0;color:#64748b;">Your distribution</p>
+            </div>
+            <div style="text-align:center;margin:24px 0;">
+              <a href="https://deeltrack.com/investor-portal.html" style="background:#F37925;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem;display:inline-block;">View in Portal →</a>
+            </div>
+            <p style="color:#64748b;font-size:.85rem;">Funds will be processed within 3–5 business days via your registered payment method.</p>
+            <p style="color:#94a3b8;font-size:.75rem;text-align:center;margin-top:32px;">deeltrack — Investor management platform</p>
+          </div>
+        </div>`,
+        token
+      ).catch(e => console.error('Distribution posted email error:', e.message));
+    }
+  }
+);
