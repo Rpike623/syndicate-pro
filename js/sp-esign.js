@@ -1,58 +1,163 @@
 /**
- * sp-esign.js — Digital Signature Integration Handler
- * Bridges deeltrack documents with external e-sign providers (DocuSign/Dropbox Sign).
+ * sp-esign.js — Firma.dev E-Signature Integration for deeltrack
+ * 
+ * Creates signing requests for subscription agreements via Firma.dev API.
+ * API key is stored in Firestore _config collection (server-side only for Cloud Functions).
+ * Client-side uses a Cloud Function proxy to avoid exposing the API key.
+ * 
+ * For demo/development: calls Firma API directly (key in memory, not in source).
  */
 
 const SPEsign = (() => {
-  const _config = {
-    provider: 'dropbox_sign', // placeholder for logic selection
-    apiKey: '', // stored in Firestore _config/esign
-  };
+  const FIRMA_BASE = 'https://api.firma.dev/functions/v1/signing-request-api';
+  const TEMPLATE_ID = '931599a9-1116-42a4-bbac-f0168add67e1'; // Subscription Agreement
+  
+  let _firmaKey = null;
 
-  async function sendForSignature(dealId, investorId, docType) {
-    if (typeof SPData === 'undefined' || !SPData.isReady()) return { success: false, error: 'System not ready' };
-    
-    const deal = SP.getDealById(dealId);
-    const investor = SP.getInvestorById(investorId);
-    
-    if (!deal || !investor) return { success: false, error: 'Identity verification failed' };
-
-    // 1. Log the initiation in Audit Trail
-    if (typeof SPAudit !== 'undefined') {
-      SPAudit.log('esign_request', docType, dealId, deal.name, { investorEmail: investor.email });
+  // Load API key from Firestore _config (production) or fallback
+  async function init() {
+    if (_firmaKey) return;
+    try {
+      const db = firebase.firestore();
+      const doc = await db.collection('_config').doc('esign').get();
+      if (doc.exists) _firmaKey = doc.data().firmaApiKey;
+    } catch(e) {
+      // _config not accessible from client (rules block it) — use Cloud Function
+      console.log('SPEsign: will use Cloud Function proxy for signing requests');
     }
+  }
 
-    // 2. Mock API call (simulate Dropbox Sign / HelloSign API)
-    // In production, this calls a Firebase Cloud Function to protect the API Secret
-    console.log(`[ESIGN] Initiating ${docType} for ${investor.email} on deal ${deal.name}`);
+  /**
+   * Create a signing request for a subscription agreement
+   * @param {Object} deal - Deal object
+   * @param {Object} investor - Investor object {firstName, lastName, email, committed, ownership}
+   * @param {Object} gpInfo - GP info {name, email}
+   * @returns {Object} signing request result
+   */
+  async function createSubscriptionAgreement(deal, investor, gpInfo) {
+    const name = `Subscription Agreement - ${investor.firstName} ${investor.lastName} - ${deal.name}`;
     
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Update subStatus to 'sent' automatically
-        if (docType === 'subscription_agreement') {
-          const deals = SP.getDeals();
-          const dIdx = deals.findIndex(d => d.id === dealId);
-          const iIdx = deals[dIdx].investors.findIndex(i => i.investorId === investorId);
-          if (iIdx >= 0) {
-            deals[dIdx].investors[iIdx].subStatus = 'sent';
-            deals[dIdx].investors[iIdx].esignEnvelopId = 'env_' + Math.random().toString(36).slice(2, 10);
-            SP.saveDeals(deals);
-          }
+    const payload = {
+      template_id: TEMPLATE_ID,
+      name,
+      recipients: [
+        {
+          first_name: investor.firstName,
+          last_name: investor.lastName,
+          email: investor.email,
+          role: 'signer'
         }
-        resolve({ success: true, envelopeId: 'env_mock_123', status: 'sent' });
-      }, 1200);
-    });
-  }
-
-  function getStatusBadge(status) {
-    const map = {
-      'sent': { bg: '#dbeafe', clr: '#2563eb', lbl: 'Sent for Sign' },
-      'viewed': { bg: '#fef3c7', clr: '#d97706', lbl: 'Viewed by LP' },
-      'signed': { bg: '#f3e8ff', clr: '#9333ea', lbl: 'Digitally Signed' },
-      'declined': { bg: '#fee2e2', clr: '#dc2626', lbl: 'Sign Declined' }
+      ]
     };
-    return map[status] || { bg: '#f1f5f9', clr: '#64748b', lbl: status };
+
+    try {
+      let result;
+      
+      // Try Cloud Function first (production path)
+      if (typeof firebase !== 'undefined' && firebase.functions) {
+        try {
+          const fn = firebase.functions().httpsCallable('createSigningRequest');
+          const res = await fn(payload);
+          result = res.data;
+        } catch(fnErr) {
+          console.warn('SPEsign: Cloud Function not available, trying direct API');
+        }
+      }
+      
+      // Direct API fallback (dev/demo)
+      if (!result && _firmaKey) {
+        const res = await fetch(FIRMA_BASE + '/signing-requests', {
+          method: 'POST',
+          headers: {
+            'Authorization': _firmaKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+        result = await res.json();
+      }
+
+      if (!result) throw new Error('No signing method available. Deploy Cloud Function or configure API key.');
+
+      if (result.error) throw new Error(result.error);
+
+      // Send the signing request
+      if (result.id) {
+        const sendRes = await fetch(FIRMA_BASE + '/signing-requests/' + result.id + '/send', {
+          method: 'POST',
+          headers: { 'Authorization': _firmaKey, 'Content-Type': 'application/json' }
+        });
+        const sendData = await sendRes.json();
+        result.sent = sendData.success;
+      }
+
+      // Store in Firestore for tracking
+      if (typeof SP !== 'undefined' && SP.save) {
+        const esignLog = SP.load('esign_requests', []);
+        esignLog.unshift({
+          id: result.id,
+          dealId: deal.id,
+          dealName: deal.name,
+          investorId: investor.id,
+          investorName: `${investor.firstName} ${investor.lastName}`,
+          investorEmail: investor.email,
+          type: 'subscription_agreement',
+          status: 'sent',
+          sentAt: new Date().toISOString(),
+          firmaId: result.id,
+        });
+        SP.save('esign_requests', esignLog);
+      }
+
+      return { success: true, signingRequestId: result.id, sentTo: investor.email };
+    } catch(e) {
+      console.error('SPEsign error:', e);
+      return { success: false, error: e.message };
+    }
   }
 
-  return { sendForSignature, getStatusBadge };
+  /**
+   * Check status of a signing request
+   */
+  async function checkStatus(signingRequestId) {
+    if (!_firmaKey) return { error: 'No API key' };
+    try {
+      const res = await fetch(FIRMA_BASE + '/signing-requests/' + signingRequestId, {
+        headers: { 'Authorization': _firmaKey }
+      });
+      const data = await res.json();
+      return {
+        id: data.id,
+        status: data.status,
+        sent: data.timestamps?.sent_on,
+        finished: data.timestamps?.finished_on,
+        downloadUrl: data.final_document_download_url,
+      };
+    } catch(e) {
+      return { error: e.message };
+    }
+  }
+
+  /**
+   * Get all signing requests for a deal
+   */
+  function getRequestsForDeal(dealId) {
+    const all = SP.load('esign_requests', []);
+    return all.filter(r => r.dealId === dealId);
+  }
+
+  /**
+   * Check if an investor has a pending or completed signing request
+   */
+  function getRequestForInvestor(dealId, investorId) {
+    const all = SP.load('esign_requests', []);
+    return all.find(r => r.dealId === dealId && r.investorId === investorId);
+  }
+
+  return { init, createSubscriptionAgreement, checkStatus, getRequestsForDeal, getRequestForInvestor };
 })();
+
+// Auto-init when loaded
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => SPEsign.init());
+}
