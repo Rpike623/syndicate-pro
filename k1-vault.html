@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | K-1 Vault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v3"></script>
+  <script src="js/sp-data.js?v2"></script>
+  <script src="js/sp-firebase.js?v2"></script>
+  <style>
+    :root{--accent:#F37925;--accent-hover:#D96515;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+    .main{flex:1;margin-left:var(--dt-sidebar-width);padding:32px 40px;}
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;padding:16px;}}
+
+    .page-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:28px;}
+    .page-top h1{font-size:1.5rem;font-weight:800;}
+    .page-top p{color:var(--muted);font-size:.88rem;margin-top:2px;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;font-weight:600;font-size:.85rem;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;transition:all .15s;}
+    .btn:hover{background:#F8F6F4;}
+    .btn-primary{background:var(--accent);color:white;border-color:var(--accent);}
+    .btn-primary:hover{background:var(--accent-hover);}
+
+    /* Filters */
+    .filters{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;align-items:center;}
+    select{padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:600;font-family:inherit;font-size:.85rem;cursor:pointer;}
+
+    /* Vault grid */
+    .vault-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+    .vault-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .15s;}
+    .vault-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(0,0,0,.06);}
+    .vc-header{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);}
+    .vc-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:white;flex-shrink:0;}
+    .vc-name{font-weight:700;font-size:.92rem;}
+    .vc-email{font-size:.75rem;color:var(--muted);}
+    .vc-body{padding:16px 20px;}
+    .vc-files{display:flex;flex-direction:column;gap:8px;}
+    .vc-file{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#F8F6F4;border-radius:8px;font-size:.82rem;}
+    .vc-file i{color:var(--accent);font-size:.9rem;}
+    .vc-file .fname{flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .vc-file .fmeta{font-size:.7rem;color:var(--muted);white-space:nowrap;}
+    .vc-file .factions{display:flex;gap:4px;}
+    .vc-file .factions button{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:4px;transition:all .15s;}
+    .vc-file .factions button:hover{color:var(--accent);background:rgba(243,121,37,.08);}
+    .vc-empty{font-size:.8rem;color:var(--muted);text-align:center;padding:12px;}
+    .vc-upload{display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border:1px dashed var(--border);border-radius:8px;cursor:pointer;font-size:.8rem;color:var(--muted);font-weight:600;margin-top:8px;transition:all .15s;}
+    .vc-upload:hover{border-color:var(--accent);color:var(--accent);background:rgba(243,121,37,.04);}
+    .vc-upload input[type=file]{display:none;}
+
+    /* Stats */
+    .stats-row{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
+    .stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 24px;flex:1;min-width:140px;}
+    .stat .sv{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:1.3rem;}
+    .stat .sl{font-size:.68rem;text-transform:uppercase;color:var(--muted);font-weight:600;letter-spacing:.05em;margin-top:2px;}
+
+    .empty-state{text-align:center;padding:60px 24px;color:var(--muted);}
+    .empty-state i{font-size:2.5rem;display:block;margin-bottom:12px;opacity:.3;}
+
+    /* Modal */
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center;}
+    .modal-bg.active{display:flex;}
+    .modal{background:var(--surface);border-radius:var(--radius);width:480px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+    .modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .modal-header h2{font-size:1rem;font-weight:700;}
+    .modal-body{padding:24px;}
+    .modal-body label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+    .modal-body select,.modal-body input[type=text]{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:.88rem;margin-bottom:16px;}
+    .modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+  </style>
+</head>
+<body>
+  <aside id="sidebar" class="sidebar"></aside>
+  <main class="main">
+    <div class="page-top">
+      <div>
+        <h1><i class="fas fa-vault" style="color:var(--accent);"></i> K-1 Vault</h1>
+        <p>Upload and manage actual K-1 documents — each investor sees only their own</p>
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="openUpload()"><i class="fas fa-upload"></i> Upload K-1</button>
+      </div>
+    </div>
+
+    <div class="stats-row" id="statsRow"></div>
+
+    <div class="filters">
+      <select id="filterYear" onchange="render()">
+        <option value="">All Tax Years</option>
+      </select>
+      <select id="filterDeal" onchange="render()">
+        <option value="">All Deals</option>
+      </select>
+      <select id="filterStatus" onchange="render()">
+        <option value="">All Status</option>
+        <option value="uploaded">Uploaded</option>
+        <option value="sent">Sent to Investor</option>
+      </select>
+    </div>
+
+    <div class="vault-grid" id="vaultGrid"></div>
+
+    <!-- Upload Modal -->
+    <div class="modal-bg" id="uploadModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2><i class="fas fa-upload" style="color:var(--accent);margin-right:8px;"></i> Upload K-1</h2>
+          <button onclick="closeUpload()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label>Tax Year</label>
+          <select id="upYear"></select>
+
+          <label>Deal / Entity</label>
+          <select id="upDeal"></select>
+
+          <label>Investor</label>
+          <select id="upInvestor">
+            <option value="">— Select Investor —</option>
+          </select>
+
+          <label>K-1 Document (PDF)</label>
+          <div class="vc-upload" onclick="document.getElementById('upFile').click();" id="fileDropZone">
+            <i class="fas fa-cloud-upload-alt"></i> Click to select PDF
+            <input type="file" id="upFile" accept=".pdf" onchange="fileSelected()">
+          </div>
+          <div id="fileName" style="font-size:.8rem;color:var(--muted);margin-top:6px;"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn" onclick="closeUpload()">Cancel</button>
+          <button class="btn btn-primary" onclick="saveK1()" id="saveBtn"><i class="fas fa-upload"></i> Upload</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    SP.requireGP();
+
+    const COLORS = ['#F37925','#2D9A6B','#3B82F6','#8B5CF6','#EC4899','#06B6D4','#EAB308','#6366F1'];
+    const VAULT_KEY = 'sp_k1_vault';
+
+    function getVault() {
+      try { return JSON.parse(localStorage.getItem(SP.makeOrgKey(VAULT_KEY)) || '[]'); } catch(e) { return []; }
+    }
+    function saveVault(v) { localStorage.setItem(SP.makeOrgKey(VAULT_KEY), JSON.stringify(v)); }
+
+    function init() {
+      const deals = SP.getDeals();
+      const investors = SP.getInvestors();
+      const currentYear = new Date().getFullYear();
+
+      // Year selects
+      const years = [];
+      for (let y = currentYear; y >= currentYear - 5; y--) years.push(y);
+      ['filterYear','upYear'].forEach(id => {
+        const sel = document.getElementById(id);
+        const isFilter = id === 'filterYear';
+        if (!isFilter) sel.innerHTML = '';
+        years.forEach(y => sel.add(new Option(y, y)));
+      });
+
+      // Deal selects
+      ['filterDeal','upDeal'].forEach(id => {
+        const sel = document.getElementById(id);
+        deals.forEach(d => sel.add(new Option(d.name, d.id)));
+      });
+
+      // Investor select (in upload modal)
+      const invSel = document.getElementById('upInvestor');
+      investors.forEach(i => invSel.add(new Option(`${i.firstName} ${i.lastName} — ${i.email}`, i.id)));
+
+      render();
+    }
+
+    function render() {
+      const vault = getVault();
+      const investors = SP.getInvestors();
+      const deals = SP.getDeals();
+      const filterYear = document.getElementById('filterYear').value;
+      const filterDeal = document.getElementById('filterDeal').value;
+      const filterStatus = document.getElementById('filterStatus').value;
+
+      // Filter
+      let filtered = vault;
+      if (filterYear) filtered = filtered.filter(v => v.taxYear == filterYear);
+      if (filterDeal) filtered = filtered.filter(v => v.dealId === filterDeal);
+      if (filterStatus) filtered = filtered.filter(v => v.status === filterStatus);
+
+      // Group by investor
+      const byInvestor = {};
+      filtered.forEach(v => {
+        if (!byInvestor[v.investorId]) byInvestor[v.investorId] = [];
+        byInvestor[v.investorId].push(v);
+      });
+
+      // Stats
+      const totalUploaded = vault.length;
+      const totalSent = vault.filter(v => v.status === 'sent').length;
+      const uniqueInvestors = new Set(vault.map(v => v.investorId)).size;
+      const uniqueYears = new Set(vault.map(v => v.taxYear)).size;
+
+      document.getElementById('statsRow').innerHTML = `
+        <div class="stat"><div class="sv">${totalUploaded}</div><div class="sl">K-1s Uploaded</div></div>
+        <div class="stat"><div class="sv">${totalSent}</div><div class="sl">Sent to Investors</div></div>
+        <div class="stat"><div class="sv">${totalUploaded - totalSent}</div><div class="sl">Pending Send</div></div>
+        <div class="stat"><div class="sv">${uniqueInvestors}</div><div class="sl">Investors with K-1s</div></div>
+      `;
+
+      // Render cards
+      const grid = document.getElementById('vaultGrid');
+
+      if (Object.keys(byInvestor).length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">
+          <i class="fas fa-vault"></i>
+          <h3>No K-1 Documents${filterYear || filterDeal ? ' matching filters' : ' yet'}</h3>
+          <p>${filterYear || filterDeal ? 'Try adjusting your filters' : 'Upload your first K-1 to get started'}</p>
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = Object.entries(byInvestor).map(([invId, files]) => {
+        const inv = investors.find(i => i.id === invId);
+        const name = inv ? `${inv.firstName} ${inv.lastName}` : 'Unknown Investor';
+        const email = inv ? inv.email : '';
+        const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2);
+        const colorIdx = investors.indexOf(inv);
+        const color = COLORS[(colorIdx >= 0 ? colorIdx : 0) % COLORS.length];
+
+        // Sort files by year desc
+        files.sort((a, b) => (b.taxYear || 0) - (a.taxYear || 0));
+
+        const fileRows = files.map(f => {
+          const deal = deals.find(d => d.id === f.dealId);
+          const dealName = deal ? deal.name : 'Unknown';
+          const statusIcon = f.status === 'sent'
+            ? '<i class="fas fa-check-circle" style="color:var(--success);font-size:.7rem;" title="Sent to investor"></i>'
+            : '<i class="fas fa-clock" style="color:var(--warning);font-size:.7rem;" title="Not yet sent"></i>';
+          return `<div class="vc-file">
+            <i class="fas fa-file-pdf"></i>
+            <div class="fname">${f.taxYear} — ${dealName}</div>
+            <div class="fmeta">${statusIcon}</div>
+            <div class="factions">
+              <button title="View" onclick="viewK1('${f.id}')"><i class="fas fa-eye"></i></button>
+              ${f.status !== 'sent' ? `<button title="Mark as Sent" onclick="markSent('${f.id}')"><i class="fas fa-paper-plane"></i></button>` : ''}
+              <button title="Delete" onclick="deleteK1('${f.id}')"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>`;
+        }).join('');
+
+        return `<div class="vault-card">
+          <div class="vc-header">
+            <div class="vc-avatar" style="background:${color};">${initials}</div>
+            <div>
+              <div class="vc-name">${name}</div>
+              <div class="vc-email">${email}</div>
+            </div>
+          </div>
+          <div class="vc-body">
+            <div class="vc-files">${fileRows}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function openUpload() { document.getElementById('uploadModal').classList.add('active'); }
+    function closeUpload() {
+      document.getElementById('uploadModal').classList.remove('active');
+      document.getElementById('upFile').value = '';
+      document.getElementById('fileName').textContent = '';
+    }
+
+    function fileSelected() {
+      const file = document.getElementById('upFile').files[0];
+      if (file) {
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('fileDropZone').innerHTML = '<i class="fas fa-check-circle" style="color:var(--success);"></i> ' + file.name + '<input type="file" id="upFile" accept=".pdf" onchange="fileSelected()" style="display:none;">';
+      }
+    }
+
+    function saveK1() {
+      const taxYear = document.getElementById('upYear').value;
+      const dealId = document.getElementById('upDeal').value;
+      const investorId = document.getElementById('upInvestor').value;
+      const fileInput = document.getElementById('upFile');
+      const file = fileInput.files ? fileInput.files[0] : null;
+
+      if (!investorId) { alert('Please select an investor.'); return; }
+      if (!dealId) { alert('Please select a deal.'); return; }
+      if (!file) { alert('Please select a PDF file.'); return; }
+
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+      // Read file as base64 for localStorage (Firestore Storage in production)
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const vault = getVault();
+        vault.push({
+          id: 'k1_' + Date.now(),
+          taxYear: parseInt(taxYear),
+          dealId,
+          investorId,
+          fileName: file.name,
+          fileSize: file.size,
+          fileData: e.target.result, // base64 data URL
+          status: 'uploaded',
+          uploadedAt: new Date().toISOString(),
+          uploadedBy: SP.getSession().email || 'GP',
+        });
+        saveVault(vault);
+
+        // Also try to upload to Firebase Storage if available
+        try {
+          if (typeof firebase !== 'undefined' && firebase.storage) {
+            const orgId = SP.getOrgId();
+            const storagePath = `orgs/${orgId}/k1/${taxYear}/${investorId}_${dealId}_${file.name}`;
+            const ref = firebase.storage().ref(storagePath);
+            ref.put(file).then(() => { console.log('[K1 Vault] Uploaded to Firebase Storage:', storagePath); });
+          }
+        } catch(err) { console.warn('[K1 Vault] Firebase Storage upload skipped:', err); }
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-upload"></i> Upload';
+        closeUpload();
+        render();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function viewK1(id) {
+      const vault = getVault();
+      const k1 = vault.find(v => v.id === id);
+      if (!k1 || !k1.fileData) { alert('File data not available.'); return; }
+      // Open in new tab
+      const win = window.open('', '_blank');
+      win.document.write(`<html><head><title>K-1 — ${k1.taxYear}</title></head><body style="margin:0;"><embed src="${k1.fileData}" type="application/pdf" width="100%" height="100%" style="position:fixed;inset:0;"></body></html>`);
+    }
+
+    function markSent(id) {
+      const vault = getVault();
+      const k1 = vault.find(v => v.id === id);
+      if (k1) {
+        k1.status = 'sent';
+        k1.sentAt = new Date().toISOString();
+        saveVault(vault);
+        render();
+      }
+    }
+
+    function deleteK1(id) {
+      if (!confirm('Delete this K-1? This cannot be undone.')) return;
+      const vault = getVault();
+      saveVault(vault.filter(v => v.id !== id));
+      render();
+    }
+
+    SP.onDataReady(init);
+  </script>
+</body>
+</html>

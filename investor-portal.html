@@ -488,17 +488,32 @@ function render() {
   linkedEntries.forEach(({ deal }) => {
     if (deal.generatedOA) sharedDocs.push({ name: `${deal.name} — Operating Agreement`, type: 'OA', date: deal.oaGeneratedAt, dealId: deal.id });
   });
+  // Also pull K-1s from vault that belong to this investor
+  const VAULT_KEY = 'sp_k1_vault';
+  let myK1s = [];
+  try {
+    const vault = JSON.parse(localStorage.getItem(SP.makeOrgKey(VAULT_KEY)) || '[]');
+    myK1s = vault.filter(v => v.investorId === inv.id && v.status === 'sent');
+  } catch(e) {}
+
+  myK1s.forEach(k => {
+    const deal = deals.find(d => d.id === k.dealId);
+    sharedDocs.push({ name: `${k.taxYear} K-1 — ${deal ? deal.name : 'Deal'}`, type: 'K-1', date: k.sentAt || k.uploadedAt, fileData: k.fileData, isK1: true });
+  });
+
   if (sharedDocs.length) {
     docsContent.innerHTML = sharedDocs.map(doc => `
       <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
         <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:36px;height:36px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;"><i class="fas fa-file-contract"></i></div>
+          <div style="width:36px;height:36px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;"><i class="fas ${doc.isK1 ? 'fa-file-invoice-dollar' : 'fa-file-contract'}"></i></div>
           <div>
             <div style="font-weight:600;font-size:.875rem;">${doc.name}</div>
             <div style="font-size:.75rem;color:var(--text-muted);">${doc.type} · ${doc.date ? new Date(doc.date).toLocaleDateString() : '—'}</div>
           </div>
         </div>
-        <a href="deal-detail.html?id=${doc.dealId}" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-eye"></i> View</a>
+        ${doc.isK1 && doc.fileData
+          ? `<button onclick="window.open('').document.write('<embed src=&quot;${doc.fileData.substring(0,50)}...&quot; type=&quot;application/pdf&quot; width=&quot;100%&quot; height=&quot;100%&quot;>')" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-download"></i> View</button>`
+          : doc.dealId ? `<a href="deal-detail.html?id=${doc.dealId}" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-eye"></i> View</a>` : ''}
       </div>`).join('');
   } else {
     docsContent.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents shared yet. Your GP will post documents here.</p></div>';
