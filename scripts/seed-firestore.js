@@ -27,10 +27,10 @@ async function seed() {
 
   // ── Investors ──
   const investors = [
-    { id:'di1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@email.com', phone:'(214) 555-0101', accredStatus:'verified', totalInvested:650000, status:'active' },
-    { id:'di2', firstName:'Sarah', lastName:'Chen', email:'s.chen@capitalgroup.com', phone:'(713) 555-0202', accredStatus:'verified', totalInvested:1000000, status:'active' },
-    { id:'di3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@invest.com', phone:'(512) 555-0303', accredStatus:'verified', totalInvested:250000, status:'active' },
-    { id:'di4', firstName:'Priya', lastName:'Patel', email:'ppatel@wealth.com', phone:'(469) 555-0404', accredStatus:'verified', totalInvested:1000000, status:'active' },
+    { id:'di1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@demo.deeltrack.com', phone:'(214) 555-0101', accredStatus:'verified', totalInvested:650000, status:'active' },
+    { id:'di2', firstName:'Sarah', lastName:'Chen', email:'s.chen@demo.deeltrack.com', phone:'(713) 555-0202', accredStatus:'verified', totalInvested:1000000, status:'active' },
+    { id:'di3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@demo.deeltrack.com', phone:'(512) 555-0303', accredStatus:'verified', totalInvested:250000, status:'active' },
+    { id:'di4', firstName:'Priya', lastName:'Patel', email:'ppatel@demo.deeltrack.com', phone:'(469) 555-0404', accredStatus:'verified', totalInvested:1000000, status:'active' },
     { id:'i7', firstName:'Phil', lastName:'Chapman', email:'philip@jchapmancpa.com', phone:'(817) 555-9000', accredStatus:'verified', totalInvested:1075000, status:'active' },
   ];
 

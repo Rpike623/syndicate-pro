@@ -87,7 +87,7 @@ const SPFB = (function () {
 
     // OrgId: demo emails share deeltrack_demo org; Marcus gets unique org; everyone else gets hash
     const emailLower = localEmail.toLowerCase();
-    const DEMO_ORG_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com'];
+    const DEMO_ORG_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','philip@jchapmancpa.com','investor@deeltrack.com'];
     const isMarcus = emailLower === 'demo-gp2@deeltrack.com';
     const isDemo = DEMO_ORG_EMAILS.includes(emailLower);
     const derivedOrgId = isMarcus ? 'marcus_rivera_org' : isDemo ? 'deeltrack_demo' : (localEmail ? _hashEmail(localEmail) : fbUser.uid);
@@ -180,7 +180,7 @@ const SPFB = (function () {
       const existing = SP.getSession();
       // ALWAYS sync session when Firebase user exists — this fixes data isolation
       // Demo accounts MUST use deeltrack_demo regardless of what Firestore says
-      const DEMO_ORG_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com'];
+      const DEMO_ORG_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','philip@jchapmancpa.com','investor@deeltrack.com'];
       const emailLc = (_spUser.email || '').toLowerCase();
       const resolvedOrg = DEMO_ORG_EMAILS.includes(emailLc) ? 'deeltrack_demo'
         : emailLc === 'demo-gp2@deeltrack.com' ? 'marcus_rivera_org'

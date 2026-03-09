@@ -128,7 +128,7 @@ window.SP = (function () {
 
   // All demo accounts share one org so data flows freely between GP and LP views
   // NOTE: demo-gp2 is EXCLUDED from this list to test data isolation — it gets its own unique org
-  const DEMO_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','demo@syndicatepro.com','philip@jchapmancpa.com','investor@deeltrack.com'];
+  const DEMO_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','philip@jchapmancpa.com','investor@deeltrack.com'];
   const DEMO_ORG_ID = 'deeltrack_demo';
 
   function getOrgId() {
@@ -412,7 +412,7 @@ window.SP = (function () {
     // ALL demo accounts share ONE org so data is visible across sessions
     // EXCEPT demo-gp2@deeltrack.com (Marcus Rivera) who needs data isolation for testing
     const DEMO_ORG_ID = 'deeltrack_demo';
-    const demoEmails = ['demo@deeltrack.com', 'demo@syndicatepro.com', 'gp@deeltrack.com', 'philip@jchapmancpa.com', 'investor@deeltrack.com'];
+    const demoEmails = ['demo@deeltrack.com',  'gp@deeltrack.com', 'philip@jchapmancpa.com', 'investor@deeltrack.com'];
     demoEmails.forEach(demoEmail => {
       const existing = users.find(u => u.email === demoEmail);
       if (!existing) {
@@ -448,7 +448,7 @@ window.SP = (function () {
     setSession(session);
 
     // Seed rich demo data for both GP and Phil the Investor on first login
-    if (['demo@deeltrack.com','demo@syndicatepro.com','gp@deeltrack.com','philip@jchapmancpa.com'].includes(email.toLowerCase())) {
+    if (['demo@deeltrack.com','gp@deeltrack.com','philip@jchapmancpa.com'].includes(email.toLowerCase())) {
       seedDemoData(session);
     }
 
@@ -498,10 +498,10 @@ window.SP = (function () {
 
     // Investors
     const investors = [
-      { id:'di1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@email.com', phone:'(214) 555-0101', address:'4521 Oak Blvd, Dallas, TX 75201', accredMethod:'cpa', accredStatus:'verified', accredDate:'2024-03-15', accredExpiry:'2026-03-15', minInvest:100000, maxInvest:500000, totalInvested:650000, deals:2, status:'active', notes:'High net worth individual. Prefers multifamily.' },
-      { id:'di2', firstName:'Sarah', lastName:'Chen', email:'s.chen@capitalgroup.com', phone:'(713) 555-0202', address:'1800 Post Oak Blvd, Houston, TX 77056', accredMethod:'entity', accredStatus:'verified', accredDate:'2024-01-10', accredExpiry:'2026-01-10', minInvest:250000, maxInvest:1000000, totalInvested:1000000, deals:2, status:'active', notes:'Family office rep. Very responsive.' },
-      { id:'di3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@invest.com', phone:'(512) 555-0303', address:'200 W Cesar Chavez, Austin, TX 78701', accredMethod:'attorney', accredStatus:'verified', accredDate:'2024-06-01', accredExpiry:'2026-06-01', minInvest:50000, maxInvest:250000, totalInvested:250000, deals:1, status:'active', notes:'First-time syndication investor.' },
-      { id:'di4', firstName:'Priya', lastName:'Patel', email:'ppatel@wealth.com', phone:'(469) 555-0404', address:'5000 Granite Pkwy, Plano, TX 75024', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-01-15', accredExpiry:'2027-01-15', minInvest:500000, maxInvest:2000000, totalInvested:1000000, deals:1, status:'active', notes:'Prefers industrial. Long-term hold.' },
+      { id:'di1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@demo.deeltrack.com', phone:'(214) 555-0101', address:'4521 Oak Blvd, Dallas, TX 75201', accredMethod:'cpa', accredStatus:'verified', accredDate:'2024-03-15', accredExpiry:'2026-03-15', minInvest:100000, maxInvest:500000, totalInvested:650000, deals:2, status:'active', notes:'High net worth individual. Prefers multifamily.' },
+      { id:'di2', firstName:'Sarah', lastName:'Chen', email:'s.chen@demo.deeltrack.com', phone:'(713) 555-0202', address:'1800 Post Oak Blvd, Houston, TX 77056', accredMethod:'entity', accredStatus:'verified', accredDate:'2024-01-10', accredExpiry:'2026-01-10', minInvest:250000, maxInvest:1000000, totalInvested:1000000, deals:2, status:'active', notes:'Family office rep. Very responsive.' },
+      { id:'di3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@demo.deeltrack.com', phone:'(512) 555-0303', address:'200 W Cesar Chavez, Austin, TX 78701', accredMethod:'attorney', accredStatus:'verified', accredDate:'2024-06-01', accredExpiry:'2026-06-01', minInvest:50000, maxInvest:250000, totalInvested:250000, deals:1, status:'active', notes:'First-time syndication investor.' },
+      { id:'di4', firstName:'Priya', lastName:'Patel', email:'ppatel@demo.deeltrack.com', phone:'(469) 555-0404', address:'5000 Granite Pkwy, Plano, TX 75024', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-01-15', accredExpiry:'2027-01-15', minInvest:500000, maxInvest:2000000, totalInvested:1000000, deals:1, status:'active', notes:'Prefers industrial. Long-term hold.' },
       { id:'i7', firstName:'Phil', lastName:'Chapman', email:'philip@jchapmancpa.com', phone:'(817) 555-9000', address:'Fort Worth, TX', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-01-01', accredExpiry:'2027-01-01', minInvest:50000, maxInvest:500000, totalInvested:1075000, deals:8, status:'active', notes:'High-level CPA investor.' },
     ];
     save('investors', investors);
