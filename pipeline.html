@@ -951,8 +951,8 @@
 
   <script>
   var _taskDealId = null;
-  function getTasksForDeal(id) { try { return JSON.parse(localStorage.getItem('dt_tasks_'+id)||'[]'); } catch(e) { return []; } }
-  function saveTasksForDeal(id, t) { localStorage.setItem('dt_tasks_'+id, JSON.stringify(t)); }
+  function getTasksForDeal(id) { return SP.load('tasks_'+id, []); }
+  function saveTasksForDeal(id, t) { SP.save('tasks_'+id, t); }
   function openTaskPanel(dealId) {
     _taskDealId = dealId;
     var deal = deals.find(function(d){return d.id===dealId;});

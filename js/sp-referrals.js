@@ -4,7 +4,7 @@
 window.Referrals = {
   refs: [],
   init: function() {
-    const s = localStorage.getItem('sp_referrals');
+    const s = JSON.stringify(SP.load('referrals', null));
     if (s) this.refs = JSON.parse(s);
     else this.refs = this.generateDemo();
     this.render();
@@ -19,7 +19,7 @@ window.Referrals = {
       { id: '5', referrer: 'David Jones', referred: 'Amanda Thompson', email: 'athompson@email.com', deal: '', investment: 0, fee: 2000, status: 'pending', date: `${y}-03-05` }
     ];
   },
-  save: function() { localStorage.setItem('sp_referrals', JSON.stringify(this.refs)); },
+  save: function() { SP.save('referrals', this.refs); },
   render: function() {
     const converted = this.refs.filter(r => r.status === 'converted').length;
     const feesPaid = this.refs.filter(r => r.status === 'converted').reduce((s,r) => s + r.fee, 0);

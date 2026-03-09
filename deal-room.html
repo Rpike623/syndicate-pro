@@ -228,7 +228,7 @@
         const statusLabel = d.status || '—';
         // Count cached docs
         let docCount = 0;
-        try { const s = localStorage.getItem('sp_dealroom_docs_'+d.id); if(s) docCount = JSON.parse(s).length; } catch(e){}
+        try { const s = SP.load('dealroom_docs_'+d.id, null); if(s) docCount = s.length; } catch(e){}
         return `<div class="deal-tile" onclick="selectDeal('${d.id}')">
           <div class="tile-type"><i class="fas fa-building" style="margin-right:4px;"></i> ${d.type||'Real Estate'}</div>
           <span class="tile-status ${statusClass}">${statusLabel}</span>

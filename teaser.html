@@ -212,7 +212,7 @@
   <script src="js/database.js"></script>
   <script>
     async function init() {
-      const deals = JSON.parse(localStorage.getItem(SP.makeOrgKey('deals')) || '[]');
+      const deals = SP.getDeals();
       const select = document.getElementById('dealSelect');
       deals.forEach(deal => {
         const opt = document.createElement('option');
@@ -227,7 +227,7 @@
       const id = document.getElementById('dealSelect').value;
       if (!id) return;
       
-      const deals = JSON.parse(localStorage.getItem(SP.makeOrgKey('deals')) || '[]');
+      const deals = SP.getDeals();
       const deal = deals.find(d => d.id === id);
       if (!deal) return;
 

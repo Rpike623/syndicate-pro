@@ -4,7 +4,7 @@
 window.Risk = {
   risks: [],
   init: function() {
-    const s = localStorage.getItem('sp_risks');
+    const s = JSON.stringify(SP.load('risks', null));
     if (s) this.risks = JSON.parse(s);
     else this.risks = this.sample();
     this.render();
@@ -18,7 +18,7 @@ window.Risk = {
       { desc:'Property damage', category:'operational', impact:4, likelihood:2, status:'mitigating', mitigation:'Insurance in place' }
     ];
   },
-  save: function() { localStorage.setItem('sp_risks', JSON.stringify(this.risks)); },
+  save: function() { SP.save('risks', this.risks); },
   render: function() {
     const total = this.risks.length;
     const high = this.risks.filter(r => r.impact * r.likelihood >= 15).length;

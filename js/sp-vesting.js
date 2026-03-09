@@ -12,7 +12,7 @@ window.Vesting = {
   },
 
   loadData: async function() {
-    const gpsStored = localStorage.getItem('sp_gp_vesting');
+    const gpsStored = JSON.stringify(SP.load('gp_vesting', null));
     if (gpsStored) this.gps = JSON.parse(gpsStored);
     else this.gps = this.generateDemo();
 
@@ -34,7 +34,7 @@ window.Vesting = {
   },
 
   save: function() {
-    localStorage.setItem('sp_gp_vesting', JSON.stringify(this.gps));
+    SP.save('gp_vesting', this.gps);
   },
 
   render: function() {

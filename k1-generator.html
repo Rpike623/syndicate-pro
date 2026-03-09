@@ -480,7 +480,7 @@ function _k1DeliveryKey() {
 
 function loadK1Deliveries() {
   const key = _k1DeliveryKey();
-  try { _k1Deliveries = JSON.parse(localStorage.getItem(SP.makeOrgKey(key)) || '{}'); } catch(e) { _k1Deliveries = {}; }
+  _k1Deliveries = SP.load('k1_deliveries', {});
   // Also try Firestore
   if (typeof SPFB !== 'undefined' && SPFB.isReady() && currentDeal) {
     const year = document.getElementById('taxYear')?.value || new Date().getFullYear();
@@ -489,7 +489,7 @@ function loadK1Deliveries() {
       .get().then(snap => {
         if (snap.exists) {
           _k1Deliveries = snap.data().deliveries || {};
-          localStorage.setItem(SP.makeOrgKey(key), JSON.stringify(_k1Deliveries));
+          SP.save('k1_deliveries', _k1Deliveries);
           renderTable(allocations); // re-render with Firestore data
         }
       }).catch(() => {});
@@ -508,7 +508,7 @@ function markK1Sent(idx, method) {
   };
   // Save locally
   const key = _k1DeliveryKey();
-  localStorage.setItem(SP.makeOrgKey(key), JSON.stringify(_k1Deliveries));
+  SP.save('k1_deliveries', _k1Deliveries);
   // Save to Firestore
   if (typeof SPFB !== 'undefined' && SPFB.isReady() && currentDeal) {
     const year = document.getElementById('taxYear')?.value || new Date().getFullYear();
@@ -527,7 +527,7 @@ function unmarkK1Sent(idx) {
   if (!r) return;
   delete _k1Deliveries[r.id];
   const key = _k1DeliveryKey();
-  localStorage.setItem(SP.makeOrgKey(key), JSON.stringify(_k1Deliveries));
+  SP.save('k1_deliveries', _k1Deliveries);
   if (typeof SPFB !== 'undefined' && SPFB.isReady() && currentDeal) {
     const year = document.getElementById('taxYear')?.value || new Date().getFullYear();
     firebase.firestore().collection('orgs').doc(SP.getOrgId())
@@ -553,7 +553,7 @@ function markAllK1Sent() {
     }
   });
   const key = _k1DeliveryKey();
-  localStorage.setItem(SP.makeOrgKey(key), JSON.stringify(_k1Deliveries));
+  SP.save('k1_deliveries', _k1Deliveries);
   if (typeof SPFB !== 'undefined' && SPFB.isReady() && currentDeal) {
     const year = document.getElementById('taxYear')?.value || new Date().getFullYear();
     firebase.firestore().collection('orgs').doc(SP.getOrgId())

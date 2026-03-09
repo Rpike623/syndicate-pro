@@ -1341,11 +1341,11 @@
         'gpEquity','lpEquity','prefReturn','gpPromote','waterfallType','acqFee','assetMgmtFee','minInvestment'];
       const data = {};
       fields.forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.value; });
-      localStorage.setItem('dt_wizard_draft', JSON.stringify(data));
+      SP.save('wizard_draft', data);
     }
 
     function loadDraft() {
-      const saved = localStorage.getItem('dt_wizard_draft');
+      const saved = JSON.stringify(SP.load('wizard_draft', null));
       if (!saved) return;
       try {
         const data = JSON.parse(saved);

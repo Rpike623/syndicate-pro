@@ -873,9 +873,9 @@ async function executeDistribution() {
     // Firestore write failed — fall back to localStorage directly
     console.error('[executeDistribution] save error:', saveErr);
     try {
-      const fallbackDists = JSON.parse(localStorage.getItem(SP.makeOrgKey('distributions')) || '[]');
+      const fallbackDists = SP.getDistributions();
       if (!fallbackDists.find(d => d.id === dist.id)) fallbackDists.unshift(dist);
-      localStorage.setItem(SP.makeOrgKey('distributions'), JSON.stringify(fallbackDists));
+      SP.saveDistributions(fallbackDists);
       console.warn('[executeDistribution] Firestore failed — saved to localStorage fallback');
     } catch(lsErr) {
       // Both failed — tell the user
@@ -892,9 +892,9 @@ async function executeDistribution() {
     // Not found in memory — force localStorage write as last resort
     console.error('[executeDistribution] Verification failed — dist not found in SP.getDistributions(), forcing localStorage write');
     try {
-      const raw = JSON.parse(localStorage.getItem(SP.makeOrgKey('distributions')) || '[]');
+      const raw = SP.getDistributions();
       if (!raw.find(d => d.id === dist.id)) raw.unshift(dist);
-      localStorage.setItem(SP.makeOrgKey('distributions'), JSON.stringify(raw));
+      SP.saveDistributions(raw);
     } catch(e) {}
   }
 

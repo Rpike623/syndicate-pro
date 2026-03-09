@@ -424,12 +424,12 @@ This investment is suitable only for accredited investors under Reg D 506(b)</te
     function saveOM() {
       const data = {};
       document.querySelectorAll('[id^="om"]').forEach(el => { data[el.id] = el.value; });
-      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      SP.save('om_builder', data);
       showToast('OM saved!');
     }
     function loadOM() {
       try {
-        const data = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+        const data = SP.load('om_builder', {});
         Object.entries(data).forEach(([k, v]) => {
           const el = document.getElementById(k);
           if (el) el.value = v;

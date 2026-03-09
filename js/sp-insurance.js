@@ -25,7 +25,7 @@ window.Insurance = {
   },
 
   loadPolicies: async function() {
-    const stored = localStorage.getItem('sp_insurance');
+    const stored = JSON.stringify(SP.load('insurance', null));
     if (stored) this.policies = JSON.parse(stored);
     else this.policies = this.generateDemo();
   },
@@ -45,7 +45,7 @@ window.Insurance = {
   },
 
   save: function() {
-    localStorage.setItem('sp_insurance', JSON.stringify(this.policies));
+    SP.save('insurance', this.policies);
   },
 
   populateDeals: function() {

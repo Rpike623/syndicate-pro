@@ -6,7 +6,7 @@ window.Milestones = {
   deals: [],
   init: function() {
     this.deals = [{id:'deal_1',name:'Sunset Apartments'},{id:'deal_2',name:'Downtown Office'},{id:'deal_3',name:'Industrial Portfolio'}];
-    const s = localStorage.getItem('sp_milestones');
+    const s = JSON.stringify(SP.load('milestones', null));
     if (s) this.milestones = JSON.parse(s);
     else this.milestones = this.generate();
     this.populate();
@@ -25,7 +25,7 @@ window.Milestones = {
       { dealId:'deal_3', dealName:'Industrial Portfolio', name:'Renovation Complete', targetDate:`${y}-06-30`, status:'pending' }
     ];
   },
-  save: function() { localStorage.setItem('sp_milestones', JSON.stringify(this.milestones)); },
+  save: function() { SP.save('milestones', this.milestones); },
   populate: function() {
     const opts = this.deals.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
     document.getElementById('dealFilter').innerHTML = '<option value="">All Deals</option>' + opts;

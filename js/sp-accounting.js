@@ -100,12 +100,11 @@ window.SPAccounting = {
       }
     }
     
-    // Fallback to localStorage with demo data
-    const key = `sp_accounting_${dealId}`;
-    const stored = localStorage.getItem(key);
+    // Fallback to SP.load (org-scoped, Firestore-synced)
+    const stored = SP.load(`accounting_${dealId}`, null);
     
     if (stored) {
-      this.transactions = JSON.parse(stored);
+      this.transactions = stored;
     } else {
       // Seed demo data
       this.transactions = this.generateDemoData(dealId);
@@ -134,8 +133,7 @@ window.SPAccounting = {
   },
 
   saveToStorage: function(dealId) {
-    const key = `sp_accounting_${dealId}`;
-    localStorage.setItem(key, JSON.stringify(this.transactions));
+    SP.save(`accounting_${dealId}`, this.transactions);
     
     // Also sync to Firestore if available
     if (window.SPFB && SPFB.db) {

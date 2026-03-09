@@ -432,7 +432,7 @@
 
     function loadLoans() {
       try {
-        allLoans = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
+        allLoans = SP.load('loans', []);
       } catch(e) { allLoans = []; }
       // Demo seed if empty
       if (allLoans.length === 0) seedDemo();
@@ -490,7 +490,7 @@
     }
 
     function saveLoans() {
-      localStorage.setItem(STORE_KEY, JSON.stringify(allLoans));
+      SP.save('loans', allLoans);
     }
 
     // ── Summary ──────────────────────────────────────────────────────────────

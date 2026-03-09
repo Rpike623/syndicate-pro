@@ -221,9 +221,9 @@
     const VAULT_KEY = 'sp_k1_vault';
 
     function getVault() {
-      try { return JSON.parse(localStorage.getItem(SP.makeOrgKey(VAULT_KEY)) || '[]'); } catch(e) { return []; }
+      return SP.load('k1_vault', []);
     }
-    function saveVault(v) { localStorage.setItem(SP.makeOrgKey(VAULT_KEY), JSON.stringify(v)); }
+    function saveVault(v) { SP.save('k1_vault', v); }
 
     function init() {
       const deals = SP.getDeals();

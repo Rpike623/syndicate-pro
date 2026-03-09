@@ -14,11 +14,11 @@ window.InsuranceTracker = {
   f: function(v) { return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v); },
   getPolicies: function() {
     try {
-      return JSON.parse(localStorage.getItem(this.STORAGE_KEY) || '[]');
+      return SP.load('insurance_policies', []);
     } catch(e) { return []; }
   },
   savePolicies: function(policies) {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(policies));
+    SP.save('insurance_policies', policies);
   },
   add: function() {
     const property = document.getElementById('itProperty').value.trim();

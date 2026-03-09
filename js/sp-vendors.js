@@ -4,7 +4,7 @@
 window.Vendors = {
   vendors: [],
   init: function() {
-    const s = localStorage.getItem('sp_vendors');
+    const s = JSON.stringify(SP.load('vendors', null));
     if (s) this.vendors = JSON.parse(s);
     else this.vendors = this.generateDemo();
     this.render();
@@ -18,7 +18,7 @@ window.Vendors = {
       { id: '5', company: 'ProBooks Accounting', category: 'accounting', contact: 'David Wilson', phone: '(555) 567-8901', email: 'david@probooks.com', properties: 4, spend: 18000, rating: 4.9 }
     ];
   },
-  save: function() { localStorage.setItem('sp_vendors', JSON.stringify(this.vendors)); },
+  save: function() { SP.save('vendors', this.vendors); },
   render: function() {
     const filter = document.getElementById('catFilter').value;
     let list = this.vendors;

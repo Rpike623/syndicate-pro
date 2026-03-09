@@ -6,7 +6,7 @@ window.Lease = {
   deals: [],
   init: function() {
     this.deals = [{id:'deal_1',name:'Sunset Apartments'},{id:'deal_2',name:'Downtown Office'},{id:'deal_3',name:'Industrial Portfolio'}];
-    const s = localStorage.getItem('sp_leases');
+    const s = JSON.stringify(SP.load('leases', null));
     if (s) this.leases = JSON.parse(s);
     else this.leases = this.generateDemo();
     this.populate();
@@ -23,7 +23,7 @@ window.Lease = {
       { id:'6', dealId:'deal_1', dealName:'Sunset Apartments', unit:'104', tenant:'Vacant', rent:0, start:'', end:'', status:'vacant' }
     ];
   },
-  save: function() { localStorage.setItem('sp_leases', JSON.stringify(this.leases)); },
+  save: function() { SP.save('leases', this.leases); },
   populate: function() {
     const opts = this.deals.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
     document.getElementById('dealFilter').innerHTML = '<option value="">All Properties</option>' + opts;

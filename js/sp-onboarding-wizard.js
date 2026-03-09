@@ -29,7 +29,7 @@ window.Onboarding = {
   },
 
   loadOnboardings: async function() {
-    const stored = localStorage.getItem('sp_onboardings');
+    const stored = JSON.stringify(SP.load('onboardings', null));
     if (stored) {
       this.onboardings = JSON.parse(stored);
     } else {
@@ -109,7 +109,7 @@ window.Onboarding = {
   },
 
   save: function() {
-    localStorage.setItem('sp_onboardings', JSON.stringify(this.onboardings));
+    SP.save('onboardings', this.onboardings);
   },
 
   populateDeals: function() {

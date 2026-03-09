@@ -354,12 +354,12 @@ Target stabilized occupancy (96%) — Q3 2026</textarea>
       const data = {};
       document.querySelectorAll('[id^="up"]').forEach(el => { data[el.id] = el.value; });
       data._trends = trends;
-      localStorage.setItem(SK, JSON.stringify(data));
+      SP.save('investor_updates', data);
       toast('Draft saved!');
     }
     function loadUpdate() {
       try {
-        const d = JSON.parse(localStorage.getItem(SK) || '{}');
+        const d = SP.load('investor_updates', {});
         Object.entries(d).forEach(([k, v]) => {
           if (k === '_trends') return;
           const el = document.getElementById(k);

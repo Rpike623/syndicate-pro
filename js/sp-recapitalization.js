@@ -28,7 +28,7 @@ window.Recap = {
   },
 
   loadEvents: async function() {
-    const stored = localStorage.getItem('sp_recapitalization_events');
+    const stored = JSON.stringify(SP.load('recapitalization_events', null));
     if (stored) {
       this.events = JSON.parse(stored);
     } else {
@@ -72,7 +72,7 @@ window.Recap = {
   },
 
   save: function() {
-    localStorage.setItem('sp_recapitalization_events', JSON.stringify(this.events));
+    SP.save('recapitalization_events', this.events);
   },
 
   populateFilters: function() {

@@ -519,7 +519,7 @@ function render() {
   const VAULT_KEY = 'sp_k1_vault';
   let myK1s = [];
   try {
-    const vault = JSON.parse(localStorage.getItem(SP.makeOrgKey(VAULT_KEY)) || '[]');
+    const vault = SP.load('k1_vault', []);
     myK1s = vault.filter(v => v.investorId === inv?.id && v.status === 'sent');
   } catch(e) {}
   myK1s.forEach(k => {

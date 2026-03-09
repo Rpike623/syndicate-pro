@@ -25,7 +25,7 @@ window.Onboarding = {
   },
 
   loadData: async function() {
-    const s = localStorage.getItem('sp_onboarding_v2');
+    const s = JSON.stringify(SP.load('onboarding_v2', null));
     if (s) this.onboardings = JSON.parse(s);
     else this.onboardings = this.generateDemo();
   },
@@ -42,7 +42,7 @@ window.Onboarding = {
     ];
   },
 
-  save: function() { localStorage.setItem('sp_onboarding_v2', JSON.stringify(this.onboardings)); },
+  save: function() { SP.save('onboarding_v2', this.onboardings); },
 
   populateDeals: function() {
     const opts = this.deals.map(d => `<option value="${d.id}">${d.name} (Min: $${(d.min/1000)}K)</option>`).join('');

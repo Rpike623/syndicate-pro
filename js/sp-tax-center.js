@@ -12,7 +12,7 @@ window.TaxCenter = {
   },
 
   loadData: async function() {
-    const k1Stored = localStorage.getItem('sp_tax_k1s');
+    const k1Stored = JSON.stringify(SP.load('tax_k1s', null));
     if (k1Stored) this.k1s = JSON.parse(k1Stored);
     else this.k1s = this.generateDemo();
 
@@ -109,7 +109,7 @@ window.TaxCenter = {
 
   generateK1s: function() {
     this.k1s.forEach(k => k.status = 'generated');
-    localStorage.setItem('sp_tax_k1s', JSON.stringify(this.k1s));
+    SP.save('tax_k1s', this.k1s);
     this.renderK1s();
     alert('All K-1s generated!');
   },

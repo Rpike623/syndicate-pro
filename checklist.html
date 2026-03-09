@@ -156,8 +156,8 @@
       ]
     };
 
-    let tasks = JSON.parse(localStorage.getItem('closingChecklist') || JSON.stringify(defaultTasks));
-    let completed = JSON.parse(localStorage.getItem('completedTasks') || '[]');
+    let tasks = SP.load('closingChecklist', null) || JSON.parse(JSON.stringify(defaultTasks));
+    let completed = SP.load('completedTasks', []);
 
     function render() {
       let total = 0, done = 0;
@@ -199,7 +199,7 @@
       } else {
         completed.push(id);
       }
-      localStorage.setItem('completedTasks', JSON.stringify(completed));
+      SP.save('completedTasks', completed);
       render();
     }
 
@@ -214,7 +214,7 @@
         assignee: 'GP',
         due: 'TBD'
       });
-      localStorage.setItem('closingChecklist', JSON.stringify(tasks));
+      SP.save('closingChecklist', tasks);
       input.value = '';
       render();
     }

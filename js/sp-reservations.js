@@ -27,7 +27,7 @@ window.Reservations = {
   },
 
   loadReservations: async function() {
-    const stored = localStorage.getItem('sp_reservations');
+    const stored = JSON.stringify(SP.load('reservations', null));
     if (stored) {
       this.reservations = JSON.parse(stored);
     } else {
@@ -49,7 +49,7 @@ window.Reservations = {
   },
 
   save: function() {
-    localStorage.setItem('sp_reservations', JSON.stringify(this.reservations));
+    SP.save('reservations', this.reservations);
   },
 
   populateInvestors: function() {

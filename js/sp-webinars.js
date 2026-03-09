@@ -4,7 +4,7 @@
 window.Webinars = {
   webinars: [],
   init: function() {
-    const s = localStorage.getItem('sp_webinars');
+    const s = JSON.stringify(SP.load('webinars', null));
     if (s) this.webinars = JSON.parse(s);
     else this.webinars = this.generateDemo();
     this.render();
@@ -19,7 +19,7 @@ window.Webinars = {
       { id: '4', title: 'Industrial Market Update', date: `${y}-02-20`, time: '11:00', deal: 'Industrial Portfolio', desc: 'Market analysis', registrations: 35, attendance: 31, status: 'past' }
     ];
   },
-  save: function() { localStorage.setItem('sp_webinars', JSON.stringify(this.webinars)); },
+  save: function() { SP.save('webinars', this.webinars); },
   render: function() {
     const upcoming = this.webinars.filter(w => w.status === 'upcoming');
     const past = this.webinars.filter(w => w.status === 'past');

@@ -4,7 +4,7 @@
 window.Comps = {
   comps: [],
   init: function() {
-    const s = localStorage.getItem('sp_comps');
+    const s = JSON.stringify(SP.load('comps', null));
     if (s) this.comps = JSON.parse(s);
     else this.comps = this.sample();
     this.render();
@@ -19,7 +19,7 @@ window.Comps = {
       { name:'Retail Commons', location:'Austin, TX', type:'Retail', price:7500000, sf:38000, cap:6.5, noi:487500, status:'Sold' }
     ];
   },
-  save: function() { localStorage.setItem('sp_comps', JSON.stringify(this.comps)); },
+  save: function() { SP.save('comps', this.comps); },
   sampleData: function() { this.comps = this.sample(); this.save(); this.render(); },
   render: function() {
     const total = this.comps.length;

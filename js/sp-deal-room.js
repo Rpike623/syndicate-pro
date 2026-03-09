@@ -56,9 +56,9 @@ window.DealRoom = {
   },
 
   loadDocuments: function(dealId) {
-    const stored = localStorage.getItem(`sp_dealroom_docs_${dealId}`);
+    const stored = SP.load(`dealroom_docs_${dealId}`, null);
     if (stored) {
-      this.documents = JSON.parse(stored);
+      this.documents = stored;
       // Upgrade stale placeholder OAs — if the OA contains "DEMO DOCUMENT" or is
       // a short placeholder, replace it with the real generated OA from the deal
       const oaDoc = this.documents.find(d => d.id === 'd_oa');
@@ -142,7 +142,7 @@ window.DealRoom = {
 
   saveDocuments: function() {
     if (this.currentDeal) {
-      localStorage.setItem(`sp_dealroom_docs_${this.currentDeal.id}`, JSON.stringify(this.documents));
+      SP.save(`dealroom_docs_${this.currentDeal.id}`, this.documents);
     }
   },
 
@@ -375,11 +375,11 @@ window.DealRoom = {
       timestamp: new Date().toISOString(),
     };
     // Store in localStorage keyed by deal
-    const key = 'dt_doc_activity_' + (this.currentDeal?.id || 'global');
-    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    const key = 'doc_activity_' + (this.currentDeal?.id || 'global');
+    const existing = SP.load(key, []);
     existing.unshift(event);
     if (existing.length > 200) existing.splice(200);
-    localStorage.setItem(key, JSON.stringify(existing));
+    SP.save(key, existing);
     // Push to activity feed
     this.activities.unshift({
       id: event.id,
@@ -393,8 +393,8 @@ window.DealRoom = {
 
   // Load document view events for current deal
   getDocActivity: function(dealId) {
-    const key = 'dt_doc_activity_' + (dealId || this.currentDeal?.id || 'global');
-    return JSON.parse(localStorage.getItem(key) || '[]');
+    const key = 'doc_activity_' + (dealId || this.currentDeal?.id || 'global');
+    return SP.load(key, []);
   },
 
   saveDoc: function() {

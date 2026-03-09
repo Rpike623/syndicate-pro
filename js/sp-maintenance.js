@@ -7,7 +7,7 @@ window.Maintenance = {
   init: function() {
     this.deals = SP.getDeals ? SP.getDeals() : [];
     if (!this.deals.length) this.deals = [{id:'deal_1',name:'Sunset Apartments'},{id:'deal_2',name:'Downtown Office'},{id:'deal_3',name:'Industrial Portfolio'}];
-    const s = localStorage.getItem('sp_maintenance');
+    const s = JSON.stringify(SP.load('maintenance', null));
     if (s) this.requests = JSON.parse(s);
     else this.requests = this.generateDemo();
     this.populate();
@@ -23,7 +23,7 @@ window.Maintenance = {
       { id:'5', dealId:'deal_1', dealName:'Sunset Apartments', unit:'Unit 302', category:'appliance', desc:'Dishwasher not draining', priority:'medium', status:'open', cost:250, created:`${y}-03-06` }
     ];
   },
-  save: function() { localStorage.setItem('sp_maintenance', JSON.stringify(this.requests)); },
+  save: function() { SP.save('maintenance', this.requests); },
   populate: function() {
     const opts = this.deals.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
     document.getElementById('dealFilter').innerHTML = '<option value="">All Properties</option>' + opts;

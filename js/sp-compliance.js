@@ -65,8 +65,8 @@ window.Compliance = {
     }
     
     // Fallback to localStorage
-    const formdStored = localStorage.getItem('sp_formd_filings');
-    const stateStored = localStorage.getItem('sp_state_filings');
+    const formdStored = JSON.stringify(SP.load('formd_filings', null));
+    const stateStored = JSON.stringify(SP.load('state_filings', null));
     
     if (formdStored) {
       this.formDFilings = JSON.parse(formdStored);
@@ -369,12 +369,12 @@ window.Compliance = {
   },
 
   saveFormD: function() {
-    localStorage.setItem('sp_formd_filings', JSON.stringify(this.formDFilings));
+    SP.save('formd_filings', this.formDFilings);
     // TODO: Sync to Firestore
   },
 
   saveState: function() {
-    localStorage.setItem('sp_state_filings', JSON.stringify(this.stateFilings));
+    SP.save('state_filings', this.stateFilings);
     // TODO: Sync to Firestore
   },
 

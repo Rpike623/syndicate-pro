@@ -4,7 +4,7 @@
 window.Tasks = {
   tasks: [],
   init: function() {
-    const s = localStorage.getItem('sp_tasks');
+    const s = JSON.stringify(SP.load('tasks', null));
     if (s) this.tasks = JSON.parse(s);
     else this.tasks = this.generateDemo();
     this.render();
@@ -20,7 +20,7 @@ window.Tasks = {
       { id:'6', title:'Submit Form D for new deal', deal:'deal_1', dealName:'Sunset Apartments', priority:'high', status:'done', assignee:'me', due:`${y}-02-25`, created:`${y}-02-20` }
     ];
   },
-  save: function() { localStorage.setItem('sp_tasks', JSON.stringify(this.tasks)); },
+  save: function() { SP.save('tasks', this.tasks); },
   render: function() {
     const todo = this.tasks.filter(t => t.status === 'todo');
     const progress = this.tasks.filter(t => t.status === 'in_progress');

@@ -139,7 +139,7 @@
   </main>
 
   <script>
-    let comps = JSON.parse(localStorage.getItem('comps') || '[]');
+    let comps = SP.load('comps', []);
     let subject = null;
     let chart = null;
 
@@ -157,7 +157,7 @@
       };
       
       comps.push(comp);
-      localStorage.setItem('comps', JSON.stringify(comps));
+      SP.save('comps', comps);
       render();
       clearForm();
     }

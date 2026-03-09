@@ -40,7 +40,7 @@ window.InvestorPipeline = {
     }
     
     // Fallback to localStorage with demo data
-    const stored = localStorage.getItem('sp_investor_leads');
+    const stored = JSON.stringify(SP.load('investor_leads', null));
     if (stored) {
       this.leads = JSON.parse(stored);
     } else {
@@ -160,7 +160,7 @@ window.InvestorPipeline = {
   },
 
   saveToStorage: function() {
-    localStorage.setItem('sp_investor_leads', JSON.stringify(this.leads));
+    SP.save('investor_leads', this.leads);
     
     // Also sync to Firestore if available
     if (window.SPFB && SPFB.db) {

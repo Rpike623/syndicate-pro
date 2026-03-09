@@ -5,10 +5,10 @@ window.Lenders = {
   lenders: [],
   termSheets: [],
   init: function() {
-    const s = localStorage.getItem('sp_lenders');
+    const s = JSON.stringify(SP.load('lenders', null));
     if (s) this.lenders = JSON.parse(s);
     else this.lenders = this.generateDemo();
-    const ts = localStorage.getItem('sp_lender_termsheets');
+    const ts = JSON.stringify(SP.load('lender_termsheets', null));
     if (ts) this.termSheets = JSON.parse(ts);
     else this.termSheets = this.generateTermSheets();
     this.render();
@@ -31,7 +31,7 @@ window.Lenders = {
       { id:'3', lenderId:'4', lenderName:'Insight Real Estate', dealId:'deal_2', dealName:'Downtown Office', amount:3000000, rate:9.0, term:5, ltv:70, status:'review', submitted:`${y}-03-05`, expires:`${y}-03-25` }
     ];
   },
-  save: function() { localStorage.setItem('sp_lenders', JSON.stringify(this.lenders)); },
+  save: function() { SP.save('lenders', this.lenders); },
   render: function() {
     const filter = document.getElementById('typeFilter').value;
     let list = filter ? this.lenders.filter(l => l.type === filter) : this.lenders;

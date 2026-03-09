@@ -288,9 +288,9 @@ async function submitRequest() {
   }
 
   // Backup to localStorage
-  const leads = JSON.parse(localStorage.getItem('sp_teaser_leads') || '[]');
+  const leads = SP.load('teaser_leads', []);
   leads.push(leadData);
-  localStorage.setItem('sp_teaser_leads', JSON.stringify(leads));
+  SP.save('teaser_leads', leads);
   
   document.getElementById('ctaForm').style.display = 'none';
   document.getElementById('ctaSuccess').style.display = 'block';
@@ -335,9 +335,9 @@ const _load = (async function load() {
         // Load data from that org's namespace (local fallback)
         const orgDealsKey = `sp_org_${orgId}_deals`;
         const orgSettingsKey = `sp_org_${orgId}_settings`;
-        const deals = JSON.parse(localStorage.getItem(orgDealsKey) || '[]');
+        const deals = SP.getDeals();
         deal = deals.find(d => d.id === dId) || null;
-        settings = JSON.parse(localStorage.getItem(orgSettingsKey) || '{}');
+        settings = SP.load('settings', {});
       }
       gpName = settings.gpFullName || settings.firmName || 'The Sponsor';
     } catch(e) { console.error('Token decode fail', e); }

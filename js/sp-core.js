@@ -729,6 +729,9 @@ window.SP = (function () {
 
   // ─── Distributions ──────────────────────────────────────────────────────────
 
+  function getCapitalCalls() { return load('capitalCalls', []); }
+  function saveCapitalCalls(c) { save('capitalCalls', c); }
+
   function getDistributions() { return load('distributions', []); }
   function saveDistributions(d) { save('distributions', d); }
 
@@ -830,6 +833,8 @@ window.SP = (function () {
     getUsers, saveUsers, getUserByEmail, createUser, authenticate, logout,
     // Invites
     createInviteToken, decodeInviteToken,
+    // Capital Calls
+    getCapitalCalls, saveCapitalCalls,
     // Distributions
     getDistributions, saveDistributions, getDistributionsForInvestor,
     // Audit
