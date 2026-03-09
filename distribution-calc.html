@@ -598,8 +598,10 @@ function previewDistribution() {
   let lpTotal = 0;
   const tierData = [];
 
-  // ── Tier 1: Return of Capital (exit only) ────────────────────────────────
-  if (isExit && totalLPInvested > 0) {
+  // ── Tier 1: Return of Capital ────────────────────────────────────────────
+  // Applies to ALL distributions — LPs get invested capital back first.
+  // Tracks unreturned capital across prior posted distributions.
+  if (totalLPInvested > 0) {
     // How much capital has already been returned via prior distributions?
     const postedDists = SP.getDistributions().filter(d => d.dealId === currentDeal.id && d.status === 'posted');
     const priorReturned = postedDists.reduce((s, d) => {
@@ -632,11 +634,12 @@ function previewDistribution() {
   }
 
   // ── GP Promote Logic ─────────────────────────────────────────────────────
-  // Waterfall applies to ALL distributions — periodic and exit (American style).
-  // Once pref is fully satisfied, GP earns promote on excess above pref.
-  // Periodic: pref → catch-up (if applicable) → residual split with GP promote.
-  // Exit:     return of capital → pref → catch-up → residual split.
-  // If pref is NOT fully satisfied, all distributions go to LPs — no GP promote.
+  // Full waterfall on EVERY distribution (American/deal-by-deal style):
+  //   1. Return of capital (LP gets invested capital back)
+  //   2. Preferred return (on committed capital until pref is current)
+  //   3. GP catch-up (if applicable — brings GP to target promote %)
+  //   4. Residual split (GP promote on excess)
+  // GP promote only fires after BOTH unreturned capital AND pref are satisfied.
 
   if (remaining > 0 && prefFullySatisfied) {
 
