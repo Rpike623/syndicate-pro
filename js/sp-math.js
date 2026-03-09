@@ -30,7 +30,7 @@ const SPMath = (() => {
     for (let i = 0; i < 100; i++) {
       let f = 0, df = 0;
       for (let j = 0; j < cashflows.length; j++) {
-        const days = (dates[j] - dates[0]) / (365 * 24 * 60 * 60 * 1000);
+        const days = (dates[j] - dates[0]) / (365.25 * 24 * 60 * 60 * 1000);
         const denom = Math.pow(1 + result, days);
         if (!isFinite(denom) || denom === 0) { result = estimate * 0.5; break; }
         f  += cashflows[j] / denom;

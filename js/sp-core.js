@@ -473,26 +473,29 @@ window.SP = (function () {
     const demoOrgKey = `sp_org_${DEMO_ORG_ID}_deals`;
     if (localStorage.getItem(demoOrgKey)) return; // already seeded locally
 
-    // After SPData initializes, push all seed data to Firestore
-    // This ensures Firestore is the source of truth even on first seed
-    window.addEventListener('spdata-ready', function _seedToFirestore() {
-      window.removeEventListener('spdata-ready', _seedToFirestore);
-      if (typeof SPData !== 'undefined' && SPData.isReady()) {
-        console.log('[seed] SPData ready — pushing seed data to Firestore');
-        try {
-          SPData.saveDeals(SP.getDeals());
-          SPData.saveInvestors(SP.getInvestors());
-          SPData.saveDistributions(SP.getDistributions());
-          SPData.saveCapitalCalls(SP.getCapitalCalls());
-          if (SPData.saveSettings) SPData.saveSettings(SP.load('settings', {}));
-          // Push custom collections via SP.save (which now routes to Firestore)
-          const k1s = SP.load('k1_vault', []);
-          if (k1s.length) SP.save('k1_vault', k1s);
-          const updates = SP.load('published_updates', []);
-          if (updates.length) SP.save('published_updates', updates);
-        } catch(e) { console.warn('[seed] Firestore push failed:', e.message); }
-      }
-    });
+    // After SPData initializes, push all seed data to Firestore.
+    // Also re-push on every subsequent spdata-ready in case prior push was interrupted.
+    // Uses a localStorage flag to track whether Firestore has received the seed.
+    const FS_SEED_KEY = `sp_org_${DEMO_ORG_ID}_fs_seeded`;
+    function _pushSeedToFirestore() {
+      if (localStorage.getItem(FS_SEED_KEY)) return; // already pushed
+      if (typeof SPData === 'undefined' || !SPData.isReady()) return;
+      console.log('[seed] Pushing seed data to Firestore...');
+      try {
+        SPData.saveDeals(SP.getDeals());
+        SPData.saveInvestors(SP.getInvestors());
+        SPData.saveDistributions(SP.getDistributions());
+        SPData.saveCapitalCalls(SP.getCapitalCalls());
+        if (SPData.saveSettings) SPData.saveSettings(SP.load('settings', {}));
+        const k1s = SP.load('k1_vault', []);
+        if (k1s.length) SP.save('k1_vault', k1s);
+        const updates = SP.load('published_updates', []);
+        if (updates.length) SP.save('published_updates', updates);
+        localStorage.setItem(FS_SEED_KEY, '1'); // mark as pushed
+        console.log('[seed] Firestore seed complete');
+      } catch(e) { console.warn('[seed] Firestore push failed (will retry):', e.message); }
+    }
+    window.addEventListener('spdata-ready', _pushSeedToFirestore);
 
     // Settings
     save('settings', {
@@ -615,10 +618,10 @@ window.SP = (function () {
     // If SPDocs isn't loaded yet, load it synchronously via XHR
     if (typeof SPDocs === 'undefined') {
       try {
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', 'js/sp-documents.js', false); // synchronous
-        xhr.send();
-        if (xhr.status === 200) { eval(xhr.responseText); }
+        const script = document.createElement('script');
+        script.src = 'js/sp-documents.js';
+        script.async = false; // synchronous load
+        document.head.appendChild(script);
       } catch(e) { console.warn('[seed] Could not load sp-documents.js:', e); }
     }
     const _gpName = 'Pike Capital Management LLC';
