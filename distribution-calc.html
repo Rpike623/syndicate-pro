@@ -208,7 +208,7 @@
                 </div>
                 <div class="form-group">
                   <label>Distribution Date</label>
-                  <input type="date" id="distDate">
+                  <input type="date" id="distDate" onchange="renderPrefSummary(); if(currentDeal && document.getElementById('distAmount').value) calculate()">
                 </div>
                 <div class="form-group">
                   <label>Period</label>
@@ -238,7 +238,7 @@
             <div class="card-hdr">
               <div>
                 <h2><i class="fas fa-star" style="color:var(--warning);margin-right:6px;"></i>Preferred Return Tracker</h2>
-                <p>How much pref has accrued, been paid, and is still owed per investor — calculated to today</p>
+                <p>How much pref has accrued, been paid, and is still owed per investor — calculated to <strong id="prefAsOfDate">today</strong></p>
               </div>
             </div>
             <div class="card-body" id="prefSummaryBody"></div>
@@ -430,10 +430,16 @@ function renderPrefSummary() {
     return;
   }
 
-  // Compute per-investor pref state using the same engine as previewDistribution
+  // Compute per-investor pref state using the distribution date (or today)
+  const distDateVal = document.getElementById('distDate')?.value;
+  const asOfDate = distDateVal ? new Date(distDateVal + 'T00:00:00') : new Date();
   const snap = (typeof SPMath !== 'undefined')
-    ? SPMath.computePrefSplits(currentDeal, postedDists, 0, new Date())
+    ? SPMath.computePrefSplits(currentDeal, postedDists, 0, asOfDate)
     : [];
+  
+  // Show the as-of date in the header
+  const asOfEl = document.getElementById('prefAsOfDate');
+  if (asOfEl) asOfEl.textContent = asOfDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
 
   const totalPrefPaidAll = snap.reduce((s, p) => s + (p.prefPaidToDate || 0), 0);
   const totalPrefAccruedAll = snap.reduce((s, p) => s + (p.totalPrefAccrued || 0), 0);
