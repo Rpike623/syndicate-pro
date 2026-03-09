@@ -530,6 +530,7 @@ window.SP = (function () {
         totalEquity:5500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
         investors:[
           {investorId:'i7',committed:250000,ownership:4.54,status:'active',linkedAt:new Date().toISOString(),subStatus:'signed'},
+          {investorId:'di1',committed:300000,ownership:5.45,status:'active',linkedAt:new Date().toISOString(),subStatus:'funded'},
         ],
         documents:[], notes:'128-unit B+ value-add opportunity. 1980s build. Under market rents by $175/unit. Plans for $1.2M renovation cap-ex.'
       },
@@ -543,6 +544,7 @@ window.SP = (function () {
           {investorId:'di1',committed:250000,ownership:5.95,status:'active',linkedAt:'2025-11-15T10:00:00.000Z',subStatus:'signed'},
           {investorId:'di2',committed:500000,ownership:11.9,status:'active',linkedAt:'2025-11-15T10:00:00.000Z',subStatus:'funded'},
           {investorId:'di3',committed:250000,ownership:5.95,status:'active',linkedAt:'2025-11-20T10:00:00.000Z',subStatus:'signed'},
+          {investorId:'i7',committed:200000,ownership:4.76,status:'active',linkedAt:'2025-11-18T10:00:00.000Z',subStatus:'funded'},
         ],
         documents:[], notes:'96-unit Class B multifamily. Value-add play with $200/unit rent upside.'
       },
@@ -566,6 +568,7 @@ window.SP = (function () {
         investors:[
           {investorId:'di1',committed:400000,ownership:3.33,status:'active',linkedAt:'2026-01-20T10:00:00.000Z',subStatus:'funded'},
           {investorId:'di2',committed:500000,ownership:4.17,status:'active',linkedAt:'2026-01-20T10:00:00.000Z',subStatus:'funded'},
+          {investorId:'i7',committed:300000,ownership:2.5,status:'active',linkedAt:'2026-01-22T10:00:00.000Z',subStatus:'funded'},
         ],
         documents:[], notes:'248-unit portfolio across 3 Houston submarkets.'
       },
@@ -631,11 +634,13 @@ window.SP = (function () {
           { investorId:'di3', ownership:5.95, invested:250000,
             prefPaidThisDist:5000, excessThisDist:16000, totalThisDist:21000,
             amount:21000, prefPaidToDate:5000, prefRemainingAfterDist:0 },
+          { investorId:'i7', ownership:4.76, invested:200000,
+            prefPaidThisDist:4000, excessThisDist:12800, totalThisDist:16800,
+            amount:16800, prefPaidToDate:4000, prefRemainingAfterDist:0 },
         ]
       },
-      // Q1 2026 Riverside Flats dist — pref fully current, all excess
-      // Pref for Q1: di1 $5k, di2 $10k, di3 $5k = $20k. Dist=$90,000 → $20k pref + $70k excess
-      // di1: 5000+70000*(5.95/23.8)=5000+17500=22500, di2: 10000+35000=45000, di3: 5000+17500=22500
+      // Q1 2026 Riverside Flats dist
+      // Phil i7: $200k × 8%/4 = $4k pref; excess share 4.76/28.56 of $70k = ~11,660
       {
         id:'dd3', dealId:'d1', dealName:'Riverside Flats',
         period:'Q1 2026', quarter:'Q1', year:2026,
@@ -653,6 +658,9 @@ window.SP = (function () {
           { investorId:'di3', ownership:5.95, invested:250000,
             prefPaidThisDist:5000, excessThisDist:17500, totalThisDist:22500,
             amount:22500, prefPaidToDate:10000, prefRemainingAfterDist:0 },
+          { investorId:'i7', ownership:4.76, invested:200000,
+            prefPaidThisDist:4000, excessThisDist:11660, totalThisDist:15660,
+            amount:15660, prefPaidToDate:8000, prefRemainingAfterDist:0 },
         ]
       },
       // Meridian Industrial (d2): 8% pref, closeDate 2025-12-01
@@ -679,19 +687,63 @@ window.SP = (function () {
       },
     ]);
 
-    // Capital calls
+    // Capital calls — include one for Phil's deal (Pecan Hollow)
     save('capitalCalls', [
-      { id:'cc1', dealId:'d1', dealName:'Riverside Flats', callNumber:'Initial', amount:4200000, dueDate:'2025-11-20', purpose:'Property acquisition and closing costs', status:'received', sentAt:'2025-11-10T09:00:00.000Z', receivedAt:'2025-11-18T09:00:00.000Z' },
-      { id:'cc2', dealId:'d4', dealName:'Parkview Commons', callNumber:'Initial', amount:3100000, dueDate:new Date(Date.now()+10*86400000).toISOString().split('T')[0], purpose:'Property acquisition — pending due diligence completion', status:'sent', sentAt:new Date().toISOString() },
+      { id:'cc1', dealId:'d1', dealName:'Riverside Flats', callNumber:'Initial', amount:4200000, dueDate:'2025-11-20', purpose:'Property acquisition and closing costs', wireInstructions:'Chase Bank, Acct 9981-2200, ABA 021000021, Ref: RF-CC1', status:'received', sentAt:'2025-11-10T09:00:00.000Z', receivedAt:'2025-11-18T09:00:00.000Z' },
+      { id:'cc2', dealId:'d4', dealName:'Parkview Commons', callNumber:'Initial', amount:3100000, dueDate:new Date(Date.now()+10*86400000).toISOString().split('T')[0], purpose:'Property acquisition — pending due diligence completion', wireInstructions:'Chase Bank, Acct 9981-3300, ABA 021000021, Ref: PC-CC1', status:'sent', sentAt:new Date().toISOString() },
+      { id:'cc3', dealId:'live_d1', dealName:'Pecan Hollow Apartments', callNumber:'Initial', amount:5500000, dueDate:new Date(Date.now()+21*86400000).toISOString().split('T')[0], purpose:'Property acquisition — closing scheduled Q2 2026', wireInstructions:'Chase Bank, Acct 9981-1100, ABA 021000021, Ref: PH-CC1', status:'sent', sentAt:new Date(Date.now()-3*86400000).toISOString() },
+      { id:'cc4', dealId:'d3', dealName:'The Hudson Portfolio', callNumber:'Renovation Cap-Ex', amount:2400000, dueDate:new Date(Date.now()-5*86400000).toISOString().split('T')[0], purpose:'Phase 1 renovation — units 101-148', wireInstructions:'Chase Bank, Acct 9981-4400, ABA 021000021, Ref: HP-CC2', status:'sent', sentAt:new Date(Date.now()-15*86400000).toISOString() },
+    ]);
+
+    // K-1 vault — Phil gets K-1s for his deals, other investors get theirs
+    save('k1_vault', [
+      { id:'k1_1', dealId:'d1', investorId:'i7', taxYear:2025, entityType:'Partnership', entityName:'Riverside Flats Capital LLC', entityEIN:'47-9876543', status:'sent', sentAt:'2026-02-15T10:00:00.000Z', ordinaryIncome:-2400, rentalIncome:32460, capitalGain:0, section199A:32460, fileData:null },
+      { id:'k1_2', dealId:'d1', investorId:'di1', taxYear:2025, entityType:'Partnership', entityName:'Riverside Flats Capital LLC', entityEIN:'47-9876543', status:'sent', sentAt:'2026-02-15T10:00:00.000Z', ordinaryIncome:-3000, rentalIncome:42000, capitalGain:0, section199A:42000, fileData:null },
+      { id:'k1_3', dealId:'d1', investorId:'di2', taxYear:2025, entityType:'Partnership', entityName:'Riverside Flats Capital LLC', entityEIN:'47-9876543', status:'sent', sentAt:'2026-02-15T10:00:00.000Z', ordinaryIncome:-6000, rentalIncome:87000, capitalGain:0, section199A:87000, fileData:null },
+      { id:'k1_4', dealId:'d1', investorId:'di3', taxYear:2025, entityType:'Partnership', entityName:'Riverside Flats Capital LLC', entityEIN:'47-9876543', status:'sent', sentAt:'2026-02-15T10:00:00.000Z', ordinaryIncome:-3000, rentalIncome:42000, capitalGain:0, section199A:42000, fileData:null },
+      { id:'k1_5', dealId:'d2', investorId:'di2', taxYear:2025, entityType:'Partnership', entityName:'Meridian Industrial Capital LLC', entityEIN:'47-5678901', status:'sent', sentAt:'2026-02-20T10:00:00.000Z', ordinaryIncome:0, rentalIncome:50020, capitalGain:0, section199A:50020, fileData:null },
+      { id:'k1_6', dealId:'d2', investorId:'di4', taxYear:2025, entityType:'Partnership', entityName:'Meridian Industrial Capital LLC', entityEIN:'47-5678901', status:'sent', sentAt:'2026-02-20T10:00:00.000Z', ordinaryIncome:0, rentalIncome:99980, capitalGain:0, section199A:99980, fileData:null },
+    ]);
+
+    // Investor updates (GP → LP communications)
+    save('published_updates', [
+      {
+        id:'upd1', dealName:'Riverside Flats', title:'Q4 2025 Quarterly Update — Riverside Flats',
+        date:'2026-01-10', from:'Robert Pike',
+        occupancy:'94.2', noi:'$482,000', collections:'97.8', capex:'$85,000',
+        narrative:'Strong quarter at Riverside. We completed the first phase of interior renovations (32 units) and are seeing $125-$175/mo rent bumps on renovated units. Occupancy dipped briefly during turns but recovered quickly. Collections remain excellent.',
+        highlights:'Rent growth tracking 12% above underwriting. Phase 1 reno on schedule and under budget by $22K.',
+        concerns:'Insurance renewal came in 18% higher than projected. Exploring alternative carriers for Q2.'
+      },
+      {
+        id:'upd2', dealName:'The Hudson Portfolio', title:'Acquisition Complete — The Hudson Portfolio',
+        date:'2026-01-22', from:'Robert Pike',
+        occupancy:'91.5', noi:'$1,240,000', collections:'96.1', capex:'$0',
+        narrative:'Happy to report we successfully closed on The Hudson Portfolio — 248 units across three Houston submarkets. All three properties are stabilized with existing management in place. We\'ll be transitioning to our preferred PM company over the next 60 days.',
+        highlights:'Closed at $242K/door, 8% below initial ask. Seller credits of $380K secured for deferred maintenance.',
+        concerns:'Property 3 (Westheimer location) has 6 units down for maintenance. Targeting 95%+ occupancy by Q2.'
+      },
+      {
+        id:'upd3', dealName:'Pecan Hollow Apartments', title:'Due Diligence Update — Pecan Hollow',
+        date:'2026-03-01', from:'Robert Pike',
+        narrative:'Inspection complete on Pecan Hollow. The property is in better shape than expected — roof was replaced in 2022, HVAC systems are 2019 vintage. Main cap-ex items: parking lot resurfacing ($180K), unit interiors ($850K for 128 units), and clubhouse renovation ($170K). Total reno budget: $1.2M, right in line with our underwriting. We\'re targeting a May closing.',
+        highlights:'Property condition exceeded expectations. Reno budget confirmed at $1.2M.',
+      },
     ]);
 
     // Activity log
     save('activity', [
-      { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$84,000</strong> sent to 3 investors from Riverside Flats', time:'Jan 5, 2026' },
-      { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$150,000</strong> sent to 2 investors from Meridian Industrial', time:'Jan 8, 2026' },
-      { icon:'fa-building', color:'blue', text:'<strong>The Hudson Portfolio</strong> added — 248 units in Houston', time:'Jan 15, 2026' },
-      { icon:'fa-user-plus', color:'green', text:'<strong>Priya Patel</strong> linked to Meridian Industrial — $1M commitment', time:'Dec 10, 2025' },
-      { icon:'fa-file-contract', color:'amber', text:'Operating Agreement auto-generated for <strong>Riverside Flats</strong>', time:'Nov 10, 2025' },
+      { icon:'fa-bullhorn', color:'blue', text:'Investor update posted: <strong>Due Diligence Update — Pecan Hollow</strong>', time:'Mar 1, 2026', ts:1740787200000 },
+      { icon:'fa-file-invoice-dollar', color:'green', text:'K-1s sent to 4 investors for <strong>Riverside Flats</strong> (TY 2025)', time:'Feb 15, 2026', ts:1739577600000 },
+      { icon:'fa-hand-holding-usd', color:'amber', text:'Capital call of <strong>$5,500,000</strong> issued for <strong>Pecan Hollow Apartments</strong>', time:'Mar 6, 2026', ts:1741219200000 },
+      { icon:'fa-wallet', color:'purple', text:'Q1 2026 distribution of <strong>$90,000</strong> posted for <strong>Riverside Flats</strong> — 4 investors', time:'Apr 5, 2026', ts:1743811200000 },
+      { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$84,000</strong> sent to 4 investors from Riverside Flats', time:'Jan 5, 2026', ts:1736035200000 },
+      { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$150,000</strong> sent to 2 investors from Meridian Industrial', time:'Jan 8, 2026', ts:1736294400000 },
+      { icon:'fa-bullhorn', color:'blue', text:'Investor update posted: <strong>Acquisition Complete — The Hudson Portfolio</strong>', time:'Jan 22, 2026', ts:1737504000000 },
+      { icon:'fa-building', color:'blue', text:'<strong>The Hudson Portfolio</strong> added — 248 units in Houston', time:'Jan 15, 2026', ts:1736899200000 },
+      { icon:'fa-user-plus', color:'green', text:'<strong>Phil Chapman</strong> added to The Hudson Portfolio — $300K commitment', time:'Jan 22, 2026', ts:1737504000000 },
+      { icon:'fa-user-plus', color:'green', text:'<strong>Priya Patel</strong> linked to Meridian Industrial — $1M commitment', time:'Dec 10, 2025', ts:1733788800000 },
+      { icon:'fa-file-contract', color:'amber', text:'Operating Agreement auto-generated for <strong>Riverside Flats</strong>', time:'Nov 10, 2025', ts:1731196800000 },
     ]);
   }
 
