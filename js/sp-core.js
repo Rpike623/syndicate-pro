@@ -641,7 +641,7 @@ window.SP = (function () {
       {
         id:'dd1', dealId:'d1', dealName:'Riverside Flats',
         period:'Q4 2025', quarter:'Q4', year:2025,
-        totalAmount:84000, amount:84000,
+        totalAmount:100800, amount:100800,
         date:'2026-01-05', method:'Wire',
         status:'posted', prefAware:true,
         investorCount:3,
@@ -665,7 +665,7 @@ window.SP = (function () {
       {
         id:'dd3', dealId:'d1', dealName:'Riverside Flats',
         period:'Q1 2026', quarter:'Q1', year:2026,
-        totalAmount:90000, amount:90000,
+        totalAmount:105660, amount:105660,
         date:'2026-04-05', method:'Wire',
         status:'posted', prefAware:true,
         investorCount:3,
