@@ -430,15 +430,40 @@
       // Tier 3: GP catch-up (if selected)
       let lpPromote = 0, gpPromoteAmt = 0;
       if (remaining > 0) {
-        if (promoteType === 'catchup' && remaining > 0) {
-          // GP catches up to receive gpPromote% of all profits so far
-          const totalProfitSoFar = (equityIn - equityIn) + prefPay; // simplified
-          const catchup = Math.min(remaining, (gpPromote / 100) / (1 - gpPromote / 100) * prefPay);
-          tiers.push({ label: `③ GP Catch-Up (${gpPromote}% of pref)`, total: catchup, lp: 0, gp: catchup });
+        if (promoteType === 'catchup' && remaining > 0 && prefPay > 0) {
+          // GP catches up: standard formula catchupToGP = (gpP/(1-gpP)) × prefPaid
+          const gpP = gpPromote / 100;
+          const catchupTarget = (gpP > 0 && gpP < 1) ? (gpP / (1 - gpP)) * prefPay : 0;
+          const catchup = Math.min(remaining, catchupTarget);
+          tiers.push({ label: `③ GP Catch-Up`, total: catchup, lp: 0, gp: catchup });
           remaining -= catchup;
         }
-        // Final split
-        if (remaining > 0) {
+        if (promoteType === 'irr' && remaining > 0) {
+          // IRR hurdle tiers: split at different rates at different return thresholds
+          // Tier 1: 80/20 split up to 15% IRR equivalent
+          // Tier 2: 70/30 split up to 20% IRR equivalent
+          // Tier 3: 60/40 split above 20% IRR
+          const irrTiers = [
+            { hurdle: 15, gpSplit: 20, label: '80/20 (up to 15% IRR)' },
+            { hurdle: 20, gpSplit: 30, label: '70/30 (15-20% IRR)' },
+            { hurdle: 99, gpSplit: 40, label: '60/40 (above 20% IRR)' },
+          ];
+          let prevHurdle = parseFloat(prefRate) || 8;
+          for (const tier of irrTiers) {
+            if (remaining <= 0) break;
+            const hurdlePool = equityIn * ((tier.hurdle - prevHurdle) / 100) * holdYears;
+            const tierAmt = tier.hurdle >= 99 ? remaining : Math.min(remaining, Math.max(0, hurdlePool));
+            if (tierAmt > 0) {
+              const gp = parseFloat((tierAmt * tier.gpSplit / 100).toFixed(2));
+              const lp = parseFloat((tierAmt - gp).toFixed(2));
+              tiers.push({ label: `③ ${tier.label}`, total: tierAmt, lp, gp });
+              remaining -= tierAmt;
+            }
+            prevHurdle = tier.hurdle;
+          }
+        }
+        // Final split (for simple and pref modes)
+        if (remaining > 0 && promoteType !== 'irr') {
           lpPromote  = remaining * ((100 - gpPromote) / 100);
           gpPromoteAmt = remaining * (gpPromote / 100);
           tiers.push({ label: `③ Profit Split (LP ${100 - gpPromote}% / GP ${gpPromote}% promote)`, total: remaining, lp: lpPromote, gp: gpPromoteAmt });

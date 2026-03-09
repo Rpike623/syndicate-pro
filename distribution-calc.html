@@ -631,52 +631,88 @@ function previewDistribution() {
     remaining = parseFloat((remaining - prefPaid).toFixed(2));
   }
 
-  // ── Only proceed to GP promote if pref is FULLY satisfied ────────────────
-  if (remaining > 0 && prefFullySatisfied) {
+  // ── GP Promote Logic ─────────────────────────────────────────────────────
+  // Industry standard: periodic distributions (operating cash flow) are LP-only.
+  // GP promote only applies on exit/disposition/refinance events.
+  // Periodic: pref → excess pro-rata to LPs. No GP promote.
+  // Exit:     pref → catch-up (if applicable) → residual split with GP promote.
+  const gpPromoteApplies = isExit || wfType === 'simple'; // simple = always split
 
-    // ── Tier 3: GP Catch-Up ──────────────────────────────────────────────
-    if ((wfType === 'catchup' || wfType === 'tiered') && totalPrefThisDist > 0) {
+  if (remaining > 0 && prefFullySatisfied && gpPromoteApplies) {
+
+    // ── Tiered Waterfall ─────────────────────────────────────────────────
+    if (wfType === 'tiered') {
+      // Multi-tier: Tier 1 pref already handled above.
+      // Tier 2: GP split at first hurdle rate
+      // Tier 3: GP split at second hurdle rate (higher promote)
+      const t2Hurdle  = parseFloat(currentDeal.tier2Hurdle  || currentDeal.wizardData?.tier2Hurdle  || 12);
+      const t2GPSplit = parseFloat(currentDeal.tier2GPSplit  || currentDeal.wizardData?.tier2GPSplit  || 30);
+      const t3GPSplit = parseFloat(currentDeal.tier3GPSplit  || currentDeal.wizardData?.tier3GPSplit  || 40);
+      const hasCatchup = (currentDeal.tier2Catchup || currentDeal.wizardData?.tier2Catchup) === 'yes';
+
+      // Optional catch-up before tier 2
+      if (hasCatchup && totalPrefThisDist > 0 && remaining > 0) {
+        const gpP = t2GPSplit / 100;
+        const catchupTarget = gpP > 0 && gpP < 1 ? (gpP / (1 - gpP)) * totalPrefThisDist : 0;
+        const catchupToGP = Math.min(remaining, catchupTarget);
+        if (catchupToGP > 0) {
+          tierData.push({ name: 'GP Catch-Up', desc: `GP receives 100% until GP has earned ${t2GPSplit}% of pref + catch-up`, amount: catchupToGP, gp: catchupToGP, lp: 0, type: 'tier-catchup' });
+          gpTotal += catchupToGP;
+          remaining = parseFloat((remaining - catchupToGP).toFixed(2));
+        }
+      }
+
+      // Tier 2: Split at t2GPSplit% until t2Hurdle% IRR equivalent is reached
+      // Approximate: tier 2 pool = invested × (t2Hurdle - prefRate)/100 × yearsHeld
+      const avgYears = prefSplits.length ? prefSplits.reduce((s,p) => s + p.yearsHeld, 0) / prefSplits.length : 1;
+      const tier2Pool = Math.max(0, totalLPInvested * ((t2Hurdle - prefRate) / 100) * avgYears);
+      const tier2Actual = Math.min(remaining, tier2Pool);
+      if (tier2Actual > 0) {
+        const t2GP = parseFloat((tier2Actual * t2GPSplit / 100).toFixed(2));
+        const t2LP = parseFloat((tier2Actual - t2GP).toFixed(2));
+        tierData.push({ name: `Tier 2 Split (${100-t2GPSplit}/${t2GPSplit})`, desc: `LP ${100-t2GPSplit}% / GP ${t2GPSplit}% up to ${t2Hurdle}% IRR hurdle`, amount: tier2Actual, gp: t2GP, lp: t2LP, type: 'tier-split' });
+        gpTotal += t2GP; lpTotal += t2LP;
+        remaining = parseFloat((remaining - tier2Actual).toFixed(2));
+      }
+
+      // Tier 3: Everything above tier 2 hurdle at t3GPSplit%
+      if (remaining > 0) {
+        const t3GP = parseFloat((remaining * t3GPSplit / 100).toFixed(2));
+        const t3LP = parseFloat((remaining - t3GP).toFixed(2));
+        tierData.push({ name: `Tier 3 Split (${100-t3GPSplit}/${t3GPSplit})`, desc: `LP ${100-t3GPSplit}% / GP ${t3GPSplit}% on remaining above ${t2Hurdle}% hurdle`, amount: remaining, gp: t3GP, lp: t3LP, type: 'tier-split' });
+        gpTotal += t3GP; lpTotal += t3LP;
+        remaining = 0;
+      }
+
+    // ── Catch-Up Waterfall ───────────────────────────────────────────────
+    } else if (wfType === 'catchup' && totalPrefThisDist > 0) {
       const gpP = gpPromote / 100;
-      // GP catch-up target: GP should have earned gpP% of (pref + catch-up)
-      // Solve: catchupToGP = gpP × (totalPrefThisDist + catchupToGP)
-      //   => catchupToGP × (1 - gpP) = gpP × totalPrefThisDist
-      //   => catchupToGP = (gpP / (1 - gpP)) × totalPrefThisDist
       const catchupTarget = gpP > 0 && gpP < 1
         ? parseFloat(((gpP / (1 - gpP)) * totalPrefThisDist).toFixed(2))
         : 0;
       const catchupToGP = Math.min(remaining * (catchupRate / 100), catchupTarget, remaining);
-
       if (catchupToGP > 0) {
-        tierData.push({
-          name: 'GP Catch-Up',
-          desc: `GP receives ${catchupRate}% until GP has earned ${gpPromote}% of pref + catch-up`,
-          amount: catchupToGP, gp: catchupToGP, lp: 0, type: 'tier-catchup',
-        });
+        tierData.push({ name: 'GP Catch-Up', desc: `GP receives ${catchupRate}% until GP has earned ${gpPromote}% of pref + catch-up`, amount: catchupToGP, gp: catchupToGP, lp: 0, type: 'tier-catchup' });
         gpTotal += catchupToGP;
         remaining = parseFloat((remaining - catchupToGP).toFixed(2));
       }
     }
 
-    // ── Tier 4: Residual Split ───────────────────────────────────────────
-    if (remaining > 0) {
+    // ── Residual Split (pref and catchup waterfalls) ─────────────────────
+    if (remaining > 0 && wfType !== 'tiered') {
       const gpResidual = parseFloat((remaining * gpPromote / 100).toFixed(2));
       const lpResidual = parseFloat((remaining - gpResidual).toFixed(2));
-      tierData.push({
-        name: 'Residual Split',
-        desc: `${100 - gpPromote}% LP / ${gpPromote}% GP on remaining proceeds`,
-        amount: remaining, gp: gpResidual, lp: lpResidual, type: 'tier-split',
-      });
-      gpTotal += gpResidual;
-      lpTotal += lpResidual;
+      tierData.push({ name: 'Residual Split', desc: `${100 - gpPromote}% LP / ${gpPromote}% GP on remaining proceeds`, amount: remaining, gp: gpResidual, lp: lpResidual, type: 'tier-split' });
+      gpTotal += gpResidual; lpTotal += lpResidual;
       remaining = 0;
     }
+
   } else if (remaining > 0) {
-    // Pref NOT fully satisfied — ALL remaining goes to LPs (no GP promote)
-    tierData.push({
-      name: 'LP Priority',
-      desc: `Pref not fully satisfied — all distributions to LPs until pref is current`,
-      amount: remaining, gp: 0, lp: remaining, type: 'tier-pref',
-    });
+    // Periodic distribution OR pref not fully satisfied — ALL to LPs
+    const reason = !prefFullySatisfied
+      ? 'Pref not fully satisfied — all distributions to LPs until pref is current'
+      : 'Periodic distribution — excess above pref split pro-rata to LPs (GP promote applies on exit only)';
+    tierData.push({ name: !prefFullySatisfied ? 'LP Priority' : 'LP Pro-Rata Excess', desc: reason, amount: remaining, gp: 0, lp: remaining, type: 'tier-pref' });
     lpTotal += remaining;
     remaining = 0;
   }
@@ -776,7 +812,7 @@ function previewDistribution() {
     prefCallout.innerHTML = `<i class="fas fa-star" style="color:var(--warning);margin-right:6px;"></i>
       <strong>Pref-aware distribution:</strong>
       <strong>${fmt$(totalPrefPaid)}</strong> satisfies outstanding ${prefRate}% pref → 
-      <strong>${fmt$(gpTotal)}</strong> GP promote${wfType==='catchup'||wfType==='tiered'?' (incl. catch-up)':''} → 
+      <strong>${fmt$(gpTotal)}</strong> GP${gpTotal > 0 ? (wfType==='catchup'?' promote (incl. catch-up)':wfType==='tiered'?' promote (multi-tier)':' promote') : ''} →  
       <strong>${fmt$(lpTotal - totalPrefPaid)}</strong> LP excess.
       ${totalPrefRem > 0
         ? ` <span style="color:#EF4444;font-weight:600;">${fmt$(totalPrefRem)} pref still outstanding after this distribution.</span>`
