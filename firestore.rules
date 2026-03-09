@@ -28,6 +28,16 @@ service cloud.firestore {
       return isSignedIn() && userDocData().role == 'Investor';
     }
 
+    // ── Internal config (Stripe keys, email config) — Cloud Functions only ──
+    match /_config/{docId} {
+      allow read, write: if false; // Only accessible via Admin SDK in Cloud Functions
+    }
+
+    // ── Stripe event logs — Cloud Functions only ─────────────────────────────
+    match /_stripe_events/{docId} {
+      allow read, write: if false;
+    }
+
     // ── Users ─────────────────────────────────────────────────────────────────
     // Any signed-in user (including anonymous) can manage their own profile.
 

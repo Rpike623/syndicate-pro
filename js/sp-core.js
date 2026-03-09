@@ -3,6 +3,20 @@
  * Include this on every page: <script src="js/sp-core.js"></script>
  */
 
+// ─── Inject Google Analytics ──────────────────────────────────────────────
+(function injectGA() {
+  if (document.getElementById('dt-ga') || window.gtag) return;
+  const s = document.createElement('script');
+  s.id = 'dt-ga';
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-T5QKV9PQQC';
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function(){ dataLayer.push(arguments); };
+  gtag('js', new Date());
+  gtag('config', 'G-T5QKV9PQQC');
+})();
+
 // ─── Inject Global Design System CSS immediately ──────────────────────────
 (function injectGlobalCSS() {
   if (document.getElementById('dt-global-css')) return;

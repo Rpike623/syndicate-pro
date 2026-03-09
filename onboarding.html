@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Welcome</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v3"></script>
+  <script src="js/sp-data.js?v2"></script>
+  <script src="js/sp-firebase.js?v3"></script>
+  <style>
+    :root{--accent:#F37925;--accent-hover:#D96515;--success:#2D9A6B;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+    .wizard{background:var(--surface);border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.08);max-width:560px;width:100%;overflow:hidden;}
+    .wizard-header{background:linear-gradient(135deg,#1B1A19,#2D2926);padding:32px 36px;color:white;text-align:center;}
+    .wizard-header img{height:32px;margin-bottom:16px;}
+    .wizard-header h1{font-size:1.4rem;font-weight:800;margin-bottom:6px;}
+    .wizard-header p{font-size:.88rem;color:rgba(255,255,255,.65);}
+    .wizard-body{padding:36px;}
+    .step{display:none;}
+    .step.active{display:block;}
+    .step-indicator{display:flex;justify-content:center;gap:8px;margin-bottom:28px;}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .2s;}
+    .dot.active{background:var(--accent);width:28px;border-radius:5px;}
+    .dot.done{background:var(--success);}
+    label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+    input,select{width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:.9rem;margin-bottom:16px;transition:border-color .15s;}
+    input:focus,select:focus{outline:none;border-color:var(--accent);}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;border:none;font-family:inherit;transition:all .15s;}
+    .btn-primary{background:var(--accent);color:white;}
+    .btn-primary:hover{background:var(--accent-hover);}
+    .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+    .btn-secondary:hover{background:#F8F6F4;}
+    .btn-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+    .skip{font-size:.82rem;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+    .skip:hover{color:var(--text);}
+    .welcome-icon{width:64px;height:64px;background:rgba(243,121,37,.1);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.8rem;color:var(--accent);}
+    .checklist{list-style:none;display:flex;flex-direction:column;gap:12px;margin:20px 0;}
+    .checklist li{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--text);}
+    .checklist li i{color:var(--accent);font-size:.85rem;flex-shrink:0;}
+    .state-select{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+    .state-select select{margin-bottom:0;}
+  </style>
+</head>
+<body>
+  <div class="wizard">
+    <div class="wizard-header">
+      <img src="assets/logo-full.svg" alt="deeltrack">
+      <h1>Welcome to deeltrack</h1>
+      <p>Let's set up your firm in about 60 seconds</p>
+    </div>
+    <div class="wizard-body">
+      <div class="step-indicator" id="stepDots"></div>
+
+      <!-- Step 1: Firm Info -->
+      <div class="step active" id="step1">
+        <label>Firm / Entity Name</label>
+        <input type="text" id="firmName" placeholder="e.g., Pike Capital Management LLC">
+        <label>Your Name (GP Representative)</label>
+        <input type="text" id="gpName" placeholder="e.g., Robert Pike">
+        <label>Firm Address</label>
+        <input type="text" id="firmAddress" placeholder="e.g., 500 Throckmorton St, Fort Worth, TX 76102">
+        <div class="state-select">
+          <div>
+            <label>Default State (for docs)</label>
+            <select id="defState">
+              <option value="TX">Texas</option><option value="DE">Delaware</option><option value="CA">California</option>
+              <option value="NY">New York</option><option value="FL">Florida</option><option value="GA">Georgia</option>
+              <option value="NC">North Carolina</option><option value="AZ">Arizona</option><option value="CO">Colorado</option>
+              <option value="IL">Illinois</option><option value="OH">Ohio</option><option value="TN">Tennessee</option>
+              <option value="NV">Nevada</option><option value="WY">Wyoming</option>
+            </select>
+          </div>
+          <div>
+            <label>Phone (optional)</label>
+            <input type="tel" id="firmPhone" placeholder="(817) 555-0100" style="margin-bottom:0;">
+          </div>
+        </div>
+        <div class="btn-row">
+          <span></span>
+          <button class="btn btn-primary" onclick="nextStep(2)">Continue <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- Step 2: First Deal (optional) -->
+      <div class="step" id="step2">
+        <div style="text-align:center;margin-bottom:20px;">
+          <div class="welcome-icon"><i class="fas fa-building"></i></div>
+          <div style="font-weight:700;font-size:1.05rem;margin-bottom:4px;">Create your first deal</div>
+          <div style="font-size:.85rem;color:var(--muted);">You can always add more later</div>
+        </div>
+        <label>Property / Deal Name</label>
+        <input type="text" id="dealName" placeholder="e.g., Oakwood Multifamily Portfolio">
+        <div class="state-select">
+          <div>
+            <label>Location</label>
+            <input type="text" id="dealLocation" placeholder="Fort Worth, TX" style="margin-bottom:0;">
+          </div>
+          <div>
+            <label>Property Type</label>
+            <select id="dealType" style="margin-bottom:0;">
+              <option value="Multifamily">Multifamily</option><option value="Industrial">Industrial</option>
+              <option value="Office">Office</option><option value="Retail">Retail</option>
+              <option value="Self-Storage">Self-Storage</option><option value="Hospitality">Hospitality</option>
+              <option value="Mixed-Use">Mixed-Use</option><option value="Land">Land</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <label>Target Equity Raise</label>
+          <input type="text" id="dealRaise" placeholder="e.g., 5000000">
+        </div>
+        <div class="btn-row">
+          <span class="skip" onclick="nextStep(3)">Skip for now</span>
+          <button class="btn btn-primary" onclick="saveDeal();nextStep(3)">Create Deal <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- Step 3: Done -->
+      <div class="step" id="step3">
+        <div style="text-align:center;">
+          <div class="welcome-icon" style="background:rgba(45,154,107,.1);"><i class="fas fa-check" style="color:var(--success);"></i></div>
+          <h2 style="font-size:1.2rem;margin-bottom:8px;">You're all set!</h2>
+          <p style="color:var(--muted);margin-bottom:24px;">Here's what you can do next:</p>
+        </div>
+        <ul class="checklist">
+          <li><i class="fas fa-building"></i> Create deals and set up your capital structure</li>
+          <li><i class="fas fa-users"></i> Add investors and track commitments</li>
+          <li><i class="fas fa-file-contract"></i> Generate operating agreements and offering memos</li>
+          <li><i class="fas fa-wallet"></i> Post distributions with waterfall calculations</li>
+          <li><i class="fas fa-vault"></i> Upload and distribute K-1s through the secure vault</li>
+          <li><i class="fas fa-laptop"></i> Share the investor portal with your LPs</li>
+        </ul>
+        <div style="text-align:center;margin-top:24px;">
+          <button class="btn btn-primary" onclick="window.location.href='dashboard.html'" style="padding:14px 32px;font-size:1rem;">
+            Go to Dashboard <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TOTAL_STEPS = 3;
+
+    function updateDots(step) {
+      let html = '';
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const cls = i === step ? 'active' : i < step ? 'done' : '';
+        html += `<div class="dot ${cls}"></div>`;
+      }
+      document.getElementById('stepDots').innerHTML = html;
+    }
+    updateDots(1);
+
+    function nextStep(n) {
+      // Save firm settings on step 1 → 2
+      if (n === 2) saveFirmSettings();
+
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step' + n).classList.add('active');
+      updateDots(n);
+    }
+
+    function saveFirmSettings() {
+      const settings = SP.load('settings', {});
+      settings.firmName = document.getElementById('firmName').value.trim() || settings.firmName;
+      settings.gpFullName = document.getElementById('gpName').value.trim() || settings.gpFullName;
+      settings.firmAddress = document.getElementById('firmAddress').value.trim() || settings.firmAddress;
+      settings.defState = document.getElementById('defState').value || settings.defState;
+      settings.firmPhone = document.getElementById('firmPhone').value.trim() || settings.firmPhone;
+      settings.onboardingComplete = true;
+      SP.save('settings', settings);
+    }
+
+    function saveDeal() {
+      const name = document.getElementById('dealName').value.trim();
+      if (!name) return;
+      const deals = SP.getDeals();
+      deals.push({
+        id: 'd' + Date.now(),
+        name,
+        location: document.getElementById('dealLocation').value.trim(),
+        type: document.getElementById('dealType').value,
+        raise: parseInt(document.getElementById('dealRaise').value.replace(/\D/g, '')) || 0,
+        totalEquity: parseInt(document.getElementById('dealRaise').value.replace(/\D/g, '')) || 0,
+        status: 'Raising',
+        gpEquity: 10,
+        lpEquity: 90,
+        prefReturn: 8,
+        gpPromote: 20,
+        acqFee: 3,
+        assetMgmtFee: 2,
+        investors: [],
+        documents: [],
+        added: new Date().toISOString().split('T')[0],
+      });
+      SP.save('deals', deals);
+    }
+
+    // Pre-fill from session
+    const s = SP.getSession();
+    if (s?.name) document.getElementById('gpName').value = s.name;
+
+    // If already onboarded, skip to dashboard
+    const existingSettings = SP.load('settings', {});
+    if (existingSettings.onboardingComplete) {
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>

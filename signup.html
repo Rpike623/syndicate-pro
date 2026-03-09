@@ -64,7 +64,7 @@
         <img src="assets/logo-full-light.svg" height="40" alt="deeltrack">
       </div>
       <h1 id="signupHeading">Start your free trial</h1>
-      <p id="signupSubhead">No credit card required. 14 days free.</p>
+      <p id="signupSubhead">No credit card required. First 3 months free.</p>
     </div>
 
     <!-- Invite banner (shown when arriving via invite link) -->
@@ -270,27 +270,27 @@
             SP.setSession({ email, name, role, orgId, phone, address, entityType, entityName, taxId, loggedIn: true, loginTime: Date.now() });
             // For investor signups, also update their investor record if it exists
             if (role === 'Investor') _saveInvestorProfile(email, firstName, lastName, phone, address, entityType, entityName, taxId, orgId);
-            window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+            window.location.href = role === 'Investor' ? 'investor-portal.html' : 'onboarding.html';
           } else {
             // Firebase signup failed — fall back to local
             SP.createUser(email, password, name, role, orgId);
             SP.authenticate(email, password);
-            window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+            window.location.href = role === 'Investor' ? 'investor-portal.html' : 'onboarding.html';
           }
         }).catch(fbErr => {
           console.warn('Firebase signup failed, using local:', fbErr.message);
           SP.createUser(email, password, name, role, orgId);
           SP.authenticate(email, password);
-          window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+          window.location.href = role === 'Investor' ? 'investor-portal.html' : 'onboarding.html';
         });
       } else {
         // Offline mode — use local auth
         SP.createUser(email, password, name, role, orgId);
         SP.authenticate(email, password);
-        window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+        window.location.href = role === 'Investor' ? 'investor-portal.html' : 'onboarding.html';
       }
       // Redirect based on role
-      window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+      window.location.href = role === 'Investor' ? 'investor-portal.html' : 'onboarding.html';
     }
 
     async function googleAuth() {
@@ -331,7 +331,7 @@
 
         // Set SP session
         SP.setSession({ email: fbUser.email, name, role, orgId, loggedIn: true, loginTime: Date.now() });
-        window.location.href = role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+        window.location.href = role === 'Investor' ? 'investor-portal.html' : 'onboarding.html';
 
       } catch (err) {
         if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fab fa-google"></i> Continue with Google'; }
