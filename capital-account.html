@@ -2,251 +2,331 @@
 <html lang="en">
 <head>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>deeltrack | Capital Accounts </title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="js/sp-core.js?v3"></script>
-    <script src="js/sp-data.js?v2"></script>
-    <script src="js/sp-firebase.js?v2"></script>
-    <script src="js/sp-math.js"></script>
-    <style>
-        :root { --accent: #F37925; --accent-hover: #D96515; --success: #2D9A6B; --warning: #E8890A; --danger: #D94F3D; --bg: #F3F3F3; --surface: #FFFFFF; --border: #E2DDD8; --text: #1B1A19; --text-muted: #6B6560; --text-light: #9C9590; --radius: 12px; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-        .main { flex: 1; margin-left: var(--dt-sidebar-width); padding: 40px; }
-        @media (max-width: 768px) { .main { margin-left: 0 !important; width: 100% !important; } #sidebar, .sidebar { transform: translateX(-100%) !important; position: fixed !important; z-index: 100 !important; top: 0; bottom: 0; } #sidebar.open, .sidebar.open { transform: translateX(0) !important; } .mobile-menu-btn { display: flex !important; } }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Capital Accounts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v3"></script>
+  <script src="js/sp-data.js?v2"></script>
+  <script src="js/sp-firebase.js?v2"></script>
+  <script src="js/sp-math.js"></script>
+  <style>
+    :root { --accent:#F37925;--accent-hover:#D96515;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--bg:#F3F3F3;--surface:#FFFFFF;--border:#E2DDD8;--text:#1B1A19;--text-muted:#6B6560;--radius:12px; }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+    .main{flex:1;margin-left:var(--dt-sidebar-width);padding:32px 40px;}
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;padding:16px;}}
 
-        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
-        .header h1 { font-size: 1.6rem; font-weight: 800; color: var(--text); }
-        .header p { color: var(--text-muted); }
-        .statement-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .statement-header { background: var(--accent); color: white; padding: 32px; display: flex; justify-content: space-between; }
-        .statement-header .sub { color: rgba(255,255,255,0.75); }
-        .statement-body { padding: 32px; }
+    .page-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:28px;}
+    .page-top h1{font-size:1.5rem;font-weight:800;}
+    .page-top p{color:var(--text-muted);font-size:.88rem;margin-top:2px;}
+    .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    select{padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:600;font-family:inherit;font-size:.88rem;cursor:pointer;}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;font-weight:600;font-size:.85rem;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;transition:all .15s;}
+    .btn:hover{background:#F8F6F4;}
+    .btn-primary{background:var(--accent);color:white;border-color:var(--accent);}
+    .btn-primary:hover{background:var(--accent-hover);}
 
-        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
-        @media (max-width: 900px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
-        .summary-cell { background: var(--surface); padding: 20px; }
-        .val { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1.1rem; color: var(--text); }
-        .lbl { font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); margin-top: 4px; font-weight: 600; }
+    /* Deal header card */
+    .deal-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+    .deal-header h2{font-size:1.15rem;font-weight:700;}
+    .deal-meta{display:flex;gap:24px;flex-wrap:wrap;}
+    .deal-meta .m{text-align:center;}
+    .deal-meta .m .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.1rem;}
+    .deal-meta .m .l{font-size:.68rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;letter-spacing:.05em;margin-top:2px;}
 
-        .ledger-table { width: 100%; border-collapse: collapse; margin-top: 32px; }
-        .ledger-table th { text-align: left; padding: 12px 16px; font-size: 0.75rem; color: var(--text-muted); background: #F8F6F4; border-bottom: 2px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-        .ledger-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
-        .ledger-table tr:hover td { background: #F8F6F4; }
+    /* Partner table */
+    .partner-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+    .partner-card .card-title{padding:18px 24px;font-size:.9rem;font-weight:700;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+    table{width:100%;border-collapse:collapse;}
+    th{text-align:left;padding:12px 20px;font-size:.72rem;color:var(--text-muted);background:#F8F6F4;border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+    th.right,td.right{text-align:right;}
+    td{padding:14px 20px;border-bottom:1px solid var(--border);font-size:.875rem;}
+    tr:hover td{background:#FAFAF8;}
+    .mono{font-family:'JetBrains Mono',monospace;font-weight:600;}
+    .pill{padding:3px 8px;border-radius:4px;font-size:.68rem;font-weight:700;text-transform:uppercase;}
+    .pill-gp{background:rgba(243,121,37,.12);color:var(--accent);}
+    .pill-lp{background:rgba(45,154,107,.12);color:var(--success);}
+    .positive{color:var(--success);}
+    .negative{color:var(--danger);}
+    .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:white;flex-shrink:0;}
+    .partner-name{display:flex;align-items:center;gap:10px;}
+    .partner-name .nm{font-weight:600;}
+    .partner-name .em{font-size:.75rem;color:var(--text-muted);}
 
-        .type-pill { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-        .type-contribution { background: rgba(45,154,107,0.12); color: var(--success); }
-        .type-distribution { background: rgba(243,121,37,0.12); color: var(--accent); }
+    .totals-row td{font-weight:700;background:#F8F6F4;border-top:2px solid var(--border);}
+    .empty{text-align:center;padding:48px 24px;color:var(--text-muted);}
+    .empty i{font-size:2rem;margin-bottom:12px;display:block;opacity:.3;}
 
-        .btn-print { padding: 10px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; color: var(--text); }
-        .btn-print:hover { background: #F8F6F4; }
+    /* Expandable ledger per partner */
+    .ledger-toggle{cursor:pointer;color:var(--accent);font-size:.78rem;font-weight:600;}
+    .ledger-toggle:hover{text-decoration:underline;}
+    .ledger-detail{display:none;background:#FAFAF8;}
+    .ledger-detail.open{display:table-row;}
+    .ledger-inner{padding:12px 20px 16px 62px;}
+    .ledger-inner table{font-size:.8rem;}
+    .ledger-inner th{padding:8px 12px;font-size:.65rem;}
+    .ledger-inner td{padding:8px 12px;font-size:.8rem;}
 
-        #investorSelect { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 600; margin-right: 12px; font-family: inherit; }
-    </style>
-
+    @media print{
+      .sidebar,.controls,.btn,.page-top p{display:none!important;}
+      .main{margin:0!important;padding:20px!important;}
+    }
+  </style>
 </head>
 <body>
-    <aside class="sidebar" id="sidebar"></aside>
+  <aside id="sidebar" class="sidebar"></aside>
+  <main class="main">
+    <div class="page-top">
+      <div>
+        <h1><i class="fas fa-landmark" style="color:var(--accent);"></i> Capital Accounts</h1>
+        <p>Select a deal to view each partner's capital balance in that entity</p>
+      </div>
+      <div class="controls">
+        <select id="dealSelect" onchange="loadDeal()">
+          <option value="">— Select a Deal —</option>
+        </select>
+        <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      </div>
+    </div>
 
-    <main class="main">
-        <div class="header">
-            <div>
-                <h1>Capital Accounts</h1>
-                <p>Member-level ledger of all individual contributions and distributions</p>
-            </div>
-            <div>
-                <select id="investorSelect" onchange="loadStatement()"></select>
-                <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print Statement</button>
-            </div>
+    <div id="dealHeader" class="deal-header" style="display:none;"></div>
+    <div id="partnerTable" class="partner-card" style="display:none;"></div>
+    <div id="emptyState" class="partner-card">
+      <div class="empty"><i class="fas fa-landmark"></i><div>Select a deal above to view partner capital accounts</div></div>
+    </div>
+  </main>
+
+  <script>
+    SP.requireGP();
+
+    const COLORS = ['#F37925','#2D9A6B','#3B82F6','#8B5CF6','#EC4899','#06B6D4','#EAB308','#6366F1'];
+    function fmt$(n){ return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n||0); }
+    function fmtDate(d){ if(!d) return '—'; const dt=new Date(d.includes?.('T')?d:d+'T00:00:00'); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+    function pct(n,d){ return d ? (n/d*100).toFixed(1)+'%' : '0%'; }
+
+    function initDeals(){
+      const deals = SP.getDeals();
+      const sel = document.getElementById('dealSelect');
+      deals.forEach(d => {
+        const opt = new Option(d.name + ' — ' + (d.companyName || d.type || ''), d.id);
+        sel.add(opt);
+      });
+      // Auto-select if dealId in URL
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('dealId')) {
+        sel.value = params.get('dealId');
+        loadDeal();
+      }
+    }
+
+    function loadDeal(){
+      const dealId = document.getElementById('dealSelect').value;
+      if (!dealId) {
+        document.getElementById('dealHeader').style.display = 'none';
+        document.getElementById('partnerTable').style.display = 'none';
+        document.getElementById('emptyState').style.display = '';
+        return;
+      }
+
+      const deal = SP.getDeals().find(d => d.id === dealId);
+      if (!deal) return;
+
+      const investors = SP.getInvestors();
+      const allDists = SP.getDistributions().filter(d => d.dealId === dealId && d.status === 'posted');
+      const dealInvestors = deal.investors || [];
+      const totalEquity = deal.totalEquity || deal.raise || 0;
+      const settings = SP.load('settings', {});
+
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('dealHeader').style.display = '';
+      document.getElementById('partnerTable').style.display = '';
+
+      // Total distributions for this deal
+      let totalDistAll = 0;
+      allDists.forEach(d => { (d.recipients||[]).forEach(r => { totalDistAll += (r.amount||r.totalThisDist||0); }); });
+
+      // Total contributed
+      const totalContributed = dealInvestors.reduce((s,i) => s + (i.committed||0), 0);
+
+      // Deal header
+      document.getElementById('dealHeader').innerHTML = `
+        <div>
+          <h2>${deal.name}</h2>
+          <div style="color:var(--text-muted);font-size:.85rem;margin-top:4px;">${deal.companyName || settings.firmName || ''} · ${deal.location || ''}</div>
         </div>
-
-        <div class="statement-card" id="statementUI">
-            <div class="statement-header">
-                <div>
-                    <div style="font-size: 1.25rem; font-weight: 700;">Member Capital Account</div>
-                    <div style="font-size: 0.85rem; color: rgba(255,255,255,0.75); margin-top: 4px;" id="orgName">Pike Capital Partners</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-weight: 600;" id="lpName">Phil Chapman</div>
-                    <div style="font-size: 0.85rem; color: rgba(255,255,255,0.75);" id="lpEmail">philip@jchapmancpa.com</div>
-                </div>
-            </div>
-
-            <div class="summary-grid">
-                <div class="summary-cell">
-                    <div class="val" id="sCommitment">$0.00</div>
-                    <div class="lbl">Total Commitment</div>
-                </div>
-                <div class="summary-cell">
-                    <div class="val" id="sContributed">$0.00</div>
-                    <div class="lbl">Capital Contributed</div>
-                </div>
-                <div class="summary-cell">
-                    <div class="val" id="sDistributed" style="color: var(--accent);">$0.00</div>
-                    <div class="lbl">Total Distributions</div>
-                </div>
-                <div class="summary-cell">
-                    <div class="val" id="sBalance" style="color: var(--success);">$0.00</div>
-                    <div class="lbl">Ending Capital Balance</div>
-                </div>
-            </div>
-
-            <div class="statement-body">
-                <h3 style="font-size: 1rem;">Transaction History</h3>
-                <table class="ledger-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Entry Type</th>
-                            <th>Description</th>
-                            <th style="text-align: right;">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ledgerBody">
-                        <!-- Data rows injected -->
-                    </tbody>
-                </table>
-            </div>
+        <div class="deal-meta">
+          <div class="m"><div class="v">${fmt$(totalEquity)}</div><div class="l">Total Equity</div></div>
+          <div class="m"><div class="v">${fmt$(totalContributed)}</div><div class="l">Contributed</div></div>
+          <div class="m"><div class="v">${fmt$(totalDistAll)}</div><div class="l">Distributed</div></div>
+          <div class="m"><div class="v">${dealInvestors.length + 1}</div><div class="l">Partners</div></div>
         </div>
-    </main>
+      `;
 
-    <script>
-        SP.requireGP();
+      // Build partner rows
+      const partners = [];
 
-        function syncInvestors() {
-            const invs = SP.getInvestors();
-            const sel = document.getElementById('investorSelect');
-            sel.innerHTML = '<option value="">— Select Member —</option>';
-            invs.forEach(i => sel.add(new Option(`${i.firstName} ${i.lastName}`, i.id)));
+      // GP equity
+      const gpEquityPct = (deal.gpEquity || 10) / 100;
+      const gpContrib = Math.round(totalEquity * gpEquityPct);
+      let gpDistTotal = 0;
+      // GP distributions: look for GP-flagged recipients or calculate as remainder
+      allDists.forEach(d => {
+        const gpRec = (d.recipients||[]).find(r => r.isGP || r.investorId === 'gp');
+        if (gpRec) gpDistTotal += (gpRec.amount || gpRec.totalThisDist || 0);
+      });
+
+      partners.push({
+        name: settings.gpFullName || 'General Partner',
+        email: settings.gpEmail || '',
+        role: 'GP',
+        committed: gpContrib,
+        distributed: gpDistTotal,
+        balance: gpContrib - gpDistTotal,
+        ownershipPct: gpEquityPct * 100,
+        color: COLORS[0],
+        initials: 'GP',
+        transactions: buildGPTransactions(deal, gpContrib, allDists)
+      });
+
+      // LP investors
+      dealInvestors.forEach((entry, idx) => {
+        const inv = investors.find(i => i.id === entry.investorId);
+        const name = inv ? `${inv.firstName} ${inv.lastName}` : (entry.name || 'Unknown Investor');
+        const email = inv ? inv.email : '';
+        const committed = entry.committed || 0;
+        const ownershipPct = totalEquity > 0 ? (committed / totalEquity * 100) : 0;
+
+        // Distributions to this investor for this deal
+        let distTotal = 0;
+        const txns = [];
+        // Contribution
+        txns.push({ date: entry.linkedAt || deal.added || deal.closeDate, type:'contribution', desc:'Initial Capital Contribution', amount: committed });
+
+        allDists.forEach(d => {
+          const rec = (d.recipients||[]).find(r => r.investorId === entry.investorId);
+          if (rec) {
+            const amt = rec.amount || rec.totalThisDist || 0;
+            distTotal += amt;
+            const period = d.period || (d.quarter && d.year ? d.quarter+' '+d.year : '') || '';
+            const prefNote = rec.prefPaidThisDist ? ` (incl. ${fmt$(rec.prefPaidThisDist)} pref)` : '';
+            txns.push({ date: d.date, type:'distribution', desc:`Distribution — ${period}${prefNote}`, amount: amt });
+          }
+        });
+
+        partners.push({
+          name, email, role: 'LP',
+          committed, distributed: distTotal,
+          balance: committed - distTotal,
+          ownershipPct: ownershipPct,
+          color: COLORS[(idx + 1) % COLORS.length],
+          initials: name.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2),
+          transactions: txns
+        });
+      });
+
+      // Render table
+      let rows = '';
+      let totCommit = 0, totDist = 0, totBal = 0;
+
+      partners.forEach((p, i) => {
+        totCommit += p.committed;
+        totDist += p.distributed;
+        totBal += p.balance;
+
+        rows += `<tr>
+          <td>
+            <div class="partner-name">
+              <div class="avatar" style="background:${p.color};">${p.initials}</div>
+              <div><div class="nm">${p.name}</div><div class="em">${p.email}</div></div>
+            </div>
+          </td>
+          <td><span class="pill ${p.role==='GP'?'pill-gp':'pill-lp'}">${p.role}</span></td>
+          <td class="right mono">${pct(p.ownershipPct,100)}</td>
+          <td class="right mono">${fmt$(p.committed)}</td>
+          <td class="right mono" style="color:var(--accent);">${fmt$(p.distributed)}</td>
+          <td class="right mono ${p.balance>=0?'positive':'negative'}">${fmt$(p.balance)}</td>
+          <td class="right"><span class="ledger-toggle" onclick="toggleLedger(${i})"><i class="fas fa-chevron-down"></i> Ledger</span></td>
+        </tr>
+        <tr class="ledger-detail" id="ledger-${i}"><td colspan="7">
+          <div class="ledger-inner">
+            <table>
+              <thead><tr><th>Date</th><th>Type</th><th>Description</th><th class="right">Amount</th><th class="right">Balance</th></tr></thead>
+              <tbody>${buildLedgerRows(p.transactions)}</tbody>
+            </table>
+          </div>
+        </td></tr>`;
+      });
+
+      // Totals row
+      rows += `<tr class="totals-row">
+        <td colspan="2" style="font-weight:700;">Totals</td>
+        <td class="right mono">100%</td>
+        <td class="right mono">${fmt$(totCommit)}</td>
+        <td class="right mono" style="color:var(--accent);">${fmt$(totDist)}</td>
+        <td class="right mono ${totBal>=0?'positive':'negative'}">${fmt$(totBal)}</td>
+        <td></td>
+      </tr>`;
+
+      document.getElementById('partnerTable').innerHTML = `
+        <div class="card-title"><i class="fas fa-users" style="color:var(--accent);"></i> Partner Capital Accounts — ${deal.name}</div>
+        <table>
+          <thead><tr>
+            <th>Partner</th>
+            <th>Role</th>
+            <th class="right">Ownership</th>
+            <th class="right">Contributed</th>
+            <th class="right">Distributed</th>
+            <th class="right">Capital Balance</th>
+            <th></th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function buildGPTransactions(deal, gpContrib, dists) {
+      const txns = [{ date: deal.added || deal.closeDate, type:'contribution', desc:'GP Capital Contribution', amount: gpContrib }];
+      dists.forEach(d => {
+        const gpRec = (d.recipients||[]).find(r => r.isGP || r.investorId === 'gp');
+        if (gpRec) {
+          const amt = gpRec.amount || gpRec.totalThisDist || 0;
+          const period = d.period || (d.quarter && d.year ? d.quarter+' '+d.year : '') || '';
+          txns.push({ date: d.date, type:'distribution', desc:`GP Distribution — ${period}`, amount: amt });
         }
+      });
+      return txns;
+    }
 
-        function fmt$(n) {
-            return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n||0);
-        }
-        function fmtDate(d) {
-            if (!d) return '—';
-            const dt = new Date(d.includes('T') ? d : d + 'T00:00:00');
-            return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-        }
+    function buildLedgerRows(txns) {
+      if (!txns || txns.length === 0) return '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">No transactions</td></tr>';
+      txns.sort((a,b) => new Date(a.date||'2020-01-01') - new Date(b.date||'2020-01-01'));
+      let bal = 0;
+      return txns.map(t => {
+        bal += t.type === 'contribution' ? t.amount : -t.amount;
+        return `<tr>
+          <td style="color:var(--text-muted);white-space:nowrap;">${fmtDate(t.date)}</td>
+          <td><span class="pill ${t.type==='contribution'?'pill-lp':'pill-gp'}">${t.type==='contribution'?'Contribution':'Distribution'}</span></td>
+          <td>${t.desc}</td>
+          <td class="right mono" style="color:${t.type==='contribution'?'var(--success)':'var(--accent)'};">${t.type==='contribution'?'+':'−'}${fmt$(t.amount)}</td>
+          <td class="right mono">${fmt$(bal)}</td>
+        </tr>`;
+      }).join('');
+    }
 
-        function loadStatement() {
-            const id = document.getElementById('investorSelect').value;
-            if (!id) return;
+    function toggleLedger(i) {
+      const row = document.getElementById('ledger-'+i);
+      row.classList.toggle('open');
+      const icon = row.previousElementSibling.querySelector('.ledger-toggle i');
+      icon.className = row.classList.contains('open') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+    }
 
-            const investor = SP.getInvestorById(id);
-            if (!investor) return;
-
-            const deals = SP.getDeals();
-            const allDists = SP.getDistributions();
-
-            // Build a list of deals this investor is in
-            const linkedEntries = [];
-            deals.forEach(d => {
-                const entry = (d.investors || []).find(i => i.investorId === id);
-                if (entry) linkedEntries.push({ deal: d, entry });
-            });
-
-            // Total committed across all deals
-            const totalCommitment = linkedEntries.reduce((s, { entry }) => s + (entry.committed || 0), 0);
-
-            // Distributions received (only posted ones count)
-            const myDists = [];
-            allDists.filter(d => d.status === 'posted').forEach(d => {
-                const rec = (d.recipients || []).find(r => r.investorId === id);
-                if (rec) myDists.push({ dist: d, rec });
-            });
-            const totalDistributed = myDists.reduce((s, { rec }) => s + (rec.amount || rec.totalThisDist || 0), 0);
-
-            // Capital balance = contributed - distributions returned
-            // Simple model: committed capital minus what's been distributed back
-            const endingBalance = Math.max(0, totalCommitment - totalDistributed);
-
-            // Update header
-            document.getElementById('lpName').textContent = `${investor.firstName} ${investor.lastName}`;
-            document.getElementById('lpEmail').textContent = investor.email;
-            const settings = SP.load('settings', {});
-            document.getElementById('orgName').textContent = settings.firmName || 'Your Firm';
-
-            // Update summary tiles
-            document.getElementById('sCommitment').textContent = fmt$(totalCommitment);
-            document.getElementById('sContributed').textContent = fmt$(totalCommitment);
-            document.getElementById('sDistributed').textContent = fmt$(totalDistributed);
-            document.getElementById('sBalance').textContent = fmt$(endingBalance);
-
-            // Build transaction ledger
-            const rows = [];
-
-            // Capital contributions (one per deal)
-            linkedEntries.forEach(({ deal, entry }) => {
-                const date = entry.linkedAt || deal.added || deal.closeDate;
-                rows.push({
-                    date,
-                    type: 'contribution',
-                    desc: `Capital Contribution — ${deal.name}`,
-                    amount: entry.committed || 0,
-                    sign: '+',
-                    color: '#34d399',
-                    dealId: deal.id,
-                });
-            });
-
-            // Distributions
-            myDists.forEach(({ dist, rec }) => {
-                const amount = rec.amount || rec.totalThisDist || 0;
-                const prefPaid = rec.prefPaidThisDist || 0;
-                const _dName = dist.dealName || (deals.find(dl => dl.id === dist.dealId)||{}).name || 'Asset';
-                const _dPeriod = dist.period || (dist.quarter && dist.year ? dist.quarter + ' ' + dist.year : null) || '—';
-                const desc = prefPaid > 0
-                    ? `Distribution — ${_dName} (${_dPeriod}) · incl. ${fmt$(prefPaid)} pref`
-                    : `Distribution — ${_dName} (${_dPeriod})`;
-                rows.push({
-                    date: dist.date,
-                    type: 'distribution',
-                    desc,
-                    amount,
-                    sign: '',
-                    color: '#38bdf8',
-                });
-            });
-
-            // Sort chronological
-            rows.sort((a, b) => new Date(a.date || '2020-01-01') - new Date(b.date || '2020-01-01'));
-
-            // Running balance
-            let runningBalance = 0;
-            const tableRows = rows.map(r => {
-                if (r.type === 'contribution') runningBalance += r.amount;
-                else runningBalance -= r.amount;
-                return `<tr>
-                    <td style="color:var(--text-muted);white-space:nowrap;">${fmtDate(r.date)}</td>
-                    <td><span class="type-pill type-${r.type}">${r.type === 'contribution' ? 'Contribution' : 'Distribution'}</span></td>
-                    <td>${r.desc}</td>
-                    <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:${r.type === 'contribution' ? 'var(--success)' : 'var(--accent)'};">${r.sign}${fmt$(r.amount)}</td>
-                    <td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;color:${runningBalance>=0?'var(--text)':'var(--danger)'};">${fmt$(runningBalance)}</td>
-                </tr>`;
-            });
-
-            // Add Balance column header
-            const thead = document.querySelector('.ledger-table thead tr');
-            if (thead && thead.children.length < 5) {
-                thead.innerHTML = `<th>Date</th><th>Type</th><th>Description</th><th style="text-align:right;">Amount</th><th style="text-align:right;">Running Balance</th>`;
-            }
-
-            if (rows.length === 0) {
-                document.getElementById('ledgerBody').innerHTML = `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted);">No transactions found for this investor.</td></tr>`;
-            } else {
-                document.getElementById('ledgerBody').innerHTML = tableRows.join('');
-            }
-        }
-
-        SP.onDataReady(syncInvestors);
-    </script>
+    SP.onDataReady(initDeals);
+  </script>
 </body>
 </html>
