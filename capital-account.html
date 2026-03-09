@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>deeltrack | Capital Accounts</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -16,7 +16,7 @@
   <script src="js/sp-firebase.js?v2"></script>
   <script src="js/sp-math.js"></script>
   <style>
-    :root { --accent:#F37925;--accent-hover:#D96515;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--bg:#F3F3F3;--surface:#FFFFFF;--border:#E2DDD8;--text:#1B1A19;--text-muted:#6B6560;--radius:12px; }
+    :root{--accent:#F37925;--accent-hover:#D96515;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--info:#3B82F6;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
     .main{flex:1;margin-left:var(--dt-sidebar-width);padding:32px 40px;}
@@ -24,59 +24,68 @@
 
     .page-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;margin-bottom:28px;}
     .page-top h1{font-size:1.5rem;font-weight:800;}
-    .page-top p{color:var(--text-muted);font-size:.88rem;margin-top:2px;}
-    .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-    select{padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:600;font-family:inherit;font-size:.88rem;cursor:pointer;}
+    .page-top p{color:var(--muted);font-size:.88rem;margin-top:2px;}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;font-weight:600;font-size:.85rem;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;transition:all .15s;}
     .btn:hover{background:#F8F6F4;}
-    .btn-primary{background:var(--accent);color:white;border-color:var(--accent);}
-    .btn-primary:hover{background:var(--accent-hover);}
 
-    /* Deal header card */
+    /* Deal tiles */
+    .deal-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+    .deal-tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;cursor:pointer;transition:all .15s;position:relative;}
+    .deal-tile:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(243,121,37,.1);transform:translateY(-2px);}
+    .deal-tile .tile-type{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;}
+    .deal-tile h3{font-size:1rem;font-weight:700;margin-bottom:3px;}
+    .deal-tile .tile-loc{font-size:.8rem;color:var(--muted);margin-bottom:14px;}
+    .deal-tile .tile-stats{display:flex;gap:16px;}
+    .deal-tile .ts .tv{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.85rem;}
+    .deal-tile .ts .tl{font-size:.6rem;text-transform:uppercase;color:#9C9590;font-weight:600;letter-spacing:.04em;margin-top:1px;}
+    .tile-status{position:absolute;top:14px;right:14px;padding:3px 10px;border-radius:20px;font-size:.62rem;font-weight:700;text-transform:uppercase;}
+    .status-operating{background:rgba(45,154,107,.12);color:var(--success);}
+    .status-raising{background:rgba(243,121,37,.12);color:var(--accent);}
+    .status-closed{background:rgba(107,101,96,.12);color:var(--muted);}
+    .status-dd,.status-loi{background:rgba(59,130,246,.12);color:var(--info);}
+
+    /* Deal header */
     .deal-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
     .deal-header h2{font-size:1.15rem;font-weight:700;}
-    .deal-meta{display:flex;gap:24px;flex-wrap:wrap;}
+    .deal-meta{display:flex;gap:20px;flex-wrap:wrap;}
     .deal-meta .m{text-align:center;}
-    .deal-meta .m .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.1rem;}
-    .deal-meta .m .l{font-size:.68rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;letter-spacing:.05em;margin-top:2px;}
+    .deal-meta .m .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.05rem;}
+    .deal-meta .m .l{font-size:.65rem;text-transform:uppercase;color:var(--muted);font-weight:600;letter-spacing:.05em;margin-top:2px;}
+    .deal-meta .m .v.pref-color{color:var(--info);}
 
     /* Partner table */
-    .partner-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.04);}
+    .partner-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);}
     .partner-card .card-title{padding:18px 24px;font-size:.9rem;font-weight:700;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
     table{width:100%;border-collapse:collapse;}
-    th{text-align:left;padding:12px 20px;font-size:.72rem;color:var(--text-muted);background:#F8F6F4;border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+    th{text-align:left;padding:12px 16px;font-size:.7rem;color:var(--muted);background:#F8F6F4;border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
     th.right,td.right{text-align:right;}
-    td{padding:14px 20px;border-bottom:1px solid var(--border);font-size:.875rem;}
+    td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:.85rem;}
     tr:hover td{background:#FAFAF8;}
     .mono{font-family:'JetBrains Mono',monospace;font-weight:600;}
-    .pill{padding:3px 8px;border-radius:4px;font-size:.68rem;font-weight:700;text-transform:uppercase;}
+    .pill{padding:3px 8px;border-radius:4px;font-size:.65rem;font-weight:700;text-transform:uppercase;}
     .pill-gp{background:rgba(243,121,37,.12);color:var(--accent);}
     .pill-lp{background:rgba(45,154,107,.12);color:var(--success);}
     .positive{color:var(--success);}
     .negative{color:var(--danger);}
-    .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:white;flex-shrink:0;}
+    .pref{color:var(--info);}
+    .avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.7rem;color:white;flex-shrink:0;}
     .partner-name{display:flex;align-items:center;gap:10px;}
-    .partner-name .nm{font-weight:600;}
-    .partner-name .em{font-size:.75rem;color:var(--text-muted);}
-
+    .partner-name .nm{font-weight:600;font-size:.85rem;}
+    .partner-name .em{font-size:.72rem;color:var(--muted);}
     .totals-row td{font-weight:700;background:#F8F6F4;border-top:2px solid var(--border);}
-    .empty{text-align:center;padding:48px 24px;color:var(--text-muted);}
+    .empty{text-align:center;padding:48px 24px;color:var(--muted);}
     .empty i{font-size:2rem;margin-bottom:12px;display:block;opacity:.3;}
-
-    /* Expandable ledger per partner */
-    .ledger-toggle{cursor:pointer;color:var(--accent);font-size:.78rem;font-weight:600;}
+    .ledger-toggle{cursor:pointer;color:var(--accent);font-size:.76rem;font-weight:600;}
     .ledger-toggle:hover{text-decoration:underline;}
     .ledger-detail{display:none;background:#FAFAF8;}
     .ledger-detail.open{display:table-row;}
-    .ledger-inner{padding:12px 20px 16px 62px;}
-    .ledger-inner table{font-size:.8rem;}
-    .ledger-inner th{padding:8px 12px;font-size:.65rem;}
-    .ledger-inner td{padding:8px 12px;font-size:.8rem;}
-
-    @media print{
-      .sidebar,.controls,.btn,.page-top p{display:none!important;}
-      .main{margin:0!important;padding:20px!important;}
-    }
+    .ledger-inner{padding:12px 16px 16px 52px;}
+    .ledger-inner table{font-size:.78rem;}
+    .ledger-inner th{padding:6px 10px;font-size:.62rem;}
+    .ledger-inner td{padding:6px 10px;font-size:.78rem;}
+    @media(max-width:900px){.deal-tiles{grid-template-columns:1fr 1fr;} table{font-size:.78rem;} th,td{padding:10px 12px;}}
+    @media(max-width:600px){.deal-tiles{grid-template-columns:1fr;}}
+    @media print{.sidebar,.btn,.page-top p{display:none!important;}.main{margin:0!important;padding:20px!important;}}
   </style>
 </head>
 <body>
@@ -84,56 +93,79 @@
   <main class="main">
     <div class="page-top">
       <div>
-        <h1><i class="fas fa-landmark" style="color:var(--accent);"></i> Capital Accounts</h1>
-        <p>Select a deal to view each partner's capital balance in that entity</p>
+        <h1 id="pageTitle"><i class="fas fa-landmark" style="color:var(--accent);"></i> Capital Accounts</h1>
+        <p id="pageDesc">Select a deal to view each partner's capital balance in that entity</p>
       </div>
-      <div class="controls">
-        <select id="dealSelect" onchange="loadDeal()">
-          <option value="">— Select a Deal —</option>
-        </select>
-        <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      <div id="topActions">
+        <button class="btn" onclick="window.print()" style="display:none;" id="printBtn"><i class="fas fa-print"></i> Print</button>
+        <button class="btn" onclick="showPicker()" style="display:none;" id="backBtn"><i class="fas fa-arrow-left"></i> All Deals</button>
       </div>
     </div>
 
+    <div id="dealPicker" class="deal-tiles"></div>
     <div id="dealHeader" class="deal-header" style="display:none;"></div>
     <div id="partnerTable" class="partner-card" style="display:none;"></div>
-    <div id="emptyState" class="partner-card">
-      <div class="empty"><i class="fas fa-landmark"></i><div>Select a deal above to view partner capital accounts</div></div>
-    </div>
   </main>
 
   <script>
     SP.requireGP();
 
     const COLORS = ['#F37925','#2D9A6B','#3B82F6','#8B5CF6','#EC4899','#06B6D4','#EAB308','#6366F1'];
-    function fmt$(n){ return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n||0); }
-    function fmtDate(d){ if(!d) return '—'; const dt=new Date(d.includes?.('T')?d:d+'T00:00:00'); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
-    function pct(n,d){ return d ? (n/d*100).toFixed(1)+'%' : '0%'; }
+    const fmt$ = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n||0);
+    const fmtDate = d => { if(!d) return '—'; const dt=new Date(d.includes?.('T')?d:d+'T00:00:00'); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); };
+    const pct = (n,d) => d ? (n/d*100).toFixed(1)+'%' : '0%';
 
-    function initDeals(){
+    function renderPicker() {
       const deals = SP.getDeals();
-      const sel = document.getElementById('dealSelect');
-      deals.forEach(d => {
-        const opt = new Option(d.name + ' — ' + (d.companyName || d.type || ''), d.id);
-        sel.add(opt);
-      });
-      // Auto-select if dealId in URL
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('dealId')) {
-        sel.value = params.get('dealId');
-        loadDeal();
-      }
-    }
+      const dists = SP.getDistributions();
+      const container = document.getElementById('dealPicker');
 
-    function loadDeal(){
-      const dealId = document.getElementById('dealSelect').value;
-      if (!dealId) {
-        document.getElementById('dealHeader').style.display = 'none';
-        document.getElementById('partnerTable').style.display = 'none';
-        document.getElementById('emptyState').style.display = '';
+      if (!deals.length) {
+        container.innerHTML = '<div class="empty" style="grid-column:1/-1;"><i class="fas fa-landmark"></i><h3>No Deals Yet</h3><p>Create a deal to view capital accounts</p></div>';
         return;
       }
 
+      container.innerHTML = deals.map(d => {
+        const invCount = (d.investors||[]).length;
+        const equity = d.totalEquity || d.raise || 0;
+        const status = (d.status||'').toLowerCase().replace(/[\s_]/g,'-');
+        const dealDists = dists.filter(x => x.dealId === d.id && x.status === 'posted');
+        let totalDist = 0;
+        dealDists.forEach(x => (x.recipients||[]).forEach(r => { totalDist += (r.amount||r.totalThisDist||0); }));
+
+        return `<div class="deal-tile" onclick="selectDeal('${d.id}')">
+          <div class="tile-type"><i class="fas fa-building" style="margin-right:4px;"></i> ${d.type||'Real Estate'}</div>
+          <span class="tile-status status-${status}">${d.status||'—'}</span>
+          <h3>${d.name}</h3>
+          <div class="tile-loc">${d.location||''}</div>
+          <div class="tile-stats">
+            <div class="ts"><div class="tv">${fmt$(equity)}</div><div class="tl">Equity</div></div>
+            <div class="ts"><div class="tv">${invCount + 1}</div><div class="tl">Partners</div></div>
+            <div class="ts"><div class="tv">${fmt$(totalDist)}</div><div class="tl">Distributed</div></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function showPicker() {
+      document.getElementById('dealPicker').style.display = '';
+      document.getElementById('dealHeader').style.display = 'none';
+      document.getElementById('partnerTable').style.display = 'none';
+      document.getElementById('backBtn').style.display = 'none';
+      document.getElementById('printBtn').style.display = 'none';
+      document.getElementById('pageTitle').innerHTML = '<i class="fas fa-landmark" style="color:var(--accent);"></i> Capital Accounts';
+      document.getElementById('pageDesc').textContent = 'Select a deal to view each partner\'s capital balance in that entity';
+      renderPicker();
+    }
+
+    function selectDeal(dealId) {
+      document.getElementById('dealPicker').style.display = 'none';
+      document.getElementById('backBtn').style.display = '';
+      document.getElementById('printBtn').style.display = '';
+      loadDeal(dealId);
+    }
+
+    function loadDeal(dealId) {
       const deal = SP.getDeals().find(d => d.id === dealId);
       if (!deal) return;
 
@@ -141,176 +173,156 @@
       const allDists = SP.getDistributions().filter(d => d.dealId === dealId && d.status === 'posted');
       const dealInvestors = deal.investors || [];
       const totalEquity = deal.totalEquity || deal.raise || 0;
+      const prefRate = (deal.prefReturn || 8) / 100;
       const settings = SP.load('settings', {});
+      const now = new Date();
 
-      document.getElementById('emptyState').style.display = 'none';
       document.getElementById('dealHeader').style.display = '';
       document.getElementById('partnerTable').style.display = '';
+      document.getElementById('pageTitle').innerHTML = '<i class="fas fa-landmark" style="color:var(--accent);"></i> ' + deal.name;
+      document.getElementById('pageDesc').textContent = (deal.companyName || '') + ' · Capital Accounts';
 
-      // Total distributions for this deal
-      let totalDistAll = 0;
+      // Calculate totals
+      let totalDistAll = 0, totalPrefAccruedAll = 0;
       allDists.forEach(d => { (d.recipients||[]).forEach(r => { totalDistAll += (r.amount||r.totalThisDist||0); }); });
-
-      // Total contributed
       const totalContributed = dealInvestors.reduce((s,i) => s + (i.committed||0), 0);
+
+      // Build partner rows
+      const partners = [];
+
+      // GP
+      const gpPct = (deal.gpEquity || 10) / 100;
+      const gpContrib = Math.round(totalEquity * gpPct);
+      let gpDist = 0;
+      allDists.forEach(d => { const r = (d.recipients||[]).find(r => r.isGP || r.investorId === 'gp'); if (r) gpDist += (r.amount||r.totalThisDist||0); });
+
+      partners.push({
+        name: settings.gpFullName || 'General Partner', email: settings.gpEmail || '', role: 'GP',
+        committed: gpContrib, distributed: gpDist, balance: gpContrib - gpDist,
+        prefAccrued: 0, // GP typically doesn't accrue pref
+        ownershipPct: gpPct * 100, color: COLORS[0], initials: 'GP',
+        transactions: buildTxns(deal, gpContrib, allDists, 'gp', true)
+      });
+
+      // LPs
+      dealInvestors.forEach((entry, idx) => {
+        const inv = investors.find(i => i.id === entry.investorId);
+        const name = inv ? `${inv.firstName} ${inv.lastName}` : (entry.name || 'Unknown');
+        const email = inv ? inv.email : '';
+        const committed = entry.committed || 0;
+        const ownershipPct = totalEquity > 0 ? (committed / totalEquity * 100) : 0;
+
+        // Distributions
+        let distTotal = 0, prefPaidTotal = 0;
+        allDists.forEach(d => {
+          const rec = (d.recipients||[]).find(r => r.investorId === entry.investorId);
+          if (rec) {
+            distTotal += (rec.amount || rec.totalThisDist || 0);
+            prefPaidTotal += (rec.prefPaidThisDist || 0);
+          }
+        });
+
+        // Pref accrued: committed * prefRate * years held - pref already paid
+        const investDate = new Date(entry.linkedAt || deal.added || deal.closeDate || now.toISOString());
+        const yearsHeld = Math.max(0, (now - investDate) / (365.25 * 24 * 60 * 60 * 1000));
+        const totalPrefOwed = committed * prefRate * yearsHeld;
+        const prefAccrued = Math.max(0, totalPrefOwed - prefPaidTotal);
+
+        totalPrefAccruedAll += prefAccrued;
+
+        partners.push({
+          name, email, role: 'LP', committed, distributed: distTotal,
+          balance: committed - distTotal, prefAccrued,
+          ownershipPct, color: COLORS[(idx + 1) % COLORS.length],
+          initials: name.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2),
+          transactions: buildTxns(deal, committed, allDists, entry.investorId, false)
+        });
+      });
 
       // Deal header
       document.getElementById('dealHeader').innerHTML = `
         <div>
           <h2>${deal.name}</h2>
-          <div style="color:var(--text-muted);font-size:.85rem;margin-top:4px;">${deal.companyName || settings.firmName || ''} · ${deal.location || ''}</div>
+          <div style="color:var(--muted);font-size:.82rem;margin-top:4px;">${deal.companyName || settings.firmName || ''} · ${deal.location || ''} · ${(deal.prefReturn||8)}% pref</div>
         </div>
         <div class="deal-meta">
           <div class="m"><div class="v">${fmt$(totalEquity)}</div><div class="l">Total Equity</div></div>
           <div class="m"><div class="v">${fmt$(totalContributed)}</div><div class="l">Contributed</div></div>
           <div class="m"><div class="v">${fmt$(totalDistAll)}</div><div class="l">Distributed</div></div>
-          <div class="m"><div class="v">${dealInvestors.length + 1}</div><div class="l">Partners</div></div>
+          <div class="m"><div class="v pref-color">${fmt$(totalPrefAccruedAll)}</div><div class="l">Pref Accrued</div></div>
+          <div class="m"><div class="v">${partners.length}</div><div class="l">Partners</div></div>
         </div>
       `;
 
-      // Build partner rows
-      const partners = [];
-
-      // GP equity
-      const gpEquityPct = (deal.gpEquity || 10) / 100;
-      const gpContrib = Math.round(totalEquity * gpEquityPct);
-      let gpDistTotal = 0;
-      // GP distributions: look for GP-flagged recipients or calculate as remainder
-      allDists.forEach(d => {
-        const gpRec = (d.recipients||[]).find(r => r.isGP || r.investorId === 'gp');
-        if (gpRec) gpDistTotal += (gpRec.amount || gpRec.totalThisDist || 0);
-      });
-
-      partners.push({
-        name: settings.gpFullName || 'General Partner',
-        email: settings.gpEmail || '',
-        role: 'GP',
-        committed: gpContrib,
-        distributed: gpDistTotal,
-        balance: gpContrib - gpDistTotal,
-        ownershipPct: gpEquityPct * 100,
-        color: COLORS[0],
-        initials: 'GP',
-        transactions: buildGPTransactions(deal, gpContrib, allDists)
-      });
-
-      // LP investors
-      dealInvestors.forEach((entry, idx) => {
-        const inv = investors.find(i => i.id === entry.investorId);
-        const name = inv ? `${inv.firstName} ${inv.lastName}` : (entry.name || 'Unknown Investor');
-        const email = inv ? inv.email : '';
-        const committed = entry.committed || 0;
-        const ownershipPct = totalEquity > 0 ? (committed / totalEquity * 100) : 0;
-
-        // Distributions to this investor for this deal
-        let distTotal = 0;
-        const txns = [];
-        // Contribution
-        txns.push({ date: entry.linkedAt || deal.added || deal.closeDate, type:'contribution', desc:'Initial Capital Contribution', amount: committed });
-
-        allDists.forEach(d => {
-          const rec = (d.recipients||[]).find(r => r.investorId === entry.investorId);
-          if (rec) {
-            const amt = rec.amount || rec.totalThisDist || 0;
-            distTotal += amt;
-            const period = d.period || (d.quarter && d.year ? d.quarter+' '+d.year : '') || '';
-            const prefNote = rec.prefPaidThisDist ? ` (incl. ${fmt$(rec.prefPaidThisDist)} pref)` : '';
-            txns.push({ date: d.date, type:'distribution', desc:`Distribution — ${period}${prefNote}`, amount: amt });
-          }
-        });
-
-        partners.push({
-          name, email, role: 'LP',
-          committed, distributed: distTotal,
-          balance: committed - distTotal,
-          ownershipPct: ownershipPct,
-          color: COLORS[(idx + 1) % COLORS.length],
-          initials: name.split(' ').map(w=>w[0]).join('').toUpperCase().substring(0,2),
-          transactions: txns
-        });
-      });
-
-      // Render table
+      // Table
       let rows = '';
-      let totCommit = 0, totDist = 0, totBal = 0;
+      let totC = 0, totD = 0, totB = 0, totP = 0;
 
       partners.forEach((p, i) => {
-        totCommit += p.committed;
-        totDist += p.distributed;
-        totBal += p.balance;
-
+        totC += p.committed; totD += p.distributed; totB += p.balance; totP += p.prefAccrued;
         rows += `<tr>
-          <td>
-            <div class="partner-name">
-              <div class="avatar" style="background:${p.color};">${p.initials}</div>
-              <div><div class="nm">${p.name}</div><div class="em">${p.email}</div></div>
-            </div>
-          </td>
+          <td><div class="partner-name"><div class="avatar" style="background:${p.color};">${p.initials}</div><div><div class="nm">${p.name}</div><div class="em">${p.email}</div></div></div></td>
           <td><span class="pill ${p.role==='GP'?'pill-gp':'pill-lp'}">${p.role}</span></td>
           <td class="right mono">${pct(p.ownershipPct,100)}</td>
           <td class="right mono">${fmt$(p.committed)}</td>
           <td class="right mono" style="color:var(--accent);">${fmt$(p.distributed)}</td>
+          <td class="right mono pref">${p.prefAccrued > 0 ? fmt$(p.prefAccrued) : '—'}</td>
           <td class="right mono ${p.balance>=0?'positive':'negative'}">${fmt$(p.balance)}</td>
-          <td class="right"><span class="ledger-toggle" onclick="toggleLedger(${i})"><i class="fas fa-chevron-down"></i> Ledger</span></td>
+          <td class="right"><span class="ledger-toggle" onclick="toggleLedger(${i})"><i class="fas fa-chevron-down"></i></span></td>
         </tr>
-        <tr class="ledger-detail" id="ledger-${i}"><td colspan="7">
-          <div class="ledger-inner">
-            <table>
-              <thead><tr><th>Date</th><th>Type</th><th>Description</th><th class="right">Amount</th><th class="right">Balance</th></tr></thead>
-              <tbody>${buildLedgerRows(p.transactions)}</tbody>
-            </table>
-          </div>
+        <tr class="ledger-detail" id="ledger-${i}"><td colspan="8">
+          <div class="ledger-inner"><table>
+            <thead><tr><th>Date</th><th>Type</th><th>Description</th><th class="right">Amount</th><th class="right">Balance</th></tr></thead>
+            <tbody>${buildLedgerRows(p.transactions)}</tbody>
+          </table></div>
         </td></tr>`;
       });
 
-      // Totals row
       rows += `<tr class="totals-row">
         <td colspan="2" style="font-weight:700;">Totals</td>
         <td class="right mono">100%</td>
-        <td class="right mono">${fmt$(totCommit)}</td>
-        <td class="right mono" style="color:var(--accent);">${fmt$(totDist)}</td>
-        <td class="right mono ${totBal>=0?'positive':'negative'}">${fmt$(totBal)}</td>
+        <td class="right mono">${fmt$(totC)}</td>
+        <td class="right mono" style="color:var(--accent);">${fmt$(totD)}</td>
+        <td class="right mono pref">${fmt$(totP)}</td>
+        <td class="right mono ${totB>=0?'positive':'negative'}">${fmt$(totB)}</td>
         <td></td>
       </tr>`;
 
       document.getElementById('partnerTable').innerHTML = `
-        <div class="card-title"><i class="fas fa-users" style="color:var(--accent);"></i> Partner Capital Accounts — ${deal.name}</div>
-        <table>
+        <div class="card-title"><i class="fas fa-users" style="color:var(--accent);"></i> Partner Capital Accounts</div>
+        <div style="overflow-x:auto;"><table>
           <thead><tr>
-            <th>Partner</th>
-            <th>Role</th>
-            <th class="right">Ownership</th>
-            <th class="right">Contributed</th>
-            <th class="right">Distributed</th>
-            <th class="right">Capital Balance</th>
-            <th></th>
+            <th>Partner</th><th>Role</th><th class="right">Own %</th>
+            <th class="right">Contributed</th><th class="right">Distributed</th>
+            <th class="right">Pref Accrued</th><th class="right">Capital Bal.</th><th></th>
           </tr></thead>
           <tbody>${rows}</tbody>
-        </table>
+        </table></div>
       `;
     }
 
-    function buildGPTransactions(deal, gpContrib, dists) {
-      const txns = [{ date: deal.added || deal.closeDate, type:'contribution', desc:'GP Capital Contribution', amount: gpContrib }];
+    function buildTxns(deal, contrib, dists, invId, isGP) {
+      const txns = [{ date: deal.added || deal.closeDate, type:'contribution', desc: isGP ? 'GP Capital Contribution' : 'Initial Capital Contribution', amount: contrib }];
       dists.forEach(d => {
-        const gpRec = (d.recipients||[]).find(r => r.isGP || r.investorId === 'gp');
-        if (gpRec) {
-          const amt = gpRec.amount || gpRec.totalThisDist || 0;
+        const rec = (d.recipients||[]).find(r => isGP ? (r.isGP || r.investorId === 'gp') : r.investorId === invId);
+        if (rec) {
+          const amt = rec.amount || rec.totalThisDist || 0;
           const period = d.period || (d.quarter && d.year ? d.quarter+' '+d.year : '') || '';
-          txns.push({ date: d.date, type:'distribution', desc:`GP Distribution — ${period}`, amount: amt });
+          const prefNote = rec.prefPaidThisDist ? ` (incl. ${fmt$(rec.prefPaidThisDist)} pref)` : '';
+          txns.push({ date: d.date, type:'distribution', desc:`Distribution — ${period}${prefNote}`, amount: amt });
         }
       });
       return txns;
     }
 
     function buildLedgerRows(txns) {
-      if (!txns || txns.length === 0) return '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:16px;">No transactions</td></tr>';
+      if (!txns || !txns.length) return '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:16px;">No transactions</td></tr>';
       txns.sort((a,b) => new Date(a.date||'2020-01-01') - new Date(b.date||'2020-01-01'));
       let bal = 0;
       return txns.map(t => {
         bal += t.type === 'contribution' ? t.amount : -t.amount;
         return `<tr>
-          <td style="color:var(--text-muted);white-space:nowrap;">${fmtDate(t.date)}</td>
+          <td style="color:var(--muted);white-space:nowrap;">${fmtDate(t.date)}</td>
           <td><span class="pill ${t.type==='contribution'?'pill-lp':'pill-gp'}">${t.type==='contribution'?'Contribution':'Distribution'}</span></td>
           <td>${t.desc}</td>
           <td class="right mono" style="color:${t.type==='contribution'?'var(--success)':'var(--accent)'};">${t.type==='contribution'?'+':'−'}${fmt$(t.amount)}</td>
@@ -326,7 +338,11 @@
       icon.className = row.classList.contains('open') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
     }
 
-    SP.onDataReady(initDeals);
+    SP.onDataReady(function() {
+      renderPicker();
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('dealId')) selectDeal(params.get('dealId'));
+    });
   </script>
 </body>
 </html>
