@@ -35,7 +35,7 @@ const SPBilling = (function () {
         storage_mb: 500,
         users:      1,
       },
-      features: ['Full platform access', '14-day trial', 'No credit card required'],
+      features: ['Full platform access', 'First 3 months free', 'No credit card required'],
     },
     pro: {
       id:        'pro',
@@ -87,7 +87,7 @@ const SPBilling = (function () {
     // Start trial if not already started
     if (!_sub.trialStarted) {
       _sub.trialStarted = Date.now();
-      _sub.trialEnd     = Date.now() + (14 * 24 * 60 * 60 * 1000);
+      _sub.trialEnd     = Date.now() + (90 * 24 * 60 * 60 * 1000); // 3 months free
       _sub.plan         = 'free';
       _saveSub();
     }
