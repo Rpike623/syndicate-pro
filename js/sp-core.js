@@ -20,7 +20,7 @@
     const dir = loc.endsWith('/') ? loc : loc.substring(0, loc.lastIndexOf('/') + 1);
     base = window.location.origin + dir;
   }
-  link.href = base + 'css/dt-global.css';
+  link.href = base + 'css/dt-global.css?v=20260309b';
   document.head.appendChild(link);
 // Inject Dark Mode Overrides
   const darkLink = document.createElement('link');
