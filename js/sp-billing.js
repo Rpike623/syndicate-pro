@@ -25,52 +25,37 @@ const SPBilling = (function () {
   const PLANS = {
     free: {
       id:        'free',
-      name:      'Free Trial',
+      name:      'Trial',
       price:     0,
       interval:  null,
       limits: {
-        deals:      3,
-        investors:  10,
-        documents:  5,
-        storage_mb: 50,
+        deals:      -1,
+        investors:  -1,
+        documents:  -1,
+        storage_mb: 500,
         users:      1,
       },
-      features: ['Basic waterfall calculator', 'Up to 3 deals', 'Up to 10 investors', 'Document generation', '14-day trial'],
-    },
-    starter: {
-      id:        'starter',
-      name:      'Starter',
-      price:     99,
-      interval:  'month',
-      priceId:   null, // set from settings
-      limits: {
-        deals:      10,
-        investors:  50,
-        documents:  50,
-        storage_mb: 500,
-        users:      2,
-      },
-      features: ['Everything in Free', '10 deals', '50 investors', 'Email notifications', 'Deal room uploads', 'Priority support'],
+      features: ['Full platform access', '14-day trial', 'No credit card required'],
     },
     pro: {
       id:        'pro',
-      name:      'Pro',
-      price:     299,
+      name:      'Professional',
+      price:     99,
       interval:  'month',
       priceId:   null,
       limits: {
-        deals:      -1, // unlimited
+        deals:      -1,
         investors:  -1,
         documents:  -1,
         storage_mb: 5000,
-        users:      5,
+        users:      3,
       },
-      features: ['Everything in Starter', 'Unlimited deals & investors', 'Advanced waterfall types', 'K-1 generator', 'Investor portal', 'API access'],
+      features: ['Unlimited deals & investors', 'OA generator', 'Waterfall calculations', 'Distribution engine', 'Capital calls', 'K-1 generation & vault', 'OM builder', 'Investor portal', 'QuickBooks export', 'Email support'],
     },
     enterprise: {
       id:        'enterprise',
       name:      'Enterprise',
-      price:     999,
+      price:     249,
       interval:  'month',
       priceId:   null,
       limits: {
@@ -80,7 +65,7 @@ const SPBilling = (function () {
         storage_mb: -1,
         users:      -1,
       },
-      features: ['Everything in Pro', 'Unlimited users', 'Custom branding', 'Dedicated support', 'SLA', 'Custom integrations'],
+      features: ['Everything in Professional', 'Multi-GP / team access', 'White-labeled portal', 'Custom domain', 'Lender CRM', 'Bulk K-1 auto-sort', 'Dedicated onboarding', 'Phone & priority support'],
     },
   };
 
@@ -176,7 +161,7 @@ const SPBilling = (function () {
   }
 
   function isPaid() {
-    return ['starter','pro','enterprise'].includes(_sub.plan) && _sub.status === 'active';
+    return ['pro','enterprise'].includes(_sub.plan) && _sub.status === 'active';
   }
 
   function canAccess(feature) {
@@ -204,7 +189,7 @@ const SPBilling = (function () {
   function getPaymentLinks() {
     const settings = (typeof SP !== 'undefined') ? SP.load('settings', {}) : {};
     return {
-      starter:    settings.stripeStarterLink    || null,
+      
       pro:        settings.stripeProLink         || null,
       enterprise: settings.stripeEnterpriseLink  || null,
       portal:     settings.stripePortalLink      || null,
@@ -347,7 +332,7 @@ const SPBilling = (function () {
           <div style="background:var(--border-light);border-radius:var(--radius);padding:16px;">
             <div style="font-weight:700;font-size:1.1rem;">Starter</div>
             <div style="font-size:1.5rem;font-weight:700;color:var(--accent);">$99<span style="font-size:.9rem;color:var(--text-secondary);">/mo</span></div>
-            <button onclick="SPBilling.checkout('starter')" class="btn btn-secondary" style="width:100%;margin-top:10px;font-size:.8rem;">Choose Starter</button>
+            <button onclick="SPBilling.checkout('pro')" class="btn btn-secondary" style="width:100%;margin-top:10px;font-size:.8rem;">Choose Starter</button>
           </div>
           <div style="background:var(--accent);border-radius:var(--radius);padding:16px;color:white;">
             <div style="font-weight:700;font-size:1.1rem;">Pro</div>

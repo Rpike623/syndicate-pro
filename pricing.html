@@ -412,69 +412,54 @@
   </section>
 
   <section class="pricing-container">
-    <div class="pricing-grid">
-      <!-- Starter Plan -->
-      <div class="pricing-card">
-        <div class="plan-name">Starter</div>
-        <div class="plan-description">Perfect for your first syndication</div>
+    <div class="pricing-grid" style="grid-template-columns:repeat(2,1fr);max-width:800px;margin:0 auto;">
+      <!-- Professional Plan -->
+      <div class="pricing-card popular">
+        <div class="popular-badge">MOST POPULAR</div>
+        <div class="plan-name">Professional</div>
+        <div class="plan-description">Everything you need to run your syndication</div>
         <div class="plan-price">
           <span class="price">$99</span>
           <span class="price-period">/month</span>
         </div>
+        <div style="font-size:.82rem;color:#6B6560;margin-bottom:20px;">Billed annually, or $129/mo monthly · 14-day free trial</div>
         <ul class="features-list">
-          <li><i class="fas fa-check"></i> 1 Active Deal</li>
-          <li><i class="fas fa-check"></i> 25 Investors</li>
-          <li><i class="fas fa-check"></i> Waterfall Calculator</li>
-          <li><i class="fas fa-check"></i> Document Generator</li>
-          <li><i class="fas fa-check"></i> Email Support</li>
-          <li><i class="fas fa-check"></i> Cloud Storage</li>
-          <li class="disabled"><i class="fas fa-times"></i> Distribution Tracking</li>
-          <li class="disabled"><i class="fas fa-times"></i> Pro Forma Builder</li>
+          <li><i class="fas fa-check"></i> Unlimited deals</li>
+          <li><i class="fas fa-check"></i> Unlimited investors</li>
+          <li><i class="fas fa-check"></i> Operating agreement generator</li>
+          <li><i class="fas fa-check"></i> Waterfall calculations</li>
+          <li><i class="fas fa-check"></i> Distribution engine</li>
+          <li><i class="fas fa-check"></i> Capital call notices</li>
+          <li><i class="fas fa-check"></i> K-1 generation &amp; vault</li>
+          <li><i class="fas fa-check"></i> OM builder</li>
+          <li><i class="fas fa-check"></i> Investor portal</li>
+          <li><i class="fas fa-check"></i> QuickBooks export</li>
+          <li><i class="fas fa-check"></i> Platform health monitoring</li>
+          <li><i class="fas fa-check"></i> Email support</li>
         </ul>
-        <button onclick="SPBilling.checkout('starter')" class="btn btn-secondary" style="width: 100%;">Start Free Trial</button>
-      </div>
-
-      <!-- Pro Plan -->
-      <div class="pricing-card popular">
-        <div class="popular-badge">MOST POPULAR</div>
-        <div class="plan-name">Professional</div>
-        <div class="plan-description">For active syndicators</div>
-        <div class="plan-price">
-          <span class="price">$299</span>
-          <span class="price-period">/month</span>
-        </div>
-        <ul class="features-list">
-          <li><i class="fas fa-check"></i> Unlimited Deals</li>
-          <li><i class="fas fa-check"></i> Unlimited Investors</li>
-          <li><i class="fas fa-check"></i> All Waterfall Types</li>
-          <li><i class="fas fa-check"></i> All Documents + PDF Export</li>
-          <li><i class="fas fa-check"></i> Distribution Tracking</li>
-          <li><i class="fas fa-check"></i> Pro Forma Builder</li>
-          <li><i class="fas fa-check"></i> Priority Support</li>
-          <li class="disabled"><i class="fas fa-times"></i> White-label Documents</li>
-        </ul>
-        <button onclick="SPBilling.checkout('pro')" class="btn btn-primary btn-lg" style="width: 100%;">Start Free Trial</button>
+        <button onclick="SPBilling.checkout('pro')" class="btn btn-primary btn-lg" style="width: 100%;">Start 14-Day Trial</button>
       </div>
 
       <!-- Enterprise Plan -->
       <div class="pricing-card">
         <div class="plan-name">Enterprise</div>
-        <div class="plan-description">For firms with multiple GPs</div>
+        <div class="plan-description">For firms with multiple GPs and entities</div>
         <div class="plan-price">
-          <span class="price">$999</span>
+          <span class="price">$249</span>
           <span class="price-period">/month</span>
         </div>
+        <div style="font-size:.82rem;color:#6B6560;margin-bottom:20px;">Billed annually, or $299/mo monthly · 14-day free trial</div>
         <ul class="features-list">
-          <li><i class="fas fa-check"></i> Everything in Pro</li>
-          <li><i class="fas fa-check"></i> Unlimited Team Members</li>
-          <li><i class="fas fa-check"></i> White-label Documents</li>
-          <li><i class="fas fa-check"></i> Custom Integrations</li>
-          <li><i class="fas fa-check"></i> API Access</li>
-          <li><i class="fas fa-check"></i> Dedicated Account Manager</li>
-          <li><i class="fas fa-check"></i> SLA Guarantee</li>
-          <li><i class="fas fa-check"></i> SSO / SAML</li>
+          <li><i class="fas fa-check"></i> Everything in Professional</li>
+          <li><i class="fas fa-check"></i> Multi-GP / team access</li>
+          <li><i class="fas fa-check"></i> White-labeled investor portal</li>
+          <li><i class="fas fa-check"></i> Custom domain</li>
+          <li><i class="fas fa-check"></i> Lender CRM</li>
+          <li><i class="fas fa-check"></i> Bulk K-1 upload with auto-sort</li>
+          <li><i class="fas fa-check"></i> Dedicated onboarding</li>
+          <li><i class="fas fa-check"></i> Phone &amp; priority support</li>
         </ul>
-        <a href="mailto:sales@deeltrack.com" class="btn btn-secondary" style="width: 100%;">Contact Sales</a>
+        <button onclick="SPBilling.checkout('enterprise')" class="btn btn-secondary" style="width: 100%;">Start 14-Day Trial</button>
       </div>
     </div>
   </section>
