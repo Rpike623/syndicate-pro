@@ -58,7 +58,7 @@
   <h2>2. What Data We Collect</h2>
 
   <h3>2.1 Data You Enter Into the Platform</h3>
-  <p>All deal information, investor records, financial projections, distribution history, and generated documents that you enter into deeltrack are stored in your browser's <strong>localStorage</strong> — on your device, not our servers. This includes:</p>
+  <p>All deal information, investor records, financial projections, distribution history, and documents that you enter into deeltrack are stored securely using cloud infrastructure (Firebase/Google Cloud) with encryption in transit and at rest. This includes:</p>
   <ul>
     <li>Deal names, terms, financial projections, property addresses</li>
     <li>Investor names, email addresses, phone numbers, accreditation status</li>
@@ -69,7 +69,7 @@
   </ul>
 
   <h3>2.2 Account Data</h3>
-  <p>When you create an account (email and password), this credential is stored in your browser's localStorage. We do not currently operate an authentication server.</p>
+  <p>When you create an account, your credentials are managed through Firebase Authentication with industry-standard security practices including password hashing and secure session management.</p>
 
   <h3>2.3 Usage Data (Future)</h3>
   <p>As we introduce cloud features, we may collect: page views, feature usage events, session duration, browser type and version, and IP address for security purposes. We will update this policy and notify users before any server-side data collection begins.</p>
@@ -78,10 +78,10 @@
   <table>
     <thead><tr><th>Data Type</th><th>Purpose</th><th>Stored Where</th></tr></thead>
     <tbody>
-      <tr><td>Deal & investor data</td><td>Provide platform functionality</td><td>Your browser (localStorage)</td></tr>
-      <tr><td>Account credentials</td><td>Authentication</td><td>Your browser (localStorage)</td></tr>
-      <tr><td>Settings</td><td>Personalization</td><td>Your browser (localStorage)</td></tr>
-      <tr><td>Geocode cache</td><td>Map display</td><td>Your browser (localStorage)</td></tr>
+      <tr><td>Deal & investor data</td><td>Provide platform functionality</td><td>Cloud (Firebase/Google Cloud)</td></tr>
+      <tr><td>Account credentials</td><td>Authentication</td><td>Cloud (Firebase/Google Cloud)</td></tr>
+      <tr><td>Settings</td><td>Personalization</td><td>Cloud (Firebase/Google Cloud)</td></tr>
+      <tr><td>Geocode cache</td><td>Map display</td><td>Cloud (Firebase/Google Cloud)</td></tr>
     </tbody>
   </table>
 
@@ -113,7 +113,7 @@
   </ul>
 
   <h2>7. California Residents (CCPA)</h2>
-  <p>California residents have the right to know what personal information is collected, to delete personal information, and to opt-out of the sale of personal information. We do not sell personal information. Since data is stored on your device, you can delete it at any time via Settings → Danger Zone → Reset All Data, or by clearing your browser's localStorage.</p>
+  <p>California residents have the right to know what personal information is collected, to delete personal information, and to opt-out of the sale of personal information. We do not sell personal information. You can request deletion of your data at any time through Settings or by contacting admin@deeltrack.com.</p>
 
   <h2>8. Children's Privacy</h2>
   <p>deeltrack is not directed to individuals under 18 years of age. We do not knowingly collect information from minors.</p>

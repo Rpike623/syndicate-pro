@@ -1222,8 +1222,8 @@ window.SP = (function () {
         // ── Documents ────────────────────────────────────────────
         { id:'docs', title:'DOCUMENTS', items:[
           { href:'documents.html',   icon:'fa-file-contract',  label:'Documents' },
-          { href:'k1-generator.html',icon:'fa-file-invoice-dollar', label:'Est. K-1 Generator' },
           { href:'k1-vault.html',    icon:'fa-vault',               label:'K-1 Vault' },
+          { href:'k1-generator.html',icon:'fa-calculator',          label:'K-1 Estimator' },
           { href:'om-builder.html',  icon:'fa-file-pdf',       label:'OM Builder' },
         ]},
         // ── Tools ────────────────────────────────────────────────

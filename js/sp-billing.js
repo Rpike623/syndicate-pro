@@ -51,7 +51,7 @@ const SPBilling = (function () {
         storage_mb: 5000,
         users:      3,
       },
-      features: ['$49/deal/month', 'Unlimited investors', 'OA generator', 'Waterfall calculations', 'Distribution engine', 'Capital calls', 'K-1 generation & vault', 'OM builder', 'Investor portal', 'QuickBooks export', 'Email support'],
+      features: ['$49/deal/month', 'Unlimited investors', 'OA generator', 'Waterfall calculations', 'Distribution engine', 'Capital calls', 'Secure K-1 vault', 'OM builder', 'Investor portal', 'QuickBooks export', 'Email support'],
     },
     enterprise: {
       id:        'enterprise',
