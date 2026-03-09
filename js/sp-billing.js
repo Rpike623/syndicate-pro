@@ -218,12 +218,8 @@ const SPBilling = (function () {
   }
 
   function openCustomerPortal() {
-    const links = getPaymentLinks();
-    if (links.portal) {
-      window.open(links.portal, '_blank');
-    } else {
-      alert('Customer portal not configured. Contact support to manage your subscription.');
-    }
+    // TODO: Create Stripe billing portal session via Cloud Function
+    alert('Customer portal coming soon. Contact admin@deeltrack.com to manage your subscription.');
   }
 
   // ── Checkout callbacks ────────────────────────────────────────────────────────
@@ -384,7 +380,6 @@ const SPBilling = (function () {
     // Stripe
     checkout,
     openCustomerPortal,
-    getPaymentLinks,
 
     // UI
     enforceTrialGate,
