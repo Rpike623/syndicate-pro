@@ -12,9 +12,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v3"></script>
+  <script src="js/sp-core.js?v4"></script>
   <script src="js/sp-data.js?v2"></script>
-  <script src="js/sp-firebase.js?v3"></script>
+  <script src="js/sp-firebase.js?v4"></script>
   <style>
     :root {
       --accent:#F37925;--accent-hover:#D96515;--accent-light:rgba(243,121,37,0.12);
@@ -22,92 +22,191 @@
       --warning:#E8890A;--warning-light:rgba(232,137,10,0.12);
       --danger:#D94F3D;--danger-light:rgba(217,79,61,0.12);
       --purple:#7B5CC4;--purple-light:rgba(123,92,196,0.15);
+      --blue:#3B82F6;--blue-light:rgba(59,130,246,0.12);
       --text:#1B1A19;--text-secondary:#6B6560;--text-muted:#9C9590;
       --border:#E2DDD8;--border-light:rgba(27,26,25,0.08);
       --bg:#F3F3F3;--bg-card:#FFFFFF;--bg-sidebar:#050811;
-      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);
-      --radius-sm:6px;--radius:8px;--radius-md:12px;
+      --shadow-sm:0 1px 2px rgb(0 0 0/.06);--shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);
+      --radius-sm:6px;--radius:8px;--radius-md:12px;--radius-lg:16px;
     }
     *{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;}
-    /* Header */
-    .portal-header{background:var(--bg-card);border:1px solid var(--border);padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:60px;position:sticky;top:0;z-index:50;}
+
+    /* ── Header ── */
+    .portal-header{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 24px;display:flex;justify-content:space-between;align-items:center;height:60px;position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);}
     .portal-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;text-decoration:none;color:var(--text);}
     .portal-nav{display:flex;gap:0;align-items:center;}
-    .portal-nav a{padding:0 16px;height:60px;display:flex;align-items:center;color:var(--text-secondary);text-decoration:none;font-size:.875rem;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;}
-    .portal-nav a:hover{color:var(--text);}
+    .portal-nav a{padding:0 14px;height:60px;display:flex;align-items:center;color:var(--text-secondary);text-decoration:none;font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+    .portal-nav a:hover{color:var(--text);background:rgba(0,0,0,.02);}
     .portal-nav a.active{color:var(--accent);border-bottom-color:var(--accent);}
     .portal-user{display:flex;align-items:center;gap:12px;font-size:.875rem;color:var(--text-secondary);}
-    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:.82rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;}
-    .btn-secondary{background:var(--bg-card);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border-light);}
+    @media(max-width:768px){.portal-nav{display:none;}.portal-user span{display:none;}}
+
+    /* ── Buttons ── */
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:.82rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;font-family:'Inter',sans-serif;}
+    .btn-secondary{background:var(--bg-card);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--bg);border-color:var(--text-muted);}
     .btn-primary{background:var(--accent);color:#FFFFFF;}.btn-primary:hover{background:var(--accent-hover);}
-    @media(max-width:768px){.portal-nav{display:none;}}
-    /* Mobile nav */
-    .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg-card);border:1px solid var(--border);padding:6px 0;z-index:50;justify-content:space-around;}
+    .btn-sm{padding:6px 12px;font-size:.78rem;}
+    .btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid transparent;}.btn-ghost:hover{background:var(--border-light);color:var(--text);}
+
+    /* ── Mobile Bottom Nav ── */
+    .mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg-card);border-top:1px solid var(--border);padding:6px 0;z-index:50;justify-content:space-around;}
     @media(max-width:768px){.mobile-nav{display:flex;}}
-    .mobile-nav a{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;color:var(--text-muted);font-size:.7rem;text-decoration:none;transition:color .15s;}
+    .mobile-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;color:var(--text-muted);font-size:.65rem;text-decoration:none;transition:color .15s;font-weight:500;}
     .mobile-nav a.active,.mobile-nav a:hover{color:var(--accent);}
-    .mobile-nav i{font-size:1.1rem;}
-    /* Content */
-    .portal-main{padding:24px;max-width:1000px;margin:0 auto;padding-bottom:80px;}
-    @media(max-width:768px){.portal-main{padding:16px;padding-bottom:90px;}}
-    /* Pages */
+    .mobile-nav i{font-size:1.05rem;}
+
+    /* ── Content ── */
+    .portal-main{padding:24px;max-width:1080px;margin:0 auto;padding-bottom:90px;}
+    @media(max-width:768px){.portal-main{padding:16px;padding-bottom:100px;}}
     .portal-page{display:none;}.portal-page.active{display:block;}
-    /* KPI row */
+
+    /* ── Welcome Banner ── */
+    .welcome-banner{background:linear-gradient(135deg,#1B1A19 0%,#2D2926 50%,#3D342E 100%);border-radius:var(--radius-lg);padding:32px;margin-bottom:24px;position:relative;overflow:hidden;}
+    .welcome-banner::after{content:'';position:absolute;top:-50%;right:-10%;width:300px;height:300px;background:radial-gradient(circle,rgba(243,121,37,.15) 0%,transparent 70%);pointer-events:none;}
+    .welcome-banner h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;color:#FFFFFF;position:relative;}
+    .welcome-banner p{color:rgba(255,255,255,.6);font-size:.9rem;position:relative;}
+
+    /* ── KPI Cards ── */
     .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
     @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
-    @media(max-width:480px){.kpi-row{grid-template-columns:1fr 1fr;}}
-    .kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;}
-    .kpi-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);display:block;margin-bottom:6px;}
-    .kpi-value{font-size:1.5rem;font-weight:700;font-family:'JetBrains Mono',monospace;display:block;}
-    .kpi-value.green{color:var(--success);}
-    /* Cards */
-    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:20px;overflow:hidden;}
-    .card-header{padding:16px 20px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.95rem;}
+    .kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;transition:box-shadow .15s;}
+    .kpi-card:hover{box-shadow:var(--shadow-md);}
+    .kpi-icon{width:36px;height:36px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:.9rem;}
+    .kpi-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);display:block;margin-bottom:4px;}
+    .kpi-value{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;display:block;line-height:1.2;}
+    .kpi-sub{font-size:.72rem;color:var(--text-muted);margin-top:4px;}
+
+    /* ── Cards ── */
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:20px;overflow:hidden;transition:box-shadow .15s;}
+    .card:hover{box-shadow:var(--shadow-sm);}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.92rem;}
     .card-body{padding:20px;}
-    /* Deal cards */
-    .deal-list{}
-    .deal-item{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border-light);}
+    .card-footer{padding:12px 20px;border-top:1px solid var(--border-light);background:rgba(0,0,0,.01);}
+    .section-title{font-size:1.2rem;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+
+    /* ── Deal Items ── */
+    .deal-item{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border-light);transition:background .1s;}
     .deal-item:last-child{border-bottom:none;}
+    .deal-item:hover{background:rgba(0,0,0,.01);margin:0 -20px;padding:16px 20px;}
     .deal-name{font-weight:600;margin-bottom:3px;}
     .deal-meta{font-size:.78rem;color:var(--text-muted);}
-    .deal-nums{text-align:right;}
-    .deal-nums .invested{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;}
-    .deal-nums .ownership{font-size:.75rem;color:var(--text-muted);margin-top:2px;}
-    /* Distribution items */
-    .dist-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);}
+
+    /* ── Distribution Items ── */
+    .dist-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border-light);}
     .dist-item:last-child{border-bottom:none;}
     .dist-deal{font-weight:600;font-size:.875rem;}
     .dist-period{font-size:.75rem;color:var(--text-muted);margin-top:2px;}
     .dist-amount{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);font-size:1rem;}
-    /* Empty state */
-    .empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);}
-    .empty-state i{font-size:2rem;opacity:.3;display:block;margin-bottom:12px;}
-    .empty-state p{font-size:.875rem;}
-    /* Badge */
-    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600;}
+
+    /* ── Badges ── */
+    .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:.68rem;font-weight:600;letter-spacing:.02em;}
     .badge-operating{background:var(--purple-light);color:var(--purple);}
     .badge-closed{background:var(--success-light);color:var(--success);}
     .badge-funded{background:var(--accent-light);color:var(--accent);}
     .badge-committed{background:var(--warning-light);color:var(--warning);}
     .badge-active{background:var(--success-light);color:var(--success);}
-    /* Welcome banner */
-    .welcome-banner{background:linear-gradient(135deg,#1B1A19,#2D2926);border-radius:var(--radius-md);padding:28px;margin-bottom:24px;}
-    .welcome-banner h1{font-size:1.5rem;font-weight:700;margin-bottom:4px;color:#FFFFFF;}
-    .welcome-banner p{color:rgba(255,255,255,.6);font-size:.9rem;}
-    /* Profile form */
+    .badge-pending{background:var(--warning-light);color:var(--warning);}
+    .badge-paid{background:var(--success-light);color:var(--success);}
+    .badge-sent{background:var(--blue-light);color:var(--blue);}
+    .badge-overdue{background:var(--danger-light);color:var(--danger);}
+
+    /* ── Empty State ── */
+    .empty-state{text-align:center;padding:48px 20px;color:var(--text-muted);}
+    .empty-state i{font-size:2.5rem;opacity:.2;display:block;margin-bottom:14px;}
+    .empty-state p{font-size:.875rem;line-height:1.6;}
+
+    /* ── Capital Call Cards ── */
+    .call-card{border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:14px;background:var(--bg-card);transition:box-shadow .15s;}
+    .call-card:hover{box-shadow:var(--shadow-md);}
+    .call-card.overdue{border-left:3px solid var(--danger);}
+    .call-card.pending{border-left:3px solid var(--warning);}
+    .call-card.paid{border-left:3px solid var(--success);opacity:.85;}
+    .call-row{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+    .call-info{flex:1;}
+    .call-amount{text-align:right;}
+    .call-amount .amount{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.25rem;}
+    .call-amount .due{font-size:.75rem;color:var(--text-muted);margin-top:4px;}
+
+    /* ── Doc Items ── */
+    .doc-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-light);transition:background .1s;cursor:pointer;}
+    .doc-row:last-child{border-bottom:none;}
+    .doc-row:hover{background:rgba(0,0,0,.02);margin:0 -20px;padding:14px 20px;}
+    .doc-icon-box{width:40px;height:40px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;font-size:.9rem;}
+    .doc-icon-box.k1{background:var(--success-light);color:var(--success);}
+    .doc-icon-box.statement{background:var(--purple-light);color:var(--purple);}
+    .doc-icon-box.legal{background:var(--blue-light);color:var(--blue);}
+
+    /* ── Tax Center ── */
+    .tax-year-group{margin-bottom:24px;}
+    .tax-year-header{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+
+    /* ── Communications ── */
+    .update-card{border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:16px;background:var(--bg-card);transition:box-shadow .15s;}
+    .update-card:hover{box-shadow:var(--shadow-md);}
+    .update-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+    .update-date{font-size:.75rem;color:var(--text-muted);white-space:nowrap;}
+    .update-title{font-weight:700;font-size:1rem;margin-bottom:4px;}
+    .update-from{font-size:.78rem;color:var(--text-muted);}
+    .update-body{font-size:.875rem;line-height:1.7;color:var(--text-secondary);}
+    .update-body p{margin-bottom:8px;}
+    .update-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border-light);}
+    .update-metric{text-align:center;padding:10px;background:var(--bg);border-radius:var(--radius);font-size:.78rem;}
+    .update-metric .val{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;display:block;margin-bottom:2px;}
+
+    /* ── Investment Detail Cards ── */
+    .invest-card{border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:20px;background:var(--bg-card);}
+    .invest-card:hover{box-shadow:var(--shadow-md);}
+    .invest-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .invest-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-light);}
+    @media(max-width:640px){.invest-stats{grid-template-columns:repeat(2,1fr);}}
+    .invest-stat{padding:16px 20px;background:var(--bg-card);}
+    .invest-stat-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:4px;}
+    .invest-stat-value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;}
+    .invest-footer{padding:14px 20px;background:rgba(0,0,0,.01);border-top:1px solid var(--border-light);font-size:.82rem;color:var(--text-secondary);display:flex;align-items:center;gap:8px;}
+
+    /* ── Profile ── */
     .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
     @media(max-width:640px){.profile-grid{grid-template-columns:1fr;}}
     .form-group{display:flex;flex-direction:column;gap:6px;}
-    .form-group label{font-size:.8rem;font-weight:600;color:var(--text-secondary);}
-    .form-group input{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.9rem;color:var(--text);background:var(--bg-card);outline:none;font-family:'Inter',sans-serif;}
-    .form-group input:focus{border-color:var(--accent);}
-    .form-group input[readonly]{background:var(--border-light);color:var(--text-muted);}
-    /* Accreditation status card */
-    .accred-card{border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
-    .accred-ok{background:var(--success-light);border:1px solid var(--success);}
-    .accred-warn{background:var(--warning-light);border:1px solid var(--warning);}
-    .accred-exp{background:var(--danger-light);border:1px solid var(--danger);}
+    .form-group label{font-size:.78rem;font-weight:600;color:var(--text-secondary);}
+    .form-group input,.form-group select,.form-group textarea{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem;color:var(--text);background:var(--bg-card);outline:none;font-family:'Inter',sans-serif;transition:border-color .15s;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(243,121,37,.1);}
+    .form-group input[readonly]{background:var(--bg);color:var(--text-muted);cursor:not-allowed;}
+
+    /* ── Accreditation ── */
+    .accred-card{border-radius:var(--radius-md);padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
+    .accred-ok{background:var(--success-light);border:1px solid rgba(45,154,107,.3);}
+    .accred-warn{background:var(--warning-light);border:1px solid rgba(232,137,10,.3);}
+    .accred-exp{background:var(--danger-light);border:1px solid rgba(217,79,61,.3);}
+
+    /* ── Toast ── */
+    .toast{position:fixed;bottom:80px;right:24px;z-index:9999;padding:12px 20px;border-radius:var(--radius-md);font-size:.875rem;font-weight:600;background:var(--success);color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;animation:slideUp .3s ease;}
+    @keyframes slideUp{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+    /* ── Tabs (for sub-nav) ── */
+    .tab-bar{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:20px;}
+    .tab-bar a{padding:10px 16px;font-size:.82rem;font-weight:500;color:var(--text-muted);text-decoration:none;border-bottom:2px solid transparent;transition:all .15s;}
+    .tab-bar a:hover{color:var(--text);}
+    .tab-bar a.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+    /* ── Totals Row ── */
+    .totals-row{padding:14px 0;border-top:2px solid var(--border);margin-top:8px;display:flex;justify-content:space-between;font-weight:700;}
+    .totals-row .total-val{font-family:'JetBrains Mono',monospace;color:var(--success);}
+
+    /* ── Progress Bar ── */
+    .progress-bar{height:6px;background:var(--border-light);border-radius:3px;overflow:hidden;margin-top:8px;}
+    .progress-fill{height:100%;border-radius:3px;transition:width .3s ease;}
+
+    /* ── Doc Viewer Modal ── */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;backdrop-filter:blur(4px);animation:fadeIn .2s ease;}
+    .modal-overlay.active{display:flex;align-items:center;justify-content:center;}
+    .modal-content{background:var(--bg-card);border-radius:var(--radius-lg);width:90%;max-width:900px;max-height:85vh;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;}
+    .modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+    .modal-header h3{font-size:1rem;font-weight:700;}
+    .modal-body{flex:1;overflow:auto;padding:0;}
+    .modal-body iframe{width:100%;height:70vh;border:none;}
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
   </style>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
@@ -120,24 +219,40 @@
     deel<span style="color:#F37925;">track</span>
   </a>
   <nav class="portal-nav">
-    <a href="#" class="active" onclick="showPage('dashboard',this)">Dashboard</a>
-    <a href="#" onclick="showPage('investments',this)">My Investments</a>
-    <a href="#" onclick="showPage('distributions',this)">Distributions</a>
-    <a href="#" onclick="showPage('documents',this)">Documents</a>
-    <a href="#" onclick="showPage('profile',this)">Profile</a>
+    <a href="#" class="active" onclick="showPage('dashboard',this)"><i class="fas fa-home" style="margin-right:5px;font-size:.8rem;"></i>Dashboard</a>
+    <a href="#" onclick="showPage('investments',this)"><i class="fas fa-building" style="margin-right:5px;font-size:.8rem;"></i>Investments</a>
+    <a href="#" onclick="showPage('distributions',this)"><i class="fas fa-wallet" style="margin-right:5px;font-size:.8rem;"></i>Distributions</a>
+    <a href="#" onclick="showPage('capitalcalls',this)"><i class="fas fa-hand-holding-usd" style="margin-right:5px;font-size:.8rem;"></i>Capital Calls</a>
+    <a href="#" onclick="showPage('documents',this)"><i class="fas fa-folder-open" style="margin-right:5px;font-size:.8rem;"></i>Documents</a>
+    <a href="#" onclick="showPage('taxcenter',this)"><i class="fas fa-file-invoice-dollar" style="margin-right:5px;font-size:.8rem;"></i>Tax Center</a>
+    <a href="#" onclick="showPage('comms',this)"><i class="fas fa-bullhorn" style="margin-right:5px;font-size:.8rem;"></i>Updates</a>
+    <a href="#" onclick="showPage('profile',this)"><i class="fas fa-user" style="margin-right:5px;font-size:.8rem;"></i>Profile</a>
   </nav>
   <div class="portal-user">
-    <span id="headerName" style="color:#1B1A19;font-weight:500;"></span>
-    <button class="btn btn-secondary" onclick="SP.logout()">
+    <span id="headerName" style="color:var(--text);font-weight:500;"></span>
+    <button class="btn btn-secondary btn-sm" onclick="SP.logout()">
       <i class="fas fa-sign-out-alt"></i> Sign Out
     </button>
   </div>
 </header>
 
-<!-- Main content -->
+<!-- Document Viewer Modal -->
+<div class="modal-overlay" id="docModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="docModalTitle">Document</h3>
+      <button class="btn btn-ghost btn-sm" onclick="closeDocModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <iframe id="docModalFrame"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
 <main class="portal-main">
 
-  <!-- Dashboard -->
+  <!-- ═══════════ DASHBOARD ═══════════ -->
   <div class="portal-page active" id="page-dashboard">
     <div class="welcome-banner">
       <h1>Welcome back, <span id="welcomeName">Investor</span></h1>
@@ -146,52 +261,74 @@
 
     <div class="kpi-row">
       <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--accent-light);color:var(--accent);"><i class="fas fa-coins"></i></div>
         <span class="kpi-label">Total Invested</span>
         <span class="kpi-value" id="kpiInvested">$0</span>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--blue-light);color:var(--blue);"><i class="fas fa-building"></i></div>
         <span class="kpi-label">Active Deals</span>
         <span class="kpi-value" id="kpiDeals">0</span>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--success-light);color:var(--success);"><i class="fas fa-wallet"></i></div>
         <span class="kpi-label">Total Distributions</span>
-        <span class="kpi-value green" id="kpiDist">$0</span>
+        <span class="kpi-value" style="color:var(--success);" id="kpiDist">$0</span>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--purple-light);color:var(--purple);"><i class="fas fa-chart-line"></i></div>
         <span class="kpi-label">Avg Deal IRR</span>
         <span class="kpi-value" id="kpiIrr">—</span>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <span><i class="fas fa-building" style="color:var(--accent);margin-right:8px;"></i>My Properties</span>
-        <a href="#" onclick="showPage('investments',document.querySelector('[onclick*=investments]'))" style="font-size:.78rem;color:var(--accent);text-decoration:none;">View all →</a>
-      </div>
-      <div class="card-body" id="dashDeals">
-        <div class="empty-state"><i class="fas fa-building"></i><p>No deals linked yet. Your GP will add you to deals once committed.</p></div>
+    <!-- Pending Capital Calls Alert -->
+    <div id="dashCallAlert" style="display:none;"></div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="card" style="grid-column:1/-1;">
+        <div class="card-header">
+          <span><i class="fas fa-building" style="color:var(--accent);margin-right:8px;"></i>My Properties</span>
+          <a href="#" onclick="showPage('investments',document.querySelector('.portal-nav a:nth-child(2)'))" style="font-size:.78rem;color:var(--accent);text-decoration:none;font-weight:600;">View all →</a>
+        </div>
+        <div class="card-body" id="dashDeals">
+          <div class="empty-state"><i class="fas fa-building"></i><p>No deals linked yet.</p></div>
+        </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header"><span><i class="fas fa-wallet" style="color:var(--success);margin-right:8px;"></i>Recent Distributions</span></div>
-      <div class="card-body" id="dashDists">
-        <div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:0;">
+      <div class="card">
+        <div class="card-header"><span><i class="fas fa-wallet" style="color:var(--success);margin-right:8px;"></i>Recent Distributions</span></div>
+        <div class="card-body" id="dashDists">
+          <div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions yet.</p></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span><i class="fas fa-bullhorn" style="color:var(--blue);margin-right:8px;"></i>Latest Updates</span></div>
+        <div class="card-body" id="dashComms">
+          <div class="empty-state"><i class="fas fa-bullhorn"></i><p>No updates yet.</p></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Investments -->
+  <!-- ═══════════ INVESTMENTS ═══════════ -->
   <div class="portal-page" id="page-investments">
-    <h2 style="margin-bottom:20px;font-size:1.25rem;">My Investments</h2>
+    <div class="section-title"><i class="fas fa-building" style="color:var(--accent);"></i> My Investments</div>
     <div id="investmentsContent">
       <div class="empty-state"><i class="fas fa-building"></i><p>No investments found.</p></div>
     </div>
   </div>
 
-  <!-- Distributions -->
+  <!-- ═══════════ DISTRIBUTIONS ═══════════ -->
   <div class="portal-page" id="page-distributions">
-    <h2 style="margin-bottom:20px;font-size:1.25rem;">Distribution History</h2>
+    <div class="section-title"><i class="fas fa-wallet" style="color:var(--success);"></i> Distribution History</div>
+    <div id="distFilterBar" style="margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+      <select id="distDealFilter" onchange="renderDistributions()" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.82rem;font-family:'Inter',sans-serif;background:var(--bg-card);color:var(--text);">
+        <option value="">All Deals</option>
+      </select>
+    </div>
     <div class="card">
       <div class="card-body" id="distContent">
         <div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>
@@ -199,17 +336,48 @@
     </div>
   </div>
 
-  <!-- Documents -->
-  <div class="portal-page" id="page-documents">
-    <h2 style="margin-bottom:20px;font-size:1.25rem;">My Documents</h2>
-    <div id="docsContent">
-      <div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents available yet. Your GP will share documents here.</p></div>
+  <!-- ═══════════ CAPITAL CALLS ═══════════ -->
+  <div class="portal-page" id="page-capitalcalls">
+    <div class="section-title"><i class="fas fa-hand-holding-usd" style="color:var(--warning);"></i> Capital Calls</div>
+    <div class="kpi-row" id="callKpis" style="grid-template-columns:repeat(3,1fr);"></div>
+    <div id="callsContent">
+      <div class="empty-state"><i class="fas fa-hand-holding-usd"></i><p>No capital calls issued yet.</p></div>
     </div>
   </div>
 
-  <!-- Profile -->
+  <!-- ═══════════ DOCUMENTS ═══════════ -->
+  <div class="portal-page" id="page-documents">
+    <div class="section-title"><i class="fas fa-folder-open" style="color:var(--accent);"></i> My Documents</div>
+    <div id="docsContent">
+      <div class="empty-state"><i class="fas fa-folder-open"></i><p>No documents available yet.</p></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAX CENTER ═══════════ -->
+  <div class="portal-page" id="page-taxcenter">
+    <div class="section-title"><i class="fas fa-file-invoice-dollar" style="color:var(--success);"></i> Tax Center</div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-body" style="display:flex;align-items:center;gap:14px;padding:16px 20px;">
+        <div style="width:40px;height:40px;background:var(--success-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--success);flex-shrink:0;"><i class="fas fa-info-circle"></i></div>
+        <div style="font-size:.85rem;color:var(--text-secondary);line-height:1.6;">Your K-1 tax documents are organized by tax year below. Each K-1 is specific to your investment — download and provide to your tax preparer.</div>
+      </div>
+    </div>
+    <div id="taxContent">
+      <div class="empty-state"><i class="fas fa-file-invoice-dollar"></i><p>No K-1s available yet. Your GP will post K-1 documents here after year-end.</p></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ COMMUNICATIONS ═══════════ -->
+  <div class="portal-page" id="page-comms">
+    <div class="section-title"><i class="fas fa-bullhorn" style="color:var(--blue);"></i> Investor Updates</div>
+    <div id="commsContent">
+      <div class="empty-state"><i class="fas fa-bullhorn"></i><p>No investor updates posted yet.</p></div>
+    </div>
+  </div>
+
+  <!-- ═══════════ PROFILE ═══════════ -->
   <div class="portal-page" id="page-profile">
-    <h2 style="margin-bottom:20px;font-size:1.25rem;">My Profile</h2>
+    <div class="section-title"><i class="fas fa-user" style="color:var(--purple);"></i> My Profile</div>
 
     <div class="card" style="margin-bottom:20px;">
       <div class="card-header">Accreditation Status</div>
@@ -227,195 +395,269 @@
     <div class="card">
       <div class="card-header">
         <span>Contact Information</span>
-        <button class="btn btn-primary" style="padding:6px 14px;font-size:.8rem;" onclick="saveProfile()"><i class="fas fa-save"></i> Save</button>
+        <button class="btn btn-primary btn-sm" onclick="saveProfile()"><i class="fas fa-save"></i> Save</button>
       </div>
       <div class="card-body">
         <div class="profile-grid">
-          <div class="form-group">
-            <label>First Name</label>
-            <input type="text" id="profFirst" placeholder="First name">
-          </div>
-          <div class="form-group">
-            <label>Last Name</label>
-            <input type="text" id="profLast" placeholder="Last name">
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" id="profEmail" readonly>
-          </div>
-          <div class="form-group">
-            <label>Phone</label>
-            <input type="tel" id="profPhone" placeholder="(555) 000-0000">
-          </div>
-          <div class="form-group" style="grid-column:1/-1;">
-            <label>Mailing Address</label>
-            <input type="text" id="profAddress" placeholder="123 Main St, City, State 00000">
-          </div>
+          <div class="form-group"><label>First Name</label><input type="text" id="profFirst" placeholder="First name"></div>
+          <div class="form-group"><label>Last Name</label><input type="text" id="profLast" placeholder="Last name"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="profEmail" readonly></div>
+          <div class="form-group"><label>Phone</label><input type="tel" id="profPhone" placeholder="(555) 000-0000"></div>
+          <div class="form-group" style="grid-column:1/-1;"><label>Mailing Address</label><input type="text" id="profAddress" placeholder="123 Main St, City, State 00000"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header">Investment Summary</div>
+      <div class="card-body" id="profileSummary">
+        <div class="empty-state"><p>Loading...</p></div>
       </div>
     </div>
   </div>
 
 </main>
 
-<!-- Mobile bottom nav -->
+<!-- Mobile Bottom Nav -->
 <nav class="mobile-nav">
   <a href="#" class="active" onclick="showPage('dashboard',this)"><i class="fas fa-home"></i>Home</a>
   <a href="#" onclick="showPage('investments',this)"><i class="fas fa-building"></i>Deals</a>
-  <a href="#" onclick="showPage('distributions',this)"><i class="fas fa-wallet"></i>Distributions</a>
-  <a href="#" onclick="showPage('documents',this)"><i class="fas fa-file"></i>Docs</a>
+  <a href="#" onclick="showPage('distributions',this)"><i class="fas fa-wallet"></i>Dist.</a>
+  <a href="#" onclick="showPage('capitalcalls',this)"><i class="fas fa-hand-holding-usd"></i>Calls</a>
+  <a href="#" onclick="showPage('documents',this)"><i class="fas fa-folder"></i>Docs</a>
+  <a href="#" onclick="showPage('taxcenter',this)"><i class="fas fa-file-invoice-dollar"></i>K-1s</a>
+  <a href="#" onclick="showPage('comms',this)"><i class="fas fa-bullhorn"></i>Updates</a>
   <a href="#" onclick="showPage('profile',this)"><i class="fas fa-user"></i>Profile</a>
 </nav>
-
 <script>
 SP.requireInvestor();
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// GLOBALS
+// ═══════════════════════════════════════════════════════════════════════════
+let _inv = null;       // Current investor record
+let _session = null;   // Current session
+let _linked = [];      // [{deal, entry}] — deals linked to this investor
+let _myDists = [];     // [{dist, recipient}]
+let _myCalls = [];     // [{call, deal}]
+let _myK1s = [];       // K-1s for THIS investor only
+let _allDeals = [];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
 function fmt$(n) {
-  if (!n && n !== 0) return '—';
-  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
-  if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
+  if (n == null) return '—';
+  if (Math.abs(n) >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
   return '$' + Number(n).toLocaleString();
 }
-function fmtFull$(n) { return '$' + Number(n||0).toLocaleString(); }
+function fmtFull$(n) { return '$' + Number(n||0).toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function fmtDate(d) {
+  if (!d) return '—';
+  try { return new Date(d).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); } catch(e) { return '—'; }
+}
+function daysUntil(d) {
+  if (!d) return null;
+  try { return Math.ceil((new Date(d) - new Date()) / 86400000); } catch(e) { return null; }
+}
+function resolveDealName(d) {
+  if (d.dealName) return d.dealName;
+  const deal = _allDeals.find(dl => dl.id === d.dealId);
+  return deal ? deal.name : 'Unknown Deal';
+}
+function distPeriod(d) {
+  if (d.period) return d.period;
+  if (d.quarter && d.year) return d.quarter + ' ' + d.year;
+  if (d.date) return fmtDate(d.date);
+  return '—';
+}
+function statusBadge(status) {
+  const map = {operating:'badge-operating',closed:'badge-closed',dd:'badge-active',loi:'badge-committed',sourcing:'badge-committed',funded:'badge-funded'};
+  const labels = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',operating:'Operating',closed:'Closed',funded:'Funded'};
+  return `<span class="badge ${map[status]||'badge-committed'}">${labels[status]||status||'—'}</span>`;
+}
 
+// ═══════════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════════════
 function showPage(name, el) {
   document.querySelectorAll('.portal-page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + name)?.classList.add('active');
-  // Update desktop nav
+  const page = document.getElementById('page-' + name);
+  if (page) page.classList.add('active');
   document.querySelectorAll('.portal-nav a').forEach(a => a.classList.remove('active'));
-  // Update mobile nav
   document.querySelectorAll('.mobile-nav a').forEach(a => a.classList.remove('active'));
   if (el) el.classList.add('active');
+  // Sync desktop+mobile
+  const idx = ['dashboard','investments','distributions','capitalcalls','documents','taxcenter','comms','profile'].indexOf(name);
+  if (idx >= 0) {
+    const dNav = document.querySelectorAll('.portal-nav a');
+    const mNav = document.querySelectorAll('.mobile-nav a');
+    if (dNav[idx]) dNav[idx].classList.add('active');
+    if (mNav[idx]) mNav[idx].classList.add('active');
+  }
+  window.scrollTo(0,0);
 }
 
-function saveProfile() {
-  const inv = SP.getCurrentInvestorRecord();
-  if (!inv) return;
-  const investors = SP.getInvestors();
-  const idx = investors.findIndex(i => i.id === inv.id);
-  if (idx < 0) return;
-  investors[idx] = {
-    ...investors[idx],
-    firstName: document.getElementById('profFirst').value.trim() || inv.firstName,
-    lastName:  document.getElementById('profLast').value.trim() || inv.lastName,
-    phone:     document.getElementById('profPhone').value.trim(),
-    address:   document.getElementById('profAddress').value.trim(),
-  };
-  SP.saveInvestors(investors);
-  showToast('Profile saved!');
-}
-
-function showToast(msg) {
+function showToast(msg, type) {
   const t = document.createElement('div');
-  t.style.cssText = 'position:fixed;bottom:80px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:#10b981;color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;';
+  t.className = 'toast';
+  if (type === 'warning') t.style.background = 'var(--warning)';
+  if (type === 'error') t.style.background = 'var(--danger)';
   t.innerHTML = '<i class="fas fa-check-circle"></i>' + msg;
   document.body.appendChild(t);
-  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 2500);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(() => t.remove(), 300); }, 2500);
 }
 
-// ── Render ─────────────────────────────────────────────────────────────────
-function render() {
-  const session = SP.getSession();
-  if (!session) return;
+// ═══════════════════════════════════════════════════════════════════════════
+// DOCUMENT VIEWER MODAL
+// ═══════════════════════════════════════════════════════════════════════════
+function openDocModal(title, url) {
+  document.getElementById('docModalTitle').textContent = title;
+  const frame = document.getElementById('docModalFrame');
+  if (url && url.startsWith('data:')) {
+    frame.srcdoc = decodeURIComponent(url.replace(/^data:[^,]+,/, ''));
+  } else if (url) {
+    frame.src = url;
+    frame.srcdoc = '';
+  }
+  document.getElementById('docModal').classList.add('active');
+}
+function closeDocModal() {
+  document.getElementById('docModal').classList.remove('active');
+  const frame = document.getElementById('docModalFrame');
+  frame.src = '';
+  frame.srcdoc = '';
+}
+// Close on overlay click
+document.getElementById('docModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeDocModal();
+});
 
-  const firstName = session.name ? session.name.split(' ')[0] : 'Investor';
-  document.getElementById('headerName').textContent = session.name || session.email;
-  document.getElementById('welcomeName').textContent = firstName;
+// ═══════════════════════════════════════════════════════════════════════════
+// DATA LOADING (runs once on data ready)
+// ═══════════════════════════════════════════════════════════════════════════
+function loadPortalData() {
+  _session = SP.getSession();
+  if (!_session) return;
+  _inv = SP.getCurrentInvestorRecord();
+  _allDeals = SP.getDeals();
 
-  // Find this investor's record
-  const inv = SP.getCurrentInvestorRecord();
-
-  // Get all deals and find ones linked to this investor
-  const allDeals = SP.getDeals();
-  const linkedEntries = []; // { deal, entry }
-  allDeals.forEach(d => {
+  // ── Linked deals ──
+  _linked = [];
+  _allDeals.forEach(d => {
     if (!Array.isArray(d.investors)) return;
     const entry = d.investors.find(i =>
-      i.investorId === inv?.id ||
-      (inv?.email && SP.getInvestorById(i.investorId)?.email?.toLowerCase() === session.email?.toLowerCase())
+      i.investorId === _inv?.id ||
+      (_inv?.email && SP.getInvestorById(i.investorId)?.email?.toLowerCase() === _session.email?.toLowerCase())
     );
-    if (entry) linkedEntries.push({ deal: d, entry });
+    if (entry) _linked.push({ deal: d, entry });
   });
 
-  const totalInvested = linkedEntries.reduce((s, { entry }) => s + (entry.committed || 0), 0);
-
-  // Distributions for this investor
+  // ── Distributions for this investor ──
+  _myDists = [];
   const allDists = SP.getDistributions().filter(d => d.status === 'posted');
-  const myDists = [];
-  // Helper: resolve deal name from dist record or deals list
-  const _resolveDealName = (d) => {
-    if (d.dealName) return d.dealName;
-    const deal = allDeals.find(dl => dl.id === d.dealId);
-    return deal ? deal.name : 'Unknown Deal';
-  };
-  // Helper: safe period string
-  const _distPeriod = (d) => {
-    if (d.period) return d.period;
-    if (d.quarter && d.year) return d.quarter + ' ' + d.year;
-    if (d.date) return new Date(d.date + 'T00:00:00').toLocaleDateString();
-    return '—';
-  };
-
   allDists.forEach(d => {
     if (!Array.isArray(d.recipients)) return;
     const r = d.recipients.find(r =>
-      r.investorId === inv?.id ||
-      (inv?.email && SP.getInvestorById(r.investorId)?.email?.toLowerCase() === session.email?.toLowerCase())
+      r.investorId === _inv?.id ||
+      (_inv?.email && SP.getInvestorById(r.investorId)?.email?.toLowerCase() === _session.email?.toLowerCase())
     );
-    if (r) myDists.push({ dist: d, r });
+    if (r) _myDists.push({ dist: d, recipient: r });
   });
-  const totalDist = myDists.reduce((s, { r }) => s + (r.amount || r.totalThisDist || 0), 0);
 
-  // Average IRR
-  const irrs = linkedEntries.map(({ deal }) => deal.irr).filter(Boolean);
+  // ── Capital calls for deals I'm in ──
+  _myCalls = [];
+  const allCalls = SP.getCapitalCalls();
+  const myDealIds = new Set(_linked.map(l => l.deal.id));
+  allCalls.forEach(c => {
+    if (myDealIds.has(c.dealId)) {
+      const deal = _allDeals.find(d => d.id === c.dealId);
+      _myCalls.push({ call: c, deal });
+    }
+  });
+
+  // ── K-1s — ONLY for this investor ──
+  _myK1s = [];
+  try {
+    const vault = SP.load('k1_vault', []);
+    _myK1s = vault.filter(v => v.investorId === _inv?.id && v.status === 'sent');
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: DASHBOARD
+// ═══════════════════════════════════════════════════════════════════════════
+function renderDashboard() {
+  const firstName = _session.name ? _session.name.split(' ')[0] : 'Investor';
+  document.getElementById('headerName').textContent = _session.name || _session.email;
+  document.getElementById('welcomeName').textContent = firstName;
+
+  const totalInvested = _linked.reduce((s, {entry}) => s + (entry.committed || 0), 0);
+  const totalDist = _myDists.reduce((s, {recipient}) => s + (recipient.amount || recipient.totalThisDist || 0), 0);
+  const irrs = _linked.map(({deal}) => deal.irr).filter(Boolean);
   const avgIrr = irrs.length ? (irrs.reduce((a,b)=>a+b,0)/irrs.length).toFixed(1) + '%' : '—';
 
-  // KPIs
   document.getElementById('kpiInvested').textContent = fmt$(totalInvested);
-  document.getElementById('kpiDeals').textContent = linkedEntries.length;
+  document.getElementById('kpiDeals').textContent = _linked.length;
   document.getElementById('kpiDist').textContent = fmt$(totalDist);
   document.getElementById('kpiIrr').textContent = avgIrr;
 
-  // Welcome subtitle
   if (totalInvested > 0) {
     document.getElementById('welcomeSub').textContent =
-      `You have ${linkedEntries.length} active investment${linkedEntries.length!==1?'s':''} totaling ${fmtFull$(totalInvested)}`;
+      `${_linked.length} active investment${_linked.length!==1?'s':''} · ${fmtFull$(totalInvested)} committed · ${fmtFull$(totalDist)} distributed`;
+  }
+
+  // Pending capital calls alert
+  const pendingCalls = _myCalls.filter(({call}) => call.status !== 'received');
+  const alertEl = document.getElementById('dashCallAlert');
+  if (pendingCalls.length > 0) {
+    const totalDue = pendingCalls.reduce((s,{call}) => s + (call.amount||0), 0);
+    const overdue = pendingCalls.filter(({call}) => call.dueDate && new Date(call.dueDate) < new Date());
+    alertEl.style.display = 'block';
+    alertEl.innerHTML = `<div class="card" style="border-left:3px solid ${overdue.length?'var(--danger)':'var(--warning)'};margin-bottom:20px;">
+      <div class="card-body" style="display:flex;align-items:center;gap:14px;">
+        <div style="width:40px;height:40px;background:${overdue.length?'var(--danger-light)':'var(--warning-light)'};border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:${overdue.length?'var(--danger)':'var(--warning)'};flex-shrink:0;font-size:1.1rem;">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:.9rem;">${pendingCalls.length} Pending Capital Call${pendingCalls.length!==1?'s':''} — ${fmtFull$(totalDue)} Due</div>
+          <div style="font-size:.8rem;color:var(--text-secondary);margin-top:2px;">${overdue.length?overdue.length+' overdue · ':''}Review and fund your capital commitments</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showPage('capitalcalls',document.querySelector('.portal-nav a:nth-child(4)'))">View Calls →</button>
+      </div>
+    </div>`;
+  } else {
+    alertEl.style.display = 'none';
   }
 
   // Dashboard deals
   const dashDealsEl = document.getElementById('dashDeals');
-  if (linkedEntries.length) {
-    dashDealsEl.innerHTML = linkedEntries.slice(0,5).map(({ deal, entry }) => {
-      const STATUS_BADGE = {operating:'badge-operating',closed:'badge-closed',dd:'badge-active',loi:'badge-committed'};
-      const STATUS_LABEL = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',operating:'Operating',closed:'Closed'};
-      return `<div class="deal-item">
+  if (_linked.length) {
+    dashDealsEl.innerHTML = _linked.slice(0,5).map(({deal, entry}) => `
+      <div class="deal-item">
         <div>
           <div class="deal-name">${deal.name}</div>
-          <div class="deal-meta">
-            ${deal.location || '—'} · <span class="badge ${STATUS_BADGE[deal.status]||'badge-committed'}">${STATUS_LABEL[deal.status]||deal.status||'—'}</span>
-            · ${entry.ownership ? entry.ownership.toFixed(2)+'% ownership' : '—'}
-          </div>
+          <div class="deal-meta">${deal.location||'—'} · ${statusBadge(deal.status)} · ${entry.ownership ? entry.ownership.toFixed(2)+'%' : '—'}</div>
         </div>
-        <div class="deal-nums">
-          <div class="invested">${fmtFull$(entry.committed||0)}</div>
-          <div class="ownership">IRR: ${deal.irr ? deal.irr.toFixed(1)+'%' : '—'}</div>
+        <div style="text-align:right;">
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;">${fmtFull$(entry.committed||0)}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">IRR: ${deal.irr ? deal.irr.toFixed(1)+'%' : '—'}</div>
         </div>
-      </div>`;
-    }).join('');
+      </div>`).join('');
   } else {
-    dashDealsEl.innerHTML = '<div class="empty-state"><i class="fas fa-building"></i><p>No deals linked to your account yet.<br>Contact your GP to get added to a deal.</p></div>';
+    dashDealsEl.innerHTML = '<div class="empty-state"><i class="fas fa-building"></i><p>No deals linked yet. Your GP will add you to deals.</p></div>';
   }
 
   // Dashboard distributions
   const dashDistsEl = document.getElementById('dashDists');
-  if (myDists.length) {
-    dashDistsEl.innerHTML = myDists.slice(-5).reverse().map(({ dist, r }) => {
-      const amount = r.amount || r.totalThisDist || 0;
+  if (_myDists.length) {
+    dashDistsEl.innerHTML = _myDists.slice(-4).reverse().map(({dist, recipient}) => {
+      const amount = recipient.amount || recipient.totalThisDist || 0;
       return `<div class="dist-item">
         <div>
-          <div class="dist-deal">${_resolveDealName(dist)}</div>
-          <div class="dist-period">${_distPeriod(dist)} · ${dist.method||'Wire'}</div>
+          <div class="dist-deal">${resolveDealName(dist)}</div>
+          <div class="dist-period">${distPeriod(dist)}</div>
         </div>
         <div class="dist-amount">${fmtFull$(amount)}</div>
       </div>`;
@@ -424,220 +666,596 @@ function render() {
     dashDistsEl.innerHTML = '<div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions yet.</p></div>';
   }
 
-  // Investments page
-  const invContent = document.getElementById('investmentsContent');
-  if (linkedEntries.length) {
-    invContent.innerHTML = linkedEntries.map(({ deal, entry }) => {
-      const dealDists = myDists.filter(({ dist }) => dist.dealId === deal.id);
-      const dealDistTotal = dealDists.reduce((s, { r }) => s + (r.amount||r.totalThisDist||0), 0);
-      return `<div class="card" style="margin-bottom:16px;">
-        <div class="card-header">
-          <div>
-            <div style="font-weight:700;">${deal.name}</div>
-            <div style="font-size:.78rem;color:var(--text-muted);font-weight:400;margin-top:2px;">${deal.location||'—'} · ${deal.type||'—'}</div>
-          </div>
-          <span class="badge ${deal.status==='operating'?'badge-operating':deal.status==='closed'?'badge-closed':'badge-committed'}">${deal.status||'—'}</span>
-        </div>
-        <div class="card-body">
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex-wrap:wrap;">
-            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Invested</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;">${fmtFull$(entry.committed||0)}</div></div>
-            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Ownership</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;">${entry.ownership ? entry.ownership.toFixed(4)+'%' : '—'}</div></div>
-            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Target IRR</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${deal.irr ? deal.irr.toFixed(1)+'%' : '—'}</div></div>
-            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Distributions</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${fmtFull$(dealDistTotal)}</div></div>
-          </div>
-          ${deal.prefReturn ? `<div style="margin-top:14px;padding:10px 14px;background:var(--border-light);border-radius:var(--radius);font-size:.82rem;color:var(--text-secondary);"><i class="fas fa-star" style="color:#f59e0b;margin-right:6px;"></i>Preferred return: <strong style="color:#1B1A19;">${deal.prefReturn}% per annum</strong> · GP promote: ${deal.gpPromote||'—'}%</div>` : ''}
-        </div>
-      </div>`;
-    }).join('');
+  // Dashboard comms
+  const dashCommsEl = document.getElementById('dashComms');
+  const updates = loadInvestorUpdates();
+  if (updates.length) {
+    dashCommsEl.innerHTML = updates.slice(0,3).map(u => `
+      <div style="padding:10px 0;border-bottom:1px solid var(--border-light);">
+        <div style="font-weight:600;font-size:.85rem;">${u.title || 'Update'}</div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">${u.dealName || '—'} · ${fmtDate(u.date)}</div>
+      </div>`).join('');
   } else {
-    invContent.innerHTML = '<div class="empty-state"><i class="fas fa-building"></i><p>No investments yet.</p></div>';
+    dashCommsEl.innerHTML = '<div class="empty-state"><i class="fas fa-bullhorn"></i><p>No updates yet.</p></div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: INVESTMENTS
+// ═══════════════════════════════════════════════════════════════════════════
+function renderInvestments() {
+  const el = document.getElementById('investmentsContent');
+  if (!_linked.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-building"></i><p>No investments yet. Your GP will add you to deals once committed.</p></div>';
+    return;
   }
 
-  // Distributions page
-  const distContent = document.getElementById('distContent');
-  if (myDists.length) {
-    distContent.innerHTML = myDists.slice().reverse().map(({ dist, r }) => {
-      const amount = r.amount || r.totalThisDist || 0;
-      return `<div class="dist-item">
+  el.innerHTML = _linked.map(({deal, entry}) => {
+    const dealDists = _myDists.filter(({dist}) => dist.dealId === deal.id);
+    const dealDistTotal = dealDists.reduce((s, {recipient}) => s + (recipient.amount||recipient.totalThisDist||0), 0);
+    const multiple = entry.committed > 0 ? ((entry.committed + dealDistTotal) / entry.committed).toFixed(2) + 'x' : '—';
+
+    return `<div class="invest-card">
+      <div class="invest-header">
         <div>
-          <div class="dist-deal">${_resolveDealName(dist)}</div>
-          <div class="dist-period">
-            ${_distPeriod(dist)} ·
-            ${dist.method||'Wire'}
-          </div>
-          ${r.prefPaidThisDist > 0 ? `<div style="font-size:.72rem;color:var(--warning);margin-top:3px;"><i class="fas fa-star"></i> Pref: ${fmtFull$(r.prefPaidThisDist)} + Excess: ${fmtFull$(r.excessThisDist||0)}</div>` : ''}
+          <div style="font-weight:700;font-size:1.05rem;">${deal.name}</div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-top:2px;">${deal.location||'—'} · ${deal.type||'—'}</div>
         </div>
-        <div class="dist-amount">${fmtFull$(amount)}</div>
-      </div>`;
-    }).join('') + `<div style="padding:14px 0;border-top:2px solid #E2DDD8;margin-top:8px;display:flex;justify-content:space-between;font-weight:700;">
-      <span>Total Received</span>
-      <span style="font-family:'JetBrains Mono',monospace;color:var(--success);">${fmtFull$(totalDist)}</span>
+        ${statusBadge(deal.status)}
+      </div>
+      <div class="invest-stats">
+        <div class="invest-stat">
+          <div class="invest-stat-label">Invested</div>
+          <div class="invest-stat-value">${fmtFull$(entry.committed||0)}</div>
+        </div>
+        <div class="invest-stat">
+          <div class="invest-stat-label">Ownership</div>
+          <div class="invest-stat-value">${entry.ownership ? entry.ownership.toFixed(4)+'%' : '—'}</div>
+        </div>
+        <div class="invest-stat">
+          <div class="invest-stat-label">Target IRR</div>
+          <div class="invest-stat-value" style="color:var(--success);">${deal.irr ? deal.irr.toFixed(1)+'%' : '—'}</div>
+        </div>
+        <div class="invest-stat">
+          <div class="invest-stat-label">Distributions</div>
+          <div class="invest-stat-value" style="color:var(--success);">${fmtFull$(dealDistTotal)}</div>
+        </div>
+      </div>
+      ${deal.prefReturn ? `<div class="invest-footer">
+        <i class="fas fa-star" style="color:#f59e0b;"></i>
+        Preferred return: <strong style="margin:0 4px;">${deal.prefReturn}%</strong> per annum · GP promote: <strong style="margin-left:4px;">${deal.gpPromote||'—'}%</strong>
+      </div>` : ''}
+      <div class="invest-footer" style="justify-content:space-between;">
+        <span style="font-size:.78rem;">MOIC: <strong>${multiple}</strong> · ${dealDists.length} distribution${dealDists.length!==1?'s':''}</span>
+        ${deal.holdPeriod ? `<span style="font-size:.78rem;">Hold: <strong>${deal.holdPeriod} yr${deal.holdPeriod!==1?'s':''}</strong></span>` : ''}
+      </div>
     </div>`;
-  } else {
-    distContent.innerHTML = '<div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: DISTRIBUTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+function renderDistributions() {
+  const filterDeal = document.getElementById('distDealFilter').value;
+  const filtered = filterDeal ? _myDists.filter(({dist}) => dist.dealId === filterDeal) : _myDists;
+  const el = document.getElementById('distContent');
+
+  // Populate deal filter
+  const filterEl = document.getElementById('distDealFilter');
+  if (filterEl.options.length <= 1) {
+    const dealIds = [...new Set(_myDists.map(({dist}) => dist.dealId))];
+    dealIds.forEach(id => {
+      const deal = _allDeals.find(d => d.id === id);
+      if (deal) filterEl.add(new Option(deal.name, id));
+    });
   }
 
-  // Documents page — organized by deal
-  const docsContent = document.getElementById('docsContent');
-  const dealDocMap = {}; // dealId → { dealName, docs[] }
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>';
+    return;
+  }
+
+  const totalDist = filtered.reduce((s, {recipient}) => s + (recipient.amount || recipient.totalThisDist || 0), 0);
+
+  el.innerHTML = filtered.slice().reverse().map(({dist, recipient}) => {
+    const amount = recipient.amount || recipient.totalThisDist || 0;
+    return `<div class="dist-item">
+      <div>
+        <div class="dist-deal">${resolveDealName(dist)}</div>
+        <div class="dist-period">${distPeriod(dist)} · ${dist.method||'Wire'}</div>
+        ${recipient.prefPaidThisDist > 0 ? `<div style="font-size:.72rem;color:var(--warning);margin-top:3px;"><i class="fas fa-star"></i> Pref: ${fmtFull$(recipient.prefPaidThisDist)} + Excess: ${fmtFull$(recipient.excessThisDist||0)}</div>` : ''}
+      </div>
+      <div class="dist-amount">${fmtFull$(amount)}</div>
+    </div>`;
+  }).join('') + `<div class="totals-row">
+    <span>Total Received</span>
+    <span class="total-val">${fmtFull$(totalDist)}</span>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: CAPITAL CALLS
+// ═══════════════════════════════════════════════════════════════════════════
+function renderCapitalCalls() {
+  const el = document.getElementById('callsContent');
+  const kpiEl = document.getElementById('callKpis');
+
+  if (!_myCalls.length) {
+    kpiEl.innerHTML = '';
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><p>No capital calls issued for your deals yet.</p></div>';
+    return;
+  }
+
+  const totalCalled = _myCalls.reduce((s,{call}) => s + (call.amount||0), 0);
+  const funded = _myCalls.filter(({call}) => call.status === 'received');
+  const totalFunded = funded.reduce((s,{call}) => s + (call.amount||0), 0);
+  const pending = _myCalls.filter(({call}) => call.status !== 'received');
+  const overdue = pending.filter(({call}) => call.dueDate && new Date(call.dueDate) < new Date());
+
+  kpiEl.innerHTML = `
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--blue-light);color:var(--blue);"><i class="fas fa-file-invoice-dollar"></i></div>
+      <span class="kpi-label">Total Called</span>
+      <span class="kpi-value">${fmtFull$(totalCalled)}</span>
+      <div class="kpi-sub">${_myCalls.length} call${_myCalls.length!==1?'s':''}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:var(--success-light);color:var(--success);"><i class="fas fa-check-circle"></i></div>
+      <span class="kpi-label">Funded</span>
+      <span class="kpi-value" style="color:var(--success);">${fmtFull$(totalFunded)}</span>
+      <div class="progress-bar"><div class="progress-fill" style="width:${totalCalled?Math.round(totalFunded/totalCalled*100):0}%;background:var(--success);"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:${overdue.length?'var(--danger-light)':'var(--warning-light)'};color:${overdue.length?'var(--danger)':'var(--warning)'};"><i class="fas fa-clock"></i></div>
+      <span class="kpi-label">Outstanding</span>
+      <span class="kpi-value" style="color:${overdue.length?'var(--danger)':'var(--warning)'};">${fmtFull$(totalCalled - totalFunded)}</span>
+      <div class="kpi-sub">${pending.length} pending${overdue.length?' · '+overdue.length+' overdue':''}</div>
+    </div>`;
+
+  // Sort: overdue first, then pending, then paid
+  const sorted = [..._myCalls].sort((a,b) => {
+    const aPri = a.call.status === 'received' ? 2 : (a.call.dueDate && new Date(a.call.dueDate) < new Date() ? 0 : 1);
+    const bPri = b.call.status === 'received' ? 2 : (b.call.dueDate && new Date(b.call.dueDate) < new Date() ? 0 : 1);
+    return aPri - bPri;
+  });
+
+  el.innerHTML = sorted.map(({call, deal}) => {
+    const isOverdue = call.dueDate && new Date(call.dueDate) < new Date() && call.status !== 'received';
+    const isPaid = call.status === 'received';
+    const days = daysUntil(call.dueDate);
+    const dueLabel = isPaid ? 'Funded' : isOverdue ? `Overdue by ${Math.abs(days)} day${Math.abs(days)!==1?'s':''}` : days !== null ? `Due in ${days} day${days!==1?'s':''}` : 'No due date';
+
+    return `<div class="call-card ${isOverdue?'overdue':isPaid?'paid':'pending'}">
+      <div class="call-row">
+        <div class="call-info">
+          <div style="font-weight:700;font-size:.95rem;margin-bottom:4px;">${deal?.name || call.dealName || 'Unknown Deal'}</div>
+          <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:6px;">${call.purpose || 'Capital Call'} ${call.callNumber ? '· Call #'+call.callNumber : ''}</div>
+          <span class="badge ${isOverdue?'badge-overdue':isPaid?'badge-paid':'badge-pending'}">${isOverdue?'Overdue':isPaid?'Paid':call.status==='sent'?'Sent':'Pending'}</span>
+        </div>
+        <div class="call-amount">
+          <div class="amount" style="color:${isOverdue?'var(--danger)':isPaid?'var(--success)':'var(--text)'};">${fmtFull$(call.amount)}</div>
+          <div class="due">${dueLabel}</div>
+          ${call.dueDate ? '<div style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">Due: '+fmtDate(call.dueDate)+'</div>' : ''}
+        </div>
+      </div>
+      ${call.wireInstructions ? `<div style="margin-top:14px;padding:12px 14px;background:var(--bg);border-radius:var(--radius);font-size:.8rem;color:var(--text-secondary);"><i class="fas fa-university" style="margin-right:6px;color:var(--text-muted);"></i><strong>Wire Instructions:</strong> ${call.wireInstructions}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: DOCUMENTS
+// ═══════════════════════════════════════════════════════════════════════════
+function renderDocuments() {
+  const el = document.getElementById('docsContent');
+  const dealDocMap = {};
 
   // Collect docs per deal
-  linkedEntries.forEach(({ deal }) => {
+  _linked.forEach(({deal}) => {
     if (!dealDocMap[deal.id]) dealDocMap[deal.id] = { dealName: deal.name, location: deal.location, docs: [] };
 
-    // Operating Agreement
     if (deal.generatedOA) {
-      dealDocMap[deal.id].docs.push({ name: 'Operating Agreement', icon: 'fa-file-contract', type: 'OA', date: deal.oaGeneratedAt, dealId: deal.id });
+      dealDocMap[deal.id].docs.push({ name: 'Operating Agreement', icon: 'fa-file-contract', iconClass: 'legal', type: 'Legal', date: deal.oaGeneratedAt, fileUrl: deal.generatedOA.startsWith && deal.generatedOA.startsWith('data:') ? deal.generatedOA : null, dealId: deal.id });
     }
-
-    // Offering Memorandum (check for generated OM)
     if (deal.generatedOM || deal.omGeneratedAt) {
-      dealDocMap[deal.id].docs.push({ name: 'Offering Memorandum', icon: 'fa-book', type: 'OM', date: deal.omGeneratedAt, dealId: deal.id });
+      dealDocMap[deal.id].docs.push({ name: 'Offering Memorandum', icon: 'fa-book', iconClass: 'legal', type: 'Legal', date: deal.omGeneratedAt, dealId: deal.id });
     }
-
-    // Subscription Agreement
     if (deal.subAgreement) {
-      dealDocMap[deal.id].docs.push({ name: 'Subscription Agreement', icon: 'fa-file-signature', type: 'Sub', date: deal.subAgreementDate });
+      dealDocMap[deal.id].docs.push({ name: 'Subscription Agreement', icon: 'fa-file-signature', iconClass: 'legal', type: 'Legal', date: deal.subAgreementDate });
     }
 
-    // Deal room files (uploaded documents from GP)
-    if (Array.isArray(deal.files)) {
-      deal.files.forEach(f => {
-        dealDocMap[deal.id].docs.push({ name: f.name || f.fileName, icon: 'fa-file', type: f.category || 'File', date: f.uploadedAt || f.date, url: f.url || f.downloadUrl });
-      });
-    }
+    // Deal room files — respect access controls
+    try {
+      const roomDocs = SP.load('dealroom_docs_' + deal.id, []);
+      if (Array.isArray(roomDocs)) {
+        roomDocs.forEach(f => {
+          // Access control: skip GP-only docs; for select-access, check if this investor is allowed
+          if (f.access === 'gp') return;
+          if (f.access === 'select' && Array.isArray(f.allowedInvestors) && !f.allowedInvestors.includes(_inv?.id)) return;
+          dealDocMap[deal.id].docs.push({
+            name: f.name || f.fileName || 'Document',
+            icon: 'fa-file-alt', iconClass: '', type: f.category || 'File',
+            date: f.uploadedAt || f.date, fileUrl: f.fileUrl || f.url || f.downloadUrl
+          });
+        });
+      }
+    } catch(e) {}
 
-    // Deal documents collection
+    // Deal documents array
     if (Array.isArray(deal.documents)) {
       deal.documents.forEach(f => {
-        dealDocMap[deal.id].docs.push({ name: f.name || f.title, icon: 'fa-file-alt', type: f.type || 'Document', date: f.date || f.uploadedAt, url: f.url || f.downloadUrl });
+        dealDocMap[deal.id].docs.push({ name: f.name || f.title, icon: 'fa-file-alt', iconClass: '', type: f.type || 'Document', date: f.date || f.uploadedAt, fileUrl: f.url || f.downloadUrl });
+      });
+    }
+    if (Array.isArray(deal.files)) {
+      deal.files.forEach(f => {
+        dealDocMap[deal.id].docs.push({ name: f.name || f.fileName, icon: 'fa-file', iconClass: '', type: f.category || 'File', date: f.uploadedAt || f.date, fileUrl: f.url || f.downloadUrl });
       });
     }
   });
 
-  // K-1s from vault
-  const VAULT_KEY = 'sp_k1_vault';
-  let myK1s = [];
-  try {
-    const vault = SP.load('k1_vault', []);
-    myK1s = vault.filter(v => v.investorId === inv?.id && v.status === 'sent');
-  } catch(e) {}
-  myK1s.forEach(k => {
-    if (!dealDocMap[k.dealId]) {
-      const deal = allDeals.find(d => d.id === k.dealId);
-      dealDocMap[k.dealId] = { dealName: deal ? deal.name : 'Unknown Deal', location: deal?.location, docs: [] };
+  // K-1s — ONLY this investor's K-1s
+  _myK1s.forEach(k => {
+    const dealId = k.dealId || 'unknown';
+    if (!dealDocMap[dealId]) {
+      const deal = _allDeals.find(d => d.id === dealId);
+      dealDocMap[dealId] = { dealName: deal ? deal.name : 'Unknown Deal', location: deal?.location, docs: [] };
     }
-    dealDocMap[k.dealId].docs.push({ name: `${k.taxYear} K-1`, icon: 'fa-file-invoice-dollar', type: 'K-1', date: k.sentAt || k.uploadedAt, fileData: k.fileData, isK1: true });
-  });
-
-  // Also check distributions for statements (each posted dist can be a "statement")
-  myDists.forEach(({ dist }) => {
-    if (!dealDocMap[dist.dealId]) return;
-    dealDocMap[dist.dealId].docs.push({
-      name: `Distribution Statement — ${_distPeriod(dist)}`,
-      icon: 'fa-receipt',
-      type: 'Statement',
-      date: dist.postedAt || dist.date,
-      isDist: true
+    dealDocMap[dealId].docs.push({
+      name: (k.taxYear || 'Tax') + ' K-1',
+      icon: 'fa-file-invoice-dollar', iconClass: 'k1', type: 'K-1',
+      date: k.sentAt || k.uploadedAt, fileUrl: k.fileData || null, isK1: true
     });
   });
 
-  const dealEntries = Object.entries(dealDocMap).filter(([_, v]) => v.docs.length > 0);
+  // Distribution statements
+  _myDists.forEach(({dist}) => {
+    const dealId = dist.dealId;
+    if (!dealDocMap[dealId]) return;
+    dealDocMap[dealId].docs.push({
+      name: 'Distribution Statement — ' + distPeriod(dist),
+      icon: 'fa-receipt', iconClass: 'statement', type: 'Statement',
+      date: dist.postedAt || dist.date
+    });
+  });
 
-  if (dealEntries.length) {
-    docsContent.innerHTML = dealEntries.map(([dealId, { dealName, location, docs }]) => {
-      const docRows = docs.sort((a,b) => {
-        const da = a.date ? new Date(a.date).getTime() : 0;
-        const db = b.date ? new Date(b.date).getTime() : 0;
-        return db - da;
-      }).map(doc => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:36px;height:36px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;">
-              <i class="fas ${doc.icon}"></i>
-            </div>
-            <div>
-              <div style="font-weight:600;font-size:.875rem;">${doc.name}</div>
-              <div style="font-size:.75rem;color:var(--text-muted);">${doc.type}${doc.date ? ' · ' + new Date(doc.date).toLocaleDateString() : ''}</div>
-            </div>
-          </div>
-          ${doc.url
-            ? `<a href="${doc.url}" target="_blank" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-download"></i> Download</a>`
-            : doc.dealId
-              ? `<a href="deal-detail.html?id=${doc.dealId}" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-eye"></i> View</a>`
-              : ''}
-        </div>`).join('');
+  const entries = Object.entries(dealDocMap).filter(([_, v]) => v.docs.length > 0);
 
-      return `<div class="card" style="margin-bottom:16px;">
-        <div class="card-header">
-          <div>
-            <span style="font-weight:700;"><i class="fas fa-building" style="color:var(--accent);margin-right:8px;"></i>${dealName}</span>
-            ${location ? `<span style="font-size:.78rem;color:var(--text-muted);margin-left:8px;">${location}</span>` : ''}
-          </div>
-          <span class="badge badge-operating" style="font-size:.7rem;">${docs.length} doc${docs.length!==1?'s':''}</span>
-        </div>
-        <div class="card-body" style="padding:4px 20px;">${docRows}</div>
-      </div>`;
-    }).join('');
-  } else {
-    docsContent.innerHTML = '<div class="card"><div class="card-body"><div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents shared yet. Your GP will post documents here.</p></div></div></div>';
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>No documents shared yet. Your GP will post documents here.</p></div>';
+    return;
   }
 
-  // Accreditation status
+  el.innerHTML = entries.map(([dealId, {dealName, location, docs}]) => {
+    const sorted = docs.sort((a,b) => {
+      const da = a.date ? new Date(a.date).getTime() : 0;
+      const db = b.date ? new Date(b.date).getTime() : 0;
+      return db - da;
+    });
+
+    const docRows = sorted.map(doc => {
+      const ref = doc.fileUrl ? registerDoc(doc.name || 'Document', doc.fileUrl) : null;
+      return `<div class="doc-row" ${ref ? `onclick="openDocByRef('${ref}')"` : ''}>
+        <div class="doc-icon-box ${doc.iconClass||''}"><i class="fas ${doc.icon}"></i></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${doc.name}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);">${doc.type}${doc.date ? ' · ' + fmtDate(doc.date) : ''}</div>
+        </div>
+        ${ref ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDocByRef('${ref}')"><i class="fas fa-eye"></i> View</button>` : '<span style="font-size:.72rem;color:var(--text-muted);">No file</span>'}
+      </div>`;
+    }).join('');
+
+    return `<div class="card">
+      <div class="card-header">
+        <div>
+          <span style="font-weight:700;"><i class="fas fa-building" style="color:var(--accent);margin-right:8px;"></i>${dealName}</span>
+          ${location ? `<span style="font-size:.78rem;color:var(--text-muted);margin-left:8px;">${location}</span>` : ''}
+        </div>
+        <span class="badge badge-operating">${docs.length} doc${docs.length!==1?'s':''}</span>
+      </div>
+      <div class="card-body" style="padding:4px 20px;">${docRows}</div>
+    </div>`;
+  }).join('');
+}
+
+// Store doc references for safe onclick (avoids giant data: URLs in HTML attributes)
+const _docRefs = {};
+let _docRefCounter = 0;
+function registerDoc(title, url) {
+  const key = 'dr' + (++_docRefCounter);
+  _docRefs[key] = { title, url };
+  return key;
+}
+function openDocByRef(key) {
+  const ref = _docRefs[key];
+  if (ref) openDocModal(ref.title, ref.url);
+}
+function openDocViewer(title, encodedUrl) {
+  const url = decodeURIComponent(encodedUrl);
+  openDocModal(title, url);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: TAX CENTER (K-1s only for THIS investor)
+// ═══════════════════════════════════════════════════════════════════════════
+function renderTaxCenter() {
+  const el = document.getElementById('taxContent');
+
+  if (!_myK1s.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-file-invoice-dollar"></i><p>No K-1s available yet. Your GP will post K-1 documents here after year-end.</p></div>';
+    return;
+  }
+
+  // Group by tax year
+  const byYear = {};
+  _myK1s.forEach(k => {
+    const yr = k.taxYear || 'Unknown';
+    if (!byYear[yr]) byYear[yr] = [];
+    byYear[yr].push(k);
+  });
+
+  const years = Object.keys(byYear).sort((a,b) => b - a);
+
+  el.innerHTML = years.map(yr => {
+    const k1s = byYear[yr];
+    return `<div class="tax-year-group">
+      <div class="tax-year-header"><i class="fas fa-calendar-alt" style="margin-right:6px;"></i>Tax Year ${yr}</div>
+      ${k1s.map(k => {
+        const deal = _allDeals.find(d => d.id === k.dealId);
+        const dealName = deal ? deal.name : 'Unknown Deal';
+        return `<div class="card" style="margin-bottom:12px;">
+          <div class="card-body" style="display:flex;align-items:center;gap:16px;">
+            <div class="doc-icon-box k1" style="width:48px;height:48px;font-size:1.1rem;"><i class="fas fa-file-invoice-dollar"></i></div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:.95rem;">Schedule K-1 — ${dealName}</div>
+              <div style="font-size:.78rem;color:var(--text-muted);margin-top:3px;">
+                Tax Year ${yr} · ${k.entityType || 'Partnership'} · 
+                Sent ${fmtDate(k.sentAt || k.uploadedAt)}
+              </div>
+              ${k.ordinaryIncome != null || k.rentalIncome != null ? `
+              <div style="display:flex;gap:16px;margin-top:8px;font-size:.78rem;">
+                ${k.ordinaryIncome != null ? `<span>Ordinary Income: <strong style="font-family:'JetBrains Mono',monospace;">${fmtFull$(k.ordinaryIncome)}</strong></span>` : ''}
+                ${k.rentalIncome != null ? `<span>Rental Income: <strong style="font-family:'JetBrains Mono',monospace;">${fmtFull$(k.rentalIncome)}</strong></span>` : ''}
+                ${k.capitalGain != null ? `<span>Capital Gain: <strong style="font-family:'JetBrains Mono',monospace;">${fmtFull$(k.capitalGain)}</strong></span>` : ''}
+              </div>` : ''}
+            </div>
+            <div style="display:flex;gap:8px;">
+              ${k.fileData ? `<button class="btn btn-primary btn-sm" onclick="openDocByRef('${registerDoc('K-1 '+yr+' — '+dealName, k.fileData)}')"><i class="fas fa-eye"></i> View</button>` : ''}
+              <button class="btn btn-secondary btn-sm" onclick="downloadK1('${k.id}')"><i class="fas fa-download"></i></button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function downloadK1(k1Id) {
+  const k = _myK1s.find(k => k.id === k1Id);
+  if (!k || !k.fileData) { showToast('No file data available', 'warning'); return; }
+  // Open in new window
+  if (k.fileData.startsWith('data:')) {
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(decodeURIComponent(k.fileData.replace(/^data:[^,]+,/, '')));
+      win.document.close();
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: COMMUNICATIONS / INVESTOR UPDATES
+// ═══════════════════════════════════════════════════════════════════════════
+function loadInvestorUpdates() {
+  // Investor updates from GP — stored per deal or globally
+  const updates = [];
+
+  // Check for investor update drafts that were "sent" (published)
+  try {
+    const raw = SP.load('investor_updates', {});
+    if (raw && raw.upTitle) {
+      // Single update (current builder format)
+      updates.push({
+        title: raw.upTitle || 'Quarterly Update',
+        date: raw.upDate || new Date().toISOString().split('T')[0],
+        dealName: raw.upDeal || '—',
+        occupancy: raw.upOccupancy,
+        noi: raw.upNoi,
+        collections: raw.upCollections,
+        capex: raw.upCapex,
+        narrative: raw.upNarrative,
+        highlights: raw.upHighlights,
+        concerns: raw.upConcerns,
+      });
+    }
+  } catch(e) {}
+
+  // Check for published updates collection
+  try {
+    const published = SP.load('published_updates', []);
+    if (Array.isArray(published)) {
+      published.forEach(u => updates.push(u));
+    }
+  } catch(e) {}
+
+  // Sort by date descending
+  updates.sort((a,b) => {
+    const da = a.date ? new Date(a.date).getTime() : 0;
+    const db = b.date ? new Date(b.date).getTime() : 0;
+    return db - da;
+  });
+  return updates;
+}
+
+function renderCommunications() {
+  const el = document.getElementById('commsContent');
+  const updates = loadInvestorUpdates();
+
+  if (!updates.length) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-bullhorn"></i><p>No investor updates posted yet. Your GP will share property updates and reports here.</p></div>';
+    return;
+  }
+
+  el.innerHTML = updates.map(u => `
+    <div class="update-card">
+      <div class="update-header">
+        <div>
+          <div class="update-title">${u.title || 'Investor Update'}</div>
+          <div class="update-from">${u.dealName || 'General Update'}</div>
+        </div>
+        <div class="update-date">${fmtDate(u.date)}</div>
+      </div>
+      ${u.narrative ? `<div class="update-body"><p>${u.narrative.replace(/\n/g,'<br>')}</p></div>` : ''}
+      ${u.highlights ? `<div style="margin-top:10px;padding:10px 14px;background:var(--success-light);border-radius:var(--radius);font-size:.82rem;color:var(--success);"><i class="fas fa-check-circle" style="margin-right:6px;"></i><strong>Highlights:</strong> ${u.highlights}</div>` : ''}
+      ${u.concerns ? `<div style="margin-top:8px;padding:10px 14px;background:var(--warning-light);border-radius:var(--radius);font-size:.82rem;color:var(--warning);"><i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i><strong>Concerns:</strong> ${u.concerns}</div>` : ''}
+      ${(u.occupancy || u.noi || u.collections) ? `
+      <div class="update-metrics">
+        ${u.occupancy ? `<div class="update-metric"><span class="val">${u.occupancy}%</span>Occupancy</div>` : ''}
+        ${u.noi ? `<div class="update-metric"><span class="val">${u.noi}</span>NOI</div>` : ''}
+        ${u.collections ? `<div class="update-metric"><span class="val">${u.collections}%</span>Collections</div>` : ''}
+        ${u.capex ? `<div class="update-metric"><span class="val">${u.capex}</span>CapEx</div>` : ''}
+      </div>` : ''}
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER: PROFILE
+// ═══════════════════════════════════════════════════════════════════════════
+function renderProfile() {
+  // Accreditation
   const accredEl = document.getElementById('accredStatus');
-  if (inv) {
+  if (_inv) {
     const today = new Date();
     let expiry = null;
-    if (inv.accredExpiry) {
-      // Handle Firestore Timestamp objects, ISO strings, or date strings
-      if (inv.accredExpiry.toDate) expiry = inv.accredExpiry.toDate();
-      else if (inv.accredExpiry.seconds) expiry = new Date(inv.accredExpiry.seconds * 1000);
-      else expiry = new Date(inv.accredExpiry);
-      // Validate the date is real
+    if (_inv.accredExpiry) {
+      if (_inv.accredExpiry.toDate) expiry = _inv.accredExpiry.toDate();
+      else if (_inv.accredExpiry.seconds) expiry = new Date(_inv.accredExpiry.seconds * 1000);
+      else expiry = new Date(_inv.accredExpiry);
       if (isNaN(expiry.getTime())) expiry = null;
     }
     const daysLeft = expiry ? Math.ceil((expiry - today) / 86400000) : null;
 
-    if (inv.accredStatus === 'verified' && (daysLeft === null || daysLeft > 30)) {
+    if (_inv.accredStatus === 'verified' && (daysLeft === null || daysLeft > 30)) {
       accredEl.innerHTML = `<div class="accred-card accred-ok">
-        <i class="fas fa-check-circle" style="color:var(--success);font-size:1.2rem;"></i>
+        <i class="fas fa-check-circle" style="color:var(--success);font-size:1.3rem;"></i>
         <div>
-          <div style="font-weight:600;color:var(--success);">Accredited Investor — Verified</div>
-          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:2px;">Method: ${inv.accredMethod||'On file'}${expiry ? ' · Expires: '+expiry.toLocaleDateString() : ''}</div>
+          <div style="font-weight:700;color:var(--success);">Accredited Investor — Verified</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Method: ${_inv.accredMethod||'On file'}${expiry ? ' · Expires: '+expiry.toLocaleDateString() : ''}</div>
         </div>
       </div>`;
-    } else if (inv.accredStatus === 'verified' && daysLeft !== null && daysLeft <= 30 && daysLeft > 0) {
+    } else if (_inv.accredStatus === 'verified' && daysLeft !== null && daysLeft <= 30 && daysLeft > 0) {
       accredEl.innerHTML = `<div class="accred-card accred-warn">
-        <i class="fas fa-exclamation-triangle" style="color:var(--warning);font-size:1.2rem;"></i>
+        <i class="fas fa-exclamation-triangle" style="color:var(--warning);font-size:1.3rem;"></i>
         <div>
-          <div style="font-weight:600;color:var(--warning);">Accreditation Expiring in ${daysLeft} day${daysLeft!==1?'s':''}</div>
-          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:2px;">Contact your GP to renew before ${expiry ? expiry.toLocaleDateString() : 'expiration'}.</div>
+          <div style="font-weight:700;color:var(--warning);">Accreditation Expiring in ${daysLeft} Day${daysLeft!==1?'s':''}</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Contact your GP to renew before ${expiry.toLocaleDateString()}.</div>
         </div>
       </div>`;
-    } else if (inv.accredStatus === 'expired' || (daysLeft !== null && daysLeft <= 0)) {
+    } else if (_inv.accredStatus === 'expired' || (daysLeft !== null && daysLeft <= 0)) {
       accredEl.innerHTML = `<div class="accred-card accred-exp">
-        <i class="fas fa-times-circle" style="color:var(--danger);font-size:1.2rem;"></i>
+        <i class="fas fa-times-circle" style="color:var(--danger);font-size:1.3rem;"></i>
         <div>
-          <div style="font-weight:600;color:var(--danger);">Accreditation Expired</div>
-          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:2px;">Contact your GP to renew your accreditation before investing further.</div>
+          <div style="font-weight:700;color:var(--danger);">Accreditation Expired</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Contact your GP to renew your accreditation.</div>
         </div>
       </div>`;
     }
   }
 
-  // Profile
-  if (inv) {
+  // Form fields
+  if (_inv) {
     const v = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-    v('profFirst', inv.firstName);
-    v('profLast', inv.lastName);
-    v('profEmail', session.email);
-    v('profPhone', inv.phone);
-    v('profAddress', inv.address);
+    v('profFirst', _inv.firstName);
+    v('profLast', _inv.lastName);
+    v('profEmail', _session.email);
+    v('profPhone', _inv.phone);
+    v('profAddress', _inv.address);
   } else {
-    // Investor record not found — show email only
     const el = document.getElementById('profEmail');
-    if (el) el.value = session.email || '';
+    if (el) el.value = _session.email || '';
   }
+
+  // Investment summary on profile
+  const summaryEl = document.getElementById('profileSummary');
+  const totalInvested = _linked.reduce((s, {entry}) => s + (entry.committed || 0), 0);
+  const totalDist = _myDists.reduce((s, {recipient}) => s + (recipient.amount || recipient.totalThisDist || 0), 0);
+
+  if (_linked.length) {
+    summaryEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        <div style="text-align:center;padding:14px;background:var(--bg);border-radius:var(--radius-md);">
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.2rem;">${fmtFull$(totalInvested)}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">Total Invested</div>
+        </div>
+        <div style="text-align:center;padding:14px;background:var(--bg);border-radius:var(--radius-md);">
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.2rem;color:var(--success);">${fmtFull$(totalDist)}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">Total Distributed</div>
+        </div>
+        <div style="text-align:center;padding:14px;background:var(--bg);border-radius:var(--radius-md);">
+          <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.2rem;">${_linked.length}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">Active Deals</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <table style="width:100%;font-size:.82rem;border-collapse:collapse;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);">
+              <th style="text-align:left;padding:8px 0;font-weight:700;color:var(--text-muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;">Deal</th>
+              <th style="text-align:right;padding:8px 0;font-weight:700;color:var(--text-muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;">Invested</th>
+              <th style="text-align:right;padding:8px 0;font-weight:700;color:var(--text-muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;">Distributed</th>
+              <th style="text-align:right;padding:8px 0;font-weight:700;color:var(--text-muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;">MOIC</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${_linked.map(({deal, entry}) => {
+              const dd = _myDists.filter(({dist}) => dist.dealId === deal.id);
+              const dt = dd.reduce((s,{recipient}) => s + (recipient.amount||recipient.totalThisDist||0), 0);
+              const moic = entry.committed > 0 ? ((entry.committed + dt) / entry.committed).toFixed(2) + 'x' : '—';
+              return `<tr style="border-bottom:1px solid var(--border-light);">
+                <td style="padding:10px 0;font-weight:600;">${deal.name}</td>
+                <td style="padding:10px 0;text-align:right;font-family:'JetBrains Mono',monospace;">${fmtFull$(entry.committed||0)}</td>
+                <td style="padding:10px 0;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--success);">${fmtFull$(dt)}</td>
+                <td style="padding:10px 0;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;">${moic}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } else {
+    summaryEl.innerHTML = '<div class="empty-state"><p>No investments to summarize.</p></div>';
+  }
+}
+
+function saveProfile() {
+  if (!_inv) return;
+  const investors = SP.getInvestors();
+  const idx = investors.findIndex(i => i.id === _inv.id);
+  if (idx < 0) return;
+  investors[idx] = {
+    ...investors[idx],
+    firstName: document.getElementById('profFirst').value.trim() || _inv.firstName,
+    lastName:  document.getElementById('profLast').value.trim() || _inv.lastName,
+    phone:     document.getElementById('profPhone').value.trim(),
+    address:   document.getElementById('profAddress').value.trim(),
+  };
+  SP.saveInvestors(investors);
+  showToast('Profile saved!');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MAIN RENDER
+// ═══════════════════════════════════════════════════════════════════════════
+function render() {
+  loadPortalData();
+  renderDashboard();
+  renderInvestments();
+  renderDistributions();
+  renderCapitalCalls();
+  renderDocuments();
+  renderTaxCenter();
+  renderCommunications();
+  renderProfile();
 }
 
 SP.onDataReady(render);
