@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36">
+  <defs>
+    <linearGradient id="gB" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C45A12"/>
+      <stop offset="100%" stop-color="#F37925"/>
+    </linearGradient>
+  </defs>
+  <!-- Option B: Stacked bars / chart rising — deal tracking metaphor -->
+  <rect x="2" y="2" width="32" height="32" rx="8" fill="url(#gB)"/>
+  <!-- Three ascending bars -->
+  <rect x="8" y="20" width="5" height="8" rx="1.5" fill="white" opacity="0.7"/>
+  <rect x="15.5" y="15" width="5" height="13" rx="1.5" fill="white" opacity="0.85"/>
+  <rect x="23" y="10" width="5" height="18" rx="1.5" fill="white"/>
+  <!-- Subtle trend line -->
+  <path d="M 10.5 19 L 18 14 L 25.5 9" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+</svg>

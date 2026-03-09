@@ -1,17 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36">
   <defs>
-    <linearGradient id="gOrange" x1="0%" y1="100%" x2="100%" y2="0%">
+    <linearGradient id="gA" x1="0%" y1="100%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#C45A12"/>
       <stop offset="100%" stop-color="#F37925"/>
     </linearGradient>
   </defs>
-  <!-- Rounded square -->
-  <rect x="2" y="2" width="32" height="32" rx="8" fill="url(#gOrange)"/>
-  <!-- Stylized "dt" monogram — clean, geometric -->
-  <!-- "d" — vertical bar + half circle -->
+  <!-- Option A: "dt" monogram on rounded square -->
+  <rect x="2" y="2" width="32" height="32" rx="8" fill="url(#gA)"/>
   <path d="M 10 9 L 10 27" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
   <path d="M 10 15 Q 10 12, 14 12 Q 18.5 12, 18.5 18 Q 18.5 24, 14 24 Q 10 24, 10 21" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-  <!-- "t" — vertical bar + crossbar -->
   <path d="M 23 11 L 23 27" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
   <path d="M 19.5 16 L 26.5 16" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/>
 </svg>

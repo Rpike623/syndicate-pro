@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="36" height="36">
+  <defs>
+    <linearGradient id="gD" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C45A12"/>
+      <stop offset="100%" stop-color="#F37925"/>
+    </linearGradient>
+  </defs>
+  <!-- Option D: Hexagonal / shield shape — trust/security feel -->
+  <path d="M 18 2 L 32 10 L 32 26 L 18 34 L 4 26 L 4 10 Z" fill="url(#gD)"/>
+  <!-- Inner "dt" clean lettermark -->
+  <text x="18" y="23" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="900" font-size="16" fill="white" letter-spacing="-1">dt</text>
+</svg>
