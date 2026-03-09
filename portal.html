@@ -313,31 +313,31 @@ async function portalLogin(e) {
   const errEl = document.getElementById('portalLoginError');
   errEl.style.display = 'none';
 
+  function onSuccess() {
+    document.getElementById('portal-login-gate').style.display = 'none';
+    document.querySelector('.portal-main').style.display = '';
+    setTimeout(render, 500);
+  }
+
+  // Try SP local auth first (handles demo accounts)
+  if (typeof SP.authenticate === 'function') {
+    const result = SP.authenticate(email, pass);
+    if (result) { onSuccess(); return; }
+  }
+
+  // Then try Firebase Auth
   try {
     if (typeof firebase !== 'undefined' && firebase.auth) {
       await firebase.auth().signInWithEmailAndPassword(email, pass);
-      // Wait for SP to pick up the session
-      setTimeout(() => {
-        document.getElementById('portal-login-gate').style.display = 'none';
-        document.querySelector('.portal-main').style.display = '';
-        render();
-      }, 1500);
-    } else {
-      // Fallback to SP local auth
-      const result = SP.authenticate(email, pass);
-      if (result) {
-        document.getElementById('portal-login-gate').style.display = 'none';
-        document.querySelector('.portal-main').style.display = '';
-        render();
-      } else {
-        errEl.textContent = 'Invalid email or password.';
-        errEl.style.display = 'block';
-      }
+      setTimeout(onSuccess, 1500);
+      return;
     }
   } catch (err) {
-    errEl.textContent = err.message || 'Login failed.';
-    errEl.style.display = 'block';
+    // Firebase failed too
   }
+
+  errEl.textContent = 'Invalid email or password.';
+  errEl.style.display = 'block';
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
