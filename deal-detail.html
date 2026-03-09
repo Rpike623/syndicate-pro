@@ -989,6 +989,7 @@ function importInvestorToCRM(invId) {
 function removeInvestor(invId) {
   if(!confirm('Remove this investor from the deal?')) return;
   SP.removeInvestorFromDeal(dealId, invId);
+  recalcOwnership();
   render();
 }
 
@@ -1018,9 +1019,13 @@ function aiSelectChanged() {
   document.getElementById('aiNewInvForm').style.display = val === '__new__' ? '' : 'none';
 }
 function aiCalcOwnership() {
-  const raise = SP.getDealById(dealId)?.raise || 0;
-  const committed = parseFloat(document.getElementById('aiCommitted').value)||0;
-  document.getElementById('aiOwnership').value = raise&&committed ? (committed/raise*100).toFixed(2)+'%' : '';
+  const d = SP.getDealById(dealId);
+  const currentCommitted = (d?.investors||[]).reduce((s,i) => s + (i.committed||0), 0);
+  const newCommitted = parseFloat(document.getElementById('aiCommitted').value)||0;
+  const totalAfter = currentCommitted + newCommitted;
+  document.getElementById('aiOwnership').value = totalAfter > 0 && newCommitted > 0
+    ? (newCommitted / totalAfter * 100).toFixed(2) + '%'
+    : '';
 }
 
 function saveAddInv() {
@@ -1060,13 +1065,29 @@ function saveAddInv() {
 
   if(!invId){alert('Select an investor.');return;}
   if(!committed){alert('Enter committed amount.');return;}
-  const raise = SP.getDealById(dealId)?.raise||0;
-  const ownership = raise?parseFloat((committed/raise*100).toFixed(4)):0;
-  SP.addInvestorToDeal(dealId,{investorId:invId,committed,ownership,status,linkedAt:new Date().toISOString()});
+
+  // Add investor to deal (ownership will be recalculated below)
+  SP.addInvestorToDeal(dealId,{investorId:invId,committed,ownership:0,status,linkedAt:new Date().toISOString()});
+
+  // Recalculate ALL investors' ownership based on total committed (not target raise)
+  recalcOwnership();
+
   const inv = SP.getInvestorById(invId);
   SP.logActivity('fa-link','blue',`<strong>${inv?.firstName} ${inv?.lastName}</strong> linked to <strong>${deal?.name}</strong>`);
   closeAddInvModal();
   render();
+}
+
+function recalcOwnership() {
+  const allDeals = SP.getDeals();
+  const d = allDeals.find(x => x.id === dealId);
+  if (!d || !d.investors || !d.investors.length) return;
+  const totalCommitted = d.investors.reduce((s, i) => s + (i.committed || 0), 0);
+  if (totalCommitted <= 0) return;
+  d.investors.forEach(i => {
+    i.ownership = parseFloat(((i.committed || 0) / totalCommitted * 100).toFixed(4));
+  });
+  SP.save('deals', allDeals);
 }
 
 function markFormDFiled(dealId) {
