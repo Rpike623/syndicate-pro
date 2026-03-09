@@ -498,16 +498,30 @@ window.DealRoom = {
     const doc = this.documents.find(d => d.id === id);
     if (!doc) return;
     if (doc.fileUrl) {
-      // Base64 or Firebase URL
-      const w = window.open();
-      if (doc.fileUrl.startsWith('data:')) {
-        w.document.write(`<!DOCTYPE html><html><head><title>${doc.name}</title></head><body style="margin:0;background:#000;">
-          <iframe src="${doc.fileUrl}" style="width:100%;height:100vh;border:none;"></iframe>
-        </body></html>`);
-        w.document.close();
-      } else {
-        w.location.href = doc.fileUrl;
+      // Try in-page modal first, fall back to popup
+      let modal = document.getElementById('docViewerModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'docViewerModal';
+        modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;backdrop-filter:blur(4px);';
+        modal.innerHTML = `<div style="background:#fff;border-radius:12px;width:90%;max-width:900px;max-height:90vh;margin:5vh auto;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);display:flex;flex-direction:column;">
+          <div style="padding:14px 20px;border-bottom:1px solid #E2DDD8;display:flex;justify-content:space-between;align-items:center;">
+            <strong id="docViewerTitle" style="font-size:.95rem;"></strong>
+            <button onclick="document.getElementById('docViewerModal').style.display='none';document.getElementById('docViewerFrame').src=''" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6B6560;">✕</button>
+          </div>
+          <iframe id="docViewerFrame" style="flex:1;min-height:70vh;border:none;"></iframe>
+        </div>`;
+        modal.addEventListener('click', function(e) { if (e.target === modal) { modal.style.display='none'; document.getElementById('docViewerFrame').src=''; } });
+        document.body.appendChild(modal);
       }
+      document.getElementById('docViewerTitle').textContent = doc.name;
+      const frame = document.getElementById('docViewerFrame');
+      if (doc.fileUrl.startsWith('data:')) {
+        frame.srcdoc = decodeURIComponent(doc.fileUrl.replace(/^data:[^,]+,/, ''));
+      } else {
+        frame.src = doc.fileUrl;
+      }
+      modal.style.display = 'block';
     } else {
       alert('No file attached to this document record. Please re-upload with a file.');
     }
