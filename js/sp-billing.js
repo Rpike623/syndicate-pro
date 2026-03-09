@@ -40,7 +40,7 @@ const SPBilling = (function () {
     starter: {
       id:        'starter',
       name:      'Starter',
-      price:     49,
+      price:     99,
       interval:  'month',
       priceId:   null, // set from settings
       limits: {
@@ -55,7 +55,7 @@ const SPBilling = (function () {
     pro: {
       id:        'pro',
       name:      'Pro',
-      price:     149,
+      price:     299,
       interval:  'month',
       priceId:   null,
       limits: {
@@ -70,7 +70,7 @@ const SPBilling = (function () {
     enterprise: {
       id:        'enterprise',
       name:      'Enterprise',
-      price:     499,
+      price:     999,
       interval:  'month',
       priceId:   null,
       limits: {
@@ -346,12 +346,12 @@ const SPBilling = (function () {
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
           <div style="background:var(--border-light);border-radius:var(--radius);padding:16px;">
             <div style="font-weight:700;font-size:1.1rem;">Starter</div>
-            <div style="font-size:1.5rem;font-weight:700;color:var(--accent);">$49<span style="font-size:.9rem;color:var(--text-secondary);">/mo</span></div>
+            <div style="font-size:1.5rem;font-weight:700;color:var(--accent);">$99<span style="font-size:.9rem;color:var(--text-secondary);">/mo</span></div>
             <button onclick="SPBilling.checkout('starter')" class="btn btn-secondary" style="width:100%;margin-top:10px;font-size:.8rem;">Choose Starter</button>
           </div>
           <div style="background:var(--accent);border-radius:var(--radius);padding:16px;color:white;">
             <div style="font-weight:700;font-size:1.1rem;">Pro</div>
-            <div style="font-size:1.5rem;font-weight:700;">$149<span style="font-size:.9rem;opacity:.8;">/mo</span></div>
+            <div style="font-size:1.5rem;font-weight:700;">$299<span style="font-size:.9rem;opacity:.8;">/mo</span></div>
             <button onclick="SPBilling.checkout('pro')" style="width:100%;margin-top:10px;padding:8px;background:white;color:var(--accent);border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.8rem;">Choose Pro</button>
           </div>
         </div>

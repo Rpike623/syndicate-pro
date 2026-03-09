@@ -238,8 +238,8 @@ When idle, work on these in order:
 
 ## Competitive Positioning
 
-| Feature | SyndicatePro | Juniper Square | Generic Calc |
-|---------|--------------|----------------|--------------|
+| Feature | SyndicatePro | Enterprise Platforms | Generic Calc |
+|---------|--------------|----------------------|--------------|
 | Waterfall Modeling | ✅ Flexible | ✅ Good | ❌ Basic |
 | Document Generation | ✅ Built-in | ❌ No | ❌ No |
 | Investor CRM | ✅ Built-in | ✅ Yes | ❌ No |
