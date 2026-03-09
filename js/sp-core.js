@@ -1278,6 +1278,7 @@ window.SP = (function () {
           { href:'distributions.html',    icon:'fa-wallet',              label:'Distributions' },
           { href:'capital-calls.html',    icon:'fa-hand-holding-usd',    label:'Capital Calls' },
           { href:'capital-account.html',  icon:'fa-list-ol',             label:'Capital Accounts' },
+          { href:'wire-instructions.html',icon:'fa-university',          label:'Payment Files' },
         ]},
         // ── Documents ────────────────────────────────────────────
         { id:'docs', title:'DOCUMENTS', items:[

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Payment File Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v3"></script>
+  <script src="js/sp-data.js?v2"></script>
+  <script src="js/sp-firebase.js?v3"></script>
+  <style>
+    :root{--accent:#F37925;--accent-hover:#D96515;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--info:#3B82F6;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;}
+    .main{flex:1;margin-left:var(--dt-sidebar-width);padding:0;}
+    @media(max-width:768px){.main{margin-left:0!important;width:100%!important;}}
+
+    .content{padding:28px 32px;}
+    @media(max-width:768px){.content{padding:16px;}}
+    .desc{color:var(--muted);font-size:.88rem;margin-bottom:24px;}
+
+    /* Steps */
+    .step-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-bottom:20px;}
+    .step-card h3{font-size:1rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px;}
+    .step-card h3 .num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:white;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .step-card p{font-size:.85rem;color:var(--muted);margin-bottom:16px;}
+    label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+    select,input{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:.88rem;width:100%;margin-bottom:14px;}
+    select:focus,input:focus{outline:none;border-color:var(--accent);}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:8px;font-weight:600;font-size:.85rem;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;transition:all .15s;}
+    .btn:hover{background:#F8F6F4;}
+    .btn-primary{background:var(--accent);color:white;border-color:var(--accent);}
+    .btn-primary:hover{background:var(--accent-hover);}
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;}
+
+    /* Preview table */
+    .preview-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;}
+    .preview-card .card-title{padding:16px 20px;font-size:.9rem;font-weight:700;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+    table{width:100%;border-collapse:collapse;}
+    th{text-align:left;padding:10px 16px;font-size:.7rem;color:var(--muted);background:#F8F6F4;border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.05em;font-weight:700;}
+    th.right,td.right{text-align:right;}
+    td{padding:12px 16px;border-bottom:1px solid var(--border);font-size:.85rem;}
+    .mono{font-family:'JetBrains Mono',monospace;font-weight:600;}
+
+    /* Wire instruction sheet */
+    .wire-sheet{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.8;white-space:pre-wrap;margin-bottom:20px;}
+    .wire-sheet h4{font-family:'Inter',sans-serif;font-size:1rem;margin-bottom:16px;}
+
+    .empty{text-align:center;padding:48px 24px;color:var(--muted);}
+    .empty i{font-size:2rem;margin-bottom:12px;display:block;opacity:.3;}
+    @media print{.sidebar,.dt-header,.btn-row,.step-card{display:none!important;}.main{margin:0!important;}.content{padding:20px!important;}}
+  </style>
+</head>
+<body>
+  <aside id="sidebar" class="sidebar"></aside>
+  <main class="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-university" style="color:var(--accent);margin-right:8px;"></i> Payment File Generator</h1>
+      <div class="header-actions"></div>
+    </div>
+    <div class="content">
+      <p class="desc">Generate NACHA (ACH) files or wire instruction sheets for distribution payments. Upload the file to your bank to execute payments.</p>
+
+      <!-- Step 1: Select distribution -->
+      <div class="step-card">
+        <h3><span class="num">1</span> Select a posted distribution</h3>
+        <p>Only posted distributions with recipient amounts are available.</p>
+        <label>Distribution</label>
+        <select id="distSelect" onchange="loadDistribution()">
+          <option value="">— Select Distribution —</option>
+        </select>
+      </div>
+
+      <!-- Step 2: Bank info -->
+      <div class="step-card" id="step2" style="display:none;">
+        <h3><span class="num">2</span> Your bank details (originator)</h3>
+        <p>These appear on the NACHA file header. Enter your entity's bank account info.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div><label>Bank Name</label><input type="text" id="bankName" placeholder="e.g., Chase"></div>
+          <div><label>Bank Routing Number</label><input type="text" id="bankRouting" placeholder="e.g., 021000021" maxlength="9"></div>
+          <div><label>Account Number</label><input type="text" id="bankAccount" placeholder="Your operating account"></div>
+          <div><label>Account Type</label><select id="bankType"><option value="checking">Checking</option><option value="savings">Savings</option></select></div>
+          <div><label>Company Name (originator)</label><input type="text" id="companyName" placeholder="e.g., Pike Capital LLC"></div>
+          <div><label>Company ID / EIN</label><input type="text" id="companyId" placeholder="e.g., 12-3456789"></div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div id="previewArea" style="display:none;"></div>
+
+      <!-- Action buttons -->
+      <div class="btn-row" id="actionBtns" style="display:none;">
+        <button class="btn btn-primary" onclick="downloadNACHA()"><i class="fas fa-file-download"></i> Download NACHA File (.ach)</button>
+        <button class="btn" onclick="downloadWireSheet()"><i class="fas fa-file-alt"></i> Download Wire Instructions (.txt)</button>
+        <button class="btn" onclick="downloadCSV()"><i class="fas fa-file-csv"></i> Download CSV</button>
+        <button class="btn" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    SP.requireGP();
+
+    const fmt$ = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0);
+    let currentDist = null;
+    let recipients = [];
+
+    function init() {
+      const dists = SP.getDistributions().filter(d => d.status === 'posted' && d.recipients && d.recipients.length > 0);
+      const deals = SP.getDeals();
+      const sel = document.getElementById('distSelect');
+      dists.forEach(d => {
+        const deal = deals.find(dl => dl.id === d.dealId);
+        const dealName = deal ? deal.name : 'Unknown Deal';
+        const period = d.period || (d.quarter && d.year ? d.quarter + ' ' + d.year : d.date || '');
+        const total = d.recipients.reduce((s, r) => s + (r.amount || r.totalThisDist || 0), 0);
+        sel.add(new Option(`${dealName} — ${period} (${fmt$(total)})`, d.id || d.date));
+      });
+
+      // Pre-fill company info from settings
+      const settings = SP.load('settings', {});
+      if (settings.firmName) document.getElementById('companyName').value = settings.firmName;
+      if (settings.bankName) document.getElementById('bankName').value = settings.bankName;
+      if (settings.bankRouting) document.getElementById('bankRouting').value = settings.bankRouting;
+      if (settings.bankAccount) document.getElementById('bankAccount').value = settings.bankAccount;
+      if (settings.ein) document.getElementById('companyId').value = settings.ein;
+    }
+
+    function loadDistribution() {
+      const distId = document.getElementById('distSelect').value;
+      if (!distId) {
+        document.getElementById('step2').style.display = 'none';
+        document.getElementById('previewArea').style.display = 'none';
+        document.getElementById('actionBtns').style.display = 'none';
+        return;
+      }
+
+      const dists = SP.getDistributions();
+      currentDist = dists.find(d => (d.id || d.date) === distId);
+      if (!currentDist) return;
+
+      const investors = SP.getInvestors();
+      const deals = SP.getDeals();
+      const deal = deals.find(d => d.id === currentDist.dealId);
+
+      recipients = (currentDist.recipients || []).map(r => {
+        const inv = investors.find(i => i.id === r.investorId);
+        return {
+          name: inv ? `${inv.firstName} ${inv.lastName}` : (r.name || 'Unknown'),
+          email: inv ? inv.email : '',
+          amount: r.amount || r.totalThisDist || 0,
+          bankRouting: inv?.bankRouting || '',
+          bankAccount: inv?.bankAccount || '',
+          bankName: inv?.bankName || '',
+          investorId: r.investorId,
+        };
+      }).filter(r => r.amount > 0);
+
+      document.getElementById('step2').style.display = '';
+      renderPreview(deal);
+      document.getElementById('previewArea').style.display = '';
+      document.getElementById('actionBtns').style.display = '';
+    }
+
+    function renderPreview(deal) {
+      const dealName = deal ? deal.name : 'Distribution';
+      const period = currentDist.period || currentDist.date || '';
+      const total = recipients.reduce((s, r) => s + r.amount, 0);
+      const missingBank = recipients.filter(r => !r.bankRouting || !r.bankAccount).length;
+
+      let rows = recipients.map((r, i) => `<tr>
+        <td>${r.name}</td>
+        <td>${r.email}</td>
+        <td class="right mono">${fmt$(r.amount)}</td>
+        <td>${r.bankRouting || '<span style="color:var(--warning);font-size:.75rem;">Missing</span>'}</td>
+        <td>${r.bankAccount ? '••••' + r.bankAccount.slice(-4) : '<span style="color:var(--warning);font-size:.75rem;">Missing</span>'}</td>
+      </tr>`).join('');
+
+      document.getElementById('previewArea').innerHTML = `
+        ${missingBank > 0 ? `<div style="background:rgba(232,137,10,.1);border:1px solid rgba(232,137,10,.3);border-radius:8px;padding:14px 18px;margin-bottom:16px;font-size:.85rem;color:#92400e;display:flex;align-items:center;gap:10px;">
+          <i class="fas fa-exclamation-triangle" style="color:var(--warning);"></i>
+          <div><strong>${missingBank} investor${missingBank>1?'s':''} missing bank details.</strong> NACHA file will skip them. Add bank info to investor profiles, or use the wire instruction sheet for manual payment.</div>
+        </div>` : ''}
+        <div class="preview-card">
+          <div class="card-title"><i class="fas fa-list" style="color:var(--accent);"></i> ${dealName} — ${period} · ${recipients.length} recipients · ${fmt$(total)} total</div>
+          <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Recipient</th><th>Email</th><th class="right">Amount</th><th>Routing #</th><th>Account</th></tr></thead>
+            <tbody>${rows}</tbody>
+            <tfoot><tr style="font-weight:700;background:#F8F6F4;"><td colspan="2">Total</td><td class="right mono">${fmt$(total)}</td><td colspan="2"></td></tr></tfoot>
+          </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function downloadNACHA() {
+      const routing = document.getElementById('bankRouting').value.trim();
+      const account = document.getElementById('bankAccount').value.trim();
+      const compName = document.getElementById('companyName').value.trim();
+      const compId = document.getElementById('companyId').value.replace(/\D/g, '');
+      const bankName = document.getElementById('bankName').value.trim();
+
+      if (!routing || routing.length !== 9) { alert('Enter a valid 9-digit routing number.'); return; }
+      if (!account) { alert('Enter your bank account number.'); return; }
+      if (!compName) { alert('Enter your company name.'); return; }
+
+      // Save bank info to settings for next time
+      const settings = SP.load('settings', {});
+      settings.bankName = bankName;
+      settings.bankRouting = routing;
+      settings.bankAccount = account;
+      settings.ein = compId;
+      SP.save('settings', settings);
+
+      const validRecipients = recipients.filter(r => r.bankRouting && r.bankAccount && r.bankRouting.length === 9);
+      if (validRecipients.length === 0) { alert('No recipients have valid bank details. Add routing/account numbers to investor profiles first.'); return; }
+
+      // Generate NACHA file
+      const now = new Date();
+      const fileDate = now.toISOString().slice(2,10).replace(/-/g,''); // YYMMDD
+      const fileTime = now.getHours().toString().padStart(2,'0') + now.getMinutes().toString().padStart(2,'0');
+      const batchNum = '0000001';
+
+      // Pad/truncate helpers
+      const rPad = (s, n) => (s + ' '.repeat(n)).substring(0, n);
+      const lPad = (s, n, c='0') => (c.repeat(n) + s).slice(-n);
+      const amtCents = n => lPad(Math.round(n * 100).toString(), 10);
+
+      let lines = [];
+
+      // File Header Record (1)
+      lines.push(
+        '1' +                          // Record type
+        '01' +                         // Priority code
+        ' ' + lPad(routing, 9) +       // Immediate destination (bank routing)
+        ' ' + lPad(compId || '0000000000', 10) + // Immediate origin (company EIN)
+        fileDate +                     // File creation date
+        fileTime +                     // File creation time
+        'A' +                          // File ID modifier
+        '094' +                        // Record size
+        '10' +                         // Blocking factor
+        '1' +                          // Format code
+        rPad(bankName, 23) +           // Immediate destination name
+        rPad(compName, 23) +           // Immediate origin name
+        rPad('', 8)                    // Reference code
+      );
+
+      // Batch Header Record (5)
+      lines.push(
+        '5' +                          // Record type
+        '220' +                        // Service class (mixed debits/credits — 220=credits only would be better but 220 works)
+        rPad(compName, 16) +           // Company name
+        rPad('', 20) +                 // Company discretionary data
+        lPad(compId || '0000000000', 10) + // Company identification
+        'PPD' +                        // Standard entry class
+        rPad('DIST', 10) +             // Company entry description
+        fileDate.substring(0, 6) +     // Company descriptive date
+        fileDate +                     // Effective entry date
+        '   ' +                        // Settlement date (blank)
+        '1' +                          // Originator status code
+        lPad(routing.substring(0, 8), 8) + // Originating DFI
+        lPad(batchNum, 7)              // Batch number
+      );
+
+      // Entry Detail Records (6) — one per recipient
+      let entryHash = 0;
+      let totalCredits = 0;
+      let entryCount = 0;
+
+      validRecipients.forEach((r, i) => {
+        const traceNum = lPad(routing.substring(0, 8), 8) + lPad((i + 1).toString(), 7);
+        const recvRouting = r.bankRouting;
+        entryHash += parseInt(recvRouting.substring(0, 8)) || 0;
+        totalCredits += r.amount;
+        entryCount++;
+
+        lines.push(
+          '6' +                        // Record type
+          '22' +                       // Transaction code (22=checking credit)
+          lPad(recvRouting, 8) +       // Receiving DFI routing (first 8)
+          recvRouting.charAt(8) +      // Check digit
+          rPad(r.bankAccount, 17) +    // DFI account number
+          amtCents(r.amount) +         // Amount in cents
+          rPad(r.investorId || '', 15) + // Individual ID
+          rPad(r.name, 22) +           // Individual name
+          '  ' +                       // Discretionary data
+          '0' +                        // Addenda record indicator
+          traceNum                     // Trace number
+        );
+      });
+
+      // Batch Control Record (8)
+      lines.push(
+        '8' +                          // Record type
+        '220' +                        // Service class
+        lPad(entryCount.toString(), 6) + // Entry/addenda count
+        lPad((entryHash % 10000000000).toString(), 10) + // Entry hash
+        lPad('0', 12) +               // Total debit amount
+        amtCents(totalCredits) + '00' + // Total credit amount
+        lPad(compId || '0000000000', 10) + // Company identification
+        rPad('', 19) +                // Message auth code (blank)
+        rPad('', 6) +                 // Reserved
+        lPad(routing.substring(0, 8), 8) + // Originating DFI
+        lPad(batchNum, 7)             // Batch number
+      );
+
+      // File Control Record (9)
+      const blockCount = Math.ceil((lines.length + 1) / 10);
+      lines.push(
+        '9' +                          // Record type
+        lPad('1', 6) +                // Batch count
+        lPad(blockCount.toString(), 6) + // Block count
+        lPad(entryCount.toString(), 8) + // Entry/addenda count
+        lPad((entryHash % 10000000000).toString(), 10) + // Entry hash
+        lPad('0', 12) +               // Total debit
+        amtCents(totalCredits) + '00' + // Total credit
+        rPad('', 39)                   // Reserved
+      );
+
+      // Pad to block of 10
+      while (lines.length % 10 !== 0) {
+        lines.push('9'.repeat(94));
+      }
+
+      // Ensure all lines are exactly 94 chars
+      lines = lines.map(l => rPad(l, 94).substring(0, 94));
+
+      const content = lines.join('\n');
+      download(content, `distribution_${currentDist.date || 'payment'}.ach`, 'text/plain');
+    }
+
+    function downloadWireSheet() {
+      const compName = document.getElementById('companyName').value.trim() || 'Your Firm';
+      const deals = SP.getDeals();
+      const deal = deals.find(d => d.id === currentDist.dealId);
+      const dealName = deal ? deal.name : 'Distribution';
+      const period = currentDist.period || currentDist.date || '';
+      const total = recipients.reduce((s, r) => s + r.amount, 0);
+
+      let sheet = `════════════════════════════════════════════════════════════
+  WIRE / ACH INSTRUCTION SHEET
+  ${compName}
+════════════════════════════════════════════════════════════
+
+Distribution:  ${dealName}
+Period:        ${period}
+Date:          ${new Date().toLocaleDateString()}
+Total Amount:  ${fmt$(total)}
+Recipients:    ${recipients.length}
+
+────────────────────────────────────────────────────────────
+RECIPIENT DETAILS
+────────────────────────────────────────────────────────────
+`;
+
+      recipients.forEach((r, i) => {
+        sheet += `
+${i + 1}. ${r.name}
+   Email:    ${r.email || '—'}
+   Amount:   ${fmt$(r.amount)}
+   Routing:  ${r.bankRouting || 'NOT ON FILE'}
+   Account:  ${r.bankAccount || 'NOT ON FILE'}
+   Bank:     ${r.bankName || '—'}
+`;
+      });
+
+      sheet += `
+────────────────────────────────────────────────────────────
+TOTAL: ${fmt$(total)}
+────────────────────────────────────────────────────────────
+
+Generated by deeltrack · ${new Date().toLocaleString()}
+For questions: admin@deeltrack.com
+`;
+
+      download(sheet, `wire_instructions_${currentDist.date || 'payment'}.txt`, 'text/plain');
+    }
+
+    function downloadCSV() {
+      const deals = SP.getDeals();
+      const deal = deals.find(d => d.id === currentDist.dealId);
+      const dealName = deal ? deal.name : 'Distribution';
+
+      let csv = 'Recipient,Email,Amount,Routing Number,Account Number,Bank Name,Deal,Period\n';
+      recipients.forEach(r => {
+        csv += `"${r.name}","${r.email}",${r.amount.toFixed(2)},"${r.bankRouting}","${r.bankAccount}","${r.bankName}","${dealName}","${currentDist.period || currentDist.date || ''}"\n`;
+      });
+
+      download(csv, `distribution_${currentDist.date || 'payment'}.csv`, 'text/csv');
+    }
+
+    function download(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    SP.onDataReady(init);
+  </script>
+</body>
+</html>
