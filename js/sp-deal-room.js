@@ -75,16 +75,37 @@ window.DealRoom = {
     // Generate simple HTML content for each doc type that can actually be viewed
     const makeDoc = (html) => 'data:text/html;charset=utf-8,' + encodeURIComponent(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Georgia,serif;max-width:760px;margin:40px auto;padding:20px;line-height:1.8;color:#0f172a;background:#fff;} h1{font-size:1.4rem;border-bottom:2px solid #0f172a;padding-bottom:8px;} table{width:100%;border-collapse:collapse;} th,td{padding:8px 12px;border:1px solid #ddd;text-align:left;} th{background:#f1f5f9;font-weight:700;} .label{font-weight:700;} .placeholder{background:#fef9c3;border:1px solid #fbbf24;border-radius:6px;padding:10px 14px;font-size:0.85rem;color:#92400e;margin-bottom:20px;font-family:sans-serif;}</style></head><body>${html}</body></html>`);
 
+    // Use the real generated OA from the deal if available
+    const realOA = deal.generatedOA || null;
+    const oaContent = realOA || (() => {
+      // Fallback: generate via SPDocs if available
+      if (typeof SPDocs !== 'undefined' && SPDocs.generateOA) {
+        const settings = (typeof SP !== 'undefined' && SP.load) ? SP.load('settings', {}) : {};
+        const gpName = settings.firmName || gp;
+        const gpRep = settings.gpFullName || 'Managing Member';
+        const addr = settings.firmAddress || '';
+        const st = deal.state || settings.defState || 'TX';
+        const minInv = deal.minInvestment || 50000;
+        return SPDocs.generateOA(deal, gpName, gpRep, addr, st, minInv, []);
+      }
+      return '<div style="font-family:Times New Roman,serif;padding:40px;"><p style="text-align:center;font-weight:bold;">OPERATING AGREEMENT OF ' + (deal.companyName || dealName) + '</p><p style="text-align:center;">Operating Agreement not yet generated. Use Deal Detail → Generate OA to create the full document.</p></div>';
+    })();
+
+    // Generate sub doc via SPDocs if available
+    const subContent = (typeof SPDocs !== 'undefined' && SPDocs.generateSubDoc)
+      ? SPDocs.generateSubDoc(deal, {firstName:'[INVESTOR',lastName:'NAME]',email:'[EMAIL]',committed:deal.minInvestment||50000}, gp, (typeof SP !== 'undefined' && SP.load) ? SP.load('settings',{}).gpFullName || 'Managing Member' : 'Managing Member')
+      : '<h1>Subscription Agreement — ' + dealName + '</h1><p>Subscription agreement template not yet generated.</p>';
+
     return [
       {
         id: 'd_oa', name: 'Operating Agreement', category: 'legal',
-        uploadedBy: 'GP', date: `${yr}-01-15`, size: 'HTML', access: 'all',
-        fileUrl: makeDoc(`<div class="placeholder">⚠ DEMO DOCUMENT — for testing functionality only. Not for actual legal use.</div><h1>Operating Agreement — ${dealName}</h1><p><span class="label">Entity:</span> ${gp}</p><p><span class="label">Property:</span> ${dealName}</p><p><span class="label">Date:</span> January 15, ${yr}</p><h2>Capital Structure</h2><table><tr><th>Class</th><th>Ownership %</th><th>Investment</th></tr><tr><td>General Partner</td><td>10%</td><td>$${Math.round((deal.raise||1000000)*0.1).toLocaleString()}</td></tr><tr><td>Limited Partners</td><td>90%</td><td>$${Math.round((deal.raise||1000000)*0.9).toLocaleString()}</td></tr></table><h2>Distribution Waterfall</h2><p>1. Return of capital to all members pro-rata</p><p>2. ${deal.prefReturn||8}% preferred return to limited partners</p><p>3. GP catch-up (${deal.gpPromote||20}% of preferred paid)</p><p>4. Residual ${deal.gpPromote||20}% GP / ${100-(deal.gpPromote||20)}% LP</p>`)
+        uploadedBy: 'GP', date: deal.oaGeneratedAt ? deal.oaGeneratedAt.split('T')[0] : `${yr}-01-15`, size: 'HTML', access: 'all',
+        fileUrl: makeDoc(oaContent)
       },
       {
         id: 'd_sub', name: 'Subscription Agreement (Template)', category: 'legal',
         uploadedBy: 'GP', date: `${yr}-01-18`, size: 'HTML', access: 'all',
-        fileUrl: makeDoc(`<div class="placeholder">⚠ DEMO DOCUMENT — template only.</div><h1>Subscription Agreement — ${dealName}</h1><p>This Subscription Agreement is entered into by the undersigned Limited Partner ("Subscriber") and ${gp} (the "Company").</p><h2>1. Subscription</h2><p>Subscriber agrees to invest $[AMOUNT] representing [OWNERSHIP]% of total equity.</p><h2>2. Accredited Investor</h2><p>Subscriber certifies they are an Accredited Investor as defined under SEC Rule 501.</p><h2>3. Representations</h2><p>Subscriber acknowledges the investment is illiquid and speculative.</p>`)
+        fileUrl: makeDoc(subContent)
       },
       {
         id: 'd_fin', name: 'Q1 2026 Financial Summary', category: 'financial',
