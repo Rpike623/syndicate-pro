@@ -64,25 +64,25 @@
 
     /* Summary tiles */
     .summary-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin:20px 0; }
-    .stile { background:#F3F0ED; border:1px solid var(--border); border-radius:10px; padding:14px 16px; }
-    .stile-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-muted); margin-bottom:4px; }
-    .stile-val { font-size:20px; font-weight:800; font-family:'JetBrains Mono',monospace; letter-spacing:-0.03em; color:var(--text); }
+    .stile { background:#FFFFFF; border:1px solid #E2DDD8; border-radius:10px; padding:16px 18px; }
+    .stile-lbl { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:#6B6560 !important; margin-bottom:4px; }
+    .stile-val { font-size:20px; font-weight:800; font-family:'JetBrains Mono',monospace; letter-spacing:-0.03em; color:#1B1A19 !important; }
 
     /* Waterfall tier breakdown */
     .waterfall-tiers { display:flex; flex-direction:column; gap:8px; margin:16px 0; }
-    .wf-tier { display:flex; align-items:center; gap:12px; padding:10px 14px; background:#F3F0ED; border-radius:8px; border-left:4px solid var(--border); }
-    .wf-tier.tier-roc  { border-left-color:#9C9590; }
-    .wf-tier.tier-pref { border-left-color:var(--warning); }
-    .wf-tier.tier-catchup { border-left-color:var(--accent); }
-    .wf-tier.tier-split { border-left-color:var(--success); }
-    .wf-tier-name { font-size:12px; font-weight:600; color:var(--text); flex:1; }
-    .wf-tier-desc { font-size:11px; color:var(--text-muted); }
-    .wf-tier-amount { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; color:var(--text); text-align:right; }
-    .wf-tier-split { font-size:11px; color:var(--text-muted); text-align:right; white-space:nowrap; }
+    .wf-tier { display:flex; align-items:center; gap:12px; padding:12px 16px; background:#FFFFFF; border:1px solid #E2DDD8; border-radius:8px; border-left:4px solid #E2DDD8; }
+    .wf-tier.tier-roc  { border-left-color:#6B6560; background:#F8F6F4; }
+    .wf-tier.tier-pref { border-left-color:#E8890A; background:#FFFBF5; }
+    .wf-tier.tier-catchup { border-left-color:#F37925; background:#FFF8F0; }
+    .wf-tier.tier-split { border-left-color:#2D9A6B; background:#F5FBF8; }
+    .wf-tier-name { font-size:13px; font-weight:700; color:#1B1A19 !important; flex:1; }
+    .wf-tier-desc { font-size:11px; color:#6B6560 !important; margin-top:2px; }
+    .wf-tier-amount { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:#1B1A19 !important; text-align:right; }
+    .wf-tier-split { font-size:11px; color:#4A4642 !important; text-align:right; white-space:nowrap; }
 
     /* Pref tracking callout */
-    .pref-callout { background:rgba(243,121,37,0.06); border:1px solid rgba(243,121,37,0.2); border-radius:10px; padding:14px 16px; margin:16px 0; font-size:12px; color:var(--text-muted); line-height:1.6; }
-    .pref-callout strong { color:var(--text); }
+    .pref-callout { background:#FFF8F0; border:1px solid rgba(243,121,37,0.3); border-radius:10px; padding:14px 16px; margin:16px 0; font-size:12px; color:#6B6560 !important; line-height:1.6; }
+    .pref-callout strong { color:#1B1A19 !important; }
 
     /* Execute button */
     .exec-btn { width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:10px; font-weight:700; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:all 0.2s; margin-top:4px; }
