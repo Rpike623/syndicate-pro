@@ -1277,7 +1277,12 @@ document.getElementById('fAccredDate')?.addEventListener('change', function() {
   }
 });
 
-SP.onDataReady(function() { load(); updateStats(); filterTable(); });
+SP.onDataReady(function() {
+  load(); updateStats(); filterTable();
+  // Handle ?edit=investorId from investor-detail page
+  const editParam = new URLSearchParams(window.location.search).get('edit');
+  if (editParam) { setTimeout(() => editInvestor(editParam), 300); }
+});
 
 function showToast(msg, type) {
   const bg = type === 'error' ? '#ef4444' : '#10b981';
