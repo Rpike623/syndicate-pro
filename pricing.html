@@ -413,19 +413,18 @@
 
   <section class="pricing-container">
     <div class="pricing-grid" style="grid-template-columns:repeat(2,1fr);max-width:800px;margin:0 auto;">
-      <!-- Professional Plan -->
+      <!-- Per Deal Plan -->
       <div class="pricing-card popular">
         <div class="popular-badge">MOST POPULAR</div>
-        <div class="plan-name">Professional</div>
-        <div class="plan-description">Everything you need to run your syndication</div>
+        <div class="plan-name">Per Deal</div>
+        <div class="plan-description">Pay only for your active deals</div>
         <div class="plan-price">
-          <span class="price">$99</span>
-          <span class="price-period">/month</span>
+          <span class="price">$49</span>
+          <span class="price-period">/deal/mo</span>
         </div>
-        <div style="font-size:.82rem;color:#6B6560;margin-bottom:20px;">Billed annually, or $129/mo monthly · <strong style="color:var(--accent);">First 3 months free</strong></div>
+        <div style="font-size:.82rem;color:#6B6560;margin-bottom:20px;">Billed monthly · only active deals count · <strong style="color:var(--accent);">First 3 months free</strong></div>
         <ul class="features-list">
-          <li><i class="fas fa-check"></i> Unlimited deals</li>
-          <li><i class="fas fa-check"></i> Unlimited investors</li>
+          <li><i class="fas fa-check"></i> Unlimited investors per deal</li>
           <li><i class="fas fa-check"></i> Operating agreement generator</li>
           <li><i class="fas fa-check"></i> Waterfall calculations</li>
           <li><i class="fas fa-check"></i> Distribution engine</li>
@@ -437,20 +436,22 @@
           <li><i class="fas fa-check"></i> Platform health monitoring</li>
           <li><i class="fas fa-check"></i> Email support</li>
         </ul>
-        <button onclick="SPBilling.checkout('pro')" class="btn btn-primary btn-lg" style="width: 100%;">Start Free — 3 Months On Us</button>
+        <button onclick="SPBilling.checkout('per_deal')" class="btn btn-primary btn-lg" style="width: 100%;">Start Free — 3 Months On Us</button>
+        <div style="text-align:center;margin-top:12px;font-size:.78rem;color:#6B6560;">1 deal = $49 · 3 deals = $147 · 5 deals = $245</div>
       </div>
 
       <!-- Enterprise Plan -->
       <div class="pricing-card">
         <div class="plan-name">Enterprise</div>
-        <div class="plan-description">For firms with multiple GPs and entities</div>
+        <div class="plan-description">Unlimited deals for growing firms</div>
         <div class="plan-price">
-          <span class="price">$249</span>
+          <span class="price">$499</span>
           <span class="price-period">/month</span>
         </div>
-        <div style="font-size:.82rem;color:#6B6560;margin-bottom:20px;">Billed annually, or $299/mo monthly · <strong style="color:var(--accent);">First 3 months free</strong></div>
+        <div style="font-size:.82rem;color:#6B6560;margin-bottom:20px;">Billed annually ($5,988/yr) · <strong style="color:var(--accent);">First 3 months free</strong></div>
         <ul class="features-list">
-          <li><i class="fas fa-check"></i> Everything in Professional</li>
+          <li><i class="fas fa-check"></i> <strong>Unlimited deals</strong></li>
+          <li><i class="fas fa-check"></i> Everything in Per Deal plan</li>
           <li><i class="fas fa-check"></i> Multi-GP / team access</li>
           <li><i class="fas fa-check"></i> White-labeled investor portal</li>
           <li><i class="fas fa-check"></i> Custom domain</li>
@@ -460,6 +461,7 @@
           <li><i class="fas fa-check"></i> Phone &amp; priority support</li>
         </ul>
         <button onclick="SPBilling.checkout('enterprise')" class="btn btn-secondary" style="width: 100%;">Start Free — 3 Months On Us</button>
+        <div style="text-align:center;margin-top:12px;font-size:.78rem;color:#6B6560;">Best value at 11+ active deals</div>
       </div>
     </div>
   </section>

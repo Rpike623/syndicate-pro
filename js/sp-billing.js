@@ -37,26 +37,27 @@ const SPBilling = (function () {
       },
       features: ['Full platform access', 'First 3 months free', 'No credit card required'],
     },
-    pro: {
-      id:        'pro',
-      name:      'Professional',
-      price:     99,
+    per_deal: {
+      id:        'per_deal',
+      name:      'Per Deal',
+      price:     49,
       interval:  'month',
+      perDeal:   true,       // price is per active deal
       priceId:   null,
       limits: {
-        deals:      -1,
+        deals:      -1,      // unlimited, but billed per deal
         investors:  -1,
         documents:  -1,
         storage_mb: 5000,
         users:      3,
       },
-      features: ['Unlimited deals & investors', 'OA generator', 'Waterfall calculations', 'Distribution engine', 'Capital calls', 'K-1 generation & vault', 'OM builder', 'Investor portal', 'QuickBooks export', 'Email support'],
+      features: ['$49/deal/month', 'Unlimited investors', 'OA generator', 'Waterfall calculations', 'Distribution engine', 'Capital calls', 'K-1 generation & vault', 'OM builder', 'Investor portal', 'QuickBooks export', 'Email support'],
     },
     enterprise: {
       id:        'enterprise',
       name:      'Enterprise',
-      price:     249,
-      interval:  'month',
+      price:     499,
+      interval:  'year',     // billed annually only
       priceId:   null,
       limits: {
         deals:      -1,
@@ -65,7 +66,7 @@ const SPBilling = (function () {
         storage_mb: -1,
         users:      -1,
       },
-      features: ['Everything in Professional', 'Multi-GP / team access', 'White-labeled portal', 'Custom domain', 'Lender CRM', 'Bulk K-1 auto-sort', 'Dedicated onboarding', 'Phone & priority support'],
+      features: ['Unlimited deals', 'Everything in Per Deal', 'Multi-GP / team access', 'White-labeled portal', 'Custom domain', 'Lender CRM', 'Bulk K-1 auto-sort', 'Dedicated onboarding', 'Phone & priority support'],
     },
   };
 
@@ -161,7 +162,7 @@ const SPBilling = (function () {
   }
 
   function isPaid() {
-    return ['pro','enterprise'].includes(_sub.plan) && _sub.status === 'active';
+    return ['per_deal','enterprise'].includes(_sub.plan) && _sub.status === 'active';
   }
 
   function canAccess(feature) {
@@ -190,7 +191,7 @@ const SPBilling = (function () {
     const settings = (typeof SP !== 'undefined') ? SP.load('settings', {}) : {};
     return {
       
-      pro:        settings.stripeProLink         || null,
+      pro:        settings.stripePerDealLink         || null,
       enterprise: settings.stripeEnterpriseLink  || null,
       portal:     settings.stripePortalLink      || null,
     };
@@ -332,12 +333,12 @@ const SPBilling = (function () {
           <div style="background:var(--border-light);border-radius:var(--radius);padding:16px;">
             <div style="font-weight:700;font-size:1.1rem;">Starter</div>
             <div style="font-size:1.5rem;font-weight:700;color:var(--accent);">$99<span style="font-size:.9rem;color:var(--text-secondary);">/mo</span></div>
-            <button onclick="SPBilling.checkout('pro')" class="btn btn-secondary" style="width:100%;margin-top:10px;font-size:.8rem;">Choose Starter</button>
+            <button onclick="SPBilling.checkout('per_deal')" class="btn btn-secondary" style="width:100%;margin-top:10px;font-size:.8rem;">Choose Per Deal</button>
           </div>
           <div style="background:var(--accent);border-radius:var(--radius);padding:16px;color:white;">
             <div style="font-weight:700;font-size:1.1rem;">Pro</div>
             <div style="font-size:1.5rem;font-weight:700;">$299<span style="font-size:.9rem;opacity:.8;">/mo</span></div>
-            <button onclick="SPBilling.checkout('pro')" style="width:100%;margin-top:10px;padding:8px;background:white;color:var(--accent);border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.8rem;">Choose Pro</button>
+            <button onclick="SPBilling.checkout('per_deal')" style="width:100%;margin-top:10px;padding:8px;background:white;color:var(--accent);border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.8rem;">Choose Per Deal</button>
           </div>
         </div>
         ${soft ? `<button onclick="document.getElementById('trialGateOverlay').remove();" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.875rem;">Continue without subscribing →</button>` : ''}
