@@ -1209,7 +1209,7 @@ window.SP = (function () {
         // ── Investors ────────────────────────────────────────────
         { id:'investors', title:'INVESTORS', items:[
           { href:'investors.html',       icon:'fa-users',           label:'Investors' },
-          { href:'inbox.html',           icon:'fa-inbox',           label:'Inbox' },
+          // Inbox removed — admin email managed by PikeClaw, not GPs
           { href:'investor-update.html', icon:'fa-bullhorn',        label:'Updates' },
         ]},
         // ── Finance ──────────────────────────────────────────────
