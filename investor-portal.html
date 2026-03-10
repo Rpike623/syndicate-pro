@@ -408,6 +408,85 @@
       </div>
     </div>
 
+    <!-- Tax / Entity Information -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header">
+        <span><i class="fas fa-file-invoice" style="color:var(--accent);margin-right:8px;"></i>Tax &amp; Entity Information</span>
+        <span style="font-size:.72rem;color:var(--text-muted);font-weight:400;">Required for K-1 filing</span>
+      </div>
+      <div class="card-body">
+        <div class="profile-grid">
+          <div class="form-group">
+            <label>Entity Type</label>
+            <select id="profEntityType" onchange="_toggleEntityName()" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem;font-family:'Inter',sans-serif;background:var(--bg-card);color:var(--text);">
+              <option value="">Select…</option>
+              <option value="individual">Individual</option>
+              <option value="joint">Joint Tenants</option>
+              <option value="llc">LLC</option>
+              <option value="lp">Limited Partnership</option>
+              <option value="corp">Corporation / S-Corp</option>
+              <option value="trust">Trust</option>
+              <option value="ira">IRA / Self-Directed IRA</option>
+              <option value="401k">Solo 401(k)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="profTinLabel">SSN / EIN</label>
+            <input type="text" id="profTin" placeholder="XX-XXXXXXX or XXX-XX-XXXX" autocomplete="off">
+            <div style="font-size:.7rem;color:var(--text-muted);margin-top:4px;"><i class="fas fa-lock" style="font-size:.6rem;"></i> Encrypted — only visible to your GP for K-1 filing</div>
+          </div>
+          <div class="form-group" id="profEntityNameGroup" style="grid-column:1/-1;display:none;">
+            <label>Entity Name (as registered)</label>
+            <input type="text" id="profEntityName" placeholder="e.g. Chapman Family Trust">
+          </div>
+          <div class="form-group" style="grid-column:1/-1;">
+            <label>Tax Address (if different from mailing)</label>
+            <input type="text" id="profTaxAddress" placeholder="Leave blank if same as mailing address">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banking / Wire Information -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header">
+        <span><i class="fas fa-university" style="color:var(--accent);margin-right:8px;"></i>Distribution Banking</span>
+        <span style="font-size:.72rem;color:var(--text-muted);font-weight:400;">For wire transfers &amp; ACH</span>
+      </div>
+      <div class="card-body">
+        <div class="profile-grid">
+          <div class="form-group"><label>Bank Name</label><input type="text" id="profBankName" placeholder="e.g. Chase, Wells Fargo"></div>
+          <div class="form-group"><label>Account Holder Name</label><input type="text" id="profBankHolder" placeholder="Name on the account"></div>
+          <div class="form-group"><label>Routing Number (ABA)</label><input type="text" id="profRouting" placeholder="9 digits" maxlength="9" pattern="[0-9]{9}" inputmode="numeric"></div>
+          <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" id="profAcctNum" placeholder="Account number" autocomplete="off">
+            <div style="font-size:.7rem;color:var(--text-muted);margin-top:4px;"><i class="fas fa-lock" style="font-size:.6rem;"></i> Encrypted — only visible to your GP</div>
+          </div>
+          <div class="form-group">
+            <label>Account Type</label>
+            <select id="profAcctType" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem;font-family:'Inter',sans-serif;background:var(--bg-card);color:var(--text);">
+              <option value="">Select…</option>
+              <option value="checking">Checking</option>
+              <option value="savings">Savings</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Preferred Distribution Method</label>
+            <select id="profDistMethod" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem;font-family:'Inter',sans-serif;background:var(--bg-card);color:var(--text);">
+              <option value="wire">Wire Transfer</option>
+              <option value="ach">ACH</option>
+              <option value="check">Check (mail)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:right;margin:20px 0 40px;">
+      <button class="btn btn-primary" onclick="saveProfile()" style="padding:10px 24px;"><i class="fas fa-save"></i> Save All Changes</button>
+    </div>
+
     <div class="card" style="margin-top:20px;">
       <div class="card-header">Investment Summary</div>
       <div class="card-body" id="profileSummary">
@@ -1171,6 +1250,19 @@ function renderProfile() {
     v('profEmail', _session.email);
     v('profPhone', _inv.phone);
     v('profAddress', _inv.address);
+    // Tax / Entity
+    v('profEntityType', _inv.entityType);
+    v('profTin', _inv.tin);
+    v('profEntityName', _inv.entityName);
+    v('profTaxAddress', _inv.taxAddress);
+    // Banking
+    v('profBankName', _inv.bankName);
+    v('profBankHolder', _inv.bankHolder);
+    v('profRouting', _inv.routing);
+    v('profAcctNum', _inv.acctNum);
+    v('profAcctType', _inv.acctType);
+    v('profDistMethod', _inv.distMethod || 'wire');
+    _toggleEntityName();
   } else {
     const el = document.getElementById('profEmail');
     if (el) el.value = _session.email || '';
@@ -1234,13 +1326,34 @@ function saveProfile() {
   if (idx < 0) return;
   investors[idx] = {
     ...investors[idx],
-    firstName: document.getElementById('profFirst').value.trim() || _inv.firstName,
-    lastName:  document.getElementById('profLast').value.trim() || _inv.lastName,
-    phone:     document.getElementById('profPhone').value.trim(),
-    address:   document.getElementById('profAddress').value.trim(),
+    firstName:    document.getElementById('profFirst').value.trim() || _inv.firstName,
+    lastName:     document.getElementById('profLast').value.trim() || _inv.lastName,
+    phone:        document.getElementById('profPhone').value.trim(),
+    address:      document.getElementById('profAddress').value.trim(),
+    // Tax / Entity
+    entityType:   document.getElementById('profEntityType').value,
+    tin:          document.getElementById('profTin').value.trim(),
+    entityName:   document.getElementById('profEntityName').value.trim(),
+    taxAddress:   document.getElementById('profTaxAddress').value.trim(),
+    // Banking
+    bankName:     document.getElementById('profBankName').value.trim(),
+    bankHolder:   document.getElementById('profBankHolder').value.trim(),
+    routing:      document.getElementById('profRouting').value.trim(),
+    acctNum:      document.getElementById('profAcctNum').value.trim(),
+    acctType:     document.getElementById('profAcctType').value,
+    distMethod:   document.getElementById('profDistMethod').value,
   };
   SP.saveInvestors(investors);
   showToast('Profile saved!');
+}
+
+// Entity type toggle — show entity name for non-individual types
+function _toggleEntityName() {
+  const type = document.getElementById('profEntityType')?.value || '';
+  const group = document.getElementById('profEntityNameGroup');
+  const label = document.getElementById('profTinLabel');
+  if (group) group.style.display = ['llc','lp','corp','trust','ira','401k'].includes(type) ? '' : 'none';
+  if (label) label.textContent = ['individual','joint',''].includes(type) ? 'SSN' : 'EIN';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
