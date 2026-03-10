@@ -1,5 +1,5 @@
 rules_version = '2';
-// Auto-deployed via GitHub Actions on push to main
+// Auto-deployed via GitHub Actions on push to main — project: deeltrack
 service cloud.firestore {
   match /databases/{database}/documents {
 
