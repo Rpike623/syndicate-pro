@@ -316,15 +316,17 @@ const SPBilling = (function () {
         <h2 style="margin:0 0 8px;font-size:1.5rem;">Your trial has ended</h2>
         <p style="color:var(--text-secondary);margin:0 0 24px;">Subscribe to continue using deeltrack and keep all your deals, investors, and documents.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
-          <div style="background:var(--border-light);border-radius:var(--radius);padding:16px;">
-            <div style="font-weight:700;font-size:1.1rem;">Starter</div>
-            <div style="font-size:1.5rem;font-weight:700;color:var(--accent);">$99<span style="font-size:.9rem;color:var(--text-secondary);">/mo</span></div>
-            <button onclick="SPBilling.checkout('per_deal')" class="btn btn-secondary" style="width:100%;margin-top:10px;font-size:.8rem;">Choose Per Deal</button>
+          <div style="background:#f3f3f3;border:1px solid #E2DDD8;border-radius:8px;padding:16px;">
+            <div style="font-weight:700;font-size:1.1rem;">Per Deal</div>
+            <div style="font-size:1.5rem;font-weight:700;color:#F37925;">$49<span style="font-size:.85rem;color:#6B6560;">/deal/mo</span></div>
+            <div style="font-size:.75rem;color:#6B6560;margin:6px 0;">Unlimited investors · Full platform</div>
+            <a href="pricing.html" style="display:block;width:100%;margin-top:10px;padding:8px;background:white;border:1px solid #E2DDD8;border-radius:6px;font-weight:600;cursor:pointer;font-size:.8rem;text-align:center;text-decoration:none;color:#1B1A19;">View Details</a>
           </div>
-          <div style="background:var(--accent);border-radius:var(--radius);padding:16px;color:white;">
-            <div style="font-weight:700;font-size:1.1rem;">Pro</div>
-            <div style="font-size:1.5rem;font-weight:700;">$299<span style="font-size:.9rem;opacity:.8;">/mo</span></div>
-            <button onclick="SPBilling.checkout('per_deal')" style="width:100%;margin-top:10px;padding:8px;background:white;color:var(--accent);border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.8rem;">Choose Per Deal</button>
+          <div style="background:#F37925;border-radius:8px;padding:16px;color:white;">
+            <div style="font-weight:700;font-size:1.1rem;">Enterprise</div>
+            <div style="font-size:1.5rem;font-weight:700;">$499<span style="font-size:.85rem;opacity:.8;">/yr</span></div>
+            <div style="font-size:.75rem;opacity:.8;margin:6px 0;">Unlimited everything · White-label</div>
+            <a href="pricing.html" style="display:block;width:100%;margin-top:10px;padding:8px;background:white;color:#F37925;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:.8rem;text-align:center;text-decoration:none;">View Details</a>
           </div>
         </div>
         ${soft ? `<button onclick="document.getElementById('trialGateOverlay').remove();" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:.875rem;">Continue without subscribing →</button>` : ''}
@@ -387,10 +389,32 @@ const SPBilling = (function () {
   };
 })();
 
-// Auto-init
+// Auto-init + enforce trial gate on GP pages
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     SPBilling.init();
     SPBilling.injectTrialBanner();
   });
+
+  // Enforce trial gate after data loads (need to know if GP role)
+  if (typeof window !== 'undefined') {
+    window.addEventListener('spdata-ready', () => {
+      if (typeof SP === 'undefined') return;
+      const s = SP.getSession();
+      if (!s || s.role === 'Investor') return; // Don't gate LP portal
+
+      // Pages that should NOT be gated
+      const page = window.location.pathname.split('/').pop() || '';
+      const noGate = ['pricing.html','login.html','signup.html','index.html','portal.html',
+                       'investor-portal.html','invest.html','sign.html','reset-password.html',
+                       '404.html','terms.html','privacy.html','disclaimer.html','security.html'];
+      if (noGate.includes(page)) return;
+
+      // Soft gate on dashboard/settings (dismissible), hard gate on everything else
+      const softPages = ['dashboard.html','settings.html'];
+      if (SPBilling.isTrialExpired()) {
+        SPBilling.enforceTrialGate({ soft: softPages.includes(page) });
+      }
+    });
+  }
 }
