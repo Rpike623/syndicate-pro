@@ -382,13 +382,42 @@
     <div class="card" style="margin-bottom:20px;">
       <div class="card-header">Accreditation Status</div>
       <div class="card-body" id="accredStatus">
-        <div class="accred-card accred-warn">
-          <i class="fas fa-clock" style="color:var(--warning);font-size:1.2rem;"></i>
-          <div>
-            <div style="font-weight:600;color:var(--warning);">Accreditation Pending</div>
-            <div style="font-size:.82rem;color:var(--text-secondary);margin-top:2px;">Your GP has not yet verified your accredited investor status.</div>
-          </div>
+        <!-- Dynamic: filled by renderProfile() -->
+      </div>
+      <div id="accredCertifyForm" style="display:none;padding:20px;border-top:1px solid var(--border);">
+        <div style="font-weight:700;margin-bottom:12px;">Self-Certify as Accredited Investor</div>
+        <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:16px;">
+          Under SEC Rule 501 of Regulation D, I certify that I qualify as an accredited investor based on one or more of the following criteria:
+        </p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;" id="accredMethods">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:.82rem;">
+            <input type="checkbox" name="accredMethod" value="income" style="margin-top:2px;">
+            <span><strong>Income</strong> — I have earned income exceeding $200,000 (or $300,000 jointly with a spouse) in each of the prior two years and expect the same this year.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:.82rem;">
+            <input type="checkbox" name="accredMethod" value="net_worth" style="margin-top:2px;">
+            <span><strong>Net Worth</strong> — I have a net worth exceeding $1,000,000 (individually or jointly), excluding my primary residence.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:.82rem;">
+            <input type="checkbox" name="accredMethod" value="professional" style="margin-top:2px;">
+            <span><strong>Professional Certification</strong> — I hold a Series 7, Series 65, or Series 82 license in good standing.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:.82rem;">
+            <input type="checkbox" name="accredMethod" value="entity" style="margin-top:2px;">
+            <span><strong>Qualified Entity</strong> — I am investing through an entity with assets exceeding $5,000,000 (not formed for the specific purpose of investing).</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:.82rem;">
+            <input type="checkbox" name="accredMethod" value="knowledgeable" style="margin-top:2px;">
+            <span><strong>Knowledgeable Employee</strong> — I am a knowledgeable employee of the fund, as defined in Rule 3c-5(a)(4) of the Investment Company Act.</span>
+          </label>
         </div>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:.82rem;background:var(--bg);margin-bottom:16px;">
+          <input type="checkbox" id="accredAttest" style="margin-top:2px;">
+          <span>I certify under penalty of law that the above is true and accurate. I understand this certification may be relied upon by the issuer in verifying my status as an accredited investor.</span>
+        </label>
+        <button class="btn btn-primary" onclick="submitAccredCert()" id="accredSubmitBtn" disabled style="opacity:.5;">
+          <i class="fas fa-check-circle"></i> Submit Certification
+        </button>
       </div>
     </div>
 
@@ -1215,30 +1244,49 @@ function renderProfile() {
     }
     const daysLeft = expiry ? Math.ceil((expiry - today) / 86400000) : null;
 
-    if (_inv.accredStatus === 'verified' && (daysLeft === null || daysLeft > 30)) {
+    const certForm = document.getElementById('accredCertifyForm');
+    const isVerified = _inv.accredStatus === 'verified';
+    const isExpiring = isVerified && daysLeft !== null && daysLeft <= 30 && daysLeft > 0;
+    const isExpired = _inv.accredStatus === 'expired' || (daysLeft !== null && daysLeft <= 0);
+
+    if (isVerified && !isExpiring) {
+      const methodLabels = { income:'Income', net_worth:'Net Worth', professional:'Professional Certification', entity:'Qualified Entity', knowledgeable:'Knowledgeable Employee', cpa:'CPA Verification', self_certified:'Self-Certified' };
+      const methods = (_inv.accredMethod || '').split(',').map(m => methodLabels[m.trim()] || m.trim()).filter(Boolean).join(', ');
       accredEl.innerHTML = `<div class="accred-card accred-ok">
         <i class="fas fa-check-circle" style="color:var(--success);font-size:1.3rem;"></i>
         <div>
           <div style="font-weight:700;color:var(--success);">Accredited Investor — Verified</div>
-          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Method: ${_inv.accredMethod||'On file'}${expiry ? ' · Expires: '+expiry.toLocaleDateString() : ''}</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Method: ${methods||'On file'}${expiry ? ' · Expires: '+expiry.toLocaleDateString() : ''}${_inv.accredCertifiedAt ? ' · Certified: '+new Date(_inv.accredCertifiedAt).toLocaleDateString() : ''}</div>
         </div>
       </div>`;
-    } else if (_inv.accredStatus === 'verified' && daysLeft !== null && daysLeft <= 30 && daysLeft > 0) {
+      if (certForm) certForm.style.display = 'none';
+    } else if (isExpiring) {
       accredEl.innerHTML = `<div class="accred-card accred-warn">
         <i class="fas fa-exclamation-triangle" style="color:var(--warning);font-size:1.3rem;"></i>
         <div>
           <div style="font-weight:700;color:var(--warning);">Accreditation Expiring in ${daysLeft} Day${daysLeft!==1?'s':''}</div>
-          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Contact your GP to renew before ${expiry.toLocaleDateString()}.</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Please re-certify below before ${expiry.toLocaleDateString()}.</div>
         </div>
       </div>`;
-    } else if (_inv.accredStatus === 'expired' || (daysLeft !== null && daysLeft <= 0)) {
+      if (certForm) certForm.style.display = '';
+    } else if (isExpired) {
       accredEl.innerHTML = `<div class="accred-card accred-exp">
         <i class="fas fa-times-circle" style="color:var(--danger);font-size:1.3rem;"></i>
         <div>
           <div style="font-weight:700;color:var(--danger);">Accreditation Expired</div>
-          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Contact your GP to renew your accreditation.</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Please re-certify below to continue investing.</div>
         </div>
       </div>`;
+      if (certForm) certForm.style.display = '';
+    } else {
+      accredEl.innerHTML = `<div class="accred-card accred-warn">
+        <i class="fas fa-shield-alt" style="color:var(--warning);font-size:1.3rem;"></i>
+        <div>
+          <div style="font-weight:700;color:var(--warning);">Accreditation Required</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:3px;">Please self-certify below to confirm your accredited investor status.</div>
+        </div>
+      </div>`;
+      if (certForm) certForm.style.display = '';
     }
   }
 
@@ -1345,6 +1393,51 @@ function saveProfile() {
   };
   SP.saveInvestors(investors);
   showToast('Profile saved!');
+}
+
+// ── Accreditation self-certification ──────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const attestBox = document.getElementById('accredAttest');
+  const submitBtn = document.getElementById('accredSubmitBtn');
+  function updateSubmitState() {
+    const hasMethod = Array.from(document.querySelectorAll('#accredMethods input[type="checkbox"]')).some(cb => cb.checked);
+    const attested = attestBox?.checked;
+    if (submitBtn) { submitBtn.disabled = !(hasMethod && attested); submitBtn.style.opacity = (hasMethod && attested) ? '1' : '.5'; }
+  }
+  if (attestBox) attestBox.addEventListener('change', updateSubmitState);
+  document.getElementById('accredMethods')?.addEventListener('change', updateSubmitState);
+});
+
+function submitAccredCert() {
+  if (!_inv) return;
+  const attestBox = document.getElementById('accredAttest');
+  if (!attestBox?.checked) { showToast('Please check the attestation box'); return; }
+  const methods = Array.from(document.querySelectorAll('#accredMethods input[type="checkbox"]:checked')).map(cb => cb.value);
+  if (!methods.length) { showToast('Please select at least one qualification method'); return; }
+
+  const investors = SP.getInvestors();
+  const idx = investors.findIndex(i => i.id === _inv.id);
+  if (idx < 0) return;
+
+  const now = new Date();
+  const expiryDate = new Date(now);
+  expiryDate.setDate(expiryDate.getDate() + 90);
+
+  investors[idx] = {
+    ...investors[idx],
+    accredStatus: 'verified',
+    accredMethod: methods.join(','),
+    accredDate: now.toISOString(),
+    accredExpiry: expiryDate.toISOString(),
+    accredCertifiedAt: now.toISOString(),
+    accredCertType: 'self',
+    accredAttestation: true,
+  };
+
+  SP.saveInvestors(investors);
+  _inv = investors[idx]; // Update local ref
+  showToast('Accreditation certified — valid for 90 days');
+  renderProfile();
 }
 
 // Entity type toggle — show entity name for non-individual types
