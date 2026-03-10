@@ -4,26 +4,374 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Help Center </title>
-  <script src="js/sp-core.js?v6"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <title>deeltrack | Help Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dt-global.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v7"></script>
+  <script src="js/sp-crypto.js"></script>
+  <script src="js/sp-data.js?v7"></script>
+  <script src="js/sp-firebase.js?v7"></script>
+  <style>
+    .help-grid{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1100px;}
+    @media(max-width:768px){.help-grid{grid-template-columns:1fr;}}
+    .help-nav{background:white;border:1px solid #E2DDD8;border-radius:12px;padding:16px;position:sticky;top:80px;height:fit-content;}
+    .help-nav a{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;text-decoration:none;color:#6B6560;font-size:.82rem;font-weight:500;transition:all .15s;}
+    .help-nav a:hover,.help-nav a.active{background:rgba(243,121,37,0.08);color:#F37925;font-weight:600;}
+    .help-nav a i{width:18px;text-align:center;}
+    .help-section{display:none;}.help-section.active{display:block;}
+    .faq-item{border:1px solid #E2DDD8;border-radius:8px;margin-bottom:8px;overflow:hidden;}
+    .faq-q{padding:14px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:.875rem;transition:background .15s;}
+    .faq-q:hover{background:rgba(243,121,37,0.04);}
+    .faq-a{padding:0 18px;max-height:0;overflow:hidden;transition:all .3s;font-size:.82rem;color:#6B6560;line-height:1.7;}
+    .faq-item.open .faq-a{padding:0 18px 14px;max-height:500px;}
+    .faq-item.open .faq-q i{transform:rotate(180deg);}
+    .guide-card{background:white;border:1px solid #E2DDD8;border-radius:12px;padding:20px;margin-bottom:16px;}
+    .guide-card h3{font-size:.95rem;margin-bottom:8px;}
+    .guide-steps{counter-reset:step;padding-left:0;list-style:none;}
+    .guide-steps li{counter-increment:step;padding:8px 0 8px 36px;position:relative;font-size:.82rem;color:#6B6560;border-bottom:1px solid rgba(0,0,0,.04);}
+    .guide-steps li:last-child{border-bottom:none;}
+    .guide-steps li::before{content:counter(step);position:absolute;left:0;width:24px;height:24px;background:#F37925;color:white;border-radius:50%;text-align:center;line-height:24px;font-size:.7rem;font-weight:700;}
+    .search-box{width:100%;padding:12px 16px 12px 40px;border:1px solid #E2DDD8;border-radius:8px;font-size:.875rem;background:white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%239C9590" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>') no-repeat 14px center;margin-bottom:20px;}
+    .contact-card{background:linear-gradient(135deg,#1B1A19,#2D2A27);border-radius:12px;padding:28px;color:white;margin-top:24px;}
+    .contact-card h3{margin-bottom:12px;}
+    .contact-card a{color:#F37925;text-decoration:none;font-weight:600;}
+    .kbd{background:#f3f3f3;border:1px solid #E2DDD8;border-radius:4px;padding:2px 6px;font-family:'JetBrains Mono',monospace;font-size:.75rem;}
+  </style>
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
+<div id="app-shell">
+  <aside class="dt-sidebar" id="sidebar"></aside>
+  <main class="dt-main">
     <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-question-circle"></i> Help Center</h1>
+      <div>
+        <h1 class="dt-page-title"><i class="fas fa-question-circle" style="color:#F37925;margin-right:8px;"></i>Help Center</h1>
+        <p class="dt-page-subtitle">Guides, FAQs, and support for deeltrack</p>
+      </div>
     </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>FAQs</h2></div>
-        <div class="card-body">
-          <p><strong>Q: How do I add a new investor?</strong><br>A: Go to Investors → Add New</p>
-          <p><strong>Q: How do I run a capital call?</strong><br>A: Go to Capital Calls → New</p>
+
+    <div class="dt-content">
+      <input type="text" class="search-box" placeholder="Search for help..." oninput="searchHelp(this.value)">
+
+      <div class="help-grid">
+        <!-- Left nav -->
+        <div class="help-nav">
+          <a href="#" class="active" onclick="showSection('getting-started',this);return false;"><i class="fas fa-rocket"></i> Getting Started</a>
+          <a href="#" onclick="showSection('deals',this);return false;"><i class="fas fa-building"></i> Deals</a>
+          <a href="#" onclick="showSection('investors',this);return false;"><i class="fas fa-users"></i> Investors</a>
+          <a href="#" onclick="showSection('distributions',this);return false;"><i class="fas fa-wallet"></i> Distributions</a>
+          <a href="#" onclick="showSection('commitments',this);return false;"><i class="fas fa-handshake"></i> Commitments</a>
+          <a href="#" onclick="showSection('documents',this);return false;"><i class="fas fa-file-contract"></i> Documents & K-1s</a>
+          <a href="#" onclick="showSection('portal',this);return false;"><i class="fas fa-globe"></i> LP Portal</a>
+          <a href="#" onclick="showSection('billing',this);return false;"><i class="fas fa-credit-card"></i> Billing</a>
+          <a href="#" onclick="showSection('faq',this);return false;"><i class="fas fa-comments"></i> FAQ</a>
+        </div>
+
+        <!-- Content -->
+        <div>
+          <!-- Getting Started -->
+          <div class="help-section active" id="sec-getting-started">
+            <h2 style="margin-bottom:16px;">Getting Started</h2>
+            <div class="guide-card">
+              <h3><i class="fas fa-play-circle" style="color:#F37925;margin-right:6px;"></i> Quick Setup (5 minutes)</h3>
+              <ol class="guide-steps">
+                <li>Go to <a href="settings.html">Settings</a> and enter your firm name, GP name, and contact info.</li>
+                <li>Set your default waterfall terms (Preferred Return, GP Promote) in Deal Defaults.</li>
+                <li>Optionally add your wire instructions so investors know where to send funds.</li>
+                <li>Optionally configure LP Portal Branding (logo, colors) for a white-labeled investor experience.</li>
+                <li>Create your first deal via <a href="new-deal.html">New Deal</a> or <a href="deal-import.html">Import from Excel</a>.</li>
+                <li>Add investors, generate invite links, and start raising capital!</li>
+              </ol>
+            </div>
+
+            <div class="guide-card">
+              <h3><i class="fas fa-exchange-alt" style="color:#F37925;margin-right:6px;"></i> The Investment Lifecycle</h3>
+              <p style="font-size:.82rem;color:#6B6560;margin-bottom:12px;">deeltrack manages the full flow from deal creation to funded investment:</p>
+              <ol class="guide-steps">
+                <li><strong>Create Deal</strong> — Enter property details, financial terms, and waterfall structure.</li>
+                <li><strong>Send Invite</strong> — Generate a unique deal link and email it to potential investors.</li>
+                <li><strong>LP Reviews & Commits</strong> — Investor sees deal terms, enters their commitment amount.</li>
+                <li><strong>GP Approves</strong> — Review pending commitments in the Commitment Queue.</li>
+                <li><strong>Send Sub Docs</strong> — Generate e-sign subscription agreement for the investor.</li>
+                <li><strong>LP Signs</strong> — Investor reviews deal-specific terms and electronically signs.</li>
+                <li><strong>Wire & Fund</strong> — Investor sends wire, GP confirms receipt. Deal is funded.</li>
+                <li><strong>Operate & Distribute</strong> — Post distributions, send K-1s, share updates.</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Deals -->
+          <div class="help-section" id="sec-deals">
+            <h2 style="margin-bottom:16px;">Managing Deals</h2>
+            <div class="guide-card">
+              <h3>Creating a New Deal</h3>
+              <ol class="guide-steps">
+                <li>Click <a href="new-deal.html">New Deal</a> in the sidebar or from the Deals page.</li>
+                <li>Fill in property name, location, asset type, and financial targets (raise, IRR, equity multiple).</li>
+                <li>Set the waterfall structure: preferred return rate, GP promote percentage, and waterfall type (pref, catch-up, or simple split).</li>
+                <li>Save the deal. It appears on your dashboard and deals list.</li>
+              </ol>
+            </div>
+
+            <div class="guide-card">
+              <h3>Importing Existing Deals from Excel</h3>
+              <ol class="guide-steps">
+                <li>Go to <a href="deal-import.html">Import Deals</a> and click "Download Template."</li>
+                <li>Fill in the <strong>Deals</strong> sheet with your properties. Required: Deal Name. Optional: type, location, raise, IRR, etc.</li>
+                <li>Fill in the <strong>Investors</strong> sheet with LP details and link them to deals by name.</li>
+                <li>Fill in the <strong>Distributions</strong> sheet with historical distribution data.</li>
+                <li>Upload the Excel file. Preview the data, then click "Import All."</li>
+              </ol>
+            </div>
+
+            <div class="guide-card">
+              <h3>Deal Statuses</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                <strong>Sourcing</strong> — Early stage, evaluating the opportunity.<br>
+                <strong>LOI</strong> — Letter of Intent submitted.<br>
+                <strong>Due Diligence</strong> — Under contract, conducting DD.<br>
+                <strong>Raising</strong> — Actively raising capital from investors.<br>
+                <strong>Operating</strong> — Deal closed, property is operating.<br>
+                <strong>Closed</strong> — Exited / disposed.
+              </p>
+            </div>
+          </div>
+
+          <!-- Investors -->
+          <div class="help-section" id="sec-investors">
+            <h2 style="margin-bottom:16px;">Managing Investors</h2>
+            <div class="guide-card">
+              <h3>Adding Investors</h3>
+              <p style="font-size:.82rem;color:#6B6560;">Three ways to add investors:</p>
+              <ol class="guide-steps">
+                <li><strong>Manual:</strong> Investors page → Add Investor. Enter name, email, phone.</li>
+                <li><strong>Invite Link:</strong> From a deal page, click "Invite Link." LP creates their own account when they commit.</li>
+                <li><strong>Excel Import:</strong> Bulk import investors via the Import Deals template.</li>
+              </ol>
+            </div>
+
+            <div class="guide-card">
+              <h3>Investor Accreditation</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                Investors can self-certify as accredited directly in their portal. They select their qualification method (income, net worth, professional cert, entity, or knowledgeable employee), check a legal attestation, and submit. Certification is valid for 90 days and auto-expires. The dashboard warns you when investors' certifications are expiring.
+              </p>
+            </div>
+
+            <div class="guide-card">
+              <h3>Linking Investors to Deals</h3>
+              <ol class="guide-steps">
+                <li>On a Deal Detail page, click "Add Investor."</li>
+                <li>Select the investor, enter committed amount and ownership percentage.</li>
+                <li>Or: the investor commits via an invite link, and deeltrack auto-links them when you approve.</li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- Distributions -->
+          <div class="help-section" id="sec-distributions">
+            <h2 style="margin-bottom:16px;">Running Distributions</h2>
+            <div class="guide-card">
+              <h3>Distribution Command Center</h3>
+              <ol class="guide-steps">
+                <li>Go to <a href="distribution-calc.html">Distribution Command Center</a>.</li>
+                <li>Select a deal and enter the total amount to distribute.</li>
+                <li>The waterfall engine calculates per-investor splits: preferred return first, then excess split per your deal terms.</li>
+                <li>Review the pro-forma ledger showing each investor's payout.</li>
+                <li>Click "Post to Ledger" to finalize. Investors are automatically notified via email.</li>
+              </ol>
+            </div>
+
+            <div class="guide-card">
+              <h3>QuickBooks Export</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                Go to <a href="quickbooks-export.html">QuickBooks Export</a> to generate journal entries (IIF or CSV format) for distributions, capital calls, management fees, and acquisition fees. Import directly into QuickBooks Desktop or Online.
+              </p>
+            </div>
+          </div>
+
+          <!-- Commitments -->
+          <div class="help-section" id="sec-commitments">
+            <h2 style="margin-bottom:16px;">Commitment Queue</h2>
+            <div class="guide-card">
+              <h3>Managing Investor Commitments</h3>
+              <ol class="guide-steps">
+                <li>When an LP commits via an invite link, it appears in your <a href="commitments.html">Commitment Queue</a>.</li>
+                <li><strong>Approve</strong> — auto-links the investor to the deal with their committed amount.</li>
+                <li><strong>Send Sub Docs</strong> — generates a signing link. LP receives email to e-sign.</li>
+                <li><strong>LP Signs</strong> — subscription agreement with deal-specific terms.</li>
+                <li><strong>Confirm Wire</strong> — enter wire receipt details. Commitment marked as funded.</li>
+              </ol>
+              <p style="font-size:.82rem;color:#6B6560;margin-top:8px;">Status flow: <span class="kbd">Pending</span> → <span class="kbd">Approved</span> → <span class="kbd">Docs Sent</span> → <span class="kbd">Signed</span> → <span class="kbd">Funded</span></p>
+            </div>
+          </div>
+
+          <!-- Documents -->
+          <div class="help-section" id="sec-documents">
+            <h2 style="margin-bottom:16px;">Documents & K-1s</h2>
+            <div class="guide-card">
+              <h3>Deal Room</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                Upload and share documents per deal. Go to a deal → "Deal Room" action. Documents are accessible to linked investors through their portal.
+              </p>
+            </div>
+
+            <div class="guide-card">
+              <h3>K-1 Generation</h3>
+              <ol class="guide-steps">
+                <li>Go to <a href="k1-generator.html">K-1 Generator</a>.</li>
+                <li>Select deal, tax year, and investor.</li>
+                <li>Enter income/loss allocations (ordinary income, rental income, capital gains, Section 199A).</li>
+                <li>Generate and send to investor. K-1s appear in the LP's Tax Center.</li>
+              </ol>
+            </div>
+
+            <div class="guide-card">
+              <h3>Operating Agreement Generator</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                Go to <a href="om-builder.html">OM Builder</a> to create offering memorandums. The <a href="tools.html">Tools</a> page has an OA Generator that creates operating agreements with full §704 safe harbor allocation language, waterfall provisions, and state-specific clauses. <em>Always have legal counsel review before use.</em>
+              </p>
+            </div>
+          </div>
+
+          <!-- LP Portal -->
+          <div class="help-section" id="sec-portal">
+            <h2 style="margin-bottom:16px;">LP Portal</h2>
+            <div class="guide-card">
+              <h3>What Your Investors See</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                Each investor gets a secure portal at <strong>deeltrack.com/portal.html</strong> where they can:
+              </p>
+              <ul style="font-size:.82rem;color:#6B6560;padding-left:20px;margin-top:8px;line-height:2;">
+                <li>View all their investments across your deals (and other GPs if applicable)</li>
+                <li>See distributions received, with full history</li>
+                <li>View and sign subscription documents</li>
+                <li>Access deal room documents and K-1s</li>
+                <li>Self-certify accreditation status</li>
+                <li>Update their profile: tax info (SSN/EIN), banking details for wire transfers</li>
+                <li>Submit wire confirmations after signing sub docs</li>
+              </ul>
+            </div>
+
+            <div class="guide-card">
+              <h3>White-Label Branding</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                Go to <a href="settings.html">Settings → LP Portal Branding</a> to customize the portal with your firm's name, logo, accent color, and favicon. Check "Hide deeltrack branding" for a fully white-labeled experience. Your investors will see your brand, not deeltrack's.
+              </p>
+            </div>
+
+            <div class="guide-card">
+              <h3>Multi-GP Support</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                If an investor invests with multiple GPs on deeltrack, their portal automatically aggregates across all firms. Deals are tagged with the GP name. No configuration needed — it works automatically when an investor is linked to deals in multiple orgs.
+              </p>
+            </div>
+          </div>
+
+          <!-- Billing -->
+          <div class="help-section" id="sec-billing">
+            <h2 style="margin-bottom:16px;">Billing & Plans</h2>
+            <div class="guide-card">
+              <h3>Plans</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                <strong>Free Trial:</strong> Full platform access for 90 days. No credit card required.<br><br>
+                <strong>Per Deal ($49/deal/month):</strong> Unlimited investors. OA generator, waterfall calculations, distribution engine, capital calls, K-1 vault, OM builder, investor portal, QuickBooks export.<br><br>
+                <strong>Enterprise ($499/year):</strong> Everything in Per Deal plus unlimited deals, multi-GP/team access, white-labeled portal, custom domain, lender CRM, bulk K-1 auto-sort, dedicated onboarding, priority support.
+              </p>
+            </div>
+
+            <div class="guide-card">
+              <h3>Managing Your Subscription</h3>
+              <p style="font-size:.82rem;color:#6B6560;">
+                Go to <a href="pricing.html">Pricing</a> to view plans and subscribe. Payment is handled securely through Stripe. You can manage your subscription, update payment methods, or cancel anytime from your Stripe customer portal.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ -->
+          <div class="help-section" id="sec-faq">
+            <h2 style="margin-bottom:16px;">Frequently Asked Questions</h2>
+
+            <div class="faq-item" onclick="this.classList.toggle('open')">
+              <div class="faq-q">Is my data secure? <i class="fas fa-chevron-down" style="transition:transform .2s;font-size:.75rem;"></i></div>
+              <div class="faq-a">Yes. All data is stored in Google Cloud Firestore with per-organization security rules. Sensitive fields (SSN/EIN, bank account numbers, routing numbers) are encrypted at rest using AES-256-GCM. Data in transit is encrypted via HTTPS/TLS.</div>
+            </div>
+
+            <div class="faq-item" onclick="this.classList.toggle('open')">
+              <div class="faq-q">Is the e-signature legally binding? <i class="fas fa-chevron-down" style="transition:transform .2s;font-size:.75rem;"></i></div>
+              <div class="faq-a">Our electronic signature complies with the Electronic Signatures in Global and National Commerce Act (E-SIGN Act, 15 U.S.C. §7001). Each signature captures the signer's name, timestamp, timezone, and browser information. A full-text snapshot of the signed agreement is stored immutably in Firestore at the moment of signing.</div>
+            </div>
+
+            <div class="faq-item" onclick="this.classList.toggle('open')">
+              <div class="faq-q">Can investors see other investors' data? <i class="fas fa-chevron-down" style="transition:transform .2s;font-size:.75rem;"></i></div>
+              <div class="faq-a">No. Firestore security rules enforce strict data isolation. Investors can only see their own records, the deals they're linked to, and distributions where they are a recipient. They cannot see other investors' committed amounts, personal information, or financial data.</div>
+            </div>
+
+            <div class="faq-item" onclick="this.classList.toggle('open')">
+              <div class="faq-q">How does the waterfall calculation work? <i class="fas fa-chevron-down" style="transition:transform .2s;font-size:.75rem;"></i></div>
+              <div class="faq-a">deeltrack supports three waterfall structures: Preferred Return (pref only, no catch-up), European Catch-Up (pref → GP catch-up → split), and Simple Split (no pref, straight split). The Distribution Command Center calculates per-investor splits based on your deal's waterfall terms, preferred return rate, and each investor's ownership percentage.</div>
+            </div>
+
+            <div class="faq-item" onclick="this.classList.toggle('open')">
+              <div class="faq-q">Can I use deeltrack for multiple funds/entities? <i class="fas fa-chevron-down" style="transition:transform .2s;font-size:.75rem;"></i></div>
+              <div class="faq-a">Yes. Each deal operates independently with its own investors, waterfall, and distributions. You can manage as many deals as you need from a single account. If you have separate GP entities, contact us about multi-org setup.</div>
+            </div>
+
+            <div class="faq-item" onclick="this.classList.toggle('open')">
+              <div class="faq-q">Does deeltrack replace my CPA or attorney? <i class="fas fa-chevron-down" style="transition:transform .2s;font-size:.75rem;"></i></div>
+              <div class="faq-a">No. deeltrack is a software tool that helps you organize, calculate, and manage your syndication operations. All generated documents (operating agreements, K-1s, offering memorandums) should be reviewed by qualified legal and tax professionals before use. deeltrack is not a broker-dealer, investment adviser, or placement agent.</div>
+            </div>
+
+            <div class="faq-item" onclick="this.classList.toggle('open')">
+              <div class="faq-q">How do I export my data? <i class="fas fa-chevron-down" style="transition:transform .2s;font-size:.75rem;"></i></div>
+              <div class="faq-a">Deals, investors, and distributions can be exported via the Export button on each page (CSV format). Journal entries for QuickBooks are available in IIF and CSV format from the QuickBooks Export page. K-1s can be exported as PDFs.</div>
+            </div>
+
+            <div class="faq-item" onclick="this.classList.toggle('open')">
+              <div class="faq-q">What happens when my trial ends? <i class="fas fa-chevron-down" style="transition:transform .2s;font-size:.75rem;"></i></div>
+              <div class="faq-a">After the 90-day free trial, GP-facing pages will prompt you to subscribe. Your data is preserved — nothing is deleted. Investor portals remain accessible (investors are never gated). Subscribe at any time to resume full access.</div>
+            </div>
+          </div>
+
+          <!-- Contact card -->
+          <div class="contact-card">
+            <h3><i class="fas fa-envelope" style="margin-right:8px;"></i> Need More Help?</h3>
+            <p style="color:rgba(255,255,255,.7);font-size:.875rem;margin-bottom:12px;">Our team is here to help you get the most out of deeltrack.</p>
+            <p><a href="mailto:admin@deeltrack.com">admin@deeltrack.com</a></p>
+          </div>
         </div>
       </div>
     </div>
   </main>
+</div>
+
+<script>
+function showSection(id, el) {
+  document.querySelectorAll('.help-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + id)?.classList.add('active');
+  document.querySelectorAll('.help-nav a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+function searchHelp(query) {
+  const q = query.toLowerCase().trim();
+  if (!q) {
+    document.querySelectorAll('.help-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('sec-getting-started')?.classList.add('active');
+    document.querySelectorAll('.guide-card, .faq-item').forEach(el => el.style.display = '');
+    return;
+  }
+  // Show all sections but filter content
+  document.querySelectorAll('.help-section').forEach(s => s.classList.add('active'));
+  document.querySelectorAll('.guide-card, .faq-item').forEach(el => {
+    const text = el.textContent.toLowerCase();
+    el.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+</script>
 </body>
 </html>
