@@ -16,6 +16,7 @@
   <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v7"></script>
   <script src="js/sp-firebase.js?v7"></script>
+  <script src="js/sp-multi-org.js"></script>
   <style>
     :root {
       --accent:#F37925;--accent-hover:#D96515;--accent-light:rgba(243,121,37,0.12);
@@ -537,21 +538,38 @@ function render() {
   const inv = SP.getCurrentInvestorRecord();
 
   // Get all deals and find ones linked to this investor
-  const allDeals = SP.getDeals();
+  // If multi-org data is available, merge it in
+  let allDeals = SP.getDeals();
   const linkedEntries = []; // { deal, entry }
-  allDeals.forEach(d => {
-    if (!Array.isArray(d.investors)) return;
-    const entry = d.investors.find(i =>
-      i.investorId === inv?.id ||
-      (inv?.email && SP.getInvestorById(i.investorId)?.email?.toLowerCase() === session.email?.toLowerCase())
-    );
-    if (entry) linkedEntries.push({ deal: d, entry });
-  });
+
+  if (_multiOrgData && _multiOrgData.deals.length) {
+    // Use multi-org aggregated deals (already filtered to LP's deals)
+    _multiOrgData.deals.forEach(d => {
+      const invRecord = _multiOrgData.investors.find(i => i._orgId === d._orgId);
+      const entry = (d.investors || []).find(i => i.investorId === invRecord?.id);
+      if (entry) linkedEntries.push({ deal: d, entry, gpName: d._gpName });
+    });
+  } else {
+    // Single-org mode
+    allDeals.forEach(d => {
+      if (!Array.isArray(d.investors)) return;
+      const entry = d.investors.find(i =>
+        i.investorId === inv?.id ||
+        (inv?.email && SP.getInvestorById(i.investorId)?.email?.toLowerCase() === session.email?.toLowerCase())
+      );
+      if (entry) linkedEntries.push({ deal: d, entry });
+    });
+  }
 
   const totalInvested = linkedEntries.reduce((s, { entry }) => s + (entry.committed || 0), 0);
 
   // Distributions for this investor
-  const allDists = SP.getDistributions().filter(d => d.status === 'posted');
+  let allDists;
+  if (_multiOrgData && _multiOrgData.dists.length) {
+    allDists = _multiOrgData.dists;
+  } else {
+    allDists = SP.getDistributions().filter(d => d.status === 'posted');
+  }
   const myDists = [];
   // Helper: resolve deal name from dist record or deals list
   const _resolveDealName = (d) => {
@@ -596,14 +614,15 @@ function render() {
   // Dashboard deals
   const dashDealsEl = document.getElementById('dashDeals');
   if (linkedEntries.length) {
-    dashDealsEl.innerHTML = linkedEntries.slice(0,5).map(({ deal, entry }) => {
+    dashDealsEl.innerHTML = linkedEntries.slice(0,5).map(({ deal, entry, gpName }) => {
       const STATUS_BADGE = {operating:'badge-operating',closed:'badge-closed',dd:'badge-active',loi:'badge-committed'};
       const STATUS_LABEL = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',operating:'Operating',closed:'Closed'};
+      const gpTag = gpName ? `<span style="color:var(--accent);font-weight:600;">${gpName}</span> · ` : '';
       return `<div class="deal-item">
         <div>
           <div class="deal-name">${deal.name}</div>
           <div class="deal-meta">
-            ${deal.location || '—'} · <span class="badge ${STATUS_BADGE[deal.status]||'badge-committed'}">${STATUS_LABEL[deal.status]||deal.status||'—'}</span>
+            ${gpTag}${deal.location || '—'} · <span class="badge ${STATUS_BADGE[deal.status]||'badge-committed'}">${STATUS_LABEL[deal.status]||deal.status||'—'}</span>
             · ${entry.ownership ? entry.ownership.toFixed(2)+'% ownership' : '—'}
           </div>
         </div>
@@ -637,21 +656,22 @@ function render() {
   // Investments page
   const invContent = document.getElementById('investmentsContent');
   if (linkedEntries.length) {
-    invContent.innerHTML = linkedEntries.map(({ deal, entry }) => {
-      const dealDists = myDists.filter(({ dist }) => dist.dealId === deal.id);
+    invContent.innerHTML = linkedEntries.map(({ deal, entry, gpName }) => {
+      const dealDists = myDists.filter(({ dist }) => dist.dealId === deal.id && (!deal._orgId || dist._orgId === deal._orgId));
       const dealDistTotal = dealDists.reduce((s, { r }) => s + (r.amount||r.totalThisDist||0), 0);
+      const gpLine = gpName ? `<span style="color:var(--accent);font-weight:600;font-size:.72rem;">${gpName}</span> · ` : '';
       return `<div class="card" style="margin-bottom:16px;">
         <div class="card-header">
           <div>
             <div style="font-weight:700;">${deal.name}</div>
-            <div style="font-size:.78rem;color:var(--text-muted);font-weight:400;margin-top:2px;">${deal.location||'—'} · ${deal.type||'—'}</div>
+            <div style="font-size:.78rem;color:var(--text-muted);font-weight:400;margin-top:2px;">${gpLine}${deal.location||'—'} · ${deal.type||'—'}</div>
           </div>
           <span class="badge ${deal.status==='operating'?'badge-operating':deal.status==='closed'?'badge-closed':'badge-committed'}">${deal.status||'—'}</span>
         </div>
         <div class="card-body">
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;flex-wrap:wrap;">
             <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Invested</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;">${fmtFull$(entry.committed||0)}</div></div>
-            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Ownership</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;">${entry.ownership ? entry.ownership.toFixed(4)+'%' : '—'}</div></div>
+            <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Ownership</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;">${entry.ownership ? entry.ownership.toFixed(2)+'%' : '—'}</div></div>
             <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Target IRR</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${deal.irr ? deal.irr.toFixed(1)+'%' : '—'}</div></div>
             <div><div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Distributions</div><div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${fmtFull$(dealDistTotal)}</div></div>
           </div>
@@ -873,7 +893,34 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sel) sel.addEventListener('change', _toggleEntityName);
 });
 
-SP.onDataReady(render);
+// ── Multi-org support: after primary data loads, also load from other GPs ──
+let _multiOrgData = null;
+
+SP.onDataReady(async function() {
+  render(); // Render immediately with primary org data
+
+  // Then try to load multi-org data in background
+  const session = SP.getSession();
+  if (session?.role === 'Investor' && typeof SPMultiOrg !== 'undefined' && typeof firebase !== 'undefined') {
+    try {
+      const db = firebase.firestore();
+      const user = firebase.auth().currentUser;
+      if (user) {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (userDoc.exists) {
+          const userData = userDoc.data();
+          // Only do multi-org load if user has multiple orgs
+          if (Array.isArray(userData.orgIds) && userData.orgIds.length > 1) {
+            _multiOrgData = await SPMultiOrg.load(db, userData);
+            render(); // Re-render with aggregated data
+          }
+        }
+      }
+    } catch(e) {
+      console.warn('Multi-org load failed (non-fatal):', e.message);
+    }
+  }
+});
 </script>
 </body>
 </html>

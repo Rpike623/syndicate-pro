@@ -16,6 +16,7 @@
   <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v7"></script>
   <script src="js/sp-firebase.js?v7"></script>
+  <script src="js/sp-multi-org.js"></script>
   <style>
     :root {
       --accent:#F37925;--accent-hover:#D96515;--accent-light:rgba(243,121,37,0.12);
@@ -582,6 +583,11 @@ async function submitCommitment() {
     };
 
     const docRef = await _db.collection('orgs').doc(_orgId).collection('commitments').add(commitment);
+
+    // Add this org to the LP's orgIds array (multi-GP support)
+    if (typeof SPMultiOrg !== 'undefined' && user?.uid) {
+      await SPMultiOrg.addOrgToUser(_db, user.uid, _orgId).catch(() => {});
+    }
 
     // Show receipt
     document.getElementById('commitReceipt').innerHTML = `

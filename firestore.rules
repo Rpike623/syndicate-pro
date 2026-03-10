@@ -21,7 +21,11 @@ service cloud.firestore {
     }
 
     function ownsOrg(orgId) {
-      return isSignedIn() && userOrgId() == orgId;
+      return isSignedIn() && (
+        userOrgId() == orgId ||
+        // Multi-org: LP investors may belong to multiple orgs via orgIds array
+        (userDocData().orgIds is list && orgId in userDocData().orgIds)
+      );
     }
 
     function isInvestorRole() {
