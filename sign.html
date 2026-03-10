@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Sign Subscription Agreement</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    :root{--accent:#F37925;--success:#2D9A6B;--danger:#D94F3D;--text:#1B1A19;--text-secondary:#6B6560;--text-muted:#9C9590;--border:#E2DDD8;--bg:#F3F3F3;--bg-card:#FFFFFF;--radius:8px;--radius-md:12px;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;}
+    .header{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;text-decoration:none;color:var(--text);}
+    .logo span{color:var(--accent);}
+    .container{max-width:700px;margin:0 auto;padding:32px 24px 80px;}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:20px;overflow:hidden;}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:.95rem;}
+    .card-body{padding:24px;}
+    .doc-section{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid rgba(0,0,0,.06);}
+    .doc-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+    .doc-section h3{font-size:.9rem;font-weight:700;margin-bottom:8px;color:var(--text);}
+    .doc-section p{font-size:.82rem;color:var(--text-secondary);line-height:1.7;}
+    .term-row{display:flex;justify-content:space-between;padding:8px 0;font-size:.875rem;border-bottom:1px solid rgba(0,0,0,.04);}
+    .term-row:last-child{border-bottom:none;}
+    .term-label{color:var(--text-secondary);}
+    .term-value{font-weight:600;font-family:'JetBrains Mono',monospace;}
+    .sig-box{border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;margin:16px 0;transition:border-color .2s;}
+    .sig-box.ready{border-color:var(--accent);background:rgba(243,121,37,0.04);}
+    .sig-input{width:100%;padding:16px;font-size:1.5rem;font-family:'Dancing Script',cursive,serif;border:none;text-align:center;background:transparent;color:var(--text);outline:none;}
+    .sig-note{font-size:.72rem;color:var(--text-muted);margin-top:8px;}
+    .attestation{padding:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-size:.82rem;display:flex;align-items:flex-start;gap:10px;margin:16px 0;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:12px 24px;font-size:.9rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;}
+    .btn-primary{background:var(--accent);color:white;}.btn-primary:hover{background:#D96515;}
+    .btn:disabled{opacity:.4;cursor:not-allowed;}
+    .success-box{text-align:center;padding:40px 20px;}
+    .success-box i{font-size:3rem;color:var(--success);margin-bottom:16px;}
+    .loading{text-align:center;padding:60px;color:var(--text-muted);}
+    .invalid{text-align:center;padding:60px;}
+    .invalid i{font-size:3rem;color:var(--danger);margin-bottom:16px;}
+    @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&display=swap');
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/" class="logo"><img src="assets/favicon.svg" width="28" alt=""> deel<span>track</span></a>
+</div>
+
+<div class="container">
+  <div id="loadingState" class="loading">
+    <i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:12px;display:block;opacity:.3;"></i>
+    <p>Loading subscription agreement...</p>
+  </div>
+
+  <div id="invalidState" style="display:none;" class="invalid">
+    <i class="fas fa-exclamation-circle"></i>
+    <h2>Invalid or Expired Link</h2>
+    <p style="color:var(--text-secondary);margin-top:8px;">This signing link is no longer valid.</p>
+  </div>
+
+  <div id="alreadySigned" style="display:none;" class="success-box">
+    <i class="fas fa-check-circle"></i>
+    <h2>Already Signed</h2>
+    <p style="color:var(--text-secondary);margin-top:8px;">This subscription agreement has already been signed.</p>
+    <a href="portal.html" class="btn btn-primary" style="margin-top:20px;">Go to My Portal</a>
+  </div>
+
+  <div id="mainContent" style="display:none;">
+    <!-- Subscription Agreement -->
+    <div class="card">
+      <div class="card-header"><i class="fas fa-file-signature" style="color:var(--accent);margin-right:8px;"></i>Subscription Agreement</div>
+      <div class="card-body">
+
+        <div class="doc-section">
+          <h3>1. Investment Summary</h3>
+          <div id="investmentSummary"></div>
+        </div>
+
+        <div class="doc-section">
+          <h3>2. Representations and Warranties</h3>
+          <p>By signing below, the undersigned subscriber ("Subscriber") represents and warrants to the Issuer that:</p>
+          <ul style="font-size:.82rem;color:var(--text-secondary);padding-left:20px;margin-top:8px;line-height:2;">
+            <li>Subscriber is an "accredited investor" as defined in Rule 501(a) of Regulation D under the Securities Act of 1933.</li>
+            <li>Subscriber has received and reviewed such information as Subscriber deems necessary to make an informed investment decision.</li>
+            <li>Subscriber understands that the Securities are being offered pursuant to an exemption from registration under the Securities Act.</li>
+            <li>Subscriber has adequate means of providing for current financial needs and possible personal contingencies, and has no need for liquidity in this investment.</li>
+            <li>Subscriber's overall commitment to investments that are not readily marketable is not disproportionate to net worth.</li>
+            <li>Subscriber is acquiring the Securities for investment purposes only and not with a view toward resale or distribution.</li>
+          </ul>
+        </div>
+
+        <div class="doc-section">
+          <h3>3. Risk Acknowledgment</h3>
+          <p>Subscriber acknowledges that an investment in the Securities involves a high degree of risk, including the possible loss of the entire investment. Subscriber has reviewed the risk factors set forth in the Offering Memorandum and understands the speculative nature of the investment.</p>
+        </div>
+
+        <div class="doc-section">
+          <h3>4. Electronic Signature</h3>
+          <p>Subscriber agrees that this electronic signature is the legal equivalent of a manual signature on this agreement, pursuant to the Electronic Signatures in Global and National Commerce Act (E-SIGN Act).</p>
+
+          <div class="sig-box" id="sigBox">
+            <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px;">Type your full legal name to sign</div>
+            <input type="text" class="sig-input" id="sigInput" placeholder="Your Full Legal Name" oninput="checkReady()">
+            <div class="sig-note">By typing your name above, you are electronically signing this subscription agreement.</div>
+          </div>
+
+          <div class="attestation">
+            <input type="checkbox" id="signAttest" onchange="checkReady()" style="margin-top:2px;">
+            <span>I have read and agree to the terms of this subscription agreement. I confirm that I am authorized to make this investment and that all information provided is true and accurate.</span>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:20px;">
+          <button class="btn btn-primary" id="signBtn" onclick="submitSignature()" disabled style="padding:14px 40px;font-size:1rem;">
+            <i class="fas fa-signature"></i> Sign & Submit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div id="successState" style="display:none;" class="success-box">
+    <div class="card">
+      <div class="card-body">
+        <i class="fas fa-check-circle"></i>
+        <h2>Subscription Agreement Signed</h2>
+        <p style="color:var(--text-secondary);max-width:500px;margin:12px auto;">
+          Your subscription agreement has been signed and submitted. Your GP will be notified.
+          You'll receive wire instructions shortly.
+        </p>
+        <div id="signReceipt" style="background:var(--bg);border-radius:var(--radius);padding:20px;max-width:400px;margin:24px auto;text-align:left;font-size:.875rem;"></div>
+        <a href="portal.html" class="btn btn-primary" style="margin-top:16px;"><i class="fas fa-arrow-right"></i> Go to My Portal</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let _signReq = null;
+let _db = null;
+let _orgId = null;
+let _token = null;
+
+(async function init() {
+  const params = new URLSearchParams(window.location.search);
+  _token = params.get('t');
+  if (!_token) { showInvalid(); return; }
+
+  await new Promise(r => { const i = setInterval(() => { if (typeof firebase !== 'undefined' && firebase.apps.length) { clearInterval(i); r(); } }, 100); setTimeout(r, 5000); });
+  _db = firebase.firestore();
+
+  // Find signing request — try deeltrack_demo first
+  try {
+    const orgs = ['deeltrack_demo']; // extend for multi-org later
+    for (const org of orgs) {
+      const doc = await _db.collection('orgs').doc(org).collection('signing_requests').doc(_token).get();
+      if (doc.exists) {
+        _signReq = doc.data();
+        _orgId = org;
+        break;
+      }
+    }
+
+    if (!_signReq) { showInvalid(); return; }
+    if (_signReq.status === 'signed') {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('alreadySigned').style.display = '';
+      return;
+    }
+
+    renderAgreement();
+  } catch(e) {
+    console.error('Sign page error:', e);
+    showInvalid();
+  }
+})();
+
+function showInvalid() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('invalidState').style.display = '';
+}
+
+function renderAgreement() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('mainContent').style.display = '';
+
+  const s = _signReq;
+  document.getElementById('investmentSummary').innerHTML = `
+    <div class="term-row"><span class="term-label">Deal</span><span class="term-value">${s.dealName}</span></div>
+    <div class="term-row"><span class="term-label">Subscriber</span><span class="term-value">${s.investorName || s.investorEmail}</span></div>
+    <div class="term-row"><span class="term-label">Subscription Amount</span><span class="term-value" style="color:var(--accent);">$${Number(s.amount).toLocaleString()}</span></div>
+    <div class="term-row"><span class="term-label">Entity</span><span class="term-value">${s.entity || 'Individual'}</span></div>
+    <div class="term-row"><span class="term-label">Date</span><span class="term-value">${new Date().toLocaleDateString()}</span></div>
+  `;
+}
+
+function checkReady() {
+  const name = document.getElementById('sigInput').value.trim();
+  const attested = document.getElementById('signAttest').checked;
+  const btn = document.getElementById('signBtn');
+  const box = document.getElementById('sigBox');
+  const ready = name.length >= 2 && attested;
+  btn.disabled = !ready;
+  box.classList.toggle('ready', name.length >= 2);
+}
+
+async function submitSignature() {
+  const btn = document.getElementById('signBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+  const sigName = document.getElementById('sigInput').value.trim();
+  const now = new Date();
+
+  try {
+    // Update signing request
+    await _db.collection('orgs').doc(_orgId).collection('signing_requests').doc(_token).update({
+      status: 'signed',
+      signedName: sigName,
+      signedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      signedIp: 'client', // In production, get from server
+      signedUserAgent: navigator.userAgent,
+    });
+
+    // Update the commitment status to docs_signed
+    if (_signReq.commitmentId) {
+      await _db.collection('orgs').doc(_orgId).collection('commitments').doc(_signReq.commitmentId).update({
+        status: 'docs_signed',
+        signedAt: now.toISOString(),
+        signedName: sigName,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    // Show success
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('successState').style.display = '';
+    document.getElementById('signReceipt').innerHTML = `
+      <div style="display:grid;gap:8px;">
+        <div style="display:flex;justify-content:space-between;"><span>Deal:</span><strong>${_signReq.dealName}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Amount:</span><strong style="color:var(--accent);">$${Number(_signReq.amount).toLocaleString()}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Signed By:</span><strong>${sigName}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Date:</span><strong>${now.toLocaleDateString()}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Status:</span><strong style="color:var(--success);">Signed ✓</strong></div>
+      </div>
+    `;
+  } catch(e) {
+    console.error('Sign failed:', e);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-signature"></i> Sign & Submit';
+    alert('Failed to submit signature. Please try again.');
+  }
+}
+</script>
+</body>
+</html>

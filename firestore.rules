@@ -119,6 +119,12 @@ service cloud.firestore {
         allow read: if ownsOrg(orgId) && isInvestorRole();
         allow create: if isSignedIn(); // Any authenticated user can submit a commitment
       }
+
+      // Signing requests — GP creates, LP reads and updates (to sign)
+      match /signing_requests/{reqId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read, update: if isSignedIn(); // LP needs to read and sign
+      }
     }
 
     // ── Global invite index (token → orgId lookup for invest.html) ──────────

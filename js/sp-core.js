@@ -1413,6 +1413,7 @@ window.SP = (function () {
         ]},
         // ── Finance ──────────────────────────────────────────────
         { id:'finance', title:'FINANCE', items:[
+          { href:'commitments.html',      icon:'fa-handshake',           label:'Commitments' },
           { href:'distributions.html',    icon:'fa-wallet',              label:'Distributions' },
           { href:'capital-calls.html',    icon:'fa-hand-holding-usd',    label:'Capital Calls' },
           { href:'capital-account.html',  icon:'fa-list-ol',             label:'Capital Accounts' },

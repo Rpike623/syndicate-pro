@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Commitment Queue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dt-global.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v7"></script>
+  <script src="js/sp-crypto.js"></script>
+  <script src="js/sp-data.js?v7"></script>
+  <script src="js/sp-firebase.js?v7"></script>
+  <script src="js/sp-email.js?v7"></script>
+  <style>
+    .commit-card{background:var(--dt-card-bg,#fff);border:1px solid var(--dt-border,#E2DDD8);border-radius:12px;padding:20px;margin-bottom:16px;transition:border-color .15s;}
+    .commit-card:hover{border-color:#F37925;}
+    .commit-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+    .commit-deal{font-weight:700;font-size:1rem;}
+    .commit-investor{font-size:.875rem;color:var(--dt-text-secondary,#6B6560);margin-top:2px;}
+    .commit-amount{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.3rem;color:#F37925;}
+    .commit-meta{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;font-size:.82rem;color:var(--dt-text-secondary,#6B6560);}
+    .commit-meta span{display:flex;align-items:center;gap:4px;}
+    .commit-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+    .status-badge{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:600;}
+    .status-pending{background:rgba(232,137,10,0.12);color:#E8890A;}
+    .status-approved{background:rgba(45,154,107,0.12);color:#2D9A6B;}
+    .status-docs_sent{background:rgba(14,165,233,0.12);color:#0ea5e9;}
+    .status-docs_signed{background:rgba(123,92,196,0.12);color:#7B5CC4;}
+    .status-funded{background:rgba(45,154,107,0.12);color:#2D9A6B;}
+    .status-rejected{background:rgba(217,79,61,0.12);color:#D94F3D;}
+    .filter-bar{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+    .filter-btn{padding:6px 14px;border:1px solid var(--dt-border,#E2DDD8);border-radius:20px;background:white;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s;color:var(--dt-text-secondary,#6B6560);}
+    .filter-btn.active{background:#F37925;color:white;border-color:#F37925;}
+    .filter-btn:hover:not(.active){border-color:#F37925;color:#F37925;}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+    @media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+    .kpi-card{background:var(--dt-card-bg,#fff);border:1px solid var(--dt-border,#E2DDD8);border-radius:12px;padding:18px;text-align:center;}
+    .kpi-val{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
+    .kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--dt-text-secondary,#6B6560);margin-top:4px;}
+    .empty-state{text-align:center;padding:40px 20px;color:var(--dt-text-secondary,#6B6560);}
+    .empty-state i{font-size:2rem;opacity:.3;display:block;margin-bottom:12px;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:.8rem;font-weight:600;border-radius:8px;border:none;cursor:pointer;transition:all .15s;}
+    .btn-approve{background:#2D9A6B;color:white;}.btn-approve:hover{background:#247d57;}
+    .btn-reject{background:white;color:#D94F3D;border:1px solid #D94F3D;}.btn-reject:hover{background:rgba(217,79,61,0.08);}
+    .btn-docs{background:#0ea5e9;color:white;}.btn-docs:hover{background:#0284c7;}
+    .btn-confirm{background:#7B5CC4;color:white;}.btn-confirm:hover{background:#6544ad;}
+    .btn-sm{padding:6px 10px;font-size:.75rem;}
+    /* Sign modal */
+    .sign-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;}
+    .sign-modal{background:white;border-radius:12px;padding:28px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;}
+  </style>
+</head>
+<body>
+<div id="app-shell">
+  <aside class="dt-sidebar" id="sidebar"></aside>
+  <main class="dt-main">
+    <div class="dt-header">
+      <div>
+        <h1 class="dt-page-title">Commitment Queue</h1>
+        <p class="dt-page-subtitle">Review and manage investor commitments</p>
+      </div>
+    </div>
+
+    <div class="dt-content" style="max-width:900px;">
+      <!-- KPIs -->
+      <div class="kpi-row" id="kpis"></div>
+
+      <!-- Filter -->
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterTo('all',this)">All</button>
+        <button class="filter-btn" onclick="filterTo('pending',this)">⏳ Pending</button>
+        <button class="filter-btn" onclick="filterTo('approved',this)">✅ Approved</button>
+        <button class="filter-btn" onclick="filterTo('docs_sent',this)">📄 Docs Sent</button>
+        <button class="filter-btn" onclick="filterTo('docs_signed',this)">✍️ Signed</button>
+        <button class="filter-btn" onclick="filterTo('funded',this)">💰 Funded</button>
+      </div>
+
+      <!-- Commitment list -->
+      <div id="commitList"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+let _commitments = [];
+let _filter = 'all';
+
+SP.onDataReady(async () => {
+  SP.requireGP();
+  await loadCommitments();
+  render();
+});
+
+async function loadCommitments() {
+  const db = firebase.firestore();
+  const orgId = SP.getSession()?.orgId || SP.getOrgId?.() || 'deeltrack_demo';
+  try {
+    const snap = await db.collection('orgs').doc(orgId).collection('commitments').orderBy('createdAt', 'desc').get();
+    _commitments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) {
+    console.warn('Failed to load commitments:', e.message);
+    _commitments = [];
+  }
+}
+
+function render() {
+  // KPIs
+  const pending = _commitments.filter(c => c.status === 'pending');
+  const approved = _commitments.filter(c => ['approved','docs_sent','docs_signed','funded'].includes(c.status));
+  const totalPending = pending.reduce((s, c) => s + (c.amount || 0), 0);
+  const totalApproved = approved.reduce((s, c) => s + (c.amount || 0), 0);
+
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi-card"><div class="kpi-val" style="color:#E8890A;">${pending.length}</div><div class="kpi-label">Pending Review</div></div>
+    <div class="kpi-card"><div class="kpi-val">$${(totalPending/1e6).toFixed(2)}M</div><div class="kpi-label">Pending Amount</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#2D9A6B;">${approved.length}</div><div class="kpi-label">Approved</div></div>
+    <div class="kpi-card"><div class="kpi-val" style="color:#2D9A6B;">$${(totalApproved/1e6).toFixed(2)}M</div><div class="kpi-label">Approved Amount</div></div>
+  `;
+
+  // Filter
+  const filtered = _filter === 'all' ? _commitments : _commitments.filter(c => c.status === _filter);
+
+  if (!filtered.length) {
+    document.getElementById('commitList').innerHTML = `
+      <div class="empty-state"><i class="fas fa-inbox"></i><p>${_filter === 'all' ? 'No commitments yet. Send deal invite links to start receiving commitments.' : 'No commitments with this status.'}</p></div>
+    `;
+    return;
+  }
+
+  const statusLabels = { pending:'Pending Review', approved:'Approved', docs_sent:'Docs Sent', docs_signed:'Docs Signed', funded:'Funded', rejected:'Rejected' };
+
+  document.getElementById('commitList').innerHTML = filtered.map(c => {
+    const date = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString() : (c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '—');
+    const actions = _getActions(c);
+    return `
+      <div class="commit-card" data-status="${c.status}">
+        <div class="commit-header">
+          <div>
+            <div class="commit-deal">${c.dealName || c.dealId}</div>
+            <div class="commit-investor"><i class="fas fa-user" style="margin-right:4px;"></i>${c.investorName || c.investorEmail}</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="commit-amount">$${Number(c.amount || 0).toLocaleString()}</div>
+            <span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span>
+          </div>
+        </div>
+        <div class="commit-meta">
+          <span><i class="fas fa-calendar"></i> ${date}</span>
+          <span><i class="fas fa-envelope"></i> ${c.investorEmail || '—'}</span>
+          <span><i class="fas fa-building"></i> ${c.entity || 'Individual'}</span>
+          ${c.notes ? `<span><i class="fas fa-sticky-note"></i> ${c.notes}</span>` : ''}
+          ${c.signedAt ? `<span><i class="fas fa-signature"></i> Signed ${new Date(c.signedAt).toLocaleDateString()}</span>` : ''}
+        </div>
+        <div class="commit-actions">${actions}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function _getActions(c) {
+  switch(c.status) {
+    case 'pending':
+      return `
+        <button class="btn btn-approve" onclick="approveCommitment('${c.id}')"><i class="fas fa-check"></i> Approve</button>
+        <button class="btn btn-reject" onclick="rejectCommitment('${c.id}')"><i class="fas fa-times"></i> Reject</button>
+      `;
+    case 'approved':
+      return `<button class="btn btn-docs" onclick="sendSubDocs('${c.id}')"><i class="fas fa-file-signature"></i> Send Sub Docs</button>`;
+    case 'docs_sent':
+      return `<span style="font-size:.78rem;color:#6B6560;"><i class="fas fa-clock"></i> Waiting for LP signature</span>`;
+    case 'docs_signed':
+      return `<button class="btn btn-confirm" onclick="confirmFunded('${c.id}')"><i class="fas fa-dollar-sign"></i> Confirm Wire Received</button>`;
+    case 'funded':
+      return `<span style="font-size:.78rem;color:#2D9A6B;"><i class="fas fa-check-circle"></i> Complete</span>`;
+    case 'rejected':
+      return `<span style="font-size:.78rem;color:#D94F3D;"><i class="fas fa-ban"></i> Rejected</span>`;
+    default:
+      return '';
+  }
+}
+
+function filterTo(status, btn) {
+  _filter = status;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+// ── Actions ─────────────────────────────────────────────────────────────────
+
+async function _updateStatus(id, status, extra = {}) {
+  const db = firebase.firestore();
+  const orgId = SP.getSession()?.orgId || 'deeltrack_demo';
+  await db.collection('orgs').doc(orgId).collection('commitments').doc(id).update({
+    status,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    ...extra,
+  });
+  const c = _commitments.find(c => c.id === id);
+  if (c) { c.status = status; Object.assign(c, extra); }
+  render();
+}
+
+async function approveCommitment(id) {
+  const c = _commitments.find(c => c.id === id);
+  if (!c) return;
+  if (!confirm(`Approve ${c.investorName || c.investorEmail}'s commitment of $${Number(c.amount).toLocaleString()} to ${c.dealName}?`)) return;
+
+  await _updateStatus(id, 'approved', { approvedAt: new Date().toISOString(), approvedBy: SP.getSession()?.email });
+
+  // Auto-add investor to the deal if not already linked
+  const deal = SP.getDealById(c.dealId);
+  if (deal) {
+    const investors = SP.getInvestors();
+    let inv = investors.find(i => i.email?.toLowerCase() === c.investorEmail?.toLowerCase());
+    if (!inv) {
+      // Create investor record
+      inv = {
+        id: 'inv_' + Date.now(),
+        firstName: (c.investorName || '').split(' ')[0] || '',
+        lastName: (c.investorName || '').split(' ').slice(1).join(' ') || '',
+        email: c.investorEmail,
+        status: 'active',
+        entityType: c.entity || 'individual',
+      };
+      investors.push(inv);
+      SP.saveInvestors(investors);
+    }
+    // Link to deal
+    const ownership = deal.raise ? ((c.amount / deal.raise) * 100) : 0;
+    SP.addInvestorToDeal(c.dealId, {
+      investorId: inv.id,
+      committed: c.amount,
+      ownership: parseFloat(ownership.toFixed(2)),
+      status: 'active',
+      linkedAt: new Date().toISOString(),
+      subStatus: 'committed',
+    });
+  }
+
+  showToast('Commitment approved — investor linked to deal');
+}
+
+async function rejectCommitment(id) {
+  const c = _commitments.find(c => c.id === id);
+  if (!c) return;
+  const reason = prompt(`Reject ${c.investorName || c.investorEmail}'s commitment? Enter reason (optional):`);
+  if (reason === null) return; // cancelled
+  await _updateStatus(id, 'rejected', { rejectedAt: new Date().toISOString(), rejectionReason: reason });
+  showToast('Commitment rejected');
+}
+
+async function sendSubDocs(id) {
+  const c = _commitments.find(c => c.id === id);
+  if (!c) return;
+
+  // Show the e-sign modal
+  const overlay = document.createElement('div');
+  overlay.className = 'sign-overlay';
+  overlay.id = 'signModal';
+  overlay.innerHTML = `
+    <div class="sign-modal">
+      <h3 style="margin-bottom:4px;"><i class="fas fa-file-signature" style="color:#0ea5e9;margin-right:8px;"></i>Send Subscription Agreement</h3>
+      <p style="font-size:.82rem;color:#6B6560;margin-bottom:20px;">
+        This will generate a subscription agreement for <strong>${c.investorName}</strong> to invest
+        <strong>$${Number(c.amount).toLocaleString()}</strong> in <strong>${c.dealName}</strong>.
+        The LP will receive a link to review and e-sign.
+      </p>
+
+      <div style="background:#f3f3f3;border-radius:8px;padding:16px;margin-bottom:16px;font-size:.82rem;">
+        <div style="font-weight:700;margin-bottom:8px;">Subscription Agreement Summary</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><span style="color:#6B6560;">Investor:</span> ${c.investorName || c.investorEmail}</div>
+          <div><span style="color:#6B6560;">Amount:</span> $${Number(c.amount).toLocaleString()}</div>
+          <div><span style="color:#6B6560;">Deal:</span> ${c.dealName}</div>
+          <div><span style="color:#6B6560;">Entity:</span> ${c.entity || 'Individual'}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn" style="background:white;border:1px solid #E2DDD8;color:#1B1A19;" onclick="document.getElementById('signModal').remove();">Cancel</button>
+        <button class="btn btn-docs" onclick="_doSendSubDocs('${id}')"><i class="fas fa-paper-plane"></i> Send to LP for Signature</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function _doSendSubDocs(id) {
+  const c = _commitments.find(c => c.id === id);
+  if (!c) return;
+
+  // Generate signing token
+  const signToken = 'sign_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+  const signUrl = `${window.location.origin}/sign.html?t=${signToken}`;
+
+  // Store signing request
+  const db = firebase.firestore();
+  const orgId = SP.getSession()?.orgId || 'deeltrack_demo';
+  await db.collection('orgs').doc(orgId).collection('signing_requests').doc(signToken).set({
+    commitmentId: id,
+    dealId: c.dealId,
+    dealName: c.dealName,
+    investorEmail: c.investorEmail,
+    investorName: c.investorName,
+    amount: c.amount,
+    entity: c.entity,
+    signUrl,
+    status: 'pending',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    orgId,
+  });
+
+  // Update commitment status
+  await _updateStatus(id, 'docs_sent', { signToken, signUrl, docsSentAt: new Date().toISOString() });
+
+  document.getElementById('signModal')?.remove();
+  showToast('Subscription docs sent — LP will receive signing link');
+}
+
+async function confirmFunded(id) {
+  const c = _commitments.find(c => c.id === id);
+  if (!c) return;
+  if (!confirm(`Confirm wire received for ${c.investorName}'s $${Number(c.amount).toLocaleString()} commitment?`)) return;
+
+  await _updateStatus(id, 'funded', { fundedAt: new Date().toISOString(), confirmedBy: SP.getSession()?.email });
+
+  // Update investor's subStatus on the deal
+  const deal = SP.getDealById(c.dealId);
+  if (deal && Array.isArray(deal.investors)) {
+    const inv = SP.getInvestors().find(i => i.email?.toLowerCase() === c.investorEmail?.toLowerCase());
+    if (inv) {
+      const entry = deal.investors.find(i => i.investorId === inv.id);
+      if (entry) { entry.subStatus = 'funded'; }
+      SP.saveDeal(deal);
+    }
+  }
+
+  showToast('Wire confirmed — commitment fully funded');
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:#2D9A6B;color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;';
+  t.innerHTML = '<i class="fas fa-check-circle"></i>' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+</script>
+</body>
+</html>
