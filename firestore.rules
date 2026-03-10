@@ -101,6 +101,25 @@ service cloud.firestore {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
         allow read: if ownsOrg(orgId) && isInvestorRole();
       }
+
+      // Deal invite links — GP creates, any signed-in user can read (needed for invest.html)
+      match /deal_invites/{inviteId} {
+        allow read: if isSignedIn();
+        allow write: if ownsOrg(orgId) && !isInvestorRole();
+      }
+
+      // Investment commitments — LP creates, GP reads/updates
+      match /commitments/{commitId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+        allow create: if isSignedIn(); // Any authenticated user can submit a commitment
+      }
+    }
+
+    // ── Global invite index (token → orgId lookup for invest.html) ──────────
+    match /_invites/{token} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // GP creates when generating invite
     }
   }
 }

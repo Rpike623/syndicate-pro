@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Invest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v7"></script>
+  <script src="js/sp-crypto.js"></script>
+  <script src="js/sp-data.js?v7"></script>
+  <script src="js/sp-firebase.js?v7"></script>
+  <style>
+    :root {
+      --accent:#F37925;--accent-hover:#D96515;--accent-light:rgba(243,121,37,0.12);
+      --success:#2D9A6B;--success-light:rgba(45,154,107,0.12);
+      --warning:#E8890A;--warning-light:rgba(232,137,10,0.12);
+      --danger:#D94F3D;--danger-light:rgba(217,79,61,0.12);
+      --text:#1B1A19;--text-secondary:#6B6560;--text-muted:#9C9590;
+      --border:#E2DDD8;--border-light:rgba(27,26,25,0.08);
+      --bg:#F3F3F3;--bg-card:#FFFFFF;
+      --shadow-md:0 4px 6px -1px rgb(0 0 0/.1);--shadow-lg:0 10px 15px -3px rgb(0 0 0/.1);
+      --radius:8px;--radius-md:12px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;}
+    .header{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.1rem;text-decoration:none;color:var(--text);}
+    .logo span{color:var(--accent);}
+    .container{max-width:800px;margin:0 auto;padding:32px 24px 80px;}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:20px;overflow:hidden;}
+    .card-header{padding:16px 20px;border-bottom:1px solid var(--border);font-weight:700;font-size:.95rem;}
+    .card-body{padding:20px;}
+    .deal-hero{background:linear-gradient(135deg,#1B1A19,#2D2A27);border-radius:var(--radius-md);padding:32px;margin-bottom:24px;color:white;}
+    .deal-hero h1{font-size:1.6rem;font-weight:700;margin-bottom:4px;}
+    .deal-hero .meta{color:rgba(255,255,255,.6);font-size:.9rem;margin-bottom:20px;}
+    .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px;}
+    @media(max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+    .kpi{text-align:center;}
+    .kpi-val{font-size:1.3rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:white;}
+    .kpi-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:rgba(255,255,255,.5);margin-top:2px;}
+    .badge{display:inline-flex;padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:600;}
+    .badge-raising{background:var(--accent-light);color:var(--accent);}
+    .badge-operating{background:rgba(123,92,196,0.15);color:#7B5CC4;}
+    .term-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    @media(max-width:480px){.term-grid{grid-template-columns:1fr;}}
+    .term-item{padding:14px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border-light);}
+    .term-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:600;}
+    .term-value{font-size:1rem;font-weight:700;margin-top:4px;font-family:'JetBrains Mono',monospace;}
+    .progress-bar{height:8px;background:var(--border);border-radius:4px;margin-top:12px;overflow:hidden;}
+    .progress-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .3s;}
+    .progress-text{font-size:.75rem;color:var(--text-muted);margin-top:6px;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;font-size:.875rem;font-weight:600;border-radius:var(--radius);border:none;cursor:pointer;transition:all .15s;text-decoration:none;}
+    .btn-primary{background:var(--accent);color:white;}.btn-primary:hover{background:var(--accent-hover);}
+    .btn-secondary{background:var(--bg-card);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--bg);}
+    .btn-lg{padding:14px 28px;font-size:1rem;}
+    .btn:disabled{opacity:.5;cursor:not-allowed;}
+    .form-group{margin-bottom:16px;}
+    .form-group label{display:block;font-size:.82rem;font-weight:600;margin-bottom:6px;color:var(--text);}
+    .form-group input,.form-group select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:.875rem;font-family:'Inter',sans-serif;background:var(--bg-card);color:var(--text);}
+    .form-group input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light);}
+    .amount-input{font-size:1.5rem!important;font-weight:700!important;font-family:'JetBrains Mono',monospace!important;padding:16px 14px!important;}
+    .steps{display:flex;gap:0;margin-bottom:24px;}
+    .step{flex:1;text-align:center;padding:12px;font-size:.78rem;font-weight:600;color:var(--text-muted);border-bottom:3px solid var(--border);transition:all .2s;}
+    .step.active{color:var(--accent);border-bottom-color:var(--accent);}
+    .step.done{color:var(--success);border-bottom-color:var(--success);}
+    .step-num{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;border-radius:50%;background:var(--border);color:var(--text-muted);font-size:.7rem;margin-right:6px;}
+    .step.active .step-num{background:var(--accent);color:white;}
+    .step.done .step-num{background:var(--success);color:white;}
+    .page{display:none;}.page.active{display:block;}
+    .login-box{max-width:400px;margin:40px auto;text-align:center;}
+    .login-box h2{margin-bottom:8px;}
+    .login-box p{color:var(--text-secondary);font-size:.875rem;margin-bottom:20px;}
+    .attestation{padding:14px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-size:.82rem;display:flex;align-items:flex-start;gap:10px;margin-top:16px;}
+    .success-box{text-align:center;padding:40px 20px;}
+    .success-box i{font-size:3rem;color:var(--success);margin-bottom:16px;}
+    .success-box h2{margin-bottom:8px;}
+    .waterfall-tiers{margin-top:12px;}
+    .tier{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:.875rem;}
+    .tier:last-child{border-bottom:none;}
+    .tier-label{color:var(--text-secondary);}
+    .tier-value{font-weight:600;font-family:'JetBrains Mono',monospace;}
+    .error-msg{color:var(--danger);font-size:.82rem;margin-top:6px;display:none;}
+    .loading{text-align:center;padding:60px 20px;color:var(--text-muted);}
+    .loading i{font-size:2rem;margin-bottom:12px;opacity:.3;}
+    .invalid{text-align:center;padding:60px 20px;}
+    .invalid i{font-size:3rem;color:var(--danger);margin-bottom:16px;}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/" class="logo"><img src="assets/favicon.svg" width="28" alt=""> deel<span>track</span></a>
+  <div id="headerUser" style="font-size:.82rem;color:var(--text-muted);"></div>
+</div>
+
+<div class="container">
+  <!-- Loading state -->
+  <div id="loadingState" class="loading">
+    <i class="fas fa-spinner fa-spin"></i>
+    <p>Loading deal information...</p>
+  </div>
+
+  <!-- Invalid token -->
+  <div id="invalidState" style="display:none;" class="invalid">
+    <i class="fas fa-exclamation-circle"></i>
+    <h2>Invalid or Expired Link</h2>
+    <p style="color:var(--text-secondary);margin-top:8px;">This deal invite link is no longer valid. Please contact your GP for a new link.</p>
+    <a href="/" class="btn btn-secondary" style="margin-top:20px;">Return Home</a>
+  </div>
+
+  <!-- Main content (hidden until loaded) -->
+  <div id="mainContent" style="display:none;">
+
+    <!-- Deal Hero -->
+    <div class="deal-hero" id="dealHero">
+      <!-- Filled by JS -->
+    </div>
+
+    <!-- Steps -->
+    <div class="steps">
+      <div class="step active" id="step1"><span class="step-num">1</span>Review Deal</div>
+      <div class="step" id="step2"><span class="step-num">2</span>Commit Amount</div>
+      <div class="step" id="step3"><span class="step-num">3</span>Confirm</div>
+    </div>
+
+    <!-- Step 1: Deal Details -->
+    <div class="page active" id="page1">
+      <div class="card">
+        <div class="card-header"><i class="fas fa-file-contract" style="color:var(--accent);margin-right:8px;"></i>Deal Terms</div>
+        <div class="card-body" id="dealTerms">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="fas fa-water" style="color:var(--accent);margin-right:8px;"></i>Waterfall Structure</div>
+        <div class="card-body" id="waterfallInfo">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <div class="card" id="omCard" style="display:none;">
+        <div class="card-header"><i class="fas fa-book-open" style="color:var(--accent);margin-right:8px;"></i>Offering Memorandum</div>
+        <div class="card-body" id="omContent">
+          <!-- OM link if available -->
+        </div>
+      </div>
+
+      <div style="text-align:right;margin-top:20px;">
+        <button class="btn btn-primary btn-lg" onclick="goToStep(2)" id="btnInterested">
+          <i class="fas fa-hand-point-up"></i> I'm Interested — Continue
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Commit Amount -->
+    <div class="page" id="page2">
+      <!-- Login gate (shown if not logged in) -->
+      <div id="loginGate" style="display:none;">
+        <div class="card">
+          <div class="card-body login-box">
+            <h2>Sign In to Invest</h2>
+            <p>You need an account to commit to this deal.</p>
+            <form onsubmit="investLogin(event)">
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" required placeholder="you@email.com">
+              </div>
+              <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPass" required placeholder="••••••••">
+              </div>
+              <div id="loginError" class="error-msg"></div>
+              <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px;">Sign In</button>
+            </form>
+            <p style="margin-top:16px;font-size:.82rem;color:var(--text-muted);">Don't have an account? Contact your GP for an invite.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Commitment form (shown if logged in) -->
+      <div id="commitForm" style="display:none;">
+        <div class="card">
+          <div class="card-header">Your Commitment</div>
+          <div class="card-body">
+            <div id="investorInfo" style="padding:12px 16px;background:var(--bg);border-radius:var(--radius);margin-bottom:20px;font-size:.875rem;">
+              <!-- Investor name/email -->
+            </div>
+
+            <div class="form-group">
+              <label>Investment Amount ($)</label>
+              <input type="text" id="commitAmount" class="amount-input" placeholder="250,000" inputmode="numeric">
+              <div id="amountHint" style="font-size:.75rem;color:var(--text-muted);margin-top:6px;"></div>
+              <div id="amountError" class="error-msg"></div>
+            </div>
+
+            <div class="form-group">
+              <label>Entity Investing As</label>
+              <select id="commitEntity">
+                <option value="individual">Individual</option>
+                <option value="llc">LLC</option>
+                <option value="trust">Trust</option>
+                <option value="ira">IRA / Self-Directed IRA</option>
+                <option value="other">Other Entity</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Notes to GP (optional)</label>
+              <input type="text" id="commitNotes" placeholder="Any questions or special instructions">
+            </div>
+
+            <div style="text-align:right;margin-top:20px;">
+              <button class="btn btn-secondary" onclick="goToStep(1)" style="margin-right:8px;"><i class="fas fa-arrow-left"></i> Back</button>
+              <button class="btn btn-primary btn-lg" onclick="goToStep(3)" id="btnReview">
+                <i class="fas fa-arrow-right"></i> Review Commitment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Confirm & Sign -->
+    <div class="page" id="page3">
+      <div class="card">
+        <div class="card-header"><i class="fas fa-clipboard-check" style="color:var(--accent);margin-right:8px;"></i>Confirm Your Commitment</div>
+        <div class="card-body">
+          <div id="confirmSummary" style="margin-bottom:20px;">
+            <!-- Filled by JS -->
+          </div>
+
+          <div class="attestation">
+            <input type="checkbox" id="investAttest" style="margin-top:2px;">
+            <span>I confirm that I wish to invest the amount stated above. I understand this is a non-binding indication of interest and that the GP will follow up with subscription documents. I certify that I am an accredited investor or that my accreditation status is on file.</span>
+          </div>
+
+          <div style="display:flex;gap:12px;margin-top:20px;justify-content:flex-end;">
+            <button class="btn btn-secondary" onclick="goToStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+            <button class="btn btn-primary btn-lg" onclick="submitCommitment()" id="btnSubmit" disabled style="opacity:.5;">
+              <i class="fas fa-check-circle"></i> Submit Commitment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success -->
+    <div class="page" id="page4">
+      <div class="card">
+        <div class="card-body success-box">
+          <i class="fas fa-check-circle"></i>
+          <h2>Commitment Submitted!</h2>
+          <p style="color:var(--text-secondary);max-width:500px;margin:12px auto;">
+            Your investment commitment has been sent to the GP for review.
+            You'll be notified when it's approved and subscription documents are ready.
+          </p>
+          <div id="commitReceipt" style="background:var(--bg);border-radius:var(--radius);padding:20px;max-width:400px;margin:24px auto;text-align:left;">
+            <!-- Receipt details -->
+          </div>
+          <a href="portal.html" class="btn btn-primary" style="margin-top:16px;"><i class="fas fa-arrow-right"></i> Go to My Portal</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let _deal = null;
+let _invite = null;
+let _session = null;
+let _inv = null;
+let _orgId = null;
+let _db = null;
+
+// ── Init: load deal from invite token ─────────────────────────────────────
+(async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('t');
+  if (!token) { showInvalid(); return; }
+
+  // Wait for Firebase
+  await new Promise(r => { const i = setInterval(() => { if (typeof firebase !== 'undefined' && firebase.apps.length) { clearInterval(i); r(); } }, 100); setTimeout(r, 5000); });
+  _db = firebase.firestore();
+
+  // Look up invite token — try common demo org first, then scan
+  try {
+    // Try direct lookup via token as doc ID
+    const inviteRef = await _findInviteByToken(token);
+    if (!inviteRef) { showInvalid(); return; }
+
+    _invite = inviteRef.data;
+    _orgId = inviteRef.orgId;
+
+    if (_invite.status === 'revoked') { showInvalid(); return; }
+
+    // Load the deal
+    const dealDoc = await _db.collection('orgs').doc(_orgId).collection('deals').doc(_invite.dealId).get();
+    if (!dealDoc.exists) { showInvalid(); return; }
+
+    _deal = { id: dealDoc.id, ...dealDoc.data() };
+
+    // Check if user is logged in
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        _db.collection('users').doc(user.uid).get().then(doc => {
+          if (doc.exists) {
+            _session = doc.data();
+            document.getElementById('headerUser').textContent = _session.name || _session.email;
+          }
+        }).catch(() => {});
+      }
+      renderDeal();
+    });
+
+  } catch(e) {
+    console.error('Invite load error:', e);
+    showInvalid();
+  }
+})();
+
+async function _findInviteByToken(token) {
+  // Invite tokens are stored as: orgs/{orgId}/deal_invites/{token}
+  // We need to find which org it belongs to. Check the token doc directly
+  // by querying across known orgs, or use a global index.
+  // For efficiency, store a global lookup: _invites/{token} → { orgId, dealId }
+  try {
+    const globalDoc = await _db.collection('_invites').doc(token).get();
+    if (globalDoc.exists) {
+      const g = globalDoc.data();
+      const invDoc = await _db.collection('orgs').doc(g.orgId).collection('deal_invites').doc(token).get();
+      if (invDoc.exists) return { data: invDoc.data(), orgId: g.orgId };
+    }
+  } catch(e) {
+    // Global lookup failed (rules might block it) — try demo org
+  }
+
+  // Fallback: try deeltrack_demo
+  try {
+    const doc = await _db.collection('orgs').doc('deeltrack_demo').collection('deal_invites').doc(token).get();
+    if (doc.exists) return { data: doc.data(), orgId: 'deeltrack_demo' };
+  } catch(e) {}
+
+  return null;
+}
+
+function showInvalid() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('invalidState').style.display = '';
+}
+
+// ── Render deal details ───────────────────────────────────────────────────
+function renderDeal() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('mainContent').style.display = '';
+
+  const d = _deal;
+  const raised = (d.investors || []).reduce((s, i) => s + (i.committed || 0), 0);
+  const pctRaised = d.raise ? Math.round((raised / d.raise) * 100) : 0;
+  const statusBadge = { raising:'badge-raising', operating:'badge-operating', dd:'badge-raising', loi:'badge-raising' };
+  const statusLabel = { raising:'Now Raising', operating:'Operating', dd:'Due Diligence', loi:'LOI', closed:'Closed' };
+
+  document.getElementById('dealHero').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <h1>${d.name}</h1>
+        <div class="meta"><i class="fas fa-map-marker-alt"></i> ${d.location || '—'} · ${d.type || '—'}</div>
+      </div>
+      <span class="badge ${statusBadge[d.status] || 'badge-raising'}">${statusLabel[d.status] || d.status || '—'}</span>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-val">$${(d.raise/1e6).toFixed(1)}M</div><div class="kpi-label">Target Raise</div></div>
+      <div class="kpi"><div class="kpi-val">${d.irr ? d.irr.toFixed(1)+'%' : '—'}</div><div class="kpi-label">Target IRR</div></div>
+      <div class="kpi"><div class="kpi-val">${d.equity ? d.equity.toFixed(1)+'x' : '—'}</div><div class="kpi-label">Equity Multiple</div></div>
+      <div class="kpi"><div class="kpi-val">${d.units || '—'}</div><div class="kpi-label">Units</div></div>
+    </div>
+    <div class="progress-bar" style="margin-top:16px;"><div class="progress-fill" style="width:${Math.min(pctRaised,100)}%;"></div></div>
+    <div class="progress-text">${pctRaised}% funded · $${(raised/1e6).toFixed(2)}M of $${(d.raise/1e6).toFixed(1)}M raised</div>
+  `;
+
+  // Deal terms
+  const pref = d.prefRate || d.defPref || '8';
+  const promote = d.promoteRate || d.defPromote || '20';
+  const minInvest = d.minInvest || _invite.minInvest || 25000;
+  const maxInvest = d.maxInvest || _invite.maxInvest || d.raise || 5000000;
+
+  document.getElementById('dealTerms').innerHTML = `
+    <div class="term-grid">
+      <div class="term-item"><div class="term-label">Minimum Investment</div><div class="term-value">$${Number(minInvest).toLocaleString()}</div></div>
+      <div class="term-item"><div class="term-label">Preferred Return</div><div class="term-value">${pref}%</div></div>
+      <div class="term-item"><div class="term-label">GP Promote</div><div class="term-value">${promote}%</div></div>
+      <div class="term-item"><div class="term-label">Hold Period (est.)</div><div class="term-value">${d.holdPeriod || '3-5'} yrs</div></div>
+      <div class="term-item"><div class="term-label">Asset Class</div><div class="term-value" style="text-transform:capitalize;">${d.type || '—'}</div></div>
+      <div class="term-item"><div class="term-label">Remaining Capacity</div><div class="term-value">$${((d.raise - raised) / 1e6).toFixed(2)}M</div></div>
+    </div>
+  `;
+
+  // Waterfall
+  document.getElementById('waterfallInfo').innerHTML = `
+    <div class="waterfall-tiers">
+      <div class="tier"><span class="tier-label">1. Return of Capital</span><span class="tier-value">100% to LPs</span></div>
+      <div class="tier"><span class="tier-label">2. Preferred Return</span><span class="tier-value">${pref}% to LPs</span></div>
+      <div class="tier"><span class="tier-label">3. Excess / Promote Split</span><span class="tier-value">${100 - Number(promote)}% LP / ${promote}% GP</span></div>
+    </div>
+  `;
+
+  // Amount hint
+  document.getElementById('amountHint').textContent =
+    `Min: $${Number(minInvest).toLocaleString()} · Max: $${Number(maxInvest).toLocaleString()}`;
+
+  // Store for validation
+  _deal._minInvest = minInvest;
+  _deal._maxInvest = maxInvest;
+}
+
+// ── Step navigation ───────────────────────────────────────────────────────
+function goToStep(n) {
+  // Validate before advancing
+  if (n === 2) {
+    // Check if logged in
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      showStep(2);
+      document.getElementById('loginGate').style.display = '';
+      document.getElementById('commitForm').style.display = 'none';
+      return;
+    }
+    showStep(2);
+    showCommitForm();
+    return;
+  }
+  if (n === 3) {
+    if (!validateAmount()) return;
+    renderConfirmation();
+  }
+  showStep(n);
+}
+
+function showStep(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page' + n)?.classList.add('active');
+  document.querySelectorAll('.step').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i + 1 < n) s.classList.add('done');
+    if (i + 1 === n) s.classList.add('active');
+  });
+  window.scrollTo(0, 0);
+}
+
+function showCommitForm() {
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('commitForm').style.display = '';
+
+  // Show investor info
+  const name = _session?.name || _session?.email || 'Investor';
+  document.getElementById('investorInfo').innerHTML = `
+    <div style="font-weight:600;">${name}</div>
+    <div style="color:var(--text-muted);font-size:.82rem;">${_session?.email || ''}</div>
+  `;
+
+  // Pre-fill entity type if known
+  if (_session?.entityType) {
+    document.getElementById('commitEntity').value = _session.entityType;
+  }
+}
+
+// ── Login for investment ──────────────────────────────────────────────────
+async function investLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, pass);
+    // Load user profile
+    const user = firebase.auth().currentUser;
+    const doc = await _db.collection('users').doc(user.uid).get();
+    if (doc.exists) _session = doc.data();
+    else _session = { email, name: email };
+    document.getElementById('headerUser').textContent = _session.name || _session.email;
+    showCommitForm();
+  } catch(err) {
+    errEl.textContent = 'Invalid email or password.';
+    errEl.style.display = '';
+  }
+}
+
+// ── Validate amount ───────────────────────────────────────────────────────
+function validateAmount() {
+  const raw = document.getElementById('commitAmount').value.replace(/[^0-9.]/g, '');
+  const amount = parseFloat(raw);
+  const errEl = document.getElementById('amountError');
+  errEl.style.display = 'none';
+
+  if (!amount || isNaN(amount) || amount <= 0) {
+    errEl.textContent = 'Please enter a valid investment amount.';
+    errEl.style.display = '';
+    return false;
+  }
+  if (amount < _deal._minInvest) {
+    errEl.textContent = `Minimum investment is $${Number(_deal._minInvest).toLocaleString()}.`;
+    errEl.style.display = '';
+    return false;
+  }
+  if (amount > _deal._maxInvest) {
+    errEl.textContent = `Maximum investment is $${Number(_deal._maxInvest).toLocaleString()}.`;
+    errEl.style.display = '';
+    return false;
+  }
+  return true;
+}
+
+// ── Render confirmation ───────────────────────────────────────────────────
+function renderConfirmation() {
+  const raw = document.getElementById('commitAmount').value.replace(/[^0-9.]/g, '');
+  const amount = parseFloat(raw);
+  const entity = document.getElementById('commitEntity');
+  const entityLabel = entity.options[entity.selectedIndex].text;
+  const notes = document.getElementById('commitNotes').value.trim();
+  const ownership = _deal.raise ? ((amount / _deal.raise) * 100).toFixed(2) : '—';
+
+  document.getElementById('confirmSummary').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="term-item"><div class="term-label">Deal</div><div class="term-value" style="font-size:.9rem;">${_deal.name}</div></div>
+      <div class="term-item"><div class="term-label">Investment Amount</div><div class="term-value" style="color:var(--accent);">$${Number(amount).toLocaleString()}</div></div>
+      <div class="term-item"><div class="term-label">Est. Ownership</div><div class="term-value">${ownership}%</div></div>
+      <div class="term-item"><div class="term-label">Entity</div><div class="term-value" style="font-size:.9rem;">${entityLabel}</div></div>
+      <div class="term-item"><div class="term-label">Investor</div><div class="term-value" style="font-size:.9rem;">${_session?.name || _session?.email}</div></div>
+      ${notes ? `<div class="term-item"><div class="term-label">Notes</div><div class="term-value" style="font-size:.85rem;font-family:'Inter',sans-serif;font-weight:400;">${notes}</div></div>` : ''}
+    </div>
+  `;
+
+  // Enable submit only when attested
+  const attestBox = document.getElementById('investAttest');
+  const submitBtn = document.getElementById('btnSubmit');
+  attestBox.checked = false;
+  submitBtn.disabled = true;
+  submitBtn.style.opacity = '.5';
+  attestBox.onchange = () => {
+    submitBtn.disabled = !attestBox.checked;
+    submitBtn.style.opacity = attestBox.checked ? '1' : '.5';
+  };
+}
+
+// ── Submit commitment ─────────────────────────────────────────────────────
+async function submitCommitment() {
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+  const raw = document.getElementById('commitAmount').value.replace(/[^0-9.]/g, '');
+  const amount = parseFloat(raw);
+  const entity = document.getElementById('commitEntity').value;
+  const notes = document.getElementById('commitNotes').value.trim();
+  const user = firebase.auth().currentUser;
+
+  try {
+    const commitment = {
+      dealId: _deal.id,
+      dealName: _deal.name,
+      investorEmail: _session?.email || user?.email,
+      investorName: _session?.name || user?.displayName || user?.email,
+      investorUid: user?.uid,
+      amount,
+      entity,
+      notes,
+      status: 'pending',       // pending → approved → docs_signed → funded
+      inviteToken: _invite?.token || new URLSearchParams(window.location.search).get('t'),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+
+    const docRef = await _db.collection('orgs').doc(_orgId).collection('commitments').add(commitment);
+
+    // Show receipt
+    document.getElementById('commitReceipt').innerHTML = `
+      <div style="font-size:.82rem;color:var(--text-muted);margin-bottom:12px;">Commitment Receipt</div>
+      <div style="display:grid;gap:8px;">
+        <div style="display:flex;justify-content:space-between;"><span>Deal:</span><strong>${_deal.name}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Amount:</span><strong style="color:var(--accent);">$${Number(amount).toLocaleString()}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Status:</span><strong style="color:var(--warning);">Pending GP Review</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Reference:</span><strong style="font-family:'JetBrains Mono',monospace;font-size:.8rem;">${docRef.id.slice(0,8).toUpperCase()}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Date:</span><strong>${new Date().toLocaleDateString()}</strong></div>
+      </div>
+    `;
+
+    showStep(4);
+  } catch(e) {
+    console.error('Submit commitment failed:', e);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Submit Commitment';
+    alert('Failed to submit. Please try again.');
+  }
+}
+
+// Format amount input with commas
+document.getElementById('commitAmount')?.addEventListener('input', function(e) {
+  let val = this.value.replace(/[^0-9]/g, '');
+  if (val) this.value = Number(val).toLocaleString();
+});
+</script>
+</body>
+</html>

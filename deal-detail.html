@@ -325,6 +325,11 @@ function render() {
         <span style="font-size:13px;font-weight:700;">Add Investor</span>
         <span style="font-size:11px;color:#6B6560;text-align:center;">Link an LP to this deal</span>
       </button>
+      <button onclick="generateInviteLink()" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;font-family:inherit;" onmouseover="this.style.borderColor='#F37925';this.style.background='rgba(243,121,37,0.07)'" onmouseout="this.style.borderColor='#E2DDD8';this.style.background='#FFFFFF'">
+        <div style="width:40px;height:40px;background:rgba(243,121,37,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#F37925;"><i class="fas fa-link"></i></div>
+        <span style="font-size:13px;font-weight:700;">Invite Link</span>
+        <span style="font-size:11px;color:#6B6560;text-align:center;">Send LP a deal invite</span>
+      </button>
       <a href="distribution-calc.html?deal=${deal.id}" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 14px;background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;cursor:pointer;transition:all .15s;color:#1B1A19;text-decoration:none;" onmouseover="this.style.borderColor='#10b981';this.style.background='rgba(16,185,129,0.07)'" onmouseout="this.style.borderColor='#E2DDD8';this.style.background='#FFFFFF'">
         <div style="width:40px;height:40px;background:rgba(16,185,129,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#34d399;"><i class="fas fa-bolt"></i></div>
         <span style="font-size:13px;font-weight:700;">Run Distribution</span>
@@ -1033,6 +1038,70 @@ function confirmDelete() {
 }
 
 // Add investor modal
+// ── Generate invite link for this deal ─────────────────────────────────────
+async function generateInviteLink() {
+  const deal = SP.getDealById(dealId);
+  if (!deal) return;
+
+  const db = firebase.firestore();
+  const orgId = SP.getSession()?.orgId || 'deeltrack_demo';
+
+  // Generate a unique token
+  const token = 'inv_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+
+  // Store invite in org's deal_invites collection
+  await db.collection('orgs').doc(orgId).collection('deal_invites').doc(token).set({
+    dealId: deal.id,
+    dealName: deal.name,
+    token,
+    orgId,
+    status: 'active',
+    minInvest: deal.minInvest || 25000,
+    maxInvest: deal.maxInvest || deal.raise || 5000000,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    createdBy: SP.getSession()?.email || '',
+  });
+
+  // Also store global lookup for invest.html to find the invite
+  await db.collection('_invites').doc(token).set({
+    orgId,
+    dealId: deal.id,
+  }).catch(() => {
+    // Global collection may not exist or may be blocked by rules — that's ok
+    // invest.html falls back to checking deeltrack_demo directly
+  });
+
+  const url = `${window.location.origin}/invest.html?t=${token}`;
+
+  // Copy to clipboard and show modal
+  try { await navigator.clipboard.writeText(url); } catch(e) {}
+
+  // Show a simple modal with the link
+  const overlay = document.createElement('div');
+  overlay.id = 'inviteLinkModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:28px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+      <h3 style="margin-bottom:4px;"><i class="fas fa-link" style="color:#F37925;margin-right:8px;"></i>Deal Invite Link</h3>
+      <p style="font-size:.82rem;color:#6B6560;margin-bottom:16px;">Send this link to an LP. They'll see the deal terms and can commit an investment amount.</p>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <input type="text" value="${url}" readonly style="flex:1;padding:10px 12px;border:1px solid #E2DDD8;border-radius:8px;font-size:.82rem;font-family:'JetBrains Mono',monospace;background:#F3F3F3;color:#1B1A19;">
+        <button onclick="navigator.clipboard.writeText('${url}');this.innerHTML='<i class=\\'fas fa-check\\'></i> Copied!';this.style.background='#2D9A6B';this.style.color='white';" style="padding:10px 16px;border:1px solid #E2DDD8;border-radius:8px;background:white;cursor:pointer;font-weight:600;font-size:.82rem;white-space:nowrap;">
+          <i class="fas fa-copy"></i> Copy
+        </button>
+      </div>
+      <div style="font-size:.75rem;color:#9C9590;margin-bottom:16px;">
+        <i class="fas fa-info-circle"></i> This link is unique to <strong>${deal.name}</strong>. The LP will need to log in or create an account to commit.
+      </div>
+      <div style="text-align:right;">
+        <button onclick="document.getElementById('inviteLinkModal').remove();" style="padding:8px 18px;border:1px solid #E2DDD8;border-radius:8px;background:white;cursor:pointer;font-weight:600;font-size:.82rem;">Close</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+}
+
 function openAddInvModal() {
   const investors = SP.getInvestors();
   const linked = (SP.getDealById(dealId)?.investors||[]).map(i=>i.investorId);
