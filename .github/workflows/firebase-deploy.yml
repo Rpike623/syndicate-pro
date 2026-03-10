@@ -17,6 +17,6 @@ jobs:
       - name: Deploy Firestore Rules & Indexes
         uses: w9jds/firebase-action@master
         with:
-          args: deploy --only firestore:rules,firestore:indexes,storage
+          args: deploy --only firestore:rules,firestore:indexes,storage --project deeltrack
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
