@@ -55,6 +55,45 @@ const SPData = (() => {
     }
   }
 
+  // Load investors with decryption of sensitive fields
+  async function _loadInvestors() {
+    try {
+      const snap = await _col('investors').get();
+      let investors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (investors.length > 0) {
+        // Decrypt sensitive fields for in-memory use
+        if (typeof SPCrypto !== 'undefined' && SPCrypto.isReady()) {
+          investors = await SPCrypto.decryptInvestors(investors);
+        }
+        _cache.investors = investors;
+        // Sync decrypted values to localStorage cache for SP.getInvestors fallback
+        if (typeof SP !== 'undefined') SP.saveInvestors(investors);
+      } else {
+        // Firestore empty — fall back to localStorage
+        const lsData = (typeof SP !== 'undefined') ? SP.getInvestors() : [];
+        _cache.investors = lsData && lsData.length ? lsData : [];
+        if (_cache.investors.length) {
+          console.log('SPData: investors — Firestore empty, seeding from localStorage');
+          await _saveInvestorsToFirestore(_cache.investors);
+        }
+      }
+    } catch(e) {
+      console.warn('SPData: load investors failed:', e.message);
+      _cache.investors = (typeof SP !== 'undefined') ? SP.getInvestors() : [];
+    }
+  }
+
+  // Save investors to Firestore with encryption
+  async function _saveInvestorsToFirestore(investors) {
+    if (!_db || !_orgId) return;
+    let toSave = investors;
+    if (typeof SPCrypto !== 'undefined' && SPCrypto.isReady()) {
+      toSave = await SPCrypto.encryptInvestors(investors);
+    }
+    await _batchWrite(toSave, item => _col('investors').doc(item.id || _id('inv')))
+      .catch(e => console.warn('SPData._saveInvestorsToFirestore:', e.message));
+  }
+
   // Load a collection into cache, with fallback to localStorage
   async function _load(name) {
     try {
@@ -108,13 +147,25 @@ const SPData = (() => {
     _role  = role  || 'General Partner';
     _email = email || '';
 
+    // Initialize field-level encryption for sensitive data
+    if (typeof SPCrypto !== 'undefined') {
+      await SPCrypto.init(db, orgId).catch(e =>
+        console.warn('SPData: SPCrypto init failed (sensitive fields unencrypted):', e.message)
+      );
+    }
+
     // Load all collections in parallel
     // For Investor role, only load their own investor record (security rule compliance)
     const investorLoad = (_role === 'Investor' && _email)
-      ? _col('investors').where('email', '==', _email).get().then(snap => {
-          _cache.investors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      ? _col('investors').where('email', '==', _email).get().then(async snap => {
+          let investors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          // Decrypt sensitive fields for display
+          if (typeof SPCrypto !== 'undefined' && SPCrypto.isReady()) {
+            investors = await SPCrypto.decryptInvestors(investors);
+          }
+          _cache.investors = investors;
         }).catch(e => { console.warn('SPData: load investors (investor role) failed:', e.message); _cache.investors = []; })
-      : _load('investors');
+      : _loadInvestors();
 
     await Promise.all([
       _load('deals'),
@@ -219,9 +270,14 @@ const SPData = (() => {
     return session?.email ? getInvestorByEmail(session.email) : null;
   }
   async function saveInvestors(investors) {
-    _cache.investors = investors;
+    _cache.investors = investors; // Cache stores decrypted values for UI
     if (!_db || !_orgId) return;
-    await _batchWrite(investors, item => _col('investors').doc(item.id || _id('inv')))
+    // Encrypt sensitive fields before writing to Firestore
+    let toSave = investors;
+    if (typeof SPCrypto !== 'undefined' && SPCrypto.isReady()) {
+      toSave = await SPCrypto.encryptInvestors(investors);
+    }
+    await _batchWrite(toSave, item => _col('investors').doc(item.id || _id('inv')))
       .catch(e => console.warn('SPData.saveInvestors:', e.message));
     if(typeof SPAudit !== 'undefined') SPAudit.log('update', 'investor_group', 'multiple', 'Bulk Investor Sync', { count: investors.length });
   }
