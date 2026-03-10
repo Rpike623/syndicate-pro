@@ -1186,6 +1186,44 @@ function renderDeadlines() {
   // Render with Firestore data once ready
   SP.onDataReady(_render);
 
+  // ── First-run welcome modal for new users ──────────────────────────────────
+  SP.onDataReady(function() {
+    const settings = SP.load('settings', {});
+    const deals = SP.getDeals();
+    const welcomed = localStorage.getItem('dt_welcomed');
+    // Show welcome only if: no firm name set, no real deals, never welcomed
+    if (welcomed || settings.firmName || deals.length > 0) return;
+    localStorage.setItem('dt_welcomed', '1');
+    
+    const m = document.createElement('div');
+    m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn .3s ease;';
+    m.innerHTML = `<div style="background:white;border-radius:16px;max-width:520px;width:90%;padding:36px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+      <div style="width:56px;height:56px;background:linear-gradient(135deg,#F37925,#D96515);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;"><i class="fas fa-rocket" style="color:white;font-size:1.4rem;"></i></div>
+      <h2 style="font-size:1.3rem;font-weight:800;color:#1B1A19;margin:0 0 8px;">Welcome to deeltrack</h2>
+      <p style="color:#6B6560;font-size:.9rem;line-height:1.6;margin:0 0 24px;">Let's get your syndication platform set up. It takes about 2 minutes.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;text-align:left;margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#F8F6F4;border-radius:8px;font-size:.85rem;">
+          <div style="width:24px;height:24px;background:#F37925;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-size:.7rem;font-weight:700;">1</div>
+          <span><strong>Set up your firm</strong> — name, entity, address</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#F8F6F4;border-radius:8px;font-size:.85rem;">
+          <div style="width:24px;height:24px;background:#F37925;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-size:.7rem;font-weight:700;">2</div>
+          <span><strong>Add your first deal</strong> — property, financials, waterfall</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#F8F6F4;border-radius:8px;font-size:.85rem;">
+          <div style="width:24px;height:24px;background:#F37925;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-size:.7rem;font-weight:700;">3</div>
+          <span><strong>Add investors</strong> — link them to deals, send sub docs</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <a href="settings.html" style="background:#F37925;color:#1B1A19;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.9rem;">Start Setup →</a>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:#F3F3F3;color:#6B6560;padding:12px 20px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:.9rem;">Skip for now</button>
+      </div>
+    </div>`;
+    m.addEventListener('click', function(e) { if (e.target === m) m.remove(); });
+    document.body.appendChild(m);
+  });
+
   // ── Cloud sync indicator ────────────────────────────────────────────────────
   let _syncRetries = 0;
   function updateSyncIndicator() {

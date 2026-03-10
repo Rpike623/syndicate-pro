@@ -953,3 +953,55 @@ exports.onDistributionPosted = onDocumentUpdated(
     }
   }
 );
+
+// ── E-Signature via Firma.dev ─────────────────────────────────────────────────
+exports.createSigningRequest = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be logged in');
+  
+  const userDoc = await db.collection('users').doc(request.auth.uid).get();
+  if (!userDoc.exists) throw new HttpsError('not-found', 'User not found');
+  const userData = userDoc.data();
+  if (userData.role === 'Investor') throw new HttpsError('permission-denied', 'Only GPs can send signing requests');
+  
+  // Get Firma API key from _config
+  const configDoc = await db.collection('_config').doc('esign').get();
+  if (!configDoc.exists) throw new HttpsError('failed-precondition', 'E-sign not configured');
+  const firmaKey = configDoc.data().firmaApiKey;
+  const templateId = configDoc.data().templateId;
+  
+  const data = request.data;
+  const FIRMA_BASE = 'https://api.firma.dev/functions/v1/signing-request-api';
+  
+  // Create signing request
+  const createRes = await fetch(FIRMA_BASE + '/signing-requests', {
+    method: 'POST',
+    headers: { 'Authorization': firmaKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      template_id: data.template_id || templateId,
+      name: data.name || 'Subscription Agreement',
+      recipients: data.recipients || []
+    })
+  });
+  const result = await createRes.json();
+  if (result.error) throw new HttpsError('internal', result.error);
+  
+  // Send
+  if (result.id) {
+    await fetch(FIRMA_BASE + '/signing-requests/' + result.id + '/send', {
+      method: 'POST',
+      headers: { 'Authorization': firmaKey, 'Content-Type': 'application/json' }
+    });
+  }
+  
+  // Log
+  await db.collection('orgs').doc(userData.orgId).collection('esign_log').add({
+    signingRequestId: result.id,
+    dealId: data.dealId || null,
+    investorEmail: data.recipients?.[0]?.email || null,
+    status: 'sent',
+    sentBy: request.auth.uid,
+    sentAt: FieldValue.serverTimestamp()
+  });
+  
+  return { id: result.id, sent: true };
+});

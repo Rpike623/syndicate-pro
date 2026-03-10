@@ -1213,6 +1213,63 @@ window.SP = (function () {
   });
 })();
 
+// ─── Billing enforcement — show paywall when trial expires ──────────────────
+(function enforceBilling() {
+  if (typeof document === 'undefined') return;
+  document.addEventListener('DOMContentLoaded', function() {
+    if (!SP.isGP()) return;
+    // Skip billing check on login, signup, settings, and billing-related pages
+    const path = window.location.pathname;
+    if (['login','signup','settings','pricing','terms','privacy','disclaimer','security','integrations'].some(p => path.includes(p))) return;
+
+    // Load sp-billing.js if not already loaded
+    function checkBilling() {
+      if (typeof SPBilling === 'undefined') {
+        const s = document.createElement('script');
+        s.src = 'js/sp-billing.js';
+        s.onload = () => setTimeout(checkBilling, 100);
+        document.head.appendChild(s);
+        return;
+      }
+      
+      const access = SPBilling.canAccess();
+      if (access.allowed) {
+        // Show trial countdown banner if in trial
+        if (access.reason === 'trial') {
+          const daysLeft = SPBilling.trialDaysLeft();
+          if (daysLeft <= 7 && daysLeft > 0) {
+            showBillingBanner(`Trial ends in ${daysLeft} day${daysLeft!==1?'s':''}`, 'warning');
+          }
+        }
+        return;
+      }
+      
+      // Trial expired — show paywall
+      if (access.reason === 'trial_expired') {
+        showBillingBanner('Your free trial has ended. Upgrade to keep using deeltrack.', 'expired');
+      }
+    }
+    
+    function showBillingBanner(msg, type) {
+      if (document.getElementById('dt-billing-banner')) return;
+      const banner = document.createElement('div');
+      banner.id = 'dt-billing-banner';
+      const isExpired = type === 'expired';
+      banner.style.cssText = `position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 20px;font-size:.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:12px;font-family:'Inter',sans-serif;${isExpired ? 'background:#D94F3D;color:white;' : 'background:#FEF3C7;color:#92400E;border-bottom:1px solid #FCD34D;'}`;
+      banner.innerHTML = `<span>${msg}</span><a href="settings.html#billing" style="padding:5px 14px;border-radius:6px;font-size:.8rem;font-weight:700;text-decoration:none;${isExpired ? 'background:white;color:#D94F3D;' : 'background:#F37925;color:white;'}">Upgrade Now</a>${!isExpired ? '<button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#92400E;margin-left:8px;">✕</button>' : ''}`;
+      document.body.prepend(banner);
+      // If expired, also dim the main content
+      if (isExpired) {
+        const main = document.querySelector('main, .main-content, [class*="content"]');
+        if (main) main.style.cssText += 'opacity:0.4;pointer-events:none;user-select:none;';
+      }
+    }
+    
+    // Check after a short delay to let SPBilling initialize
+    setTimeout(checkBilling, 500);
+  });
+})();
+
 // ─── Auto-inject logout + user name into sidebar footer ─────────────────────
 (function injectSidebarUser() {
   if (typeof document === 'undefined') return;
