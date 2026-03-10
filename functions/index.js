@@ -878,7 +878,7 @@ exports.onK1StatusChanged = onDocumentUpdated(
             <p>Hi ${firstName},</p>
             <p>Your Schedule K-1 for <strong>${dealName}</strong> (tax year ${taxYear}) is now available in your investor portal.</p>
             <div style="text-align:center;margin:28px 0;">
-              <a href="https://deeltrack.com/investor-portal.html" style="background:#F37925;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem;display:inline-block;">View in Portal →</a>
+              <a href="https://deeltrack.com/investor-portal.html" style="background:#F37925;color:#1B1A19;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem;display:inline-block;">View in Portal →</a>
             </div>
             <p style="color:#64748b;font-size:.85rem;">You can download the PDF from your Documents section. Please share it with your tax preparer for your ${taxYear} filing.</p>
             <p style="color:#94a3b8;font-size:.75rem;text-align:center;margin-top:32px;">deeltrack — Investor management platform</p>
@@ -942,7 +942,7 @@ exports.onDistributionPosted = onDocumentUpdated(
               <p style="margin:4px 0 0;color:#64748b;">Your distribution</p>
             </div>
             <div style="text-align:center;margin:24px 0;">
-              <a href="https://deeltrack.com/investor-portal.html" style="background:#F37925;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem;display:inline-block;">View in Portal →</a>
+              <a href="https://deeltrack.com/investor-portal.html" style="background:#F37925;color:#1B1A19;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem;display:inline-block;">View in Portal →</a>
             </div>
             <p style="color:#64748b;font-size:.85rem;">Funds will be processed within 3–5 business days via your registered payment method.</p>
             <p style="color:#94a3b8;font-size:.75rem;text-align:center;margin-top:32px;">deeltrack — Investor management platform</p>

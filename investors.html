@@ -1234,7 +1234,7 @@ function handleCSVFile(e) {
           }).join('')}</tbody>
         </table>
       </div>
-      <button onclick="confirmCSVImport()" style="margin-top:14px;width:100%;padding:12px;background:var(--accent);color:white;border:none;border-radius:var(--radius);font-size:.9rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">
+      <button onclick="confirmCSVImport()" style="margin-top:14px;width:100%;padding:12px;background:var(--accent);color:#1B1A19;border:none;border-radius:var(--radius);font-size:.9rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">
         <i class="fas fa-file-import"></i> Import ${news.length} Investor${news.length!==1?'s':''}
       </button>`;
     document.getElementById('csvPreviewArea').dataset.rows = JSON.stringify(normalized);

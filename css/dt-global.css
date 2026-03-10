@@ -267,7 +267,7 @@ main,
 /* ── BUTTONS ──────────────────────────────────────────────────────────────── */
 .btn-primary, button.btn-primary {
   background: var(--dt-accent) !important;
-  color: #FFFFFF !important;
+  color: #1B1A19 !important;
   border: none !important;
   border-radius: 8px !important;
   padding: 10px 20px !important;
@@ -279,7 +279,7 @@ main,
 }
 .btn-primary:hover {
   background: var(--dt-accent-hover) !important;
-  color: white !important;
+  color: #1B1A19 !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 12px rgba(243,121,37,0.35) !important;
 }
@@ -4523,13 +4523,13 @@ input::placeholder, textarea::placeholder {
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
 .btn-primary, button.btn-primary, a.btn-primary {
   background: #F37925 !important;
-  color: #FFFFFF !important;
+  color: #1B1A19 !important;
   font-weight: 700 !important;
   border: none !important;
 }
 .btn-primary:hover, button.btn-primary:hover {
   background: #D96515 !important;
-  color: #FFFFFF !important;
+  color: #1B1A19 !important;
   box-shadow: 0 4px 12px rgba(243,121,37,0.3) !important;
 }
 .btn-secondary, button.btn-secondary {
@@ -4962,19 +4962,19 @@ html body .input-label {
 }
 
 /* ── 9. BUTTONS ─────────────────────────────────────────────────────────── */
-/* btn-primary: orange bg, white text */
+/* btn-primary: orange bg, dark text (WCAG contrast) */
 html body .btn-primary,
 html body button.btn-primary,
 html body a.btn-primary {
   background: #F37925 !important;
-  color: #FFFFFF !important;
+  color: #1B1A19 !important;
   border: none !important;
   font-weight: 700 !important;
 }
 html body .btn-primary:hover,
 html body button.btn-primary:hover {
   background: #D96515 !important;
-  color: #FFFFFF !important;
+  color: #1B1A19 !important;
 }
 /* btn-secondary: white bg, dark text */
 html body .btn-secondary,

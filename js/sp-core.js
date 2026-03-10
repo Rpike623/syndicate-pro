@@ -1095,7 +1095,7 @@ window.SP = (function () {
           <strong style="color:#F3F0ED;">Notice:</strong> deeltrack is organizational software — not a broker-dealer or investment adviser. Generated documents require independent professional review.
           <a href="disclaimer.html" style="color:#F37925;margin-left:8px;text-decoration:none;">Full Disclaimer</a>
         </div>
-        <button onclick="localStorage.setItem('dt_notice_dismissed','1');document.getElementById('dt-notice-banner').remove();document.body.style.paddingBottom=''" style="background:#F37925;color:white;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.78rem;font-weight:600;white-space:nowrap;flex-shrink:0;">Got it</button>`;
+        <button onclick="localStorage.setItem('dt_notice_dismissed','1');document.getElementById('dt-notice-banner').remove();document.body.style.paddingBottom=''" style="background:#F37925;color:#1B1A19;border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.78rem;font-weight:600;white-space:nowrap;flex-shrink:0;">Got it</button>`;
       // Add bottom padding so content isn't hidden behind the banner
       setTimeout(() => {
         const h = banner.offsetHeight;
@@ -1256,7 +1256,7 @@ window.SP = (function () {
       banner.id = 'dt-billing-banner';
       const isExpired = type === 'expired';
       banner.style.cssText = `position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 20px;font-size:.85rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:12px;font-family:'Inter',sans-serif;${isExpired ? 'background:#D94F3D;color:white;' : 'background:#FEF3C7;color:#92400E;border-bottom:1px solid #FCD34D;'}`;
-      banner.innerHTML = `<span>${msg}</span><a href="settings.html#billing" style="padding:5px 14px;border-radius:6px;font-size:.8rem;font-weight:700;text-decoration:none;${isExpired ? 'background:white;color:#D94F3D;' : 'background:#F37925;color:white;'}">Upgrade Now</a>${!isExpired ? '<button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#92400E;margin-left:8px;">✕</button>' : ''}`;
+      banner.innerHTML = `<span>${msg}</span><a href="settings.html#billing" style="padding:5px 14px;border-radius:6px;font-size:.8rem;font-weight:700;text-decoration:none;${isExpired ? 'background:white;color:#D94F3D;' : 'background:#F37925;color:#1B1A19;'}">Upgrade Now</a>${!isExpired ? '<button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#92400E;margin-left:8px;">✕</button>' : ''}`;
       document.body.prepend(banner);
       // If expired, also dim the main content
       if (isExpired) {
