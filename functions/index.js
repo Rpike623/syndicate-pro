@@ -1005,3 +1005,113 @@ exports.createSigningRequest = onCall(async (request) => {
   
   return { id: result.id, sent: true };
 });
+
+// ── Firma.dev E-Sign Webhook ──────────────────────────────────────────────────
+// Receives events: signing_request.viewed, signing_request.recipient.signed, signing_request.completed
+// Endpoint: https://us-central1-deeltrack.cloudfunctions.net/firmaWebhook
+exports.firmaWebhook = onRequest(async (req, res) => {
+  if (req.method !== 'POST') { res.status(405).send('Method not allowed'); return; }
+  
+  try {
+    const event = req.body;
+    const eventType = event.event_type || event.type;
+    const signingRequestId = event.data?.signing_request_id || event.signing_request_id;
+    
+    if (!eventType || !signingRequestId) {
+      res.status(400).json({ error: 'Missing event_type or signing_request_id' });
+      return;
+    }
+    
+    console.log(`[firma-webhook] ${eventType} for ${signingRequestId}`);
+    
+    // Find the esign_log entry across all orgs
+    const orgsSnap = await db.collectionGroup('esign_log')
+      .where('signingRequestId', '==', signingRequestId)
+      .limit(1).get();
+    
+    if (orgsSnap.empty) {
+      console.warn(`[firma-webhook] No esign_log found for ${signingRequestId}`);
+      res.json({ received: true, matched: false });
+      return;
+    }
+    
+    const logDoc = orgsSnap.docs[0];
+    const logData = logDoc.data();
+    const orgId = logDoc.ref.parent.parent.id; // orgs/{orgId}/esign_log/{docId}
+    
+    // Update the log entry
+    const updateData = { lastEvent: eventType, lastEventAt: FieldValue.serverTimestamp() };
+    
+    if (eventType === 'signing_request.viewed') {
+      updateData.status = 'viewed';
+      updateData.viewedAt = FieldValue.serverTimestamp();
+    }
+    
+    if (eventType === 'signing_request.recipient.signed') {
+      updateData.status = 'signed';
+      updateData.signedAt = FieldValue.serverTimestamp();
+    }
+    
+    if (eventType === 'signing_request.completed') {
+      updateData.status = 'completed';
+      updateData.completedAt = FieldValue.serverTimestamp();
+      
+      // Download the signed PDF from Firma and store reference
+      try {
+        const configDoc = await db.collection('_config').doc('esign').get();
+        const firmaKey = configDoc.data().firmaApiKey;
+        const FIRMA_BASE = 'https://api.firma.dev/functions/v1/signing-request-api';
+        
+        const srRes = await fetch(FIRMA_BASE + '/signing-requests/' + signingRequestId, {
+          headers: { 'Authorization': firmaKey }
+        });
+        const srData = await srRes.json();
+        
+        if (srData.final_document_download_url) {
+          updateData.signedDocumentUrl = srData.final_document_download_url;
+        }
+        if (srData.certificate_only_download_url) {
+          updateData.certificateUrl = srData.certificate_only_download_url;
+        }
+      } catch(e) {
+        console.warn('[firma-webhook] Could not fetch signed doc URL:', e.message);
+      }
+      
+      // Update the investor's subscription status in the deal
+      if (logData.dealId && logData.investorEmail) {
+        try {
+          const dealDoc = await db.collection('orgs').doc(orgId).collection('deals').doc(logData.dealId).get();
+          if (dealDoc.exists) {
+            const deal = dealDoc.data();
+            const investors = deal.investors || [];
+            const invIdx = investors.findIndex(i => {
+              const inv = await db.collection('orgs').doc(orgId).collection('investors').doc(i.investorId).get();
+              return inv.exists && inv.data().email === logData.investorEmail;
+            });
+            // Can't await in findIndex — use a loop
+            for (let idx = 0; idx < investors.length; idx++) {
+              const invDoc = await db.collection('orgs').doc(orgId).collection('investors').doc(investors[idx].investorId).get();
+              if (invDoc.exists && invDoc.data().email === logData.investorEmail) {
+                investors[idx].subStatus = 'signed';
+                investors[idx].subSignedAt = new Date().toISOString();
+                await dealDoc.ref.update({ investors });
+                console.log(`[firma-webhook] Updated ${logData.investorEmail} subStatus → signed in deal ${logData.dealId}`);
+                break;
+              }
+            }
+          }
+        } catch(e) {
+          console.warn('[firma-webhook] Could not update deal investor status:', e.message);
+        }
+      }
+    }
+    
+    await logDoc.ref.update(updateData);
+    console.log(`[firma-webhook] Updated esign_log: ${eventType}`);
+    
+    res.json({ received: true, matched: true, event: eventType });
+  } catch(e) {
+    console.error('[firma-webhook] Error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});

@@ -1,4 +1,12 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "esign_log",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "signingRequestId", "order": "ASCENDING" }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }

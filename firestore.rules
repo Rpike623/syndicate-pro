@@ -95,6 +95,12 @@ service cloud.firestore {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
         allow read: if ownsOrg(orgId) && isInvestorRole();
       }
+
+      // E-signature log (Firma.dev signing requests)
+      match /esign_log/{docId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+      }
     }
   }
 }
