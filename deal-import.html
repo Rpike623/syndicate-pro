@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Import Deals</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dt-global.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v7"></script>
+  <script src="js/sp-crypto.js"></script>
+  <script src="js/sp-data.js?v7"></script>
+  <script src="js/sp-firebase.js?v7"></script>
+  <script src="js/sp-billing.js"></script>
+  <!-- SheetJS for Excel parsing -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <style>
+    .import-zone{border:2px dashed var(--dt-border,#E2DDD8);border-radius:12px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;background:white;}
+    .import-zone:hover,.import-zone.dragover{border-color:#F37925;background:rgba(243,121,37,0.04);}
+    .import-zone i{font-size:2.5rem;color:#F37925;margin-bottom:12px;}
+    .preview-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:16px;}
+    .preview-table th{background:#f3f3f3;padding:8px 12px;text-align:left;font-weight:600;border-bottom:2px solid #E2DDD8;white-space:nowrap;}
+    .preview-table td{padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.06);}
+    .preview-table tr:hover td{background:rgba(243,121,37,0.04);}
+    .field-ok{color:#2D9A6B;}.field-warn{color:#E8890A;}.field-err{color:#D94F3D;}
+    .import-steps{display:flex;gap:0;margin-bottom:24px;}
+    .imp-step{flex:1;text-align:center;padding:12px;font-size:.82rem;font-weight:600;color:#9C9590;border-bottom:3px solid #E2DDD8;}
+    .imp-step.active{color:#F37925;border-bottom-color:#F37925;}
+    .imp-step.done{color:#2D9A6B;border-bottom-color:#2D9A6B;}
+    .stat-card{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;font-size:.82rem;font-weight:600;margin-right:8px;}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;font-size:.875rem;font-weight:600;border-radius:8px;border:none;cursor:pointer;transition:all .15s;}
+    .btn-primary{background:#F37925;color:white;}.btn-primary:hover{background:#D96515;}
+    .btn-secondary{background:white;color:#1B1A19;border:1px solid #E2DDD8;}.btn-secondary:hover{background:#f3f3f3;}
+    .btn:disabled{opacity:.4;cursor:not-allowed;}
+  </style>
+</head>
+<body>
+<div id="app-shell">
+  <aside class="dt-sidebar" id="sidebar"></aside>
+  <main class="dt-main">
+    <div class="dt-header">
+      <div>
+        <h1 class="dt-page-title">Import Deals</h1>
+        <p class="dt-page-subtitle">Upload an Excel spreadsheet to import deals, investors, and distributions</p>
+      </div>
+      <button class="btn btn-secondary" onclick="downloadTemplate()"><i class="fas fa-download"></i> Download Template</button>
+    </div>
+
+    <div class="dt-content" style="max-width:1000px;">
+      <div class="import-steps">
+        <div class="imp-step active" id="impStep1">1. Upload</div>
+        <div class="imp-step" id="impStep2">2. Preview</div>
+        <div class="imp-step" id="impStep3">3. Import</div>
+      </div>
+
+      <!-- Step 1: Upload -->
+      <div id="step1">
+        <div class="import-zone" id="dropZone" onclick="document.getElementById('fileInput').click();">
+          <i class="fas fa-file-excel"></i>
+          <h3 style="margin-bottom:4px;">Drop Excel file here or click to upload</h3>
+          <p style="color:#9C9590;font-size:.875rem;">Supports .xlsx and .csv files. Use our template for best results.</p>
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleFile(event)">
+        </div>
+
+        <div style="margin-top:24px;">
+          <h3 style="margin-bottom:12px;">Template Sheets</h3>
+          <p style="font-size:.82rem;color:#6B6560;margin-bottom:16px;">The template includes three sheets. Fill in as much or as little as you have:</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+            <div style="background:white;border:1px solid #E2DDD8;border-radius:12px;padding:20px;">
+              <div style="font-size:1.5rem;margin-bottom:8px;">🏢</div>
+              <h4 style="margin-bottom:4px;">Deals</h4>
+              <p style="font-size:.78rem;color:#6B6560;">Deal name, type, location, raise amount, IRR, equity multiple, status, pref rate, GP promote, hold period, units</p>
+            </div>
+            <div style="background:white;border:1px solid #E2DDD8;border-radius:12px;padding:20px;">
+              <div style="font-size:1.5rem;margin-bottom:8px;">👥</div>
+              <h4 style="margin-bottom:4px;">Investors</h4>
+              <p style="font-size:.78rem;color:#6B6560;">Name, email, phone, address, entity type, committed amount, deal name (to link), ownership %</p>
+            </div>
+            <div style="background:white;border:1px solid #E2DDD8;border-radius:12px;padding:20px;">
+              <div style="font-size:1.5rem;margin-bottom:8px;">💰</div>
+              <h4 style="margin-bottom:4px;">Distributions</h4>
+              <p style="font-size:.78rem;color:#6B6560;">Deal name, period, date, total amount, investor name, investor amount, method</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Preview -->
+      <div id="step2" style="display:none;">
+        <div id="previewStats" style="margin-bottom:16px;"></div>
+        <div id="previewTabs" style="display:flex;gap:4px;margin-bottom:16px;">
+          <button class="btn btn-primary" onclick="showPreview('deals')" id="prevTabDeals">Deals</button>
+          <button class="btn btn-secondary" onclick="showPreview('investors')" id="prevTabInv">Investors</button>
+          <button class="btn btn-secondary" onclick="showPreview('distributions')" id="prevTabDist">Distributions</button>
+        </div>
+        <div id="previewContent" style="overflow-x:auto;"></div>
+        <div style="margin-top:20px;display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-secondary" onclick="showStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="btn btn-primary" onclick="doImport()" id="importBtn"><i class="fas fa-upload"></i> Import All</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Results -->
+      <div id="step3" style="display:none;">
+        <div style="text-align:center;padding:40px 20px;">
+          <i class="fas fa-check-circle" style="font-size:3rem;color:#2D9A6B;margin-bottom:16px;"></i>
+          <h2>Import Complete!</h2>
+          <div id="importResults" style="margin-top:16px;font-size:.875rem;color:#6B6560;"></div>
+          <div style="margin-top:24px;display:flex;gap:8px;justify-content:center;">
+            <a href="deals.html" class="btn btn-primary"><i class="fas fa-building"></i> View Deals</a>
+            <button class="btn btn-secondary" onclick="location.reload()"><i class="fas fa-redo"></i> Import More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+let parsedData = { deals: [], investors: [], distributions: [] };
+
+SP.onDataReady(() => { SP.requireGP(); });
+
+// ── Template generation ───────────────────────────────────────────────────
+function downloadTemplate() {
+  const wb = XLSX.utils.book_new();
+
+  // Deals sheet
+  const dealsData = [
+    ['Deal Name*', 'Type', 'Location', 'Target Raise', 'Target IRR (%)', 'Equity Multiple', 'Status', 'Pref Rate (%)', 'GP Promote (%)', 'Hold Period (yrs)', 'Units', 'Property Address'],
+    ['Riverside Flats', 'multifamily', 'Austin, TX', 4200000, 18.5, 1.9, 'operating', 8, 20, '3-5', 96, '1200 Riverside Dr, Austin, TX'],
+    ['Pecan Hollow Apartments', 'multifamily', 'Fort Worth, TX', 5500000, 19.4, 2.1, 'raising', 8, 20, '5-7', 128, ''],
+  ];
+  const dealsWs = XLSX.utils.aoa_to_sheet(dealsData);
+  dealsWs['!cols'] = [{ wch: 25 },{ wch: 12 },{ wch: 18 },{ wch: 14 },{ wch: 13 },{ wch: 15 },{ wch: 12 },{ wch: 13 },{ wch: 14 },{ wch: 15 },{ wch: 8 },{ wch: 30 }];
+  XLSX.utils.book_append_sheet(wb, dealsWs, 'Deals');
+
+  // Investors sheet
+  const invData = [
+    ['First Name*', 'Last Name*', 'Email*', 'Phone', 'Address', 'Entity Type', 'Deal Name*', 'Committed ($)', 'Ownership (%)', 'Status'],
+    ['Phil', 'Chapman', 'philip@jchapmancpa.com', '(817) 555-9000', 'Fort Worth, TX', 'individual', 'Riverside Flats', 200000, 4.76, 'active'],
+    ['James', 'Hartwell', 'j.hartwell@email.com', '(214) 555-0101', 'Dallas, TX', 'llc', 'Riverside Flats', 250000, 5.95, 'active'],
+  ];
+  const invWs = XLSX.utils.aoa_to_sheet(invData);
+  invWs['!cols'] = [{ wch: 12 },{ wch: 12 },{ wch: 25 },{ wch: 16 },{ wch: 20 },{ wch: 12 },{ wch: 25 },{ wch: 14 },{ wch: 13 },{ wch: 10 }];
+  XLSX.utils.book_append_sheet(wb, invWs, 'Investors');
+
+  // Distributions sheet
+  const distData = [
+    ['Deal Name*', 'Period', 'Date (YYYY-MM-DD)', 'Total Amount', 'Investor Email*', 'Investor Amount', 'Method'],
+    ['Riverside Flats', 'Q4 2025', '2026-01-05', 84000, 'philip@jchapmancpa.com', 16800, 'Wire'],
+    ['Riverside Flats', 'Q4 2025', '2026-01-05', 84000, 'j.hartwell@email.com', 14875, 'Wire'],
+  ];
+  const distWs = XLSX.utils.aoa_to_sheet(distData);
+  distWs['!cols'] = [{ wch: 25 },{ wch: 10 },{ wch: 16 },{ wch: 14 },{ wch: 25 },{ wch: 16 },{ wch: 10 }];
+  XLSX.utils.book_append_sheet(wb, distWs, 'Distributions');
+
+  XLSX.writeFile(wb, 'deeltrack-import-template.xlsx');
+  showToast('Template downloaded!');
+}
+
+// ── File handling ─────────────────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+dropZone?.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone?.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone?.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); processFile(e.dataTransfer.files[0]); });
+
+function handleFile(e) { processFile(e.target.files[0]); }
+
+function processFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const wb = XLSX.read(e.target.result, { type: 'array' });
+    parsedData = { deals: [], investors: [], distributions: [] };
+
+    // Parse Deals sheet
+    const dealsSheet = wb.Sheets['Deals'] || wb.Sheets[wb.SheetNames[0]];
+    if (dealsSheet) {
+      const rows = XLSX.utils.sheet_to_json(dealsSheet);
+      parsedData.deals = rows.map((r, i) => ({
+        _row: i + 2,
+        name: r['Deal Name*'] || r['Deal Name'] || r['name'] || '',
+        type: (r['Type'] || r['type'] || 'multifamily').toLowerCase(),
+        location: r['Location'] || r['location'] || '',
+        raise: parseFloat(r['Target Raise'] || r['raise'] || 0),
+        irr: parseFloat(r['Target IRR (%)'] || r['irr'] || 0),
+        equity: parseFloat(r['Equity Multiple'] || r['equity'] || 0),
+        status: (r['Status'] || r['status'] || 'operating').toLowerCase(),
+        prefRate: r['Pref Rate (%)'] || r['prefRate'] || 8,
+        promoteRate: r['GP Promote (%)'] || r['promoteRate'] || 20,
+        holdPeriod: r['Hold Period (yrs)'] || r['holdPeriod'] || '',
+        units: parseInt(r['Units'] || r['units'] || 0) || 0,
+        propertyAddress: r['Property Address'] || r['address'] || '',
+      })).filter(d => d.name);
+    }
+
+    // Parse Investors sheet
+    const invSheet = wb.Sheets['Investors'] || wb.Sheets[wb.SheetNames[1]];
+    if (invSheet) {
+      const rows = XLSX.utils.sheet_to_json(invSheet);
+      parsedData.investors = rows.map((r, i) => ({
+        _row: i + 2,
+        firstName: r['First Name*'] || r['First Name'] || r['firstName'] || '',
+        lastName: r['Last Name*'] || r['Last Name'] || r['lastName'] || '',
+        email: r['Email*'] || r['Email'] || r['email'] || '',
+        phone: r['Phone'] || r['phone'] || '',
+        address: r['Address'] || r['address'] || '',
+        entityType: r['Entity Type'] || r['entityType'] || 'individual',
+        dealName: r['Deal Name*'] || r['Deal Name'] || r['dealName'] || '',
+        committed: parseFloat(r['Committed ($)'] || r['committed'] || 0),
+        ownership: parseFloat(r['Ownership (%)'] || r['ownership'] || 0),
+        status: r['Status'] || r['status'] || 'active',
+      })).filter(inv => inv.firstName && inv.email);
+    }
+
+    // Parse Distributions sheet
+    const distSheet = wb.Sheets['Distributions'] || wb.Sheets[wb.SheetNames[2]];
+    if (distSheet) {
+      const rows = XLSX.utils.sheet_to_json(distSheet);
+      parsedData.distributions = rows.map((r, i) => ({
+        _row: i + 2,
+        dealName: r['Deal Name*'] || r['Deal Name'] || r['dealName'] || '',
+        period: r['Period'] || r['period'] || '',
+        date: r['Date (YYYY-MM-DD)'] || r['Date'] || r['date'] || '',
+        totalAmount: parseFloat(r['Total Amount'] || r['totalAmount'] || 0),
+        investorEmail: r['Investor Email*'] || r['Investor Email'] || r['investorEmail'] || '',
+        investorAmount: parseFloat(r['Investor Amount'] || r['investorAmount'] || 0),
+        method: r['Method'] || r['method'] || 'Wire',
+      })).filter(d => d.dealName && d.investorEmail);
+    }
+
+    showStep(2);
+    showPreview('deals');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── Preview ───────────────────────────────────────────────────────────────
+function showStep(n) {
+  document.getElementById('step1').style.display = n === 1 ? '' : 'none';
+  document.getElementById('step2').style.display = n === 2 ? '' : 'none';
+  document.getElementById('step3').style.display = n === 3 ? '' : 'none';
+  document.querySelectorAll('.imp-step').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i + 1 < n) s.classList.add('done');
+    if (i + 1 === n) s.classList.add('active');
+  });
+}
+
+function showPreview(tab) {
+  ['deals', 'investors', 'distributions'].forEach(t => {
+    const btn = document.getElementById('prevTab' + (t === 'deals' ? 'Deals' : t === 'investors' ? 'Inv' : 'Dist'));
+    if (btn) { btn.className = t === tab ? 'btn btn-primary' : 'btn btn-secondary'; }
+  });
+
+  // Stats
+  document.getElementById('previewStats').innerHTML = `
+    <span class="stat-card" style="background:rgba(243,121,37,0.1);color:#F37925;">🏢 ${parsedData.deals.length} deals</span>
+    <span class="stat-card" style="background:rgba(14,165,233,0.1);color:#0ea5e9;">👥 ${parsedData.investors.length} investors</span>
+    <span class="stat-card" style="background:rgba(45,154,107,0.1);color:#2D9A6B;">💰 ${parsedData.distributions.length} distributions</span>
+  `;
+
+  const content = document.getElementById('previewContent');
+  const data = parsedData[tab];
+  if (!data.length) { content.innerHTML = '<p style="color:#9C9590;text-align:center;padding:20px;">No data found in this sheet.</p>'; return; }
+
+  const cols = Object.keys(data[0]).filter(k => !k.startsWith('_'));
+  content.innerHTML = `
+    <table class="preview-table">
+      <thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${data.slice(0, 50).map(row =>
+        `<tr>${cols.map(c => {
+          let val = row[c];
+          if (typeof val === 'number' && val > 1000) val = '$' + val.toLocaleString();
+          return `<td>${val || '<span style="color:#9C9590;">—</span>'}</td>`;
+        }).join('')}</tr>`
+      ).join('')}</tbody>
+    </table>
+    ${data.length > 50 ? `<p style="font-size:.78rem;color:#9C9590;margin-top:8px;">Showing first 50 of ${data.length} rows</p>` : ''}
+  `;
+}
+
+// ── Import ────────────────────────────────────────────────────────────────
+async function doImport() {
+  const btn = document.getElementById('importBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+
+  const results = { deals: 0, investors: 0, distributions: 0, errors: [] };
+  const dealMap = {}; // name → deal id
+
+  try {
+    // 1. Import deals
+    const existingDeals = SP.getDeals();
+    for (const d of parsedData.deals) {
+      const existing = existingDeals.find(ed => ed.name?.toLowerCase() === d.name.toLowerCase());
+      if (existing) {
+        dealMap[d.name.toLowerCase()] = existing.id;
+        continue; // Skip existing deals
+      }
+      const deal = {
+        id: 'deal_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+        name: d.name, type: d.type, location: d.location,
+        raise: d.raise, irr: d.irr, equity: d.equity,
+        status: d.status, prefRate: d.prefRate, promoteRate: d.promoteRate,
+        holdPeriod: d.holdPeriod, units: d.units,
+        propertyAddress: d.propertyAddress,
+        investors: [], added: new Date().toISOString(),
+      };
+      await SP.saveDeal(deal);
+      dealMap[d.name.toLowerCase()] = deal.id;
+      results.deals++;
+    }
+
+    // Also map existing deals
+    SP.getDeals().forEach(d => { if (d.name) dealMap[d.name.toLowerCase()] = d.id; });
+
+    // 2. Import investors
+    const existingInv = SP.getInvestors();
+    const invMap = {}; // email → investor id
+    existingInv.forEach(i => { if (i.email) invMap[i.email.toLowerCase()] = i.id; });
+
+    for (const inv of parsedData.investors) {
+      let invId = invMap[inv.email.toLowerCase()];
+      if (!invId) {
+        // Create new investor
+        const newInv = {
+          id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+          firstName: inv.firstName, lastName: inv.lastName,
+          email: inv.email, phone: inv.phone, address: inv.address,
+          entityType: inv.entityType, status: inv.status,
+          accredStatus: 'pending',
+        };
+        existingInv.push(newInv);
+        invId = newInv.id;
+        invMap[inv.email.toLowerCase()] = invId;
+        results.investors++;
+      }
+
+      // Link to deal
+      const dealId = dealMap[inv.dealName.toLowerCase()];
+      if (dealId && inv.committed > 0) {
+        SP.addInvestorToDeal(dealId, {
+          investorId: invId,
+          committed: inv.committed,
+          ownership: inv.ownership || 0,
+          status: 'active',
+          linkedAt: new Date().toISOString(),
+          subStatus: 'funded',
+        });
+      }
+    }
+    await SP.saveInvestors(existingInv);
+
+    // 3. Import distributions
+    const groupedDists = {};
+    parsedData.distributions.forEach(d => {
+      const key = `${d.dealName}|${d.period}|${d.date}`;
+      if (!groupedDists[key]) {
+        groupedDists[key] = {
+          dealName: d.dealName, period: d.period, date: d.date,
+          totalAmount: d.totalAmount, method: d.method,
+          recipients: [],
+        };
+      }
+      const invId = invMap[d.investorEmail.toLowerCase()];
+      if (invId) {
+        groupedDists[key].recipients.push({ investorId: invId, amount: d.investorAmount });
+      }
+    });
+
+    for (const [key, dist] of Object.entries(groupedDists)) {
+      const dealId = dealMap[dist.dealName.toLowerCase()];
+      if (!dealId) { results.errors.push(`Distribution for "${dist.dealName}" — deal not found`); continue; }
+      const d = {
+        id: 'dist_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+        dealId, dealName: dist.dealName, period: dist.period, date: dist.date,
+        totalAmount: dist.totalAmount, amount: dist.totalAmount,
+        method: dist.method, status: 'posted',
+        recipients: dist.recipients,
+        postedAt: new Date().toISOString(), createdAt: new Date().toISOString(),
+      };
+      await SP.saveDistribution(d);
+      results.distributions++;
+    }
+
+    // Show results
+    showStep(3);
+    document.getElementById('importResults').innerHTML = `
+      <div style="display:grid;gap:8px;max-width:300px;margin:0 auto;text-align:left;">
+        <div style="display:flex;justify-content:space-between;"><span>Deals imported:</span><strong style="color:#F37925;">${results.deals}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Investors imported:</span><strong style="color:#0ea5e9;">${results.investors}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Distributions imported:</span><strong style="color:#2D9A6B;">${results.distributions}</strong></div>
+        ${results.errors.length ? `<div style="margin-top:12px;padding:12px;background:rgba(217,79,61,0.08);border-radius:8px;font-size:.78rem;color:#D94F3D;">
+          <strong>Warnings:</strong><br>${results.errors.join('<br>')}
+        </div>` : ''}
+      </div>
+    `;
+  } catch(e) {
+    console.error('Import failed:', e);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-upload"></i> Import All';
+    alert('Import failed: ' + e.message);
+  }
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:#2D9A6B;color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);';
+  t.innerHTML = '<i class="fas fa-check-circle" style="margin-right:6px;"></i>' + msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 3000);
+}
+</script>
+</body>
+</html>

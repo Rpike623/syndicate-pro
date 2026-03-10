@@ -83,7 +83,14 @@
         </div>
 
         <div class="doc-section">
-          <h3>2. Representations and Warranties</h3>
+          <h3>2. Deal Terms</h3>
+          <div id="dealTermsSection">
+            <p style="color:var(--text-muted);font-size:.82rem;">Loading deal terms...</p>
+          </div>
+        </div>
+
+        <div class="doc-section">
+          <h3>3. Representations and Warranties</h3>
           <p>By signing below, the undersigned subscriber ("Subscriber") represents and warrants to the Issuer that:</p>
           <ul style="font-size:.82rem;color:var(--text-secondary);padding-left:20px;margin-top:8px;line-height:2;">
             <li>Subscriber is an "accredited investor" as defined in Rule 501(a) of Regulation D under the Securities Act of 1933.</li>
@@ -96,12 +103,12 @@
         </div>
 
         <div class="doc-section">
-          <h3>3. Risk Acknowledgment</h3>
+          <h3>4. Risk Acknowledgment</h3>
           <p>Subscriber acknowledges that an investment in the Securities involves a high degree of risk, including the possible loss of the entire investment. Subscriber has reviewed the risk factors set forth in the Offering Memorandum and understands the speculative nature of the investment.</p>
         </div>
 
         <div class="doc-section">
-          <h3>4. Electronic Signature</h3>
+          <h3>5. Electronic Signature</h3>
           <p>Subscriber agrees that this electronic signature is the legal equivalent of a manual signature on this agreement, pursuant to the Electronic Signatures in Global and National Commerce Act (E-SIGN Act).</p>
 
           <div class="sig-box" id="sigBox">
@@ -136,6 +143,17 @@
           You'll receive wire instructions shortly.
         </p>
         <div id="signReceipt" style="background:var(--bg);border-radius:var(--radius);padding:20px;max-width:400px;margin:24px auto;text-align:left;font-size:.875rem;"></div>
+
+        <!-- Wire Instructions -->
+        <div id="wireInstructions" style="display:none;background:white;border:2px solid var(--accent);border-radius:var(--radius);padding:24px;max-width:480px;margin:24px auto;text-align:left;">
+          <h3 style="font-size:1rem;margin-bottom:4px;"><i class="fas fa-university" style="color:var(--accent);margin-right:6px;"></i>Wire Instructions</h3>
+          <p style="font-size:.78rem;color:var(--text-secondary);margin-bottom:16px;">Please wire your investment to the following account:</p>
+          <div id="wireDetails" style="font-size:.875rem;"></div>
+          <div style="margin-top:16px;padding:12px;background:var(--bg);border-radius:var(--radius);font-size:.78rem;color:var(--text-secondary);">
+            <i class="fas fa-info-circle" style="color:var(--accent);"></i> Include your <strong>full name</strong> and <strong>deal name</strong> in the wire memo. Your GP will confirm receipt.
+          </div>
+        </div>
+
         <a href="portal.html" class="btn btn-primary" style="margin-top:16px;"><i class="fas fa-arrow-right"></i> Go to My Portal</a>
       </div>
     </div>
@@ -243,18 +261,70 @@ function showInvalid() {
   document.getElementById('invalidState').style.display = '';
 }
 
-function renderAgreement() {
+async function renderAgreement() {
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('mainContent').style.display = '';
 
   const s = _signReq;
+  const ownership = s.amount && _deal ? ((s.amount / (_deal.raise || 1)) * 100).toFixed(2) : '—';
+
   document.getElementById('investmentSummary').innerHTML = `
     <div class="term-row"><span class="term-label">Deal</span><span class="term-value">${s.dealName}</span></div>
     <div class="term-row"><span class="term-label">Subscriber</span><span class="term-value">${s.investorName || s.investorEmail}</span></div>
     <div class="term-row"><span class="term-label">Subscription Amount</span><span class="term-value" style="color:var(--accent);">$${Number(s.amount).toLocaleString()}</span></div>
+    <div class="term-row"><span class="term-label">Est. Ownership</span><span class="term-value">${ownership}%</span></div>
     <div class="term-row"><span class="term-label">Entity</span><span class="term-value">${s.entity || 'Individual'}</span></div>
     <div class="term-row"><span class="term-label">Date</span><span class="term-value">${new Date().toLocaleDateString()}</span></div>
   `;
+
+  // Load deal terms from Firestore
+  const termsEl = document.getElementById('dealTermsSection');
+  try {
+    const dealDoc = await _db.collection('orgs').doc(_orgId).collection('deals').doc(s.dealId).get();
+    if (dealDoc.exists) {
+      _deal = { id: dealDoc.id, ...dealDoc.data() };
+      const d = _deal;
+      const pref = d.prefRate || d.defPref || '8';
+      const promote = d.promoteRate || d.defPromote || '20';
+      const lpShare = 100 - Number(promote);
+
+      // Load settings for GP entity name
+      let gpName = 'Managing Member';
+      try {
+        const settingsDoc = await _db.collection('orgs').doc(_orgId).collection('settings').doc('main').get();
+        if (settingsDoc.exists) gpName = settingsDoc.data().firmName || settingsDoc.data().gpFullName || gpName;
+      } catch(e) {}
+
+      termsEl.innerHTML = `
+        <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:12px;">The following terms govern this investment in <strong>${d.name}</strong>, managed by <strong>${gpName}</strong>:</p>
+        <div class="term-row"><span class="term-label">Property / Deal</span><span class="term-value">${d.name}</span></div>
+        <div class="term-row"><span class="term-label">Location</span><span class="term-value">${d.location || '—'}</span></div>
+        <div class="term-row"><span class="term-label">Asset Class</span><span class="term-value" style="text-transform:capitalize;">${d.type || '—'}</span></div>
+        <div class="term-row"><span class="term-label">Total Raise</span><span class="term-value">$${Number(d.raise||0).toLocaleString()}</span></div>
+        <div class="term-row"><span class="term-label">Target IRR</span><span class="term-value">${d.irr ? d.irr.toFixed(1)+'%' : '—'}</span></div>
+        <div class="term-row"><span class="term-label">Equity Multiple</span><span class="term-value">${d.equity ? d.equity.toFixed(1)+'x' : '—'}</span></div>
+        <div class="term-row"><span class="term-label">Preferred Return</span><span class="term-value">${pref}% per annum</span></div>
+        <div class="term-row"><span class="term-label">GP Promote</span><span class="term-value">${promote}%</span></div>
+        <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:var(--radius);font-size:.82rem;">
+          <strong>Waterfall Structure:</strong>
+          <div style="margin-top:6px;color:var(--text-secondary);">
+            1. Return of Capital — 100% to Members pro rata<br>
+            2. Preferred Return — ${pref}% to Limited Partners<br>
+            3. Excess Split — ${lpShare}% LP / ${promote}% GP
+          </div>
+        </div>
+      `;
+
+      // Update ownership now that we have deal data
+      const ownershipCalc = ((s.amount / (d.raise || 1)) * 100).toFixed(2);
+      document.querySelector('.term-value[style*="accent"]')?.closest('.term-row')?.nextElementSibling?.querySelector('.term-value')
+        && (document.querySelectorAll('.term-row')[3].querySelector('.term-value').textContent = ownershipCalc + '%');
+    } else {
+      termsEl.innerHTML = '<p style="font-size:.82rem;color:var(--text-muted);">Deal terms will be provided by your GP.</p>';
+    }
+  } catch(e) {
+    termsEl.innerHTML = '<p style="font-size:.82rem;color:var(--text-muted);">Deal terms will be provided by your GP.</p>';
+  }
 }
 
 function checkReady() {
@@ -278,6 +348,17 @@ SUBSCRIBER: ${s.investorName || s.investorEmail}
 EMAIL: ${s.investorEmail}
 AMOUNT: $${Number(s.amount).toLocaleString()}
 ENTITY: ${s.entity || 'Individual'}
+${_deal ? `
+DEAL TERMS:
+  Property: ${_deal.name}
+  Location: ${_deal.location || '—'}
+  Asset Class: ${_deal.type || '—'}
+  Total Raise: $${Number(_deal.raise||0).toLocaleString()}
+  Target IRR: ${_deal.irr ? _deal.irr.toFixed(1)+'%' : '—'}
+  Equity Multiple: ${_deal.equity ? _deal.equity.toFixed(1)+'x' : '—'}
+  Preferred Return: ${_deal.prefRate || _deal.defPref || '8'}%
+  GP Promote: ${_deal.promoteRate || _deal.defPromote || '20'}%
+` : ''}
 
 REPRESENTATIONS AND WARRANTIES:
 The undersigned subscriber ("Subscriber") represents and warrants that:
@@ -356,6 +437,29 @@ async function submitSignature() {
         <div style="display:flex;justify-content:space-between;"><span>Status:</span><strong style="color:var(--success);">Signed ✓</strong></div>
       </div>
     `;
+
+    // Load wire instructions from settings
+    try {
+      const settingsDoc = await _db.collection('orgs').doc(_orgId).collection('settings').doc('main').get();
+      if (settingsDoc.exists) {
+        const s = settingsDoc.data();
+        const hasWire = s.wireBankName || s.wireRouting || s.wireAcctNum;
+        if (hasWire) {
+          document.getElementById('wireInstructions').style.display = '';
+          document.getElementById('wireDetails').innerHTML = `
+            <div style="display:grid;gap:8px;">
+              ${s.wireBankName ? `<div class="term-row"><span class="term-label">Bank</span><span class="term-value">${s.wireBankName}</span></div>` : ''}
+              ${s.wireRouting ? `<div class="term-row"><span class="term-label">Routing (ABA)</span><span class="term-value" style="font-family:'JetBrains Mono',monospace;">${s.wireRouting}</span></div>` : ''}
+              ${s.wireAcctNum ? `<div class="term-row"><span class="term-label">Account #</span><span class="term-value" style="font-family:'JetBrains Mono',monospace;">${s.wireAcctNum}</span></div>` : ''}
+              ${s.wireAcctName ? `<div class="term-row"><span class="term-label">Account Name</span><span class="term-value">${s.wireAcctName}</span></div>` : ''}
+              ${s.wireReference ? `<div class="term-row"><span class="term-label">Reference</span><span class="term-value">${s.wireReference}</span></div>` : ''}
+              ${s.wireSwift ? `<div class="term-row"><span class="term-label">SWIFT</span><span class="term-value">${s.wireSwift}</span></div>` : ''}
+              ${s.wireMemo ? `<div style="margin-top:8px;padding:10px;background:var(--bg);border-radius:6px;font-size:.82rem;color:var(--text-secondary);">${s.wireMemo}</div>` : ''}
+            </div>
+          `;
+        }
+      }
+    } catch(e) { /* Wire instructions not available — that's ok */ }
   } catch(e) {
     console.error('Sign failed:', e);
     btn.disabled = false;

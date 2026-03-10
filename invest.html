@@ -181,7 +181,21 @@
               <div id="loginError" class="error-msg"></div>
               <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px;">Sign In</button>
             </form>
-            <p style="margin-top:16px;font-size:.82rem;color:var(--text-muted);">Don't have an account? Contact your GP for an invite.</p>
+            <div style="border-top:1px solid var(--border);margin-top:20px;padding-top:16px;">
+              <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:12px;">Don't have an account?</p>
+              <button type="button" class="btn btn-secondary" style="width:100%;justify-content:center;" onclick="toggleSignup()"><i class="fas fa-user-plus"></i> Create Account</button>
+            </div>
+            <!-- Inline signup form -->
+            <div id="signupForm" style="display:none;border-top:1px solid var(--border);margin-top:16px;padding-top:16px;">
+              <form onsubmit="investSignup(event)">
+                <div class="form-group"><label>Full Name</label><input type="text" id="signupName" required placeholder="Phil Chapman"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="signupEmail" required placeholder="you@email.com"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="signupPass" required placeholder="Min 8 characters" minlength="8"></div>
+                <div id="signupError" class="error-msg"></div>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px;"><i class="fas fa-user-plus"></i> Create Account & Continue</button>
+              </form>
+              <p style="margin-top:12px;font-size:.72rem;color:var(--text-muted);text-align:center;">Already have an account? <a href="#" onclick="toggleSignup();return false;" style="color:var(--accent);">Sign in</a></p>
+            </div>
           </div>
         </div>
       </div>
@@ -491,6 +505,49 @@ function showCommitForm() {
 }
 
 // ── Login for investment ──────────────────────────────────────────────────
+function toggleSignup() {
+  const sf = document.getElementById('signupForm');
+  const lf = document.querySelector('#loginGate form');
+  if (sf.style.display === 'none') { sf.style.display = ''; lf.style.display = 'none'; }
+  else { sf.style.display = 'none'; lf.style.display = ''; }
+}
+
+async function investSignup(e) {
+  e.preventDefault();
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass = document.getElementById('signupPass').value;
+  const errEl = document.getElementById('signupError');
+  errEl.style.display = 'none';
+
+  try {
+    // Create Firebase Auth account
+    const cred = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+    await cred.user.updateProfile({ displayName: name });
+
+    // Create user doc in Firestore
+    const userProfile = {
+      uid: cred.user.uid,
+      email,
+      name,
+      role: 'Investor',
+      orgId: _orgId,
+      orgIds: [_orgId],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+    await _db.collection('users').doc(cred.user.uid).set(userProfile);
+    _session = userProfile;
+
+    document.getElementById('headerUser').textContent = name;
+    showCommitForm();
+  } catch(err) {
+    errEl.textContent = err.code === 'auth/email-already-in-use'
+      ? 'An account with this email already exists. Try signing in instead.'
+      : err.message;
+    errEl.style.display = '';
+  }
+}
+
 async function investLogin(e) {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim();

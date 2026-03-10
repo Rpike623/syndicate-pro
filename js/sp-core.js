@@ -1402,6 +1402,7 @@ window.SP = (function () {
         { id:'deals', title:'DEALS', items:[
           { href:'deals.html',        icon:'fa-building',          label:'Properties' },
           { href:'new-deal.html',     icon:'fa-plus',              label:'New Deal' },
+          { href:'deal-import.html', icon:'fa-file-import',        label:'Import Deals' },
           { href:'sourcing-crm.html', icon:'fa-stream',            label:'Pipeline' },
           { href:'deal-room.html',    icon:'fa-folder-open',       label:'Deal Room' },
         ]},
