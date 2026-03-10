@@ -12,9 +12,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v6"></script>
-  <script src="js/sp-data.js?v6"></script>
-  <script src="js/sp-firebase.js?v6"></script>
+  <script src="js/sp-core.js?v7"></script>
+  <script src="js/sp-data.js?v7"></script>
+  <script src="js/sp-firebase.js?v7"></script>
   <style>
     :root {
       --accent:#F37925;--accent-hover:#D96515;--accent-light:rgba(243,121,37,0.12);
@@ -316,7 +316,16 @@ async function portalLogin(e) {
   function onSuccess() {
     document.getElementById('portal-login-gate').style.display = 'none';
     document.querySelector('.portal-main').style.display = '';
-    setTimeout(render, 500);
+    // Wait for SPData to be ready before rendering — don't blindly render with empty data
+    if (typeof SPData !== 'undefined' && SPData.isReady && SPData.isReady()) {
+      render();
+    } else {
+      // Listen for spdata-ready (fires when Firestore data is loaded for current user)
+      const handler = () => { render(); window.removeEventListener('spdata-ready', handler); };
+      window.addEventListener('spdata-ready', handler);
+      // Failsafe: render after 6s regardless (shows whatever data is available)
+      setTimeout(() => { window.removeEventListener('spdata-ready', handler); render(); }, 6000);
+    }
   }
 
   // Try SP local auth first (handles demo accounts)

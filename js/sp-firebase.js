@@ -127,64 +127,44 @@ const SPFB = (function () {
     });
   }
 
-  // Try to auto sign-in using the localStorage session credentials
-  // Works silently for the demo account and any previously-signed-in user
-  async function _tryAutoSignIn() {
-    const localSession = (typeof SP !== 'undefined') ? SP.getSession() : null;
-    if (!localSession?.email) {
-      // No local session at all — nothing to do, stay logged out
-      return;
-    }
-
-    // Demo accounts have known passwords — sign in automatically
-    const DEMO_PASSWORDS = {
-      'gp@deeltrack.com':       'Demo1234!',
-      'investor@deeltrack.com': 'Demo1234!',
-      'demo-gp2@deeltrack.com': 'Demo1234!',
-    };
-    const email = localSession.email.toLowerCase();
-    const demoPassword = DEMO_PASSWORDS[email];
-
-    if (demoPassword) {
-      try {
-        await _auth.signInWithEmailAndPassword(email, demoPassword);
+  function _tryAutoSignIn() {
+    const s = (typeof SP !== 'undefined') ? SP.getSession() : null;
+    if (!s || !s.email) return;
+    // Try to sign in with stored credentials
+    if (typeof firebase !== 'undefined' && firebase.auth) {
+      firebase.auth().signInWithEmailAndPassword(s.email, s.password || '').then(() => {
         // onAuthStateChanged will fire again with the user
-        return;
-      } catch (e) {
-        console.warn('SPFB: auto sign-in failed:', e.message);
-      }
+      }).catch(() => {
+        // Failed — stay anonymous and let manual login proceed
+      });
     }
-
-    // Non-demo user with a local session but no Firebase token.
-    // Don't force offline mode — this blocks real Firebase users from signing in.
-    // Instead, mark ready with a minimal profile so the login page can proceed.
-    // The user will authenticate normally via the login form.
-    _spUser = {
-      ...localSession,
-      orgId: _hashEmail(email),
-      needsFirebaseUpgrade: false,
-    };
-    _orgId = _spUser.orgId;
-    // NOTE: do NOT set _offlineMode = true here — that prevents Firebase sign-in
-    _markReady();
-    console.info('SPFB: local session found but no Firebase token — awaiting login form');
   }
 
-  let _markReadyCalled = false;
+  // Simple hash for non-demo org IDs
+  function _hashEmail(email) {
+    let h = 0;
+    for (let i = 0; i < email.length; i++) {
+      h = (h << 5) - h + email.charCodeAt(i);
+      h = h & h; // Convert to 32bit
+    }
+    return 'org_' + Math.abs(h).toString(36);
+  }
+
+  // ── Ready callback system ───────────────────────────────────────────────────
   function _markReady() {
-    if (_markReadyCalled) return; // idempotent — only run once
-    _markReadyCalled = true;
     _ready = true;
-    // Sync Firebase user into SP session so requireGP/requireInvestor work on every page
+
+    // Sync the session with Firebase user info if needed
     if (_spUser && typeof SP !== 'undefined') {
       const existing = SP.getSession();
-      // ALWAYS sync session when Firebase user exists — this fixes data isolation
-      // Demo accounts MUST use deeltrack_demo regardless of what Firestore says
-      const DEMO_ORG_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','philip@jchapmancpa.com','investor@deeltrack.com'];
       const emailLc = (_spUser.email || '').toLowerCase();
-      const resolvedOrg = DEMO_ORG_EMAILS.includes(emailLc) ? 'deeltrack_demo'
-        : emailLc === 'demo-gp2@deeltrack.com' ? 'marcus_rivera_org'
-        : (_spUser.orgId || _orgId || existing?.orgId);
+
+      // Auto-fix: ensure demo users have the right orgId
+      const DEMO_ORG_EMAILS = ['gp@deeltrack.com','demo@deeltrack.com','philip@jchapmancpa.com','investor@deeltrack.com'];
+      const shouldBeDemo = DEMO_ORG_EMAILS.includes(emailLc);
+      const resolvedOrg = shouldBeDemo ? 'deeltrack_demo'
+        : (existing?.orgId || _spUser.orgId || _orgId);
+
       if (_spUser && _spUser.email) {
         // If Firestore doc has wrong orgId for demo user, fix it
         if (DEMO_ORG_EMAILS.includes(emailLc) && _spUser.orgId !== 'deeltrack_demo' && _spUser.uid && _db) {
@@ -200,19 +180,21 @@ const SPFB = (function () {
           loggedIn:  true,
           loginTime: Date.now(),
           uid:       _spUser.uid,
+          isAnonymous: _spUser.isAnonymous,
         });
       }
     }
-    // Init SPData — Firestore-first layer — replaces patchSPCore
+
+    // Always trigger SPData (re)init when user auth resolves.
+    // reinit() safely skips if same context, or resets + re-loads for a new user.
     if (typeof SPData !== 'undefined' && _db && _orgId) {
-      SPData.init(_db, _orgId, _spUser?.role || 'General Partner', _spUser?.email || '').then(() => {
+      const _initFn = typeof SPData.reinit === 'function' ? SPData.reinit : SPData.init;
+      _initFn(_db, _orgId, _spUser?.role || 'General Partner', _spUser?.email || '').then(() => {
         _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
         _readyCallbacks = [];
-        // CRITICAL: fire spdata-ready so pages using addEventListener get notified
         window.dispatchEvent(new CustomEvent('spdata-ready'));
       }).catch(err => {
-        console.error('SPData.init failed:', err);
-        // Still fire callbacks so pages don't hang forever
+        console.error('SPData init/reinit failed:', err);
         _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
         _readyCallbacks = [];
         window.dispatchEvent(new CustomEvent('spdata-ready'));
@@ -256,133 +238,47 @@ const SPFB = (function () {
   }
 
   function onReady(cb) {
-    if (_ready) { cb(); return; }
-    _readyCallbacks.push(cb);
+    if (_ready || (typeof SPData !== 'undefined' && SPData.isReady && SPData.isReady())) {
+      try { cb(); } catch(e) {}
+    } else {
+      _readyCallbacks.push(cb);
+    }
   }
 
   function isReady() { return _ready; }
-  function isOffline() { return _offlineMode; }
   function getOrgId() { return _orgId; }
   function getUser() { return _spUser; }
 
-  // ── Hash helper (matches sp-core) ────────────────────────────────────────────
-  function _hashEmail(email) {
-    let h = 0;
-    const s = (email || '').toLowerCase();
-    for (let i = 0; i < s.length; i++) {
-      h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
-    }
-    return Math.abs(h).toString(36);
-  }
-
-  // ── Org collection ref ───────────────────────────────────────────────────────
+  // ── Firestore references ────────────────────────────────────────────────────
   function _orgRef() {
     if (!_db || !_orgId) throw new Error('SPFB not ready');
     return _db.collection('orgs').doc(_orgId);
   }
-
   function _col(name) { return _orgRef().collection(name); }
+  function _ts()      { return firebase.firestore.FieldValue.serverTimestamp(); }
 
-  // ── Auth ─────────────────────────────────────────────────────────────────────
-
-  async function signIn(email, password) {
-    if (_offlineMode) return _offlineSignIn(email, password);
-    try {
-      const cred = await _auth.signInWithEmailAndPassword(email, password);
-      return cred.user;
-    } catch (e) {
-      // Fall through to localStorage auth if Firebase fails
-      console.warn('SPFB signIn error, trying local:', e.message);
-      return _offlineSignIn(email, password);
-    }
-  }
-
-  async function signUp(email, password, name, role, orgId) {
-    if (_offlineMode) return null;
-    try {
-      const cred = await _auth.createUserWithEmailAndPassword(email, password);
-      await cred.user.updateProfile({ displayName: name });
-      const profile = {
-        uid: cred.user.uid,
-        email,
-        name,
-        role: role || 'General Partner',
-        orgId: orgId || _hashEmail(email),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      };
-      await _db.collection('users').doc(cred.user.uid).set(profile);
-      return cred.user;
-    } catch (e) {
-      console.error('SPFB signUp error:', e);
-      return null;
-    }
-  }
-
-  // ── ensureUserRecord — for OAuth (Google) sign-ins ──────────────────────────
-  // Creates or merges a Firestore user record without creating a new Firebase
-  // Auth credential (OAuth users are already authenticated by Firebase).
-  async function ensureUserRecord(uid, email, name, role, orgId) {
-    if (_offlineMode || !_db) return null;
-    try {
-      const ref = _db.collection('users').doc(uid);
-      const snap = await ref.get();
-      if (snap.exists) {
-        // User already has a record — refresh local session from Firestore
-        const data = snap.data();
-        _user = data;
-        return data;
-      }
-      // New user — create record
-      const profile = {
-        uid,
-        email,
-        name: name || email,
-        role: role || 'General Partner',
-        orgId: orgId || _hashEmail(email),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        provider: 'google',
-      };
-      await ref.set(profile);
-      // Also create org record if it doesn't exist
-      const orgRef = _db.collection('orgs').doc(profile.orgId);
-      const orgSnap = await orgRef.get();
-      if (!orgSnap.exists) {
-        await orgRef.set({ orgId: profile.orgId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-      }
-      _user = profile;
-      return profile;
-    } catch (e) {
-      console.error('SPFB ensureUserRecord error:', e);
-      return null;
-    }
-  }
-
-  async function signOut() {
-    if (_offlineMode) { SP.logout(); return; }
-    await _auth.signOut();
-    SP.clearSession();
-    window.location.href = 'login.html';
-  }
-
-  // Offline fallback — uses SP localStorage auth
-  function _offlineSignIn(email, password) {
-    return SP.authenticate(email, password);
-  }
-
-  // ── Deals ────────────────────────────────────────────────────────────────────
-
+  // ── Deals ───────────────────────────────────────────────────────────────────
   async function getDeals() {
     if (_offlineMode || !_ready) return SP.getDeals();
     try {
       const snap = await _col('deals').orderBy('added', 'desc').get();
       let deals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      // Investors only see deals they are linked to
+      // Investors only see deals they are linked to — FIXED: match by email if investorId missing
       if (_spUser && _spUser.role === 'Investor') {
-        const invRecord = deals.length ? null : null; // will filter below
+        // Get the investor record to find the investorId
+        const invQuery = await _col('investors').where('email', '==', _spUser.email).limit(1).get();
+        let investorId = null;
+        if (!invQuery.empty) {
+          investorId = invQuery.docs[0].id;
+        }
         deals = deals.filter(d =>
-          Array.isArray(d.investors) && d.investors.some(i => i.investorId === _spUser.investorId ||
-            // fallback: match by email via investor id stored in Firestore
-            i.investorId === (_spUser.firestoreInvestorId || _spUser.investorId))
+          Array.isArray(d.investors) && d.investors.some(i =>
+            i.investorId === investorId ||
+            i.investorId === _spUser.investorId ||
+            i.investorId === _spUser.firestoreInvestorId ||
+            // Fallback: match by email directly in deal investor entry
+            (i.email && i.email.toLowerCase() === _spUser.email?.toLowerCase())
+          )
         );
       }
       SP.saveDeals(deals);
@@ -394,69 +290,39 @@ const SPFB = (function () {
   }
 
   async function saveDeal(deal) {
-    if (_offlineMode || !_ready) { _localSaveDeal(deal); return deal; }
+    if (_offlineMode || !_ready) { SP.saveDeal(deal); return deal; }
     try {
       const data = {
         ...deal,
         orgId: _orgId,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
-      if (!deal.added) data.added = new Date().toISOString().split('T')[0];
 
       await _col('deals').doc(deal.id).set(data, { merge: true });
-
-      // Update local cache
-      _localSaveDeal(deal);
       return deal;
-    } catch (e) {
-      console.warn('SPFB saveDeal — using cache:', e.message);
-      _localSaveDeal(deal);
+    } catch(e) {
+      console.warn('SPFB saveDeal — falling back to localStorage:', e.message);
+      SP.saveDeal(deal);
       return deal;
     }
   }
 
   async function saveDeals(deals) {
     if (_offlineMode || !_ready) { SP.saveDeals(deals); return; }
-    // Batch write for efficiency
-    const batch = _db.batch();
-    deals.forEach(deal => {
-      const ref = _col('deals').doc(deal.id);
-      batch.set(ref, {
-        ...deal,
-        orgId: _orgId,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
-    });
+    await Promise.all(deals.map(d => saveDeal(d)));
+  }
+
+  async function deleteDeal(id) {
+    if (_offlineMode || !_ready) { SP.deleteDeal(id); return; }
     try {
-      await batch.commit();
-      SP.saveDeals(deals);
-    } catch (e) {
-      console.warn('SPFB saveDeals batch — using cache:', e.message);
-      SP.saveDeals(deals);
+      await _col('deals').doc(id).delete();
+    } catch(e) {
+      console.warn('SPFB deleteDeal — falling back to localStorage:', e.message);
+      SP.deleteDeal(id);
     }
   }
 
-  async function deleteDeal(dealId) {
-    if (_offlineMode || !_ready) return;
-    try {
-      await _col('deals').doc(dealId).delete();
-      const deals = SP.getDeals().filter(d => d.id !== dealId);
-      SP.saveDeals(deals);
-    } catch (e) {
-      console.warn('SPFB deleteDeal:', e.message);
-    }
-  }
-
-  function _localSaveDeal(deal) {
-    const deals = SP.getDeals();
-    const idx = deals.findIndex(d => d.id === deal.id);
-    if (idx >= 0) deals[idx] = { ...deals[idx], ...deal };
-    else deals.unshift(deal);
-    SP.saveDeals(deals);
-  }
-
-  // ── Investors ────────────────────────────────────────────────────────────────
-
+  // ── Investors ───────────────────────────────────────────────────────────────
   async function getInvestors() {
     if (_offlineMode || !_ready) return SP.getInvestors();
     try {
@@ -478,175 +344,41 @@ const SPFB = (function () {
 
   async function saveInvestors(investors) {
     if (_offlineMode || !_ready) { SP.saveInvestors(investors); return; }
-    const batch = _db.batch();
-    investors.forEach(inv => {
-      const ref = _col('investors').doc(inv.id);
-      batch.set(ref, {
-        ...inv,
-        orgId: _orgId,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
-    });
     try {
+      const batch = _db.batch();
+      for (const inv of investors) {
+        const ref = _col('investors').doc(inv.id);
+        batch.set(ref, { ...inv, orgId: _orgId, updatedAt: _ts() }, { merge: true });
+      }
       await batch.commit();
+    } catch(e) {
+      console.warn('SPFB saveInvestors — falling back to localStorage:', e.message);
       SP.saveInvestors(investors);
-    } catch (e) {
-      console.warn('SPFB saveInvestors — using cache:', e.message);
-      SP.saveInvestors(investors);
     }
   }
 
-  async function deleteInvestor(invId) {
-    if (_offlineMode || !_ready) return;
+  async function deleteInvestor(id) {
+    if (_offlineMode || !_ready) { SP.deleteInvestor(id); return; }
     try {
-      await _col('investors').doc(invId).delete();
-    } catch (e) {
-      console.warn('SPFB deleteInvestor:', e.message);
+      await _col('investors').doc(id).delete();
+    } catch(e) {
+      console.warn('SPFB deleteInvestor — falling back to localStorage:', e.message);
+      SP.deleteInvestor(id);
     }
   }
 
-  // ── Documents ────────────────────────────────────────────────────────────────
-
-  /**
-   * Save a generated document (OA, PPM, Sub Doc) to Firestore.
-   * The HTML content is stored in Firestore (up to 1MB per doc).
-   * For larger files, use uploadFile() instead.
-   */
-  async function saveGeneratedDoc(dealId, type, name, htmlContent, accessLevel = 'gp') {
-    if (_offlineMode || !_ready) return null;
-    try {
-      const docRef = await _col('documents').add({
-        dealId,
-        orgId: _orgId,
-        type,          // 'oa' | 'ppm' | 'subscription' | 'k1' | 'capital-call'
-        name,
-        htmlContent,   // Full HTML string — stored in Firestore
-        fileUrl: null, // No separate file for generated docs
-        accessLevel,   // 'gp' | 'all_investors' | investorId
-        generatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        isGenerated: true,
-      });
-      return docRef.id;
-    } catch (e) {
-      console.warn('SPFB saveGeneratedDoc:', e.message);
-      return null;
-    }
-  }
-
-  /**
-   * Upload an actual file (PDF, Word, Excel, image) to Firebase Storage.
-   * Saves metadata to Firestore.
-   * Returns { docId, fileUrl }
-   */
-  async function uploadFile(file, dealId, category = 'other', accessLevel = 'gp') {
-    if (_offlineMode || !_ready) throw new Error('Firebase not available');
-    if (!_storage) throw new Error('Storage not initialized');
-    if (file.size > 25 * 1024 * 1024) throw new Error('File too large (max 25MB)');
-
-    const ext = file.name.split('.').pop();
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const path = `documents/${_orgId}/${dealId}/${Date.now()}_${safeName}`;
-    const storageRef = _storage.ref(path);
-
-    // Upload with progress tracking
-    return new Promise((resolve, reject) => {
-      const task = storageRef.put(file, {
-        contentType: file.type,
-        customMetadata: { orgId: _orgId, dealId, uploadedBy: _user?.uid || 'unknown' }
-      });
-
-      task.on('state_changed',
-        snapshot => {
-          const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-          // Emit progress event for UI to listen to
-          window.dispatchEvent(new CustomEvent('spfb-upload-progress', { detail: { pct, name: file.name } }));
-        },
-        error => reject(error),
-        async () => {
-          try {
-            const fileUrl = await task.snapshot.ref.getDownloadURL();
-            const docRef = await _col('documents').add({
-              dealId,
-              orgId: _orgId,
-              type: category,
-              name: file.name,
-              htmlContent: null,
-              fileUrl,
-              storagePath: path,
-              mimeType: file.type,
-              size: file.size,
-              accessLevel,
-              uploadedAt: firebase.firestore.FieldValue.serverTimestamp(),
-              isGenerated: false,
-            });
-            resolve({ docId: docRef.id, fileUrl });
-          } catch (e) {
-            reject(e);
-          }
-        }
-      );
-    });
-  }
-
-  /**
-   * Get all documents for a deal, filtered by access level.
-   * GPs see everything. Investors see only 'all_investors' or their specific docId.
-   */
-  async function getDealDocuments(dealId, investorId = null) {
-    if (_offlineMode || !_ready) return [];
-    try {
-      let query = _col('documents').where('dealId', '==', dealId);
-      const snap = await query.get();
-      let docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-      // Filter for investor access
-      if (investorId) {
-        docs = docs.filter(d =>
-          d.accessLevel === 'all_investors' ||
-          d.accessLevel === investorId
-        );
-      }
-
-      return docs.sort((a, b) => {
-        const at = a.generatedAt?.toDate?.() || a.uploadedAt?.toDate?.() || 0;
-        const bt = b.generatedAt?.toDate?.() || b.uploadedAt?.toDate?.() || 0;
-        return bt - at;
-      });
-    } catch (e) {
-      console.warn('SPFB getDealDocuments:', e.message);
-      return [];
-    }
-  }
-
-  async function deleteDocument(docId) {
-    if (_offlineMode || !_ready) return;
-    try {
-      const doc = await _col('documents').doc(docId).get();
-      if (doc.exists && doc.data().storagePath) {
-        await _storage.ref(doc.data().storagePath).delete().catch(() => {});
-      }
-      await _col('documents').doc(docId).delete();
-    } catch (e) {
-      console.warn('SPFB deleteDocument:', e.message);
-    }
-  }
-
-  async function updateDocumentAccess(docId, accessLevel) {
-    if (_offlineMode || !_ready) return;
-    try {
-      await _col('documents').doc(docId).update({ accessLevel });
-    } catch (e) {
-      console.warn('SPFB updateDocumentAccess:', e.message);
-    }
-  }
-
-  // ── Distributions ────────────────────────────────────────────────────────────
-
+  // ── Distributions ───────────────────────────────────────────────────────────
   async function getDistributions() {
     if (_offlineMode || !_ready) return SP.getDistributions();
     try {
       const snap = await _col('distributions').orderBy('date', 'desc').get();
-      const dists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      let dists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Investors only see distributions for deals they are linked to
+      if (_spUser && _spUser.role === 'Investor') {
+        const deals = await getDeals(); // already filtered
+        const allowedDealIds = new Set(deals.map(d => d.id));
+        dists = dists.filter(d => allowedDealIds.has(d.dealId));
+      }
       SP.saveDistributions(dists);
       return dists;
     } catch (e) {
@@ -656,391 +388,214 @@ const SPFB = (function () {
   }
 
   async function saveDistribution(dist) {
-    if (_offlineMode || !_ready) {
-      const dists = SP.getDistributions();
-      dists.unshift(dist);
-      SP.saveDistributions(dists);
-      return dist.id;
-    }
+    if (_offlineMode || !_ready) { SP.saveDistribution(dist); return dist; }
     try {
-      await _col('distributions').doc(dist.id).set({
-        ...dist,
-        orgId: _orgId,
-        savedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      const dists = SP.getDistributions();
-      dists.unshift(dist);
-      SP.saveDistributions(dists);
-      return dist.id;
-    } catch (e) {
-      console.warn('SPFB saveDistribution — using cache:', e.message);
-      const dists = SP.getDistributions();
-      dists.unshift(dist);
-      SP.saveDistributions(dists);
-      return dist.id;
+      await _col('distributions').doc(dist.id).set({ ...dist, orgId: _orgId, updatedAt: _ts() }, { merge: true });
+      return dist;
+    } catch(e) {
+      console.warn('SPFB saveDistribution — falling back to localStorage:', e.message);
+      SP.saveDistribution(dist);
+      return dist;
     }
   }
 
-  // ── Capital Calls ────────────────────────────────────────────────────────────
-
+  // ── Capital Calls ───────────────────────────────────────────────────────────
   async function getCapitalCalls() {
-    if (_offlineMode || !_ready) return SP.load('capitalCalls', []);
+    if (_offlineMode || !_ready) return SP.getCapitalCalls ? SP.getCapitalCalls() : [];
     try {
-      const snap = await _col('capitalCalls').orderBy('sentAt', 'desc').get();
-      const calls = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      SP.save('capitalCalls', calls);
+      const snap = await _col('capitalCalls').orderBy('dueDate', 'desc').get();
+      let calls = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Investors only see capital calls for deals they are linked to
+      if (_spUser && _spUser.role === 'Investor') {
+        const deals = await getDeals(); // already filtered
+        const allowedDealIds = new Set(deals.map(d => d.id));
+        calls = calls.filter(c => allowedDealIds.has(c.dealId));
+      }
       return calls;
     } catch (e) {
       console.warn('SPFB getCapitalCalls — using cache:', e.message);
-      return SP.load('capitalCalls', []);
+      return SP.getCapitalCalls ? SP.getCapitalCalls() : [];
     }
   }
 
   async function saveCapitalCall(call) {
-    if (_offlineMode || !_ready) {
-      const calls = SP.load('capitalCalls', []);
-      calls.unshift(call);
-      SP.save('capitalCalls', calls);
-      return;
-    }
+    if (_offlineMode || !_ready) { SP.saveCapitalCall(call); return call; }
     try {
-      await _col('capitalCalls').doc(call.id).set({
-        ...call,
-        orgId: _orgId,
-        savedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      const calls = SP.load('capitalCalls', []);
-      const idx = calls.findIndex(c => c.id === call.id);
-      if (idx >= 0) calls[idx] = call; else calls.unshift(call);
-      SP.save('capitalCalls', calls);
-    } catch (e) {
-      console.warn('SPFB saveCapitalCall — using cache:', e.message);
+      await _col('capitalCalls').doc(call.id).set({ ...call, orgId: _orgId, updatedAt: _ts() }, { merge: true });
+      return call;
+    } catch(e) {
+      console.warn('SPFB saveCapitalCall — falling back to localStorage:', e.message);
+      SP.saveCapitalCall(call);
+      return call;
     }
   }
 
-  // ── Settings ─────────────────────────────────────────────────────────────────
-
+  // ── Settings ──────────────────────────────────────────────────────────────────
   async function getSettings() {
-    if (_offlineMode || !_ready) return SP.load('settings', {});
+    if (_offlineMode || !_ready) return SP.getSettings ? SP.getSettings() : {};
     try {
-      const doc = await _orgRef().collection('settings').doc('main').get();
-      if (doc.exists) {
-        const s = doc.data();
-        SP.save('settings', s);
-        return s;
-      }
-      return SP.load('settings', {});
-    } catch (e) {
+      const doc = await _col('settings').doc('main').get();
+      if (doc.exists) return doc.data();
+      return {};
+    } catch(e) {
       console.warn('SPFB getSettings — using cache:', e.message);
-      return SP.load('settings', {});
+      return SP.getSettings ? SP.getSettings() : {};
     }
   }
 
   async function saveSettings(settings) {
-    if (_offlineMode || !_ready) { SP.save('settings', settings); return; }
+    if (_offlineMode || !_ready) { SP.saveSettings(settings); return; }
     try {
-      await _orgRef().collection('settings').doc('main').set({
-        ...settings,
-        orgId: _orgId,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-      SP.save('settings', settings);
-    } catch (e) {
-      console.warn('SPFB saveSettings — using cache:', e.message);
-      SP.save('settings', settings);
+      await _col('settings').doc('main').set({ ...settings, orgId: _orgId, updatedAt: _ts() }, { merge: true });
+    } catch(e) {
+      console.warn('SPFB saveSettings — falling back to localStorage:', e.message);
+      SP.saveSettings(settings);
     }
   }
 
-  // ── Activity Log ─────────────────────────────────────────────────────────────
+  // ── Document Storage ─────────────────────────────────────────────────────────
+  async function uploadDocument(dealId, file, metadata) {
+    if (!_storage) throw new Error('Storage not available');
+    const path = `documents/${_orgId}/${dealId}/${file.name}`;
+    const ref = _storage.ref(path);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+    // Save metadata to Firestore
+    await _col('documents').add({
+      dealId, name: file.name, path, url, ...metadata,
+      orgId: _orgId, uploadedAt: _ts(),
+    });
+    return url;
+  }
 
-  async function logActivity(icon, color, text) {
-    SP.logActivity(icon, color, text); // Always log locally first
-    if (_offlineMode || !_ready) return;
-    try {
-      await _col('activity').add({
-        icon, color, text,
-        orgId: _orgId,
-        userId: _user?.uid,
-        ts: firebase.firestore.FieldValue.serverTimestamp(),
-      });
-    } catch (e) {
-      // Silently fail — local log is fine
+  // ── Auth helpers ────────────────────────────────────────────────────────────
+  async function signUp(email, password, name, role, orgId) {
+    const cred = await _auth.createUserWithEmailAndPassword(email, password);
+    const profile = {
+      uid: cred.user.uid, email, name, role,
+      orgId: orgId || _hashEmail(email),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+    await _db.collection('users').doc(cred.user.uid).set(profile);
+    return cred;
+  }
+
+  async function ensureUserRecord(uid, email, name, role, orgId) {
+    const ref = _db.collection('users').doc(uid);
+    const doc = await ref.get();
+    if (doc.exists) {
+      const data = doc.data();
+      // Update missing fields
+      const updates = {};
+      if (!data.email && email) updates.email = email;
+      if (!data.name && name) updates.name = name;
+      if (!data.role && role) updates.role = role;
+      if (!data.orgId && orgId) updates.orgId = orgId;
+      if (Object.keys(updates).length) await ref.update(updates);
+      return data;
+    } else {
+      const profile = {
+        uid, email, name, role,
+        orgId: orgId || _hashEmail(email),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      };
+      const orgRef = _db.collection('orgs').doc(profile.orgId);
+      const orgDoc = await orgRef.get();
+      if (!orgDoc.exists) {
+        await orgRef.set({ orgId: profile.orgId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+      await ref.set(profile);
+      return profile;
     }
   }
 
-  // ── Real-time listeners ──────────────────────────────────────────────────────
+  async function logIn(email, password) {
+    const cred = await _auth.signInWithEmailAndPassword(email, password);
+    return cred;
+  }
 
-  /**
-   * Listen to deal changes in real-time.
-   * Useful for multi-user (two GPs editing simultaneously).
-   * Returns unsubscribe function.
-   */
-  function watchDeals(callback) {
-    if (_offlineMode || !_ready || !_db) return () => {};
-    return _col('deals').orderBy('added', 'desc').onSnapshot(snap => {
+  async function logOut() {
+    await _auth.signOut();
+    _ready = false;
+    _readyCallbacks = [];
+    _spUser = null;
+    _orgId = null;
+    _user = null;
+  }
+
+  async function sendPasswordReset(email) {
+    await _auth.sendPasswordResetEmail(email);
+  }
+
+  async function updatePassword(newPassword) {
+    if (!_user) throw new Error('No user logged in');
+    await _user.updatePassword(newPassword);
+  }
+
+  async function updateProfile(profile) {
+    if (!_user) throw new Error('No user logged in');
+    await _user.updateProfile(profile);
+    // Also update Firestore user doc
+    await _db.collection('users').doc(_user.uid).update(profile);
+    _spUser = { ..._spUser, ...profile };
+  }
+
+  // ── Realtime subscriptions ────────────────────────────────────────────────
+  function subscribeToDeals(callback) {
+    if (!_db || !_orgId) return () => {};
+    return _col('deals').onSnapshot(snap => {
       const deals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       SP.saveDeals(deals);
       callback(deals);
+    }, err => {
+      console.warn('SPFB subscribeToDeals error:', err.message);
     });
   }
 
-  function watchInvestors(callback) {
-    if (_offlineMode || !_ready || !_db) return () => {};
+  function subscribeToInvestors(callback) {
+    if (!_db || !_orgId) return () => {};
     return _col('investors').onSnapshot(snap => {
       const investors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       SP.saveInvestors(investors);
       callback(investors);
+    }, err => {
+      console.warn('SPFB subscribeToInvestors error:', err.message);
     });
   }
 
-  // ── Investor portal access ────────────────────────────────────────────────────
-
-  /**
-   * Get all documents an investor is allowed to see.
-   * Called from investor-portal.html after login.
-   */
-  async function getInvestorDocuments(investorEmail) {
-    if (_offlineMode || !_ready) return [];
-    try {
-      // Find investor record
-      const invSnap = await _col('investors')
-        .where('email', '==', investorEmail.toLowerCase())
-        .limit(1)
-        .get();
-      if (invSnap.empty) return [];
-
-      const invId = invSnap.docs[0].id;
-
-      // Get all documents accessible to this investor
-      const docsSnap = await _col('documents')
-        .where('accessLevel', 'in', ['all_investors', invId])
-        .get();
-
-      return docsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-    } catch (e) {
-      console.warn('SPFB getInvestorDocuments:', e.message);
-      return [];
-    }
+  function subscribeToDistributions(callback) {
+    if (!_db || !_orgId) return () => {};
+    return _col('distributions').onSnapshot(snap => {
+      const dists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      SP.saveDistributions(dists);
+      callback(dists);
+    }, err => {
+      console.warn('SPFB subscribeToDistributions error:', err.message);
+    });
   }
 
-  // ── Migration: localStorage → Firebase ─────────────────────────────────────
-
-  /**
-   * One-time migration of all localStorage data to Firestore.
-   * Safe to call multiple times — uses merge so nothing is overwritten.
-   */
-  async function migrateFromLocalStorage() {
-    if (_offlineMode || !_ready) return { success: false, reason: 'offline' };
-    try {
-      const deals = SP.getDeals();
-      const investors = SP.getInvestors();
-      const dists = SP.getDistributions();
-      const calls = SP.load('capitalCalls', []);
-      const settings = SP.load('settings', {});
-
-      let written = 0;
-
-      // Deals
-      if (deals.length) {
-        await saveDeals(deals);
-        written += deals.length;
-      }
-
-      // Investors
-      if (investors.length) {
-        await saveInvestors(investors);
-        written += investors.length;
-      }
-
-      // Distributions
-      for (const d of dists) {
-        await _col('distributions').doc(d.id || ('d' + Date.now() + Math.random())).set({
-          ...d, orgId: _orgId
-        }, { merge: true });
-        written++;
-      }
-
-      // Capital calls
-      for (const c of calls) {
-        await _col('capitalCalls').doc(c.id || ('cc' + Date.now())).set({
-          ...c, orgId: _orgId
-        }, { merge: true });
-        written++;
-      }
-
-      // Settings
-      if (Object.keys(settings).length) {
-        await saveSettings(settings);
-        written++;
-      }
-
-      console.log(`SPFB migration: ${written} records written to Firestore`);
-      return { success: true, written };
-    } catch (e) {
-      console.error('SPFB migration error:', e);
-      return { success: false, error: e.message };
-    }
-  }
-
-  // ── Patch SP.* to transparently write to Firestore ───────────────────────────
-  // Called once after SP and SPFB are both loaded and user is authenticated.
-  function patchSPCore() {
-    if (!window.SP || window._spfbPatched) return;
-    window._spfbPatched = true;
-
-    // Helper: get org-scoped localStorage key
-    function _lsKey(name) {
-      return SP.makeOrgKey ? SP.makeOrgKey(name) : `sp_${name}`;
-    }
-    function _lsGet(name) {
-      try { return JSON.parse(localStorage.getItem(_lsKey(name)) || '[]'); } catch(e) { return []; }
-    }
-    function _lsSet(name, data) {
-      try { localStorage.setItem(_lsKey(name), JSON.stringify(data)); } catch(e) {}
-    }
-
-    // Patch SP.getDeals / getInvestors / getDistributions
-    // Always delegate to SPData (Firestore-backed in-memory cache) when ready.
-    // Fall back to a direct Firestore fetch if SPData isn't up yet.
-    // localStorage is NEVER the source of truth — only a write-through cache.
-    SP.getDeals = function() {
-      if (window.SPData && SPData.isReady && SPData.isReady()) return SPData.getDeals();
-      // SPData not ready yet — return whatever is cached locally while Firestore loads
-      return _lsGet('deals');
-    };
-
-    SP.getInvestors = function() {
-      if (window.SPData && SPData.isReady && SPData.isReady()) return SPData.getInvestors ? SPData.getInvestors() : (_lsGet('investors'));
-      return _lsGet('investors');
-    };
-
-    SP.getDistributions = function() {
-      if (window.SPData && SPData.isReady && SPData.isReady()) return SPData.getDistributions ? SPData.getDistributions() : (_lsGet('distributions'));
-      return _lsGet('distributions');
-    };
-
-    // Patch SP.saveDeals
-    const _origSaveDeals = SP.saveDeals.bind(SP);
-    SP.saveDeals = function(deals) {
-      _origSaveDeals(deals); // always save locally first
-      if (SPFB.isReady() && !SPFB.isOffline()) {
-        SPFB.saveDeals(deals).catch(e => console.warn('SPFB.saveDeals bg:', e.message));
-      }
-    };
-
-    // Patch SP.saveInvestors
-    const _origSaveInvestors = SP.saveInvestors.bind(SP);
-    SP.saveInvestors = function(investors) {
-      _origSaveInvestors(investors);
-      if (SPFB.isReady() && !SPFB.isOffline()) {
-        SPFB.saveInvestors(investors).catch(e => console.warn('SPFB.saveInvestors bg:', e.message));
-      }
-    };
-
-    // Patch SP.saveDistributions
-    const _origSaveDist = SP.saveDistributions.bind(SP);
-    SP.saveDistributions = function(dists) {
-      _origSaveDist(dists);
-      if (SPFB.isReady() && !SPFB.isOffline()) {
-        // Write each new/changed distribution
-        dists.forEach(d => {
-          SPFB.saveDistribution(d).catch(e => console.warn('SPFB.saveDistribution bg:', e.message));
-        });
-      }
-    };
-
-    // Patch SP.logActivity to also write to Firestore
-    const _origLog = SP.logActivity.bind(SP);
-    SP.logActivity = function(icon, color, text) {
-      _origLog(icon, color, text);
-      if (SPFB.isReady() && !SPFB.isOffline()) {
-        SPFB.logActivity(icon, color, text).catch(() => {});
-      }
-    };
-
-    // Patch SP.save for capitalCalls key
-    const _origSave = SP.save.bind(SP);
-    SP.save = function(key, value) {
-      _origSave(key, value);
-      if (key === 'capitalCalls' && SPFB.isReady() && !SPFB.isOffline()) {
-        const calls = Array.isArray(value) ? value : [value];
-        calls.forEach(c => {
-          if (c && c.id) SPFB.saveCapitalCall(c).catch(() => {});
-        });
-      }
-      if (key === 'settings' && SPFB.isReady() && !SPFB.isOffline()) {
-        SPFB.saveSettings(value).catch(() => {});
-      }
-    };
-
-    console.log('SPFB: SP.* patched — all saves now write to Firestore');
-  }
-
-  // ── Public API ───────────────────────────────────────────────────────────────
+  // ── Public API ────────────────────────────────────────────────────────────
   return {
-    init,
-    onReady,
-    isReady,
-    isOffline,
-    getOrgId,
-    getUser,
-
-    // Auth
-    signIn,
-    signUp,
-    signOut,
+    init, onReady, isReady, getOrgId, getUser,
+    getDeals, saveDeal, saveDeals, deleteDeal,
+    getInvestors, saveInvestors, deleteInvestor,
+    getDistributions, saveDistribution,
+    getCapitalCalls, saveCapitalCall,
+    getSettings, saveSettings,
+    uploadDocument,
+    signUp, logIn, logOut,
+    sendPasswordReset, updatePassword, updateProfile,
     ensureUserRecord,
-
-    // Deals
-    getDeals,
-    saveDeal,
-    saveDeals,
-    deleteDeal,
-
-    // Investors
-    getInvestors,
-    saveInvestors,
-    deleteInvestor,
-
-    // Documents
-    saveGeneratedDoc,
-    uploadFile,
-    getDealDocuments,
-    deleteDocument,
-    updateDocumentAccess,
-
-    // Distributions
-    getDistributions,
-    saveDistribution,
-
-    // Capital calls
-    getCapitalCalls,
-    saveCapitalCall,
-
-    // Settings
-    getSettings,
-    saveSettings,
-
-    // Activity
-    logActivity,
-
-    // Real-time
-    watchDeals,
-    watchInvestors,
-
-    // Investor portal
-    getInvestorDocuments,
-
-    // Migration
-    migrateFromLocalStorage,
-
-    // Patch SP core methods to write to Firestore
-    patchSPCore,
+    subscribeToDeals, subscribeToInvestors, subscribeToDistributions,
   };
 })();
 
-// Auto-init: if Firebase is already loaded when this script runs, init immediately
-// This covers the case where firebase-config.js is loaded before sp-firebase.js
-if (typeof firebase !== 'undefined' && firebase.apps && typeof SPFB !== 'undefined') {
+// Auto-init when DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  SPFB.init();
+});
+
+// Also try init immediately in case DOM already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
   SPFB.init();
 }

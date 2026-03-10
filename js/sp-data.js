@@ -445,8 +445,29 @@ const SPData = (() => {
     console.log('SPData: SP.* patched — ALL data routes through Firestore. localStorage is cache only.');
   }
 
+  // ── Reinit: reset and reload for a new user/role context ─────────────────
+  // Called by sp-firebase.js when onAuthStateChanged fires with a new user
+  async function reinit(db, orgId, role, email) {
+    // If same user and already ready, skip
+    if (_initialized && _ready && _orgId === orgId && _role === role && _email === email) {
+      console.log('SPData reinit — same context, skipping');
+      return;
+    }
+    // Reset state
+    _initialized = false;
+    _ready = false;
+    _cache.deals = null;
+    _cache.investors = null;
+    _cache.distributions = null;
+    _cache.capitalCalls = null;
+    _cache.settings = null;
+    _cache.activity = [];
+    // Re-run init with new context
+    return init(db, orgId, role, email);
+  }
+
   return {
-    _cache, init, onReady, isReady, getOrgId,
+    _cache, init, reinit, onReady, isReady, getOrgId,
     getDeals, getDealById, getDealsForInvestor, saveDeal, saveDeals, deleteDeal,
     getInvestors, getInvestorById, getInvestorByEmail, getCurrentInvestorRecord, saveInvestors, deleteInvestor,
     getDistributions, getDistributionsForInvestor, saveDistribution, saveDistributions,
