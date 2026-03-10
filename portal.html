@@ -571,8 +571,8 @@ function render() {
 
   // Distributions for this investor
   let allDists;
-  if (_multiOrgData && _multiOrgData.dists.length) {
-    allDists = _multiOrgData.dists;
+  if (_multiOrgData && _multiOrgData.distributions && _multiOrgData.distributions.length) {
+    allDists = _multiOrgData.distributions.filter(d => d.status === 'posted');
   } else {
     allDists = SP.getDistributions().filter(d => d.status === 'posted');
   }
@@ -593,7 +593,13 @@ function render() {
 
   allDists.forEach(d => {
     if (!Array.isArray(d.recipients)) return;
+    // For multi-org: match by org-specific investor ID
+    const orgInvRec = _multiOrgData
+      ? (_multiOrgData.investors || []).find(i => i._orgId === d._orgId)
+      : null;
+    const matchId = orgInvRec ? orgInvRec.id : inv?.id;
     const r = d.recipients.find(r =>
+      r.investorId === matchId ||
       r.investorId === inv?.id ||
       (inv?.email && SP.getInvestorById(r.investorId)?.email?.toLowerCase() === session.email?.toLowerCase())
     );
@@ -978,7 +984,7 @@ SP.onDataReady(async function() {
     }
   } catch(e) { /* commitments query may fail if not in org — that's fine */ }
 
-  // Then try to load multi-org data in background
+  // Load multi-org data in background (aggregates across all GPs the LP invests with)
   const session = SP.getSession();
   if (session?.role === 'Investor' && typeof SPMultiOrg !== 'undefined' && typeof firebase !== 'undefined') {
     try {
@@ -988,10 +994,14 @@ SP.onDataReady(async function() {
         const userDoc = await db.collection('users').doc(user.uid).get();
         if (userDoc.exists) {
           const userData = userDoc.data();
-          // Only do multi-org load if user has multiple orgs
-          if (Array.isArray(userData.orgIds) && userData.orgIds.length > 1) {
-            _multiOrgData = await SPMultiOrg.load(db, userData);
-            render(); // Re-render with aggregated data
+          await SPMultiOrg.init(db, userData);
+          if (SPMultiOrg.isReady() && SPMultiOrg.getAllDeals().length > 0) {
+            _multiOrgData = {
+              deals: SPMultiOrg.getAllDeals(),
+              investors: SPMultiOrg.getAllInvestorRecords(),
+              distributions: SPMultiOrg.getAllDistributions(),
+            };
+            render(); // Re-render with aggregated multi-org data
           }
         }
       }

@@ -19,6 +19,7 @@
   <script src="js/sp-firebase.js?v7"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-notify.js"></script>
+  <script src="js/sp-multi-org.js"></script>
   <script src="js/sp-email.js?v7"></script>
   <style>
     .commit-card{background:var(--dt-card-bg,#fff);border:1px solid var(--dt-border,#E2DDD8);border-radius:12px;padding:20px;margin-bottom:16px;transition:border-color .15s;}
@@ -248,6 +249,26 @@ async function approveCommitment(id) {
       linkedAt: new Date().toISOString(),
       subStatus: 'committed',
     });
+  }
+
+  // Add this org to investor's orgIds for multi-GP portal support
+  if (c.investorUid && typeof firebase !== 'undefined') {
+    const db = firebase.firestore();
+    const orgId = SP.getSession()?.orgId || 'deeltrack_demo';
+    if (typeof SPMultiOrg !== 'undefined') {
+      SPMultiOrg.addOrgToUser(db, c.investorUid, orgId);
+    } else {
+      // Inline fallback
+      db.collection('users').doc(c.investorUid).get().then(doc => {
+        if (!doc.exists) return;
+        const data = doc.data();
+        const existing = Array.isArray(data.orgIds) ? data.orgIds : (data.orgId ? [data.orgId] : []);
+        if (!existing.includes(orgId)) {
+          existing.push(orgId);
+          db.collection('users').doc(c.investorUid).update({ orgIds: existing }).catch(() => {});
+        }
+      }).catch(() => {});
+    }
   }
 
   // Notify investor
