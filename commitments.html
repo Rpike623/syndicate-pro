@@ -17,6 +17,7 @@
   <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v7"></script>
   <script src="js/sp-firebase.js?v7"></script>
+  <script src="js/sp-notify.js"></script>
   <script src="js/sp-email.js?v7"></script>
   <style>
     .commit-card{background:var(--dt-card-bg,#fff);border:1px solid var(--dt-border,#E2DDD8);border-radius:12px;padding:20px;margin-bottom:16px;transition:border-color .15s;}
@@ -176,7 +177,10 @@ function _getActions(c) {
     case 'docs_sent':
       return `<span style="font-size:.78rem;color:#6B6560;"><i class="fas fa-clock"></i> Waiting for LP signature</span>`;
     case 'docs_signed':
-      return `<button class="btn btn-confirm" onclick="confirmFunded('${c.id}')"><i class="fas fa-dollar-sign"></i> Confirm Wire Received</button>`;
+      return `
+        ${c.wireSentAt ? `<span style="font-size:.78rem;color:#0ea5e9;margin-right:8px;"><i class="fas fa-paper-plane"></i> LP sent wire ${new Date(c.wireSentAt).toLocaleDateString()}${c.wireRef ? ' · Ref: '+c.wireRef : ''}</span>` : '<span style="font-size:.78rem;color:#6B6560;margin-right:8px;"><i class="fas fa-clock"></i> Waiting for LP wire</span>'}
+        <button class="btn btn-confirm" onclick="confirmFunded('${c.id}')"><i class="fas fa-dollar-sign"></i> Confirm Wire Received</button>
+      `;
     case 'funded':
       return `<span style="font-size:.78rem;color:#2D9A6B;"><i class="fas fa-check-circle"></i> Complete</span>`;
     case 'rejected':
@@ -244,6 +248,9 @@ async function approveCommitment(id) {
       subStatus: 'committed',
     });
   }
+
+  // Notify investor
+  if (typeof SPNotify !== 'undefined') SPNotify.onCommitmentApproved(c);
 
   showToast('Commitment approved — investor linked to deal');
 }
@@ -322,6 +329,9 @@ async function _doSendSubDocs(id) {
   // Update commitment status
   await _updateStatus(id, 'docs_sent', { signToken, signUrl, docsSentAt: new Date().toISOString() });
 
+  // Notify investor with signing link
+  if (typeof SPNotify !== 'undefined') SPNotify.onDocsSent(c, signUrl);
+
   document.getElementById('signModal')?.remove();
   showToast('Subscription docs sent — LP will receive signing link');
 }
@@ -329,9 +339,41 @@ async function _doSendSubDocs(id) {
 async function confirmFunded(id) {
   const c = _commitments.find(c => c.id === id);
   if (!c) return;
-  if (!confirm(`Confirm wire received for ${c.investorName}'s $${Number(c.amount).toLocaleString()} commitment?`)) return;
 
-  await _updateStatus(id, 'funded', { fundedAt: new Date().toISOString(), confirmedBy: SP.getSession()?.email });
+  const overlay = document.createElement('div');
+  overlay.className = 'sign-overlay';
+  overlay.id = 'wireModal';
+  overlay.innerHTML = `
+    <div class="sign-modal" style="max-width:480px;">
+      <h3 style="margin-bottom:12px;"><i class="fas fa-university" style="color:#7B5CC4;margin-right:8px;"></i>Confirm Wire Received</h3>
+      <p style="font-size:.82rem;color:#6B6560;margin-bottom:16px;">${c.investorName} — $${Number(c.amount).toLocaleString()} for ${c.dealName}</p>
+      <div style="margin-bottom:12px;"><label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px;">Amount Received ($)</label><input type="text" id="wireAmt" value="${Number(c.amount).toLocaleString()}" style="width:100%;padding:10px;border:1px solid #E2DDD8;border-radius:8px;font-family:'JetBrains Mono',monospace;font-weight:700;"></div>
+      <div style="margin-bottom:12px;"><label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px;">Wire Reference / Confirmation #</label><input type="text" id="wireRefGP" placeholder="e.g. FED20260310..." style="width:100%;padding:10px;border:1px solid #E2DDD8;border-radius:8px;"></div>
+      <div style="margin-bottom:16px;"><label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px;">Date Received</label><input type="date" id="wireDate" value="${new Date().toISOString().split('T')[0]}" style="width:100%;padding:10px;border:1px solid #E2DDD8;border-radius:8px;"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn" style="background:white;border:1px solid #E2DDD8;color:#1B1A19;" onclick="document.getElementById('wireModal').remove();">Cancel</button>
+        <button class="btn btn-confirm" onclick="_doConfirmFunded('${id}')"><i class="fas fa-check-circle"></i> Confirm Funded</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function _doConfirmFunded(id) {
+  const c = _commitments.find(c => c.id === id);
+  if (!c) return;
+  const wireAmt = document.getElementById('wireAmt').value.replace(/[^0-9.]/g,'');
+  const wireRef = document.getElementById('wireRefGP').value.trim();
+  const wireDate = document.getElementById('wireDate').value;
+
+  await _updateStatus(id, 'funded', {
+    fundedAt: new Date().toISOString(),
+    confirmedBy: SP.getSession()?.email,
+    wireAmountReceived: parseFloat(wireAmt) || c.amount,
+    wireRefConfirmed: wireRef,
+    wireDateReceived: wireDate,
+  });
 
   // Update investor's subStatus on the deal
   const deal = SP.getDealById(c.dealId);
@@ -344,6 +386,7 @@ async function confirmFunded(id) {
     }
   }
 
+  document.getElementById('wireModal')?.remove();
   showToast('Wire confirmed — commitment fully funded');
 }
 

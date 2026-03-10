@@ -186,6 +186,12 @@
       </div>
     </div>
 
+    <!-- Pending Actions (wire confirmations, etc.) -->
+    <div class="card" id="pendingActionsCard" style="display:none;border-left:3px solid #F37925;">
+      <div class="card-header"><span><i class="fas fa-exclamation-circle" style="color:var(--accent);margin-right:8px;"></i>Action Required</span></div>
+      <div class="card-body" id="pendingActions"></div>
+    </div>
+
     <div class="card">
       <div class="card-header">
         <span><i class="fas fa-building" style="color:var(--accent);margin-right:8px;"></i>My Properties</span>
@@ -823,6 +829,51 @@ function render() {
   }
 }
 
+// ── Wire confirmation (LP side) ───────────────────────────────────────────
+function submitWire(commitId, dealName, amount) {
+  const overlay = document.createElement('div');
+  overlay.id = 'wireOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
+  overlay.innerHTML = `
+    <div style="background:white;border-radius:12px;padding:28px;max-width:460px;width:90%;">
+      <h3 style="margin-bottom:4px;"><i class="fas fa-university" style="color:var(--accent);margin-right:8px;"></i>Confirm Wire Sent</h3>
+      <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:16px;">${dealName} — $${Number(amount).toLocaleString()}</p>
+      <div style="margin-bottom:12px;"><label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px;">Wire Amount ($)</label><input type="text" id="lpWireAmt" value="${Number(amount).toLocaleString()}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-family:'JetBrains Mono',monospace;"></div>
+      <div style="margin-bottom:12px;"><label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px;">Wire Reference / Confirmation #</label><input type="text" id="lpWireRef" placeholder="From your bank confirmation" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;"></div>
+      <div style="margin-bottom:16px;"><label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:4px;">Date Sent</label><input type="date" id="lpWireDate" value="${new Date().toISOString().split('T')[0]}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button onclick="document.getElementById('wireOverlay').remove();" style="padding:8px 16px;border:1px solid var(--border);border-radius:8px;background:white;cursor:pointer;font-weight:600;font-size:.82rem;">Cancel</button>
+        <button onclick="_doSubmitWire('${commitId}')" style="padding:8px 16px;border:none;border-radius:8px;background:var(--accent);color:white;cursor:pointer;font-weight:600;font-size:.82rem;"><i class="fas fa-paper-plane"></i> Submit</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function _doSubmitWire(commitId) {
+  const wireAmt = document.getElementById('lpWireAmt').value.replace(/[^0-9.]/g,'');
+  const wireRef = document.getElementById('lpWireRef').value.trim();
+  const wireDate = document.getElementById('lpWireDate').value;
+  const session = SP.getSession();
+  const db = firebase.firestore();
+  const orgId = session?.orgId || 'deeltrack_demo';
+
+  await db.collection('orgs').doc(orgId).collection('commitments').doc(commitId).update({
+    wireSentAt: new Date().toISOString(),
+    wireAmount: parseFloat(wireAmt) || 0,
+    wireRef,
+    wireDate,
+    wireSentBy: session?.email,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+
+  document.getElementById('wireOverlay')?.remove();
+  showToast('Wire confirmation sent to your GP!');
+  // Hide the action card
+  document.getElementById('pendingActionsCard').style.display = 'none';
+}
+
 // ── Accreditation self-certification ──────────────────────────────────────
 // Enable submit button only when attestation is checked + at least one method selected
 document.addEventListener('DOMContentLoaded', () => {
@@ -898,6 +949,34 @@ let _multiOrgData = null;
 
 SP.onDataReady(async function() {
   render(); // Render immediately with primary org data
+
+  // Load LP pending commitments (wire confirmations, etc.)
+  try {
+    const session = SP.getSession();
+    const db = firebase.firestore();
+    const orgId = session?.orgId || 'deeltrack_demo';
+    const snap = await db.collection('orgs').doc(orgId).collection('commitments')
+      .where('investorEmail', '==', session?.email)
+      .get();
+    const myCommitments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const needsWire = myCommitments.filter(c => c.status === 'docs_signed' && !c.wireSentAt);
+    const pendingCard = document.getElementById('pendingActionsCard');
+    const pendingEl = document.getElementById('pendingActions');
+    if (needsWire.length > 0 && pendingCard && pendingEl) {
+      pendingCard.style.display = '';
+      pendingEl.innerHTML = needsWire.map(c => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
+          <div>
+            <div style="font-weight:600;">${c.dealName}</div>
+            <div style="font-size:.78rem;color:var(--text-muted);">Subscription signed — wire $${Number(c.amount).toLocaleString()} to complete</div>
+          </div>
+          <button class="btn btn-primary" style="padding:8px 14px;font-size:.8rem;white-space:nowrap;" onclick="submitWire('${c.id}','${c.dealName}',${c.amount})">
+            <i class="fas fa-university"></i> Send Wire Info
+          </button>
+        </div>
+      `).join('');
+    }
+  } catch(e) { /* commitments query may fail if not in org — that's fine */ }
 
   // Then try to load multi-org data in background
   const session = SP.getSession();

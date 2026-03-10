@@ -19,6 +19,7 @@
   <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v6"></script>
   <script src="js/sp-firebase.js?v6"></script>
+  <script src="js/sp-notify.js"></script>
   <script src="js/sp-billing.js?v3"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -428,8 +429,17 @@
           </div>
         </div>
 
-        <!-- Right column: Activity + Deadlines -->
+        <!-- Right column: Commitments + Activity + Deadlines -->
         <div style="display:flex; flex-direction:column; gap:20px;">
+          <!-- Pending Commitments -->
+          <div class="card" id="commitWidget" style="display:none;">
+            <div class="card-header" style="border-left:3px solid #F37925;">
+              <div class="card-title"><i class="fas fa-handshake" style="color:#F37925;margin-right:6px;"></i>Pending Commitments</div>
+              <a href="commitments.html" class="view-all" style="font-size:0.75rem;">View all</a>
+            </div>
+            <div class="card-body" style="padding:0;" id="commitWidgetBody"></div>
+          </div>
+
           <!-- Recent Activity -->
           <div class="card">
             <div class="card-header">
@@ -1186,6 +1196,46 @@ function renderDeadlines() {
 
   // Render with Firestore data once ready
   SP.onDataReady(_render);
+
+  // ── Pending Commitments Widget ─────────────────────────────────────────────
+  SP.onDataReady(async function() {
+    try {
+      const db = firebase.firestore();
+      const orgId = SP.getSession()?.orgId || SP.getOrgId?.() || 'deeltrack_demo';
+      const snap = await db.collection('orgs').doc(orgId).collection('commitments')
+        .orderBy('createdAt', 'desc').limit(10).get();
+      const commitments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const pending = commitments.filter(c => ['pending','approved','docs_sent','docs_signed'].includes(c.status));
+      
+      const widget = document.getElementById('commitWidget');
+      const body = document.getElementById('commitWidgetBody');
+      if (!pending.length || !widget || !body) return;
+
+      widget.style.display = '';
+      const statusLabels = { pending:'⏳ Pending', approved:'✅ Approved', docs_sent:'📄 Docs Sent', docs_signed:'✍️ Signed' };
+      const statusColors = { pending:'#E8890A', approved:'#2D9A6B', docs_sent:'#0ea5e9', docs_signed:'#7B5CC4' };
+
+      body.innerHTML = pending.slice(0, 5).map(c => {
+        const date = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString() : '—';
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid rgba(0,0,0,.06);">
+          <div>
+            <div style="font-weight:600;font-size:.875rem;">${c.investorName || c.investorEmail}</div>
+            <div style="font-size:.75rem;color:#6B6560;">${c.dealName} · ${date}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:#F37925;">$${Number(c.amount||0).toLocaleString()}</div>
+            <div style="font-size:.7rem;color:${statusColors[c.status]||'#6B6560'};font-weight:600;">${statusLabels[c.status]||c.status}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      if (pending.length > 5) {
+        body.innerHTML += `<div style="text-align:center;padding:10px;"><a href="commitments.html" style="font-size:.78rem;color:#F37925;font-weight:600;">View all ${pending.length} commitments →</a></div>`;
+      }
+    } catch(e) {
+      // Commitments collection may not exist yet — that's fine
+    }
+  });
 
   // ── First-run welcome modal for new users ──────────────────────────────────
   SP.onDataReady(function() {

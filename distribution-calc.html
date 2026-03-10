@@ -15,6 +15,7 @@
   <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v6"></script>
   <script src="js/sp-firebase.js?v6"></script>
+  <script src="js/sp-notify.js"></script>
   <script src="js/sp-math.js"></script>
   <script src="js/database.js"></script>
   <style>
@@ -954,6 +955,9 @@ async function executeDistribution() {
       SP.saveDistributions(raw);
     } catch(e) {}
   }
+
+  // Notify investors about the distribution
+  if (typeof SPNotify !== 'undefined') SPNotify.onDistributionPosted(dist);
 
   // Store for wire report
   _lastDist = dist;
