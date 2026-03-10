@@ -17,6 +17,7 @@
   <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v6"></script>
   <script src="js/sp-firebase.js?v6"></script>
+  <script src="js/sp-email.js?v6"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-documents.js"></script>
   <script src="js/sp-esign.js?v6"></script>
@@ -1073,33 +1074,99 @@ async function generateInviteLink() {
 
   const url = `${window.location.origin}/invest.html?t=${token}`;
 
-  // Copy to clipboard and show modal
+  // Copy to clipboard
   try { await navigator.clipboard.writeText(url); } catch(e) {}
 
-  // Show a simple modal with the link
+  // Build investor checkboxes for email sending
+  const investors = SP.getInvestors();
+  const invCheckboxes = investors.map(inv =>
+    `<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #E2DDD8;border-radius:6px;font-size:.82rem;cursor:pointer;margin-bottom:4px;">
+      <input type="checkbox" value="${inv.id}" class="inv-send-check">
+      <span><strong>${inv.firstName} ${inv.lastName}</strong> — ${inv.email}</span>
+    </label>`
+  ).join('');
+
+  // Show modal with copy link + send to investors
   const overlay = document.createElement('div');
   overlay.id = 'inviteLinkModal';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999;overflow-y:auto;padding:20px;';
   overlay.innerHTML = `
-    <div style="background:#fff;border-radius:12px;padding:28px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
-      <h3 style="margin-bottom:4px;"><i class="fas fa-link" style="color:#F37925;margin-right:8px;"></i>Deal Invite Link</h3>
-      <p style="font-size:.82rem;color:#6B6560;margin-bottom:16px;">Send this link to an LP. They'll see the deal terms and can commit an investment amount.</p>
-      <div style="display:flex;gap:8px;margin-bottom:16px;">
-        <input type="text" value="${url}" readonly style="flex:1;padding:10px 12px;border:1px solid #E2DDD8;border-radius:8px;font-size:.82rem;font-family:'JetBrains Mono',monospace;background:#F3F3F3;color:#1B1A19;">
+    <div style="background:#fff;border-radius:12px;padding:28px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+      <h3 style="margin-bottom:4px;"><i class="fas fa-link" style="color:#F37925;margin-right:8px;"></i>Deal Invite — ${deal.name}</h3>
+      <p style="font-size:.82rem;color:#6B6560;margin-bottom:16px;">Share this link or email it directly to investors.</p>
+
+      <div style="display:flex;gap:8px;margin-bottom:20px;">
+        <input type="text" value="${url}" readonly id="inviteLinkInput" style="flex:1;padding:10px 12px;border:1px solid #E2DDD8;border-radius:8px;font-size:.78rem;font-family:'JetBrains Mono',monospace;background:#F3F3F3;color:#1B1A19;">
         <button onclick="navigator.clipboard.writeText('${url}');this.innerHTML='<i class=\\'fas fa-check\\'></i> Copied!';this.style.background='#2D9A6B';this.style.color='white';" style="padding:10px 16px;border:1px solid #E2DDD8;border-radius:8px;background:white;cursor:pointer;font-weight:600;font-size:.82rem;white-space:nowrap;">
           <i class="fas fa-copy"></i> Copy
         </button>
       </div>
-      <div style="font-size:.75rem;color:#9C9590;margin-bottom:16px;">
-        <i class="fas fa-info-circle"></i> This link is unique to <strong>${deal.name}</strong>. The LP will need to log in or create an account to commit.
+
+      <div style="border-top:1px solid #E2DDD8;padding-top:16px;margin-bottom:12px;">
+        <h4 style="font-size:.9rem;margin-bottom:8px;"><i class="fas fa-envelope" style="color:#F37925;margin-right:6px;"></i>Email Invite to Investors</h4>
+        <p style="font-size:.78rem;color:#6B6560;margin-bottom:12px;">Select investors to email the deal invite with terms and a link to commit.</p>
+        <div style="max-height:200px;overflow-y:auto;margin-bottom:12px;" id="invSendList">
+          ${invCheckboxes}
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="_selectAllInv()" style="padding:6px 12px;border:1px solid #E2DDD8;border-radius:6px;background:white;cursor:pointer;font-size:.75rem;font-weight:600;">Select All</button>
+          <button onclick="_sendInviteEmails('${url}','${token}')" id="sendInvBtn" style="padding:8px 16px;border:none;border-radius:8px;background:#F37925;color:white;cursor:pointer;font-weight:600;font-size:.82rem;">
+            <i class="fas fa-paper-plane"></i> Send Invite Emails
+          </button>
+          <span id="sendInvStatus" style="font-size:.78rem;color:#6B6560;"></span>
+        </div>
       </div>
-      <div style="text-align:right;">
+
+      <div style="text-align:right;border-top:1px solid #E2DDD8;padding-top:16px;">
         <button onclick="document.getElementById('inviteLinkModal').remove();" style="padding:8px 18px;border:1px solid #E2DDD8;border-radius:8px;background:white;cursor:pointer;font-weight:600;font-size:.82rem;">Close</button>
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+}
+
+function _selectAllInv() {
+  document.querySelectorAll('.inv-send-check').forEach(cb => cb.checked = true);
+}
+
+async function _sendInviteEmails(url, token) {
+  const btn = document.getElementById('sendInvBtn');
+  const status = document.getElementById('sendInvStatus');
+  const checked = Array.from(document.querySelectorAll('.inv-send-check:checked'));
+  if (!checked.length) { status.textContent = 'Select at least one investor'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+  status.textContent = '';
+
+  const allInvestors = SP.getInvestors();
+  const selected = checked.map(cb => allInvestors.find(i => i.id === cb.value)).filter(Boolean);
+  const deal = SP.getDealById(dealId);
+
+  // Get OM summary if available
+  const omData = SP.load('om_builder', {});
+  const omSummary = omData.omExecSummary || omData.omDescription || '';
+
+  try {
+    if (typeof SPEmail !== 'undefined' && SPEmail.sendDealInvite) {
+      const results = await SPEmail.sendDealInvite(deal, url, selected, omSummary);
+      const sent = results.filter(r => r.status === 'sent').length;
+      const suppressed = results.filter(r => r.status === 'suppressed').length;
+      if (sent > 0) {
+        status.innerHTML = `<span style="color:#2D9A6B;">✓ Sent to ${sent} investor${sent!==1?'s':''}</span>`;
+      } else if (suppressed > 0) {
+        status.innerHTML = `<span style="color:#E8890A;">⚠ Demo mode — ${suppressed} email${suppressed!==1?'s':''} suppressed</span>`;
+      }
+    } else {
+      status.textContent = 'Email system not loaded';
+    }
+  } catch(e) {
+    status.innerHTML = `<span style="color:#D94F3D;">Error: ${e.message}</span>`;
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Invite Emails';
 }
 
 function openAddInvModal() {

@@ -321,6 +321,22 @@ let _db = null;
         }).catch(() => {});
       }
       renderDeal();
+
+      // Load OM data if available
+      try {
+        const omDoc = await _db.collection('orgs').doc(_orgId).collection('custom_data').doc('om_builder').get();
+        if (omDoc.exists && omDoc.data().value) {
+          const om = omDoc.data().value;
+          const summary = om.omExecSummary || om.omDescription || '';
+          if (summary) {
+            document.getElementById('omCard').style.display = '';
+            document.getElementById('omContent').innerHTML = `
+              <h3 style="font-size:1rem;font-weight:700;margin-bottom:12px;">Executive Summary</h3>
+              <div style="color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;">${summary}</div>
+            `;
+          }
+        }
+      } catch(e) { /* OM not available — that's fine */ }
     });
 
   } catch(e) {

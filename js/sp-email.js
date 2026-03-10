@@ -127,6 +127,38 @@ const SPEmail = (function () {
         </div>`,
     },
 
+    dealInvite: {
+      subject: '📋 Investment Opportunity — {{dealName}}',
+      html: (vars) => `
+        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+          <div style="background:linear-gradient(135deg,#1B1A19,#2D2A27);padding:28px;border-radius:8px 8px 0 0;text-align:center;">
+            <h1 style="color:white;margin:0;font-size:1.4rem;">Investment Opportunity</h1>
+            <p style="color:rgba(255,255,255,.7);margin:8px 0 0;font-size:1.1rem;">{{dealName}}</p>
+          </div>
+          <div style="background:#f8fafc;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;">
+            <p style="font-size:1rem;color:#1e293b;">Dear {{investorName}},</p>
+            <p style="color:#475569;">{{gpName}} has shared a new investment opportunity with you.</p>
+            <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:20px;margin:20px 0;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                <div><span style="color:#64748b;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Target Raise</span><br><strong style="font-size:1.1rem;">{{raiseFormatted}}</strong></div>
+                <div style="text-align:right;"><span style="color:#64748b;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Target IRR</span><br><strong style="font-size:1.1rem;color:#F37925;">{{irr}}</strong></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <div><span style="color:#64748b;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Location</span><br><strong>{{location}}</strong></div>
+                <div style="text-align:right;"><span style="color:#64748b;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Type</span><br><strong style="text-transform:capitalize;">{{dealType}}</strong></div>
+              </div>
+            </div>
+            {{#omSummary}}<div style="color:#475569;line-height:1.7;margin:16px 0;padding:16px;background:white;border-left:4px solid #F37925;border-radius:0 8px 8px 0;">{{omSummary}}</div>{{/omSummary}}
+            <div style="text-align:center;margin:28px 0 16px;">
+              <a href="{{investUrl}}" style="background:#F37925;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-block;">Review Deal &amp; Invest →</a>
+            </div>
+            <p style="color:#94a3b8;font-size:.78rem;text-align:center;">You'll be able to review full deal terms, the waterfall structure, and submit your commitment online.</p>
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;">
+            <p style="color:#94a3b8;font-size:.78rem;text-align:center;">Sent via deeltrack on behalf of {{gpName}}</p>
+          </div>
+        </div>`,
+    },
+
     docShared: {
       subject: '📄 New Document Available — {{docName}}',
       html: (vars) => `
@@ -335,6 +367,27 @@ const SPEmail = (function () {
     return results;
   }
 
+  async function sendDealInvite(deal, investUrl, investors, omSummary) {
+    const settings = (typeof SP !== 'undefined') ? SP.load('settings', {}) : {};
+    const gpName = settings.gpFullName || settings.firmName || 'Your GP';
+    const results = [];
+    for (const inv of investors) {
+      const vars = {
+        investorName: `${inv.firstName || ''} ${inv.lastName || ''}`.trim() || 'Investor',
+        dealName: deal.name,
+        gpName,
+        raiseFormatted: '$' + Number(deal.raise || 0).toLocaleString(),
+        irr: deal.irr ? deal.irr.toFixed(1) + '%' : '—',
+        location: deal.location || '—',
+        dealType: deal.type || '—',
+        investUrl,
+        omSummary: omSummary || '',
+      };
+      results.push(await send('dealInvite', inv.email, vars));
+    }
+    return results;
+  }
+
   async function sendDealUpdate(dealName, messageBody, keyMetrics, investors) {
     const results = [];
     for (const inv of investors) {
@@ -404,6 +457,7 @@ const SPEmail = (function () {
     sendCapitalCall,
     sendDistribution,
     sendDocumentNotification,
+    sendDealInvite,
     sendDealUpdate,
     getEmailLog,
     isConfigured,
