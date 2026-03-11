@@ -1036,9 +1036,44 @@
                 
                 <div class="form-group">
                   <label>Disposition Fee</label>
-                  <input type="number" id="dispFee" value="2" step="0.5">
+                  <input type="number" id="dispFee" value="1" step="0.5">
                   <span class="prefix" style="right: 14px; left: auto;">%</span>
                   <span class="help-text">Of sale price</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Construction Mgmt Fee</label>
+                  <input type="number" id="constructionFee" value="5" step="0.5">
+                  <span class="prefix" style="right: 14px; left: auto;">%</span>
+                  <span class="help-text">Of hard construction costs</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Refinancing Fee</label>
+                  <input type="number" id="refinancingFee" value="0.5" step="0.1">
+                  <span class="prefix" style="right: 14px; left: auto;">%</span>
+                  <span class="help-text">Of new loan amount</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>GP Removal Threshold</label>
+                  <input type="number" id="gpRemovalThreshold" value="66.67" step="0.01">
+                  <span class="prefix" style="right: 14px; left: auto;">%</span>
+                  <span class="help-text">LP vote to remove GP for cause</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Default Interest Rate</label>
+                  <input type="number" id="defaultInterestRate" value="15" step="1">
+                  <span class="prefix" style="right: 14px; left: auto;">%</span>
+                  <span class="help-text">On unfunded capital call loans</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Default Buyout Discount</label>
+                  <input type="number" id="defaultBuyoutDiscount" value="25" step="1">
+                  <span class="prefix" style="right: 14px; left: auto;">%</span>
+                  <span class="help-text">Forced sale discount for defaulters</span>
                 </div>
               </div>
             </div>
@@ -1300,6 +1335,12 @@
           s2('gpEquity', d.gpEquity || wd.gpEquity);
           s2('acqFee', d.acqFee || wd.acqFee);
           s2('assetMgmtFee', d.assetMgmtFee || wd.assetMgmtFee);
+          s2('dispFee', d.dispositionFee || wd.dispositionFee);
+          s2('constructionFee', d.constructionFee || wd.constructionFee);
+          s2('refinancingFee', d.refinancingFee || wd.refinancingFee);
+          s2('gpRemovalThreshold', d.gpRemovalThreshold || wd.gpRemovalThreshold);
+          s2('defaultInterestRate', d.defaultInterestRate || wd.defaultInterestRate);
+          s2('defaultBuyoutDiscount', d.defaultBuyoutDiscount || wd.defaultBuyoutDiscount);
           s2('minInvestment', d.minInvestment || wd.minInvestment);
           if (d.waterfallType) { const wt = document.getElementById('waterfallType'); if (wt) wt.value = d.waterfallType; }
           updateLP(); calculateCapital(); updateWaterfallPreview();
@@ -1345,7 +1386,8 @@
     function saveDraftAuto() {
       const fields = ['dealName','propertyAddress','propertyType','companyName','state','propertySize',
         'purchasePrice','closingCosts','capexReserve','loanAmount','interestRate','loanTerm',
-        'gpEquity','lpEquity','prefReturn','gpPromote','waterfallType','acqFee','assetMgmtFee','minInvestment'];
+        'gpEquity','lpEquity','prefReturn','gpPromote','waterfallType','acqFee','assetMgmtFee','minInvestment',
+        'dispFee','constructionFee','refinancingFee','gpRemovalThreshold','defaultInterestRate','defaultBuyoutDiscount'];
       const data = {};
       fields.forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.value; });
       SP.save('wizard_draft', data);
@@ -1634,6 +1676,12 @@
         holdPeriod: parseFloat(document.getElementById('holdPeriod')?.value) || 5,
         acqFee: parseFloat(document.getElementById('acqFee').value) || 3,
         assetMgmtFee: parseFloat(document.getElementById('assetMgmtFee').value) || 2,
+        dispositionFee: parseFloat(document.getElementById('dispFee')?.value) || 1,
+        constructionFee: parseFloat(document.getElementById('constructionFee')?.value) || 5,
+        refinancingFee: parseFloat(document.getElementById('refinancingFee')?.value) || 0.5,
+        gpRemovalThreshold: parseFloat(document.getElementById('gpRemovalThreshold')?.value) || 66.67,
+        defaultInterestRate: parseFloat(document.getElementById('defaultInterestRate')?.value) || 15,
+        defaultBuyoutDiscount: parseFloat(document.getElementById('defaultBuyoutDiscount')?.value) || 25,
         createdAt: new Date().toISOString(),
         status: 'sourcing'
       };

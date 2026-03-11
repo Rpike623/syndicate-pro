@@ -101,6 +101,12 @@ var SPDocs = (function() {
     const tier2GPSplit = wizData.tier2GPSplit || 30;
     const tier3GPSplit = wizData.tier3GPSplit || 40;
     const tier2Catchup = wizData.tier2Catchup || 'yes';
+    const dispositionFee = deal.dispositionFee || 1;
+    const constructionFee = deal.constructionFee || 5;
+    const refinancingFee = deal.refinancingFee || 0.5;
+    const gpRemovalPct = deal.gpRemovalThreshold || 66.67;
+    const defaultInterest = deal.defaultInterestRate || 15;
+    const buyoutDiscount = deal.defaultBuyoutDiscount || 25;
 
     const stateRules = {
       'TX': `<p><strong>Tax Treatment.</strong> The Company intends to be treated as a partnership for federal income tax purposes and under Texas Tax Code § 171.0002. The Managing Member shall make such elections.</p><p><strong>Franchise Tax.</strong> The Company acknowledges its obligations under Texas Tax Code Chapter 171 regarding franchise tax and shall file all necessary reports.</p><p><strong>Community Property.</strong> Each Married Member agrees that their spouse's interest, if any, is subject to the provisions of this Agreement, and each such spouse consents hereto pursuant to Texas Family Code § 3.104.</p>`,
@@ -226,9 +232,9 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
 <ul>
   <li><strong>Acquisition Fee:</strong> A one-time fee equal to <strong>${acqFee}%</strong> of the gross purchase price of the Property, payable at closing from offering proceeds.</li>
   <li><strong>Asset Management Fee:</strong> An ongoing fee equal to <strong>${mgmtFee}%</strong> of the gross monthly revenues collected by the Property, payable monthly in arrears.</li>
-  <li><strong>Disposition Fee:</strong> A one-time fee equal to 1% of the gross sale price of the Property, payable from sale proceeds at closing, subordinated to the return of Limited Member capital contributions and accrued Preferred Returns.</li>
-  <li><strong>Construction/Renovation Management:</strong> If the Managing Member directly oversees material capital improvements, a construction management fee of up to 5% of the hard construction costs may be charged, disclosed to the Limited Members in advance.</li>
-  <li><strong>Refinancing Fee:</strong> A fee of up to 0.5% of the new loan amount upon any refinancing event, payable at closing of the refinancing.</li>
+  <li><strong>Disposition Fee:</strong> A one-time fee equal to <strong>${dispositionFee}%</strong> of the gross sale price of the Property, payable from sale proceeds at closing, subordinated to the return of Limited Member capital contributions and accrued Preferred Returns.</li>
+  <li><strong>Construction/Renovation Management:</strong> If the Managing Member directly oversees material capital improvements, a construction management fee of up to <strong>${constructionFee}%</strong> of the hard construction costs may be charged, disclosed to the Limited Members in advance.</li>
+  <li><strong>Refinancing Fee:</strong> A fee of up to <strong>${refinancingFee}%</strong> of the new loan amount upon any refinancing event, payable at closing of the refinancing.</li>
 </ul>
 <p><strong>6.3 Limitation on Authority (Major Decisions).</strong> Notwithstanding the foregoing, the Managing Member shall not take any of the following "Major Decisions" without the prior affirmative vote or written consent of a Majority-in-Interest (over 50%) of the Limited Members:</p>
 <ol type="i" style="margin-left: 20px;">
@@ -243,7 +249,7 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
   <li>Performing any act in contravention of this Agreement.</li>
 </ol>
 <p><strong>6.4 No Participation by Limited Members.</strong> The Limited Members shall not participate in the management or control of the Company. No Limited Member shall have any authority to bind the Company or transact any business on its behalf.</p>
-<p><strong>6.5 GP Removal for Cause.</strong> The Managing Member may be removed for "Cause" by the affirmative vote of Limited Members holding at least sixty-six and two-thirds percent (66⅔%) in interest. "Cause" means: (a) fraud, gross negligence, or willful misconduct in the management of the Company; (b) a material breach of this Agreement that remains uncured for thirty (30) days following written notice; (c) conviction of a felony; or (d) bankruptcy or insolvency of the Managing Member. Upon removal, the Limited Members by majority vote shall appoint a successor Managing Member or vote to dissolve the Company.</p>
+<p><strong>6.5 GP Removal for Cause.</strong> The Managing Member may be removed for "Cause" by the affirmative vote of Limited Members holding at least <strong>${gpRemovalPct >= 66.6 && gpRemovalPct <= 66.7 ? 'sixty-six and two-thirds percent (66⅔%)' : gpRemovalPct + '%'}</strong> in interest. "Cause" means: (a) fraud, gross negligence, or willful misconduct in the management of the Company; (b) a material breach of this Agreement that remains uncured for thirty (30) days following written notice; (c) conviction of a felony; or (d) bankruptcy or insolvency of the Managing Member. Upon removal, the Limited Members by majority vote shall appoint a successor Managing Member or vote to dissolve the Company.</p>
 <p><strong>6.6 Insurance.</strong> The Managing Member shall procure and maintain, at the Company's expense, comprehensive general liability insurance, property insurance, and such other insurance as is customary for properties of the type and in the location of the Property, in amounts deemed adequate by the Managing Member. The Managing Member shall also maintain errors and omissions or directors and officers insurance covering actions taken on behalf of the Company.</p>
 
 <p style="${hdr}">ARTICLE VII<br>EXCULPATION AND INDEMNIFICATION</p>
@@ -285,7 +291,7 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
 <p style="${hdr}">ARTICLE X<br>ADDITIONAL CAPITAL AND DEFAULT</p>
 <p><strong>10.1 No Obligation for Additional Capital.</strong> Except as provided in Section 10.2, no Member shall be required to make any additional capital contribution beyond such Member's initial Capital Contribution as set forth on Schedule A.</p>
 <p><strong>10.2 Capital Calls.</strong> If the Managing Member determines in good faith that additional capital is necessary for the Company to meet its obligations or to preserve the value of the Property, the Managing Member may issue a capital call notice to all Members, specifying the amount requested and the purpose. Capital calls shall be pro-rata in accordance with each Member's Percentage Interest. Each Member shall have fifteen (15) business days from receipt of such notice to fund their pro-rata share.</p>
-<p><strong>10.3 Failure to Fund (Default).</strong> If a Member fails to fund a capital call within the specified period (a "Defaulting Member"), the non-defaulting Members may, but are not required to, fund the Defaulting Member's shortfall. In such event, at the election of the Managing Member: (a) the Defaulting Member's Percentage Interest may be diluted proportionally to reflect the unfunded amount; (b) the funding provided by non-defaulting Members may be treated as a loan to the Defaulting Member at an annual interest rate of 15%, secured by the Defaulting Member's Interest; or (c) the Defaulting Member may be required to sell their Interest to the non-defaulting Members at a discount of 25% from its fair market value.</p>
+<p><strong>10.3 Failure to Fund (Default).</strong> If a Member fails to fund a capital call within the specified period (a "Defaulting Member"), the non-defaulting Members may, but are not required to, fund the Defaulting Member's shortfall. In such event, at the election of the Managing Member: (a) the Defaulting Member's Percentage Interest may be diluted proportionally to reflect the unfunded amount; (b) the funding provided by non-defaulting Members may be treated as a loan to the Defaulting Member at an annual interest rate of <strong>${defaultInterest}%</strong>, secured by the Defaulting Member's Interest; or (c) the Defaulting Member may be required to sell their Interest to the non-defaulting Members at a discount of <strong>${buyoutDiscount}%</strong> from its fair market value.</p>
 
 <p style="${hdr}">ARTICLE XI<br>DISSOLUTION AND WINDING UP</p>
 <p><strong>11.1 Events of Dissolution.</strong> The Company shall be dissolved upon the earliest to occur of the following: (a) the sale, exchange, or other disposition of all or substantially all of the Company's assets; (b) the unanimous written consent of the Members; (c) the entry of a decree of judicial dissolution; (d) the occurrence of any other event that makes it unlawful for the business of the Company to be continued; or (e) the bankruptcy, dissolution, or removal of the Managing Member, unless within ninety (90) days after such event a Majority-in-Interest of the remaining Members elect to continue the Company and appoint a successor Managing Member.</p>
@@ -630,6 +636,9 @@ ${stateSection}
     const lpResidual = 100 - promote;
     const acqFee   = deal.acqFee     || 3;
     const mgmtFee  = deal.assetMgmtFee || 2;
+    const dispositionFee = deal.dispositionFee || 1;
+    const constructionFee = deal.constructionFee || 5;
+    const refinancingFee = deal.refinancingFee || 0.5;
     const dealName = safe(deal.name, '[PROPERTY NAME]');
     const loc      = safe(deal.location, '[PROPERTY LOCATION]');
     const company  = safe(deal.companyName || gpName, '[COMPANY NAME]');
@@ -774,9 +783,9 @@ ${(function() {
     <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Acquisition Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">${acqFee}% of gross purchase price${deal.purchasePrice ? ' (' + fmtMoney(Math.round(deal.purchasePrice * acqFee / 100)) + ')' : ''}</td><td style="border:1px solid #ddd; padding:8px;">One-time, paid at closing from offering proceeds</td></tr>
     <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Asset Management Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">${mgmtFee}% of gross revenues</td><td style="border:1px solid #ddd; padding:8px;">Ongoing, paid monthly in arrears</td></tr>
     <tr><td style="border:1px solid #ddd; padding:8px;"><strong>GP Promote (Carried Interest)</strong></td><td style="border:1px solid #ddd; padding:8px;">${promote}% of profits above Preferred Return</td><td style="border:1px solid #ddd; padding:8px;">Per distribution event, per the waterfall</td></tr>
-    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Disposition Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">1% of gross sale price</td><td style="border:1px solid #ddd; padding:8px;">One-time, at sale — subordinated to LP return of capital and accrued pref</td></tr>
-    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Construction Management Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">Up to 5% of hard construction costs</td><td style="border:1px solid #ddd; padding:8px;">If GP directly oversees material capex; disclosed in advance</td></tr>
-    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Refinancing Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">Up to 0.5% of new loan amount</td><td style="border:1px solid #ddd; padding:8px;">One-time per refinancing event, at closing</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Disposition Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">${dispositionFee}% of gross sale price</td><td style="border:1px solid #ddd; padding:8px;">One-time, at sale — subordinated to LP return of capital and accrued pref</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Construction Management Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">Up to ${constructionFee}% of hard construction costs</td><td style="border:1px solid #ddd; padding:8px;">If GP directly oversees material capex; disclosed in advance</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Refinancing Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">Up to ${refinancingFee}% of new loan amount</td><td style="border:1px solid #ddd; padding:8px;">One-time per refinancing event, at closing</td></tr>
   </tbody>
 </table>
 <p style="font-size:9.5pt; color:#444;">The foregoing fees are in addition to the Managing Member's right to receive distributions as a Member (including the GP promote). The Managing Member believes these fees are consistent with industry standards for comparable real estate syndications, but investors should be aware that these fees reduce the net return on their investment. See "Conflicts of Interest" for additional discussion.</p>

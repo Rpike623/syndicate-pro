@@ -596,6 +596,54 @@
                       </div>
                     </div>
                   </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Disposition Fee</label>
+                      <div class="input-group">
+                        <input type="number" id="dispositionFee" placeholder="1" step="0.5">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Construction Mgmt Fee</label>
+                      <div class="input-group">
+                        <input type="number" id="constructionFee" placeholder="5" step="0.5">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Refinancing Fee</label>
+                      <div class="input-group">
+                        <input type="number" id="refinancingFee" placeholder="0.5" step="0.1">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>GP Removal Threshold</label>
+                      <div class="input-group">
+                        <input type="number" id="gpRemovalThreshold" placeholder="66.67" step="0.01">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Default Interest Rate</label>
+                      <div class="input-group">
+                        <input type="number" id="defaultInterestRate" placeholder="15" step="1">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label>Default Buyout Discount</label>
+                      <div class="input-group">
+                        <input type="number" id="defaultBuyoutDiscount" placeholder="25" step="1">
+                        <span style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">%</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 
                 <div class="tab-content" id="tab-parties">
@@ -835,6 +883,12 @@
         lpEquity: document.getElementById('lpEquity').value,
         acqFee: document.getElementById('acqFee').value,
         assetMgmtFee: document.getElementById('assetMgmtFee').value,
+        dispositionFee: document.getElementById('dispositionFee').value,
+        constructionFee: document.getElementById('constructionFee').value,
+        refinancingFee: document.getElementById('refinancingFee').value,
+        gpRemovalThreshold: document.getElementById('gpRemovalThreshold').value,
+        defaultInterestRate: document.getElementById('defaultInterestRate').value,
+        defaultBuyoutDiscount: document.getElementById('defaultBuyoutDiscount').value,
         gpName: document.getElementById('gpName').value,
         gpRep: document.getElementById('gpRep').value,
         members: members
@@ -1099,6 +1153,12 @@
         companyName: data.companyName || _gpN,
         state: _st,
         minInvestment: parseFloat(_min),
+        dispositionFee: parseFloat(data.dispositionFee) || 1,
+        constructionFee: parseFloat(data.constructionFee) || 5,
+        refinancingFee: parseFloat(data.refinancingFee) || 0.5,
+        gpRemovalThreshold: parseFloat(data.gpRemovalThreshold) || 66.67,
+        defaultInterestRate: parseFloat(data.defaultInterestRate) || 15,
+        defaultBuyoutDiscount: parseFloat(data.defaultBuyoutDiscount) || 25,
       };
 
       switch(currentDocType) {
