@@ -325,8 +325,10 @@ Target stabilized occupancy (96%) — Q3 2026</textarea>
         const sess = SP.getSession();
         if (!sess?.loggedIn) { window.location.href = 'login.html'; return; }
         const initials = (sess.name || sess.email || 'G').charAt(0).toUpperCase();
-        document.getElementById('userAvatar').textContent = initials;
-        document.getElementById('userName').textContent = sess.name || sess.email || 'GP';
+        const avatarEl = document.getElementById('userAvatar');
+        const nameEl = document.getElementById('userName');
+        if (avatarEl) avatarEl.textContent = initials;
+        if (nameEl) nameEl.textContent = sess.name || sess.email || 'GP';
       }
       loadUpdate();
       render();

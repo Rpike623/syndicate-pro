@@ -405,8 +405,8 @@ This investment is suitable only for accredited investors under Reg D 506(b)</te
         const sess = SP.getSession();
         if (!sess?.loggedIn) { window.location.href = 'login.html'; return; }
         const initials = (sess.name || sess.email || 'G').charAt(0).toUpperCase();
-        document.getElementById('userAvatar').textContent = initials;
-        document.getElementById('userName').textContent = sess.name || sess.email || 'GP';
+        const avatarEl = document.getElementById('userAvatar'); if (avatarEl) avatarEl.textContent = initials;
+        const nameEl = document.getElementById('userName'); if (nameEl) nameEl.textContent = sess.name || sess.email || 'GP';
       }
       loadOM();
       updatePreview();
