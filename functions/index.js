@@ -1136,3 +1136,4 @@ exports.firmaWebhook = onRequest(async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+// Auto-deployed via GitHub Actions
