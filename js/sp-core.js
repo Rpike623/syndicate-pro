@@ -1442,6 +1442,7 @@ window.SP = (function () {
           { href:'settings.html', icon:'fa-cog', label:'Settings' },
           { href:'integrations.html', icon:'fa-plug', label:'Integrations' },
           { href:'security.html', icon:'fa-shield-alt', label:'Security' },
+          { href:'help-center.html', icon:'fa-question-circle', label:'Help Center' },
         ]},
       ];
 
@@ -1570,6 +1571,20 @@ window.SP = (function () {
       logoutBtn.onmouseleave = () => { logoutBtn.style.background = 'rgba(239,68,68,0.12)'; };
       logoutBtn.onclick = () => SP.logout();
       footer.appendChild(logoutBtn);
+    }
+
+    // Floating help button (bottom-right) — shown on all GP pages except help-center itself
+    const pg = (window.location.pathname.split('/').pop() || '').toLowerCase();
+    const isLP = ['portal.html','investor-portal.html','login.html','index.html',''].some(p => pg === p || pg.endsWith(p));
+    if (pg !== 'help-center.html' && !isLP) {
+      const helpBtn = document.createElement('a');
+      helpBtn.href = 'help-center.html';
+      helpBtn.title = 'Help Center';
+      helpBtn.innerHTML = '<i class="fas fa-question"></i>';
+      helpBtn.style.cssText = 'position:fixed;bottom:24px;right:24px;width:44px;height:44px;border-radius:50%;background:#F37925;color:white;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 12px rgba(243,121,37,0.35);z-index:999;text-decoration:none;transition:all 0.2s;';
+      helpBtn.onmouseenter = () => { helpBtn.style.transform = 'scale(1.1)'; helpBtn.style.boxShadow = '0 6px 20px rgba(243,121,37,0.45)'; };
+      helpBtn.onmouseleave = () => { helpBtn.style.transform = ''; helpBtn.style.boxShadow = '0 4px 12px rgba(243,121,37,0.35)'; };
+      document.body.appendChild(helpBtn);
     }
   });
 })();
