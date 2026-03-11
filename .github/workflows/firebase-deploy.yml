@@ -56,3 +56,39 @@ jobs:
           args: deploy --only functions --project deeltrack
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Set allUsers invoker on callable/HTTP functions
+        if: steps.check.outputs.changed == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Grant invoker permissions
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          # All onCall + onRequest functions need allUsers invoker for browser/webhook access.
+          # Trigger-based functions (onDocument*, onSchedule) do NOT need this.
+          CALLABLE_FUNCTIONS=(
+            sendEmail
+            createCheckoutSession
+            getSubscriptionStatus
+            createSigningRequest
+            getOrgKey
+            encryptData
+            decryptData
+            rotateKey
+            getKeyStatus
+            healUserRole
+            inviteTeamMember
+            acceptTeamInvite
+            removeTeamMember
+            listTeamMembers
+            stripeWebhook
+            firmaWebhook
+          )
+          for fn in "${CALLABLE_FUNCTIONS[@]}"; do
+            echo "Setting allUsers invoker on $fn..."
+            gcloud functions add-invoker-policy-binding "$fn" \
+              --region=us-central1 \
+              --member="allUsers" \
+              --project=deeltrack \
+              --quiet 2>/dev/null || echo "  ⚠ $fn: skipped (may not exist yet)"
+          done
