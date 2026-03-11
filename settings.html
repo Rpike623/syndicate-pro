@@ -405,15 +405,45 @@
         </div>
       </div>
 
+      <!-- Data Export -->
+      <div class="settings-section">
+        <div class="section-header">
+          <div class="section-title"><i class="fas fa-download" style="color:var(--accent);"></i> Data Export</div>
+        </div>
+        <div class="section-body">
+          <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:16px;">Download all your organization's data as a JSON file. Includes deals, investors, distributions, capital calls, and settings.</p>
+          <button class="btn" onclick="exportAllData()" id="exportBtn" style="font-size:.85rem;"><i class="fas fa-file-export"></i> Export All Data (JSON)</button>
+          <button class="btn" onclick="exportCSV()" style="font-size:.85rem;margin-left:8px;"><i class="fas fa-file-csv"></i> Export Investors (CSV)</button>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
       <div class="settings-section">
         <div class="section-header">
           <div class="section-title"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> Danger Zone</div>
         </div>
         <div class="section-body">
-          <div class="danger-zone">
-            <h3>Sign Out Everywhere</h3>
-            <p>This will sign you out of deeltrack on all devices and clear your local session.</p>
-            <button class="btn btn-danger" onclick="SP.logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+          <div class="danger-zone" style="display:flex;flex-direction:column;gap:20px;">
+            <div>
+              <h3 style="font-size:.9rem;font-weight:700;">Change Password</h3>
+              <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:8px;">Enter your new password below. Requires Firebase authentication.</p>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <input type="password" id="newPassword" placeholder="New password (min 8 chars)" minlength="8" style="max-width:260px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.85rem;">
+                <input type="password" id="confirmPassword" placeholder="Confirm password" style="max-width:200px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.85rem;">
+                <button class="btn" onclick="changePassword()" style="font-size:.82rem;"><i class="fas fa-key"></i> Update</button>
+              </div>
+              <div id="pwMsg" style="font-size:.78rem;margin-top:6px;"></div>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:16px;">
+              <h3 style="font-size:.9rem;font-weight:700;">Sign Out Everywhere</h3>
+              <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:8px;">This will sign you out of deeltrack on all devices and clear your local session.</p>
+              <button class="btn btn-danger" onclick="SP.logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+            </div>
+            <div style="border-top:1px solid var(--border);padding-top:16px;">
+              <h3 style="font-size:.9rem;font-weight:700;color:var(--danger);">Delete Account</h3>
+              <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:8px;">Permanently delete your account and all associated data. This cannot be undone.</p>
+              <button class="btn btn-danger" onclick="deleteAccount()" style="font-size:.82rem;"><i class="fas fa-trash-alt"></i> Delete My Account</button>
+            </div>
           </div>
         </div>
       </div>
@@ -563,6 +593,116 @@ function v(id) {
 }
 
 SP.onDataReady(loadSettings);
+
+// ── Data Export ─────────────────────────────────────────────────────────────
+async function exportAllData() {
+  const btn = document.getElementById('exportBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting…';
+  try {
+    const data = {
+      exportDate: new Date().toISOString(),
+      platform: 'deeltrack',
+      orgId: SP.getOrgId(),
+      settings: SP.load('settings', {}),
+      deals: SP.getDeals(),
+      investors: SP.getInvestors(),
+      distributions: SP.getDistributions ? SP.getDistributions() : [],
+      capitalCalls: SP.getCapitalCalls ? SP.getCapitalCalls() : [],
+      activity: SP.getActivity ? SP.getActivity() : [],
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `deeltrack-export-${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast('Data exported!');
+  } catch (e) { showToast('Export failed: ' + e.message, 'error'); }
+  btn.disabled = false; btn.innerHTML = '<i class="fas fa-file-export"></i> Export All Data (JSON)';
+}
+
+function exportCSV() {
+  const investors = SP.getInvestors();
+  if (!investors.length) { showToast('No investors to export', 'error'); return; }
+  const headers = ['firstName','lastName','email','phone','address','entityType','entityName','commitmentAmount','accredStatus'];
+  const rows = investors.map(inv => headers.map(h => {
+    let val = inv[h] || '';
+    if (typeof val === 'string' && (val.includes(',') || val.includes('"'))) val = '"' + val.replace(/"/g, '""') + '"';
+    return val;
+  }).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `investors-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Investors exported!');
+}
+
+// ── Change Password ─────────────────────────────────────────────────────────
+async function changePassword() {
+  const pw = document.getElementById('newPassword').value;
+  const confirm = document.getElementById('confirmPassword').value;
+  const msg = document.getElementById('pwMsg');
+  if (!pw || pw.length < 8) { msg.textContent = '⚠ Password must be at least 8 characters'; msg.style.color = 'var(--danger)'; return; }
+  if (pw !== confirm) { msg.textContent = '⚠ Passwords do not match'; msg.style.color = 'var(--danger)'; return; }
+  try {
+    if (typeof SPFB !== 'undefined' && SPFB.updatePassword) {
+      await SPFB.updatePassword(pw);
+    } else if (typeof firebase !== 'undefined' && firebase.auth().currentUser) {
+      await firebase.auth().currentUser.updatePassword(pw);
+    } else {
+      throw new Error('Firebase not available');
+    }
+    msg.textContent = '✓ Password updated!'; msg.style.color = 'var(--success)';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+  } catch (e) {
+    if (e.code === 'auth/requires-recent-login') {
+      msg.innerHTML = '⚠ Session expired. <a href="login.html">Sign in again</a>, then change your password.';
+    } else { msg.textContent = '⚠ ' + e.message; }
+    msg.style.color = 'var(--danger)';
+  }
+}
+
+// ── Delete Account ──────────────────────────────────────────────────────────
+async function deleteAccount() {
+  const session = SP.getSession();
+  if (!confirm('⚠ PERMANENT: Delete your account and ALL data for ' + (session?.email || 'this account') + '?\n\nThis includes all deals, investors, distributions, and documents.\n\nThis CANNOT be undone.')) return;
+  if (!confirm('Are you ABSOLUTELY sure? Type "delete" in the next prompt to confirm.')) return;
+  const typed = prompt('Type "delete" to confirm account deletion:');
+  if (typed !== 'delete') { showToast('Deletion cancelled', 'error'); return; }
+
+  try {
+    // Delete org data from Firestore
+    const orgId = SP.getOrgId();
+    if (typeof firebase !== 'undefined' && orgId) {
+      const db = firebase.firestore();
+      // Delete subcollections
+      const subs = ['deals','investors','distributions','capitalCalls','documents','activity','settings','custom_data','errors','esign_log','commitments'];
+      for (const sub of subs) {
+        const snap = await db.collection('orgs').doc(orgId).collection(sub).get();
+        const batch = db.batch();
+        snap.docs.forEach(doc => batch.delete(doc.ref));
+        if (snap.docs.length) await batch.commit();
+      }
+      // Delete org doc
+      await db.collection('orgs').doc(orgId).delete();
+      // Delete user doc
+      const user = firebase.auth().currentUser;
+      if (user) {
+        await db.collection('users').doc(user.uid).delete();
+        await user.delete(); // Delete Firebase Auth account
+      }
+    }
+    // Clear local data
+    localStorage.clear();
+    showToast('Account deleted.');
+    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+  } catch (e) {
+    if (e.code === 'auth/requires-recent-login') {
+      showToast('Session expired. Sign in again to delete your account.', 'error');
+    } else { showToast('Deletion failed: ' + e.message, 'error'); }
+  }
+}
 </script>
 </body>
 </html>
