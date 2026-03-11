@@ -255,11 +255,11 @@
       if (inviteToken) {
         // Investor signing up via invite — decode orgId from token
         const decoded = SP.decodeInviteToken(inviteToken);
-        orgId = decoded ? decoded.orgId : SP.simpleHash(email);
+        orgId = decoded ? decoded.orgId : SP.generateOrgId();
         role = 'Investor';
       } else {
         // GP signing up fresh — orgId is hash of their own email
-        orgId = SP.simpleHash(email.toLowerCase());
+        orgId = SP.generateOrgId();
         role = 'General Partner';
       }
 
@@ -315,10 +315,10 @@
         let orgId, role;
         if (inviteToken) {
           const decoded = SP.decodeInviteToken(inviteToken);
-          orgId = decoded ? decoded.orgId : SP.simpleHash(fbUser.email);
+          orgId = decoded ? decoded.orgId : SP.generateOrgId();
           role = 'Investor';
         } else {
-          orgId = SP.simpleHash(fbUser.email.toLowerCase());
+          orgId = SP.generateOrgId();
           role = 'General Partner';
         }
 

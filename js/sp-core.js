@@ -118,12 +118,25 @@ window.SP = (function () {
     });
   }
 
+  // DEPRECATED: simpleHash is collision-prone (32-bit). Kept only for legacy orgId lookups.
+  // New orgs MUST use generateOrgId() instead.
   function simpleHash(str) {
     let h = 0;
     for (let i = 0; i < str.length; i++) {
       h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
     }
     return Math.abs(h).toString(36);
+  }
+
+  // Generate a collision-safe orgId for new signups
+  function generateOrgId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return 'org_' + crypto.randomUUID().replace(/-/g, '').slice(0, 20);
+    }
+    // Fallback for older browsers
+    const arr = new Uint8Array(12);
+    (typeof crypto !== 'undefined' ? crypto : window.crypto).getRandomValues(arr);
+    return 'org_' + Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
   }
 
   // All demo accounts share one org so data flows freely between GP and LP views
@@ -902,7 +915,7 @@ window.SP = (function () {
   return {
     // Session
     getSession, setSession, clearSession, isLoggedIn, isGP, isInvestor,
-    getOrgId, makeOrgKey, simpleHash,
+    getOrgId, makeOrgKey, simpleHash, generateOrgId,
     // Data ready gate
     onDataReady,
     // Guards

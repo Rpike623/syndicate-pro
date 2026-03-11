@@ -264,12 +264,12 @@
           SP.setSession({ ...spUser, loggedIn: true, loginTime: Date.now() });
         } else {
           // New Google user — create GP record
-          const orgId = SP.simpleHash(fbUser.email.toLowerCase());
+          const orgId = SP.generateOrgId();
           await SPFB.ensureUserRecord(fbUser.uid, fbUser.email, fbUser.displayName || fbUser.email, 'General Partner', orgId);
           SP.setSession({ email: fbUser.email, name: fbUser.displayName || fbUser.email, role: 'General Partner', orgId, loggedIn: true, loginTime: Date.now() });
         }
       } else {
-        SP.setSession({ email: fbUser.email, name: fbUser.displayName || fbUser.email, role: 'General Partner', orgId: SP.simpleHash(fbUser.email.toLowerCase()), loggedIn: true, loginTime: Date.now() });
+        SP.setSession({ email: fbUser.email, name: fbUser.displayName || fbUser.email, role: 'General Partner', orgId: SP.generateOrgId(), loggedIn: true, loginTime: Date.now() });
       }
 
       document.getElementById('successAlert').classList.add('show');

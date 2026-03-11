@@ -153,14 +153,25 @@ const SPFB = (function () {
     // No manual re-auth needed — and we never store passwords in session.
   }
 
-  // Simple hash for non-demo org IDs
+  // DEPRECATED: collision-prone hash. Used ONLY as fallback for existing users.
+  // New signups must use _generateOrgId() below.
   function _hashEmail(email) {
     let h = 0;
     for (let i = 0; i < email.length; i++) {
       h = (h << 5) - h + email.charCodeAt(i);
-      h = h & h; // Convert to 32bit
+      h = h & h;
     }
     return 'org_' + Math.abs(h).toString(36);
+  }
+
+  // Collision-safe org ID for new signups
+  function _generateOrgId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return 'org_' + crypto.randomUUID().replace(/-/g, '').slice(0, 20);
+    }
+    const arr = new Uint8Array(12);
+    (typeof crypto !== 'undefined' ? crypto : window.crypto).getRandomValues(arr);
+    return 'org_' + Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
   }
 
   // ── Ready callback system ───────────────────────────────────────────────────
@@ -516,7 +527,7 @@ const SPFB = (function () {
 
     const profile = {
       uid: cred.user.uid, email, name, role,
-      orgId: orgId || _hashEmail(email),
+      orgId: orgId || _generateOrgId(),
       emailVerified: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
@@ -585,7 +596,7 @@ const SPFB = (function () {
     } else {
       const profile = {
         uid, email, name, role,
-        orgId: orgId || _hashEmail(email),
+        orgId: orgId || _generateOrgId(),
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       };
       const orgRef = _db.collection('orgs').doc(profile.orgId);
