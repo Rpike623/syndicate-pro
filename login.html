@@ -305,7 +305,7 @@
       // Try Firebase Auth first
       if (typeof SPFB !== 'undefined' && !SPFB.isOffline()) {
         try {
-          const fbUser = await SPFB.signIn(email, password);
+          const fbUser = await SPFB.logIn(email, password);
           if (fbUser && fbUser.email) {
             // Firebase sign-in succeeded — wait for SPFB to be ready
             await new Promise((resolve, reject) => {

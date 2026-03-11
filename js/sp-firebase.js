@@ -92,6 +92,15 @@ const SPFB = (function () {
     const isDemo = DEMO_ORG_EMAILS.includes(emailLower);
     const derivedOrgId = isMarcus ? 'marcus_rivera_org' : isDemo ? 'deeltrack_demo' : (localEmail ? _hashEmail(localEmail) : fbUser.uid);
 
+    // ── Role integrity: canonical roles for known demo accounts ──────────────
+    const ROLE_CANON = {
+      'gp@deeltrack.com': 'General Partner',
+      'demo@deeltrack.com': 'General Partner',
+      'demo-gp2@deeltrack.com': 'General Partner',
+      'philip@jchapmancpa.com': 'Investor',
+      'investor@deeltrack.com': 'Investor',
+    };
+
     _db.collection('users').doc(fbUser.uid).get().then(doc => {
       if (doc.exists) {
         _spUser = doc.data();
@@ -101,15 +110,23 @@ const SPFB = (function () {
           _db.collection('users').doc(fbUser.uid).update(update);
           _spUser = { ..._spUser, ...update };
         }
+        // ── Role integrity check: auto-heal corrupted roles ──────────────
+        const canonRole = ROLE_CANON[emailLower];
+        if (canonRole && _spUser.role !== canonRole) {
+          console.warn(`SPFB: Role mismatch for ${emailLower} — Firestore has "${_spUser.role}", expected "${canonRole}". Auto-fixing.`);
+          _db.collection('users').doc(fbUser.uid).update({ role: canonRole }).catch(() => {});
+          _spUser.role = canonRole;
+        }
         _orgId = _spUser.orgId;
       } else {
         // New user (anonymous or first real signup) — create profile
         // Use derivedOrgId which handles Marcus's unique orgId
+        const safeRole = ROLE_CANON[emailLower] || localRole;
         _spUser = {
           uid:         fbUser.uid,
           email:       localEmail,
           name:        localName,
-          role:        localRole,
+          role:        safeRole,
           orgId:       derivedOrgId,
           isAnonymous: fbUser.isAnonymous,
           createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
@@ -121,7 +138,8 @@ const SPFB = (function () {
     }).catch(err => {
       // Firestore read failed (rules not deployed yet?) — still go ready with local data
       console.warn('SPFB: could not read user profile, using local session:', err.message);
-      _spUser = { uid: fbUser.uid, email: localEmail, name: localName, role: localRole, orgId: derivedOrgId };
+      const safeRole2 = ROLE_CANON[emailLower] || localRole;
+      _spUser = { uid: fbUser.uid, email: localEmail, name: localName, role: safeRole2, orgId: derivedOrgId };
       _orgId  = derivedOrgId;
       _markReady();
     });
@@ -483,6 +501,10 @@ const SPFB = (function () {
 
   // ── Auth helpers ────────────────────────────────────────────────────────────
   async function signUp(email, password, name, role, orgId) {
+    // Enforce canonical role for known accounts
+    const signupLc = (email || '').toLowerCase();
+    if (ROLE_LOCK[signupLc]) role = ROLE_LOCK[signupLc];
+
     const cred = await _auth.createUserWithEmailAndPassword(email, password);
     const profile = {
       uid: cred.user.uid, email, name, role,
@@ -493,7 +515,20 @@ const SPFB = (function () {
     return cred;
   }
 
+  // Canonical roles for known accounts — prevents role corruption
+  const ROLE_LOCK = {
+    'gp@deeltrack.com': 'General Partner',
+    'demo@deeltrack.com': 'General Partner',
+    'demo-gp2@deeltrack.com': 'General Partner',
+    'philip@jchapmancpa.com': 'Investor',
+    'investor@deeltrack.com': 'Investor',
+  };
+
   async function ensureUserRecord(uid, email, name, role, orgId) {
+    // Enforce canonical role for known accounts
+    const emailLc = (email || '').toLowerCase();
+    if (ROLE_LOCK[emailLc]) role = ROLE_LOCK[emailLc];
+
     const ref = _db.collection('users').doc(uid);
     const doc = await ref.get();
     if (doc.exists) {
@@ -504,8 +539,13 @@ const SPFB = (function () {
       if (!data.name && name) updates.name = name;
       if (!data.role && role) updates.role = role;
       if (!data.orgId && orgId) updates.orgId = orgId;
+      // Auto-heal corrupted roles for known accounts
+      if (ROLE_LOCK[emailLc] && data.role !== ROLE_LOCK[emailLc]) {
+        updates.role = ROLE_LOCK[emailLc];
+        console.warn(`SPFB: Auto-healing role for ${emailLc}: "${data.role}" → "${ROLE_LOCK[emailLc]}"`);
+      }
       if (Object.keys(updates).length) await ref.update(updates);
-      return data;
+      return { ...data, ...updates };
     } else {
       const profile = {
         uid, email, name, role,
