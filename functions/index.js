@@ -1105,11 +1105,7 @@ exports.firmaWebhook = onRequest(async (req, res) => {
           if (dealDoc.exists) {
             const deal = dealDoc.data();
             const investors = deal.investors || [];
-            const invIdx = investors.findIndex(i => {
-              const inv = await db.collection('orgs').doc(orgId).collection('investors').doc(i.investorId).get();
-              return inv.exists && inv.data().email === logData.investorEmail;
-            });
-            // Can't await in findIndex — use a loop
+            // Find investor by email — can't use findIndex with await, use loop
             for (let idx = 0; idx < investors.length; idx++) {
               const invDoc = await db.collection('orgs').doc(orgId).collection('investors').doc(investors[idx].investorId).get();
               if (invDoc.exists && invDoc.data().email === logData.investorEmail) {
