@@ -11,12 +11,21 @@ on:
 
 jobs:
   deploy-rules:
-    # The paths filter above ensures this workflow only runs when rules/indexes/storage change.
-    # No additional 'if' needed — that was causing jobs to skip.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check for rule changes
+        id: check
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -qE '^(firestore\.rules|firestore\.indexes\.json|storage\.rules)$'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
       - name: Deploy Firestore & Storage Rules
+        if: steps.check.outputs.changed == 'true'
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only firestore:rules,firestore:indexes,storage --project deeltrack
@@ -27,9 +36,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check for function changes
+        id: check
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -q '^functions/'; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
       - name: Install function dependencies
+        if: steps.check.outputs.changed == 'true'
         run: cd functions && npm ci
       - name: Deploy Cloud Functions
+        if: steps.check.outputs.changed == 'true'
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only functions --project deeltrack
