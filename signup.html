@@ -290,8 +290,8 @@
         SP.authenticate(email, password);
         window.location.href = role === 'Investor' ? 'investor-portal.html' : 'onboarding.html';
       }
-      // Redirect based on role
-      window.location.href = role === 'Investor' ? 'investor-portal.html' : 'onboarding.html';
+      // NOTE: redirect happens inside each branch above (Firebase success/fail/offline)
+      // Do NOT add another redirect here — it causes a race condition
     }
 
     async function googleAuth() {
