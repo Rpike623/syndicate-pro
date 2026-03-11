@@ -18,6 +18,7 @@
   <script src="js/sp-firebase.js?v9"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-documents.js"></script>
+  <script src="js/sp-esign.js?v10"></script>
   <style>
     :root {
       --primary: #1B1A19;
@@ -695,6 +696,9 @@
                       <button class="btn btn-ghost" onclick="exportHTML()">
                         <i class="fas fa-code"></i> HTML
                       </button>
+                      <button class="btn btn-ghost" onclick="sendDocForSignature()" id="sendForSigBtn" style="display:none;">
+                        <i class="fas fa-pen-nib"></i> Send for Signature
+                      </button>
                       <label style="display: flex; align-items: center; gap: 6px; margin-left: auto; cursor: pointer; font-size: 13px; color: var(--text-secondary);">
                         <input type="checkbox" id="cleanExport" onchange="handleCleanExportToggle(this)" style="cursor: pointer;">
                         <span>Remove branding &amp; draft notices</span>
@@ -841,6 +845,7 @@
         document.querySelectorAll('.doc-type').forEach(t => t.classList.remove('selected'));
         type.classList.add('selected');
         currentDocType = type.dataset.type;
+        if (typeof updateSendForSigVisibility === 'function') updateSendForSigVisibility();
       });
     });
     
@@ -1197,6 +1202,7 @@
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelector('[data-tab="preview"]').classList.add('active');
       document.getElementById('tab-preview').classList.add('active');
+      if (typeof updateSendForSigVisibility === 'function') updateSendForSigVisibility();
     }
     
     function exportPDF() {
@@ -1350,6 +1356,111 @@
       setTimeout(() => btn.innerHTML = originalText, 1500);
     }
     
+    // ─── Show "Send for Signature" when viewing a subscription doc ──────
+    function updateSendForSigVisibility() {
+      const btn = document.getElementById('sendForSigBtn');
+      if (btn) btn.style.display = (currentDocType === 'subscription') ? '' : 'none';
+    }
+
+    // ─── Send Document for Signature ─────────────────────────────────────
+    async function sendDocForSignature() {
+      if (typeof SPEsign === 'undefined') {
+        alert('E-signature module not loaded. Ensure sp-esign.js is included on this page.');
+        return;
+      }
+
+      // Prompt for investor details
+      const email = prompt('Enter the investor\'s email address:');
+      if (!email) return;
+
+      const data = getFormData();
+      const settings = SP.load('settings', {});
+
+      // Try to find the investor in our system
+      let investor = SP.getInvestorByEmail ? SP.getInvestorByEmail(email) : null;
+      if (!investor) {
+        const firstName = prompt('Investor first name:');
+        if (!firstName) return;
+        const lastName = prompt('Investor last name:') || '';
+        const amount = prompt('Subscription amount ($):');
+        if (!amount) return;
+        investor = { firstName, lastName, email, committed: parseFloat(amount) || 50000 };
+      }
+
+      const _dealObj = {
+        id: data.dealId || 'doc-gen',
+        name: data.propertyAddress || data.companyName || '[DEAL]',
+        location: data.propertyAddress || '',
+        raise: parseFloat(data.totalEquity) || 0,
+        totalEquity: parseFloat(data.totalEquity) || 0,
+        gpEquity: parseFloat(data.gpEquity) || 10,
+        lpEquity: parseFloat(data.lpEquity) || 90,
+        prefReturn: parseFloat(data.prefReturn) || 8,
+        gpPromote: parseFloat(data.gpPromote) || 20,
+        acqFee: parseFloat(data.acqFee) || 3,
+        assetMgmtFee: parseFloat(data.assetMgmtFee) || 2,
+        companyName: data.companyName || '',
+        state: data.state || 'DE',
+        minInvestment: parseFloat(data.minInvestment) || 50000,
+        waterfallType: data.waterfallType || 'pref',
+      };
+
+      if (!confirm(`Send subscription agreement to ${investor.firstName} ${investor.lastName} (${email}) for e-signature?`)) return;
+
+      const btn = document.getElementById('sendForSigBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+      try {
+        // Generate the sub doc HTML
+        const gpName = settings.firmName || data.gpName || data.companyName || '';
+        const gpRep = settings.gpFullName || data.gpRep || '';
+        let subDocHTML;
+        if (typeof SPDocs !== 'undefined' && SPDocs.generateSubDoc) {
+          subDocHTML = SPDocs.generateSubDoc(_dealObj, investor, gpName, gpRep);
+        } else {
+          subDocHTML = document.getElementById('documentPreview').innerHTML;
+        }
+
+        // Create signing request directly in Firestore
+        const db = firebase.firestore();
+        const session = SP.getSession();
+        const ref = await db.collection('esign_requests').add({
+          orgId: session?.orgId || 'default',
+          dealId: _dealObj.id,
+          dealName: _dealObj.name,
+          investorId: investor.id || '',
+          investorName: `${investor.firstName} ${investor.lastName}`,
+          investorEmail: email,
+          investorCommitted: investor.committed || 0,
+          gpName,
+          gpRep,
+          docType: 'subscription_agreement',
+          subDocHTML,
+          status: 'sent',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          sentAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: session?.uid || '',
+        });
+
+        const baseUrl = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+        const signingUrl = `${baseUrl}sign.html?req=${ref.id}`;
+        await ref.update({ signingUrl });
+
+        // Copy link to clipboard
+        try { await navigator.clipboard.writeText(signingUrl); } catch(e) {}
+
+        alert(`Signing request created!\n\nSigning link copied to clipboard:\n${signingUrl}\n\nShare this link with ${investor.firstName} to collect their signature.`);
+        SP.logActivity('fa-pen-nib', 'purple', `E-sign request created for <strong>${investor.firstName} ${investor.lastName}</strong>`);
+      } catch(e) {
+        console.error('Send for signature error:', e);
+        alert('Failed to create signing request: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-pen-nib"></i> Send for Signature';
+      }
+    }
+
     SP.onDataReady(loadSavedDeals);
 
     // ─── Clean Export (remove branding/draft notices) ─────────────────────

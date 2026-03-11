@@ -161,56 +161,68 @@
   </div>
 </div>
 
+<script src="js/sp-documents.js"></script>
+<script src="js/sp-esign.js?v10"></script>
 <script>
 let _signReq = null;
 let _db = null;
-let _orgId = null;
-let _token = null;
+let _requestId = null;
 
 (async function init() {
   const params = new URLSearchParams(window.location.search);
-  _token = params.get('t');
-  if (!_token) { showInvalid(); return; }
+  _requestId = params.get('req') || params.get('t'); // 'req' is new, 't' is legacy
+  if (!_requestId) { showInvalid(); return; }
 
+  // Wait for Firebase
   await new Promise(r => { const i = setInterval(() => { if (typeof firebase !== 'undefined' && firebase.apps.length) { clearInterval(i); r(); } }, 100); setTimeout(r, 5000); });
   _db = firebase.firestore();
 
-  // Find signing request — try deeltrack_demo first
   try {
-    const orgs = ['deeltrack_demo']; // extend for multi-org later
-    for (const org of orgs) {
-      const doc = await _db.collection('orgs').doc(org).collection('signing_requests').doc(_token).get();
-      if (doc.exists) {
-        _signReq = doc.data();
-        _orgId = org;
-        break;
-      }
+    // Load signing request from top-level esign_requests collection
+    const doc = await _db.collection('esign_requests').doc(_requestId).get();
+    if (!doc.exists) {
+      // Legacy fallback: try orgs/deeltrack_demo/signing_requests
+      const legacyDoc = await _db.collection('orgs').doc('deeltrack_demo').collection('signing_requests').doc(_requestId).get();
+      if (legacyDoc.exists) { _signReq = { id: _requestId, ...legacyDoc.data(), _legacy: true }; }
+      else { showInvalid(); return; }
+    } else {
+      _signReq = { id: _requestId, ...doc.data() };
     }
 
-    if (!_signReq) { showInvalid(); return; }
-    if (_signReq.status === 'signed') {
+    // Already signed?
+    if (_signReq.status === 'signed' || _signReq.status === 'countersigned') {
       document.getElementById('loadingState').style.display = 'none';
       document.getElementById('alreadySigned').style.display = '';
       return;
     }
 
-    // Require auth — signer must be the investor on the commitment
+    // Mark as viewed
+    if (_signReq.status === 'sent' || _signReq.status === 'pending') {
+      const collection = _signReq._legacy
+        ? _db.collection('orgs').doc('deeltrack_demo').collection('signing_requests')
+        : _db.collection('esign_requests');
+      await collection.doc(_requestId).update({
+        status: 'viewed',
+        viewedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      _signReq.status = 'viewed';
+    }
+
+    // Require auth — signer must be the investor
     firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
-        // Show login prompt
         document.getElementById('loadingState').style.display = 'none';
         document.getElementById('mainContent').style.display = 'none';
         _showLoginGate();
         return;
       }
-      // Verify signer matches the commitment
       const signerEmail = user.email?.toLowerCase();
       const expectedEmail = (_signReq.investorEmail || '').toLowerCase();
-      if (signerEmail !== expectedEmail) {
+      if (expectedEmail && signerEmail !== expectedEmail) {
         document.getElementById('loadingState').style.display = 'none';
         document.getElementById('invalidState').style.display = '';
         document.querySelector('#invalidState h2').textContent = 'Wrong Account';
-        document.querySelector('#invalidState p').textContent = `This subscription agreement is for ${_signReq.investorEmail}. You are signed in as ${user.email}. Please sign in with the correct account.`;
+        document.querySelector('#invalidState p').textContent = `This subscription agreement is for ${_signReq.investorEmail}. You are signed in as ${user.email}.`;
         return;
       }
       renderAgreement();
@@ -267,64 +279,36 @@ async function renderAgreement() {
   document.getElementById('mainContent').style.display = '';
 
   const s = _signReq;
-  const ownership = s.amount && _deal ? ((s.amount / (_deal.raise || 1)) * 100).toFixed(2) : '—';
+  const amount = Number(s.investorCommitted || s.amount || 0);
 
+  // Render investment summary
   document.getElementById('investmentSummary').innerHTML = `
-    <div class="term-row"><span class="term-label">Deal</span><span class="term-value">${s.dealName}</span></div>
+    <div class="term-row"><span class="term-label">Deal</span><span class="term-value">${s.dealName || '—'}</span></div>
     <div class="term-row"><span class="term-label">Subscriber</span><span class="term-value">${s.investorName || s.investorEmail}</span></div>
-    <div class="term-row"><span class="term-label">Subscription Amount</span><span class="term-value" style="color:var(--accent);">$${Number(s.amount).toLocaleString()}</span></div>
-    <div class="term-row"><span class="term-label">Est. Ownership</span><span class="term-value">${ownership}%</span></div>
-    <div class="term-row"><span class="term-label">Entity</span><span class="term-value">${s.entity || 'Individual'}</span></div>
+    <div class="term-row"><span class="term-label">Subscription Amount</span><span class="term-value" style="color:var(--accent);">$${amount.toLocaleString()}</span></div>
     <div class="term-row"><span class="term-label">Date</span><span class="term-value">${new Date().toLocaleDateString()}</span></div>
   `;
 
-  // Load deal terms from Firestore
+  // If we have the full sub doc HTML from the signing request, render it
   const termsEl = document.getElementById('dealTermsSection');
-  try {
-    const dealDoc = await _db.collection('orgs').doc(_orgId).collection('deals').doc(s.dealId).get();
-    if (dealDoc.exists) {
-      _deal = { id: dealDoc.id, ...dealDoc.data() };
-      const d = _deal;
-      const pref = d.prefRate || d.defPref || '8';
-      const promote = d.promoteRate || d.defPromote || '20';
-      const lpShare = 100 - Number(promote);
-
-      // Load settings for GP entity name
-      let gpName = 'Managing Member';
-      try {
-        const settingsDoc = await _db.collection('orgs').doc(_orgId).collection('settings').doc('main').get();
-        if (settingsDoc.exists) gpName = settingsDoc.data().firmName || settingsDoc.data().gpFullName || gpName;
-      } catch(e) {}
-
-      termsEl.innerHTML = `
-        <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:12px;">The following terms govern this investment in <strong>${d.name}</strong>, managed by <strong>${gpName}</strong>:</p>
-        <div class="term-row"><span class="term-label">Property / Deal</span><span class="term-value">${d.name}</span></div>
-        <div class="term-row"><span class="term-label">Location</span><span class="term-value">${d.location || '—'}</span></div>
-        <div class="term-row"><span class="term-label">Asset Class</span><span class="term-value" style="text-transform:capitalize;">${d.type || '—'}</span></div>
-        <div class="term-row"><span class="term-label">Total Raise</span><span class="term-value">$${Number(d.raise||0).toLocaleString()}</span></div>
-        <div class="term-row"><span class="term-label">Target IRR</span><span class="term-value">${d.irr ? d.irr.toFixed(1)+'%' : '—'}</span></div>
-        <div class="term-row"><span class="term-label">Equity Multiple</span><span class="term-value">${d.equity ? d.equity.toFixed(1)+'x' : '—'}</span></div>
-        <div class="term-row"><span class="term-label">Preferred Return</span><span class="term-value">${pref}% per annum</span></div>
-        <div class="term-row"><span class="term-label">GP Promote</span><span class="term-value">${promote}%</span></div>
-        <div style="margin-top:12px;padding:12px;background:var(--bg);border-radius:var(--radius);font-size:.82rem;">
-          <strong>Waterfall Structure:</strong>
-          <div style="margin-top:6px;color:var(--text-secondary);">
-            1. Return of Capital — 100% to Members pro rata<br>
-            2. Preferred Return — ${pref}% to Limited Partners<br>
-            3. Excess Split — ${lpShare}% LP / ${promote}% GP
-          </div>
-        </div>
-      `;
-
-      // Update ownership now that we have deal data
-      const ownershipCalc = ((s.amount / (d.raise || 1)) * 100).toFixed(2);
-      document.querySelector('.term-value[style*="accent"]')?.closest('.term-row')?.nextElementSibling?.querySelector('.term-value')
-        && (document.querySelectorAll('.term-row')[3].querySelector('.term-value').textContent = ownershipCalc + '%');
-    } else {
-      termsEl.innerHTML = '<p style="font-size:.82rem;color:var(--text-muted);">Deal terms will be provided by your GP.</p>';
-    }
-  } catch(e) {
-    termsEl.innerHTML = '<p style="font-size:.82rem;color:var(--text-muted);">Deal terms will be provided by your GP.</p>';
+  if (s.subDocHTML) {
+    termsEl.innerHTML = `
+      <div style="border:1px solid var(--border); border-radius:var(--radius); padding:24px; max-height:500px; overflow-y:auto; background:#fff; font-size:10pt;">
+        ${s.subDocHTML}
+      </div>
+      <p style="font-size:.72rem; color:var(--text-muted); margin-top:8px;">
+        <i class="fas fa-info-circle"></i> Scroll to review the full subscription agreement above before signing below.
+      </p>
+    `;
+  } else {
+    // Fallback: show deal terms summary
+    termsEl.innerHTML = `
+      <p style="font-size:.82rem;color:var(--text-secondary);">
+        Please review the subscription terms provided by your GP.
+        By signing below, you agree to the terms of the subscription agreement
+        for <strong>${s.dealName}</strong>.
+      </p>
+    `;
   }
 }
 
@@ -338,60 +322,6 @@ function checkReady() {
   box.classList.toggle('ready', name.length >= 2);
 }
 
-function _generateAgreementSnapshot(signerName, signDate) {
-  const s = _signReq;
-  return `SUBSCRIPTION AGREEMENT — ELECTRONIC COPY
-================================================================================
-Generated by deeltrack at signing time. This is an immutable record.
-
-DEAL: ${s.dealName}
-SUBSCRIBER: ${s.investorName || s.investorEmail}
-EMAIL: ${s.investorEmail}
-AMOUNT: $${Number(s.amount).toLocaleString()}
-ENTITY: ${s.entity || 'Individual'}
-${_deal ? `
-DEAL TERMS:
-  Property: ${_deal.name}
-  Location: ${_deal.location || '—'}
-  Asset Class: ${_deal.type || '—'}
-  Total Raise: $${Number(_deal.raise||0).toLocaleString()}
-  Target IRR: ${_deal.irr ? _deal.irr.toFixed(1)+'%' : '—'}
-  Equity Multiple: ${_deal.equity ? _deal.equity.toFixed(1)+'x' : '—'}
-  Preferred Return: ${_deal.prefRate || _deal.defPref || '8'}%
-  GP Promote: ${_deal.promoteRate || _deal.defPromote || '20'}%
-` : ''}
-
-REPRESENTATIONS AND WARRANTIES:
-The undersigned subscriber ("Subscriber") represents and warrants that:
-1. Subscriber is an "accredited investor" as defined in Rule 501(a) of
-   Regulation D under the Securities Act of 1933.
-2. Subscriber has received and reviewed such information as Subscriber deems
-   necessary to make an informed investment decision.
-3. Subscriber understands that the Securities are being offered pursuant to
-   an exemption from registration under the Securities Act.
-4. Subscriber has adequate means of providing for current financial needs
-   and possible personal contingencies, and has no need for liquidity.
-5. Subscriber's overall commitment to investments that are not readily
-   marketable is not disproportionate to net worth.
-6. Subscriber is acquiring the Securities for investment purposes only and
-   not with a view toward resale or distribution.
-
-RISK ACKNOWLEDGMENT:
-Subscriber acknowledges that an investment in the Securities involves a high
-degree of risk, including the possible loss of the entire investment.
-
-ELECTRONIC SIGNATURE:
-Signed: ${signerName}
-Date: ${signDate.toISOString()}
-Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
-User Agent: ${navigator.userAgent}
-Screen: ${screen.width}x${screen.height}
-
-This electronic signature is the legal equivalent of a manual signature
-pursuant to the E-SIGN Act (15 U.S.C. §7001 et seq.).
-================================================================================`;
-}
-
 async function submitSignature() {
   const btn = document.getElementById('signBtn');
   btn.disabled = true;
@@ -401,38 +331,43 @@ async function submitSignature() {
   const now = new Date();
 
   try {
-    // Generate a plain-text snapshot of the agreement for immutable record
-    const agreementSnapshot = _generateAgreementSnapshot(sigName, now);
-
     // Update signing request with full audit trail
-    await _db.collection('orgs').doc(_orgId).collection('signing_requests').doc(_token).update({
+    const collection = _signReq._legacy
+      ? _db.collection('orgs').doc('deeltrack_demo').collection('signing_requests')
+      : _db.collection('esign_requests');
+
+    await collection.doc(_requestId).update({
       status: 'signed',
       signedName: sigName,
       signedAt: firebase.firestore.FieldValue.serverTimestamp(),
       signedAtISO: now.toISOString(),
       signedUserAgent: navigator.userAgent,
-      signedScreenRes: `${screen.width}x${screen.height}`,
       signedTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      agreementSnapshot, // Immutable plain-text copy of what was signed
     });
 
-    // Update the commitment status to docs_signed
-    if (_signReq.commitmentId) {
-      await _db.collection('orgs').doc(_orgId).collection('commitments').doc(_signReq.commitmentId).update({
-        status: 'docs_signed',
-        signedAt: now.toISOString(),
-        signedName: sigName,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-      });
+    // Also save to org documents collection for GP access
+    if (_signReq.orgId) {
+      try {
+        await _db.collection('orgs').doc(_signReq.orgId).collection('documents').add({
+          dealId: _signReq.dealId,
+          investorId: _signReq.investorId,
+          investorName: _signReq.investorName,
+          type: 'signed_subscription_agreement',
+          signedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          signedName: sigName,
+          esignRequestId: _requestId,
+        });
+      } catch(e) { console.warn('Could not save to org documents:', e); }
     }
 
     // Show success
     document.getElementById('mainContent').style.display = 'none';
     document.getElementById('successState').style.display = '';
+    const receiptAmount = Number(_signReq.investorCommitted || _signReq.amount || 0);
     document.getElementById('signReceipt').innerHTML = `
       <div style="display:grid;gap:8px;">
         <div style="display:flex;justify-content:space-between;"><span>Deal:</span><strong>${_signReq.dealName}</strong></div>
-        <div style="display:flex;justify-content:space-between;"><span>Amount:</span><strong style="color:var(--accent);">$${Number(_signReq.amount).toLocaleString()}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span>Amount:</span><strong style="color:var(--accent);">$${receiptAmount.toLocaleString()}</strong></div>
         <div style="display:flex;justify-content:space-between;"><span>Signed By:</span><strong>${sigName}</strong></div>
         <div style="display:flex;justify-content:space-between;"><span>Date:</span><strong>${now.toLocaleDateString()}</strong></div>
         <div style="display:flex;justify-content:space-between;"><span>Status:</span><strong style="color:var(--success);">Signed ✓</strong></div>

@@ -127,6 +127,14 @@ service cloud.firestore {
       }
     }
 
+    // ── E-Sign Requests (top-level, cross-org) ────────────────────────────
+    // GP creates signing requests, investor reads + updates (to sign)
+    match /esign_requests/{reqId} {
+      allow create: if isSignedIn();
+      allow read: if isSignedIn(); // Both GP and investor need to read
+      allow update: if isSignedIn(); // Investor updates status to 'signed', GP countersigns
+    }
+
     // ── Audit logs — Cloud Functions write, admins read ─────────────────────
     match /auditLogs/{document=**} {
       allow read: if false;   // Admin SDK only

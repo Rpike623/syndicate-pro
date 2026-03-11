@@ -1,163 +1,355 @@
 /**
- * sp-esign.js — Firma.dev E-Signature Integration for deeltrack
+ * sp-esign.js — E-Signature Module for deeltrack
  * 
- * Creates signing requests for subscription agreements via Firma.dev API.
- * API key is stored in Firestore _config collection (server-side only for Cloud Functions).
- * Client-side uses a Cloud Function proxy to avoid exposing the API key.
- * 
- * For demo/development: calls Firma API directly (key in memory, not in source).
+ * Two modes:
+ * 1. Built-in: Generates a signing link to sign.html with a Firestore-backed signing request.
+ *    No external API needed. Investor signs in-app.
+ * 2. Firma.dev: Creates signing requests via Firma API (when configured).
+ *    Falls back to built-in if Firma isn't set up.
+ *
+ * Flow:
+ *   GP clicks "Send for Signature" on deal-detail →
+ *   System generates custom sub doc HTML from SPDocs →
+ *   Creates a signing request in Firestore (esign_requests collection) →
+ *   Emails signing link to investor (via sp-email or Cloud Function) →
+ *   Investor clicks link → sign.html loads the request + sub doc →
+ *   Investor signs → status updated to "signed" → GP notified
  */
 
 const SPEsign = (() => {
   const FIRMA_BASE = 'https://api.firma.dev/functions/v1/signing-request-api';
-  const TEMPLATE_ID = '931599a9-1116-42a4-bbac-f0168add67e1'; // Subscription Agreement
-  
   let _firmaKey = null;
+  let _firmaEnabled = false;
 
-  // Load API key from Firestore _config (production) or fallback
+  // ─── INIT ──────────────────────────────────────────────────────────────
   async function init() {
-    if (_firmaKey) return;
     try {
       const db = firebase.firestore();
       const doc = await db.collection('_config').doc('esign').get();
-      if (doc.exists) _firmaKey = doc.data().firmaApiKey;
+      if (doc.exists && doc.data().firmaApiKey) {
+        _firmaKey = doc.data().firmaApiKey;
+        _firmaEnabled = true;
+        console.log('SPEsign: Firma.dev configured');
+      }
     } catch(e) {
-      // _config not accessible from client (rules block it) — use Cloud Function
-      console.log('SPEsign: will use Cloud Function proxy for signing requests');
+      // _config not accessible from client — that's fine, use built-in
     }
+    if (!_firmaEnabled) console.log('SPEsign: Using built-in signing flow');
   }
 
-  /**
-   * Create a signing request for a subscription agreement
-   * @param {Object} deal - Deal object
-   * @param {Object} investor - Investor object {firstName, lastName, email, committed, ownership}
-   * @param {Object} gpInfo - GP info {name, email}
-   * @returns {Object} signing request result
-   */
-  async function createSubscriptionAgreement(deal, investor, gpInfo) {
-    const name = `Subscription Agreement - ${investor.firstName} ${investor.lastName} - ${deal.name}`;
-    
-    const payload = {
-      template_id: TEMPLATE_ID,
-      name,
-      recipients: [
-        {
-          first_name: investor.firstName,
-          last_name: investor.lastName,
-          email: investor.email,
-          role: 'signer'
-        }
-      ]
+  // ─── GENERATE SUB DOC HTML ─────────────────────────────────────────────
+  function generateSubDocHTML(deal, investor, settings) {
+    const gpName = settings?.firmName || deal.companyName || '[GP NAME]';
+    const gpRep = settings?.gpFullName || 'Managing Member';
+
+    if (typeof SPDocs !== 'undefined' && SPDocs.generateSubDoc) {
+      return SPDocs.generateSubDoc(deal, investor, gpName, gpRep);
+    }
+
+    // Fallback: basic sub doc if SPDocs not loaded
+    const name = `${investor.firstName || ''} ${investor.lastName || ''}`.trim() || '[INVESTOR]';
+    return `<div style="font-family: 'Times New Roman', serif; padding: 40px;">
+      <h1>SUBSCRIPTION AGREEMENT</h1>
+      <p>${deal.companyName || deal.name || '[COMPANY]'}</p>
+      <p>Subscriber: ${name}</p>
+      <p>Amount: $${(investor.committed || 0).toLocaleString()}</p>
+      <p>This is a placeholder. The full subscription agreement will be generated when sp-documents.js is loaded.</p>
+    </div>`;
+  }
+
+  // ─── CREATE SIGNING REQUEST (BUILT-IN) ─────────────────────────────────
+  async function createSigningRequest(deal, investor, settings) {
+    const db = firebase.firestore();
+    const session = (typeof SP !== 'undefined') ? SP.getSession() : {};
+    const orgId = session?.orgId || 'default';
+    const gpName = settings?.firmName || deal.companyName || '';
+    const gpRep = settings?.gpFullName || session?.name || '';
+    const invName = `${investor.firstName || ''} ${investor.lastName || ''}`.trim();
+
+    // Generate the actual sub doc HTML
+    const subDocHTML = generateSubDocHTML(deal, investor, settings);
+
+    // Create the request in Firestore
+    const requestData = {
+      orgId,
+      dealId: deal.id,
+      dealName: deal.name || '',
+      investorId: investor.id,
+      investorName: invName,
+      investorEmail: investor.email || '',
+      investorCommitted: investor.committed || investor._committed || 0,
+      gpName,
+      gpRep,
+      docType: 'subscription_agreement',
+      subDocHTML,
+      status: 'pending', // pending → sent → viewed → signed → countersigned
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdBy: session?.uid || '',
+      sentAt: null,
+      viewedAt: null,
+      signedAt: null,
+      signedName: null,
+      signedIP: null,
+      countersignedAt: null,
     };
 
+    const ref = await db.collection('esign_requests').add(requestData);
+    const requestId = ref.id;
+
+    // Generate the signing URL
+    const baseUrl = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
+    const signingUrl = `${baseUrl}sign.html?req=${requestId}`;
+
+    // Update with the signing URL
+    await ref.update({ signingUrl, status: 'sent', sentAt: firebase.firestore.FieldValue.serverTimestamp() });
+
+    // Send email notification to investor
+    await sendSigningEmail(deal, investor, signingUrl, gpName, gpRep);
+
+    // Log activity
+    if (typeof SP !== 'undefined' && SP.logActivity) {
+      SP.logActivity('fa-pen-nib', 'purple',
+        `E-sign request sent to <strong>${invName}</strong> for <strong>${deal.name}</strong>`);
+    }
+
+    return { success: true, requestId, signingUrl, sentTo: investor.email };
+  }
+
+  // ─── SEND SIGNING EMAIL ────────────────────────────────────────────────
+  async function sendSigningEmail(deal, investor, signingUrl, gpName, gpRep) {
+    const invName = `${investor.firstName || ''} ${investor.lastName || ''}`.trim();
+    const amount = '$' + Number(investor.committed || investor._committed || 0).toLocaleString();
+    
+    // Try Cloud Function email
+    if (typeof firebase !== 'undefined' && firebase.functions) {
+      try {
+        const sendEmail = firebase.functions().httpsCallable('sendEmail');
+        await sendEmail({
+          to: investor.email,
+          subject: `Subscription Agreement — ${deal.name || 'Investment'} — Action Required`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #1B1A19;">Subscription Agreement Ready for Signature</h2>
+              <p>Dear ${invName},</p>
+              <p>Your subscription agreement for <strong>${deal.name}</strong> is ready for your review and electronic signature.</p>
+              <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr><td style="padding: 8px; border-bottom: 1px solid #eee; color: #666;">Investment</td><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">${deal.name}</td></tr>
+                <tr><td style="padding: 8px; border-bottom: 1px solid #eee; color: #666;">Amount</td><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">${amount}</td></tr>
+                <tr><td style="padding: 8px; border-bottom: 1px solid #eee; color: #666;">Managing Member</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${gpName}</td></tr>
+              </table>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${signingUrl}" style="display: inline-block; padding: 14px 40px; background: #F37925; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">Review &amp; Sign</a>
+              </div>
+              <p style="font-size: 13px; color: #999;">This link is unique to you. Please do not forward it. If you have questions, contact ${gpRep} at ${gpName}.</p>
+            </div>
+          `
+        });
+        return true;
+      } catch(e) {
+        console.warn('SPEsign: Cloud Function email failed, investor will need direct link', e);
+      }
+    }
+    return false;
+  }
+
+  // ─── FIRMA.DEV FLOW ────────────────────────────────────────────────────
+  async function createViaFirma(deal, investor, settings) {
+    const gpName = settings?.firmName || deal.companyName || '';
+    const invName = `${investor.firstName || ''} ${investor.lastName || ''}`.trim();
+    const payload = {
+      name: `Subscription Agreement - ${invName} - ${deal.name}`,
+      recipients: [{
+        first_name: investor.firstName,
+        last_name: investor.lastName,
+        email: investor.email,
+        role: 'signer'
+      }]
+    };
+
+    // Try Cloud Function proxy first
+    if (typeof firebase !== 'undefined' && firebase.functions) {
+      try {
+        const fn = firebase.functions().httpsCallable('createSigningRequest');
+        const res = await fn(payload);
+        if (res.data && !res.data.error) return { success: true, firmaId: res.data.id, sentTo: investor.email };
+      } catch(e) {
+        console.warn('SPEsign: Firma Cloud Function failed, falling back to built-in');
+      }
+    }
+
+    // Fall back to built-in
+    return createSigningRequest(deal, investor, settings);
+  }
+
+  // ─── MAIN SEND METHOD ─────────────────────────────────────────────────
+  async function sendForSignature(dealId, investorId) {
+    const deal = (typeof SP !== 'undefined') ? SP.getDeals().find(d => d.id === dealId) : null;
+    const investor = (typeof SP !== 'undefined') ? SP.getInvestorById(investorId) : null;
+    const settings = (typeof SP !== 'undefined') ? SP.load('settings', {}) : {};
+
+    if (!deal) return { success: false, error: 'Deal not found' };
+    if (!investor) return { success: false, error: 'Investor not found' };
+    if (!investor.email) return { success: false, error: 'Investor has no email address' };
+
     try {
-      let result;
-      
-      // Try Cloud Function first (production path)
-      if (typeof firebase !== 'undefined' && firebase.functions) {
-        try {
-          const fn = firebase.functions().httpsCallable('createSigningRequest');
-          const res = await fn(payload);
-          result = res.data;
-        } catch(fnErr) {
-          console.warn('SPEsign: Cloud Function not available, trying direct API');
-        }
+      if (_firmaEnabled) {
+        return await createViaFirma(deal, investor, settings);
       }
-      
-      // Direct API fallback (dev/demo)
-      if (!result && _firmaKey) {
-        const res = await fetch(FIRMA_BASE + '/signing-requests', {
-          method: 'POST',
-          headers: {
-            'Authorization': _firmaKey,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-        result = await res.json();
-      }
-
-      if (!result) throw new Error('No signing method available. Deploy Cloud Function or configure API key.');
-
-      if (result.error) throw new Error(result.error);
-
-      // Send the signing request
-      if (result.id) {
-        const sendRes = await fetch(FIRMA_BASE + '/signing-requests/' + result.id + '/send', {
-          method: 'POST',
-          headers: { 'Authorization': _firmaKey, 'Content-Type': 'application/json' }
-        });
-        const sendData = await sendRes.json();
-        result.sent = sendData.success;
-      }
-
-      // Store in Firestore for tracking
-      if (typeof SP !== 'undefined' && SP.save) {
-        const esignLog = SP.load('esign_requests', []);
-        esignLog.unshift({
-          id: result.id,
-          dealId: deal.id,
-          dealName: deal.name,
-          investorId: investor.id,
-          investorName: `${investor.firstName} ${investor.lastName}`,
-          investorEmail: investor.email,
-          type: 'subscription_agreement',
-          status: 'sent',
-          sentAt: new Date().toISOString(),
-          firmaId: result.id,
-        });
-        SP.save('esign_requests', esignLog);
-      }
-
-      return { success: true, signingRequestId: result.id, sentTo: investor.email };
+      return await createSigningRequest(deal, investor, settings);
     } catch(e) {
       console.error('SPEsign error:', e);
       return { success: false, error: e.message };
     }
   }
 
-  /**
-   * Check status of a signing request
-   */
-  async function checkStatus(signingRequestId) {
-    if (!_firmaKey) return { error: 'No API key' };
+  // ─── LOAD SIGNING REQUEST (for sign.html) ──────────────────────────────
+  async function loadRequest(requestId) {
     try {
-      const res = await fetch(FIRMA_BASE + '/signing-requests/' + signingRequestId, {
-        headers: { 'Authorization': _firmaKey }
-      });
-      const data = await res.json();
-      return {
-        id: data.id,
-        status: data.status,
-        sent: data.timestamps?.sent_on,
-        finished: data.timestamps?.finished_on,
-        downloadUrl: data.final_document_download_url,
-      };
+      const db = firebase.firestore();
+      const doc = await db.collection('esign_requests').doc(requestId).get();
+      if (!doc.exists) return null;
+
+      const data = doc.data();
+
+      // Mark as viewed if first time
+      if (data.status === 'sent') {
+        await db.collection('esign_requests').doc(requestId).update({
+          status: 'viewed',
+          viewedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        data.status = 'viewed';
+      }
+
+      return { id: requestId, ...data };
     } catch(e) {
-      return { error: e.message };
+      console.error('SPEsign loadRequest error:', e);
+      return null;
     }
   }
 
-  /**
-   * Get all signing requests for a deal
-   */
-  function getRequestsForDeal(dealId) {
-    const all = SP.load('esign_requests', []);
-    return all.filter(r => r.dealId === dealId);
+  // ─── SUBMIT SIGNATURE (from sign.html) ─────────────────────────────────
+  async function submitSignature(requestId, signedName) {
+    try {
+      const db = firebase.firestore();
+      await db.collection('esign_requests').doc(requestId).update({
+        status: 'signed',
+        signedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        signedName,
+        signedIP: '', // Could fetch from API, but privacy-sensitive
+      });
+
+      // Store a copy in the deal's document collection for GP access
+      const reqDoc = await db.collection('esign_requests').doc(requestId).get();
+      const reqData = reqDoc.data();
+
+      // Save signed record to deal documents
+      if (reqData?.dealId && reqData?.orgId) {
+        await db.collection('orgs').doc(reqData.orgId).collection('documents').add({
+          dealId: reqData.dealId,
+          investorId: reqData.investorId,
+          investorName: reqData.investorName,
+          type: 'signed_subscription_agreement',
+          signedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          signedName,
+          esignRequestId: requestId,
+          subDocHTML: reqData.subDocHTML || '',
+        });
+      }
+
+      return { success: true };
+    } catch(e) {
+      console.error('SPEsign submitSignature error:', e);
+      return { success: false, error: e.message };
+    }
   }
 
-  /**
-   * Check if an investor has a pending or completed signing request
-   */
-  function getRequestForInvestor(dealId, investorId) {
-    const all = SP.load('esign_requests', []);
-    return all.find(r => r.dealId === dealId && r.investorId === investorId);
+  // ─── GP COUNTERSIGN ────────────────────────────────────────────────────
+  async function countersign(requestId) {
+    try {
+      const db = firebase.firestore();
+      const session = (typeof SP !== 'undefined') ? SP.getSession() : {};
+      await db.collection('esign_requests').doc(requestId).update({
+        status: 'countersigned',
+        countersignedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        countersignedBy: session?.name || session?.uid || '',
+      });
+      return { success: true };
+    } catch(e) {
+      return { success: false, error: e.message };
+    }
   }
 
-  return { init, createSubscriptionAgreement, checkStatus, getRequestsForDeal, getRequestForInvestor };
+  // ─── GET REQUESTS FOR A DEAL ───────────────────────────────────────────
+  async function getRequestsForDeal(dealId) {
+    try {
+      const db = firebase.firestore();
+      const session = (typeof SP !== 'undefined') ? SP.getSession() : {};
+      const orgId = session?.orgId || 'default';
+      const snap = await db.collection('esign_requests')
+        .where('orgId', '==', orgId)
+        .where('dealId', '==', dealId)
+        .orderBy('createdAt', 'desc')
+        .get();
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch(e) {
+      console.error('SPEsign getRequestsForDeal error:', e);
+      return [];
+    }
+  }
+
+  // ─── GET REQUEST FOR SPECIFIC INVESTOR ─────────────────────────────────
+  async function getRequestForInvestor(dealId, investorId) {
+    try {
+      const db = firebase.firestore();
+      const session = (typeof SP !== 'undefined') ? SP.getSession() : {};
+      const orgId = session?.orgId || 'default';
+      const snap = await db.collection('esign_requests')
+        .where('orgId', '==', orgId)
+        .where('dealId', '==', dealId)
+        .where('investorId', '==', investorId)
+        .orderBy('createdAt', 'desc')
+        .limit(1)
+        .get();
+      if (snap.empty) return null;
+      const d = snap.docs[0];
+      return { id: d.id, ...d.data() };
+    } catch(e) {
+      console.error('SPEsign getRequestForInvestor error:', e);
+      return null;
+    }
+  }
+
+  // ─── RESEND ────────────────────────────────────────────────────────────
+  async function resend(requestId) {
+    try {
+      const db = firebase.firestore();
+      const doc = await db.collection('esign_requests').doc(requestId).get();
+      if (!doc.exists) return { success: false, error: 'Request not found' };
+      const data = doc.data();
+      const deal = { name: data.dealName, id: data.dealId };
+      const investor = { firstName: data.investorName.split(' ')[0], lastName: data.investorName.split(' ').slice(1).join(' '), email: data.investorEmail };
+      await sendSigningEmail(deal, investor, data.signingUrl, data.gpName, data.gpRep);
+      await db.collection('esign_requests').doc(requestId).update({ resentAt: firebase.firestore.FieldValue.serverTimestamp() });
+      return { success: true };
+    } catch(e) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  return {
+    init,
+    sendForSignature,
+    loadRequest,
+    submitSignature,
+    countersign,
+    getRequestsForDeal,
+    getRequestForInvestor,
+    resend,
+    generateSubDocHTML,
+  };
 })();
 
-// Auto-init when loaded
+// Auto-init
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => SPEsign.init());
 }

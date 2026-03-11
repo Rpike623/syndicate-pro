@@ -810,9 +810,12 @@ function downloadSubDoc(investorId) {
 }
 
 async function requestESignature(investorId) {
-  if (typeof SPEsign === 'undefined') { alert('E-signature module not loaded.'); return; }
+  if (typeof SPEsign === 'undefined') { alert('E-signature module not loaded. Ensure sp-esign.js is included.'); return; }
   const inv = SP.getInvestorById(investorId);
-  if (!confirm(`Initiate official digital signature request for ${inv.firstName} ${inv.lastName}?`)) return;
+  if (!inv) { alert('Investor not found.'); return; }
+  if (!inv.email) { alert(`${inv.firstName} ${inv.lastName} has no email address. Add their email first.`); return; }
+  
+  if (!confirm(`Send subscription agreement to ${inv.firstName} ${inv.lastName} (${inv.email}) for electronic signature?\n\nThis will:\n• Generate a custom sub doc with their details\n• Email them a signing link\n• Track status here automatically`)) return;
   
   const originalBtn = event.currentTarget;
   const originalHtml = originalBtn.innerHTML;
@@ -820,15 +823,21 @@ async function requestESignature(investorId) {
   originalBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
 
   try {
-    const result = await SPEsign.sendForSignature(dealId, investorId, 'subscription_agreement');
+    const result = await SPEsign.sendForSignature(dealId, investorId);
     if (result.success) {
-      showToast('E-signature request sent successfully!', 'success');
-      render();
+      showToast(`Signing request sent to ${inv.email}!`, 'success');
+      // Update the sub status on the deal investor entry
+      updateSubStatus(investorId, 'sent');
+      // Copy signing URL to clipboard for manual sharing
+      if (result.signingUrl) {
+        try { await navigator.clipboard.writeText(result.signingUrl); } catch(e) {}
+      }
     } else {
       showToast('E-signature failed: ' + result.error, 'error');
     }
   } catch (e) {
-    showToast('Internal error initiating e-sign.', 'error');
+    console.error('E-sign error:', e);
+    showToast('Error sending e-sign request. Check console for details.', 'error');
   } finally {
     originalBtn.disabled = false;
     originalBtn.innerHTML = originalHtml;
