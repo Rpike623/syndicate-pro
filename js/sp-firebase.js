@@ -337,7 +337,11 @@ const SPFB = (function () {
       } else {
         snap = await _col('investors').orderBy('lastName').get();
       }
-      const investors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      let investors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Decrypt sensitive fields (TIN, routing, acctNum) after reading from Firestore
+      if (typeof SPCrypto !== 'undefined' && SPCrypto.isReady()) {
+        investors = await SPCrypto.decryptInvestors(investors);
+      }
       SP.saveInvestors(investors);
       return investors;
     } catch (e) {
@@ -349,8 +353,13 @@ const SPFB = (function () {
   async function saveInvestors(investors) {
     if (_offlineMode || !_ready) { SP.saveInvestors(investors); return; }
     try {
+      // Encrypt sensitive fields (TIN, routing, acctNum) before writing to Firestore
+      let toSave = investors;
+      if (typeof SPCrypto !== 'undefined' && SPCrypto.isReady()) {
+        toSave = await SPCrypto.encryptInvestors(investors);
+      }
       const batch = _db.batch();
-      for (const inv of investors) {
+      for (const inv of toSave) {
         const ref = _col('investors').doc(inv.id);
         batch.set(ref, { ...inv, orgId: _orgId, updatedAt: _ts() }, { merge: true });
       }
