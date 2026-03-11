@@ -184,12 +184,22 @@ const SPEsign = (() => {
   // ─── MAIN SEND METHOD ─────────────────────────────────────────────────
   async function sendForSignature(dealId, investorId) {
     const deal = (typeof SP !== 'undefined') ? SP.getDeals().find(d => d.id === dealId) : null;
-    const investor = (typeof SP !== 'undefined') ? SP.getInvestorById(investorId) : null;
+    const investorBase = (typeof SP !== 'undefined') ? SP.getInvestorById(investorId) : null;
     const settings = (typeof SP !== 'undefined') ? SP.load('settings', {}) : {};
 
     if (!deal) return { success: false, error: 'Deal not found' };
-    if (!investor) return { success: false, error: 'Investor not found' };
-    if (!investor.email) return { success: false, error: 'Investor has no email address' };
+    if (!investorBase) return { success: false, error: 'Investor not found' };
+    if (!investorBase.email) return { success: false, error: 'Investor has no email address' };
+
+    // Merge deal-specific commitment data (committed amount, ownership %)
+    // The committed amount lives on deal.investors[], not the investor record
+    const dealEntry = (deal.investors || []).find(e => e.investorId === investorId) || {};
+    const investor = {
+      ...investorBase,
+      committed: dealEntry.committed || investorBase.committed || 0,
+      _committed: dealEntry.committed || 0,
+      _ownership: dealEntry.ownership || 0,
+    };
 
     try {
       if (_firmaEnabled) {
