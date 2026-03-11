@@ -171,7 +171,21 @@
       updateDots(n);
     }
 
-    function saveFirmSettings() {
+    // Ensure Firestore is ready before saving (prevents data loss)
+    async function _waitForFirestore() {
+      if (typeof SPFB !== 'undefined' && SPFB.isReady()) return;
+      return new Promise(resolve => {
+        const timeout = setTimeout(resolve, 5000); // give up after 5s, save to localStorage anyway
+        if (typeof SPFB !== 'undefined') {
+          SPFB.onReady(() => { clearTimeout(timeout); resolve(); });
+        } else {
+          window.addEventListener('spdata-ready', () => { clearTimeout(timeout); resolve(); }, { once: true });
+        }
+      });
+    }
+
+    async function saveFirmSettings() {
+      await _waitForFirestore();
       const settings = SP.load('settings', {});
       settings.firmName = document.getElementById('firmName').value.trim() || settings.firmName;
       settings.gpFullName = document.getElementById('gpName').value.trim() || settings.gpFullName;
@@ -180,9 +194,14 @@
       settings.firmPhone = document.getElementById('firmPhone').value.trim() || settings.firmPhone;
       settings.onboardingComplete = true;
       SP.save('settings', settings);
+      // Also save to Firestore explicitly
+      if (typeof SPFB !== 'undefined' && SPFB.isReady() && SPFB.saveSettings) {
+        SPFB.saveSettings(settings);
+      }
     }
 
-    function saveDeal() {
+    async function saveDeal() {
+      await _waitForFirestore();
       const name = document.getElementById('dealName').value.trim();
       if (!name) return;
       const deals = SP.getDeals();
