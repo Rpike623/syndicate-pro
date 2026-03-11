@@ -181,9 +181,9 @@ const SPFB = (function () {
           uid:       _spUser.uid,
           isAnonymous: _spUser.isAnonymous,
         });
-        
+
         // Initialize SPCrypto with Firebase app and orgId
-        if (typeof SPCrypto !== 'undefined') {
+        if (typeof SPCrypto !== 'undefined' && SPCrypto.init) {
           SPCrypto.init(firebase, _orgId);
         }
       }
@@ -375,4 +375,231 @@ const SPFB = (function () {
   async function getDistributions() {
     if (_offlineMode || !_ready) return SP.getDistributions();
     try {
-     {
+      const snap = await _col('distributions').orderBy('date', 'desc').get();
+      let dists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Investors only see distributions for deals they are linked to
+      if (_spUser && _spUser.role === 'Investor') {
+        const deals = await getDeals(); // already filtered
+        const allowedDealIds = new Set(deals.map(d => d.id));
+        dists = dists.filter(d => allowedDealIds.has(d.dealId));
+      }
+      SP.saveDistributions(dists);
+      return dists;
+    } catch (e) {
+      console.warn('SPFB getDistributions — using cache:', e.message);
+      return SP.getDistributions();
+    }
+  }
+
+  async function saveDistribution(dist) {
+    if (_offlineMode || !_ready) { SP.saveDistribution(dist); return dist; }
+    try {
+      await _col('distributions').doc(dist.id).set({ ...dist, orgId: _orgId, updatedAt: _ts() }, { merge: true });
+      return dist;
+    } catch(e) {
+      console.warn('SPFB saveDistribution — falling back to localStorage:', e.message);
+      SP.saveDistribution(dist);
+      return dist;
+    }
+  }
+
+  // ── Capital Calls ───────────────────────────────────────────────────────────
+  async function getCapitalCalls() {
+    if (_offlineMode || !_ready) return SP.getCapitalCalls ? SP.getCapitalCalls() : [];
+    try {
+      const snap = await _col('capitalCalls').orderBy('dueDate', 'desc').get();
+      let calls = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      // Investors only see capital calls for deals they are linked to
+      if (_spUser && _spUser.role === 'Investor') {
+        const deals = await getDeals(); // already filtered
+        const allowedDealIds = new Set(deals.map(d => d.id));
+        calls = calls.filter(c => allowedDealIds.has(c.dealId));
+      }
+      return calls;
+    } catch (e) {
+      console.warn('SPFB getCapitalCalls — using cache:', e.message);
+      return SP.getCapitalCalls ? SP.getCapitalCalls() : [];
+    }
+  }
+
+  async function saveCapitalCall(call) {
+    if (_offlineMode || !_ready) { SP.saveCapitalCall(call); return call; }
+    try {
+      await _col('capitalCalls').doc(call.id).set({ ...call, orgId: _orgId, updatedAt: _ts() }, { merge: true });
+      return call;
+    } catch(e) {
+      console.warn('SPFB saveCapitalCall — falling back to localStorage:', e.message);
+      SP.saveCapitalCall(call);
+      return call;
+    }
+  }
+
+  // ── Settings ──────────────────────────────────────────────────────────────────
+  async function getSettings() {
+    if (_offlineMode || !_ready) return SP.getSettings ? SP.getSettings() : {};
+    try {
+      const doc = await _col('settings').doc('main').get();
+      if (doc.exists) return doc.data();
+      return {};
+    } catch(e) {
+      console.warn('SPFB getSettings — using cache:', e.message);
+      return SP.getSettings ? SP.getSettings() : {};
+    }
+  }
+
+  async function saveSettings(settings) {
+    if (_offlineMode || !_ready) { SP.saveSettings(settings); return; }
+    try {
+      await _col('settings').doc('main').set({ ...settings, orgId: _orgId, updatedAt: _ts() }, { merge: true });
+    } catch(e) {
+      console.warn('SPFB saveSettings — falling back to localStorage:', e.message);
+      SP.saveSettings(settings);
+    }
+  }
+
+  // ── Document Storage ─────────────────────────────────────────────────────────
+  async function uploadDocument(dealId, file, metadata) {
+    if (!_storage) throw new Error('Storage not available');
+    const path = `documents/${_orgId}/${dealId}/${file.name}`;
+    const ref = _storage.ref(path);
+    await ref.put(file);
+    const url = await ref.getDownloadURL();
+    // Save metadata to Firestore
+    await _col('documents').add({
+      dealId, name: file.name, path, url, ...metadata,
+      orgId: _orgId, uploadedAt: _ts(),
+    });
+    return url;
+  }
+
+  // ── Auth helpers ────────────────────────────────────────────────────────────
+  async function signUp(email, password, name, role, orgId) {
+    const cred = await _auth.createUserWithEmailAndPassword(email, password);
+    const profile = {
+      uid: cred.user.uid, email, name, role,
+      orgId: orgId || _hashEmail(email),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    };
+    await _db.collection('users').doc(cred.user.uid).set(profile);
+    return cred;
+  }
+
+  async function ensureUserRecord(uid, email, name, role, orgId) {
+    const ref = _db.collection('users').doc(uid);
+    const doc = await ref.get();
+    if (doc.exists) {
+      const data = doc.data();
+      // Update missing fields
+      const updates = {};
+      if (!data.email && email) updates.email = email;
+      if (!data.name && name) updates.name = name;
+      if (!data.role && role) updates.role = role;
+      if (!data.orgId && orgId) updates.orgId = orgId;
+      if (Object.keys(updates).length) await ref.update(updates);
+      return data;
+    } else {
+      const profile = {
+        uid, email, name, role,
+        orgId: orgId || _hashEmail(email),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      };
+      const orgRef = _db.collection('orgs').doc(profile.orgId);
+      const orgDoc = await orgRef.get();
+      if (!orgDoc.exists) {
+        await orgRef.set({ orgId: profile.orgId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+      await ref.set(profile);
+      return profile;
+    }
+  }
+
+  async function logIn(email, password) {
+    const cred = await _auth.signInWithEmailAndPassword(email, password);
+    return cred;
+  }
+
+  async function logOut() {
+    await _auth.signOut();
+    _ready = false;
+    _readyCallbacks = [];
+    _spUser = null;
+    _orgId = null;
+    _user = null;
+  }
+
+  async function sendPasswordReset(email) {
+    await _auth.sendPasswordResetEmail(email);
+  }
+
+  async function updatePassword(newPassword) {
+    if (!_user) throw new Error('No user logged in');
+    await _user.updatePassword(newPassword);
+  }
+
+  async function updateProfile(profile) {
+    if (!_user) throw new Error('No user logged in');
+    await _user.updateProfile(profile);
+    // Also update Firestore user doc
+    await _db.collection('users').doc(_user.uid).update(profile);
+    _spUser = { ..._spUser, ...profile };
+  }
+
+  // ── Realtime subscriptions ────────────────────────────────────────────────
+  function subscribeToDeals(callback) {
+    if (!_db || !_orgId) return () => {};
+    return _col('deals').onSnapshot(snap => {
+      const deals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      SP.saveDeals(deals);
+      callback(deals);
+    }, err => {
+      console.warn('SPFB subscribeToDeals error:', err.message);
+    });
+  }
+
+  function subscribeToInvestors(callback) {
+    if (!_db || !_orgId) return () => {};
+    return _col('investors').onSnapshot(snap => {
+      const investors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      SP.saveInvestors(investors);
+      callback(investors);
+    }, err => {
+      console.warn('SPFB subscribeToInvestors error:', err.message);
+    });
+  }
+
+  function subscribeToDistributions(callback) {
+    if (!_db || !_orgId) return () => {};
+    return _col('distributions').onSnapshot(snap => {
+      const dists = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      SP.saveDistributions(dists);
+      callback(dists);
+    }, err => {
+      console.warn('SPFB subscribeToDistributions error:', err.message);
+    });
+  }
+
+  // ── Public API ────────────────────────────────────────────────────────────
+  return {
+    init, onReady, isReady, getOrgId, getUser,
+    getDeals, saveDeal, saveDeals, deleteDeal,
+    getInvestors, saveInvestors, deleteInvestor,
+    getDistributions, saveDistribution,
+    getCapitalCalls, saveCapitalCall,
+    getSettings, saveSettings,
+    uploadDocument,
+    signUp, logIn, logOut,
+    sendPasswordReset, updatePassword, updateProfile,
+    ensureUserRecord,
+    subscribeToDeals, subscribeToInvestors, subscribeToDistributions,
+  };
+})();
+
+// Auto-init when DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  SPFB.init();
+});
+
+// Also try init immediately in case DOM already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  SPFB.init();
+}
