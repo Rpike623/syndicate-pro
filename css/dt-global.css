@@ -5295,7 +5295,7 @@ html body .om-section h2 { color: #1B1A19 !important; }
 html body .om-label { color: #6B6560 !important; }
 html body .email-preview,
 html body .om-preview {
-  background: #FFFFFF !important;
+  background: #F3F3F3 !important;
   border: 1px solid #E2DDD8 !important;
   color: #1B1A19 !important;
 }
@@ -5781,8 +5781,8 @@ html body .memo-header h1, html body .memo-header p { color: #F3F3F3 !important;
 html body .cohort-val { color: #1B1A19 !important; font-weight: 700 !important; }
 
 /* ── INVESTOR UPDATE ─────────────────────────────────────────────────────── */
+/* ep-header: let page inline gradient handle background */
 html body .ep-header {
-  background: #1B1A19 !important;
   color: #F3F3F3 !important;
 }
 html body .ep-header h1, html body .ep-header p { color: #F3F3F3 !important; }

@@ -165,10 +165,10 @@ html body .om-cover { color: #FFFFFF !important; }
 html body .result-hero { color: #FFFFFF !important; }
 html body .memo-header { color: #FFFFFF !important; }
 html body .site-header { background: #1B1A19 !important; color: #F3F3F3 !important; }
-html body .email-body { background: #1B1A19 !important; color: #F3F3F3 !important; }
-html body .email-preview { background: #1B1A19 !important; color: #F3F3F3 !important; }
-html body .ep-header { background: #F37925 !important; color: #FFFFFF !important; }
-html body .ep-kpi { color: #F3F3F3 !important; }
+/* Email preview — light theme: let page styles handle it */
+html body .email-preview { background: #F3F3F3 !important; }
+html body .ep-header { color: #FFFFFF !important; }
+html body .ep-kpi { color: #1B1A19 !important; }
 
 /* ── Progress steps in wizard ───────────────────────────────────────── */
 html body .step-desc:not(.active .step-desc):not(.done .step-desc) { color: #6B6560 !important; }
