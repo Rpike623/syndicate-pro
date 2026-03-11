@@ -379,8 +379,8 @@
                   </div>
                   ${hasPref && pref > 0 ? `
                   <div style="display:flex;gap:12px;font-size:11px;color:#94A3B8;">
-                    <span><i class="fas fa-star" style="color:#f59e0b;margin-right:3px;"></i>Pref: <strong style="color:#fbbf24;">${fmt$(pref)}</strong></span>
-                    <span><i class="fas fa-chart-pie" style="color:#0ea5e9;margin-right:3px;"></i>Excess: <strong style="color:#38bdf8;">${fmt$(excess)}</strong></span>
+                    <span><i class="fas fa-star" style="color:#D97706;margin-right:3px;"></i>Pref: <strong style="color:#B45309;">${fmt$(pref)}</strong></span>
+                    <span><i class="fas fa-chart-pie" style="color:#0369A1;margin-right:3px;"></i>Excess: <strong style="color:#0369A1;">${fmt$(excess)}</strong></span>
                   </div>` : ''}
                 </div>`;
             }).join('') + `
@@ -428,10 +428,10 @@
             <div style="padding:0 22px 16px;">
               <!-- Pref summary bar if applicable -->
               ${hasPref ? `
-              <div style="padding:12px 16px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.2);border-radius:8px;margin:16px 0;font-size:12px;color:#fcd34d;display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
-                <span style="font-weight:700;color:#1B1A19;"><i class="fas fa-info-circle" style="margin-right:4px;color:#f59e0b;"></i>How the pref split works:</span>
-                <span>Outstanding pref <strong style="color:#fbbf24;">${fmt$(totalPrefPaid)}</strong> satisfied first</span>
-                <span>Remaining <strong style="color:#38bdf8;">${fmt$(total - totalPrefPaid)}</strong> split by ownership %</span>
+              <div style="padding:12px 16px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25);border-radius:8px;margin:16px 0;font-size:12.5px;color:#6B6560;display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+                <span style="font-weight:700;color:#1B1A19;"><i class="fas fa-info-circle" style="margin-right:4px;color:#D97706;"></i>How the pref split works:</span>
+                <span>Outstanding pref <strong style="color:#B45309;">${fmt$(totalPrefPaid)}</strong> satisfied first</span>
+                <span>Remaining <strong style="color:#0369A1;">${fmt$(total - totalPrefPaid)}</strong> split by ownership %</span>
               </div>` : ''}
               <!-- Per-investor rows -->
               ${recipientRows}
