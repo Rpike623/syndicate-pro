@@ -1562,7 +1562,7 @@ exports.removeTeamMember = onCall({ region: 'us-central1' }, async (request) => 
  * listTeamMembers — Get all members of an org (callable)
  * Returns owner + members list.
  */
-exports.listTeamMembers = onCall({ region: 'us-central1' }, async (request) => {
+exports.listTeamMembers = onCall({ region: 'us-central1', cors: true }, async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in');
 
   const callerDoc = await db.collection('users').doc(request.auth.uid).get();

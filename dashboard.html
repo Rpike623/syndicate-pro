@@ -19,7 +19,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js?v9"></script>
-  <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v9"></script>
   <script src="js/sp-firebase.js?v9"></script>
   <script src="js/sp-notify.js"></script>
@@ -309,11 +308,11 @@
             </div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon amber" id="kpiDebtIcon"><i class="fas fa-landmark"></i></div>
+            <div class="kpi-icon amber"><i class="fas fa-users"></i></div>
             <div class="kpi-body">
               <div class="kpi-label">Investors</div>
-              <div class="kpi-value" id="kpiDebt">0</div>
-              <div class="kpi-change neutral" id="kpiDebtChange"><i class="fas fa-bell"></i> —</div>
+              <div class="kpi-value" id="kpiInvestors">0</div>
+              <div class="kpi-change neutral" id="kpiInvestorsChange"><i class="fas fa-minus"></i> —</div>
             </div>
           </div>
         </div>
@@ -930,15 +929,6 @@ function renderKPIs(deals, investors, distYTD) {
   const activeDeals = deals.filter(d => ['sourcing','loi','dd','operating','raising'].includes(d.status)).length;
   const totalCommitted = deals.reduce((s,d)=>(d.investors||[]).reduce((acc,i)=>acc+(i.committed||0),s),0);
   const raisePct = aum > 0 ? Math.round(totalCommitted/aum*100) : 0;
-  
-  // v2.0 Debt Calculation
-  const loans = SP.load('loans', []); // Use the debt-tracker key
-  const today = new Date();
-  const nextYear = new Date(today.getTime() + (365 * 24 * 60 * 60 * 1000));
-  const maturingSoon = loans.filter(l => {
-    const d = new Date(l.maturityDate);
-    return d > today && d < nextYear;
-  });
 
   document.getElementById('kpiAUM').textContent = fmt$(aum);
   document.getElementById('kpiAUMChange').innerHTML = `<i class="fas fa-chart-line"></i> ${fmt$(totalCommitted)} raised (${raisePct}%)`;
@@ -947,20 +937,27 @@ function renderKPIs(deals, investors, distYTD) {
   document.getElementById('kpiDist').textContent = fmt$(distYTD);
   document.getElementById('kpiDistChange').innerHTML = '<i class="fas fa-arrow-up"></i> YTD 2026';
 
-  // Render Debt KPI
-  const debtEl = document.getElementById('kpiDebt');
-  if (debtEl) {
-    debtEl.textContent = maturingSoon.length;
-    const changeEl = document.getElementById('kpiDebtChange');
-    if (maturingSoon.length > 0) {
-      changeEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Action required`;
-      changeEl.className = 'kpi-change down';
-      document.getElementById('kpiDebtIcon').className = 'kpi-icon amber';
-    } else {
-      changeEl.innerHTML = `<i class="fas fa-check-circle"></i> Clean timeline`;
-      changeEl.className = 'kpi-change up';
-    }
+  // Render Investors KPI
+  const invCount = investors.length;
+  const accredited = investors.filter(i => i.accredStatus === 'verified').length;
+  document.getElementById('kpiInvestors').textContent = invCount;
+  const invChangeEl = document.getElementById('kpiInvestorsChange');
+  if (invCount === 0) {
+    invChangeEl.innerHTML = '<i class="fas fa-user-plus"></i> Add investors';
+    invChangeEl.className = 'kpi-change neutral';
+  } else {
+    invChangeEl.innerHTML = `<i class="fas fa-check-circle"></i> ${accredited} accredited`;
+    invChangeEl.className = 'kpi-change up';
   }
+
+  // Debt maturity check for health alerts
+  const loans = SP.load('loans', []);
+  const today = new Date();
+  const nextYear = new Date(today.getTime() + (365 * 24 * 60 * 60 * 1000));
+  const maturingSoon = loans.filter(l => {
+    const d = new Date(l.maturityDate);
+    return d > today && d < nextYear;
+  });
 
   // System Health Alerts
   renderHealthAlerts(deals, maturingSoon);

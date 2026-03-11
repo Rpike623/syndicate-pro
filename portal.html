@@ -16,7 +16,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js?v9"></script>
-  <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v9"></script>
   <script src="js/sp-firebase.js?v9"></script>
   <script src="js/sp-multi-org.js"></script>
@@ -769,6 +768,12 @@ function _renderPerfChart(myDists, totalDist) {
 function render() {
   const session = SP.getSession();
   if (!session) return;
+
+  // GPs should not be on the LP portal — redirect to dashboard
+  if (session.role === 'General Partner') {
+    window.location.href = 'dashboard.html';
+    return;
+  }
 
   const firstName = session.name ? session.name.split(' ')[0] : 'Investor';
   document.getElementById('headerName').textContent = session.name || session.email;

@@ -13,7 +13,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js?v9"></script>
-  <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v9"></script>
   <script src="js/sp-firebase.js?v9"></script>
   <script src="js/sp-multi-org.js"></script>
@@ -326,7 +325,7 @@ let _db = null;
     _deal = { id: dealDoc.id, ...dealDoc.data() };
 
     // Check if user is logged in
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         _db.collection('users').doc(user.uid).get().then(doc => {
           if (doc.exists) {

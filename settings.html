@@ -14,7 +14,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js?v9"></script>
-  <script src="js/sp-crypto.js"></script>
   <script src="js/sp-data.js?v9"></script>
   <script src="js/sp-firebase.js?v9"></script>
   <script src="js/sp-billing.js?v3"></script>
@@ -219,6 +218,18 @@
             <div class="form-group">
               <label>Default Deal State</label>
               <select id="defState">
+                <option value="TX">Texas</option>
+                <option value="DE">Delaware</option>
+                <option value="CA">California</option>
+                <option value="NY">New York</option>
+                <option value="FL">Florida</option>
+                <option value="NV">Nevada</option>
+                <option value="WY">Wyoming</option>
+                <option value="CO">Colorado</option>
+                <option value="AZ">Arizona</option>
+                <option value="GA">Georgia</option>
+              </select>
+            </div>
 
             <!-- White-Label Branding -->
             <div class="section-title" style="margin-top:24px;"><i class="fas fa-palette"></i> LP Portal Branding</div>
@@ -283,16 +294,6 @@
               </div>
             </div>
 
-          <select id="defState">
-                <option value="TX">Texas</option>
-                <option value="DE">Delaware</option>
-                <option value="CA">California</option>
-                <option value="NY">New York</option>
-                <option value="FL">Florida</option>
-                <option value="NV">Nevada</option>
-                <option value="WY">Wyoming</option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -463,11 +464,11 @@
             <div>
               <h3 style="font-size:.9rem;font-weight:700;">Change Password</h3>
               <p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:8px;">Enter your new password below. Requires Firebase authentication.</p>
-              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                <input type="password" id="newPassword" placeholder="New password (min 8 chars)" minlength="8" style="max-width:260px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.85rem;">
-                <input type="password" id="confirmPassword" placeholder="Confirm password" style="max-width:200px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.85rem;">
-                <button class="btn" onclick="changePassword()" style="font-size:.82rem;"><i class="fas fa-key"></i> Update</button>
-              </div>
+              <form onsubmit="event.preventDefault(); changePassword();" autocomplete="on" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <input type="password" id="newPassword" placeholder="New password (min 8 chars)" minlength="8" autocomplete="new-password" style="max-width:260px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.85rem;">
+                <input type="password" id="confirmPassword" placeholder="Confirm password" autocomplete="new-password" style="max-width:200px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:.85rem;">
+                <button type="submit" class="btn" style="font-size:.82rem;"><i class="fas fa-key"></i> Update</button>
+              </form>
               <div id="pwMsg" style="font-size:.78rem;margin-top:6px;"></div>
             </div>
             <div style="border-top:1px solid var(--border);padding-top:16px;">
@@ -699,7 +700,10 @@ async function loadTeamMembers() {
       pendingEl.innerHTML = '';
     }
   } catch (e) {
-    el.textContent = 'Could not load team: ' + e.message;
+    const msg = (e.code === 'functions/internal' || e.message?.includes('CORS') || e.message?.includes('internal'))
+      ? 'Team features require Cloud Functions deployment. Run: firebase deploy --only functions'
+      : 'Could not load team: ' + e.message;
+    el.textContent = msg;
   }
 }
 

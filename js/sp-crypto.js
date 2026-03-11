@@ -28,6 +28,19 @@ const SPCrypto = (() => {
     _orgId = orgId;
 
     try {
+      // Wait briefly for Firebase Functions SDK if not yet loaded
+      if (typeof firebase === 'undefined' || !firebase.functions) {
+        await new Promise(r => {
+          let attempts = 0;
+          const check = setInterval(() => {
+            attempts++;
+            if ((typeof firebase !== 'undefined' && firebase.functions) || attempts >= 20) {
+              clearInterval(check);
+              r();
+            }
+          }, 150);
+        });
+      }
       if (typeof firebase === 'undefined' || !firebase.functions) {
         console.warn('SPCrypto: Firebase Functions not available — encryption disabled');
         return;
