@@ -278,14 +278,8 @@
       <!-- Alert banners (injected by JS) -->
       <div id="alertBanners"></div>
 
-      <!-- Portfolio Map / View Toggle -->
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px;">
-        <button class="btn btn-xs" id="listViewBtn" style="background:var(--accent);color:#1B1A19;" onclick="togglePortfolioView('list')"><i class="fas fa-th-list"></i> List</button>
-        <button class="btn btn-xs" id="mapViewBtn" onclick="togglePortfolioView('map')"><i class="fas fa-map-marked-alt"></i> Map</button>
-      </div>
-
+      <!-- 1. KPIs — always at top -->
       <div id="portfolioListView">
-        <!-- KPI Grid: Key Operational Metrics (v2.0) -->
         <div class="kpi-grid">
           <div class="kpi-card">
             <div class="kpi-icon blue"><i class="fas fa-building"></i></div>
@@ -314,18 +308,18 @@
           <div class="kpi-card">
             <div class="kpi-icon amber" id="kpiDebtIcon"><i class="fas fa-landmark"></i></div>
             <div class="kpi-body">
-              <div class="kpi-label">Debt Maturity (365d)</div>
+              <div class="kpi-label">Investors</div>
               <div class="kpi-value" id="kpiDebt">0</div>
               <div class="kpi-change neutral" id="kpiDebtChange"><i class="fas fa-bell"></i> —</div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- System Alerts / Health -->
-        <div id="healthAlerts" style="margin-bottom: 28px;"></div>
+      <!-- 2. Needs Attention — single consolidated card for all alerts -->
+      <div id="healthAlerts" style="margin-bottom:20px;"></div>
 
-      </div> <!-- end portfolioListView -->
-
+      <!-- Map view (hidden by default, toggle from deals table) -->
       <div id="portfolioMapView" style="display:none;margin-bottom:28px;">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -334,34 +328,7 @@
         </div>
       </div>
 
-      <!-- Quick Actions — deal-first workflow -->
-      <div style="margin-bottom:20px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6B6560;margin-bottom:12px;">Start Here</div>
-        <div class="quick-actions">
-          <a href="deals.html" class="qa-card">
-            <div class="qa-icon blue"><i class="fas fa-building"></i></div>
-            <div class="qa-label">Open a Deal</div>
-            <div class="qa-desc">Add investors, run distributions, issue capital calls — all from the deal page</div>
-          </a>
-          <a href="sourcing-crm.html" class="qa-card">
-            <div class="qa-icon green"><i class="fas fa-stream"></i></div>
-            <div class="qa-label">View Pipeline</div>
-            <div class="qa-desc">Track deals from sourcing through close with notes</div>
-          </a>
-          <a href="new-deal.html" class="qa-card">
-            <div class="qa-icon amber"><i class="fas fa-plus-circle"></i></div>
-            <div class="qa-label">New Deal</div>
-            <div class="qa-desc">Model a new acquisition — structure, waterfall, documents</div>
-          </a>
-          <a href="investors.html" class="qa-card">
-            <div class="qa-icon purple"><i class="fas fa-users"></i></div>
-            <div class="qa-label">Investors</div>
-            <div class="qa-desc">View all LPs, banking info, accreditation status</div>
-          </a>
-        </div>
-      </div>
-
-      <!-- Charts Row -->
+      <!-- 3. Charts (compact, single row) -->
       <div class="charts-row">
         <div class="card">
           <div class="card-header">
@@ -651,10 +618,12 @@ function checkOnboarding() {
   // On mobile, skip the checklist if most steps are done — don't clutter above the fold
   if (window.innerWidth <= 768 && incomplete.length <= 1) return;
 
-  const container = document.getElementById('alertBanners');
+  // Show onboarding inline below KPIs (not in alertBanners)
+  const container = document.getElementById('healthAlerts');
+  if (!container) return;
   const banner = document.createElement('div');
   const isMobile = window.innerWidth <= 768;
-  banner.style.cssText = `background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;padding:${isMobile?'14px 16px':'20px 24px'};margin-bottom:${isMobile?'12px':'16px'};`;
+  banner.style.cssText = `background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:12px;padding:${isMobile?'14px 16px':'20px 24px'};margin-bottom:16px;`;
   banner.innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
       <div style="color:white;font-weight:700;font-size:1rem;"><i class="fas fa-rocket" style="color:#60a5fa;margin-right:8px;"></i>Getting Started — ${steps.filter(s=>s.done).length}/${steps.length} steps complete</div>
@@ -796,17 +765,31 @@ function renderAlerts() {
     link: 'pipeline.html', linkText: 'View pipeline'
   });
 
-  const container = document.getElementById('alertBanners');
-  if (!container || !alerts.length) return;
-  const colors = { danger: '#fee2e2,#ef4444,#991b1b', warning: '#fef3c7,#f59e0b,#92400e' };
-  container.innerHTML = alerts.map(a => {
-    const [bg, border, text] = colors[a.type].split(',');
-    return `<div style="background:${bg};border:1px solid ${border};border-radius:10px;padding:12px 18px;margin-bottom:12px;display:flex;align-items:center;gap:12px;font-size:.875rem;">
-      <i class="fas ${a.icon}" style="color:${border};flex-shrink:0;"></i>
-      <span style="color:${text};flex:1;">${a.msg}</span>
-      <a href="${a.link}" style="color:${border};font-weight:600;text-decoration:none;white-space:nowrap;">${a.linkText} →</a>
-    </div>`;
-  }).join('');
+  // Render into consolidated "Needs Attention" card
+  const container = document.getElementById('healthAlerts');
+  if (!container || !alerts.length) { if (container) container.innerHTML = ''; return; }
+
+  container.innerHTML = `
+    <div class="card" style="border-left:3px solid ${alerts.some(a => a.type==='danger') ? '#ef4444' : '#f59e0b'};">
+      <div class="card-header" style="padding:12px 18px;">
+        <div class="card-title" style="font-size:.9rem;"><i class="fas fa-exclamation-circle" style="color:${alerts.some(a => a.type==='danger') ? '#ef4444' : '#f59e0b'};margin-right:6px;"></i>Needs Attention (${alerts.length})</div>
+        <button onclick="this.closest('.card').querySelector('.card-body').style.display=this.closest('.card').querySelector('.card-body').style.display==='none'?'':'none';this.querySelector('i').classList.toggle('fa-chevron-down');this.querySelector('i').classList.toggle('fa-chevron-up');" style="background:none;border:none;cursor:pointer;color:#6B6560;"><i class="fas fa-chevron-up"></i></button>
+      </div>
+      <div class="card-body" style="padding:0;">
+        ${alerts.map(a => {
+          const iconColor = a.type === 'danger' ? '#ef4444' : '#f59e0b';
+          return `<div style="display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(0,0,0,.04);font-size:.82rem;">
+            <i class="fas ${a.icon}" style="color:${iconColor};flex-shrink:0;font-size:.9rem;"></i>
+            <span style="color:#1B1A19;flex:1;">${a.msg}</span>
+            <a href="${a.link}" style="color:#F37925;font-weight:600;text-decoration:none;white-space:nowrap;font-size:.78rem;">${a.linkText} →</a>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  // Clear old alertBanners (no longer used)
+  const oldBanners = document.getElementById('alertBanners');
+  if (oldBanners) oldBanners.innerHTML = '';
 }
 
 function setGreeting() {
@@ -981,50 +964,9 @@ function renderKPIs(deals, investors, distYTD) {
 }
 
 function renderHealthAlerts(deals, maturingSoon) {
-  const alertsDiv = document.getElementById('healthAlerts');
-  if (!alertsDiv) return;
-  const alerts = [];
-
-  // Critical: Form D 
-  const today = new Date();
-  deals.forEach(d => {
-    if (d.investors?.length > 0 && !d.formDFiled) {
-      const firstSale = new Date((d.investors || []).sort((a,b) => new Date(a.linkedAt) - new Date(b.linkedAt))[0].linkedAt);
-      const daysSince = Math.floor((today - firstSale) / (86400000));
-      if (daysSince > 10) {
-        alerts.push({
-          type: 'danger', 
-          title: 'SEC Compliance: Form D Overdue',
-          msg: `${d.name} is ${daysSince} days past first capital receipt. Form D must be filed within 15 days.`
-        });
-      }
-    }
-  });
-
-  // Debt MATURITY
-  maturingSoon.forEach(l => {
-    alerts.push({
-      type: 'warning',
-      title: 'Debt Maturity Warning',
-      msg: `${l.lenderName || 'Loan'} for ${l.projectName || 'deal'} matures on ${l.maturityDate}.`
-    });
-  });
-
-  if (alerts.length === 0) {
-    alertsDiv.innerHTML = '';
-    return;
-  }
-
-  alertsDiv.innerHTML = alerts.map(a => `
-    <div style="background:${a.type === 'danger' ? 'var(--danger-light)' : 'var(--warning-light)'}; border:1px solid ${a.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}; border-radius:12px; padding:16px 20px; margin-bottom:12px; display:flex; align-items:center; gap:16px;">
-      <i class="fas ${a.type === 'danger' ? 'fa-exclamation-circle' : 'fa-bell'}" style="color:${a.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}; font-size:1.2rem;"></i>
-      <div style="flex:1;">
-        <div style="font-weight:700; font-size:0.9rem; color:#1B1A19;">${a.title}</div>
-        <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">${a.msg}</div>
-      </div>
-      <button class="btn btn-xs" style="background: #FFFFFF; border-color:${a.type === 'danger' ? 'var(--danger)' : 'var(--warning)'}; color:${a.type === 'danger' ? 'var(--danger)' : 'var(--warning)'};">Resolve</button>
-    </div>
-  `).join('');
+  // Health alerts now feed into renderAlerts() consolidated card — no separate rendering needed.
+  // This function is kept for API compatibility but does nothing.
+  // The actual alerts (Form D, debt maturity) are already in renderAlerts().
 }
 
 // ── Donut Chart ─────────────────────────────────────────────────
