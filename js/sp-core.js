@@ -118,6 +118,17 @@ window.SP = (function () {
     });
   }
 
+  // ── XSS Protection ────────────────────────────────────────────────────────
+  // Escape HTML entities in user-supplied strings before inserting via innerHTML.
+  // Use SP.esc(str) everywhere you interpolate user data into HTML.
+  const _escMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#96;' };
+  function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str).replace(/[&<>"'`/]/g, c => _escMap[c]);
+  }
+  // Alias
+  const esc = escapeHtml;
+
   // DEPRECATED: simpleHash is collision-prone (32-bit). Kept only for legacy orgId lookups.
   // New orgs MUST use generateOrgId() instead.
   function simpleHash(str) {
@@ -916,6 +927,7 @@ window.SP = (function () {
     // Session
     getSession, setSession, clearSession, isLoggedIn, isGP, isInvestor,
     getOrgId, makeOrgKey, simpleHash, generateOrgId,
+    escapeHtml, esc,
     // Data ready gate
     onDataReady,
     // Guards
@@ -1162,6 +1174,66 @@ window.SP = (function () {
         document.getElementById('resendVerifyBtn').textContent = 'Failed — try again';
       }
     };
+  });
+})();
+
+// ─── XSS Sanitizer: strip dangerous attributes from dynamically inserted HTML ─
+// Defense-in-depth: catches XSS even if innerHTML is used with unescaped user data.
+(function initXSSSanitizer() {
+  if (typeof MutationObserver === 'undefined') return;
+  const DANGEROUS_ATTRS = ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur',
+    'onsubmit', 'oninput', 'onchange', 'onkeydown', 'onkeyup', 'onkeypress', 'onmouseenter',
+    'onmouseleave', 'onanimationstart', 'onanimationend', 'ontransitionend'];
+  const DANGEROUS_TAGS = new Set(['script', 'iframe', 'object', 'embed', 'form', 'base', 'meta']);
+  // Whitelist pages that legitimately use inline handlers (our own pages)
+  // This observer strips attrs from DYNAMICALLY ADDED nodes only (not initial page load)
+  let _initialized = false;
+
+  function sanitizeNode(node) {
+    if (node.nodeType !== 1) return; // Element only
+    const tag = node.tagName.toLowerCase();
+    // Remove dangerous injected tags (but not our own script tags from initial load)
+    if (DANGEROUS_TAGS.has(tag) && !node.hasAttribute('data-dt-safe')) {
+      // Only remove if it looks injected (not a CDN/Firebase script)
+      const src = node.getAttribute('src') || '';
+      if (tag === 'script' && (src.includes('gstatic.com') || src.includes('firebase') || src.includes('js/sp-') || src.includes('emailjs') || src.includes('cdnjs'))) return;
+      if (tag === 'script' || tag === 'iframe' || tag === 'object' || tag === 'embed') {
+        console.warn('[XSS] Blocked injected', tag, node.outerHTML?.slice(0, 100));
+        node.remove();
+        return;
+      }
+    }
+    // Strip event handler attributes
+    for (const attr of DANGEROUS_ATTRS) {
+      if (node.hasAttribute(attr)) {
+        console.warn('[XSS] Stripped', attr, 'from', node.tagName);
+        node.removeAttribute(attr);
+      }
+    }
+    // Strip javascript: URLs
+    ['href', 'src', 'action', 'formaction', 'data', 'poster'].forEach(a => {
+      const val = node.getAttribute(a);
+      if (val && /^\s*javascript:/i.test(val)) {
+        console.warn('[XSS] Stripped javascript: URL from', a);
+        node.removeAttribute(a);
+      }
+    });
+    // Recurse into children
+    node.querySelectorAll?.('*')?.forEach(sanitizeNode);
+  }
+
+  // Start observing after initial page load to avoid blocking legitimate inline handlers
+  window.addEventListener('load', () => {
+    if (_initialized) return;
+    _initialized = true;
+    const observer = new MutationObserver(mutations => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          sanitizeNode(node);
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
   });
 })();
 
