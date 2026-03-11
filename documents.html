@@ -668,6 +668,22 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    @media print {
+      /* Hide everything except the document preview */
+      body > *:not(#printContainer) { display: none !important; }
+      #printContainer { display: block !important; position: static !important; }
+      #printContainer .preview-panel {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+      }
+      @page { margin: 0.75in 1in; size: letter; }
+    }
+  </style>
   <script>
     SP.requireGP();
   </script>
@@ -851,7 +867,7 @@
         <p><strong>9.5 Accredited Investor Verification.</strong> For offerings under Corporations Code § 25102(f), the Managing Member shall take reasonable steps to verify that all California-resident purchasers are "accredited investors" under Rule 501(a) of Regulation D, and shall retain records of such verification for a minimum of five years.</p>
         <p><strong>9.6 Registered Agent.</strong> The Company shall at all times maintain a registered agent and registered office in California as required by Corporations Code § 17701.13. The registered agent shall be the agent for service of process in all legal proceedings commenced in California.</p>
         <p><strong>9.7 Non-Manager Member Rights.</strong> Notwithstanding Article IV of this Agreement, non-managing Members retain the following non-waivable rights under RULLCA: (a) the right to inspect and copy the Company's records under § 17704.10; (b) the right to bring a derivative action under § 17709.02; (c) the right to receive information reasonably necessary to exercise any right under this Agreement or the Act; and (d) the right to seek judicial dissolution for oppressive conduct under § 17707.03.</p>
-        <p><strong>9.8 Right of First Refusal — ROFR Compliance.</strong> Any proposed transfer of a Member's interest to a person who is not already a Member shall be subject to the right of first refusal set forth in Article V. The Company and remaining Members shall have 30 days following receipt of a bona fide written offer to elect to purchase the interest on the same terms. This provision is intended to comply with restrictions on transferability under California law.</p>
+        <p><strong>9.8 Right of First Refusal — ROFR Compliance.</strong> Any proposed transfer of a Member's interest to a person who is not already a Member shall be subject to the right of first refusal set forth in Article V. The transferring Member shall deliver a written Transfer Notice specifying the proposed terms, purchase price, and identity of the proposed transferee, together with evidence of a bona fide, arm's-length offer. The Company and remaining Members shall have 30 days following receipt of the Transfer Notice to elect to purchase the interest on the same terms. If the price is disputed or the transfer does not reflect a bona fide third-party offer, fair market value shall be determined by an independent MAI-designated appraisal of the Property, with the Member's interest valued at their pro-rata share of the Company's net asset value (appraised Property value less all liabilities, plus cash and other Company assets), less a 15% discount for lack of marketability and minority interest. If the transferring Member disputes the appraisal, a second appraiser may be retained at such Member's expense; if the two appraisals differ by more than 10%, a third appraiser shall be jointly selected, with fair market value determined as the average of the two closest appraisals. This provision is intended to comply with restrictions on transferability under California law.</p>
         <p><strong>9.9 Spousal Interest.</strong> If any Member is married, a Spousal Consent substantially in the form attached hereto as Exhibit B shall be obtained. To the extent a Member's interest constitutes community property under California Family Code § 760, the non-Member spouse's community property interest is subject to this Agreement, and any transfer of such interest requires compliance with Article V.</p>
         <p><strong>9.10 Real Property — CEQA and Land Use.</strong> To the extent the Company acquires or develops real property in California, the Managing Member shall ensure compliance with: (a) the California Environmental Quality Act (CEQA), Public Resources Code § 21000 et seq.; (b) applicable local zoning, general plan, and specific plan requirements; (c) the California Coastal Act where applicable; and (d) all applicable building codes and habitability standards, including Health and Safety Code § 17920.3.</p>
         <p><strong>9.11 AB 1482 — Rent Control.</strong> For residential rental property in California, the Company shall comply with the Tenant Protection Act of 2019 (AB 1482), Civil Code § 1946.2 et seq., including limitations on rent increases, just cause for eviction requirements, and relocation assistance obligations where applicable.</p>`,
@@ -1110,21 +1126,85 @@
     }
     
     function exportPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const preview = document.getElementById('documentPreview');
+      if (!preview || !preview.innerHTML.trim()) {
+        alert('Please generate a preview first.');
+        return;
+      }
       const data = getFormData();
-      
-      doc.setFontSize(10);
-      doc.text('Generated by deeltrack', 10, 10);
-      doc.setFontSize(18);
-      doc.text('OPERATING AGREEMENT', 105, 30, { align: 'center' });
-      doc.setFontSize(12);
-      doc.text(data.companyName || '[COMPANY]', 105, 45, { align: 'center' });
-      doc.text(`Total Equity: $${parseFloat(data.totalEquity || 0).toLocaleString()}`, 10, 70);
-      doc.text(`GP Equity: ${data.gpEquity}%`, 10, 80);
-      doc.text(`Preferred Return: ${data.prefReturn}%`, 10, 90);
-      doc.text(`GP Promote: ${data.gpPromote}%`, 10, 100);
-      doc.save(`${data.companyName || 'document'}_${currentDocType}.pdf`);
+      const filename = `${(data.companyName || 'document').replace(/[^a-zA-Z0-9]/g,'_')}_${currentDocType}`;
+
+      // Try html2canvas → jsPDF for a real PDF render
+      if (typeof html2canvas !== 'undefined') {
+        const btn = document.querySelector('.btn-success');
+        const origText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+        btn.disabled = true;
+
+        // Clone into a temporary container for clean rendering
+        const container = document.createElement('div');
+        container.style.cssText = 'position:absolute; left:-9999px; top:0; width:816px; background:#fff; padding:40px;';
+        container.innerHTML = preview.innerHTML;
+        document.body.appendChild(container);
+
+        html2canvas(container, { scale: 2, useCORS: true, backgroundColor: '#ffffff' }).then(function(canvas) {
+          const { jsPDF } = window.jspdf;
+          const imgData = canvas.toDataURL('image/jpeg', 0.95);
+          const pageWidth = 210; // A4 mm
+          const pageHeight = 297;
+          const margin = 15;
+          const contentWidth = pageWidth - (margin * 2);
+          const imgWidth = contentWidth;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          const doc = new jsPDF('p', 'mm', 'a4');
+
+          let heightLeft = imgHeight;
+          let position = margin;
+
+          // First page
+          doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+          heightLeft -= (pageHeight - margin * 2);
+
+          // Additional pages
+          while (heightLeft > 0) {
+            position -= (pageHeight - margin * 2);
+            doc.addPage();
+            doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+            heightLeft -= (pageHeight - margin * 2);
+          }
+
+          doc.save(filename + '.pdf');
+          document.body.removeChild(container);
+          btn.innerHTML = origText;
+          btn.disabled = false;
+        }).catch(function(err) {
+          console.error('html2canvas failed, falling back to print:', err);
+          document.body.removeChild(container);
+          btn.innerHTML = origText;
+          btn.disabled = false;
+          // Fallback: browser print dialog
+          exportPDFviaPrint();
+        });
+      } else {
+        // Fallback: browser print dialog with print CSS
+        exportPDFviaPrint();
+      }
+    }
+
+    function exportPDFviaPrint() {
+      const preview = document.getElementById('documentPreview');
+      // Create a temporary print container
+      let printContainer = document.getElementById('printContainer');
+      if (!printContainer) {
+        printContainer = document.createElement('div');
+        printContainer.id = 'printContainer';
+        printContainer.style.display = 'none';
+        document.body.appendChild(printContainer);
+      }
+      printContainer.innerHTML = '<div class="preview-panel">' + preview.innerHTML + '</div>';
+      printContainer.style.display = 'block';
+      window.print();
+      setTimeout(function() { printContainer.style.display = 'none'; }, 1000);
     }
     
     function exportWord() {

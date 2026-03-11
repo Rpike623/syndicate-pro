@@ -221,7 +221,14 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
 
 <p style="${hdr}">ARTICLE VII<br>TRANSFERS OF INTERESTS</p>
 <p><strong>7.1 Restrictions on Transfer.</strong> No Member may sell, assign, pledge, hypothecate, or otherwise transfer any portion of their Interest without the prior written consent of the Managing Member, which consent may be withheld in the Managing Member's sole and absolute discretion. Any purported transfer in violation of this Section shall be null and void and of no force or effect.</p>
-<p><strong>7.2 Right of First Refusal.</strong> Prior to any permitted transfer, the transferring Member shall deliver written notice to the Managing Member specifying the proposed terms, price, and identity of the transferee. The Company and/or the non-transferring Members shall have a right of first refusal exercisable within thirty (30) days of receipt of such notice to purchase the transferring Member's Interest on the same terms and conditions.</p>
+<p><strong>7.2 Right of First Refusal.</strong> Prior to any permitted transfer, the transferring Member (the "Offering Member") shall deliver written notice (the "Transfer Notice") to the Managing Member specifying: (a) the proposed terms and conditions of the transfer; (b) the identity and qualifications of the proposed transferee; (c) the proposed purchase price (the "Offered Price"); and (d) evidence that the proposed transfer constitutes a bona fide, arm's-length transaction. The Company and/or the non-transferring Members shall have a right of first refusal exercisable within thirty (30) days of receipt of such Transfer Notice to purchase the Offering Member's Interest on the same terms and conditions set forth in the Transfer Notice.</p>
+<p><strong>7.2.1 Valuation Methodology.</strong> If the Transfer Notice does not reflect a bona fide third-party offer, or if the parties dispute the Offered Price, the fair market value of the Offering Member's Interest shall be determined as follows:</p>
+<ol type="i" style="margin-left: 20px;">
+  <li style="margin-bottom: 6px;"><strong>Appraisal.</strong> The Managing Member shall engage a qualified, independent MAI-designated appraiser to determine the fair market value of the Property. The appraised value shall be used to calculate the net asset value ("NAV") of the Company by subtracting all outstanding Company liabilities (including mortgage debt, accrued expenses, and reserves) from the appraised value of the Property, plus any cash and other assets held by the Company.</li>
+  <li style="margin-bottom: 6px;"><strong>Interest Valuation.</strong> The fair market value of the Offering Member's Interest shall equal such Member's pro-rata share of the NAV, based on the Offering Member's Percentage Interest, less a discount of fifteen percent (15%) for lack of marketability and minority interest (the "Discount"), unless the parties mutually agree to waive or modify the Discount.</li>
+  <li style="margin-bottom: 6px;"><strong>Dispute Resolution.</strong> If the Offering Member disputes the appraisal, the Offering Member may, at its own expense, engage a second MAI-designated appraiser within fifteen (15) days of receiving the initial appraisal. If the two appraisals differ by more than 10%, the two appraisers shall jointly select a third appraiser, and the fair market value shall be the average of the two closest appraisals. The cost of the third appraisal shall be borne equally by the Offering Member and the Company.</li>
+  <li style="margin-bottom: 6px;"><strong>Payment Terms.</strong> If the Company or non-transferring Members elect to exercise the right of first refusal, payment of the purchase price shall be made in cash at closing, or upon such other terms as specified in the Transfer Notice if the purchase is made on the same terms as the third-party offer. Closing shall occur within forty-five (45) days of the exercise of the right of first refusal.</li>
+</ol>
 <p><strong>7.3 Conditions of Transfer.</strong> No transfer shall be consummated unless: (a) the transferee delivers an executed written agreement to be bound by the terms of this Agreement; (b) the Managing Member determines in its reasonable judgment that such transfer will not cause the Company to be treated as a publicly traded partnership for tax purposes; (c) the transfer complies with all applicable federal and state securities laws; and (d) the transferring Member pays all reasonable costs and expenses incurred by the Company in connection with such transfer.</p>
 <p><strong>7.4 No Withdrawal.</strong> No Member shall have the right to resign or withdraw from the Company or to demand or receive a return of all or any portion of their Capital Contribution, except as expressly provided herein or upon dissolution.</p>
 <p><strong>7.5 Admission of Substitute Members.</strong> A transferee of a Member's Interest shall be admitted as a Substitute Member only with the written consent of the Managing Member. Until admitted as a Substitute Member, a transferee shall be an assignee entitled only to receive the distributions and allocations of income, gain, loss, deduction, and credit to which the transferring Member would have been entitled, but shall have no right to vote or participate in Company governance.</p>
@@ -376,22 +383,95 @@ ${stateSection}
   <tr><td style="width:30%; padding:5px 0;"><strong>SSN / EIN:</strong></td><td style="padding:5px 0; border-bottom:1px solid #ccc;">_________________________________</td></tr>
 </table>
 
-<h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">3. ACCREDITED INVESTOR STATUS (REGULATION D)</h3>
-<p>Subscriber represents and warrants that Subscriber is an "accredited investor" as defined in Rule 501(a) of Regulation D. Please check all that apply:</p>
+<h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">3. INVESTOR TYPE AND ENTITY INFORMATION</h3>
+<p><strong>3.1 Type of Subscriber</strong> (check one):</p>
 <div style="margin-left: 10px;">
-  <p>☐ <strong>Individual Net Worth:</strong> My net worth, or joint net worth with my spouse, exceeds $1,000,000 (excluding the value of my primary residence).</p>
-  <p>☐ <strong>Individual Income:</strong> My individual income exceeded $200,000 in each of the two most recent years (or $300,000 joint income with spouse) and I expect the same this year.</p>
-  <p>☐ <strong>Entity:</strong> Subscriber is an entity wherein all equity owners are accredited investors, or the entity has total assets in excess of $5,000,000 and was not formed solely for the purpose of this investment.</p>
-  <p>☐ <strong>License Holder:</strong> I hold a valid Series 7, Series 65, or Series 82 license.</p>
+  <p>☐ <strong>Individual</strong></p>
+  <p>☐ <strong>Joint Tenants</strong> (with right of survivorship)</p>
+  <p>☐ <strong>Tenants in Common</strong></p>
+  <p>☐ <strong>Community Property</strong></p>
+  <p>☐ <strong>Revocable Trust</strong></p>
+  <p>☐ <strong>Irrevocable Trust</strong></p>
+  <p>☐ <strong>Limited Liability Company</strong></p>
+  <p>☐ <strong>Limited Partnership</strong></p>
+  <p>☐ <strong>Corporation (S-Corp / C-Corp)</strong></p>
+  <p>☐ <strong>Self-Directed IRA / Solo 401(k)</strong></p>
+  <p>☐ <strong>Other:</strong> _________________________________</p>
 </div>
 
-<h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">4. REPRESENTATIONS AND WARRANTIES</h3>
-<p>Subscriber represents, warrants, and acknowledges to the Company and the Managing Member that:</p>
+<p style="margin-top:14px;"><strong>3.2 Entity Details</strong> (complete if Subscriber is an entity, trust, or retirement account):</p>
+<table style="width:100%; border:none; margin-bottom: 16px;">
+  <tr><td style="width:35%; padding:5px 0;"><strong>Entity Legal Name:</strong></td><td style="padding:5px 0; border-bottom:1px solid #ccc;">________________________________________________</td></tr>
+  <tr><td style="width:35%; padding:5px 0;"><strong>Type of Entity:</strong></td><td style="padding:5px 0; border-bottom:1px solid #ccc;">________________________________________________</td></tr>
+  <tr><td style="width:35%; padding:5px 0;"><strong>State/Jurisdiction of Formation:</strong></td><td style="padding:5px 0; border-bottom:1px solid #ccc;">_________________</td></tr>
+  <tr><td style="width:35%; padding:5px 0;"><strong>Date of Formation:</strong></td><td style="padding:5px 0; border-bottom:1px solid #ccc;">_________________</td></tr>
+  <tr><td style="width:35%; padding:5px 0;"><strong>EIN / Tax ID:</strong></td><td style="padding:5px 0; border-bottom:1px solid #ccc;">_________________</td></tr>
+  <tr><td style="width:35%; padding:5px 0;"><strong>Authorized Signatory Name &amp; Title:</strong></td><td style="padding:5px 0; border-bottom:1px solid #ccc;">________________________________________________</td></tr>
+</table>
+
+<h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">4. ACCREDITED INVESTOR STATUS (REGULATION D)</h3>
+<p>Subscriber represents and warrants that Subscriber is an "accredited investor" as defined in Rule 501(a) of Regulation D. Please check <strong>all</strong> that apply:</p>
+<div style="margin-left: 10px;">
+  <p>☐ <strong>Individual Net Worth:</strong> My net worth, or joint net worth with my spouse/spousal equivalent, exceeds $1,000,000 (excluding the value of my primary residence).</p>
+  <p>☐ <strong>Individual Income:</strong> My individual income exceeded $200,000 in each of the two most recent years (or $300,000 joint income with spouse/spousal equivalent) and I reasonably expect the same this year.</p>
+  <p>☐ <strong>Entity — All Equity Owners Accredited:</strong> Subscriber is an entity in which <em>all</em> equity owners are individually accredited investors.</p>
+  <p>☐ <strong>Entity — Assets Over $5M:</strong> Subscriber is a trust, corporation, partnership, or other entity with total assets in excess of $5,000,000, not formed for the specific purpose of acquiring these Interests.</p>
+  <p>☐ <strong>IRA / Benefit Plan:</strong> Subscriber is a self-directed IRA, employee benefit plan, or trust with total assets in excess of $5,000,000, directed by a person who has such knowledge and experience in financial and business matters as to be capable of evaluating the merits and risks of this investment.</p>
+  <p>☐ <strong>Licensed Professional:</strong> I hold a valid Series 7, Series 65, or Series 82 license in good standing.</p>
+  <p>☐ <strong>Knowledgeable Employee:</strong> I am a "knowledgeable employee" of the Company as defined in Rule 3c-5(a)(4) under the Investment Company Act of 1940.</p>
+  <p>☐ <strong>Family Office / Family Client:</strong> Subscriber is a "family office" or "family client" as defined in Rule 501(a)(12)-(13) of Regulation D.</p>
+</div>
+
+<h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">5. SUITABILITY REPRESENTATIONS</h3>
+<p>Subscriber represents and warrants the following:</p>
+<div style="margin-left: 10px;">
+  <p>☐ I have adequate means of providing for my current financial needs and personal contingencies and have no need for liquidity of this investment.</p>
+  <p>☐ I can bear the economic risk of this investment for an indefinite period, including the complete loss of my entire investment amount.</p>
+  <p>☐ I have such knowledge and experience in financial and business matters as to be capable of evaluating the merits and risks of an investment in the Company, or I have engaged a qualified purchaser representative to assist me.</p>
+  <p>☐ This investment does not exceed 10% of my net worth (excluding primary residence), or I acknowledge the concentration risk of a larger allocation.</p>
+  <p>☐ I am investing for my own account (or the account of the entity identified above) for investment purposes only, and not with a view to resale or distribution of the Interests.</p>
+  <p>☐ I understand that the Interests have not been registered under the Securities Act of 1933 and are subject to severe transfer restrictions.</p>
+  <p>☐ I have received, read, and understand the Operating Agreement and Private Placement Memorandum (if any) for this offering.</p>
+  <p>☐ I have had the opportunity to ask questions of, and receive answers from, the Managing Member concerning the terms and conditions of this offering, and all such questions have been answered to my satisfaction.</p>
+</div>
+
+<h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">6. ERISA AND BENEFIT PLAN STATUS</h3>
+<p>Subscriber represents the following regarding ERISA and benefit plan status (check one):</p>
+<div style="margin-left: 10px;">
+  <p>☐ <strong>Not a Benefit Plan Investor.</strong> Subscriber is NOT: (a) an "employee benefit plan" as defined in Section 3(3) of the Employee Retirement Income Security Act of 1974 ("ERISA"); (b) a "plan" as defined in Section 4975(e)(1) of the Internal Revenue Code; or (c) an entity whose underlying assets include "plan assets" by reason of a plan's investment in the entity.</p>
+  <p>☐ <strong>Benefit Plan Investor.</strong> Subscriber IS a Benefit Plan Investor and acknowledges the following:</p>
+  <div style="margin-left: 20px;">
+    <p>(i) The fiduciary of the plan has determined that this investment is prudent and consistent with the plan's investment objectives;</p>
+    <p>(ii) The investment does not constitute a "prohibited transaction" under ERISA Section 406 or Code Section 4975;</p>
+    <p>(iii) The plan may generate Unrelated Business Taxable Income ("UBTI") due to the Company's use of debt financing, and the plan fiduciary has considered the UBTI implications;</p>
+    <p>(iv) The custodian/administrator of the plan: _________________________________</p>
+  </div>
+</div>
+
+<h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">7. BAD ACTOR DISQUALIFICATION (RULE 506(d))</h3>
+<p>Subscriber represents, warrants, and certifies that none of the following "Covered Persons" — including the Subscriber, any beneficial owner of 20% or more of the Subscriber's equity securities, any director, executive officer, or other officer participating in the offering, or any general partner or managing member of the Subscriber — is subject to any of the "Bad Actor" disqualifying events described in Rule 506(d)(1) of Regulation D, including but not limited to:</p>
+<ul style="padding-left: 20px; font-size: 10pt;">
+  <li style="margin-bottom: 4px;">Conviction of any felony or misdemeanor in connection with the purchase or sale of any security, involving false filings with the SEC, or arising out of the conduct of a financial intermediary;</li>
+  <li style="margin-bottom: 4px;">Subject to any court injunction or restraining order related to securities;</li>
+  <li style="margin-bottom: 4px;">Subject to any SEC disciplinary order, cease-and-desist order, or stop order;</li>
+  <li style="margin-bottom: 4px;">Suspension or expulsion from membership in, or suspension or bar from association with a member of, a registered national securities exchange or FINRA;</li>
+  <li style="margin-bottom: 4px;">Subject to any U.S. Postal Service false representation order.</li>
+</ul>
+<div style="margin-left: 10px; margin-top: 10px;">
+  <p>☐ <strong>I confirm</strong> that no Covered Person is subject to any disqualifying event under Rule 506(d).</p>
+  <p>☐ <strong>Disclosure:</strong> A Covered Person is or has been subject to a disqualifying event. Details are provided on a separate attachment.</p>
+</div>
+
+<h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">8. ADDITIONAL REPRESENTATIONS AND WARRANTIES</h3>
+<p>Subscriber further represents, warrants, and acknowledges to the Company and the Managing Member that:</p>
 <ul style="padding-left: 20px;">
-  <li style="margin-bottom: 6px;">Subscriber has received, read, and understands the Operating Agreement and Private Placement Memorandum (if any).</li>
-  <li style="margin-bottom: 6px;">Subscriber is purchasing the Interests for their own account for investment purposes, not with a view to resale or distribution.</li>
-  <li style="margin-bottom: 6px;">Subscriber understands that the Interests have not been registered with the SEC and are subject to severe transfer restrictions.</li>
-  <li style="margin-bottom: 6px;">Subscriber has sufficient financial experience to evaluate the risks and can bear the complete loss of this investment.</li>
+  <li style="margin-bottom: 6px;">Subscriber's principal residence (or principal place of business, if an entity) is located in the State of: _______________.</li>
+  <li style="margin-bottom: 6px;">Subscriber is not a citizen or resident of any jurisdiction in which the offer or sale of these Interests would be unlawful.</li>
+  <li style="margin-bottom: 6px;">The funds used for this investment are not derived from, and the investment will not constitute or facilitate, any money laundering or other illegal activity.</li>
+  <li style="margin-bottom: 6px;">Subscriber is not a person or entity identified on the Specially Designated Nationals List maintained by the Office of Foreign Assets Control ("OFAC") of the U.S. Department of the Treasury.</li>
+  <li style="margin-bottom: 6px;">Subscriber understands that the Company is not registered as an investment company under the Investment Company Act of 1940 and that the protections afforded by such Act are not available.</li>
+  <li style="margin-bottom: 6px;">Subscriber has been advised to consult with their own attorney, accountant, and tax advisor regarding the legal, tax, and financial implications of this investment.</li>
+  <li style="margin-bottom: 6px;">Subscriber acknowledges that the Managing Member and its affiliates may have conflicts of interest as described in the Private Placement Memorandum, and consents to such conflicts.</li>
 </ul>
 
 <div style="margin-top: 50px; display: flex; justify-content: space-between;">
@@ -478,7 +558,7 @@ ${stateSection}
 <!-- Table of Contents -->
 <h2 style="font-size:13pt; text-align:center; margin-top:40px; text-decoration:underline;">TABLE OF CONTENTS</h2>
 <table style="width:100%; border-collapse:collapse; margin:16px 0 40px;">
-  ${[['OFFERING SUMMARY','3'],['THE COMPANY','4'],['THE PROPERTY','4'],['USE OF PROCEEDS','5'],['STRUCTURE OF THE OFFERING','5'],['DISTRIBUTION WATERFALL','6'],['MANAGEMENT COMPENSATION','6'],['RISK FACTORS','7'],['INVESTOR SUITABILITY STANDARDS','8'],['CONFLICTS OF INTEREST','9'],['TAX CONSIDERATIONS','9'],['FINANCIAL PROJECTIONS','10'],['LEGAL MATTERS','11'],['HOW TO SUBSCRIBE','11']].map(([t,p])=>`<tr><td style="padding:5px 0; border-bottom:1px dotted #ccc;">${t}</td><td style="padding:5px 0; border-bottom:1px dotted #ccc; text-align:right;">${p}</td></tr>`).join('')}
+  ${[['1. OFFERING SUMMARY','3'],['2. THE COMPANY','4'],['3. THE PROPERTY','4'],['4. USE OF PROCEEDS','5'],['5. DISTRIBUTION WATERFALL','6'],['6. RISK FACTORS','7'],['7. INVESTOR SUITABILITY STANDARDS','8'],['8. TAX CONSIDERATIONS','9'],['9. CONFLICTS OF INTEREST','9'],['10. FINANCIAL PROJECTIONS','10'],['11. LEGAL MATTERS AND SEC NOTICE','11'],['12. HOW TO SUBSCRIBE','12']].map(([t,p])=>`<tr><td style="padding:5px 0; border-bottom:1px dotted #ccc;">${t}</td><td style="padding:5px 0; border-bottom:1px dotted #ccc; text-align:right;">${p}</td></tr>`).join('')}
 </table>
 
 <!-- Section 1: Offering Summary -->
@@ -525,17 +605,50 @@ ${stateSection}
 
 <!-- Section 4: Use of Proceeds -->
 <h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 4 — USE OF PROCEEDS</h2>
-<table style="width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:20px;">
-  <thead><tr style="background:#f1f5f9;"><th style="border:1px solid #ddd; padding:8px; text-align:left;">Use</th><th style="border:1px solid #ddd; padding:8px; text-align:right;">Estimated Amount</th></tr></thead>
-  <tbody>
-    <tr><td style="border:1px solid #ddd; padding:8px;">Property Acquisition (Equity Portion)</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(Math.round(equity*0.78))}</td></tr>
-    <tr><td style="border:1px solid #ddd; padding:8px;">Acquisition Fee (${acqFee}%)</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${deal.purchasePrice ? fmtMoney(Math.round(deal.purchasePrice*acqFee/100)) : '[Amount]'}</td></tr>
-    <tr><td style="border:1px solid #ddd; padding:8px;">Closing Costs & Legal</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(Math.round(equity*0.04))}</td></tr>
-    <tr><td style="border:1px solid #ddd; padding:8px;">Capital Expenditure Reserve</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(Math.round(equity*0.06))}</td></tr>
-    <tr><td style="border:1px solid #ddd; padding:8px;">Operating Reserves</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(Math.round(equity*0.04))}</td></tr>
-    <tr style="background:#f8fafc; font-weight:bold;"><td style="border:1px solid #ddd; padding:8px;">TOTAL</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">${fmtMoney(equity)}</td></tr>
-  </tbody>
-</table>
+${(function() {
+  // Compute Use of Proceeds from actual deal data, not hard-coded percentages
+  const purchasePrice = deal.purchasePrice || 0;
+  const loanAmt = deal.loanAmount || 0;
+  const equityPortion = purchasePrice > 0 ? Math.max(purchasePrice - loanAmt, 0) : 0;
+  const acqFeeAmt = purchasePrice > 0 ? Math.round(purchasePrice * acqFee / 100) : 0;
+  const closingCostsAmt = deal.closingCosts || 0;
+  const capexAmt = deal.capexReserve || 0;
+  // Operating reserve = whatever equity remains after the above line items
+  const subtotal = equityPortion + acqFeeAmt + closingCostsAmt + capexAmt;
+  const opReserve = Math.max(equity - subtotal, 0);
+  const total = equityPortion + acqFeeAmt + closingCostsAmt + capexAmt + opReserve;
+  const hasDealData = purchasePrice > 0;
+
+  // Helper: percentage of total
+  const pctOf = (amt) => total > 0 ? (amt / total * 100).toFixed(1) : '—';
+
+  if (!hasDealData) {
+    // No deal financials entered — show placeholder with advisory
+    return '<p style="color:#666; font-style:italic;">Use of Proceeds will be calculated from the deal\'s financial data (purchase price, loan amount, closing costs, and capital expenditure reserves). Please ensure these fields are populated in the deal record.</p>' +
+    '<table style="width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:20px;">' +
+    '<thead><tr style="background:#f1f5f9;"><th style="border:1px solid #ddd; padding:8px; text-align:left;">Use</th><th style="border:1px solid #ddd; padding:8px; text-align:right;">Estimated Amount</th><th style="border:1px solid #ddd; padding:8px; text-align:right;">% of Raise</th></tr></thead>' +
+    '<tbody>' +
+    '<tr><td style="border:1px solid #ddd; padding:8px;">Property Acquisition (Equity Portion)</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">[Purchase Price − Loan]</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">—</td></tr>' +
+    '<tr><td style="border:1px solid #ddd; padding:8px;">Acquisition Fee (' + acqFee + '%)</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">[' + acqFee + '% × Purchase Price]</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">—</td></tr>' +
+    '<tr><td style="border:1px solid #ddd; padding:8px;">Closing Costs &amp; Legal</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">[From deal record]</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">—</td></tr>' +
+    '<tr><td style="border:1px solid #ddd; padding:8px;">Capital Expenditure Reserve</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">[From deal record]</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">—</td></tr>' +
+    '<tr><td style="border:1px solid #ddd; padding:8px;">Operating Reserves</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">[Remainder]</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">—</td></tr>' +
+    '<tr style="background:#f8fafc; font-weight:bold;"><td style="border:1px solid #ddd; padding:8px;">TOTAL</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + fmtMoney(equity) + '</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">100%</td></tr>' +
+    '</tbody></table>';
+  }
+
+  return '<table style="width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:20px;">' +
+  '<thead><tr style="background:#f1f5f9;"><th style="border:1px solid #ddd; padding:8px; text-align:left;">Use</th><th style="border:1px solid #ddd; padding:8px; text-align:right;">Estimated Amount</th><th style="border:1px solid #ddd; padding:8px; text-align:right;">% of Raise</th></tr></thead>' +
+  '<tbody>' +
+  '<tr><td style="border:1px solid #ddd; padding:8px;">Property Acquisition (Equity Portion)<br><span style="font-size:8.5pt; color:#666;">Purchase Price ' + fmtMoney(purchasePrice) + ' less Debt Financing ' + fmtMoney(loanAmt) + '</span></td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + fmtMoney(equityPortion) + '</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + pctOf(equityPortion) + '%</td></tr>' +
+  '<tr><td style="border:1px solid #ddd; padding:8px;">Acquisition Fee (' + acqFee + '% of Purchase Price)</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + fmtMoney(acqFeeAmt) + '</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + pctOf(acqFeeAmt) + '%</td></tr>' +
+  '<tr><td style="border:1px solid #ddd; padding:8px;">Closing Costs &amp; Legal</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + fmtMoney(closingCostsAmt) + '</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + pctOf(closingCostsAmt) + '%</td></tr>' +
+  '<tr><td style="border:1px solid #ddd; padding:8px;">Capital Expenditure Reserve</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + fmtMoney(capexAmt) + '</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + pctOf(capexAmt) + '%</td></tr>' +
+  (opReserve > 0 ? '<tr><td style="border:1px solid #ddd; padding:8px;">Operating Reserves</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + fmtMoney(opReserve) + '</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + pctOf(opReserve) + '%</td></tr>' : '') +
+  '<tr style="background:#f8fafc; font-weight:bold;"><td style="border:1px solid #ddd; padding:8px;">TOTAL</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">' + fmtMoney(total) + '</td><td style="border:1px solid #ddd; padding:8px; text-align:right;">100%</td></tr>' +
+  '</tbody></table>' +
+  '<p style="font-size:9pt; color:#555;">The foregoing estimates are based on information available as of the date hereof and are subject to change. Actual amounts may vary based on final purchase terms, lender requirements, and market conditions. Any excess proceeds will be held as additional operating reserves.</p>';
+})()}
 
 <!-- Section 5: Distribution Waterfall -->
 <h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 5 — DISTRIBUTION WATERFALL</h2>
@@ -571,14 +684,55 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
 <h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 8 — TAX CONSIDERATIONS</h2>
 <p>The Company intends to be treated as a partnership for U.S. federal income tax purposes. Each Member will receive a Schedule K-1 reporting their distributive share of income, gains, losses, deductions, and credits for each tax year. Prospective investors should consult with their own tax counsel regarding the tax consequences of an investment in the Company, including depreciation benefits and passive activity rules.</p>
 
-<!-- Section 9: Legal Matters -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 9 — LEGAL MATTERS AND SEC NOTICE</h2>
+<!-- Section 9: Conflicts of Interest -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 9 — CONFLICTS OF INTEREST</h2>
+<p><em>Prospective investors should carefully consider the following conflicts of interest, which are inherent in the structure of this offering and the relationship between the Managing Member and the Company.</em></p>
+
+<p><strong>Compensation and Fees.</strong> The Managing Member and its affiliates will receive fees in connection with this investment, including an acquisition fee of ${acqFee}% and an ongoing asset management fee of ${mgmtFee}% of gross revenues (see "Management Compensation" above). These fees are payable regardless of whether the investment generates a positive return for the Limited Members. The Managing Member's interest in earning fees may conflict with its duty to manage the Company in the best interest of the Limited Members.</p>
+
+<p><strong>Other Activities and Competing Investments.</strong> The Managing Member and its affiliates are not required to devote their full time and attention to the Company. The Managing Member may sponsor, manage, or invest in other real estate ventures, including ventures that compete directly with the Company for tenants, financing, or acquisition opportunities. The Managing Member is under no obligation to present any investment opportunity to the Company and may pursue such opportunities independently or for other entities.</p>
+
+<p><strong>Related Party Transactions.</strong> The Managing Member or its affiliates may provide property management, construction management, brokerage, or other services to the Company. While the Operating Agreement requires that such services be provided on terms no less favorable than those available from unaffiliated third parties, there is an inherent conflict in the Managing Member's ability to determine the terms of affiliated transactions.</p>
+
+<p><strong>GP Co-Investment.</strong> The Managing Member (and/or its affiliates) intends to contribute approximately ${gpPct}% of the total equity capitalization. While this aligns the Managing Member's interests with those of the Limited Members, the Managing Member's promote (carried interest) and fee income provide the Managing Member with returns in excess of its capital contribution, which may incentivize risk-taking beyond what is optimal for the Limited Members.</p>
+
+<p><strong>Borrowing Decisions.</strong> The decision to finance the Property with mortgage debt, and the terms of such financing, will be made by the Managing Member. Leverage magnifies both gains and losses and increases the risk that the Company may be unable to meet its debt service obligations. The Managing Member's promote structure may incentivize the use of greater leverage than would be optimal from the Limited Members' perspective.</p>
+
+<p><strong>Timing of Disposition.</strong> The Managing Member has sole discretion over the timing of the sale or disposition of the Property, subject to Major Decision approval. The Managing Member's promote may incentivize it to hold or sell the Property at a time that maximizes promote income rather than total return to the Limited Members.</p>
+
+<p><strong>No Independent Representation.</strong> The legal counsel preparing the formation documents and this memorandum represents the Company and the Managing Member, not the individual Limited Members. Each prospective investor is urged to retain their own independent legal and tax counsel to review this offering.</p>
+
+<!-- Section 10: Financial Projections -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 10 — FINANCIAL PROJECTIONS</h2>
+<p style="font-style:italic; color:#c00; border:1px solid #c00; padding:10px; margin-bottom:16px;"><strong>IMPORTANT:</strong> The following projections are estimates only and are based on assumptions that may not be realized. Actual results will differ, perhaps materially, from these projections. Past performance of the Managing Member or similar properties is not indicative of future results. These projections are not a guarantee or promise of any particular return.</p>
+
+<p><strong>Key Assumptions:</strong></p>
+<table style="width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:16px;">
+  <tbody>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:6px 10px; font-weight:bold; width:45%; background:#fafafa;">Purchase Price</td><td style="padding:6px 10px;">${deal.purchasePrice ? fmtMoney(deal.purchasePrice) : '[To be determined]'}</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:6px 10px; font-weight:bold; background:#fafafa;">Total Equity Required</td><td style="padding:6px 10px;">${fmtMoney(equity)}</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:6px 10px; font-weight:bold; background:#fafafa;">Debt Financing</td><td style="padding:6px 10px;">${deal.loanAmount ? fmtMoney(deal.loanAmount) : '[To be determined]'}${deal.interestRate ? ' at ' + deal.interestRate + '% interest' : ''}</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:6px 10px; font-weight:bold; background:#fafafa;">Projected Hold Period</td><td style="padding:6px 10px;">${deal.holdPeriod || 5} years</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:6px 10px; font-weight:bold; background:#fafafa;">Distribution Waterfall</td><td style="padding:6px 10px;">${pref}% preferred return, ${promote}/${lpResidual} GP/LP split above pref</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:6px 10px; font-weight:bold; background:#fafafa;">Target IRR (Net to LP)</td><td style="padding:6px 10px;">${deal.irr ? deal.irr.toFixed(1) + '%' : '[To be determined based on final underwriting]'}</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:6px 10px; font-weight:bold; background:#fafafa;">Target Equity Multiple (Net to LP)</td><td style="padding:6px 10px;">${deal.equity ? deal.equity.toFixed(2) + 'x' : '[To be determined based on final underwriting]'}</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:6px 10px; font-weight:bold; background:#fafafa;">Assumed Annual Revenue Growth</td><td style="padding:6px 10px;">${deal.revenueGrowth ? deal.revenueGrowth + '%' : '2–3% (market assumption)'}</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:6px 10px; font-weight:bold; background:#fafafa;">Assumed Exit Cap Rate</td><td style="padding:6px 10px;">${deal.exitCapRate ? deal.exitCapRate + '%' : '[Based on market conditions at time of disposition]'}</td></tr>
+  </tbody>
+</table>
+
+<p><strong>Sensitivity Disclaimer.</strong> The projected returns are sensitive to changes in key assumptions, including but not limited to: occupancy rates, rental rates, operating expenses, interest rates, capital expenditure requirements, and exit capitalization rates. A change of 50 basis points in the exit cap rate, or a 5% variance in operating expenses, can materially impact investor returns. The Managing Member makes no representation that any of the assumptions will prove correct or that the projected returns will be achieved.</p>
+
+<p><strong>No Assurance of Distributions.</strong> There can be no assurance that the Company will generate sufficient cash flow to make distributions to the Members at any time. Distributions are subject to the availability of Distributable Cash after debt service, operating expenses, capital reserves, and other obligations of the Company. The Managing Member may, in its sole discretion, retain cash for reserves rather than make distributions.</p>
+
+<!-- Section 11: Legal Matters -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 11 — LEGAL MATTERS AND SEC NOTICE</h2>
 <p>This offering is being made in reliance upon the exemption from registration provided by ${secExemption} of Regulation D under the Securities Act of 1933. A Form D notice will be filed with the Securities and Exchange Commission within 15 days of the first sale. State notice filings will be made as required.</p>
 <p><strong>Legal Counsel:</strong> ${counsel}</p>
 <p>No sale will be made to a resident of any state in which the offer is not exempt or does not qualify under applicable state securities laws.</p>
 
-<!-- Section 10: How to Subscribe -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 10 — HOW TO SUBSCRIBE</h2>
+<!-- Section 12: How to Subscribe -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 12 — HOW TO SUBSCRIBE</h2>
 <ol style="padding-left:24px;">
   <li style="margin-bottom:8px;">Complete, sign, and return the Subscription Agreement and Investor Questionnaire.</li>
   <li style="margin-bottom:8px;">Provide documentation evidencing accredited investor status as requested by the Managing Member.</li>
