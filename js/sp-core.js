@@ -1056,6 +1056,58 @@ window.SP = (function () {
   });
 })();
 
+// ─── Auto Auth Guard ──────────────────────────────────────────────────────────
+// Enforces Firebase Auth on all protected pages.
+// Checks REAL Firebase Auth state, not just localStorage session.
+(function autoAuthGuard() {
+  if (typeof document === 'undefined') return;
+  const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+  // Public pages that don't require auth
+  const PUBLIC_PAGES = new Set([
+    'login.html', 'signup.html', 'pricing.html', 'index.html', 'landing.html',
+    'terms.html', 'privacy.html', 'disclaimer.html', 'security.html',
+    '404.html', 'reset-password.html', 'invest.html', 'sign.html',
+    'waterfall-explainer.html', 'waterfall-guide.html', 'help-center.html',
+  ]);
+
+  if (PUBLIC_PAGES.has(page)) return;
+
+  // Hide page content until auth is confirmed
+  const style = document.createElement('style');
+  style.id = 'auth-guard-style';
+  style.textContent = '.auth-pending { opacity: 0; pointer-events: none; transition: opacity 0.2s; }';
+  document.head.appendChild(style);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // If sp-core session exists, show page immediately (fast path)
+    if (typeof SP !== 'undefined' && SP.isLoggedIn()) {
+      return; // Already authenticated via localStorage — Firebase will confirm async
+    }
+    // No localStorage session — hide content and wait for Firebase
+    document.body.classList.add('auth-pending');
+  });
+
+  // Wait for Firebase Auth to resolve
+  window.addEventListener('spdata-ready', () => {
+    // Firebase resolved — check if authenticated
+    document.body.classList.remove('auth-pending');
+    const s = document.getElementById('auth-guard-style');
+    if (s) s.remove();
+  });
+
+  // Timeout: if Firebase doesn't resolve in 5s, redirect to login
+  setTimeout(() => {
+    if (typeof SP === 'undefined' || !SP.isLoggedIn()) {
+      const fbReady = typeof SPFB !== 'undefined' && SPFB.isReady();
+      if (!fbReady) {
+        console.warn('[AuthGuard] No auth after 5s — redirecting to login');
+        window.location.href = 'login.html?redirect=' + encodeURIComponent(window.location.href);
+      }
+    }
+  }, 5000);
+})();
+
 (function loadModules() {
     if (typeof document === 'undefined') return;
     document.addEventListener('DOMContentLoaded', function () {
