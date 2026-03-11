@@ -1116,6 +1116,40 @@ window.SP = (function () {
       document.body.appendChild(banner);
     }
   });
+
+  // ── Email verification banner ──────────────────────────────────────────────
+  // Show persistent banner when user hasn't verified their email
+  window.addEventListener('spdata-ready', () => {
+    if (typeof SPFB === 'undefined' || SPFB.isOffline()) return;
+    if (SPFB.isEmailVerified()) return;
+    const s = SP.getSession();
+    if (!s || !s.loggedIn) return;
+    // Don't show on public pages
+    const page = window.location.pathname.split('/').pop() || '';
+    const skip = ['login.html','signup.html','pricing.html','index.html','terms.html','privacy.html','disclaimer.html','security.html','404.html','reset-password.html'];
+    if (skip.includes(page)) return;
+
+    const vBanner = document.createElement('div');
+    vBanner.id = 'email-verify-banner';
+    vBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#FEF3C7;color:#92400E;padding:10px 20px;display:flex;align-items:center;gap:12px;z-index:9999;font-size:.85rem;font-weight:500;border-bottom:1px solid #F59E0B;justify-content:center;flex-wrap:wrap;';
+    vBanner.innerHTML = `
+      <i class="fas fa-exclamation-triangle" style="color:#F59E0B;"></i>
+      <span>Please verify your email address (<strong>${s.email}</strong>) to secure your account.</span>
+      <button id="resendVerifyBtn" style="background:#F59E0B;color:#92400E;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-weight:600;font-size:.8rem;font-family:inherit;">Resend Email</button>`;
+    document.body.prepend(vBanner);
+    // Push content down
+    document.body.style.paddingTop = (vBanner.offsetHeight || 40) + 'px';
+
+    document.getElementById('resendVerifyBtn').onclick = async () => {
+      try {
+        await SPFB.resendVerification();
+        document.getElementById('resendVerifyBtn').textContent = '✓ Sent!';
+        document.getElementById('resendVerifyBtn').disabled = true;
+      } catch (e) {
+        document.getElementById('resendVerifyBtn').textContent = 'Failed — try again';
+      }
+    };
+  });
 })();
 
 // ─── PWA: Nuke all service workers and caches ────────────────────────────────

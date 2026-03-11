@@ -502,13 +502,44 @@ const SPFB = (function () {
     if (ROLE_LOCK[signupLc]) role = ROLE_LOCK[signupLc];
 
     const cred = await _auth.createUserWithEmailAndPassword(email, password);
+
+    // Send email verification
+    try {
+      await cred.user.sendEmailVerification({
+        url: window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + 'login.html?verified=1',
+        handleCodeInApp: false,
+      });
+      console.log('SPFB: Verification email sent to', email);
+    } catch (e) {
+      console.warn('SPFB: Could not send verification email:', e.message);
+    }
+
     const profile = {
       uid: cred.user.uid, email, name, role,
       orgId: orgId || _hashEmail(email),
+      emailVerified: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
     await _db.collection('users').doc(cred.user.uid).set(profile);
     return cred;
+  }
+
+  // Check if current user has verified their email
+  function isEmailVerified() {
+    if (_user && _user.emailVerified) return true;
+    // Demo accounts are always "verified"
+    const emailLc = (_spUser?.email || '').toLowerCase();
+    if (ROLE_LOCK[emailLc]) return true;
+    return false;
+  }
+
+  // Resend verification email
+  async function resendVerification() {
+    if (!_user) throw new Error('Not signed in');
+    await _user.sendEmailVerification({
+      url: window.location.origin + window.location.pathname.replace(/[^/]*$/, '') + 'login.html?verified=1',
+      handleCodeInApp: false,
+    });
   }
 
   // Canonical roles for known accounts — prevents role corruption
@@ -646,6 +677,7 @@ const SPFB = (function () {
     signUp, logIn, logOut,
     sendPasswordReset, updatePassword, updateProfile,
     ensureUserRecord,
+    isEmailVerified, resendVerification,
     subscribeToDeals, subscribeToInvestors, subscribeToDistributions,
   };
 })();

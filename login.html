@@ -385,6 +385,15 @@
     }
   }
 
+  // Show success message after email verification
+  const verifiedParam = new URLSearchParams(window.location.search).get('verified');
+  if (verifiedParam === '1') {
+    const sa = document.getElementById('successAlert');
+    sa.innerHTML = '<i class="fas fa-check-circle"></i><span>Email verified! Sign in to continue.</span>';
+    sa.classList.add('show');
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
   // Pre-fill email from reset_hint param (set by reset-password.html on expired link redirect)
   const resetHint = new URLSearchParams(window.location.search).get('reset_hint');
   if (resetHint) {
