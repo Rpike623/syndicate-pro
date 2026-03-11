@@ -435,8 +435,11 @@ window.SP = (function () {
     }
     
     localStorage.setItem('sp_users', JSON.stringify(users));
-    // Legacy fallback auth — Firebase Auth is the real auth layer.
-    // This only matches by email (password verified by Firebase Auth, not stored here).
+    // Legacy fallback auth — ONLY for demo accounts when Firebase is unavailable.
+    // Demo password is checked here; real accounts MUST authenticate via Firebase Auth.
+    const DEMO_PASSWORD = 'Demo1234!';
+    const isDemoAccount = [...demoEmails, marcusEmail].includes(email.toLowerCase());
+    if (!isDemoAccount || password !== DEMO_PASSWORD) return null;
     const user = getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
     if (!user) return null;
     // Ensure orgId

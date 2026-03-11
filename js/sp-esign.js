@@ -81,6 +81,17 @@ const SPEsign = (() => {
       gpName,
       gpRep,
       docType: 'subscription_agreement',
+      // Include wire instructions so investor can see them after signing
+      // (investor can't read settings collection directly)
+      wireInstructions: settings?.wireBankName ? {
+        bankName: settings.wireBankName || '',
+        routing: settings.wireRouting || '',
+        acctNum: settings.wireAcctNum || '',
+        acctName: settings.wireAcctName || '',
+        reference: settings.wireReference || '',
+        swift: settings.wireSwift || '',
+        memo: settings.wireMemo || '',
+      } : null,
       status: 'pending', // pending → sent → viewed → signed → countersigned
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdBy: session?.uid || '',

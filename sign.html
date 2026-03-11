@@ -407,28 +407,22 @@ async function submitSignature() {
       </div>
     `;
 
-    // Load wire instructions from settings
-    try {
-      const settingsDoc = await _db.collection('orgs').doc(_orgId).collection('settings').doc('main').get();
-      if (settingsDoc.exists) {
-        const s = settingsDoc.data();
-        const hasWire = s.wireBankName || s.wireRouting || s.wireAcctNum;
-        if (hasWire) {
-          document.getElementById('wireInstructions').style.display = '';
-          document.getElementById('wireDetails').innerHTML = `
-            <div style="display:grid;gap:8px;">
-              ${s.wireBankName ? `<div class="term-row"><span class="term-label">Bank</span><span class="term-value">${s.wireBankName}</span></div>` : ''}
-              ${s.wireRouting ? `<div class="term-row"><span class="term-label">Routing (ABA)</span><span class="term-value" style="font-family:'JetBrains Mono',monospace;">${s.wireRouting}</span></div>` : ''}
-              ${s.wireAcctNum ? `<div class="term-row"><span class="term-label">Account #</span><span class="term-value" style="font-family:'JetBrains Mono',monospace;">${s.wireAcctNum}</span></div>` : ''}
-              ${s.wireAcctName ? `<div class="term-row"><span class="term-label">Account Name</span><span class="term-value">${s.wireAcctName}</span></div>` : ''}
-              ${s.wireReference ? `<div class="term-row"><span class="term-label">Reference</span><span class="term-value">${s.wireReference}</span></div>` : ''}
-              ${s.wireSwift ? `<div class="term-row"><span class="term-label">SWIFT</span><span class="term-value">${s.wireSwift}</span></div>` : ''}
-              ${s.wireMemo ? `<div style="margin-top:8px;padding:10px;background:var(--bg);border-radius:6px;font-size:.82rem;color:var(--text-secondary);">${s.wireMemo}</div>` : ''}
-            </div>
-          `;
-        }
-      }
-    } catch(e) { /* Wire instructions not available — that's ok */ }
+    // Load wire instructions from the signing request (not settings — investor can't read that)
+    const w = _signReq.wireInstructions;
+    if (w && (w.bankName || w.routing || w.acctNum)) {
+      document.getElementById('wireInstructions').style.display = '';
+      document.getElementById('wireDetails').innerHTML = `
+        <div style="display:grid;gap:8px;">
+          ${w.bankName ? `<div class="term-row"><span class="term-label">Bank</span><span class="term-value">${w.bankName}</span></div>` : ''}
+          ${w.routing ? `<div class="term-row"><span class="term-label">Routing (ABA)</span><span class="term-value" style="font-family:'JetBrains Mono',monospace;">${w.routing}</span></div>` : ''}
+          ${w.acctNum ? `<div class="term-row"><span class="term-label">Account #</span><span class="term-value" style="font-family:'JetBrains Mono',monospace;">${w.acctNum}</span></div>` : ''}
+          ${w.acctName ? `<div class="term-row"><span class="term-label">Account Name</span><span class="term-value">${w.acctName}</span></div>` : ''}
+          ${w.reference ? `<div class="term-row"><span class="term-label">Reference</span><span class="term-value">${w.reference}</span></div>` : ''}
+          ${w.swift ? `<div class="term-row"><span class="term-label">SWIFT</span><span class="term-value">${w.swift}</span></div>` : ''}
+          ${w.memo ? `<div style="margin-top:8px;padding:10px;background:var(--bg);border-radius:6px;font-size:.82rem;color:var(--text-secondary);">${w.memo}</div>` : ''}
+        </div>
+      `;
+    }
   } catch(e) {
     console.error('Sign failed:', e);
     btn.disabled = false;
