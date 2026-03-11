@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "test": "node tests/test-sp-math.js",
     "qa-deeltrack": "node scripts/qa-deeltrack.js"
   },
   "dependencies": {
