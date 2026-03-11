@@ -1,4 +1,4 @@
-name: Deploy Firestore Rules
+name: Deploy Firebase
 
 on:
   push:
@@ -7,16 +7,31 @@ on:
       - 'firestore.rules'
       - 'firestore.indexes.json'
       - 'storage.rules'
+      - 'functions/**'
 
 jobs:
-  deploy:
+  deploy-rules:
+    if: contains(github.event.head_commit.modified, 'firestore.rules') || contains(github.event.head_commit.modified, 'firestore.indexes.json') || contains(github.event.head_commit.modified, 'storage.rules')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Deploy Firestore Rules & Indexes
+      - name: Deploy Firestore Rules
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only firestore:rules,firestore:indexes,storage --project deeltrack
+        env:
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+  deploy-functions:
+    if: contains(toJSON(github.event.commits.*.modified), 'functions/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install function dependencies
+        run: cd functions && npm ci
+      - name: Deploy Cloud Functions
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only functions --project deeltrack
         env:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
