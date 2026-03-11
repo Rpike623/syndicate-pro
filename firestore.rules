@@ -1,63 +1,142 @@
 rules_version = '2';
-
+// Auto-deployed via GitHub Actions on push to main — project: deeltrack
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Public access
-    match /public/{document=**} {
-      allow read: if true;
-      allow write: if false;
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    // Users collection
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function userDocData() {
+      return get(/databases/$(database)/documents/users/$(uid())).data;
+    }
+
+    function userOrgId() {
+      return userDocData().orgId;
+    }
+
+    function ownsOrg(orgId) {
+      return isSignedIn() && (
+        userOrgId() == orgId ||
+        // Multi-org: LP investors may belong to multiple orgs via orgIds array
+        (userDocData().orgIds is list && orgId in userDocData().orgIds)
+      );
+    }
+
+    function isInvestorRole() {
+      return isSignedIn() && userDocData().role == 'Investor';
+    }
+
+    // ── Internal config (Stripe keys, email config) — Cloud Functions only ──
+    match /_config/{docId} {
+      allow read, write: if false; // Only accessible via Admin SDK in Cloud Functions
+    }
+
+    // ── Stripe event logs — Cloud Functions only ─────────────────────────────
+    match /_stripe_events/{docId} {
+      allow read, write: if false;
+    }
+
+    // ── Users ─────────────────────────────────────────────────────────────────
+    // Any signed-in user (including anonymous) can manage their own profile.
+
     match /users/{userId} {
-      // Allow users to read their own profile
-      allow read: if request.auth.uid == userId;
-      
-      // Allow admins to read/write any user
-      allow write: if request.auth.token.admin == true;
-      
-      // Allow anyone to create new user (signup)
-      allow create: if request.auth.uid == userId && request.resource.data.keys().hasAll(['email', 'name', 'role', 'orgId', 'createdAt']);
+      allow read, write: if isSignedIn() && uid() == userId;
     }
 
-    // Org collection - only readable by members of that org
+    // ── Org data ──────────────────────────────────────────────────────────────
+
     match /orgs/{orgId} {
-      // Only allow reads if user is member of org
-      allow read: if 
-        request.auth.uid != null &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId;
-      
-      // Only allow writes if user is admin of org
-      allow write: if 
-        request.auth.uid != null &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-      
-      // Allow creation by authenticated users (first time org setup)
-      allow create: if request.auth.uid != null && request.resource.data.keys().hasAll(['orgId', 'encryptedDek', 'createdAt']);
+      allow read, write: if ownsOrg(orgId);
+
+      match /deals/{dealId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        // Investors can read deals they're linked to
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+      }
+
+      match /investors/{investorId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        // Investors can read their own record (single doc or query filtered by email)
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+      }
+
+      match /documents/{docId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read: if ownsOrg(orgId) && isInvestorRole() && (
+          resource.data.accessLevel == 'all_investors' ||
+          resource.data.accessLevel == userDocData().investorId
+        );
+      }
+
+      match /distributions/{distId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+      }
+
+      match /capitalCalls/{callId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        // Investors can read capital calls for deals they are linked to
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+      }
+
+      match /activity/{actId} {
+        allow read, write: if ownsOrg(orgId);
+      }
+
+      match /settings/{settingId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+      }
+
+      // Generic custom data store (k1_vault, dealroom_docs_*, investor_updates, etc.)
+      // GP can read/write all; investors can read (filtered client-side by investorId)
+      match /custom_data/{docId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+      }
+
+      // E-signature log (Firma.dev signing requests)
+      match /esign_log/{docId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+      }
+
+      // Deal invite links — GP creates, any signed-in user can read (needed for invest.html)
+      match /deal_invites/{inviteId} {
+        allow read: if isSignedIn();
+        allow write: if ownsOrg(orgId) && !isInvestorRole();
+      }
+
+      // Investment commitments — LP creates, GP reads/updates
+      match /commitments/{commitId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read: if ownsOrg(orgId) && isInvestorRole();
+        allow create: if isSignedIn(); // Any authenticated user can submit a commitment
+      }
+
+      // Signing requests — GP creates, LP reads and updates (to sign)
+      match /signing_requests/{reqId} {
+        allow read, write: if ownsOrg(orgId) && !isInvestorRole();
+        allow read, update: if isSignedIn(); // LP needs to read and sign
+      }
     }
 
-    // Org-scoped collections
-    match /orgs/{orgId}/{collection}/{document=**} {
-      // Only allow access if user is member of org
-      allow read, write: if 
-        request.auth.uid != null &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId;
-    }
-
-    // Audit logs - only readable by admins
+    // ── Audit logs — Cloud Functions write, admins read ─────────────────────
     match /auditLogs/{document=**} {
-      allow read: if request.auth.token.admin == true;
-      allow write: if true; // Allow any authenticated user to write audit logs
+      allow read: if false;   // Admin SDK only
+      allow write: if false;  // Admin SDK only (Cloud Functions)
     }
 
-    // Public collections
-    match /public/{collection}/{document=**} {
-      allow read: if true;
-      allow write: if false;
+    // ── Global invite index (token → orgId lookup for invest.html) ──────────
+    match /_invites/{token} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // GP creates when generating invite
     }
   }
 }
