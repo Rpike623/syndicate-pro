@@ -93,6 +93,35 @@ async function graphSendMail(to, subject, html, token, options = {}) {
   });
 }
 
+// ── Rate Limiter ──────────────────────────────────────────────────────────────
+// Simple in-memory rate limiter for Cloud Functions.
+// Limits per-user calls to prevent abuse of email, encryption, and billing endpoints.
+const _rateLimits = new Map(); // key: uid+action → { count, resetAt }
+
+function rateLimit(uid, action, maxCalls, windowMs) {
+  const key = `${uid}:${action}`;
+  const now = Date.now();
+  let entry = _rateLimits.get(key);
+  if (!entry || now > entry.resetAt) {
+    entry = { count: 0, resetAt: now + windowMs };
+    _rateLimits.set(key);
+  }
+  entry.count++;
+  _rateLimits.set(key, entry);
+  if (entry.count > maxCalls) {
+    throw new HttpsError('resource-exhausted',
+      `Rate limit exceeded for ${action}. Max ${maxCalls} calls per ${Math.round(windowMs/60000)} minutes.`);
+  }
+}
+
+// Clean up stale entries every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of _rateLimits) {
+    if (now > entry.resetAt) _rateLimits.delete(key);
+  }
+}, 10 * 60 * 1000);
+
 // ── Auth helper ───────────────────────────────────────────────────────────────
 async function verifyAndGetOrg(auth) {
   if (!auth) throw new HttpsError('unauthenticated', 'Must be signed in');
@@ -104,6 +133,7 @@ async function verifyAndGetOrg(auth) {
 // ── sendEmail callable ────────────────────────────────────────────────────────
 exports.sendEmail = onCall({ region: 'us-central1' }, async (request) => {
   const { uid, orgId } = await verifyAndGetOrg(request.auth);
+  rateLimit(uid, 'sendEmail', 30, 60 * 60 * 1000); // 30 emails per hour
   const { to, subject, html, text, type, dealId, fromName } = request.data;
   if (!to || !subject) throw new HttpsError('invalid-argument', 'Missing to or subject');
 
@@ -248,6 +278,7 @@ exports.createCheckoutSession = onCall(
   async (request) => {
     const uid = request.auth?.uid;
     if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'checkout', 5, 10 * 60 * 1000); // 5 checkout attempts per 10 min
 
     const { plan, quantity } = request.data;
     if (!plan || !['per_deal', 'enterprise'].includes(plan)) {
@@ -1171,6 +1202,7 @@ async function kmsDecrypt(ciphertext) {
 // Get or create KMS-encrypted org key
 exports.getOrgKey = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated');
+  rateLimit(request.auth.uid, 'getOrgKey', 20, 60 * 1000); // 20 per minute
   const { orgId } = request.data;
 
   // Verify user belongs to this org
@@ -1205,6 +1237,7 @@ exports.getOrgKey = onCall(async (request) => {
 // Encrypt data server-side using KMS-decrypted DEK
 exports.encryptData = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated');
+  rateLimit(request.auth.uid, 'encryptData', 60, 60 * 1000); // 60 per minute
   const { orgId, plaintext, encryptedDek } = request.data;
 
   const dek = await kmsDecrypt(Buffer.from(encryptedDek, 'base64'));
@@ -1284,6 +1317,7 @@ const ROLE_LOCK_SERVER = {
 
 exports.healUserRole = onCall({ region: 'us-central1' }, async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in');
+  rateLimit(request.auth.uid, 'healUserRole', 5, 60 * 60 * 1000); // 5 per hour
   const { uid, expectedRole } = request.data;
   if (!uid || !expectedRole) throw new HttpsError('invalid-argument', 'uid and expectedRole required');
 
