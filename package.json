@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "node tests/test-sp-math.js",
+    "test": "node tests/test-sp-math.js && node tests/test-e2e.js",
+    "test:math": "node tests/test-sp-math.js",
+    "test:e2e": "node tests/test-e2e.js",
     "qa-deeltrack": "node scripts/qa-deeltrack.js"
   },
   "dependencies": {
