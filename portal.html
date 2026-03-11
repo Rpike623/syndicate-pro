@@ -3,6 +3,9 @@
 <head>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>deeltrack | My Investments</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,10 +15,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v7"></script>
+  <script src="js/sp-core.js?v8"></script>
   <script src="js/sp-crypto.js"></script>
-  <script src="js/sp-data.js?v7"></script>
-  <script src="js/sp-firebase.js?v7"></script>
+  <script src="js/sp-data.js?v8"></script>
+  <script src="js/sp-firebase.js?v8"></script>
   <script src="js/sp-multi-org.js"></script>
   <style>
     :root {
@@ -810,19 +813,6 @@ function render() {
     allDists = SP.getDistributions().filter(d => d.status === 'posted');
   }
   const myDists = [];
-  // Helper: resolve deal name from dist record or deals list
-  const _resolveDealName = (d) => {
-    if (d.dealName) return d.dealName;
-    const deal = allDeals.find(dl => dl.id === d.dealId);
-    return deal ? deal.name : 'Unknown Deal';
-  };
-  // Helper: safe period string
-  const _distPeriod = (d) => {
-    if (d.period) return d.period;
-    if (d.quarter && d.year) return d.quarter + ' ' + d.year;
-    if (d.date) return new Date(d.date + 'T00:00:00').toLocaleDateString();
-    return '—';
-  };
 
   allDists.forEach(d => {
     if (!Array.isArray(d.recipients)) return;

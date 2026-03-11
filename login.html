@@ -3,6 +3,9 @@
 <head>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Kill any service worker immediately before anything else loads -->
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if(window.caches)caches.keys().then(k=>k.forEach(c=>caches.delete(c)));}</script>
@@ -16,10 +19,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="js/sp-core.js?v6"></script>
+  <script src="js/sp-core.js?v8"></script>
   <script src="js/sp-crypto.js"></script>
-  <script src="js/sp-data.js?v6"></script>
-  <script src="js/sp-firebase.js?v6"></script>
+  <script src="js/sp-data.js?v8"></script>
+  <script src="js/sp-firebase.js?v8"></script>
   <style>
     :root {
       --accent: #F37925; --accent-hover: #D96515;
