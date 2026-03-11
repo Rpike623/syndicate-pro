@@ -1304,6 +1304,74 @@ window.SP = (function () {
   });
 })();
 
+// ─── Global Error Tracking ───────────────────────────────────────────────────
+// Catches uncaught errors + unhandled promise rejections.
+// Logs to Firestore (orgs/{orgId}/errors) for GP visibility.
+// Batches errors to avoid spamming Firestore writes.
+(function initErrorTracking() {
+  if (typeof window === 'undefined') return;
+  const _errorQueue = [];
+  let _flushTimer = null;
+
+  function _captureError(type, message, source, line, col, stack) {
+    _errorQueue.push({
+      type,
+      message: String(message || '').slice(0, 500),
+      source: String(source || '').slice(0, 200),
+      line: line || 0,
+      col: col || 0,
+      stack: String(stack || '').slice(0, 1000),
+      page: window.location.pathname.split('/').pop() || 'unknown',
+      userAgent: navigator.userAgent.slice(0, 150),
+      timestamp: new Date().toISOString(),
+    });
+    // Debounce flush — batch errors within 2s window
+    if (!_flushTimer) {
+      _flushTimer = setTimeout(_flushErrors, 2000);
+    }
+  }
+
+  function _flushErrors() {
+    _flushTimer = null;
+    if (!_errorQueue.length) return;
+    const errors = _errorQueue.splice(0, 10); // max 10 per flush
+    // Try Firestore
+    if (typeof firebase !== 'undefined' && typeof SPFB !== 'undefined' && SPFB.isReady() && !SPFB.isOffline()) {
+      const orgId = SPFB.getOrgId() || (typeof SP !== 'undefined' ? SP.getOrgId() : null);
+      if (orgId) {
+        const db = firebase.firestore();
+        errors.forEach(err => {
+          db.collection('orgs').doc(orgId).collection('errors').add(err).catch(() => {});
+        });
+        return;
+      }
+    }
+    // Fallback: store in localStorage (capped at 50)
+    try {
+      const key = 'dt_error_log';
+      const existing = JSON.parse(localStorage.getItem(key) || '[]');
+      const combined = existing.concat(errors).slice(-50);
+      localStorage.setItem(key, JSON.stringify(combined));
+    } catch (_) {}
+  }
+
+  window.onerror = function(message, source, line, col, error) {
+    _captureError('uncaught', message, source, line, col, error?.stack);
+    return false; // don't suppress — still shows in console
+  };
+
+  window.addEventListener('unhandledrejection', function(event) {
+    const reason = event.reason;
+    _captureError('promise',
+      reason?.message || String(reason).slice(0, 500),
+      reason?.fileName || '',
+      reason?.lineNumber || 0,
+      reason?.columnNumber || 0,
+      reason?.stack || ''
+    );
+  });
+})();
+
 // ─── PWA: Nuke all service workers and caches ────────────────────────────────
 // The SW was caching old code and breaking every deploy. Gone for good.
 (function nukeSW() {
