@@ -74,6 +74,7 @@ jobs:
             getOrgKey
             encryptData
             decryptData
+            decryptLegacy
             rotateKey
             getKeyStatus
             healUserRole

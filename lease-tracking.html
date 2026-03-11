@@ -1,57 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Lease Tracking </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Lease%20Tracking">
+  <title>deeltrack | Lease Tracking</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-file-signature"></i> Lease Tracking</h1>
-      <div class="header-actions">
-        <select id="dealFilter" class="form-select" onchange="Lease.loadDeal()" style="width:auto;min-width:180px;"><option value="">All Properties</option></select>
-        <button class="btn btn-primary" onclick="Lease.showModal()"><i class="fas fa-plus"></i> Add Lease</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Total Leases</span><span class="stat-value" id="statTotal">0</span></div>
-        <div class="stat-card"><span class="stat-label">Occupied</span><span class="stat-value text-success" id="statOccupied">0</span></div>
-        <div class="stat-card"><span class="stat-label">Expiring Soon</span><span class="stat-value text-warning" id="statExpiring">0</span></div>
-        <div class="stat-card"><span class="stat-label">Monthly Rent</span><span class="stat-value" id="statRent">$0</span></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Lease Matrix</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Unit</th><th>Tenant</th><th>Type</th><th>Rent</th><th>Start</th><th>End</th><th>Status</th><th>Days Left</th></tr></thead><tbody id="leaseTable"></tbody></table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <div id="leaseModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <div class="modal-header"><h2>Add Lease</h2><button class="close" onclick="Lease.closeModal()">&times;</button></div>
-      <div class="modal-body">
-        <div class="form-group"><label>Property</label><select id="lDeal" class="form-select"></select></div>
-        <div class="form-row">
-          <div class="form-group"><label>Unit</label><input type="text" id="lUnit" class="form-input"></div>
-          <div class="form-group"><label>Tenant</label><input type="text" id="lTenant" class="form-input"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Monthly Rent</label><input type="number" id="lRent" class="form-input"></div>
-          <div class="form-group"><label>Lease Term</label><select id="lTerm" class="form-select"><option value="12">12 months</option><option value="24">24 months</option><option value="6">6 months</option><option value="month-to-month">Month-to-month</option></select></div>
-        </div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="Lease.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Lease.save()">Save</button></div>
-    </div>
-  </div>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Lease.init();}</script>
-  <script src="js/sp-leases.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Lease%20Tracking');</script>
 </body>
 </html>

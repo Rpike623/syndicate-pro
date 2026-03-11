@@ -1,56 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Bonus Depreciation </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Bonus%20Depreciation">
+  <title>deeltrack | Bonus Depreciation</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-bolt"></i> Bonus Depreciation</h1>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="Bonus.calc()">Calculate</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>Investment Details</h2></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label>Qualified Property Cost</label><input type="number" id="bCost" class="form-input" value="5000000"></div>
-            <div class="form-group"><label>Tax Year</label><select id="bYear" class="form-select"><option>2023 (60%)</option><option>2024 (60%)</option><option>2025 (60%)</option><option selected>2026 (60%)</option><option>2027 (40%)</option></select></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Filing Status</label><select id="bStatus" class="form-select"><option>Single</option><option selected>Married Joint</option></select></div>
-            <div class="form-group"><label>Income</label><input type="number" id="bIncome" class="form-input" value="500000"></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Tax Impact</h2></div>
-        <div class="card-body">
-          <div class="result-row"><span>Bonus Depreciation</span><strong id="bBonus">$0</strong></div>
-          <div class="result-row"><span>Regular Depreciation</span><strong id="bReg">$0</strong></div>
-          <div class="result-row"><span>Total Year 1 Deduction</span><strong id="bTotal">$0</strong></div>
-          <div class="result-row"><span>Tax Saved</span><strong id="bSaved" class="text-success">$0</strong></div>
-          <div class="result-row"><span>Effective Rate</span><strong id="bRate">0%</strong></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Bonus Depreciation Schedule</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Year</th><th>Bonus %</th><th>Bonus Amount</th><th>Regular</th><th>Total</th></tr></thead><tbody id="bTable"></tbody></table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Bonus.init();}</script>
-  <script src="js/sp-bonus.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Bonus%20Depreciation');</script>
 </body>
 </html>

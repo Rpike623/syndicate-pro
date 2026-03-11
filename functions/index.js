@@ -1265,6 +1265,52 @@ exports.decryptData = onCall(async (request) => {
   return decrypted.toString('utf8');
 });
 
+// Decrypt legacy enc: format (Web Crypto AES-GCM where ciphertext includes auth tag)
+// Called by sp-crypto.js to migrate enc: → enc2: values
+exports.decryptLegacy = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated');
+  const { orgId, combined, encryptedDek } = request.data;
+  // combined = base64 of iv[12] + ciphertext_with_tag
+  // Web Crypto AES-GCM appends 16-byte auth tag to ciphertext
+
+  if (!combined || !encryptedDek || !orgId) {
+    throw new HttpsError('invalid-argument', 'Missing required fields');
+  }
+
+  // Verify user belongs to this org
+  const userDoc = await db.collection('users').doc(request.auth.uid).get();
+  if (!userDoc.exists || userDoc.data().orgId !== orgId) {
+    throw new HttpsError('permission-denied', 'No access to this org');
+  }
+
+  try {
+    const dek = await kmsDecrypt(Buffer.from(encryptedDek, 'base64'));
+    const raw = Buffer.from(combined, 'base64');
+    const iv = raw.slice(0, 12);
+    const ciphertextWithTag = raw.slice(12);
+    // Auth tag is last 16 bytes
+    const authTag = ciphertextWithTag.slice(-16);
+    const ciphertext = ciphertextWithTag.slice(0, -16);
+
+    const decipher = crypto.createDecipheriv('aes-256-gcm', dek, iv);
+    decipher.setAuthTag(authTag);
+    const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+
+    // Log migration action
+    await db.collection('auditLogs').add({
+      orgId,
+      userId: request.auth.uid,
+      action: 'legacy_decrypt_for_migration',
+      timestamp: FieldValue.serverTimestamp(),
+    });
+
+    return decrypted.toString('utf8');
+  } catch (e) {
+    console.error('decryptLegacy failed:', e.message);
+    throw new HttpsError('internal', 'Legacy decryption failed');
+  }
+});
+
 // Rotate org encryption key
 exports.rotateKey = onCall(async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated');

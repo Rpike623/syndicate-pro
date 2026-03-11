@@ -1,53 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Renovation Tracker </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Renovation%20Tracker">
+  <title>deeltrack | Renovation Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-hammer"></i> Renovation Tracker</h1>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="Renovation.showModal()"><i class="fas fa-plus"></i> Add Unit</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Total Units</span><span class="stat-value" id="statTotal">0</span></div>
-        <div class="stat-card"><span class="stat-label">Complete</span><span class="stat-value text-success" id="statDone">0</span></div>
-        <div class="stat-card"><span class="stat-label">In Progress</span><span class="stat-value text-warning" id="statProgress">0</span></div>
-        <div class="stat-card"><span class="stat-label">Budget</span><span class="stat-value" id="statBudget">$0</span></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Unit Renovations</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Unit</th><th>Scope</th><th>Budget</th><th>Spent</th><th>Start</th><th>Complete</th><th>Status</th></tr></thead><tbody id="renoTable"></tbody></table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <div id="renoModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <div class="modal-header"><h2>Add Renovation</h2><button class="close" onclick="Renovation.closeModal()">&times;</button></div>
-      <div class="modal-body">
-        <div class="form-group"><label>Unit</label><input type="text" id="rUnit" class="form-input"></div>
-        <div class="form-group"><label>Scope</label><select id="rScope" class="form-select"><option>Full Gut</option><option>Partial</option><option>Cosmetic</option><option>Kitchen</option><option>Bathroom</option></select></div>
-        <div class="form-row">
-          <div class="form-group"><label>Budget</label><input type="number" id="rBudget" class="form-input"></div>
-          <div class="form-group"><label>Start Date</label><input type="date" id="rStart" class="form-input"></div>
-        </div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="Renovation.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Renovation.save()">Save</button></div>
-    </div>
-  </div>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Renovation.init();}</script>
-  <script src="js/sp-renovation.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Renovation%20Tracker');</script>
 </body>
 </html>

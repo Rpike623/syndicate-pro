@@ -1,56 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Tasks </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Tasks">
+  <title>deeltrack | Tasks</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-tasks"></i> Tasks</h1>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="Tasks.showModal()"><i class="fas fa-plus"></i> New Task</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">My Tasks</span><span class="stat-value" id="statMy">0</span></div>
-        <div class="stat-card"><span class="stat-label">Overdue</span><span class="stat-value text-danger" id="statOverdue">0</span></div>
-        <div class="stat-card"><span class="stat-label">Due This Week</span><span class="stat-value text-warning" id="statWeek">0</span></div>
-        <div class="stat-card"><span class="stat-label">Completed</span><span class="stat-value text-success" id="statDone">0</span></div>
-      </div>
-      <div class="task-columns">
-        <div class="task-col"><h3><i class="fas fa-exclamation-circle"></i> To Do <span class="count" id="todo-count">0</span></h3><div class="task-list" id="todo-list"></div></div>
-        <div class="task-col"><h3><i class="fas fa-spinner"></i> In Progress <span class="count" id="progress-count">0</span></h3><div class="task-list" id="progress-list"></div></div>
-        <div class="task-col"><h3><i class="fas fa-check-circle"></i> Done <span class="count" id="done-count">0</span></h3><div class="task-list" id="done-list"></div></div>
-      </div>
-    </div>
-  </main>
-  <div id="taskModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <div class="modal-header"><h2>New Task</h2><button class="close" onclick="Tasks.closeModal()">&times;</button></div>
-      <div class="modal-body">
-        <div class="form-group"><label>Task Title</label><input type="text" id="tTitle" class="form-input"></div>
-        <div class="form-row">
-          <div class="form-group"><label>Related To</label><select id="tDeal" class="form-select"><option value="">General</option><option value="deal_1">Sunset Apartments</option><option value="deal_2">Downtown Office</option><option value="deal_3">Industrial Portfolio</option></select></div>
-          <div class="form-group"><label>Priority</label><select id="tPriority" class="form-select"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Due Date</label><input type="date" id="tDue" class="form-input"></div>
-          <div class="form-group"><label>Assign To</label><select id="tAssignee" class="form-select"><option value="me">Me</option><option value="team">Team</option></select></div>
-        </div>
-        <div class="form-group"><label>Notes</label><textarea id="tNotes" class="form-input" rows="2"></textarea></div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="Tasks.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Tasks.save()">Create Task</button></div>
-    </div>
-  </div>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Tasks.init();}</script>
-  <script src="js/sp-tasks.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Tasks');</script>
 </body>
 </html>

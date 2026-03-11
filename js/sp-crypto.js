@@ -119,11 +119,24 @@ const SPCrypto = (() => {
       }
     }
 
-    // Handle legacy v1 format (old local key — read-only, will re-encrypt on save)
+    // Handle legacy v1 format — decrypt via Cloud Function using KMS-wrapped DEK
+    // The DEK is the same key, just now wrapped by KMS instead of stored plaintext.
+    // Web Crypto AES-GCM packs iv + ciphertext(includes authTag) — server splits them.
     if (encrypted.startsWith(PREFIX)) {
-      // Can't decrypt legacy without old key — mask it
-      console.warn('SPCrypto: legacy enc: value found — will re-encrypt on next save');
-      return '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022';
+      try {
+        const combined = encrypted.slice(PREFIX.length); // already base64
+        const decryptLegacyFn = firebase.functions().httpsCallable('decryptLegacy');
+        const result = await decryptLegacyFn({
+          orgId: _orgId,
+          combined,
+          encryptedDek: _encryptedDek,
+        });
+        console.log('SPCrypto: legacy enc: value decrypted — will re-encrypt as enc2: on next save');
+        return result.data;
+      } catch (e) {
+        console.warn('SPCrypto: legacy enc: decrypt failed:', e.message);
+        return '\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022';
+      }
     }
 
     return encrypted; // plaintext passthrough

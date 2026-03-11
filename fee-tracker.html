@@ -1,53 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Fee Tracker </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Fee%20Tracker">
+  <title>deeltrack | Fee Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-percent"></i> Fee Tracker</h1>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="FeeTracker.showModal()"><i class="fas fa-plus"></i> Add Fee</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Total Fees</span><span class="stat-value" id="statTotal">$0</span></div>
-        <div class="stat-card"><span class="stat-label">Asset Management</span><span class="stat-value" id="statAM">$0</span></div>
-        <div class="stat-card"><span class="stat-label">Acquisition</span><span class="stat-value" id="statAcq">$0</span></div>
-        <div class="stat-card"><span class="stat-label">Disposition</span><span class="stat-value" id="statDisp">$0</span></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Fee Schedule</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Fee Type</th><th>Property</th><th>Rate</th><th>Frequency</th><th>Annual Est</th><th>Status</th></tr></thead><tbody id="feeTable"></tbody></table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <div id="feeModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <div class="modal-header"><h2>Add Fee</h2><button class="close" onclick="FeeTracker.closeModal()">&times;</button></div>
-      <div class="modal-body">
-        <div class="form-group"><label>Fee Type</label><select id="fType" class="form-select"><option>Asset Management</option><option>Acquisition</option><option>Disposition</option><option>Construction Management</option><option>Loan Guarantee</option></select></div>
-        <div class="form-group"><label>Property</label><select id="fProperty" class="form-select"><option>All Properties</option><option>Sunset Apartments</option><option>Downtown Office</option></select></div>
-        <div class="form-row">
-          <div class="form-group"><label>Rate %</label><input type="number" id="fRate" class="form-input" step="0.1"></div>
-          <div class="form-group"><label>Frequency</label><select id="fFreq" class="form-select"><option>Monthly</option><option>Quarterly</option><option>Annual</option><option>One-time</option></select></div>
-        </div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="FeeTracker.closeModal()">Cancel</button><button class="btn btn-primary" onclick="FeeTracker.save()">Save</button></div>
-    </div>
-  </div>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}FeeTracker.init();}</script>
-  <script src="js/sp-fee-tracker.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Fee%20Tracker');</script>
 </body>
 </html>

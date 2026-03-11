@@ -1,52 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Risk Register </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Risk%20Register">
+  <title>deeltrack | Risk Register</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-exclamation-triangle"></i> Risk Register</h1>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="Risk.showModal()"><i class="fas fa-plus"></i> Add Risk</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Total Risks</span><span class="stat-value" id="statTotal">0</span></div>
-        <div class="stat-card"><span class="stat-label">High Priority</span><span class="stat-value text-danger" id="statHigh">0</span></div>
-        <div class="stat-card"><span class="stat-label">Mitigated</span><span class="stat-value text-success" id="statMitigated">0</span></div>
-        <div class="stat-card"><span class="stat-label">Risk Score</span><span class="stat-value" id="statScore">0</span></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Risk Matrix</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Risk</th><th>Category</th><th>Impact</th><th>Likelihood</th><th>Score</th><th>Status</th><th>Mitigation</th></tr></thead><tbody id="riskTable"></tbody></table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <div id="riskModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <div class="modal-header"><h2>Add Risk</h2><button class="close" onclick="Risk.closeModal()">&times;</button></div>
-      <div class="modal-body">
-        <div class="form-group"><label>Risk Description</label><input type="text" id="rDesc" class="form-input"></div>
-        <div class="form-row">
-          <div class="form-group"><label>Category</label><select id="rCat" class="form-select"><option value="operational">Operational</option><option value="financial">Financial</option><option value="market">Market</option><option value="regulatory">Regulatory</option></select></div>
-          <div class="form-group"><label>Impact (1-5)</label><input type="number" id="rImpact" class="form-input" min="1" max="5" value="3"></div>
-        </div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="Risk.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Risk.save()">Save</button></div>
-    </div>
-  </div>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Risk.init();}</script>
-  <script src="js/sp-risk.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Risk%20Register');</script>
 </body>
 </html>

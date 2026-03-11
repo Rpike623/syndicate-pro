@@ -1,63 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Maintenance </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Maintenance">
+  <title>deeltrack | Maintenance</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-wrench"></i> Maintenance</h1>
-      <div class="header-actions">
-        <select id="dealFilter" class="form-select" onchange="Maintenance.loadDeal()" style="width:auto;min-width:180px;">
-          <option value="">All Properties</option>
-        </select>
-        <button class="btn btn-primary" onclick="Maintenance.showModal()"><i class="fas fa-plus"></i> New Request</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Open Requests</span><span class="stat-value text-warning" id="statOpen">0</span></div>
-        <div class="stat-card"><span class="stat-label">In Progress</span><span class="stat-value text-primary" id="statProgress">0</span></div>
-        <div class="stat-card"><span class="stat-label">Completed</span><span class="stat-value text-success" id="statComplete">0</span></div>
-        <div class="stat-card"><span class="stat-label">YTD Spend</span><span class="stat-value" id="statSpend">$0</span></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2><i class="fas fa-list"></i> Maintenance Requests</h2></div>
-        <div class="card-body">
-          <table class="data-table">
-            <thead><tr><th>Property</th><th>Unit</th><th>Category</th><th>Description</th><th>Priority</th><th>Status</th><th>Cost</th><th>Created</th></tr></thead>
-            <tbody id="maintTableBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <div id="maintModal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <div class="modal-header"><h2>New Maintenance Request</h2><button class="close" onclick="Maintenance.closeModal()">&times;</button></div>
-      <div class="modal-body">
-        <div class="form-group"><label>Property</label><select id="mDeal" class="form-select"></select></div>
-        <div class="form-row">
-          <div class="form-group"><label>Unit</label><input type="text" id="mUnit" class="form-input" placeholder="e.g., Unit 101"></div>
-          <div class="form-group"><label>Category</label><select id="mCategory" class="form-select"><option value="plumbing">Plumbing</option><option value="hvac">HVAC</option><option value="electrical">Electrical</option><option value="appliance">Appliance</option><option value="roofing">Roofing</option><option value="pest">Pest Control</option><option value="landscaping">Landscaping</option><option value="general">General</option></select></div>
-        </div>
-        <div class="form-group"><label>Description</label><textarea id="mDesc" class="form-input" rows="2"></textarea></div>
-        <div class="form-row">
-          <div class="form-group"><label>Priority</label><select id="mPriority" class="form-select"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="emergency">Emergency</option></select></div>
-          <div class="form-group"><label>Est. Cost</label><input type="number" id="mCost" class="form-input" placeholder="500"></div>
-        </div>
-      </div>
-      <div class="modal-footer"><button class="btn btn-secondary" onclick="Maintenance.closeModal()">Cancel</button><button class="btn btn-primary" onclick="Maintenance.save()">Create Request</button></div>
-    </div>
-  </div>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Maintenance.init();}</script>
-  <script src="js/sp-maintenance.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Maintenance');</script>
 </body>
 </html>

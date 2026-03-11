@@ -1,54 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Quarterly Report </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Quarterly%20Report">
+  <title>deeltrack | Quarterly Report</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-quarterly-report"></i> Quarterly Report Builder</h1>
-      <div class="header-actions">
-        <button class="btn btn-secondary" onclick="Report.preview()"><i class="fas fa-eye"></i> Preview</button>
-        <button class="btn btn-primary" onclick="Report.export()"><i class="fas fa-download"></i> Export PDF</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="report-config">
-        <div class="config-section">
-          <h3>Report Settings</h3>
-          <div class="form-row">
-            <div class="form-group"><label>Quarter</label><select id="qQuarter" class="form-select"><option value="Q1">Q1 2026</option><option value="Q2">Q2 2026</option><option value="Q3">Q3 2026</option><option value="Q4">Q4 2026</option></select></div>
-            <div class="form-group"><label>Property</label><select id="qDeal" class="form-select"><option value="all">All Properties</option><option value="deal_1">Sunset Apartments</option><option value="deal_2">Downtown Office</option><option value="deal_3">Industrial Portfolio</option></select></div>
-          </div>
-          <div class="form-group"><label>Include Sections</label><div class="checkbox-grid">
-            <label><input type="checkbox" checked data-section="executive"> Executive Summary</label>
-            <label><input type="checkbox" checked data-section="financials"> Financial Highlights</label>
-            <label><input type="checkbox" checked data-section="property"> Property Performance</label>
-            <label><input type="checkbox" checked data-section="market"> Market Update</label>
-            <label><input type="checkbox" checked data-section="outlook"> Outlook</label>
-            <label><input type="checkbox" checked data-section="distributions"> Distributions</label>
-          </div></div>
-        </div>
-      </div>
-      <div class="report-preview" id="reportPreview">
-        <div class="report-header"><h1>Quarterly Investment Report</h1><h2 id="previewTitle">Q1 2026</h2></div>
-        <div class="report-section" id="sec-executive"><h3>Executive Summary</h3><p>Portfolio performance remained strong in Q1 2026 with continued occupancy gains and stable cash flows across all properties. We successfully closed on the Industrial Portfolio acquisition and are seeing positive momentum in our value-add initiatives at Sunset Apartments.</p></div>
-        <div class="report-section" id="sec-financials"><h3>Financial Highlights</h3><div class="report-table"><table><thead><tr><th>Metric</th><th>Q1 2026</th><th>Q4 2025</th><th>Change</th></tr></thead><tbody><tr><td>Total Revenue</td><td>$1,245,000</td><td>$1,180,000</td><td>+5.5%</td></tr><tr><td>Operating Expenses</td><td>$485,000</td><td>$462,000</td><td>+5.0%</td></tr><tr><td>NOI</td><td>$760,000</td><td>$718,000</td><td>+5.8%</td></tr><tr><td>Distributions</td><td>$425,000</td><td>$398,000</td><td>+6.8%</td></tr></tbody></table></div></div>
-        <div class="report-section" id="sec-property"><h3>Property Performance</h3><div class="property-summary"><div class="ps-card"><h4>Sunset Apartments</h4><p>Occupancy: 96% | NOI: $320K | IRR: 18.5%</p></div><div class="ps-card"><h4>Downtown Office</h4><p>Occupancy: 89% | NOI: $210K | IRR: 14.2%</p></div><div class="ps-card"><h4>Industrial Portfolio</h4><p>Occupancy: 100% | NOI: $230K | IRR: 16.8%</p></div></div></div>
-        <div class="report-section" id="sec-market"><h3>Market Update</h3><p>The Sun Belt multifamily market continues to show strong fundamentals with population growth driving demand. Industrial remains robust with near-full occupancy across our portfolio. Office values stabilizing in secondary markets.</p></div>
-        <div class="report-section" id="sec-outlook"><h3>Outlook</h3><p>We remain bullish on our portfolio positioning. The Industrial Portfolio acquisition provides exposure to the strongest property type. Value-add initiatives at Sunset Apartments are on track to deliver 200bps of occupancy improvement by Q3.</p></div>
-        <div class="report-section" id="sec-distributions"><h3>Distributions</h3><p>Total Q1 distributions to investors: $425,000 (includes $280,000 regular quarterly distribution and $145,000 supplemental distribution from refinancing proceeds).</p></div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}}</script>
-  <script src="js/sp-report.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Quarterly%20Report');</script>
 </body>
 </html>

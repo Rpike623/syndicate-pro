@@ -1,73 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | JV Partnership </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Jv%20Partnership">
+  <title>deeltrack | Jv Partnership</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-handshake"></i> JV Partnership</h1>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="JV.calc()">Calculate</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><h2>GP / Sponsor (Active)</h2></div>
-          <div class="card-body">
-            <div class="form-group"><label>Cash Contribution</label><input type="number" id="jGPCash" class="form-input" value="500000"></div>
-            <div class="form-group"><label>Promote % (after return of capital)</label><input type="number" id="jGPPromote" class="form-input" value="20" step="1"></div>
-            <div class="form-group"><label>Preferred Return %</label><input type="number" id="jGPPref" class="form-input" value="8"></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h2>LP / Investor (Passive)</h2></div>
-          <div class="card-body">
-            <div class="form-group"><label>Cash Contribution</label><input type="number" id="jLPCash" class="form-input" value="2000000"></div>
-            <div class="form-group"><label>Target IRR</label><input type="number" id="jLPIrr" class="form-input" value="18"></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Deal Assumptions</h2></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label>Purchase Price</label><input type="number" id="jPrice" class="form-input" value="12000000"></div>
-            <div class="form-group"><label>Exit Value</label><input type="number" id="jExit" class="form-input" value="18000000"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Holding Period (years)</label><input type="number" id="jYears" class="form-input" value="5"></div>
-            <div class="form-group"><label>Annual Distributions</label><input type="number" id="jDist" class="form-input" value="150000"></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Waterfall Distribution</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Tranche</th><th>LP</th><th>GP</th><th>LP IRR</th><th>GP IRR</th></tr></thead><tbody id="jTable"></tbody></table>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Summary</h2></div>
-        <div class="card-body">
-          <div class="result-row"><span>Total Capital</span><strong id="jTotal">$0</strong></div>
-          <div class="result-row"><span>LP Multiple</span><strong id="jLPMult">0x</strong></div>
-          <div class="result-row"><span>GP Multiple</span><strong id="jGPMult">0x</strong></div>
-          <div class="result-row"><span>LP IRR</span><strong id="jLPIrrResult">0%</strong></div>
-          <div class="result-row"><span>GP IRR</span><strong id="jGPIrrResult">0%</strong></div>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}JV.init();}</script>
-  <script src="js/sp-jv.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Jv%20Partnership');</script>
 </body>
 </html>

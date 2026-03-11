@@ -1,54 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Purchase & Sale </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Purchase%20Sale">
+  <title>deeltrack | Purchase Sale</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-handshake"></i> Purchase & Sale</h1>
-    </div>
-    <div class="content">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><h2>Purchase Terms</h2></div>
-          <div class="card-body">
-            <div class="form-group"><label>Purchase Price</label><input type="number" id="psPrice" class="form-input" value="16500000" oninput="PS.calc()"></div>
-            <div class="form-row">
-              <div class="form-group"><label>Due Diligence</label><input type="number" id="psDue" class="form-input" value="30" oninput="PS.calc()"></div>
-              <div class="form-group"><label>Closing</label><input type="number" id="psClose" class="form-input" value="45" oninput="PS.calc()"></div>
-            </div>
-            <div class="form-group"><label>Deposit %</label><input type="number" id="psDeposit" class="form-input" value="10" oninput="PS.calc()"></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h2>Costs</h2></div>
-          <div class="card-body">
-            <div class="form-group"><label>Closing Costs %</label><input type="number" id="psClosing" class="form-input" value="2.5" oninput="PS.calc()"></div>
-            <div class="form-group"><label>Prepaid Expenses</label><input type="number" id="psPrepaid" class="form-input" value="125000" oninput="PS.calc()"></div>
-            <div class="form-group"><label>Renovations</label><input type="number" id="psRenov" class="form-input" value="480000" oninput="PS.calc()"></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Summary</h2></div>
-        <div class="card-body" id="psResults">
-          <div class="result-row"><span>Purchase Price</span><strong id="psPriceOut">$0</strong></div>
-          <div class="result-row"><span>Closing Costs</span><strong id="psClosingOut">$0</strong></div>
-          <div class="result-row"><span>Total Cash Needed</span><strong id="psTotal">$0</strong></div>
-          <div class="result-row"><span>Effective Price</span><strong id="psEffective">$0</strong></div>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}PS.init();}</script>
-  <script src="js/sp-purchase-sale.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Purchase%20Sale');</script>
 </body>
 </html>

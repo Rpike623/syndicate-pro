@@ -1,56 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Exit Strategy </title>
-  <script src="js/sp-core.js?v9"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Exit%20Strategy">
+  <title>deeltrack | Exit Strategy</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-door-open"></i> Exit Strategy</h1>
-    </div>
-    <div class="content">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><h2>Assumptions</h2></div>
-          <div class="card-body">
-            <div class="form-group"><label>Property Value</label><input type="number" id="eValue" class="form-input" value="20000000" oninput="Exit.calc()"></div>
-            <div class="form-row">
-              <div class="form-group"><label>Hold Period (years)</label><input type="number" id="eYears" class="form-input" value="5" oninput="Exit.calc()"></div>
-              <div class="form-group"><label>Exit Cap Rate</label><input type="number" id="eCap" class="form-input" value="5.5" step="0.1" oninput="Exit.calc()"></div>
-            </div>
-            <div class="form-row">
-              <div class="form-group"><label>Annual NOI Growth</label><input type="number" id="eNoiGrowth" class="form-input" value="3" step="0.5" oninput="Exit.calc()"></div>
-              <div class="form-group"><label>Capital Improvements</label><input type="number" id="eCapex" class="form-input" value="500000" oninput="Exit.calc()"></div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h2>Projected Exit</h2></div>
-          <div class="card-body" id="eResults">
-            <div class="result-row"><span>Exit Value</span><strong id="eExitValue">$0</strong></div>
-            <div class="result-row"><span>Net Profit</span><strong id="eProfit">$0</strong></div>
-            <div class="result-row"><span>IRR</span><strong id="eIrr">0%</strong></div>
-            <div class="result-row"><span>MOIC</span><strong id="eMoic">0x</strong></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Exit Options Comparison</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Strategy</th><th>Exit Value</th><th>Net Profit</th><th>IRR</th><th>Pros</th><th>Cons</th></tr></thead><tbody id="exitTable"></tbody></table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Exit.init();}</script>
-  <script src="js/sp-exit.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Exit%20Strategy');</script>
 </body>
 </html>

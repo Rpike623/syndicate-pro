@@ -187,7 +187,7 @@ async function testCloudFunctions() {
   const callableFunctions = [
     'sendEmail', 'createCheckoutSession', 'getSubscriptionStatus',
     'createSigningRequest', 'getOrgKey', 'encryptData', 'decryptData',
-    'rotateKey', 'getKeyStatus', 'healUserRole',
+    'decryptLegacy', 'rotateKey', 'getKeyStatus', 'healUserRole',
     'inviteTeamMember', 'acceptTeamInvite', 'removeTeamMember', 'listTeamMembers'
   ];
 
@@ -256,6 +256,229 @@ async function testLiveSite() {
   });
 }
 
+// ── DOM Structural Tests ─────────────────────────────────────────────────────
+// Catches: missing script refs, broken element IDs, undefined variable refs,
+// auth flow issues, and structural inconsistencies — all without a real browser.
+
+async function testDOMStructure() {
+  console.log('\n🔍 DOM Structural Checks (HTML analysis)\n');
+
+  const fs = require('fs');
+  const path = require('path');
+  const ROOT = path.resolve(__dirname, '..');
+
+  function readPage(name) {
+    const p = path.join(ROOT, name);
+    return fs.existsSync(p) ? fs.readFileSync(p, 'utf8') : null;
+  }
+
+  // ── 1. All core pages include required JS ───────────────────────────────
+  const corePages = [
+    'dashboard.html', 'deals.html', 'investors.html', 'distributions.html',
+    'capital-calls.html', 'documents.html', 'settings.html',
+    'portal.html', 'investor-portal.html', 'invest.html',
+    'deal-detail.html', 'new-deal.html', 'k1-vault.html', 'login.html',
+  ];
+
+  for (const page of corePages) {
+    await test(`${page} — includes sp-core.js`, async () => {
+      const html = readPage(page);
+      assert(html, `${page} not found`);
+      assert(html.includes('sp-core.js'), `${page} missing sp-core.js include`);
+    });
+    await test(`${page} — includes sp-firebase.js`, async () => {
+      const html = readPage(page);
+      assert(html, `${page} not found`);
+      assert(html.includes('sp-firebase.js'), `${page} missing sp-firebase.js include`);
+    });
+  }
+
+  // ── 2. Script src references resolve to real files ──────────────────────
+  await test('All JS src references resolve to real files', async () => {
+    const broken = [];
+    for (const page of corePages) {
+      const html = readPage(page);
+      if (!html) continue;
+      const refs = html.match(/src="js\/[^"?]+/g) || [];
+      for (const ref of refs) {
+        const jsFile = ref.replace('src="', '');
+        if (!fs.existsSync(path.join(ROOT, jsFile))) {
+          broken.push(`${page} → ${jsFile}`);
+        }
+      }
+    }
+    assert(broken.length === 0, `Broken JS refs:\n    ${broken.join('\n    ')}`);
+  });
+
+  // ── 3. No duplicate global-scope const/let within a single <script> ──────
+  // Checks for const/let at column 0 (no indentation) — true global scope.
+  // Indented declarations are inside functions/blocks and are fine to repeat.
+  await test('No duplicate global-scope const/let within single script blocks', async () => {
+    const dupes = [];
+    for (const page of corePages) {
+      const html = readPage(page);
+      if (!html) continue;
+      const scripts = [];
+      html.replace(/<script(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/gi, (_, body) => {
+        scripts.push(body);
+      });
+      for (let si = 0; si < scripts.length; si++) {
+        const topDecls = {};
+        const lines = scripts[si].split('\n');
+        for (const line of lines) {
+          // Only match lines with zero indentation (true global scope)
+          const m = line.match(/^(?:const|let)\s+(\w+)\s*=/);
+          if (m) {
+            const name = m[1];
+            if (!topDecls[name]) topDecls[name] = 0;
+            topDecls[name]++;
+          }
+        }
+        for (const [name, count] of Object.entries(topDecls)) {
+          if (count > 1) dupes.push(`${page} script#${si}: '${name}' declared ${count}x at global scope`);
+        }
+      }
+    }
+    assert(dupes.length === 0, `Global-scope duplicate declarations:\n    ${dupes.join('\n    ')}`);
+  });
+
+  // ── 4. GP pages have sidebar element (LP portal pages use tab nav) ──────
+  const gpPages = corePages.filter(p =>
+    p !== 'login.html' && p !== 'invest.html' &&
+    p !== 'portal.html' && p !== 'investor-portal.html'
+  );
+  for (const page of gpPages) {
+    await test(`${page} — has sidebar element`, async () => {
+      const html = readPage(page);
+      assert(html, `${page} not found`);
+      assert(
+        html.includes('id="sidebar"') || html.includes('class="sidebar"'),
+        `${page} missing sidebar element`
+      );
+    });
+  }
+
+  // LP portal pages should have tab navigation instead of sidebar
+  for (const page of ['portal.html', 'investor-portal.html']) {
+    await test(`${page} — has tab navigation`, async () => {
+      const html = readPage(page);
+      assert(html, `${page} not found`);
+      assert(
+        html.includes('tab') || html.includes('Tab') || html.includes('nav-item') || html.includes('nav-link'),
+        `${page} missing tab navigation`
+      );
+    });
+  }
+
+  // ── 5. Login page has email + password fields ───────────────────────────
+  await test('login.html — has email and password inputs', async () => {
+    const html = readPage('login.html');
+    assert(html, 'login.html not found');
+    assert(html.includes('type="email"') || html.includes('id="email"') || html.includes('id="loginEmail"'),
+      'login.html missing email input');
+    assert(html.includes('type="password"') || html.includes('id="password"') || html.includes('id="loginPassword"'),
+      'login.html missing password input');
+  });
+
+  // ── 6. All stub pages redirect to coming-soon ──────────────────────────
+  await test('No stub pages (<80 lines) remain un-redirected', async () => {
+    const allHtml = fs.readdirSync(ROOT).filter(f => f.endsWith('.html'));
+    const exceptions = ['404.html', 'changelog.html', 'index-old.html']; // intentionally short or legacy
+    const stubs = [];
+    for (const f of allHtml) {
+      if (exceptions.includes(f)) continue;
+      const html = readPage(f);
+      if (!html) continue;
+      const lines = html.split('\n').length;
+      if (lines < 80 && !html.includes('coming-soon')) {
+        stubs.push(`${f} (${lines} lines)`);
+      }
+    }
+    assert(stubs.length === 0, `Un-redirected stubs:\n    ${stubs.join('\n    ')}`);
+  });
+
+  // ── 7. CSS link references resolve ──────────────────────────────────────
+  await test('CSS link references resolve to real files', async () => {
+    const broken = [];
+    for (const page of corePages) {
+      const html = readPage(page);
+      if (!html) continue;
+      const refs = html.match(/href="css\/[^"?]+/g) || [];
+      for (const ref of refs) {
+        const cssFile = ref.replace('href="', '');
+        if (!fs.existsSync(path.join(ROOT, cssFile))) {
+          broken.push(`${page} → ${cssFile}`);
+        }
+      }
+    }
+    assert(broken.length === 0, `Broken CSS refs:\n    ${broken.join('\n    ')}`);
+  });
+
+  // ── 8. Firebase config is loaded on auth-required pages ─────────────────
+  await test('Auth-required pages load Firebase SDK', async () => {
+    const authPages = gpPages; // all GP pages need auth
+    const missing = [];
+    for (const page of authPages) {
+      const html = readPage(page);
+      if (!html) continue;
+      if (!html.includes('firebase') && !html.includes('Firebase')) {
+        missing.push(page);
+      }
+    }
+    assert(missing.length === 0, `Pages without Firebase SDK reference:\n    ${missing.join('\n    ')}`);
+  });
+
+  // ── 9. Portal page has all 5 tabs ──────────────────────────────────────
+  await test('portal.html — has all 5 LP tabs', async () => {
+    const html = readPage('portal.html');
+    assert(html, 'portal.html not found');
+    const tabs = ['Dashboard', 'Investments', 'Distributions', 'Documents', 'Profile'];
+    const missing = tabs.filter(t => !html.includes(t));
+    assert(missing.length === 0, `portal.html missing tabs: ${missing.join(', ')}`);
+  });
+
+  // ── 10. Dashboard has KPI elements ──────────────────────────────────────
+  await test('dashboard.html — has 4 KPI cards', async () => {
+    const html = readPage('dashboard.html');
+    assert(html, 'dashboard.html not found');
+    const kpis = ['kpiAUM', 'kpiDeals', 'kpiDist', 'kpiInvestors'];
+    const missing = kpis.filter(k => !html.includes(`id="${k}"`));
+    assert(missing.length === 0, `dashboard.html missing KPI elements: ${missing.join(', ')}`);
+  });
+
+  // ── 11. Invest page has 3-step wizard ───────────────────────────────────
+  await test('invest.html — has 3-step wizard', async () => {
+    const html = readPage('invest.html');
+    assert(html, 'invest.html not found');
+    assert(html.includes('step') || html.includes('Step'), 'invest.html missing step wizard');
+    assert(html.includes('commitments') || html.includes('Commit') || html.includes('amount'),
+      'invest.html missing commitment form');
+  });
+
+  // ── 12. No hardcoded localhost/127.0.0.1 URLs in production code ────────
+  await test('No hardcoded localhost URLs in core JS', async () => {
+    const jsDir = path.join(ROOT, 'js');
+    const jsFiles = fs.readdirSync(jsDir).filter(f => f.endsWith('.js'));
+    const hits = [];
+    for (const f of jsFiles) {
+      const content = fs.readFileSync(path.join(jsDir, f), 'utf8');
+      if (content.includes('localhost') || content.includes('127.0.0.1')) {
+        // Allow if it's in a comment or emulator check
+        const lines = content.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if ((line.includes('localhost') || line.includes('127.0.0.1'))
+              && !line.startsWith('//') && !line.startsWith('*')
+              && !line.includes('useEmulator') && !line.includes('// ')) {
+            hits.push(`${f}:${i + 1}`);
+          }
+        }
+      }
+    }
+    assert(hits.length === 0, `Hardcoded localhost refs:\n    ${hits.join('\n    ')}`);
+  });
+}
+
 async function testWaterfallMath() {
   console.log('\n📐 Waterfall Math (from test-sp-math.js)\n');
   
@@ -302,6 +525,7 @@ async function main() {
   // These don't need admin credentials
   await testCloudFunctions();
   await testLiveSite();
+  await testDOMStructure();
 
   if (ready) {
     await testWaterfallMath();

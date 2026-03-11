@@ -1,60 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Cost Segregation </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Cost%20Segregation">
+  <title>deeltrack | Cost Segregation</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-layer-group"></i> Cost Segregation</h1>
-      <div class="header-actions">
-        <button class="btn btn-primary" onclick="CostSeg.calc()">Calculate</button>
-      </div>
-    </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>Property Information</h2></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label>Total Building Cost</label><input type="number" id="csBuilding" class="form-input" value="12000000"></div>
-            <div class="form-group"><label>Land Cost</label><input type="number" id="csLand" class="form-input" value="3000000"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Year Placed in Service</label><input type="number" id="csYear" class="form-input" value="2026"></div>
-            <div class="form-group"><label>Tax Bracket %</label><input type="number" id="csTax" class="form-input" value="37"></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Allocation</h2></div>
-        <div class="card-body">
-          <div class="slider-grid">
-            <div class="slider-item"><label>Building (39yr)</label><input type="range" id="csBuildPct" value="65" min="0" max="100" oninput="CostSeg.calc()"><span id="csBuildVal">65%</span></div>
-            <div class="slider-item"><label>Land Improvements (15yr)</label><input type="range" id="csLandPct" value="15" min="0" max="100" oninput="CostSeg.calc()"><span id="csLandVal">15%</span></div>
-            <div class="slider-item"><label>Personal Property (7yr)</label><input type="range" id="csPersPct" value="12" min="0" max="100" oninput="CostSeg.calc()"><span id="csPersVal">12%</span></div>
-            <div class="slider-item"><label>Land (0%)</label><input type="range" id="csLand0Pct" value="8" min="0" max="100" oninput="CostSeg.calc()"><span id="csLand0Val">8%</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Tax Savings</h2></div>
-        <div class="card-body">
-          <div class="result-row"><span>Year 1 Depreciation (Standard)</span><strong id="csStd">$0</strong></div>
-          <div class="result-row"><span>Year 1 Depreciation (Segmented)</span><strong id="csSeg">$0</strong></div>
-          <div class="result-row"><span>Year 1 Tax Savings</span><strong id="csSavings" class="text-success">$0</strong></div>
-          <div class="result-row"><span>5-Year Tax Savings</span><strong id="cs5yr" class="text-success">$0</strong></div>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}CostSeg.init();}</script>
-  <script src="js/sp-costseg.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Cost%20Segregation');</script>
 </body>
 </html>
