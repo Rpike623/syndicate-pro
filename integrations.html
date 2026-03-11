@@ -110,12 +110,13 @@
 <body>
 <div id="sidebar"></div>
 <div class="main">
-  <div class="top-bar">
-    <div class="page-title-block">
-      <h1 class="page-title">Integrations</h1>
-      <p class="page-subtitle">Connect deeltrack to your existing tools to automate payments, documents, and accounting</p>
+  <header class="top-bar">
+    <div class="top-left">
+      <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay')?.classList.toggle('visible')"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
+      <div class="page-title-bar"><h1>Integrations</h1><p>Connect deeltrack to your existing tools</p></div>
     </div>
-  </div>
+    <div class="top-actions"></div>
+  </header>
 
   <div class="content">
 

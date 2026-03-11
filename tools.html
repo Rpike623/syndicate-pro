@@ -102,15 +102,11 @@
 
   <main class="main">
     <header class="top-bar">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')">
-          <i class="fas fa-bars" style="color:var(--text-secondary);"></i>
-        </button>
-        <div>
-          <h1 style="font-size:1.25rem;font-weight:700;">Tools</h1>
-          <p style="font-size:.8rem;color:var(--text-secondary);">Calculators, analytics, and utilities for real estate syndication</p>
-        </div>
+      <div class="top-left">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
+        <div class="page-title-bar"><h1>Tools</h1><p>Calculators, analytics, and utilities for real estate syndication</p></div>
       </div>
+      <div class="top-actions"></div>
     </header>
 
     <div class="content">

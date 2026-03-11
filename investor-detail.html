@@ -117,17 +117,11 @@
 
   <main class="main">
     <header class="top-bar">
-      <div style="display:flex;align-items:center;gap:12px;">
+      <div class="top-left">
         <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
-        <nav class="breadcrumb">
-          <a href="dashboard.html">Home</a>
-          <span class="breadcrumb-sep">/</span>
-          <a href="investors.html">Investors</a>
-          <span class="breadcrumb-sep">/</span>
-          <span class="breadcrumb-current" id="breadcrumbName">Investor Profile</span>
-        </nav>
+        <div class="page-title-bar"><h1 id="breadcrumbName">Investor Profile</h1><p>Investor details and portfolio</p></div>
       </div>
-      <div style="display:flex;gap:10px;align-items:center;">
+      <div class="top-actions">
         <a href="investors.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
         <button class="btn btn-primary" onclick="editInvestor()"><i class="fas fa-edit"></i> Edit</button>
       </div>

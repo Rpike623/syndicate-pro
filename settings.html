@@ -77,14 +77,13 @@
 
   <main class="main">
     <header class="top-bar">
-      <div style="display:flex;align-items:center;gap:12px;">
+      <div class="top-left">
         <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sidebarOverlay').classList.toggle('visible')"><i class="fas fa-bars" style="color:var(--text-secondary);"></i></button>
-        <div>
-          <h1 style="font-size:1.25rem;font-weight:700;">Settings</h1>
-          <p style="font-size:.8rem;color:var(--text-secondary);">Firm profile, deal defaults, and account preferences</p>
-        </div>
+        <div class="page-title-bar"><h1>Settings</h1><p>Firm profile, deal defaults, and account preferences</p></div>
       </div>
-      <button class="btn btn-primary" onclick="saveAll()"><i class="fas fa-save"></i> Save All Changes</button>
+      <div class="top-actions">
+        <button class="btn btn-primary" onclick="saveAll()"><i class="fas fa-save"></i> Save All Changes</button>
+      </div>
     </header>
 
     <div class="content">

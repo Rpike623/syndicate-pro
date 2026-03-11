@@ -3481,6 +3481,15 @@ td a:hover {
 .badge-draft  { background: rgba(245,158,11,0.15)  !important; color: #fbbf24 !important; }
 
 /* ── 24. ACTION BUTTON GROUP (header-level buttons) ──────────────────────── */
+/* ── TOP-LEFT: page title area in top-bar ────────────────────────────────── */
+.top-left {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
 .top-actions,
 .header-actions {
   display: flex !important;
