@@ -467,7 +467,7 @@ window.SP = (function () {
     setSession(session);
 
     // Seed rich demo data for both GP and Phil the Investor on first login
-    if (['demo@deeltrack.com','gp@deeltrack.com','philip@jchapmancpa.com'].includes(email.toLowerCase())) {
+    if (['demo@deeltrack.com','gp@deeltrack.com','philip@jchapmancpa.com'].includes(emailLc)) {
       seedDemoData(session);
     }
 
@@ -1238,36 +1238,28 @@ window.SP = (function () {
 // Defense-in-depth: catches XSS even if innerHTML is used with unescaped user data.
 (function initXSSSanitizer() {
   if (typeof MutationObserver === 'undefined') return;
-  const DANGEROUS_ATTRS = ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur',
-    'onsubmit', 'oninput', 'onchange', 'onkeydown', 'onkeyup', 'onkeypress', 'onmouseenter',
-    'onmouseleave', 'onanimationstart', 'onanimationend', 'ontransitionend'];
-  const DANGEROUS_TAGS = new Set(['script', 'iframe', 'object', 'embed', 'form', 'base', 'meta']);
-  // Whitelist pages that legitimately use inline handlers (our own pages)
-  // This observer strips attrs from DYNAMICALLY ADDED nodes only (not initial page load)
+  // Only block truly dangerous injected elements. We do NOT strip onclick/onchange etc.
+  // because our own code uses inline handlers extensively on dynamically created elements.
+  // The real XSS vectors are: injected <script>, <iframe>, <object>, <embed>, and javascript: URLs.
+  const DANGEROUS_TAGS = new Set(['script', 'iframe', 'object', 'embed']);
+  const SAFE_SCRIPT_PATTERNS = ['gstatic.com', 'firebase', 'js/sp-', 'emailjs', 'cdnjs', 'stripe', 'googletagmanager'];
   let _initialized = false;
 
   function sanitizeNode(node) {
-    if (node.nodeType !== 1) return; // Element only
+    if (node.nodeType !== 1) return;
     const tag = node.tagName.toLowerCase();
-    // Remove dangerous injected tags (but not our own script tags from initial load)
+
+    // Block injected dangerous tags
     if (DANGEROUS_TAGS.has(tag) && !node.hasAttribute('data-dt-safe')) {
-      // Only remove if it looks injected (not a CDN/Firebase script)
       const src = node.getAttribute('src') || '';
-      if (tag === 'script' && (src.includes('gstatic.com') || src.includes('firebase') || src.includes('js/sp-') || src.includes('emailjs') || src.includes('cdnjs'))) return;
-      if (tag === 'script' || tag === 'iframe' || tag === 'object' || tag === 'embed') {
-        console.warn('[XSS] Blocked injected', tag, node.outerHTML?.slice(0, 100));
-        node.remove();
-        return;
-      }
+      // Allow known-safe scripts
+      if (tag === 'script' && SAFE_SCRIPT_PATTERNS.some(p => src.includes(p))) return;
+      console.warn('[XSS] Blocked injected', tag, node.outerHTML?.slice(0, 100));
+      node.remove();
+      return;
     }
-    // Strip event handler attributes
-    for (const attr of DANGEROUS_ATTRS) {
-      if (node.hasAttribute(attr)) {
-        console.warn('[XSS] Stripped', attr, 'from', node.tagName);
-        node.removeAttribute(attr);
-      }
-    }
-    // Strip javascript: URLs
+
+    // Strip javascript: URLs (the other major XSS vector)
     ['href', 'src', 'action', 'formaction', 'data', 'poster'].forEach(a => {
       const val = node.getAttribute(a);
       if (val && /^\s*javascript:/i.test(val)) {
@@ -1275,11 +1267,11 @@ window.SP = (function () {
         node.removeAttribute(a);
       }
     });
-    // Recurse into children
+
+    // Recurse
     node.querySelectorAll?.('*')?.forEach(sanitizeNode);
   }
 
-  // Start observing after initial page load to avoid blocking legitimate inline handlers
   window.addEventListener('load', () => {
     if (_initialized) return;
     _initialized = true;

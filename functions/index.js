@@ -104,7 +104,6 @@ function rateLimit(uid, action, maxCalls, windowMs) {
   let entry = _rateLimits.get(key);
   if (!entry || now > entry.resetAt) {
     entry = { count: 0, resetAt: now + windowMs };
-    _rateLimits.set(key);
   }
   entry.count++;
   _rateLimits.set(key, entry);
