@@ -44,9 +44,10 @@
     .filter-btn:hover:not(.active){border-color:#F37925;color:#F37925;}
     .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
     @media(max-width:768px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
-    .kpi-card{background:var(--dt-card-bg,#fff);border:1px solid var(--dt-border,#E2DDD8);border-radius:12px;padding:18px;text-align:center;}
-    .kpi-val{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
-    .kpi-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--dt-text-secondary,#6B6560);margin-top:4px;}
+    .kpi-card{background:var(--dt-card-bg,#fff);border:1px solid var(--dt-border,#E2DDD8);border-radius:12px;padding:20px 18px;display:flex;align-items:center;gap:14px;}
+    .kpi-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+    .kpi-val{font-size:1.5rem;font-weight:800;line-height:1.1;}
+    .kpi-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--dt-text-secondary,#6B6560);margin-top:2px;font-weight:600;}
     .empty-state{text-align:center;padding:40px 20px;color:var(--dt-text-secondary,#6B6560);}
     .empty-state i{font-size:2rem;opacity:.3;display:block;margin-bottom:12px;}
     .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:.8rem;font-weight:600;border-radius:8px;border:none;cursor:pointer;transition:all .15s;}
@@ -120,11 +121,29 @@ function render() {
   const totalPending = pending.reduce((s, c) => s + (c.amount || 0), 0);
   const totalApproved = approved.reduce((s, c) => s + (c.amount || 0), 0);
 
+  function _fmtAmt(n) {
+    if (n === 0) return '$0';
+    if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
+    return '$' + n.toLocaleString();
+  }
   document.getElementById('kpis').innerHTML = `
-    <div class="kpi-card"><div class="kpi-val" style="color:#E8890A;">${pending.length}</div><div class="kpi-label">Pending Review</div></div>
-    <div class="kpi-card"><div class="kpi-val">$${(totalPending/1e6).toFixed(2)}M</div><div class="kpi-label">Pending Amount</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:#2D9A6B;">${approved.length}</div><div class="kpi-label">Approved</div></div>
-    <div class="kpi-card"><div class="kpi-val" style="color:#2D9A6B;">$${(totalApproved/1e6).toFixed(2)}M</div><div class="kpi-label">Approved Amount</div></div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:rgba(232,137,10,0.1);color:#E8890A;"><i class="fas fa-clock"></i></div>
+      <div><div class="kpi-val" style="color:#E8890A;">${pending.length}</div><div class="kpi-label">Pending Review</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:rgba(243,121,37,0.1);color:#F37925;"><i class="fas fa-dollar-sign"></i></div>
+      <div><div class="kpi-val">${_fmtAmt(totalPending)}</div><div class="kpi-label">Pending Amount</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:rgba(45,154,107,0.1);color:#2D9A6B;"><i class="fas fa-check-circle"></i></div>
+      <div><div class="kpi-val" style="color:#2D9A6B;">${approved.length}</div><div class="kpi-label">Approved</div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background:rgba(45,154,107,0.1);color:#2D9A6B;"><i class="fas fa-hand-holding-usd"></i></div>
+      <div><div class="kpi-val" style="color:#2D9A6B;">${_fmtAmt(totalApproved)}</div><div class="kpi-label">Approved Amount</div></div>
+    </div>
   `;
 
   // Filter
