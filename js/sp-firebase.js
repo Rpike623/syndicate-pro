@@ -587,9 +587,11 @@ const SPFB = (function () {
     });
   }
 
+  function isOffline() { return _offlineMode; }
+
   // ── Public API ────────────────────────────────────────────────────────────
   return {
-    init, onReady, isReady, getOrgId, getUser,
+    init, onReady, isReady, isOffline, getOrgId, getUser,
     getDeals, saveDeal, saveDeals, deleteDeal,
     getInvestors, saveInvestors, deleteInvestor,
     getDistributions, saveDistribution,
