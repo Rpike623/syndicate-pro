@@ -398,10 +398,11 @@ window.SP = (function () {
     return getUsers().find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
   }
 
-  function createUser(email, password, name, role, orgId) {
+  function createUser(email, _password, name, role, orgId) {
     const users = getUsers();
     if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) return false;
-    users.push({ email, password, name, role, orgId });
+    // Never store plaintext passwords — use Firebase Auth for real auth
+    users.push({ email, name, role, orgId });
     saveUsers(users);
     return true;
   }
@@ -418,7 +419,7 @@ window.SP = (function () {
       if (!existing) {
         const name = demoEmail.includes('philip') ? 'Phil Chapman' : demoEmail.includes('investor') ? 'Demo Investor' : 'Robert Pike';
         const role = (demoEmail.includes('philip') || demoEmail.includes('investor@')) ? 'Investor' : 'General Partner';
-        users.push({ email: demoEmail, password: 'Demo1234!', name, role, orgId: DEMO_ORG_ID });
+        users.push({ email: demoEmail, name, role, orgId: DEMO_ORG_ID });
       }
     });
     
@@ -427,14 +428,16 @@ window.SP = (function () {
     const marcusExisting = users.find(u => u.email === marcusEmail);
     const marcusOrgId = 'marcus_rivera_org';
     if (!marcusExisting) {
-      users.push({ email: marcusEmail, password: 'Demo1234!', name: 'Marcus Rivera', role: 'General Partner', orgId: marcusOrgId });
+      users.push({ email: marcusEmail, name: 'Marcus Rivera', role: 'General Partner', orgId: marcusOrgId });
     } else if (marcusExisting.orgId !== marcusOrgId) {
       // Ensure Marcus always has his unique orgId
       marcusExisting.orgId = marcusOrgId;
     }
     
     localStorage.setItem('sp_users', JSON.stringify(users));
-    const user = getUsers().find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+    // Legacy fallback auth — Firebase Auth is the real auth layer.
+    // This only matches by email (password verified by Firebase Auth, not stored here).
+    const user = getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
     if (!user) return null;
     // Ensure orgId
     if (!user.orgId) {

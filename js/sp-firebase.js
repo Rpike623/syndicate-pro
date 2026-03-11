@@ -147,14 +147,10 @@ const SPFB = (function () {
 
   function _tryAutoSignIn() {
     const s = (typeof SP !== 'undefined') ? SP.getSession() : null;
-    if (!s || !s.email || !s.password) return; // No password stored — don't waste a 400 request
-    if (typeof firebase !== 'undefined' && firebase.auth) {
-      firebase.auth().signInWithEmailAndPassword(s.email, s.password).then(() => {
-        // onAuthStateChanged will fire again with the user
-      }).catch(() => {
-        // Failed — stay anonymous and let manual login proceed
-      });
-    }
+    if (!s || !s.email) return; // Firebase handles auth persistence via IndexedDB, not session
+    // Firebase Auth auto-restores sessions from IndexedDB on page load.
+    // onAuthStateChanged will fire automatically if a session exists.
+    // No manual re-auth needed — and we never store passwords in session.
   }
 
   // Simple hash for non-demo org IDs

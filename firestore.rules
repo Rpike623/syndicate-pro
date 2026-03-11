@@ -63,8 +63,9 @@ service cloud.firestore {
 
       match /investors/{investorId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
-        // Investors can read their own record (single doc or query filtered by email)
-        allow read: if ownsOrg(orgId) && isInvestorRole();
+        // Investors can ONLY read their own record (matched by email on the document)
+        allow read: if ownsOrg(orgId) && isInvestorRole()
+          && resource.data.email == request.auth.token.email;
       }
 
       match /documents/{docId} {
@@ -95,10 +96,12 @@ service cloud.firestore {
       }
 
       // Generic custom data store (k1_vault, dealroom_docs_*, investor_updates, etc.)
-      // GP can read/write all; investors can read (filtered client-side by investorId)
+      // GP can read/write all; investors can only read docs tagged for them or marked public
       match /custom_data/{docId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
-        allow read: if ownsOrg(orgId) && isInvestorRole();
+        allow read: if ownsOrg(orgId) && isInvestorRole()
+          && (resource.data.investorEmail == request.auth.token.email
+              || resource.data.accessLevel == 'all_investors');
       }
 
       // E-signature log (Firma.dev signing requests)
@@ -128,11 +131,19 @@ service cloud.firestore {
     }
 
     // ── E-Sign Requests (top-level, cross-org) ────────────────────────────
-    // GP creates signing requests, investor reads + updates (to sign)
+    // GP creates signing requests with their orgId.
+    // Only the GP (same org, non-investor) or the specific investor (matched by email) can read/update.
     match /esign_requests/{reqId} {
-      allow create: if isSignedIn();
-      allow read: if isSignedIn(); // Both GP and investor need to read
-      allow update: if isSignedIn(); // Investor updates status to 'signed', GP countersigns
+      // GP can create for their org
+      allow create: if isSignedIn() && !isInvestorRole();
+      
+      // GP can read/update their own org's signing requests
+      allow read, update: if isSignedIn() && !isInvestorRole()
+        && resource.data.orgId == userOrgId();
+      
+      // Investor can read/update ONLY their own signing request (matched by email)
+      allow read, update: if isSignedIn() && isInvestorRole()
+        && resource.data.investorEmail == request.auth.token.email;
     }
 
     // ── Audit logs — Cloud Functions write, admins read ─────────────────────
@@ -144,7 +155,7 @@ service cloud.firestore {
     // ── Global invite index (token → orgId lookup for invest.html) ──────────
     match /_invites/{token} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn(); // GP creates when generating invite
+      allow write: if isSignedIn() && !isInvestorRole(); // Only GPs can create invites
     }
   }
 }
