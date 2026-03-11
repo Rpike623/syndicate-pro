@@ -13,7 +13,7 @@ var SPDocs = (function() {
   }
 
   // ─── WATERFALL LANGUAGE BUILDER ────────────────────────────────────────────
-  // Generates Article III distribution priority language based on waterfall type
+  // Generates Article IV distribution priority language based on waterfall type
 
   function buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2Hurdle, tier2GPSplit, tier3GPSplit, tier2Catchup) {
     // Simple Split: no pref, no catch-up — straight split from dollar one
@@ -134,19 +134,21 @@ var SPDocs = (function() {
 <p style="text-align: center; font-weight: bold; text-transform: uppercase; margin-bottom: 20px; font-size: 12pt;">TABLE OF CONTENTS</p>
 <table style="width: 100%; border-collapse: collapse; margin-bottom: 36px; font-size: 11pt;">
 ${[
-  ['Article I', 'Formation and Overview'],
-  ['Article II', 'Capital Contributions'],
-  ['Article III', 'Distributions and Waterfall'],
-  ['Article IV', 'Allocations of Profits and Losses'],
-  ['Article V', 'Management and Fees'],
-  ['Article VI', 'Exculpation and Indemnification'],
-  ['Article VII', 'Transfers of Interests'],
-  ['Article VIII', 'Accounting, Records, and Tax Matters'],
-  ['Article IX', 'Additional Capital and Default'],
-  ['Article X', 'Dissolution and Winding Up'],
-  ['Article XI', 'State-Specific Provisions'],
-  ['Article XII', 'General Provisions'],
+  ['Article I', 'Definitions'],
+  ['Article II', 'Formation and Overview'],
+  ['Article III', 'Capital Contributions'],
+  ['Article IV', 'Distributions and Waterfall'],
+  ['Article V', 'Allocations of Profits and Losses'],
+  ['Article VI', 'Management and Fees'],
+  ['Article VII', 'Exculpation and Indemnification'],
+  ['Article VIII', 'Transfers of Interests'],
+  ['Article IX', 'Accounting, Records, and Tax Matters'],
+  ['Article X', 'Additional Capital and Default'],
+  ['Article XI', 'Dissolution and Winding Up'],
+  ['Article XII', 'State-Specific Provisions'],
+  ['Article XIII', 'General Provisions'],
   ['Schedule A', 'Members and Capital Contributions'],
+  ['Exhibit A', 'Form of Spousal Consent'],
 ].map(([a, t]) => '<tr><td style="padding: 4px 0;">' + a + '</td><td style="padding: 4px 0; border-bottom: 1px dotted #999;">' + t + '</td></tr>').join('')}
 </table>
 
@@ -157,40 +159,70 @@ ${[
 <p style="text-align: justify;"><strong>WHEREAS,</strong> the Members desire to set forth their respective rights, duties, and obligations with respect to the Company;</p>
 <p style="text-align: justify;"><strong>NOW, THEREFORE,</strong> in consideration of the mutual covenants and agreements herein contained and other good and valuable consideration, the receipt and sufficiency of which are hereby acknowledged, the parties agree as follows:</p>
 
-<p style="${hdr}">ARTICLE I<br>FORMATION AND OVERVIEW</p>
-<p><strong>1.1 Formation.</strong> The Company was formed as a limited liability company under the laws of the State of ${state} by the filing of its formation documents with the appropriate state authority.</p>
-<p><strong>1.2 Name.</strong> The name of the Company is ${companyName}. The business of the Company may be conducted under any other name designated by the Managing Member.</p>
-<p><strong>1.3 Principal Office.</strong> The principal office of the Company shall be located at ${safe(firmAddress, '[FIRM ADDRESS]')}, or such other place as the Managing Member may determine.</p>
-<p><strong>1.4 Purpose.</strong> The purpose of the Company is to acquire, own, operate, manage, finance, refinance, lease, and eventually sell or dispose of that certain real property commonly known as <strong>${dealName}</strong>, located at ${loc} (the "<strong>Property</strong>"), and to engage in any and all other activities necessary or incidental to the foregoing.</p>
+<p style="${hdr}">ARTICLE I<br>DEFINITIONS</p>
+<p>As used in this Agreement, the following capitalized terms shall have the meanings set forth below:</p>
+<p><strong>"Act"</strong> means the ${state} Limited Liability Company Act, as amended from time to time.</p>
+<p><strong>"Adjusted Capital Account Deficit"</strong> means, with respect to any Member, the deficit balance, if any, in such Member's Capital Account as of the end of the relevant fiscal year, after giving effect to the following adjustments: (i) credit to such Capital Account any amounts that such Member is obligated to restore or is deemed obligated to restore pursuant to Treasury Regulation Sections 1.704-2(g)(1) and 1.704-2(i)(5); and (ii) debit to such Capital Account the items described in Treasury Regulation Sections 1.704-1(b)(2)(ii)(d)(4), (5), and (6).</p>
+<p><strong>"Agreement"</strong> means this Limited Liability Company Operating Agreement, as amended, restated, or supplemented from time to time.</p>
+<p><strong>"Capital Account"</strong> means the individual capital account maintained for each Member in accordance with Treasury Regulation Section 1.704-1(b)(2)(iv).</p>
+<p><strong>"Capital Contribution"</strong> means the total amount of cash and the fair market value of any property contributed to the Company by a Member.</p>
+<p><strong>"Code"</strong> means the Internal Revenue Code of 1986, as amended.</p>
+<p><strong>"Company"</strong> means ${companyName}, a ${state} limited liability company.</p>
+<p><strong>"Covered Person"</strong> has the meaning set forth in Section 7.1 of Article VII.</p>
+<p><strong>"Distributable Cash"</strong> means all cash funds of the Company on hand at the end of any fiscal period from operations or capital events, less amounts required or reserved for: (a) debt service; (b) operating expenses; (c) capital expenditures and reserves; and (d) any other amounts the Managing Member reasonably determines are necessary for the prudent operation of the Company's business.</p>
+<p><strong>"GP"</strong> or <strong>"Managing Member"</strong> means ${gpName}, or any successor managing member appointed in accordance with this Agreement.</p>
+<p><strong>"Gross Asset Value"</strong> means, with respect to any Company asset, the asset's adjusted basis for federal income tax purposes, except as adjusted pursuant to Treasury Regulation Section 1.704-1(b)(2)(iv)(f) and (g).</p>
+<p><strong>"Interest"</strong> means a Member's entire ownership interest in the Company, including such Member's right to share in Distributable Cash, allocations of profits and losses, and voting or consent rights as set forth herein.</p>
+<p><strong>"Limited Members"</strong> or <strong>"LPs"</strong> means the persons and entities listed on Schedule A (other than the Managing Member) and any persons subsequently admitted as limited members.</p>
+<p><strong>"Majority-in-Interest"</strong> means Limited Members holding more than fifty percent (50%) of the aggregate Percentage Interests held by all Limited Members.</p>
+<p><strong>"Major Decisions"</strong> has the meaning set forth in Section 6.3 of Article VI.</p>
+<p><strong>"Member"</strong> means any person or entity that is a member of the Company, including the Managing Member and each Limited Member.</p>
+<p><strong>"Member Nonrecourse Debt"</strong> has the meaning set forth in Treasury Regulation Section 1.704-2(b)(4).</p>
+<p><strong>"Member Nonrecourse Debt Minimum Gain"</strong> has the meaning set forth in Treasury Regulation Section 1.704-2(i)(2).</p>
+<p><strong>"Minimum Gain"</strong> has the meaning set forth in Treasury Regulation Sections 1.704-2(b)(2) and 1.704-2(d).</p>
+<p><strong>"Net Profits"</strong> and <strong>"Net Losses"</strong> mean, for each fiscal year (or portion thereof), the taxable income or loss of the Company as determined for federal income tax purposes, with the adjustments required by Treasury Regulation Section 1.704-1(b)(2)(iv).</p>
+<p><strong>"Nonrecourse Deductions"</strong> has the meaning set forth in Treasury Regulation Section 1.704-2(b)(1).</p>
+<p><strong>"Percentage Interest"</strong> means, with respect to any Member, the percentage set forth opposite such Member's name on Schedule A, as adjusted from time to time to reflect additional contributions, transfers, and dilution events.</p>
+<p><strong>"Preferred Return"</strong> means a cumulative, non-compounding return of ${pref}% per annum on each Limited Member's unreturned Capital Contribution, calculated from the date of such contribution.</p>
+<p><strong>"Property"</strong> means the real property commonly known as ${dealName}, located at ${loc}, together with all improvements thereon and all personal property used in connection therewith.</p>
+<p><strong>"Schedule A"</strong> means the schedule attached hereto listing the Members, their Capital Contributions, and their Percentage Interests, as amended from time to time.</p>
+<p><strong>"Transfer"</strong> means any sale, assignment, pledge, hypothecation, encumbrance, or other disposition of all or any portion of a Member's Interest, whether voluntary or involuntary, by operation of law or otherwise.</p>
+<p><strong>"Treasury Regulations"</strong> means the Income Tax Regulations promulgated under the Code, as amended from time to time.</p>
 
-<p style="${hdr}">ARTICLE II<br>CAPITAL CONTRIBUTIONS</p>
-<p><strong>2.1 Total Capitalization.</strong> The projected total equity capitalization of the Company is <strong>${fmtMoney(equity)}</strong>.</p>
-<p><strong>2.2 Managing Member Contribution.</strong> The Managing Member (and/or its affiliates) agrees to contribute cash or sweat equity such that its Capital Account initially equals <strong>${gpPct}%</strong> of the total equity capitalization.</p>
-<p><strong>2.3 Limited Member Contributions.</strong> The Limited Members shall contribute cash in the amounts set forth opposite their respective names on Schedule A, collectively representing <strong>${lpPct}%</strong> of the initial equity capitalization. The minimum investment for any Limited Member is ${fmtMoney(minInvest)}, unless waived by the Managing Member.</p>
-<p><strong>2.4 Capital Accounts.</strong> A separate Capital Account shall be maintained for each Member in accordance with the rules of Treasury Regulation Section 1.704-1(b)(2)(iv).</p>
+<p style="${hdr}">ARTICLE II<br>FORMATION AND OVERVIEW</p>
+<p><strong>2.1 Formation.</strong> The Company was formed as a limited liability company under the laws of the State of ${state} by the filing of its formation documents with the appropriate state authority.</p>
+<p><strong>2.2 Name.</strong> The name of the Company is ${companyName}. The business of the Company may be conducted under any other name designated by the Managing Member.</p>
+<p><strong>2.3 Principal Office.</strong> The principal office of the Company shall be located at ${safe(firmAddress, '[FIRM ADDRESS]')}, or such other place as the Managing Member may determine.</p>
+<p><strong>2.4 Purpose.</strong> The purpose of the Company is to acquire, own, operate, manage, finance, refinance, lease, and eventually sell or dispose of that certain real property commonly known as <strong>${dealName}</strong>, located at ${loc} (the "<strong>Property</strong>"), and to engage in any and all other activities necessary or incidental to the foregoing.</p>
 
-<p style="${hdr}">ARTICLE III<br>DISTRIBUTIONS AND WATERFALL</p>
-<p><strong>3.1 Distributable Cash.</strong> "Distributable Cash" means all cash funds of the Company on hand from operations or capital events, less amounts required for debt service, operating expenses, and reasonable reserves as determined by the Managing Member.</p>
-<p><strong>3.2 Distribution Priority (The Waterfall).</strong> Except as otherwise provided upon liquidation, Distributable Cash shall be distributed to the Members in the following order of priority:</p>
+<p style="${hdr}">ARTICLE III<br>CAPITAL CONTRIBUTIONS</p>
+<p><strong>3.1 Total Capitalization.</strong> The projected total equity capitalization of the Company is <strong>${fmtMoney(equity)}</strong>.</p>
+<p><strong>3.2 Managing Member Contribution.</strong> The Managing Member (and/or its affiliates) agrees to contribute cash or sweat equity such that its Capital Account initially equals <strong>${gpPct}%</strong> of the total equity capitalization.</p>
+<p><strong>3.3 Limited Member Contributions.</strong> The Limited Members shall contribute cash in the amounts set forth opposite their respective names on Schedule A, collectively representing <strong>${lpPct}%</strong> of the initial equity capitalization. The minimum investment for any Limited Member is ${fmtMoney(minInvest)}, unless waived by the Managing Member.</p>
+<p><strong>3.4 Capital Accounts.</strong> A separate Capital Account shall be maintained for each Member in accordance with the rules of Treasury Regulation Section 1.704-1(b)(2)(iv).</p>
+
+<p style="${hdr}">ARTICLE IV<br>DISTRIBUTIONS AND WATERFALL</p>
+<p><strong>4.1 Distributable Cash.</strong> "Distributable Cash" means all cash funds of the Company on hand from operations or capital events, less amounts required for debt service, operating expenses, and reasonable reserves as determined by the Managing Member.</p>
+<p><strong>4.2 Distribution Priority (The Waterfall).</strong> Except as otherwise provided upon liquidation, Distributable Cash shall be distributed to the Members in the following order of priority:</p>
 ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2Hurdle, tier2GPSplit, tier3GPSplit, tier2Catchup)}
-<p><strong>3.3 Tax Distributions.</strong> To the extent legally and financially permissible, the Managing Member shall use commercially reasonable efforts to make distributions to the Members sufficient to cover federal and state income tax liabilities reasonably expected to result from the allocation of Company taxable income.</p>
+<p><strong>4.3 Tax Distributions.</strong> To the extent legally and financially permissible, the Managing Member shall use commercially reasonable efforts to make distributions to the Members sufficient to cover federal and state income tax liabilities reasonably expected to result from the allocation of Company taxable income.</p>
 
-<p style="${hdr}">ARTICLE IV<br>ALLOCATIONS OF PROFITS AND LOSSES</p>
-<p><strong>4.1 Net Profits and Net Losses.</strong> Except as otherwise provided in this Article IV, Net Profits and Net Losses of the Company for each fiscal year (or portion thereof) shall be allocated among the Members in a manner consistent with and proportionate to the distributions described in Article III, so that to the maximum extent possible, each Member's Capital Account balance at the end of each fiscal year, after giving effect to allocations and distributions, reflects the amount such Member would receive if the Company were to liquidate and distribute its assets in accordance with the waterfall set forth in Section 3.2.</p>
-<p><strong>4.2 Regulatory Allocations.</strong> Notwithstanding Section 4.1, the following special allocations shall be made in the following order of priority:</p>
+<p style="${hdr}">ARTICLE V<br>ALLOCATIONS OF PROFITS AND LOSSES</p>
+<p><strong>5.1 Net Profits and Net Losses.</strong> Except as otherwise provided in this Article V, Net Profits and Net Losses of the Company for each fiscal year (or portion thereof) shall be allocated among the Members in a manner consistent with and proportionate to the distributions described in Article IV, so that to the maximum extent possible, each Member's Capital Account balance at the end of each fiscal year, after giving effect to allocations and distributions, reflects the amount such Member would receive if the Company were to liquidate and distribute its assets in accordance with the waterfall set forth in Section 4.2.</p>
+<p><strong>5.2 Regulatory Allocations.</strong> Notwithstanding Section 5.1, the following special allocations shall be made in the following order of priority:</p>
 <ol type="a" style="margin-left: 20px;">
-  <li style="margin-bottom: 6px;"><strong>Minimum Gain Chargeback.</strong> If there is a net decrease in Company Minimum Gain during any fiscal year, each Member shall be specially allocated items of Company income and gain for such year (and, if necessary, subsequent years) in an amount equal to such Member's share of the net decrease in Company Minimum Gain, determined in accordance with Treasury Regulation Section 1.704-2(g). This Section 4.2(a) is intended to comply with the minimum gain chargeback requirement of Treasury Regulation Section 1.704-2(f) and shall be interpreted accordingly.</li>
+  <li style="margin-bottom: 6px;"><strong>Minimum Gain Chargeback.</strong> If there is a net decrease in Company Minimum Gain during any fiscal year, each Member shall be specially allocated items of Company income and gain for such year (and, if necessary, subsequent years) in an amount equal to such Member's share of the net decrease in Company Minimum Gain, determined in accordance with Treasury Regulation Section 1.704-2(g). This Section 5.2(a) is intended to comply with the minimum gain chargeback requirement of Treasury Regulation Section 1.704-2(f) and shall be interpreted accordingly.</li>
   <li style="margin-bottom: 6px;"><strong>Member Nonrecourse Debt Minimum Gain Chargeback.</strong> If there is a net decrease in Member Nonrecourse Debt Minimum Gain attributable to a Member Nonrecourse Debt during any fiscal year, each Member who has a share of the Member Nonrecourse Debt Minimum Gain attributable to such debt shall be specially allocated items of Company income and gain for such year in an amount equal to such Member's share of the net decrease, as determined under Treasury Regulation Section 1.704-2(i)(4). This allocation is intended to comply with Treasury Regulation Section 1.704-2(i)(4).</li>
   <li style="margin-bottom: 6px;"><strong>Qualified Income Offset.</strong> If a Member unexpectedly receives any adjustment, allocation, or distribution described in Treasury Regulation Section 1.704-1(b)(2)(ii)(d)(4), (5), or (6), items of Company income and gain shall be specially allocated to such Member in an amount and manner sufficient to eliminate, to the extent required by Treasury Regulation Section 1.704-1(b)(2)(ii)(d), the Adjusted Capital Account Deficit of such Member as quickly as possible.</li>
   <li style="margin-bottom: 6px;"><strong>Nonrecourse Deductions.</strong> Nonrecourse Deductions for any fiscal year shall be allocated to the Members in proportion to their respective Percentage Interests.</li>
   <li style="margin-bottom: 6px;"><strong>Member Nonrecourse Deductions.</strong> Any Member Nonrecourse Deductions for any fiscal year shall be specially allocated to the Member who bears the economic risk of loss with respect to the Member Nonrecourse Debt to which such deductions are attributable.</li>
 </ol>
-<p><strong>4.3 Section 704(c) Allocations.</strong> In accordance with Section 704(c) of the Code and the Treasury Regulations thereunder, income, gain, loss, and deduction with respect to any property contributed to the capital of the Company shall, solely for tax purposes, be allocated among the Members so as to take account of any variation between the adjusted basis of such property to the Company for federal income tax purposes and its initial Gross Asset Value. The Managing Member shall select the method of allocation under Section 704(c) in its reasonable discretion.</p>
-<p><strong>4.4 Depreciation Recapture.</strong> To the extent gain recognized upon the sale or disposition of Company property is treated as ordinary income attributable to the recapture of depreciation, such ordinary income shall be allocated among the Members in proportion to the depreciation deductions previously allocated to them.</p>
+<p><strong>5.3 Section 704(c) Allocations.</strong> In accordance with Section 704(c) of the Code and the Treasury Regulations thereunder, income, gain, loss, and deduction with respect to any property contributed to the capital of the Company shall, solely for tax purposes, be allocated among the Members so as to take account of any variation between the adjusted basis of such property to the Company for federal income tax purposes and its initial Gross Asset Value. The Managing Member shall select the method of allocation under Section 704(c) in its reasonable discretion.</p>
+<p><strong>5.4 Depreciation Recapture.</strong> To the extent gain recognized upon the sale or disposition of Company property is treated as ordinary income attributable to the recapture of depreciation, such ordinary income shall be allocated among the Members in proportion to the depreciation deductions previously allocated to them.</p>
 
-<p style="${hdr}">ARTICLE V<br>MANAGEMENT AND FEES</p>
-<p><strong>5.1 Authority of Managing Member.</strong> The business and affairs of the Company shall be managed exclusively by the Managing Member, acting through its authorized representative, <strong>${gpRep}</strong>. The Managing Member shall have full and complete authority, power, and discretion to manage and control the business, including but not limited to: acquiring, financing, refinancing, improving, operating, leasing, and disposing of the Property; hiring and terminating employees, contractors, and property managers; opening and maintaining bank accounts; and executing all documents and instruments on behalf of the Company.</p>
-<p><strong>5.2 Compensation and Fees.</strong> For services rendered to the Company, the Managing Member (or an affiliate) shall receive:</p>
+<p style="${hdr}">ARTICLE VI<br>MANAGEMENT AND FEES</p>
+<p><strong>6.1 Authority of Managing Member.</strong> The business and affairs of the Company shall be managed exclusively by the Managing Member, acting through its authorized representative, <strong>${gpRep}</strong>. The Managing Member shall have full and complete authority, power, and discretion to manage and control the business, including but not limited to: acquiring, financing, refinancing, improving, operating, leasing, and disposing of the Property; hiring and terminating employees, contractors, and property managers; opening and maintaining bank accounts; and executing all documents and instruments on behalf of the Company.</p>
+<p><strong>6.2 Compensation and Fees.</strong> For services rendered to the Company, the Managing Member (or an affiliate) shall receive:</p>
 <ul>
   <li><strong>Acquisition Fee:</strong> A one-time fee equal to <strong>${acqFee}%</strong> of the gross purchase price of the Property, payable at closing from offering proceeds.</li>
   <li><strong>Asset Management Fee:</strong> An ongoing fee equal to <strong>${mgmtFee}%</strong> of the gross monthly revenues collected by the Property, payable monthly in arrears.</li>
@@ -198,7 +230,7 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
   <li><strong>Construction/Renovation Management:</strong> If the Managing Member directly oversees material capital improvements, a construction management fee of up to 5% of the hard construction costs may be charged, disclosed to the Limited Members in advance.</li>
   <li><strong>Refinancing Fee:</strong> A fee of up to 0.5% of the new loan amount upon any refinancing event, payable at closing of the refinancing.</li>
 </ul>
-<p><strong>5.3 Limitation on Authority (Major Decisions).</strong> Notwithstanding the foregoing, the Managing Member shall not take any of the following "Major Decisions" without the prior affirmative vote or written consent of a Majority-in-Interest (over 50%) of the Limited Members:</p>
+<p><strong>6.3 Limitation on Authority (Major Decisions).</strong> Notwithstanding the foregoing, the Managing Member shall not take any of the following "Major Decisions" without the prior affirmative vote or written consent of a Majority-in-Interest (over 50%) of the Limited Members:</p>
 <ol type="i" style="margin-left: 20px;">
   <li>Sale or other disposition of the Property or substantially all Company assets;</li>
   <li>Refinancing of existing debt, or incurrence of new indebtedness in excess of 80% loan-to-value;</li>
@@ -206,78 +238,78 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
   <li>Any merger, consolidation, or conversion of the Company;</li>
   <li>Admission of a new Managing Member;</li>
   <li>Material modification of the business plan or investment thesis;</li>
-  <li>Dissolution or winding up of the Company (except as provided in Article X);</li>
+  <li>Dissolution or winding up of the Company (except as provided in Article XI);</li>
   <li>Any transaction between the Company and the Managing Member or its affiliates not otherwise disclosed in this Agreement or the Private Placement Memorandum;</li>
   <li>Performing any act in contravention of this Agreement.</li>
 </ol>
-<p><strong>5.4 No Participation by Limited Members.</strong> The Limited Members shall not participate in the management or control of the Company. No Limited Member shall have any authority to bind the Company or transact any business on its behalf.</p>
-<p><strong>5.5 GP Removal for Cause.</strong> The Managing Member may be removed for "Cause" by the affirmative vote of Limited Members holding at least sixty-six and two-thirds percent (66⅔%) in interest. "Cause" means: (a) fraud, gross negligence, or willful misconduct in the management of the Company; (b) a material breach of this Agreement that remains uncured for thirty (30) days following written notice; (c) conviction of a felony; or (d) bankruptcy or insolvency of the Managing Member. Upon removal, the Limited Members by majority vote shall appoint a successor Managing Member or vote to dissolve the Company.</p>
-<p><strong>5.6 Insurance.</strong> The Managing Member shall procure and maintain, at the Company's expense, comprehensive general liability insurance, property insurance, and such other insurance as is customary for properties of the type and in the location of the Property, in amounts deemed adequate by the Managing Member. The Managing Member shall also maintain errors and omissions or directors and officers insurance covering actions taken on behalf of the Company.</p>
+<p><strong>6.4 No Participation by Limited Members.</strong> The Limited Members shall not participate in the management or control of the Company. No Limited Member shall have any authority to bind the Company or transact any business on its behalf.</p>
+<p><strong>6.5 GP Removal for Cause.</strong> The Managing Member may be removed for "Cause" by the affirmative vote of Limited Members holding at least sixty-six and two-thirds percent (66⅔%) in interest. "Cause" means: (a) fraud, gross negligence, or willful misconduct in the management of the Company; (b) a material breach of this Agreement that remains uncured for thirty (30) days following written notice; (c) conviction of a felony; or (d) bankruptcy or insolvency of the Managing Member. Upon removal, the Limited Members by majority vote shall appoint a successor Managing Member or vote to dissolve the Company.</p>
+<p><strong>6.6 Insurance.</strong> The Managing Member shall procure and maintain, at the Company's expense, comprehensive general liability insurance, property insurance, and such other insurance as is customary for properties of the type and in the location of the Property, in amounts deemed adequate by the Managing Member. The Managing Member shall also maintain errors and omissions or directors and officers insurance covering actions taken on behalf of the Company.</p>
 
-<p style="${hdr}">ARTICLE VI<br>EXCULPATION AND INDEMNIFICATION</p>
-<p><strong>6.1 Exculpation.</strong> The Managing Member, its affiliates, and their respective officers, directors, and employees (the "Covered Persons") shall not be liable to the Company or any Member for any loss, damage, or claim incurred by reason of any act or omission performed or omitted by such Covered Person in good faith on behalf of the Company, except for acts or omissions involving gross negligence, fraud, or willful misconduct.</p>
-<p><strong>6.2 Indemnification.</strong> The Company shall indemnify and hold harmless the Covered Persons to the fullest extent permitted by law against any losses, judgments, liabilities, expenses (including reasonable attorneys' fees), and amounts paid in settlement of any claims sustained by them in connection with the Company, provided such Covered Person's conduct did not constitute gross negligence, fraud, or willful misconduct. The indemnification obligations of this Section shall survive the dissolution and winding up of the Company.</p>
-<p><strong>6.3 Advancement of Expenses.</strong> Expenses (including reasonable attorneys' fees) incurred by a Covered Person in defending any action, suit, or proceeding shall be paid by the Company in advance of final disposition of such matter upon receipt of an undertaking by such Covered Person to repay such amount if it shall ultimately be determined that such Covered Person is not entitled to be indemnified hereunder.</p>
+<p style="${hdr}">ARTICLE VII<br>EXCULPATION AND INDEMNIFICATION</p>
+<p><strong>7.1 Exculpation.</strong> The Managing Member, its affiliates, and their respective officers, directors, and employees (the "Covered Persons") shall not be liable to the Company or any Member for any loss, damage, or claim incurred by reason of any act or omission performed or omitted by such Covered Person in good faith on behalf of the Company, except for acts or omissions involving gross negligence, fraud, or willful misconduct.</p>
+<p><strong>7.2 Indemnification.</strong> The Company shall indemnify and hold harmless the Covered Persons to the fullest extent permitted by law against any losses, judgments, liabilities, expenses (including reasonable attorneys' fees), and amounts paid in settlement of any claims sustained by them in connection with the Company, provided such Covered Person's conduct did not constitute gross negligence, fraud, or willful misconduct. The indemnification obligations of this Section shall survive the dissolution and winding up of the Company.</p>
+<p><strong>7.3 Advancement of Expenses.</strong> Expenses (including reasonable attorneys' fees) incurred by a Covered Person in defending any action, suit, or proceeding shall be paid by the Company in advance of final disposition of such matter upon receipt of an undertaking by such Covered Person to repay such amount if it shall ultimately be determined that such Covered Person is not entitled to be indemnified hereunder.</p>
 
-<p style="${hdr}">ARTICLE VII<br>TRANSFERS OF INTERESTS</p>
-<p><strong>7.1 Restrictions on Transfer.</strong> No Member may sell, assign, pledge, hypothecate, or otherwise transfer any portion of their Interest without the prior written consent of the Managing Member, which consent may be withheld in the Managing Member's sole and absolute discretion. Any purported transfer in violation of this Section shall be null and void and of no force or effect.</p>
-<p><strong>7.2 Right of First Refusal.</strong> Prior to any permitted transfer, the transferring Member (the "Offering Member") shall deliver written notice (the "Transfer Notice") to the Managing Member specifying: (a) the proposed terms and conditions of the transfer; (b) the identity and qualifications of the proposed transferee; (c) the proposed purchase price (the "Offered Price"); and (d) evidence that the proposed transfer constitutes a bona fide, arm's-length transaction. The Company and/or the non-transferring Members shall have a right of first refusal exercisable within thirty (30) days of receipt of such Transfer Notice to purchase the Offering Member's Interest on the same terms and conditions set forth in the Transfer Notice.</p>
-<p><strong>7.2.1 Valuation Methodology.</strong> If the Transfer Notice does not reflect a bona fide third-party offer, or if the parties dispute the Offered Price, the fair market value of the Offering Member's Interest shall be determined as follows:</p>
+<p style="${hdr}">ARTICLE VIII<br>TRANSFERS OF INTERESTS</p>
+<p><strong>8.1 Restrictions on Transfer.</strong> No Member may sell, assign, pledge, hypothecate, or otherwise transfer any portion of their Interest without the prior written consent of the Managing Member, which consent may be withheld in the Managing Member's sole and absolute discretion. Any purported transfer in violation of this Section shall be null and void and of no force or effect.</p>
+<p><strong>8.2 Right of First Refusal.</strong> Prior to any permitted transfer, the transferring Member (the "Offering Member") shall deliver written notice (the "Transfer Notice") to the Managing Member specifying: (a) the proposed terms and conditions of the transfer; (b) the identity and qualifications of the proposed transferee; (c) the proposed purchase price (the "Offered Price"); and (d) evidence that the proposed transfer constitutes a bona fide, arm's-length transaction. The Company and/or the non-transferring Members shall have a right of first refusal exercisable within thirty (30) days of receipt of such Transfer Notice to purchase the Offering Member's Interest on the same terms and conditions set forth in the Transfer Notice.</p>
+<p><strong>8.2.1 Valuation Methodology.</strong> If the Transfer Notice does not reflect a bona fide third-party offer, or if the parties dispute the Offered Price, the fair market value of the Offering Member's Interest shall be determined as follows:</p>
 <ol type="i" style="margin-left: 20px;">
   <li style="margin-bottom: 6px;"><strong>Appraisal.</strong> The Managing Member shall engage a qualified, independent MAI-designated appraiser to determine the fair market value of the Property. The appraised value shall be used to calculate the net asset value ("NAV") of the Company by subtracting all outstanding Company liabilities (including mortgage debt, accrued expenses, and reserves) from the appraised value of the Property, plus any cash and other assets held by the Company.</li>
   <li style="margin-bottom: 6px;"><strong>Interest Valuation.</strong> The fair market value of the Offering Member's Interest shall equal such Member's pro-rata share of the NAV, based on the Offering Member's Percentage Interest, less a discount of fifteen percent (15%) for lack of marketability and minority interest (the "Discount"), unless the parties mutually agree to waive or modify the Discount.</li>
   <li style="margin-bottom: 6px;"><strong>Dispute Resolution.</strong> If the Offering Member disputes the appraisal, the Offering Member may, at its own expense, engage a second MAI-designated appraiser within fifteen (15) days of receiving the initial appraisal. If the two appraisals differ by more than 10%, the two appraisers shall jointly select a third appraiser, and the fair market value shall be the average of the two closest appraisals. The cost of the third appraisal shall be borne equally by the Offering Member and the Company.</li>
   <li style="margin-bottom: 6px;"><strong>Payment Terms.</strong> If the Company or non-transferring Members elect to exercise the right of first refusal, payment of the purchase price shall be made in cash at closing, or upon such other terms as specified in the Transfer Notice if the purchase is made on the same terms as the third-party offer. Closing shall occur within forty-five (45) days of the exercise of the right of first refusal.</li>
 </ol>
-<p><strong>7.3 Conditions of Transfer.</strong> No transfer shall be consummated unless: (a) the transferee delivers an executed written agreement to be bound by the terms of this Agreement; (b) the Managing Member determines in its reasonable judgment that such transfer will not cause the Company to be treated as a publicly traded partnership for tax purposes; (c) the transfer complies with all applicable federal and state securities laws; and (d) the transferring Member pays all reasonable costs and expenses incurred by the Company in connection with such transfer.</p>
-<p><strong>7.4 No Withdrawal.</strong> No Member shall have the right to resign or withdraw from the Company or to demand or receive a return of all or any portion of their Capital Contribution, except as expressly provided herein or upon dissolution.</p>
-<p><strong>7.5 Admission of Substitute Members.</strong> A transferee of a Member's Interest shall be admitted as a Substitute Member only with the written consent of the Managing Member. Until admitted as a Substitute Member, a transferee shall be an assignee entitled only to receive the distributions and allocations of income, gain, loss, deduction, and credit to which the transferring Member would have been entitled, but shall have no right to vote or participate in Company governance.</p>
+<p><strong>8.3 Conditions of Transfer.</strong> No transfer shall be consummated unless: (a) the transferee delivers an executed written agreement to be bound by the terms of this Agreement; (b) the Managing Member determines in its reasonable judgment that such transfer will not cause the Company to be treated as a publicly traded partnership for tax purposes; (c) the transfer complies with all applicable federal and state securities laws; and (d) the transferring Member pays all reasonable costs and expenses incurred by the Company in connection with such transfer.</p>
+<p><strong>8.4 No Withdrawal.</strong> No Member shall have the right to resign or withdraw from the Company or to demand or receive a return of all or any portion of their Capital Contribution, except as expressly provided herein or upon dissolution.</p>
+<p><strong>8.5 Admission of Substitute Members.</strong> A transferee of a Member's Interest shall be admitted as a Substitute Member only with the written consent of the Managing Member. Until admitted as a Substitute Member, a transferee shall be an assignee entitled only to receive the distributions and allocations of income, gain, loss, deduction, and credit to which the transferring Member would have been entitled, but shall have no right to vote or participate in Company governance.</p>
 
-<p style="${hdr}">ARTICLE VIII<br>ACCOUNTING, RECORDS, AND TAX MATTERS</p>
-<p><strong>8.1 Fiscal Year.</strong> The fiscal year of the Company shall be the calendar year.</p>
-<p><strong>8.2 Books and Records.</strong> The Managing Member shall keep or cause to be kept proper and complete books of account and records of the Company, including: (a) a current list of the names, addresses, and Percentage Interests of all Members; (b) copies of federal, state, and local income tax returns for each year; (c) copies of this Agreement, the Certificate of Formation, and all amendments thereto; and (d) financial statements. Each Member shall have the right, upon reasonable advance notice and during normal business hours, to inspect and copy at such Member's expense any of the Company's books, records, and documents.</p>
-<p><strong>8.3 Financial Reporting.</strong> The Managing Member shall furnish to each Member: (a) within 90 days after the end of each fiscal year, an annual report containing the Company's financial statements (balance sheet, income statement, statement of cash flows, and statement of Members' equity), prepared on an accrual basis in accordance with generally accepted accounting principles; and (b) quarterly updates on the status of the Property, material events, and a summary of distributions made or projected.</p>
-<p><strong>8.4 Tax Returns and K-1s.</strong> The Managing Member shall cause the Company to file all required federal, state, and local tax returns and shall use commercially reasonable efforts to deliver a Schedule K-1 (IRS Form 1065) to each Member within 75 days after the end of each fiscal year. Each Member shall be responsible for filing their own individual tax returns and paying their own taxes on allocated Company income.</p>
-<p><strong>8.5 Partnership Representative (BBA Audit Rules).</strong> The Managing Member is hereby designated as the "Partnership Representative" pursuant to Section 6223(a) of the Internal Revenue Code, as amended by the Bipartisan Budget Act of 2015 (the "BBA"). The Partnership Representative shall have sole authority to act on behalf of the Company in any federal tax audit or proceeding. The Partnership Representative shall keep the Members reasonably informed of any administrative or judicial proceedings. If the Company qualifies, the Partnership Representative may elect out of the centralized partnership audit regime under Section 6221(b) of the Code. If the Company does not elect out and an imputed underpayment is assessed, the Partnership Representative shall elect the "push-out" alternative under Section 6226 of the Code (passing the tax adjustment through to the Members for the reviewed year) unless the Partnership Representative determines in good faith that an alternative approach is more beneficial to the Members.</p>
-<p><strong>8.6 Tax Elections.</strong> The Managing Member shall have the authority to make all tax elections on behalf of the Company, including but not limited to:</p>
+<p style="${hdr}">ARTICLE IX<br>ACCOUNTING, RECORDS, AND TAX MATTERS</p>
+<p><strong>9.1 Fiscal Year.</strong> The fiscal year of the Company shall be the calendar year.</p>
+<p><strong>9.2 Books and Records.</strong> The Managing Member shall keep or cause to be kept proper and complete books of account and records of the Company, including: (a) a current list of the names, addresses, and Percentage Interests of all Members; (b) copies of federal, state, and local income tax returns for each year; (c) copies of this Agreement, the Certificate of Formation, and all amendments thereto; and (d) financial statements. Each Member shall have the right, upon reasonable advance notice and during normal business hours, to inspect and copy at such Member's expense any of the Company's books, records, and documents.</p>
+<p><strong>9.3 Financial Reporting.</strong> The Managing Member shall furnish to each Member: (a) within 90 days after the end of each fiscal year, an annual report containing the Company's financial statements (balance sheet, income statement, statement of cash flows, and statement of Members' equity), prepared on an accrual basis in accordance with generally accepted accounting principles; and (b) quarterly updates on the status of the Property, material events, and a summary of distributions made or projected.</p>
+<p><strong>9.4 Tax Returns and K-1s.</strong> The Managing Member shall cause the Company to file all required federal, state, and local tax returns and shall use commercially reasonable efforts to deliver a Schedule K-1 (IRS Form 1065) to each Member within 75 days after the end of each fiscal year. Each Member shall be responsible for filing their own individual tax returns and paying their own taxes on allocated Company income.</p>
+<p><strong>9.5 Partnership Representative (BBA Audit Rules).</strong> The Managing Member is hereby designated as the "Partnership Representative" pursuant to Section 6223(a) of the Internal Revenue Code, as amended by the Bipartisan Budget Act of 2015 (the "BBA"). The Partnership Representative shall have sole authority to act on behalf of the Company in any federal tax audit or proceeding. The Partnership Representative shall keep the Members reasonably informed of any administrative or judicial proceedings. If the Company qualifies, the Partnership Representative may elect out of the centralized partnership audit regime under Section 6221(b) of the Code. If the Company does not elect out and an imputed underpayment is assessed, the Partnership Representative shall elect the "push-out" alternative under Section 6226 of the Code (passing the tax adjustment through to the Members for the reviewed year) unless the Partnership Representative determines in good faith that an alternative approach is more beneficial to the Members.</p>
+<p><strong>9.6 Tax Elections.</strong> The Managing Member shall have the authority to make all tax elections on behalf of the Company, including but not limited to:</p>
 <ol type="a" style="margin-left: 20px;">
   <li>An election under Section 754 of the Code to adjust the basis of Company property upon a transfer of a Member's Interest or a distribution of Company property, if the Managing Member determines such election is in the best interest of the Members;</li>
   <li>Elections regarding methods of depreciation, cost recovery, and accounting methods;</li>
   <li>An election to be treated as a partnership for federal income tax purposes (the Company shall not elect to be classified as a corporation or association taxable as a corporation);</li>
   <li>Any election available under applicable state or local tax law.</li>
 </ol>
-<p><strong>8.7 Tax Classification.</strong> The Members intend that the Company shall be treated as a partnership for federal and applicable state income tax purposes. No Member shall take any action inconsistent with such treatment. The Company shall not file an election to be classified as a corporation under Treasury Regulation Section 301.7701-3.</p>
-<p><strong>8.8 Withholding.</strong> The Company is authorized to withhold from distributions to a Member, or with respect to allocations to a Member, and to pay over to any federal, state, or local government any amounts required to be so withheld pursuant to applicable tax law. Any amounts so withheld shall be treated as distributions to the relevant Member for all purposes of this Agreement.</p>
-<p><strong>8.9 UBTI Notice.</strong> Members that are tax-exempt entities (including IRAs, pension plans, and other benefit plans subject to ERISA) should be aware that the Company may generate unrelated business taxable income ("UBTI") due to the use of debt financing. Each such Member should consult its own tax advisor regarding the potential impact of UBTI on such Member's tax-exempt status.</p>
+<p><strong>9.7 Tax Classification.</strong> The Members intend that the Company shall be treated as a partnership for federal and applicable state income tax purposes. No Member shall take any action inconsistent with such treatment. The Company shall not file an election to be classified as a corporation under Treasury Regulation Section 301.7701-3.</p>
+<p><strong>9.8 Withholding.</strong> The Company is authorized to withhold from distributions to a Member, or with respect to allocations to a Member, and to pay over to any federal, state, or local government any amounts required to be so withheld pursuant to applicable tax law. Any amounts so withheld shall be treated as distributions to the relevant Member for all purposes of this Agreement.</p>
+<p><strong>9.9 UBTI Notice.</strong> Members that are tax-exempt entities (including IRAs, pension plans, and other benefit plans subject to ERISA) should be aware that the Company may generate unrelated business taxable income ("UBTI") due to the use of debt financing. Each such Member should consult its own tax advisor regarding the potential impact of UBTI on such Member's tax-exempt status.</p>
 
-<p style="${hdr}">ARTICLE IX<br>ADDITIONAL CAPITAL AND DEFAULT</p>
-<p><strong>9.1 No Obligation for Additional Capital.</strong> Except as provided in Section 9.2, no Member shall be required to make any additional capital contribution beyond such Member's initial Capital Contribution as set forth on Schedule A.</p>
-<p><strong>9.2 Capital Calls.</strong> If the Managing Member determines in good faith that additional capital is necessary for the Company to meet its obligations or to preserve the value of the Property, the Managing Member may issue a capital call notice to all Members, specifying the amount requested and the purpose. Capital calls shall be pro-rata in accordance with each Member's Percentage Interest. Each Member shall have fifteen (15) business days from receipt of such notice to fund their pro-rata share.</p>
-<p><strong>9.3 Failure to Fund (Default).</strong> If a Member fails to fund a capital call within the specified period (a "Defaulting Member"), the non-defaulting Members may, but are not required to, fund the Defaulting Member's shortfall. In such event, at the election of the Managing Member: (a) the Defaulting Member's Percentage Interest may be diluted proportionally to reflect the unfunded amount; (b) the funding provided by non-defaulting Members may be treated as a loan to the Defaulting Member at an annual interest rate of 15%, secured by the Defaulting Member's Interest; or (c) the Defaulting Member may be required to sell their Interest to the non-defaulting Members at a discount of 25% from its fair market value.</p>
+<p style="${hdr}">ARTICLE X<br>ADDITIONAL CAPITAL AND DEFAULT</p>
+<p><strong>10.1 No Obligation for Additional Capital.</strong> Except as provided in Section 10.2, no Member shall be required to make any additional capital contribution beyond such Member's initial Capital Contribution as set forth on Schedule A.</p>
+<p><strong>10.2 Capital Calls.</strong> If the Managing Member determines in good faith that additional capital is necessary for the Company to meet its obligations or to preserve the value of the Property, the Managing Member may issue a capital call notice to all Members, specifying the amount requested and the purpose. Capital calls shall be pro-rata in accordance with each Member's Percentage Interest. Each Member shall have fifteen (15) business days from receipt of such notice to fund their pro-rata share.</p>
+<p><strong>10.3 Failure to Fund (Default).</strong> If a Member fails to fund a capital call within the specified period (a "Defaulting Member"), the non-defaulting Members may, but are not required to, fund the Defaulting Member's shortfall. In such event, at the election of the Managing Member: (a) the Defaulting Member's Percentage Interest may be diluted proportionally to reflect the unfunded amount; (b) the funding provided by non-defaulting Members may be treated as a loan to the Defaulting Member at an annual interest rate of 15%, secured by the Defaulting Member's Interest; or (c) the Defaulting Member may be required to sell their Interest to the non-defaulting Members at a discount of 25% from its fair market value.</p>
 
-<p style="${hdr}">ARTICLE X<br>DISSOLUTION AND WINDING UP</p>
-<p><strong>10.1 Events of Dissolution.</strong> The Company shall be dissolved upon the earliest to occur of the following: (a) the sale, exchange, or other disposition of all or substantially all of the Company's assets; (b) the unanimous written consent of the Members; (c) the entry of a decree of judicial dissolution; (d) the occurrence of any other event that makes it unlawful for the business of the Company to be continued; or (e) the bankruptcy, dissolution, or removal of the Managing Member, unless within ninety (90) days after such event a Majority-in-Interest of the remaining Members elect to continue the Company and appoint a successor Managing Member.</p>
-<p><strong>10.2 Winding Up.</strong> Upon dissolution, the Managing Member (or, if the Managing Member is unable or unwilling to serve, a liquidating trustee appointed by a Majority-in-Interest of the Limited Members) shall wind up the affairs of the Company with reasonable promptness. During the winding up period, the Company shall continue solely for the purpose of winding up its affairs, collecting its assets, satisfying its liabilities, and distributing its remaining assets to the Members.</p>
-<p><strong>10.3 Order of Liquidating Distributions.</strong> The assets of the Company, or the proceeds from the liquidation thereof, shall be applied and distributed in the following order: (a) first, to the payment of debts and liabilities of the Company (including debts owed to Members) and the expenses of liquidation; (b) second, to the establishment of any reserves that the liquidating party deems reasonably necessary for contingent or unforeseen liabilities of the Company; and (c) third, to the Members in accordance with the distribution priorities set forth in Section 3.2 of this Agreement.</p>
-<p><strong>10.4 Final Accounting.</strong> Within a reasonable time following the completion of the liquidation, the liquidating party shall supply to each Member a statement that sets forth the assets and liabilities of the Company as of the date of dissolution, the manner in which the Company's assets were liquidated, and the amounts distributed to each Member.</p>
-<p><strong>10.5 Certificate of Cancellation.</strong> Upon completion of the winding up and distribution of all Company assets, the Managing Member (or liquidating trustee) shall file a Certificate of Cancellation with the appropriate state authority.</p>
+<p style="${hdr}">ARTICLE XI<br>DISSOLUTION AND WINDING UP</p>
+<p><strong>11.1 Events of Dissolution.</strong> The Company shall be dissolved upon the earliest to occur of the following: (a) the sale, exchange, or other disposition of all or substantially all of the Company's assets; (b) the unanimous written consent of the Members; (c) the entry of a decree of judicial dissolution; (d) the occurrence of any other event that makes it unlawful for the business of the Company to be continued; or (e) the bankruptcy, dissolution, or removal of the Managing Member, unless within ninety (90) days after such event a Majority-in-Interest of the remaining Members elect to continue the Company and appoint a successor Managing Member.</p>
+<p><strong>11.2 Winding Up.</strong> Upon dissolution, the Managing Member (or, if the Managing Member is unable or unwilling to serve, a liquidating trustee appointed by a Majority-in-Interest of the Limited Members) shall wind up the affairs of the Company with reasonable promptness. During the winding up period, the Company shall continue solely for the purpose of winding up its affairs, collecting its assets, satisfying its liabilities, and distributing its remaining assets to the Members.</p>
+<p><strong>11.3 Order of Liquidating Distributions.</strong> The assets of the Company, or the proceeds from the liquidation thereof, shall be applied and distributed in the following order: (a) first, to the payment of debts and liabilities of the Company (including debts owed to Members) and the expenses of liquidation; (b) second, to the establishment of any reserves that the liquidating party deems reasonably necessary for contingent or unforeseen liabilities of the Company; and (c) third, to the Members in accordance with the distribution priorities set forth in Section 4.2 of this Agreement.</p>
+<p><strong>11.4 Final Accounting.</strong> Within a reasonable time following the completion of the liquidation, the liquidating party shall supply to each Member a statement that sets forth the assets and liabilities of the Company as of the date of dissolution, the manner in which the Company's assets were liquidated, and the amounts distributed to each Member.</p>
+<p><strong>11.5 Certificate of Cancellation.</strong> Upon completion of the winding up and distribution of all Company assets, the Managing Member (or liquidating trustee) shall file a Certificate of Cancellation with the appropriate state authority.</p>
 
-<p style="${hdr}">ARTICLE XI<br>STATE-SPECIFIC PROVISIONS</p>
+<p style="${hdr}">ARTICLE XII<br>STATE-SPECIFIC PROVISIONS</p>
 ${stateSection}
 
-<p style="${hdr}">ARTICLE XII<br>GENERAL PROVISIONS</p>
-<p><strong>12.1 Amendments.</strong> This Agreement may be amended only by a written instrument signed by the Managing Member and approved by a Majority-in-Interest (over 50%) of the Limited Members; provided, however, that no amendment that adversely affects the economic rights of a Member (including distribution priorities, allocation of profits and losses, or capital account adjustments) shall be effective without the written consent of such affected Member. The Managing Member may amend Schedule A without Member consent to reflect the admission or withdrawal of Members and changes in Capital Contributions.</p>
-<p><strong>12.2 Entire Agreement.</strong> This Agreement, including all exhibits and schedules attached hereto, constitutes the entire agreement among the parties regarding the subject matter hereof and supersedes all prior negotiations, representations, warranties, commitments, and understandings.</p>
-<p><strong>12.3 Counterparts; Electronic Signatures.</strong> This Agreement may be executed in counterparts, each of which shall be deemed an original, and all of which together shall constitute one agreement. Signatures delivered by electronic means (including DocuSign or similar platforms) shall be binding and effective.</p>
-<p><strong>12.4 Governing Law.</strong> This Agreement shall be governed by and construed in accordance with the laws of the State of ${state}, without regard to conflicts of law principles.</p>
-<p><strong>12.5 Dispute Resolution.</strong> Any dispute, controversy, or claim arising out of or relating to this Agreement shall first be submitted to mediation administered by the American Arbitration Association or JAMS under its applicable mediation rules. If mediation is unsuccessful within sixty (60) days, any unresolved dispute shall be submitted to binding arbitration in the county where the Company's principal office is located, conducted by a single arbitrator in accordance with the Commercial Arbitration Rules of the American Arbitration Association. The arbitrator's award shall be final and binding and may be entered as a judgment in any court of competent jurisdiction. The prevailing party shall be entitled to recover its reasonable attorneys' fees and costs.</p>
-<p><strong>12.6 Confidentiality.</strong> Each Member agrees to maintain the confidentiality of all non-public information regarding the Company, the Property, the Members, and the terms of this Agreement, and shall not disclose such information to any third party without the prior written consent of the Managing Member, except: (a) to such Member's legal, tax, and financial advisors who agree to maintain confidentiality; (b) as required by law or regulation; or (c) as necessary in connection with a permitted transfer of such Member's Interest.</p>
-<p><strong>12.7 Notices.</strong> All notices, requests, demands, and other communications under this Agreement shall be in writing and shall be deemed duly given when delivered personally, sent by email with confirmation of receipt, or sent by nationally recognized overnight courier, to the addresses set forth on Schedule A or such other address as a party may designate in writing.</p>
-<p><strong>12.8 Severability.</strong> If any provision of this Agreement is held to be invalid or unenforceable, the remaining provisions shall continue in full force and effect and shall be construed as if the invalid provision had not been included.</p>
-<p><strong>12.9 Waiver.</strong> No waiver of any provision of this Agreement shall be effective unless in writing, and no waiver shall constitute a continuing waiver or a waiver of any other provision.</p>
-<p><strong>12.10 Power of Attorney.</strong> Each Limited Member hereby irrevocably constitutes and appoints the Managing Member as such Member's attorney-in-fact, with full power and authority, to execute, acknowledge, swear to, file, and record on such Member's behalf any documents necessary to carry out the purposes of this Agreement, including amendments to the Certificate of Formation, and any documents required to effect the dissolution and termination of the Company.</p>
-<p><strong>12.11 ERISA.</strong> The Company is not intended to hold "plan assets" of any employee benefit plan subject to the Employee Retirement Income Security Act of 1974, as amended ("ERISA"). If Benefit Plan Investors (as defined in 29 C.F.R. § 2510.3-101) hold 25% or more of the value of any class of equity interest in the Company, the Managing Member shall take reasonable steps to reduce such percentage below 25% or to ensure compliance with ERISA.</p>
-<p><strong>12.12 No Third-Party Beneficiaries.</strong> This Agreement is for the sole benefit of the Members and their permitted successors and assigns. Nothing in this Agreement shall confer upon any other person any legal or equitable right, benefit, or remedy.</p>
+<p style="${hdr}">ARTICLE XIII<br>GENERAL PROVISIONS</p>
+<p><strong>13.1 Amendments.</strong> This Agreement may be amended only by a written instrument signed by the Managing Member and approved by a Majority-in-Interest (over 50%) of the Limited Members; provided, however, that no amendment that adversely affects the economic rights of a Member (including distribution priorities, allocation of profits and losses, or capital account adjustments) shall be effective without the written consent of such affected Member. The Managing Member may amend Schedule A without Member consent to reflect the admission or withdrawal of Members and changes in Capital Contributions.</p>
+<p><strong>13.2 Entire Agreement.</strong> This Agreement, including all exhibits and schedules attached hereto, constitutes the entire agreement among the parties regarding the subject matter hereof and supersedes all prior negotiations, representations, warranties, commitments, and understandings.</p>
+<p><strong>13.3 Counterparts; Electronic Signatures.</strong> This Agreement may be executed in counterparts, each of which shall be deemed an original, and all of which together shall constitute one agreement. Signatures delivered by electronic means (including DocuSign or similar platforms) shall be binding and effective.</p>
+<p><strong>13.4 Governing Law.</strong> This Agreement shall be governed by and construed in accordance with the laws of the State of ${state}, without regard to conflicts of law principles.</p>
+<p><strong>13.5 Dispute Resolution.</strong> Any dispute, controversy, or claim arising out of or relating to this Agreement shall first be submitted to mediation administered by the American Arbitration Association or JAMS under its applicable mediation rules. If mediation is unsuccessful within sixty (60) days, any unresolved dispute shall be submitted to binding arbitration in the county where the Company's principal office is located, conducted by a single arbitrator in accordance with the Commercial Arbitration Rules of the American Arbitration Association. The arbitrator's award shall be final and binding and may be entered as a judgment in any court of competent jurisdiction. The prevailing party shall be entitled to recover its reasonable attorneys' fees and costs.</p>
+<p><strong>13.6 Confidentiality.</strong> Each Member agrees to maintain the confidentiality of all non-public information regarding the Company, the Property, the Members, and the terms of this Agreement, and shall not disclose such information to any third party without the prior written consent of the Managing Member, except: (a) to such Member's legal, tax, and financial advisors who agree to maintain confidentiality; (b) as required by law or regulation; or (c) as necessary in connection with a permitted transfer of such Member's Interest.</p>
+<p><strong>13.7 Notices.</strong> All notices, requests, demands, and other communications under this Agreement shall be in writing and shall be deemed duly given when delivered personally, sent by email with confirmation of receipt, or sent by nationally recognized overnight courier, to the addresses set forth on Schedule A or such other address as a party may designate in writing.</p>
+<p><strong>13.8 Severability.</strong> If any provision of this Agreement is held to be invalid or unenforceable, the remaining provisions shall continue in full force and effect and shall be construed as if the invalid provision had not been included.</p>
+<p><strong>13.9 Waiver.</strong> No waiver of any provision of this Agreement shall be effective unless in writing, and no waiver shall constitute a continuing waiver or a waiver of any other provision.</p>
+<p><strong>13.10 Power of Attorney.</strong> Each Limited Member hereby irrevocably constitutes and appoints the Managing Member as such Member's attorney-in-fact, with full power and authority, to execute, acknowledge, swear to, file, and record on such Member's behalf any documents necessary to carry out the purposes of this Agreement, including amendments to the Certificate of Formation, and any documents required to effect the dissolution and termination of the Company.</p>
+<p><strong>13.11 ERISA.</strong> The Company is not intended to hold "plan assets" of any employee benefit plan subject to the Employee Retirement Income Security Act of 1974, as amended ("ERISA"). If Benefit Plan Investors (as defined in 29 C.F.R. § 2510.3-101) hold 25% or more of the value of any class of equity interest in the Company, the Managing Member shall take reasonable steps to reduce such percentage below 25% or to ensure compliance with ERISA.</p>
+<p><strong>13.12 No Third-Party Beneficiaries.</strong> This Agreement is for the sole benefit of the Members and their permitted successors and assigns. Nothing in this Agreement shall confer upon any other person any legal or equitable right, benefit, or remedy.</p>
 
 <p style="text-align: center; margin-top: 48px; font-weight: bold; font-size: 11pt;">[SIGNATURE PAGE FOLLOWS]</p>
 
@@ -345,6 +377,44 @@ ${stateSection}
     </tbody>
   </table>
   <p style="font-size: 10pt; margin-top: 16px; font-style: italic;">Schedule A shall be amended by the Managing Member from time to time to reflect the admission of additional Limited Members and changes in Capital Contributions, without requiring an amendment to this Agreement.</p>
+</div>
+
+<div style="page-break-before: always; margin-top: 60px;">
+  <p style="${hdr}">EXHIBIT A<br>FORM OF SPOUSAL CONSENT</p>
+  
+  <p style="text-align: center; margin-bottom: 24px; font-size: 11pt;"><strong>CONSENT OF SPOUSE</strong></p>
+  
+  <p>I, the undersigned, am the spouse of _________________________________ (the "<strong>Member</strong>"), a member of <strong>${companyName}</strong>, a ${state} limited liability company (the "<strong>Company</strong>").</p>
+  
+  <p>I hereby acknowledge that I have read and understand the Limited Liability Company Operating Agreement of the Company dated ${today} (the "<strong>Agreement</strong>"), and I agree to be bound by all of the terms and provisions thereof as they relate to the community property interest, if any, that I may have in my spouse's Interest in the Company.</p>
+  
+  <p>I further agree that:</p>
+  <ol style="margin-left: 20px;">
+    <li style="margin-bottom: 8px;">My spouse's Interest in the Company, whether community property or otherwise, shall be subject to the terms and conditions of the Agreement, including but not limited to the restrictions on transfer set forth in Article VIII;</li>
+    <li style="margin-bottom: 8px;">I will not, directly or indirectly, transfer, assign, pledge, or encumber any community property interest I may have in the Member's Interest without complying with the Agreement;</li>
+    <li style="margin-bottom: 8px;">In the event of dissolution of my marriage, whether by divorce, annulment, or legal separation, I will be bound by the provisions of the Agreement with respect to any Interest or portion thereof that may be allocated or awarded to me;</li>
+    <li style="margin-bottom: 8px;">I hereby consent to the Member's execution of the Agreement on my behalf to the extent that my consent is required by applicable community property law;</li>
+    <li style="margin-bottom: 8px;">I hereby appoint the Member as my attorney-in-fact with respect to the exercise of any rights under the Agreement that may relate to my community property interest, if any.</li>
+  </ol>
+  
+  <p style="margin-top: 8px;">This Consent is irrevocable and shall be binding upon my heirs, executors, administrators, legal representatives, and assigns.</p>
+  
+  <div style="margin-top: 48px;">
+    <div style="display: flex; justify-content: space-between;">
+      <div style="width: 45%;">
+        <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 30px;">&nbsp;</div>
+        <p>Signature of Spouse</p>
+        <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 16px;">&nbsp;</div>
+        <p>Printed Name</p>
+      </div>
+      <div style="width: 45%;">
+        <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 30px;">&nbsp;</div>
+        <p>Date</p>
+        <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 16px;">&nbsp;</div>
+        <p>Name of Member (Spouse)</p>
+      </div>
+    </div>
+  </div>
 </div>
 </div>
     `;
@@ -499,6 +569,51 @@ ${stateSection}
     <p style="font-size: 9pt;">Date of Acceptance</p>
   </div>
 </div>
+
+<!-- Witness Attestation -->
+<div style="margin-top: 40px; border-top: 1px solid #ccc; padding-top: 20px;">
+  <h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">WITNESS ATTESTATION</h3>
+  <p style="font-size: 10pt;">The undersigned witness hereby attests that the Subscriber signed this Subscription Agreement in the witness's presence on the date indicated above.</p>
+  <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+    <div style="width: 45%;">
+      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 30px;"></div>
+      <p style="font-size: 9pt;">Witness Signature</p>
+      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 15px;"></div>
+      <p style="font-size: 9pt;">Printed Name</p>
+    </div>
+    <div style="width: 45%;">
+      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 30px;"></div>
+      <p style="font-size: 9pt;">Date</p>
+      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 15px;"></div>
+      <p style="font-size: 9pt;">Address</p>
+    </div>
+  </div>
+</div>
+
+<!-- Notary Acknowledgment (optional — required in some jurisdictions) -->
+<div style="margin-top: 30px; border: 1px solid #999; padding: 20px; background: #fafafa;">
+  <h3 style="font-size: 11pt; margin-top: 0; text-align: center;">NOTARY ACKNOWLEDGMENT</h3>
+  <p style="font-size: 10pt; font-style: italic; color: #666; text-align: center; margin-bottom: 16px;">(Required for entity subscribers in certain jurisdictions. Consult counsel regarding applicability.)</p>
+  <p style="font-size: 10pt;">STATE OF _______________________</p>
+  <p style="font-size: 10pt;">COUNTY OF _______________________</p>
+  <p style="font-size: 10pt; margin-top: 12px;">On this _____ day of _______________, 20____, before me, the undersigned notary public, personally appeared _________________________________, known to me (or proved to me on the basis of satisfactory evidence) to be the person(s) whose name(s) is/are subscribed to the within instrument and acknowledged to me that he/she/they executed the same in his/her/their authorized capacity(ies), and that by his/her/their signature(s) on the instrument the person(s), or the entity upon behalf of which the person(s) acted, executed the instrument.</p>
+  <p style="font-size: 10pt; margin-top: 16px;">WITNESS my hand and official seal.</p>
+  <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+    <div style="width: 45%;">
+      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 30px;"></div>
+      <p style="font-size: 9pt;">Notary Public Signature</p>
+      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 12px;"></div>
+      <p style="font-size: 9pt;">Printed Name</p>
+    </div>
+    <div style="width: 45%;">
+      <p style="font-size: 9pt; margin-top: 0;">My Commission Expires: _______________</p>
+      <p style="font-size: 9pt; margin-top: 8px;">Commission Number: _______________</p>
+      <div style="border: 1px dashed #999; width: 120px; height: 80px; margin-top: 12px; display: flex; align-items: center; justify-content: center;">
+        <span style="font-size: 8pt; color: #999;">[NOTARY SEAL]</span>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
     `;
   }
@@ -558,7 +673,7 @@ ${stateSection}
 <!-- Table of Contents -->
 <h2 style="font-size:13pt; text-align:center; margin-top:40px; text-decoration:underline;">TABLE OF CONTENTS</h2>
 <table style="width:100%; border-collapse:collapse; margin:16px 0 40px;">
-  ${[['1. OFFERING SUMMARY','3'],['2. THE COMPANY','4'],['3. THE PROPERTY','4'],['4. USE OF PROCEEDS','5'],['5. DISTRIBUTION WATERFALL','6'],['6. RISK FACTORS','7'],['7. INVESTOR SUITABILITY STANDARDS','8'],['8. TAX CONSIDERATIONS','9'],['9. CONFLICTS OF INTEREST','9'],['10. FINANCIAL PROJECTIONS','10'],['11. LEGAL MATTERS AND SEC NOTICE','11'],['12. HOW TO SUBSCRIBE','12']].map(([t,p])=>`<tr><td style="padding:5px 0; border-bottom:1px dotted #ccc;">${t}</td><td style="padding:5px 0; border-bottom:1px dotted #ccc; text-align:right;">${p}</td></tr>`).join('')}
+  ${[['1. OFFERING SUMMARY','3'],['2. THE COMPANY','4'],['3. THE PROPERTY','4'],['4. USE OF PROCEEDS','5'],['5. MANAGEMENT COMPENSATION','6'],['6. DISTRIBUTION WATERFALL','7'],['7. RISK FACTORS','8'],['8. INVESTOR SUITABILITY STANDARDS','9'],['9. TAX CONSIDERATIONS','10'],['10. CONFLICTS OF INTEREST','10'],['11. FINANCIAL PROJECTIONS','11'],['12. LEGAL MATTERS AND SEC NOTICE','12'],['13. HOW TO SUBSCRIBE','13']].map(([t,p])=>`<tr><td style="padding:5px 0; border-bottom:1px dotted #ccc;">${t}</td><td style="padding:5px 0; border-bottom:1px dotted #ccc; text-align:right;">${p}</td></tr>`).join('')}
 </table>
 
 <!-- Section 1: Offering Summary -->
@@ -650,13 +765,29 @@ ${(function() {
   '<p style="font-size:9pt; color:#555;">The foregoing estimates are based on information available as of the date hereof and are subject to change. Actual amounts may vary based on final purchase terms, lender requirements, and market conditions. Any excess proceeds will be held as additional operating reserves.</p>';
 })()}
 
-<!-- Section 5: Distribution Waterfall -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 5 — DISTRIBUTION WATERFALL</h2>
+<!-- Section 5: Management Compensation -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 5 — MANAGEMENT COMPENSATION</h2>
+<p>The Managing Member and its affiliates will receive the following fees and compensation in connection with the acquisition, operation, and disposition of the Property:</p>
+<table style="width:100%; border-collapse:collapse; font-size:10pt; margin-bottom:16px;">
+  <thead><tr style="background:#f1f5f9;"><th style="border:1px solid #ddd; padding:8px; text-align:left;">Fee</th><th style="border:1px solid #ddd; padding:8px; text-align:left;">Amount</th><th style="border:1px solid #ddd; padding:8px; text-align:left;">Timing / Basis</th></tr></thead>
+  <tbody>
+    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Acquisition Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">${acqFee}% of gross purchase price${deal.purchasePrice ? ' (' + fmtMoney(Math.round(deal.purchasePrice * acqFee / 100)) + ')' : ''}</td><td style="border:1px solid #ddd; padding:8px;">One-time, paid at closing from offering proceeds</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Asset Management Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">${mgmtFee}% of gross revenues</td><td style="border:1px solid #ddd; padding:8px;">Ongoing, paid monthly in arrears</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>GP Promote (Carried Interest)</strong></td><td style="border:1px solid #ddd; padding:8px;">${promote}% of profits above Preferred Return</td><td style="border:1px solid #ddd; padding:8px;">Per distribution event, per the waterfall</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Disposition Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">1% of gross sale price</td><td style="border:1px solid #ddd; padding:8px;">One-time, at sale — subordinated to LP return of capital and accrued pref</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Construction Management Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">Up to 5% of hard construction costs</td><td style="border:1px solid #ddd; padding:8px;">If GP directly oversees material capex; disclosed in advance</td></tr>
+    <tr><td style="border:1px solid #ddd; padding:8px;"><strong>Refinancing Fee</strong></td><td style="border:1px solid #ddd; padding:8px;">Up to 0.5% of new loan amount</td><td style="border:1px solid #ddd; padding:8px;">One-time per refinancing event, at closing</td></tr>
+  </tbody>
+</table>
+<p style="font-size:9.5pt; color:#444;">The foregoing fees are in addition to the Managing Member's right to receive distributions as a Member (including the GP promote). The Managing Member believes these fees are consistent with industry standards for comparable real estate syndications, but investors should be aware that these fees reduce the net return on their investment. See "Conflicts of Interest" for additional discussion.</p>
+
+<!-- Section 6: Distribution Waterfall -->
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 6 — DISTRIBUTION WATERFALL</h2>
 <p>All Distributable Cash (as defined in the Operating Agreement) shall be distributed in the following order:</p>
 ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2Hurdle, tier2GPSplit, tier3GPSplit, tier2Catchup)}
 
 <!-- Section 6: Risk Factors -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 6 — RISK FACTORS</h2>
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 7 — RISK FACTORS</h2>
 <p><em>This investment involves significant risk. You may lose your entire investment. The following is not an exhaustive list.</em></p>
 <p><strong>Illiquidity Risk.</strong> There is no public market for the Interests. Investors may not be able to liquidate their investment and should be prepared to hold for the full expected hold period of ${deal.holdPeriod||5} years or longer.</p>
 <p><strong>Real Estate Market Risk.</strong> The value of the Property may decline due to changes in local market conditions, interest rates, employment, or supply and demand imbalances.</p>
@@ -669,7 +800,7 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
 <p><strong>Tax Risk.</strong> Investors should consult their own tax advisors regarding the tax consequences of this investment. Tax laws are subject to change.</p>
 
 <!-- Section 7: Suitability Standards -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 7 — INVESTOR SUITABILITY</h2>
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 8 — INVESTOR SUITABILITY</h2>
 <p>This offering is available only to "Accredited Investors" as defined in Rule 501(a) of Regulation D. An Accredited Investor includes:</p>
 <ul style="padding-left:20px;">
   <li>An individual with net worth (excluding primary residence) exceeding $1,000,000;</li>
@@ -681,11 +812,11 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
 <p>By subscribing, investors represent that they meet at least one of the above criteria and have the financial sophistication to evaluate this investment.</p>
 
 <!-- Section 8: Tax -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 8 — TAX CONSIDERATIONS</h2>
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 9 — TAX CONSIDERATIONS</h2>
 <p>The Company intends to be treated as a partnership for U.S. federal income tax purposes. Each Member will receive a Schedule K-1 reporting their distributive share of income, gains, losses, deductions, and credits for each tax year. Prospective investors should consult with their own tax counsel regarding the tax consequences of an investment in the Company, including depreciation benefits and passive activity rules.</p>
 
 <!-- Section 9: Conflicts of Interest -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 9 — CONFLICTS OF INTEREST</h2>
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 10 — CONFLICTS OF INTEREST</h2>
 <p><em>Prospective investors should carefully consider the following conflicts of interest, which are inherent in the structure of this offering and the relationship between the Managing Member and the Company.</em></p>
 
 <p><strong>Compensation and Fees.</strong> The Managing Member and its affiliates will receive fees in connection with this investment, including an acquisition fee of ${acqFee}% and an ongoing asset management fee of ${mgmtFee}% of gross revenues (see "Management Compensation" above). These fees are payable regardless of whether the investment generates a positive return for the Limited Members. The Managing Member's interest in earning fees may conflict with its duty to manage the Company in the best interest of the Limited Members.</p>
@@ -703,7 +834,7 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
 <p><strong>No Independent Representation.</strong> The legal counsel preparing the formation documents and this memorandum represents the Company and the Managing Member, not the individual Limited Members. Each prospective investor is urged to retain their own independent legal and tax counsel to review this offering.</p>
 
 <!-- Section 10: Financial Projections -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 10 — FINANCIAL PROJECTIONS</h2>
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 11 — FINANCIAL PROJECTIONS</h2>
 <p style="font-style:italic; color:#c00; border:1px solid #c00; padding:10px; margin-bottom:16px;"><strong>IMPORTANT:</strong> The following projections are estimates only and are based on assumptions that may not be realized. Actual results will differ, perhaps materially, from these projections. Past performance of the Managing Member or similar properties is not indicative of future results. These projections are not a guarantee or promise of any particular return.</p>
 
 <p><strong>Key Assumptions:</strong></p>
@@ -726,13 +857,13 @@ ${buildWaterfallOASection(wfType, pref, promote, lpResidual, catchupRate, tier2H
 <p><strong>No Assurance of Distributions.</strong> There can be no assurance that the Company will generate sufficient cash flow to make distributions to the Members at any time. Distributions are subject to the availability of Distributable Cash after debt service, operating expenses, capital reserves, and other obligations of the Company. The Managing Member may, in its sole discretion, retain cash for reserves rather than make distributions.</p>
 
 <!-- Section 11: Legal Matters -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 11 — LEGAL MATTERS AND SEC NOTICE</h2>
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 12 — LEGAL MATTERS AND SEC NOTICE</h2>
 <p>This offering is being made in reliance upon the exemption from registration provided by ${secExemption} of Regulation D under the Securities Act of 1933. A Form D notice will be filed with the Securities and Exchange Commission within 15 days of the first sale. State notice filings will be made as required.</p>
 <p><strong>Legal Counsel:</strong> ${counsel}</p>
 <p>No sale will be made to a resident of any state in which the offer is not exempt or does not qualify under applicable state securities laws.</p>
 
 <!-- Section 12: How to Subscribe -->
-<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 12 — HOW TO SUBSCRIBE</h2>
+<h2 style="font-size:12pt; text-decoration:underline; margin-top:30px;">SECTION 13 — HOW TO SUBSCRIBE</h2>
 <ol style="padding-left:24px;">
   <li style="margin-bottom:8px;">Complete, sign, and return the Subscription Agreement and Investor Questionnaire.</li>
   <li style="margin-bottom:8px;">Provide documentation evidencing accredited investor status as requested by the Managing Member.</li>
