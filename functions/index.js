@@ -1562,7 +1562,7 @@ exports.removeTeamMember = onCall({ region: 'us-central1' }, async (request) => 
  * listTeamMembers — Get all members of an org (callable)
  * Returns owner + members list.
  */
-exports.listTeamMembers = onCall({ region: 'us-central1', cors: true }, async (request) => {
+exports.listTeamMembers = onCall({ region: 'us-central1' }, async (request) => {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in');
 
   const callerDoc = await db.collection('users').doc(request.auth.uid).get();
@@ -1570,11 +1570,20 @@ exports.listTeamMembers = onCall({ region: 'us-central1', cors: true }, async (r
   const orgId = callerDoc.data().orgId;
   if (!orgId) throw new HttpsError('failed-precondition', 'No org');
 
-  // Get owner
-  // Find the user whose primary orgId matches (that's the owner)
-  // For now, the creator of the org is the owner
+  // Helper: convert Firestore Timestamps to ISO strings for serialization
+  const toISO = (ts) => {
+    if (!ts) return null;
+    if (ts.toDate) return ts.toDate().toISOString();
+    if (ts instanceof Date) return ts.toISOString();
+    return ts;
+  };
+
+  // Get members subcollection
   const membersSnap = await db.collection('orgs').doc(orgId).collection('members').get();
-  const members = membersSnap.docs.map(d => ({ uid: d.id, ...d.data() }));
+  const members = membersSnap.docs.map(d => {
+    const data = d.data();
+    return { uid: d.id, email: data.email, name: data.name, role: data.role, joinedAt: toISO(data.joinedAt) };
+  });
 
   // Add the primary owner if not in members list
   const ownerInMembers = members.some(m => m.uid === request.auth.uid);
@@ -1584,7 +1593,7 @@ exports.listTeamMembers = onCall({ region: 'us-central1', cors: true }, async (r
       email: callerDoc.data().email,
       name: callerDoc.data().name,
       role: 'owner',
-      joinedAt: callerDoc.data().createdAt,
+      joinedAt: toISO(callerDoc.data().createdAt),
       isPrimaryOwner: true,
     });
   }
@@ -1592,12 +1601,10 @@ exports.listTeamMembers = onCall({ region: 'us-central1', cors: true }, async (r
   // Get pending invites
   const invitesSnap = await db.collection('orgs').doc(orgId).collection('team_invites')
     .where('status', '==', 'pending').get();
-  const pendingInvites = invitesSnap.docs.map(d => ({
-    email: d.data().email,
-    memberRole: d.data().memberRole,
-    createdAt: d.data().createdAt,
-    token: d.id,
-  }));
+  const pendingInvites = invitesSnap.docs.map(d => {
+    const data = d.data();
+    return { email: data.email, memberRole: data.memberRole, createdAt: toISO(data.createdAt), token: d.id };
+  });
 
   return { members, pendingInvites };
 });
