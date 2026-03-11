@@ -3123,7 +3123,7 @@ main,
 /* ── 4. CONTENT AREA: consistent padding ────────────────────────────────── */
 .content {
   padding: 28px 32px !important;
-  max-width: 1440px !important;
+  max-width: 1440px;  /* no !important — let pages override with their own max-width */
 }
 @media (max-width: 1200px) {
   .content { padding: 24px 24px !important; }
