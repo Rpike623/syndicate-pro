@@ -576,50 +576,7 @@ ${stateSection}
   </div>
 </div>
 
-<!-- Witness Attestation -->
-<div style="margin-top: 40px; border-top: 1px solid #ccc; padding-top: 20px;">
-  <h3 style="font-size: 11pt; border-bottom: 1px solid #000; padding-bottom: 3px;">WITNESS ATTESTATION</h3>
-  <p style="font-size: 10pt;">The undersigned witness hereby attests that the Subscriber signed this Subscription Agreement in the witness's presence on the date indicated above.</p>
-  <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-    <div style="width: 45%;">
-      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 30px;"></div>
-      <p style="font-size: 9pt;">Witness Signature</p>
-      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 15px;"></div>
-      <p style="font-size: 9pt;">Printed Name</p>
-    </div>
-    <div style="width: 45%;">
-      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 30px;"></div>
-      <p style="font-size: 9pt;">Date</p>
-      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 15px;"></div>
-      <p style="font-size: 9pt;">Address</p>
-    </div>
-  </div>
-</div>
 
-<!-- Notary Acknowledgment (optional — required in some jurisdictions) -->
-<div style="margin-top: 30px; border: 1px solid #999; padding: 20px; background: #fafafa;">
-  <h3 style="font-size: 11pt; margin-top: 0; text-align: center;">NOTARY ACKNOWLEDGMENT</h3>
-  <p style="font-size: 10pt; font-style: italic; color: #666; text-align: center; margin-bottom: 16px;">(Required for entity subscribers in certain jurisdictions. Consult counsel regarding applicability.)</p>
-  <p style="font-size: 10pt;">STATE OF _______________________</p>
-  <p style="font-size: 10pt;">COUNTY OF _______________________</p>
-  <p style="font-size: 10pt; margin-top: 12px;">On this _____ day of _______________, 20____, before me, the undersigned notary public, personally appeared _________________________________, known to me (or proved to me on the basis of satisfactory evidence) to be the person(s) whose name(s) is/are subscribed to the within instrument and acknowledged to me that he/she/they executed the same in his/her/their authorized capacity(ies), and that by his/her/their signature(s) on the instrument the person(s), or the entity upon behalf of which the person(s) acted, executed the instrument.</p>
-  <p style="font-size: 10pt; margin-top: 16px;">WITNESS my hand and official seal.</p>
-  <div style="display: flex; justify-content: space-between; margin-top: 24px;">
-    <div style="width: 45%;">
-      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 30px;"></div>
-      <p style="font-size: 9pt;">Notary Public Signature</p>
-      <div style="border-bottom: 1px solid #000; margin-bottom: 5px; height: 25px; margin-top: 12px;"></div>
-      <p style="font-size: 9pt;">Printed Name</p>
-    </div>
-    <div style="width: 45%;">
-      <p style="font-size: 9pt; margin-top: 0;">My Commission Expires: _______________</p>
-      <p style="font-size: 9pt; margin-top: 8px;">Commission Number: _______________</p>
-      <div style="border: 1px dashed #999; width: 120px; height: 80px; margin-top: 12px; display: flex; align-items: center; justify-content: center;">
-        <span style="font-size: 8pt; color: #999;">[NOTARY SEAL]</span>
-      </div>
-    </div>
-  </div>
-</div>
 </div>
     `;
   }
