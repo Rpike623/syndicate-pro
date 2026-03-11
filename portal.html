@@ -129,6 +129,7 @@
     <a href="#" onclick="showPage('profile',this)">Profile</a>
   </nav>
   <div class="portal-user">
+    <div id="userAvatar" style="width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;text-transform:uppercase;"></div>
     <span id="headerName" style="color:#1B1A19;font-weight:500;"></span>
     <button class="btn btn-secondary" onclick="SP.logout()">
       <i class="fas fa-sign-out-alt"></i> Sign Out
@@ -187,6 +188,18 @@
       </div>
     </div>
 
+    <!-- Portfolio Performance Chart -->
+    <div class="card" id="perfChartCard" style="display:none;">
+      <div class="card-header">
+        <span><i class="fas fa-chart-area" style="color:var(--accent);margin-right:8px;"></i>Distribution History</span>
+        <span id="perfChartTotal" style="font-size:.82rem;font-weight:700;color:var(--success);"></span>
+      </div>
+      <div class="card-body" style="padding:16px 20px 12px;">
+        <canvas id="perfChart" width="680" height="200" style="width:100%;height:200px;"></canvas>
+        <div id="perfChartLabels" style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--text-muted);margin-top:6px;padding:0 4px;"></div>
+      </div>
+    </div>
+
     <!-- Pending Actions (wire confirmations, etc.) -->
     <div class="card" id="pendingActionsCard" style="display:none;border-left:3px solid #F37925;">
       <div class="card-header"><span><i class="fas fa-exclamation-circle" style="color:var(--accent);margin-right:8px;"></i>Action Required</span></div>
@@ -221,7 +234,27 @@
 
   <!-- Distributions -->
   <div class="portal-page" id="page-distributions">
-    <h2 style="margin-bottom:20px;font-size:1.25rem;">Distribution History</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:8px;">
+      <h2 style="font-size:1.25rem;margin:0;">Distribution History</h2>
+      <button class="btn btn-secondary" onclick="exportDistCSV()" id="distExportBtn" style="display:none;"><i class="fas fa-download"></i> Export CSV</button>
+    </div>
+    <!-- YTD Summary Bar -->
+    <div id="distYtdBar" style="display:none;margin-bottom:16px;">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div class="kpi-card" style="flex:1;min-width:140px;">
+          <span class="kpi-label">YTD Distributions</span>
+          <span class="kpi-value green" id="distYtd" style="font-size:1.3rem;">$0</span>
+        </div>
+        <div class="kpi-card" style="flex:1;min-width:140px;">
+          <span class="kpi-label">Lifetime Total</span>
+          <span class="kpi-value" id="distLifetime" style="font-size:1.3rem;">$0</span>
+        </div>
+        <div class="kpi-card" style="flex:1;min-width:140px;">
+          <span class="kpi-label">Avg Per Quarter</span>
+          <span class="kpi-value" id="distAvgQtr" style="font-size:1.3rem;">$0</span>
+        </div>
+      </div>
+    </div>
     <div class="card">
       <div class="card-body" id="distContent">
         <div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>
@@ -232,6 +265,13 @@
   <!-- Documents -->
   <div class="portal-page" id="page-documents">
     <h2 style="margin-bottom:20px;font-size:1.25rem;">My Documents</h2>
+    <!-- Document category tabs -->
+    <div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:16px;">
+      <button class="doc-tab active" onclick="filterDocs('all',this)" style="padding:10px 18px;background:none;border:none;border-bottom:2px solid var(--accent);margin-bottom:-2px;font-weight:600;font-size:.82rem;color:var(--accent);cursor:pointer;">All</button>
+      <button class="doc-tab" onclick="filterDocs('legal',this)" style="padding:10px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-weight:600;font-size:.82rem;color:var(--text-muted);cursor:pointer;">Legal</button>
+      <button class="doc-tab" onclick="filterDocs('tax',this)" style="padding:10px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-weight:600;font-size:.82rem;color:var(--text-muted);cursor:pointer;">Tax</button>
+      <button class="doc-tab" onclick="filterDocs('reports',this)" style="padding:10px 18px;background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-weight:600;font-size:.82rem;color:var(--text-muted);cursor:pointer;">Reports</button>
+    </div>
     <div class="card">
       <div class="card-body" id="docsContent">
         <div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents available yet. Your GP will share documents here.</p></div>
@@ -495,6 +535,72 @@ function showPage(name, el) {
   if (el) el.classList.add('active');
 }
 
+// ── Documents rendering + filtering ───────────────────────────────────────
+const _DOC_ICONS = { legal: 'fa-file-contract', tax: 'fa-file-invoice-dollar', reports: 'fa-chart-bar' };
+const _DOC_COLORS = { legal: 'var(--accent)', tax: 'var(--purple)', reports: 'var(--success)' };
+
+function _renderDocsList(docs, container, icons, colors) {
+  if (!container) return;
+  if (docs.length === 0) {
+    container.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents in this category.</p></div>';
+    return;
+  }
+  container.innerHTML = docs.map(doc => {
+    const icon = (icons || _DOC_ICONS)[doc.cat] || 'fa-file';
+    const color = (colors || _DOC_COLORS)[doc.cat] || 'var(--accent)';
+    const catLabel = { legal: 'Legal', tax: 'Tax', reports: 'Report' }[doc.cat] || doc.type;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;background:${color.replace(')', ',0.12)').replace('var(', 'var(')};border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:${color};flex-shrink:0;"><i class="fas ${icon}"></i></div>
+        <div>
+          <div style="font-weight:600;font-size:.875rem;">${doc.name}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);">${catLabel} · ${doc.date ? new Date(doc.date).toLocaleDateString() : '—'}</div>
+        </div>
+      </div>
+      ${doc.synthetic ? '' : `<a href="#" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-eye"></i> View</a>`}
+    </div>`;
+  }).join('');
+}
+
+function filterDocs(cat, el) {
+  // Tab styling
+  document.querySelectorAll('.doc-tab').forEach(t => {
+    t.style.borderBottomColor = 'transparent';
+    t.style.color = 'var(--text-muted)';
+  });
+  if (el) { el.style.borderBottomColor = 'var(--accent)'; el.style.color = 'var(--accent)'; }
+
+  const allDocs = window._portalAllDocs || [];
+  const filtered = cat === 'all' ? allDocs : allDocs.filter(d => d.cat === cat);
+  const container = document.getElementById('docsContent');
+  _renderDocsList(filtered, container);
+}
+
+// ── CSV Export for distributions ───────────────────────────────────────────
+function exportDistCSV() {
+  const dists = window._portalDists;
+  if (!dists || !dists.length) return;
+  const rows = [['Deal','Period','Method','Pref','Excess','Total']];
+  dists.slice().reverse().forEach(({ dist, r }) => {
+    const amount = r.amount || r.totalThisDist || 0;
+    rows.push([
+      _resolveDealName(dist),
+      _distPeriod(dist),
+      dist.method || 'Wire',
+      (r.prefPaidThisDist || 0).toFixed(2),
+      (r.excessThisDist || 0).toFixed(2),
+      amount.toFixed(2),
+    ]);
+  });
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `distributions_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 function saveProfile() {
   const inv = SP.getCurrentInvestorRecord();
   if (!inv) return;
@@ -532,6 +638,110 @@ function showToast(msg) {
   setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 2500);
 }
 
+// ── Performance Chart (pure Canvas, no library) ───────────────────────────
+function _renderPerfChart(myDists, totalDist) {
+  const chartCard = document.getElementById('perfChartCard');
+  const canvas = document.getElementById('perfChart');
+  if (!chartCard || !canvas || myDists.length < 1) { if (chartCard) chartCard.style.display = 'none'; return; }
+
+  // Build chronological data points: { label, cumulative }
+  const sorted = myDists.slice().sort((a, b) => {
+    const da = a.dist.date || a.dist.createdAt || '';
+    const db = b.dist.date || b.dist.createdAt || '';
+    return String(da).localeCompare(String(db));
+  });
+
+  const points = [];
+  let cumulative = 0;
+  sorted.forEach(({ dist, r }) => {
+    cumulative += (r.amount || r.totalThisDist || 0);
+    const label = _distPeriod(dist);
+    points.push({ label, value: cumulative });
+  });
+
+  // Always start from zero
+  points.unshift({ label: '', value: 0 });
+
+  chartCard.style.display = '';
+  document.getElementById('perfChartTotal').textContent = fmtFull$(totalDist) + ' total';
+
+  // Canvas drawing
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth;
+  const h = canvas.clientHeight;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  ctx.scale(dpr, dpr);
+
+  const pad = { top: 16, right: 16, bottom: 8, left: 56 };
+  const cw = w - pad.left - pad.right;
+  const ch = h - pad.top - pad.bottom;
+  const maxVal = Math.max(...points.map(p => p.value), 1);
+
+  // Y axis gridlines + labels
+  ctx.font = '11px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  const ySteps = 4;
+  for (let i = 0; i <= ySteps; i++) {
+    const y = pad.top + ch - (ch * i / ySteps);
+    const val = (maxVal * i / ySteps);
+    ctx.fillStyle = '#9C9590';
+    ctx.fillText(fmt$(val), pad.left - 8, y);
+    ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + cw, y);
+    ctx.stroke();
+  }
+
+  // Plot area fill + line
+  const xStep = cw / Math.max(points.length - 1, 1);
+  const getX = i => pad.left + i * xStep;
+  const getY = v => pad.top + ch - (v / maxVal) * ch;
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + ch);
+  grad.addColorStop(0, 'rgba(243,121,37,0.25)');
+  grad.addColorStop(1, 'rgba(243,121,37,0.02)');
+  ctx.beginPath();
+  ctx.moveTo(getX(0), pad.top + ch);
+  points.forEach((p, i) => ctx.lineTo(getX(i), getY(p.value)));
+  ctx.lineTo(getX(points.length - 1), pad.top + ch);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  points.forEach((p, i) => { i === 0 ? ctx.moveTo(getX(i), getY(p.value)) : ctx.lineTo(getX(i), getY(p.value)); });
+  ctx.strokeStyle = '#F37925';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Dots
+  points.forEach((p, i) => {
+    if (i === 0) return; // Skip the synthetic zero point
+    ctx.beginPath();
+    ctx.arc(getX(i), getY(p.value), 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+    ctx.strokeStyle = '#F37925';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  });
+
+  // X-axis labels
+  const labelsEl = document.getElementById('perfChartLabels');
+  if (labelsEl) {
+    labelsEl.innerHTML = points.filter((_, i) => i > 0).map(p => `<span>${p.label}</span>`).join('');
+  }
+}
+
 // ── Render ─────────────────────────────────────────────────────────────────
 function render() {
   const session = SP.getSession();
@@ -540,6 +750,14 @@ function render() {
   const firstName = session.name ? session.name.split(' ')[0] : 'Investor';
   document.getElementById('headerName').textContent = session.name || session.email;
   document.getElementById('welcomeName').textContent = firstName;
+  // Avatar initials
+  const avatarEl = document.getElementById('userAvatar');
+  if (avatarEl) {
+    const initials = session.name
+      ? session.name.split(' ').map(p => p[0]).join('').slice(0,2)
+      : session.email.slice(0,2).toUpperCase();
+    avatarEl.textContent = initials;
+  }
 
   // Find this investor's record
   const inv = SP.getCurrentInvestorRecord();
@@ -624,6 +842,9 @@ function render() {
       `You have ${linkedEntries.length} active investment${linkedEntries.length!==1?'s':''} totaling ${fmtFull$(totalInvested)}`;
   }
 
+  // ── Performance chart: cumulative distributions over time ──
+  _renderPerfChart(myDists, totalDist);
+
   // Dashboard deals
   const dashDealsEl = document.getElementById('dashDeals');
   if (linkedEntries.length) {
@@ -698,7 +919,26 @@ function render() {
 
   // Distributions page
   const distContent = document.getElementById('distContent');
+  // Store for CSV export
+  window._portalDists = myDists;
   if (myDists.length) {
+    // YTD summary
+    const ytdBar = document.getElementById('distYtdBar');
+    const currentYear = new Date().getFullYear();
+    const ytdTotal = myDists.reduce((s, { dist, r }) => {
+      const dYear = dist.year || (dist.date ? new Date(dist.date + 'T00:00:00').getFullYear() : 0);
+      return s + (dYear === currentYear ? (r.amount || r.totalThisDist || 0) : 0);
+    }, 0);
+    if (ytdBar) {
+      ytdBar.style.display = '';
+      document.getElementById('distYtd').textContent = fmtFull$(ytdTotal);
+      document.getElementById('distLifetime').textContent = fmtFull$(totalDist);
+      const avgPerQtr = myDists.length > 0 ? totalDist / myDists.length : 0;
+      document.getElementById('distAvgQtr').textContent = fmtFull$(Math.round(avgPerQtr));
+    }
+    const exportBtn = document.getElementById('distExportBtn');
+    if (exportBtn) exportBtn.style.display = '';
+
     distContent.innerHTML = myDists.slice().reverse().map(({ dist, r }) => {
       const amount = r.amount || r.totalThisDist || 0;
       return `<div class="dist-item">
@@ -720,30 +960,30 @@ function render() {
     distContent.innerHTML = '<div class="empty-state"><i class="fas fa-wallet"></i><p>No distributions recorded yet.</p></div>';
   }
 
-  // Documents page
+  // Documents page — categorized
   const docsContent = document.getElementById('docsContent');
-  // Show documents from deals this investor is linked to
   const dealIds = linkedEntries.map(({ deal }) => deal.id);
-  // For now show deal-level generated docs (OAs etc)
-  const sharedDocs = [];
+  const allPortalDocs = [];
+  const DOC_ICONS = { legal: 'fa-file-contract', tax: 'fa-file-invoice-dollar', reports: 'fa-chart-bar' };
+  const DOC_COLORS = { legal: 'var(--accent)', tax: 'var(--purple)', reports: 'var(--success)' };
+
   linkedEntries.forEach(({ deal }) => {
-    if (deal.generatedOA) sharedDocs.push({ name: `${deal.name} — Operating Agreement`, type: 'OA', date: deal.oaGeneratedAt, dealId: deal.id });
+    // Operating Agreements → Legal
+    if (deal.generatedOA) allPortalDocs.push({ name: `${deal.name} — Operating Agreement`, cat: 'legal', type: 'OA', date: deal.oaGeneratedAt, dealId: deal.id });
+    // Subscription Agreements → Legal
+    if (deal.subAgreement) allPortalDocs.push({ name: `${deal.name} — Subscription Agreement`, cat: 'legal', type: 'Sub', date: deal.subAgreementAt, dealId: deal.id });
+    // K-1s → Tax
+    if (deal.k1Generated) allPortalDocs.push({ name: `${deal.name} — K-1 Statement`, cat: 'tax', type: 'K-1', date: deal.k1GeneratedAt, dealId: deal.id });
   });
-  if (sharedDocs.length) {
-    docsContent.innerHTML = sharedDocs.map(doc => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:36px;height:36px;background:var(--accent-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;"><i class="fas fa-file-contract"></i></div>
-          <div>
-            <div style="font-weight:600;font-size:.875rem;">${doc.name}</div>
-            <div style="font-size:.75rem;color:var(--text-muted);">${doc.type} · ${doc.date ? new Date(doc.date).toLocaleDateString() : '—'}</div>
-          </div>
-        </div>
-        <a href="portal.html?id=${doc.dealId}" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-eye"></i> View</a>
-      </div>`).join('');
-  } else {
-    docsContent.innerHTML = '<div class="empty-state"><i class="fas fa-file-contract"></i><p>No documents shared yet. Your GP will post documents here.</p></div>';
-  }
+  // Distribution statements → Reports (synthesize from dist history)
+  myDists.forEach(({ dist, r }) => {
+    const amount = r.amount || r.totalThisDist || 0;
+    if (amount > 0) allPortalDocs.push({ name: `${_resolveDealName(dist)} — Distribution Statement`, cat: 'reports', type: 'Dist', date: dist.date || dist.createdAt, dealId: dist.dealId, synthetic: true });
+  });
+
+  window._portalAllDocs = allPortalDocs; // for filtering
+
+  _renderDocsList(allPortalDocs, docsContent, DOC_ICONS, DOC_COLORS);
 
   // Accreditation status
   const accredEl = document.getElementById('accredStatus');
