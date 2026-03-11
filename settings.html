@@ -297,6 +297,42 @@
         </div>
       </div>
 
+      <!-- Team Management -->
+      <div class="settings-section">
+        <div class="section-header">
+          <div class="section-title"><i class="fas fa-users-cog" style="color:var(--accent);"></i> Team Members</div>
+          <button class="btn" onclick="showInviteModal()" style="font-size:.82rem;padding:6px 14px;"><i class="fas fa-user-plus"></i> Invite</button>
+        </div>
+        <div class="section-body">
+          <div id="teamList" style="font-size:.85rem;color:var(--text-secondary);">Loading team...</div>
+          <div id="pendingInvites" style="margin-top:16px;"></div>
+        </div>
+      </div>
+
+      <!-- Invite Modal -->
+      <div id="inviteModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:white;border-radius:12px;padding:28px;max-width:420px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,.15);">
+          <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:16px;"><i class="fas fa-user-plus" style="color:var(--accent);margin-right:8px;"></i>Invite Team Member</h3>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label style="font-size:.8rem;font-weight:600;color:#3D3A37;">Email Address</label>
+            <input type="email" id="inviteEmail" placeholder="partner@company.com" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:6px;font-size:.9rem;">
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label style="font-size:.8rem;font-weight:600;color:#3D3A37;">Role</label>
+            <select id="inviteRole" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:6px;font-size:.9rem;">
+              <option value="admin">Admin — Full access, can invite others</option>
+              <option value="member" selected>Member — Create/edit deals, investors</option>
+              <option value="viewer">Viewer — Read-only access</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="sendTeamInvite()" id="sendInviteBtn" style="flex:1;padding:10px;font-size:.9rem;">Send Invite</button>
+            <button class="btn" onclick="hideInviteModal()" style="padding:10px 16px;font-size:.9rem;">Cancel</button>
+          </div>
+          <div id="inviteMsg" style="margin-top:10px;font-size:.82rem;"></div>
+        </div>
+      </div>
+
       <!-- Account Info -->
       <div class="settings-section">
         <div class="section-header">
@@ -593,6 +629,92 @@ function v(id) {
 }
 
 SP.onDataReady(loadSettings);
+
+// ── Team Management ─────────────────────────────────────────────────────────
+function showInviteModal() {
+  document.getElementById('inviteModal').style.display = 'flex';
+  document.getElementById('inviteEmail').value = '';
+  document.getElementById('inviteMsg').textContent = '';
+}
+function hideInviteModal() { document.getElementById('inviteModal').style.display = 'none'; }
+document.getElementById('inviteModal')?.addEventListener('click', function(e) { if (e.target === this) hideInviteModal(); });
+
+async function sendTeamInvite() {
+  const email = document.getElementById('inviteEmail').value.trim();
+  const role = document.getElementById('inviteRole').value;
+  const msg = document.getElementById('inviteMsg');
+  const btn = document.getElementById('sendInviteBtn');
+  if (!email) { msg.textContent = '⚠ Enter an email address'; msg.style.color = 'var(--danger)'; return; }
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const fn = firebase.functions().httpsCallable('inviteTeamMember');
+    const result = await fn({ email, memberRole: role });
+    msg.innerHTML = '✓ Invite sent to <strong>' + email + '</strong>!';
+    msg.style.color = 'var(--success)';
+    setTimeout(() => { hideInviteModal(); loadTeamMembers(); }, 1500);
+  } catch (e) {
+    msg.textContent = '⚠ ' + (e.message || 'Failed to send invite');
+    msg.style.color = 'var(--danger)';
+  }
+  btn.disabled = false; btn.textContent = 'Send Invite';
+}
+
+async function loadTeamMembers() {
+  const el = document.getElementById('teamList');
+  const pendingEl = document.getElementById('pendingInvites');
+  if (typeof firebase === 'undefined' || !firebase.functions) {
+    el.textContent = 'Team management requires Firebase.';
+    return;
+  }
+  try {
+    const fn = firebase.functions().httpsCallable('listTeamMembers');
+    const result = await fn();
+    const { members, pendingInvites } = result.data;
+    const roleLabels = { owner: '👑 Owner', admin: '🔑 Admin', member: '👤 Member', viewer: '👁 Viewer' };
+
+    if (!members.length) {
+      el.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">Just you for now. Invite a partner or team member above.</div>';
+    } else {
+      el.innerHTML = '<table style="width:100%;border-collapse:collapse;">' +
+        '<thead><tr style="border-bottom:1px solid var(--border);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);">' +
+        '<th style="text-align:left;padding:6px 0;">Name</th><th style="text-align:left;padding:6px 0;">Email</th><th style="text-align:left;padding:6px 0;">Role</th><th></th></tr></thead><tbody>' +
+        members.map(m => `<tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:10px 0;font-weight:600;">${SP.esc(m.name || '—')}</td>
+          <td style="padding:10px 0;color:var(--muted);">${SP.esc(m.email)}</td>
+          <td style="padding:10px 0;">${roleLabels[m.role] || m.role}</td>
+          <td style="padding:10px 0;text-align:right;">${m.isPrimaryOwner ? '' : `<button onclick="removeMember('${m.uid}')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:.8rem;"><i class="fas fa-times"></i></button>`}</td>
+        </tr>`).join('') +
+        '</tbody></table>';
+    }
+
+    if (pendingInvites?.length) {
+      pendingEl.innerHTML = '<div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px;">Pending Invites</div>' +
+        pendingInvites.map(inv =>
+          `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:.85rem;">
+            <span><i class="fas fa-envelope" style="color:var(--accent);margin-right:6px;"></i>${SP.esc(inv.email)} <span style="color:var(--muted);">(${inv.memberRole})</span></span>
+            <span style="color:var(--muted);font-size:.78rem;">pending</span>
+          </div>`
+        ).join('');
+    } else {
+      pendingEl.innerHTML = '';
+    }
+  } catch (e) {
+    el.textContent = 'Could not load team: ' + e.message;
+  }
+}
+
+async function removeMember(uid) {
+  if (!confirm('Remove this team member? They will lose access to your org.')) return;
+  try {
+    const fn = firebase.functions().httpsCallable('removeTeamMember');
+    await fn({ orgId: SP.getOrgId(), targetUid: uid });
+    showToast('Member removed');
+    loadTeamMembers();
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+// Load team on page ready
+window.addEventListener('spdata-ready', loadTeamMembers);
 
 // ── Data Export ─────────────────────────────────────────────────────────────
 async function exportAllData() {

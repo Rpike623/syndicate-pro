@@ -1341,3 +1341,264 @@ exports.healUserRole = onCall({ region: 'us-central1' }, async (request) => {
   });
   return { healed: true, role: correctRole };
 });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Team Management — Multi-user per org
+// ══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * inviteTeamMember — Send a team invite to join an org
+ * Only org owner/admin can call. Creates invite record + sends email.
+ *
+ * data: { email, memberRole: 'admin' | 'member' | 'viewer' }
+ */
+exports.inviteTeamMember = onCall({ region: 'us-central1' }, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in');
+  rateLimit(request.auth.uid, 'inviteTeam', 20, 60 * 60 * 1000); // 20/hour
+
+  const { email, memberRole } = request.data;
+  if (!email) throw new HttpsError('invalid-argument', 'Email required');
+  const validRoles = ['admin', 'member', 'viewer'];
+  const role = validRoles.includes(memberRole) ? memberRole : 'member';
+
+  // Verify caller is GP in their org
+  const callerDoc = await db.collection('users').doc(request.auth.uid).get();
+  if (!callerDoc.exists) throw new HttpsError('not-found', 'User not found');
+  const caller = callerDoc.data();
+  if (caller.role === 'Investor') throw new HttpsError('permission-denied', 'Investors cannot invite team members');
+  const orgId = caller.orgId;
+  if (!orgId) throw new HttpsError('failed-precondition', 'No org associated');
+
+  // Check caller is owner or admin
+  const callerMember = await db.collection('orgs').doc(orgId).collection('members').doc(request.auth.uid).get();
+  const isOwner = caller.orgId === orgId; // primary org owner
+  const isAdmin = callerMember.exists && ['owner', 'admin'].includes(callerMember.data().role);
+  if (!isOwner && !isAdmin) throw new HttpsError('permission-denied', 'Only org owners/admins can invite');
+
+  // Generate invite token
+  const crypto = require('crypto');
+  const token = crypto.randomBytes(24).toString('hex');
+
+  // Store invite
+  const invite = {
+    email: email.toLowerCase(),
+    memberRole: role,
+    orgId,
+    invitedBy: request.auth.uid,
+    invitedByEmail: caller.email,
+    token,
+    status: 'pending',
+    createdAt: FieldValue.serverTimestamp(),
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+  };
+
+  await db.collection('orgs').doc(orgId).collection('team_invites').doc(token).set(invite);
+  // Global index for lookup by token
+  await db.collection('_team_invites').doc(token).set({ orgId, email: email.toLowerCase(), token });
+
+  // Send invite email
+  try {
+    const orgDoc = await db.collection('orgs').doc(orgId).get();
+    const orgName = orgDoc.exists ? (orgDoc.data().firmName || orgDoc.data().orgId) : orgId;
+    const settings = await db.collection('orgs').doc(orgId).collection('settings').doc('firm').get();
+    const firmName = settings.exists ? (settings.data().firmName || orgName) : orgName;
+
+    const joinUrl = `https://rpike623.github.io/syndicate-pro/join-team.html?token=${token}`;
+    const htmlBody = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
+        <div style="background:linear-gradient(135deg,#F37925,#FAC670);padding:24px;border-radius:8px 8px 0 0;text-align:center;">
+          <h1 style="color:white;margin:0;font-size:1.3rem;">You're invited to join ${firmName}</h1>
+        </div>
+        <div style="background:#f8fafc;padding:32px;border-radius:0 0 8px 8px;border:1px solid #e2e8f0;">
+          <p><strong>${caller.name || caller.email}</strong> has invited you to join their team on deeltrack as a <strong>${role}</strong>.</p>
+          <p style="margin:24px 0;text-align:center;">
+            <a href="${joinUrl}" style="display:inline-block;padding:14px 32px;background:#F37925;color:white;text-decoration:none;border-radius:8px;font-weight:600;">Accept Invitation</a>
+          </p>
+          <p style="font-size:.85rem;color:#64748b;">This invite expires in 7 days. If you don't have a deeltrack account, you'll be asked to create one.</p>
+        </div>
+      </div>`;
+
+    const graphToken = await getGraphToken();
+    await graphSendMail(email, `Join ${firmName} on deeltrack`, htmlBody, graphToken);
+  } catch (emailErr) {
+    console.warn('Team invite email failed:', emailErr.message);
+    // Invite still created — user can share the link manually
+  }
+
+  return { success: true, token, expiresAt: invite.expiresAt.toISOString() };
+});
+
+/**
+ * acceptTeamInvite — Accept an invite and join an org
+ * Adds user to org's members, updates user's orgIds array.
+ *
+ * data: { token }
+ */
+exports.acceptTeamInvite = onCall({ region: 'us-central1' }, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in');
+  rateLimit(request.auth.uid, 'acceptInvite', 10, 60 * 60 * 1000);
+
+  const { token } = request.data;
+  if (!token) throw new HttpsError('invalid-argument', 'Token required');
+
+  // Look up invite
+  const indexDoc = await db.collection('_team_invites').doc(token).get();
+  if (!indexDoc.exists) throw new HttpsError('not-found', 'Invalid or expired invite');
+  const { orgId } = indexDoc.data();
+
+  const inviteRef = db.collection('orgs').doc(orgId).collection('team_invites').doc(token);
+  const inviteDoc = await inviteRef.get();
+  if (!inviteDoc.exists) throw new HttpsError('not-found', 'Invite not found');
+  const invite = inviteDoc.data();
+
+  if (invite.status !== 'pending') throw new HttpsError('failed-precondition', 'Invite already ' + invite.status);
+  if (invite.expiresAt && invite.expiresAt.toDate() < new Date()) {
+    await inviteRef.update({ status: 'expired' });
+    throw new HttpsError('deadline-exceeded', 'Invite has expired');
+  }
+
+  // Verify email matches (case-insensitive)
+  const userDoc = await db.collection('users').doc(request.auth.uid).get();
+  if (!userDoc.exists) throw new HttpsError('not-found', 'User not found');
+  const userEmail = (userDoc.data().email || '').toLowerCase();
+  if (userEmail !== invite.email.toLowerCase()) {
+    throw new HttpsError('permission-denied',
+      `This invite is for ${invite.email}. You're signed in as ${userEmail}.`);
+  }
+
+  const batch = db.batch();
+
+  // Add to org members
+  const memberRef = db.collection('orgs').doc(orgId).collection('members').doc(request.auth.uid);
+  batch.set(memberRef, {
+    uid: request.auth.uid,
+    email: userEmail,
+    name: userDoc.data().name || userEmail,
+    role: invite.memberRole || 'member',
+    joinedAt: FieldValue.serverTimestamp(),
+    invitedBy: invite.invitedBy,
+  });
+
+  // Update user's orgIds array
+  const userRef = db.collection('users').doc(request.auth.uid);
+  const currentOrgIds = userDoc.data().orgIds || [];
+  if (!currentOrgIds.includes(orgId)) {
+    batch.update(userRef, { orgIds: [...currentOrgIds, orgId] });
+  }
+
+  // Mark invite as accepted
+  batch.update(inviteRef, { status: 'accepted', acceptedAt: FieldValue.serverTimestamp(), acceptedBy: request.auth.uid });
+
+  // Clean up global index
+  batch.delete(db.collection('_team_invites').doc(token));
+
+  await batch.commit();
+
+  // Log
+  await db.collection('auditLogs').add({
+    action: 'teamMemberJoined',
+    orgId,
+    uid: request.auth.uid,
+    email: userEmail,
+    memberRole: invite.memberRole,
+    invitedBy: invite.invitedBy,
+    timestamp: FieldValue.serverTimestamp(),
+  });
+
+  return { success: true, orgId, role: invite.memberRole };
+});
+
+/**
+ * removeTeamMember — Remove a member from an org
+ * Only org owner/admin can call.
+ *
+ * data: { orgId, targetUid }
+ */
+exports.removeTeamMember = onCall({ region: 'us-central1' }, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in');
+  rateLimit(request.auth.uid, 'removeTeam', 10, 60 * 60 * 1000);
+
+  const { orgId, targetUid } = request.data;
+  if (!orgId || !targetUid) throw new HttpsError('invalid-argument', 'orgId and targetUid required');
+
+  // Verify caller is owner/admin
+  const callerDoc = await db.collection('users').doc(request.auth.uid).get();
+  if (!callerDoc.exists) throw new HttpsError('not-found', 'Caller not found');
+  const isOwner = callerDoc.data().orgId === orgId;
+  const callerMember = await db.collection('orgs').doc(orgId).collection('members').doc(request.auth.uid).get();
+  const isAdmin = callerMember.exists && ['owner', 'admin'].includes(callerMember.data().role);
+  if (!isOwner && !isAdmin) throw new HttpsError('permission-denied', 'Only owners/admins can remove members');
+
+  // Can't remove the primary org owner
+  const targetDoc = await db.collection('users').doc(targetUid).get();
+  if (targetDoc.exists && targetDoc.data().orgId === orgId) {
+    throw new HttpsError('failed-precondition', 'Cannot remove the primary org owner');
+  }
+
+  const batch = db.batch();
+
+  // Remove from members
+  batch.delete(db.collection('orgs').doc(orgId).collection('members').doc(targetUid));
+
+  // Remove orgId from user's orgIds array
+  if (targetDoc.exists) {
+    const orgIds = (targetDoc.data().orgIds || []).filter(id => id !== orgId);
+    batch.update(db.collection('users').doc(targetUid), { orgIds });
+  }
+
+  await batch.commit();
+
+  await db.collection('auditLogs').add({
+    action: 'teamMemberRemoved',
+    orgId,
+    targetUid,
+    removedBy: request.auth.uid,
+    timestamp: FieldValue.serverTimestamp(),
+  });
+
+  return { success: true };
+});
+
+/**
+ * listTeamMembers — Get all members of an org (callable)
+ * Returns owner + members list.
+ */
+exports.listTeamMembers = onCall({ region: 'us-central1' }, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in');
+
+  const callerDoc = await db.collection('users').doc(request.auth.uid).get();
+  if (!callerDoc.exists) throw new HttpsError('not-found', 'User not found');
+  const orgId = callerDoc.data().orgId;
+  if (!orgId) throw new HttpsError('failed-precondition', 'No org');
+
+  // Get owner
+  // Find the user whose primary orgId matches (that's the owner)
+  // For now, the creator of the org is the owner
+  const membersSnap = await db.collection('orgs').doc(orgId).collection('members').get();
+  const members = membersSnap.docs.map(d => ({ uid: d.id, ...d.data() }));
+
+  // Add the primary owner if not in members list
+  const ownerInMembers = members.some(m => m.uid === request.auth.uid);
+  if (!ownerInMembers && callerDoc.data().orgId === orgId) {
+    members.unshift({
+      uid: request.auth.uid,
+      email: callerDoc.data().email,
+      name: callerDoc.data().name,
+      role: 'owner',
+      joinedAt: callerDoc.data().createdAt,
+      isPrimaryOwner: true,
+    });
+  }
+
+  // Get pending invites
+  const invitesSnap = await db.collection('orgs').doc(orgId).collection('team_invites')
+    .where('status', '==', 'pending').get();
+  const pendingInvites = invitesSnap.docs.map(d => ({
+    email: d.data().email,
+    memberRole: d.data().memberRole,
+    createdAt: d.data().createdAt,
+    token: d.id,
+  }));
+
+  return { members, pendingInvites };
+});

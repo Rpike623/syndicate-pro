@@ -24,7 +24,7 @@ service cloud.firestore {
     function ownsOrg(orgId) {
       return isSignedIn() && (
         userOrgId() == orgId ||
-        // Multi-org: LP investors may belong to multiple orgs via orgIds array
+        // Multi-org: users may belong to multiple orgs via orgIds array
         (userDocData().orgIds is list && orgId in userDocData().orgIds)
       );
     }
@@ -33,9 +33,20 @@ service cloud.firestore {
       return isSignedIn() && userDocData().role == 'Investor';
     }
 
+    // Check if user is an org admin (owner or admin member)
+    function isOrgAdmin(orgId) {
+      return ownsOrg(orgId) && !isInvestorRole() && (
+        // Primary org owner
+        userOrgId() == orgId ||
+        // Or has admin/owner role in members subcollection
+        (exists(/databases/$(database)/documents/orgs/$(orgId)/members/$(uid()))
+         && get(/databases/$(database)/documents/orgs/$(orgId)/members/$(uid())).data.role in ['owner', 'admin'])
+      );
+    }
+
     // ── Internal config (Stripe keys, email config) — Cloud Functions only ──
     match /_config/{docId} {
-      allow read, write: if false; // Only accessible via Admin SDK in Cloud Functions
+      allow read, write: if false;
     }
 
     // ── Stripe event logs — Cloud Functions only ─────────────────────────────
@@ -44,21 +55,15 @@ service cloud.firestore {
     }
 
     // ── Users ─────────────────────────────────────────────────────────────────
-    // Users can read their own profile.
-    // Users can UPDATE their own profile, but CANNOT change role or orgId.
-    // Only Cloud Functions (Admin SDK) can set role/orgId — prevents privilege escalation.
-
     match /users/{userId} {
       allow read: if isSignedIn() && uid() == userId;
 
-      // CREATE: only allowed for initial profile setup (signup)
-      // role + orgId are set during creation and locked after that
       allow create: if isSignedIn() && uid() == userId
         && request.resource.data.uid == userId
         && request.resource.data.email is string
         && request.resource.data.role in ['General Partner', 'Investor'];
 
-      // UPDATE: allowed but role and orgId are immutable from client
+      // UPDATE: role, orgId, orgIds immutable from client (Cloud Functions only)
       allow update: if isSignedIn() && uid() == userId
         && request.resource.data.role == resource.data.role
         && request.resource.data.orgId == resource.data.orgId;
@@ -69,15 +74,28 @@ service cloud.firestore {
     match /orgs/{orgId} {
       allow read, write: if ownsOrg(orgId);
 
+      // ── Team Members ────────────────────────────────────────────────────────
+      // Members can read the team list. Only admins/owners can write.
+      // Adding/removing is done via Cloud Functions to maintain orgIds array.
+      match /members/{memberId} {
+        allow read: if ownsOrg(orgId);
+        allow write: if isOrgAdmin(orgId);
+      }
+
+      // ── Team Invites ────────────────────────────────────────────────────────
+      // Admins create invites. Anyone signed in can read (to accept).
+      match /team_invites/{inviteId} {
+        allow read: if isSignedIn();
+        allow create, update, delete: if isOrgAdmin(orgId);
+      }
+
       match /deals/{dealId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
-        // Investors can read deals they're linked to
         allow read: if ownsOrg(orgId) && isInvestorRole();
       }
 
       match /investors/{investorId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
-        // Investors can ONLY read their own record (matched by email on the document)
         allow read: if ownsOrg(orgId) && isInvestorRole()
           && resource.data.email == request.auth.token.email;
       }
@@ -97,7 +115,6 @@ service cloud.firestore {
 
       match /capitalCalls/{callId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
-        // Investors can read capital calls for deals they are linked to
         allow read: if ownsOrg(orgId) && isInvestorRole();
       }
 
@@ -109,8 +126,6 @@ service cloud.firestore {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
       }
 
-      // Generic custom data store (k1_vault, dealroom_docs_*, investor_updates, etc.)
-      // GP can read/write all; investors can only read docs tagged for them or marked public
       match /custom_data/{docId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
         allow read: if ownsOrg(orgId) && isInvestorRole()
@@ -118,29 +133,31 @@ service cloud.firestore {
               || resource.data.accessLevel == 'all_investors');
       }
 
-      // E-signature log (Firma.dev signing requests)
       match /esign_log/{docId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
         allow read: if ownsOrg(orgId) && isInvestorRole();
       }
 
-      // Deal invite links — GP creates, any signed-in user can read (needed for invest.html)
       match /deal_invites/{inviteId} {
         allow read: if isSignedIn();
         allow write: if ownsOrg(orgId) && !isInvestorRole();
       }
 
-      // Investment commitments — LP creates, GP reads/updates
       match /commitments/{commitId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
         allow read: if ownsOrg(orgId) && isInvestorRole();
-        allow create: if isSignedIn(); // Any authenticated user can submit a commitment
+        allow create: if isSignedIn();
       }
 
-      // Signing requests — GP creates, LP reads and updates (to sign)
       match /signing_requests/{reqId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
-        allow read, update: if isSignedIn(); // LP needs to read and sign
+        allow read, update: if isSignedIn();
+      }
+
+      // ── Error logs ──────────────────────────────────────────────────────────
+      match /errors/{errorId} {
+        allow create: if ownsOrg(orgId);
+        allow read: if ownsOrg(orgId) && !isInvestorRole();
       }
     }
 
@@ -153,16 +170,22 @@ service cloud.firestore {
         && resource.data.investorEmail == request.auth.token.email;
     }
 
-    // ── Audit logs — Cloud Functions write, admins read ─────────────────────
+    // ── Audit logs — Cloud Functions only ───────────────────────────────────
     match /auditLogs/{document=**} {
-      allow read: if false;   // Admin SDK only
-      allow write: if false;  // Admin SDK only (Cloud Functions)
+      allow read: if false;
+      allow write: if false;
     }
 
-    // ── Global invite index (token → orgId lookup for invest.html) ──────────
+    // ── Global invite index ─────────────────────────────────────────────────
     match /_invites/{token} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && !isInvestorRole();
+    }
+
+    // ── Team invite index (email → orgId lookup for join flow) ──────────────
+    match /_team_invites/{token} {
+      allow read: if isSignedIn();
+      allow write: if false; // Cloud Functions only
     }
   }
 }

@@ -1073,6 +1073,7 @@ window.SP = (function () {
     'terms.html', 'privacy.html', 'disclaimer.html', 'security.html',
     '404.html', 'reset-password.html', 'invest.html', 'sign.html',
     'waterfall-explainer.html', 'waterfall-guide.html', 'help-center.html',
+    'join-team.html',
   ]);
 
   if (PUBLIC_PAGES.has(page)) return;

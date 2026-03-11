@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Join Team</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    :root { --accent: #F37925; --accent-hover: #D96515; --success: #2D9A6B; --danger: #D94F3D; --radius: 8px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Sora', sans-serif; background: #F3F3F3; color: #1B1A19; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #fff; border: 1px solid #E2DDD8; border-radius: 16px; padding: 40px; max-width: 460px; width: 100%; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,.08); }
+    .logo { margin-bottom: 24px; }
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+    .sub { color: #6B6560; font-size: .9rem; margin-bottom: 24px; }
+    .invite-info { background: rgba(243,121,37,.06); border: 1px solid rgba(243,121,37,.2); border-radius: var(--radius); padding: 16px; margin-bottom: 24px; text-align: left; }
+    .invite-info .label { font-size: .75rem; font-weight: 600; color: #6B6560; text-transform: uppercase; letter-spacing: .05em; }
+    .invite-info .value { font-size: .95rem; font-weight: 600; margin-top: 2px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 28px; font-size: 1rem; font-weight: 600; border-radius: var(--radius); border: none; cursor: pointer; width: 100%; font-family: inherit; transition: all .15s; }
+    .btn-primary { background: linear-gradient(135deg, #F37925, #D96515); color: #fff; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(243,121,37,.3); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: #fff; border: 1.5px solid #D8D4CE; color: #1B1A19; margin-top: 10px; }
+    .status { margin-top: 16px; font-size: .9rem; padding: 12px; border-radius: var(--radius); display: none; }
+    .status.show { display: block; }
+    .status.success { background: rgba(45,154,107,.1); color: #0F5C35; border: 1px solid rgba(45,154,107,.3); }
+    .status.error { background: rgba(217,79,61,.1); color: #8C1F10; border: 1px solid rgba(217,79,61,.3); }
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: white; border-radius: 50%; animation: spin .6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <img src="assets/logo-full-light.svg" height="40" alt="deeltrack">
+    </div>
+    <h1 id="heading">Team Invitation</h1>
+    <p class="sub" id="subtext">Loading invite details...</p>
+
+    <div class="invite-info" id="inviteInfo" style="display:none;">
+      <div style="margin-bottom:12px;">
+        <div class="label">Organization</div>
+        <div class="value" id="orgName">—</div>
+      </div>
+      <div>
+        <div class="label">Your Role</div>
+        <div class="value" id="roleName">—</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="acceptBtn" style="display:none;" onclick="acceptInvite()">
+      <i class="fas fa-check-circle"></i> Accept & Join Team
+    </button>
+    <button class="btn btn-secondary" id="loginBtn" style="display:none;" onclick="window.location.href='login.html?redirect='+encodeURIComponent(window.location.href)">
+      <i class="fas fa-sign-in-alt"></i> Sign In First
+    </button>
+
+    <div class="status" id="statusMsg"></div>
+  </div>
+
+<script>
+  const token = new URLSearchParams(window.location.search).get('token');
+  const heading = document.getElementById('heading');
+  const subtext = document.getElementById('subtext');
+  const statusEl = document.getElementById('statusMsg');
+
+  function showStatus(msg, type) {
+    statusEl.textContent = msg;
+    statusEl.className = 'status show ' + type;
+  }
+
+  if (!token) {
+    heading.textContent = 'Invalid Link';
+    subtext.textContent = 'This invite link is missing or malformed.';
+  } else {
+    // Wait for Firebase Auth
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (!user) {
+        heading.textContent = 'Sign in to accept';
+        subtext.textContent = 'You need a deeltrack account to join a team.';
+        document.getElementById('loginBtn').style.display = 'block';
+        return;
+      }
+
+      // Look up invite
+      try {
+        const indexDoc = await firebase.firestore().collection('_team_invites').doc(token).get();
+        if (!indexDoc.exists) {
+          heading.textContent = 'Invite Not Found';
+          subtext.textContent = 'This invite may have expired or already been used.';
+          return;
+        }
+
+        const { orgId, email } = indexDoc.data();
+
+        // Check email match
+        if (email.toLowerCase() !== user.email.toLowerCase()) {
+          heading.textContent = 'Wrong Account';
+          subtext.textContent = `This invite is for ${email}. You're signed in as ${user.email}.`;
+          document.getElementById('loginBtn').style.display = 'block';
+          document.getElementById('loginBtn').innerHTML = '<i class="fas fa-exchange-alt"></i> Switch Account';
+          document.getElementById('loginBtn').onclick = () => { firebase.auth().signOut().then(() => window.location.reload()); };
+          return;
+        }
+
+        // Get org info
+        const orgDoc = await firebase.firestore().collection('orgs').doc(orgId).get();
+        const orgName = orgDoc.exists ? (orgDoc.data().firmName || orgId) : orgId;
+
+        // Get invite details
+        const inviteDoc = await firebase.firestore().collection('orgs').doc(orgId).collection('team_invites').doc(token).get();
+        const invite = inviteDoc.exists ? inviteDoc.data() : {};
+        const roleLabels = { owner: 'Owner', admin: 'Admin', member: 'Team Member', viewer: 'Viewer' };
+
+        heading.textContent = "You're Invited!";
+        subtext.textContent = `Join ${orgName} on deeltrack.`;
+        document.getElementById('orgName').textContent = orgName;
+        document.getElementById('roleName').textContent = roleLabels[invite.memberRole] || 'Team Member';
+        document.getElementById('inviteInfo').style.display = 'block';
+        document.getElementById('acceptBtn').style.display = 'block';
+
+      } catch (err) {
+        heading.textContent = 'Error';
+        subtext.textContent = err.message;
+      }
+    });
+  }
+
+  async function acceptInvite() {
+    const btn = document.getElementById('acceptBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Joining...';
+
+    try {
+      const acceptFn = firebase.functions().httpsCallable('acceptTeamInvite');
+      const result = await acceptFn({ token });
+
+      if (result.data.success) {
+        showStatus('✓ Welcome to the team! Redirecting to dashboard...', 'success');
+        setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
+      }
+    } catch (err) {
+      showStatus(err.message || 'Failed to accept invite', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-check-circle"></i> Accept & Join Team';
+    }
+  }
+</script>
+</body>
+</html>
