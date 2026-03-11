@@ -1010,18 +1010,19 @@ window.SP = (function () {
       if (typeof SPFB !== 'undefined') {
         SPFB.init();
       } else {
-        // SDKs present but sp-firebase.js not loaded yet — load it
-        const hasSPFB = Array.from(document.querySelectorAll('script[src]')).some(s => s.src.includes('sp-firebase'));
-        if (!hasSPFB) {
-          const cfg = document.createElement('script'); cfg.src = 'firebase-config.js';
-          cfg.onload = () => {
-            const fb = document.createElement('script'); fb.src = 'js/sp-firebase.js?v2';
-            fb.onload = () => { if (typeof SPFB !== 'undefined') SPFB.init(); };
-            document.head.appendChild(fb);
-          };
-          document.head.appendChild(cfg);
+        // SDKs present but some modules may be missing — load chain
+        const loadScript = (src, cb) => { const s = document.createElement('script'); s.src = src; s.onload = cb; s.onerror = cb; document.head.appendChild(s); };
+        const has = (name) => Array.from(document.querySelectorAll('script[src]')).some(s => s.src.includes(name));
+        const chain = [];
+        if (!has('firebase-config')) chain.push('firebase-config.js');
+        if (!has('sp-crypto')) chain.push('js/sp-crypto.js');
+        if (!has('sp-data')) chain.push('js/sp-data.js?v9');
+        if (!has('sp-firebase')) chain.push('js/sp-firebase.js?v9');
+        function loadNext() {
+          if (!chain.length) { if (typeof SPFB !== 'undefined' && !SPFB.isReady()) SPFB.init(); return; }
+          loadScript(chain.shift(), loadNext);
         }
-        // If sp-firebase.js is in <head> as a sync script, it will load and call SPFB.init() on its own
+        if (chain.length) loadNext();
       }
       return;
     }
@@ -1032,18 +1033,32 @@ window.SP = (function () {
       'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js',
       'https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js',
       'https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js',
+      'https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js',
     ];
 
     let loaded = 0;
     function onSDKLoad() {
       loaded++;
       if (loaded < sdks.length) return;
-      // All SDKs loaded — load config then sp-firebase
+      // All SDKs loaded — load config, then sp-crypto, sp-data, sp-firebase
       const cfg = document.createElement('script'); cfg.src = 'firebase-config.js';
       cfg.onload = () => {
-        const fb = document.createElement('script'); fb.src = 'js/sp-firebase.js?v2';
-        fb.onload = () => { if (typeof SPFB !== 'undefined') SPFB.init(); };
-        document.head.appendChild(fb);
+        // Load sp-crypto.js (needed for encrypted fields)
+        const loadScript = (src, cb) => { const s = document.createElement('script'); s.src = src; s.onload = cb; s.onerror = cb; document.head.appendChild(s); };
+        const hasCrypto = Array.from(document.querySelectorAll('script[src]')).some(s => s.src.includes('sp-crypto'));
+        const hasData = Array.from(document.querySelectorAll('script[src]')).some(s => s.src.includes('sp-data'));
+        const hasFB = Array.from(document.querySelectorAll('script[src]')).some(s => s.src.includes('sp-firebase'));
+
+        const loadChain = [];
+        if (!hasCrypto) loadChain.push('js/sp-crypto.js');
+        if (!hasData) loadChain.push('js/sp-data.js?v9');
+        if (!hasFB) loadChain.push('js/sp-firebase.js?v9');
+
+        function loadNext() {
+          if (!loadChain.length) { if (typeof SPFB !== 'undefined') SPFB.init(); return; }
+          loadScript(loadChain.shift(), loadNext);
+        }
+        loadNext();
       };
       document.head.appendChild(cfg);
     }
