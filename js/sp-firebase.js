@@ -51,7 +51,7 @@ const SPFB = (function () {
       // Configure Firestore with cache settings (replaces deprecated enablePersistence)
       try {
         const cacheSize = firebase.firestore.CACHE_SIZE_UNLIMITED || 104857600; // 100MB fallback
-        _db.settings({ cacheSizeBytes: cacheSize });
+        _db.settings({ cacheSizeBytes: cacheSize, merge: true });
       } catch(settingsErr) {
         // Settings already applied or not supported — safe to ignore
       }
@@ -129,10 +129,9 @@ const SPFB = (function () {
 
   function _tryAutoSignIn() {
     const s = (typeof SP !== 'undefined') ? SP.getSession() : null;
-    if (!s || !s.email) return;
-    // Try to sign in with stored credentials
+    if (!s || !s.email || !s.password) return; // No password stored — don't waste a 400 request
     if (typeof firebase !== 'undefined' && firebase.auth) {
-      firebase.auth().signInWithEmailAndPassword(s.email, s.password || '').then(() => {
+      firebase.auth().signInWithEmailAndPassword(s.email, s.password).then(() => {
         // onAuthStateChanged will fire again with the user
       }).catch(() => {
         // Failed — stay anonymous and let manual login proceed

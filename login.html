@@ -181,7 +181,13 @@
     </div>
   </div>
 <script>
-  // Show switch account if already logged in
+  // Redirect helper — sends LP to portal, GP to dashboard
+  function _loginRedirect(session) {
+    const dest = session?.role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
+    window.location.href = dest;
+  }
+
+  // Show switch account if already logged in (from localStorage)
   if (SP.isLoggedIn()) {
       const session = SP.getSession();
       document.body.classList.add('authenticating');
@@ -198,6 +204,19 @@
           <button onclick="SP.logout();window.location.reload();" style="display:inline-block;padding:10px 20px;background:transparent;border:1px solid #475569;color:#94a3b8;border-radius:8px;cursor:pointer;font-weight:500;font-size:0.9rem;">Sign Out & Switch</button>
         </div>
       `;
+  } else {
+    // Not logged in via localStorage — but Firebase Auth may auto-resolve from IndexedDB.
+    // Listen for spdata-ready which fires AFTER Firebase auth + Firestore user profile load.
+    let _loginAutoRedirected = false;
+    window.addEventListener('spdata-ready', () => {
+      if (_loginAutoRedirected) return;
+      const s = SP.getSession();
+      if (s && s.loggedIn) {
+        _loginAutoRedirected = true;
+        document.getElementById('successAlert')?.classList.add('show');
+        setTimeout(() => _loginRedirect(s), 600);
+      }
+    });
   }
 
   function togglePw() {
@@ -252,9 +271,7 @@
 
       document.getElementById('successAlert').classList.add('show');
       const session = SP.getSession();
-      setTimeout(() => {
-        window.location.href = session?.role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
-      }, 600);
+      setTimeout(() => _loginRedirect(session), 600);
 
     } catch (err) {
       btn.disabled = false;
@@ -316,9 +333,7 @@
         document.getElementById('successAlert').classList.add('show');
         btn.innerHTML = '<i class="fas fa-check"></i> Success!';
         const session = SP.getSession();
-        setTimeout(() => {
-          window.location.href = session?.role === 'Investor' ? 'investor-portal.html' : 'dashboard.html';
-        }, 700);
+        setTimeout(() => _loginRedirect(session), 700);
       } else {
         document.getElementById('errorAlert').classList.add('show');
         document.getElementById('errorMsg').textContent = 'Invalid email or password. Please try again.';

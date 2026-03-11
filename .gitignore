@@ -4,3 +4,4 @@ package-lock.json
 *.env
 .inbox-state.json
 .login-state.json
+firebase-debug.log
