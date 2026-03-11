@@ -47,16 +47,21 @@ async function getGraphToken() {
   return result.accessToken;
 }
 
-async function graphSendMail(to, subject, html, token) {
+async function graphSendMail(to, subject, html, token, options = {}) {
   const cfg = await getEmailConfig();
   const fromEmail = cfg.fromEmail || 'admin@deeltrack.com';
+  // Use GP firm name if provided, format as "Firm Name via deeltrack"
+  const gpName = options.fromName || options.gpFirmName;
+  const displayName = gpName ? `${gpName} via deeltrack` : (cfg.fromName || 'deeltrack');
+  const replyTo = options.replyTo || cfg.replyTo;
   const recipients = (Array.isArray(to) ? to : [to]).map(a => ({ emailAddress: { address: a } }));
   const payload = JSON.stringify({
     message: {
       subject,
       body: { contentType: 'HTML', content: html },
       toRecipients: recipients,
-      from: { emailAddress: { address: fromEmail, name: cfg.fromName || 'deeltrack' } },
+      from: { emailAddress: { address: fromEmail, name: displayName } },
+      replyTo: replyTo ? [{ emailAddress: { address: replyTo } }] : [],
     },
     saveToSentItems: true,
   });
@@ -99,16 +104,32 @@ async function verifyAndGetOrg(auth) {
 // ── sendEmail callable ────────────────────────────────────────────────────────
 exports.sendEmail = onCall({ region: 'us-central1' }, async (request) => {
   const { uid, orgId } = await verifyAndGetOrg(request.auth);
-  const { to, subject, html, text, type, dealId } = request.data;
+  const { to, subject, html, text, type, dealId, fromName } = request.data;
   if (!to || !subject) throw new HttpsError('invalid-argument', 'Missing to or subject');
+
+  // Look up GP's firm name from org settings
+  let gpFirmName = fromName || null;
+  if (!gpFirmName) {
+    try {
+      const settingsDoc = await db.collection('orgs').doc(orgId).collection('settings').doc('main').get();
+      if (settingsDoc.exists) gpFirmName = settingsDoc.data().firmName || null;
+    } catch(e) {}
+  }
 
   const recipients = Array.isArray(to) ? to : [to];
   const token      = await getGraphToken();
   const results    = [];
+  const emailOpts  = { gpFirmName };
+
+  // Get GP's email for reply-to
+  try {
+    const settingsDoc = await db.collection('orgs').doc(orgId).collection('settings').doc('main').get();
+    if (settingsDoc.exists && settingsDoc.data().firmEmail) emailOpts.replyTo = settingsDoc.data().firmEmail;
+  } catch(e) {}
 
   for (const email of recipients) {
     try {
-      await graphSendMail(email, subject, html || `<p>${text || subject}</p>`, token);
+      await graphSendMail(email, subject, html || `<p>${text || subject}</p>`, token, emailOpts);
       await db.collection('orgs').doc(orgId).collection('emails').add({
         to: email, subject, type: type || 'custom', dealId: dealId || null,
         status: 'sent', sentAt: FieldValue.serverTimestamp(), sentBy: uid, orgId,
