@@ -1,23 +1,20 @@
 {
-  "name": "functions",
-  "version": "1.0.0",
-  "description": "",
+  "name": "deeltrack-functions",
+  "description": "Cloud Functions for deeltrack — KMS key management + encryption",
+  "version": "2.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "engines": {
-    "node": "22"
+    "build": "echo 'No build step'",
+    "deploy": "firebase deploy --only functions",
+    "migrate": "node migrate-keys.js"
   },
   "dependencies": {
-    "@azure/msal-node": "^5.0.5",
-    "firebase-admin": "^13.6.1",
-    "firebase-functions": "^7.0.5",
-    "imap": "^0.8.19",
-    "nodemailer": "^8.0.1",
-    "stripe": "^20.4.0"
+    "firebase-admin": "^11.0.0",
+    "firebase-functions": "^4.0.0",
+    "@google-cloud/kms": "^4.0.0",
+    "uuid": "^9.0.0"
+  },
+  "engines": {
+    "node": "18"
   }
 }
