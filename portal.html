@@ -576,6 +576,20 @@ function filterDocs(cat, el) {
   _renderDocsList(filtered, container);
 }
 
+// ── Helper functions for render (hoisted for use in chart/render) ───────────
+function _resolveDealName(dist, allDeals) {
+  if (dist.dealName) return dist.dealName;
+  const deals = allDeals || SP.getDeals();
+  const deal = deals.find(dl => dl.id === dist.dealId);
+  return deal ? deal.name : 'Unknown Deal';
+}
+function _distPeriod(dist) {
+  if (dist.period) return dist.period;
+  if (dist.quarter && dist.year) return dist.quarter + ' ' + dist.year;
+  if (dist.date) return new Date(dist.date + 'T00:00:00').toLocaleDateString();
+  return '—';
+}
+
 // ── CSV Export for distributions ───────────────────────────────────────────
 function exportDistCSV() {
   const dists = window._portalDists;
