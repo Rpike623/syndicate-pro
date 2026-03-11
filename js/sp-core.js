@@ -1403,6 +1403,7 @@ window.SP = (function () {
         { id:'home', items:[
           { href:'dashboard.html', icon:'fa-th-large', label:'Dashboard' },
           { href:'pulse.html',     icon:'fa-heartbeat', label:'Pulse' },
+          { href:'help-center.html', icon:'fa-question-circle', label:'Help Center' },
         ]},
         // ── Deals ────────────────────────────────────────────────
         { id:'deals', title:'DEALS', items:[
@@ -1442,7 +1443,6 @@ window.SP = (function () {
           { href:'settings.html', icon:'fa-cog', label:'Settings' },
           { href:'integrations.html', icon:'fa-plug', label:'Integrations' },
           { href:'security.html', icon:'fa-shield-alt', label:'Security' },
-          { href:'help-center.html', icon:'fa-question-circle', label:'Help Center' },
         ]},
       ];
 
