@@ -169,7 +169,7 @@
 </div>
 
 <!-- Main content -->
-<main class="portal-main">
+<main class="portal-main" style="display:none;">
 
   <!-- Dashboard -->
   <div class="portal-page active" id="page-dashboard">
@@ -1212,6 +1212,8 @@ document.addEventListener('DOMContentLoaded', () => {
 let _multiOrgData = null;
 
 SP.onDataReady(async function() {
+  // Show portal content now that auth + data is confirmed
+  document.querySelector('.portal-main').style.display = '';
   render(); // Render immediately with primary org data
 
   // Load LP pending commitments (wire confirmations, etc.)
