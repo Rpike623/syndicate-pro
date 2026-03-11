@@ -66,10 +66,10 @@ const SPEsign = (() => {
     const gpRep = settings?.gpFullName || session?.name || '';
     const invName = `${investor.firstName || ''} ${investor.lastName || ''}`.trim();
 
-    // Generate the actual sub doc HTML
-    const subDocHTML = generateSubDocHTML(deal, investor, settings);
+    // Do NOT store the full sub doc HTML in Firestore — it contains PII.
+    // sign.html will regenerate it on the fly from deal + investor data.
 
-    // Create the request in Firestore
+    // Create the request in Firestore (PII-minimal)
     const requestData = {
       orgId,
       dealId: deal.id,
@@ -81,7 +81,6 @@ const SPEsign = (() => {
       gpName,
       gpRep,
       docType: 'subscription_agreement',
-      subDocHTML,
       status: 'pending', // pending → sent → viewed → signed → countersigned
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdBy: session?.uid || '',
@@ -262,7 +261,6 @@ const SPEsign = (() => {
           signedAt: firebase.firestore.FieldValue.serverTimestamp(),
           signedName,
           esignRequestId: requestId,
-          subDocHTML: reqData.subDocHTML || '',
         });
       }
 

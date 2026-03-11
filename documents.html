@@ -1415,14 +1415,7 @@
         // Generate the sub doc HTML
         const gpName = settings.firmName || data.gpName || data.companyName || '';
         const gpRep = settings.gpFullName || data.gpRep || '';
-        let subDocHTML;
-        if (typeof SPDocs !== 'undefined' && SPDocs.generateSubDoc) {
-          subDocHTML = SPDocs.generateSubDoc(_dealObj, investor, gpName, gpRep);
-        } else {
-          subDocHTML = document.getElementById('documentPreview').innerHTML;
-        }
-
-        // Create signing request directly in Firestore
+        // Create signing request in Firestore (PII-minimal — sub doc regenerated on sign.html)
         const db = firebase.firestore();
         const session = SP.getSession();
         const ref = await db.collection('esign_requests').add({
@@ -1436,7 +1429,6 @@
           gpName,
           gpRep,
           docType: 'subscription_agreement',
-          subDocHTML,
           status: 'sent',
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           sentAt: firebase.firestore.FieldValue.serverTimestamp(),

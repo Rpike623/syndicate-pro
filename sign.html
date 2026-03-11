@@ -289,24 +289,57 @@ async function renderAgreement() {
     <div class="term-row"><span class="term-label">Date</span><span class="term-value">${new Date().toLocaleDateString()}</span></div>
   `;
 
-  // If we have the full sub doc HTML from the signing request, render it
+  // Generate the sub doc on the fly from deal + investor data (never stored with PII in Firestore)
   const termsEl = document.getElementById('dealTermsSection');
-  if (s.subDocHTML) {
-    termsEl.innerHTML = `
-      <div style="border:1px solid var(--border); border-radius:var(--radius); padding:24px; max-height:500px; overflow-y:auto; background:#fff; font-size:10pt;">
-        ${s.subDocHTML}
-      </div>
-      <p style="font-size:.72rem; color:var(--text-muted); margin-top:8px;">
-        <i class="fas fa-info-circle"></i> Scroll to review the full subscription agreement above before signing below.
-      </p>
-    `;
-  } else {
-    // Fallback: show deal terms summary
+  try {
+    // Load the deal from Firestore to get full terms
+    const dealDoc = await _db.collection('orgs').doc(s.orgId).collection('deals').doc(s.dealId).get();
+    const deal = dealDoc.exists ? { id: dealDoc.id, ...dealDoc.data() } : { id: s.dealId, name: s.dealName };
+
+    // Load GP settings
+    let settings = {};
+    try {
+      const settingsDoc = await _db.collection('orgs').doc(s.orgId).collection('settings').doc('main').get();
+      if (settingsDoc.exists) settings = settingsDoc.data();
+    } catch(e) {}
+
+    const investor = {
+      firstName: (s.investorName || '').split(' ')[0] || '[INVESTOR',
+      lastName: (s.investorName || '').split(' ').slice(1).join(' ') || 'NAME]',
+      email: s.investorEmail || '',
+      committed: s.investorCommitted || 0,
+    };
+    const gpName = s.gpName || settings.firmName || deal.companyName || '';
+    const gpRep = s.gpRep || settings.gpFullName || '';
+
+    let subDocHTML = '';
+    if (typeof SPDocs !== 'undefined' && SPDocs.generateSubDoc) {
+      subDocHTML = SPDocs.generateSubDoc(deal, investor, gpName, gpRep);
+    }
+
+    if (subDocHTML) {
+      termsEl.innerHTML = `
+        <div style="border:1px solid var(--border); border-radius:var(--radius); padding:24px; max-height:500px; overflow-y:auto; background:#fff; font-size:10pt;">
+          ${subDocHTML}
+        </div>
+        <p style="font-size:.72rem; color:var(--text-muted); margin-top:8px;">
+          <i class="fas fa-info-circle"></i> Scroll to review the full subscription agreement above before signing below.
+        </p>
+      `;
+    } else {
+      termsEl.innerHTML = `
+        <p style="font-size:.82rem;color:var(--text-secondary);">
+          Please review the subscription terms provided by your GP.
+          By signing below, you agree to the terms of the subscription agreement
+          for <strong>${s.dealName}</strong>.
+        </p>
+      `;
+    }
+  } catch(e) {
+    console.warn('Could not generate sub doc on sign page:', e);
     termsEl.innerHTML = `
       <p style="font-size:.82rem;color:var(--text-secondary);">
-        Please review the subscription terms provided by your GP.
-        By signing below, you agree to the terms of the subscription agreement
-        for <strong>${s.dealName}</strong>.
+        By signing below, you agree to the terms of the subscription agreement for <strong>${s.dealName}</strong>.
       </p>
     `;
   }
