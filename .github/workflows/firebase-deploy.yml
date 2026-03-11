@@ -11,11 +11,12 @@ on:
 
 jobs:
   deploy-rules:
-    if: contains(github.event.head_commit.modified, 'firestore.rules') || contains(github.event.head_commit.modified, 'firestore.indexes.json') || contains(github.event.head_commit.modified, 'storage.rules')
+    # The paths filter above ensures this workflow only runs when rules/indexes/storage change.
+    # No additional 'if' needed — that was causing jobs to skip.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy Firestore Rules
+      - name: Deploy Firestore & Storage Rules
         uses: w9jds/firebase-action@master
         with:
           args: deploy --only firestore:rules,firestore:indexes,storage --project deeltrack
@@ -23,7 +24,6 @@ jobs:
           GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
   deploy-functions:
-    if: contains(toJSON(github.event.commits.*.modified), 'functions/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
