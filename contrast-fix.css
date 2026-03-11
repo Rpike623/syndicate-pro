@@ -173,14 +173,24 @@ html body .email-preview { background: #F3F3F3 !important; }
 html body .ep-header { color: #FFFFFF !important; }
 html body .ep-kpi { color: #1B1A19 !important; }
 
-/* ── Progress steps in wizard ───────────────────────────────────────── */
-html body .step-desc:not(.active .step-desc):not(.done .step-desc) { color: #6B6560 !important; }
-html body .progress-title { color: #6B6560 !important; }
-html body .step-num:not(.active .step-num):not(.done .step-num) {
+/* ── Progress steps in wizard (light-background contexts only) ──────── */
+html body .main .step-desc:not(.active .step-desc):not(.done .step-desc) { color: #6B6560 !important; }
+html body .main .progress-title { color: #6B6560 !important; }
+html body .main .step-num:not(.active .step-num):not(.done .step-num) {
   background: #EDEBE8 !important; color: #6B6560 !important;
 }
-html body .step.done .step-num { background: #2D9A6B !important; color: #FFFFFF !important; }
-html body .step.active .step-num { background: #F37925 !important; color: #FFFFFF !important; }
+html body .main .step.done .step-num { background: #2D9A6B !important; color: #FFFFFF !important; }
+html body .main .step.active .step-num { background: #F37925 !important; color: #FFFFFF !important; }
+/* Sidebar wizard steps need light-on-dark colors */
+html body .sidebar .step-item { color: rgba(255,255,255,0.5) !important; }
+html body .sidebar .step-item.active { color: #FFFFFF !important; }
+html body .sidebar .step-item.completed { color: rgba(255,255,255,0.6) !important; }
+html body .sidebar .step-desc { color: rgba(255,255,255,0.35) !important; }
+html body .sidebar .progress-title { color: rgba(255,255,255,0.35) !important; }
+html body .sidebar .step-number { background: rgba(255,255,255,0.07) !important; border-color: rgba(255,255,255,0.15) !important; color: rgba(255,255,255,0.4) !important; }
+html body .sidebar .step-item.active .step-number { background: #F37925 !important; border-color: #F37925 !important; color: #fff !important; }
+html body .sidebar .step-item.completed .step-number { background: #2D9A6B !important; border-color: #2D9A6B !important; color: #fff !important; }
+html body .sidebar .step-label { color: inherit !important; }
 
 /* ── Scrollbars ─────────────────────────────────────────────────────── */
 html body ::-webkit-scrollbar-track { background: #F3F3F3 !important; }
