@@ -1270,3 +1270,40 @@ exports.getKeyStatus = onCall(async (request) => {
     createdAt: orgDoc.data().createdAt || null,
   };
 });
+
+// ── healUserRole — Admin SDK role fix for known accounts ──────────────────────
+// Called from client when a ROLE_LOCK mismatch is detected.
+// Only fixes roles for hardcoded known accounts (prevents abuse).
+const ROLE_LOCK_SERVER = {
+  'gp@deeltrack.com': 'General Partner',
+  'demo@deeltrack.com': 'General Partner',
+  'demo-gp2@deeltrack.com': 'General Partner',
+  'philip@jchapmancpa.com': 'Investor',
+  'investor@deeltrack.com': 'Investor',
+};
+
+exports.healUserRole = onCall({ region: 'us-central1' }, async (request) => {
+  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be signed in');
+  const { uid, expectedRole } = request.data;
+  if (!uid || !expectedRole) throw new HttpsError('invalid-argument', 'uid and expectedRole required');
+
+  const userDoc = await db.collection('users').doc(uid).get();
+  if (!userDoc.exists) throw new HttpsError('not-found', 'User not found');
+
+  const email = (userDoc.data().email || '').toLowerCase();
+  const correctRole = ROLE_LOCK_SERVER[email];
+  if (!correctRole) throw new HttpsError('permission-denied', 'Not a role-locked account');
+  if (expectedRole !== correctRole) throw new HttpsError('permission-denied', 'Expected role does not match server lock');
+
+  await db.collection('users').doc(uid).update({ role: correctRole });
+  await db.collection('auditLogs').add({
+    action: 'healUserRole',
+    uid,
+    email,
+    oldRole: userDoc.data().role,
+    newRole: correctRole,
+    callerUid: request.auth.uid,
+    timestamp: FieldValue.serverTimestamp(),
+  });
+  return { healed: true, role: correctRole };
+});

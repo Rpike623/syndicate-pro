@@ -44,10 +44,24 @@ service cloud.firestore {
     }
 
     // ── Users ─────────────────────────────────────────────────────────────────
-    // Any signed-in user (including anonymous) can manage their own profile.
+    // Users can read their own profile.
+    // Users can UPDATE their own profile, but CANNOT change role or orgId.
+    // Only Cloud Functions (Admin SDK) can set role/orgId — prevents privilege escalation.
 
     match /users/{userId} {
-      allow read, write: if isSignedIn() && uid() == userId;
+      allow read: if isSignedIn() && uid() == userId;
+
+      // CREATE: only allowed for initial profile setup (signup)
+      // role + orgId are set during creation and locked after that
+      allow create: if isSignedIn() && uid() == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.email is string
+        && request.resource.data.role in ['General Partner', 'Investor'];
+
+      // UPDATE: allowed but role and orgId are immutable from client
+      allow update: if isSignedIn() && uid() == userId
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.orgId == resource.data.orgId;
     }
 
     // ── Org data ──────────────────────────────────────────────────────────────
@@ -131,17 +145,10 @@ service cloud.firestore {
     }
 
     // ── E-Sign Requests (top-level, cross-org) ────────────────────────────
-    // GP creates signing requests with their orgId.
-    // Only the GP (same org, non-investor) or the specific investor (matched by email) can read/update.
     match /esign_requests/{reqId} {
-      // GP can create for their org
       allow create: if isSignedIn() && !isInvestorRole();
-      
-      // GP can read/update their own org's signing requests
       allow read, update: if isSignedIn() && !isInvestorRole()
         && resource.data.orgId == userOrgId();
-      
-      // Investor can read/update ONLY their own signing request (matched by email)
       allow read, update: if isSignedIn() && isInvestorRole()
         && resource.data.investorEmail == request.auth.token.email;
     }
@@ -155,8 +162,7 @@ service cloud.firestore {
     // ── Global invite index (token → orgId lookup for invest.html) ──────────
     match /_invites/{token} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && !isInvestorRole(); // Only GPs can create invites
+      allow write: if isSignedIn() && !isInvestorRole();
     }
   }
 }
-

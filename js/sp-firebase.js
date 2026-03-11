@@ -179,10 +179,10 @@ const SPFB = (function () {
         : (existing?.orgId || _spUser.orgId || _orgId);
 
       if (_spUser && _spUser.email) {
-        // If Firestore doc has wrong orgId for demo user, fix it
-        if (DEMO_ORG_EMAILS.includes(emailLc) && _spUser.orgId !== 'deeltrack_demo' && _spUser.uid && _db) {
-          _db.collection('users').doc(_spUser.uid).update({ orgId: 'deeltrack_demo' }).catch(() => {});
-          _spUser.orgId = 'deeltrack_demo';
+        // If Firestore doc has wrong orgId for demo user, log warning
+        // NOTE: orgId is immutable from client — must be fixed via Admin SDK / Cloud Function
+        if (DEMO_ORG_EMAILS.includes(emailLc) && _spUser.orgId !== 'deeltrack_demo') {
+          console.warn(`SPFB: Demo user ${emailLc} has orgId "${_spUser.orgId}" instead of "deeltrack_demo" — needs Admin fix`);
         }
         _orgId = resolvedOrg;
         SP.setSession({
@@ -529,18 +529,27 @@ const SPFB = (function () {
     const doc = await ref.get();
     if (doc.exists) {
       const data = doc.data();
-      // Update missing fields
+      // Update SAFE fields only — role and orgId are immutable from client
+      // (Firestore rules enforce this; role/orgId can only be set on create)
       const updates = {};
       if (!data.email && email) updates.email = email;
       if (!data.name && name) updates.name = name;
-      if (!data.role && role) updates.role = role;
-      if (!data.orgId && orgId) updates.orgId = orgId;
-      // Auto-heal corrupted roles for known accounts
+      // NOTE: role and orgId are NOT updated from client — use Cloud Function healUserRole() if needed
       if (ROLE_LOCK[emailLc] && data.role !== ROLE_LOCK[emailLc]) {
-        updates.role = ROLE_LOCK[emailLc];
-        console.warn(`SPFB: Auto-healing role for ${emailLc}: "${data.role}" → "${ROLE_LOCK[emailLc]}"`);
+        console.warn(`SPFB: Role mismatch for ${emailLc}: "${data.role}" should be "${ROLE_LOCK[emailLc]}" — requires Cloud Function to fix`);
+        // Call healUserRole Cloud Function if available
+        try {
+          const healFn = firebase.functions().httpsCallable('healUserRole');
+          await healFn({ uid, expectedRole: ROLE_LOCK[emailLc] });
+          data.role = ROLE_LOCK[emailLc]; // reflect locally
+        } catch (e) { console.warn('SPFB: healUserRole not deployed yet:', e.message); }
       }
-      if (Object.keys(updates).length) await ref.update(updates);
+      // Preserve existing role/orgId in updates (Firestore rules require them unchanged)
+      if (Object.keys(updates).length) {
+        updates.role = data.role;
+        updates.orgId = data.orgId;
+        await ref.update(updates);
+      }
       return { ...data, ...updates };
     } else {
       const profile = {
