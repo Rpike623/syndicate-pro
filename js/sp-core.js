@@ -431,49 +431,38 @@ window.SP = (function () {
     return true;
   }
 
+  // ── Demo Account Registry ──────────────────────────────────────────────────
+  // Hardcoded demo accounts — these are the ONLY accounts that can use local auth.
+  // Real users MUST authenticate via Firebase Auth.
+  const DEMO_ACCOUNTS = {
+    'gp@deeltrack.com':         { name: 'Robert Pike',   role: 'General Partner', orgId: 'deeltrack_demo' },
+    'demo@deeltrack.com':       { name: 'Robert Pike',   role: 'General Partner', orgId: 'deeltrack_demo' },
+    'philip@jchapmancpa.com':   { name: 'Phil Chapman',  role: 'Investor',        orgId: 'deeltrack_demo' },
+    'investor@deeltrack.com':   { name: 'Demo Investor', role: 'Investor',        orgId: 'deeltrack_demo' },
+    'demo-gp2@deeltrack.com':   { name: 'Marcus Rivera', role: 'General Partner', orgId: 'marcus_rivera_org' },
+  };
+  const DEMO_PASSWORD = 'Demo1234!';
+
+  function isDemoEmail(email) {
+    return !!DEMO_ACCOUNTS[(email || '').toLowerCase()];
+  }
+
   function authenticate(email, password) {
-    const users = getUsers();
-    // Seed demo GP — accept both old and new demo emails
-    // ALL demo accounts share ONE org so data is visible across sessions
-    // EXCEPT demo-gp2@deeltrack.com (Marcus Rivera) who needs data isolation for testing
-    const DEMO_ORG_ID = 'deeltrack_demo';
-    const demoEmails = ['demo@deeltrack.com',  'gp@deeltrack.com', 'philip@jchapmancpa.com', 'investor@deeltrack.com'];
-    demoEmails.forEach(demoEmail => {
-      const existing = users.find(u => u.email === demoEmail);
-      if (!existing) {
-        const name = demoEmail.includes('philip') ? 'Phil Chapman' : demoEmail.includes('investor') ? 'Demo Investor' : 'Robert Pike';
-        const role = (demoEmail.includes('philip') || demoEmail.includes('investor@')) ? 'Investor' : 'General Partner';
-        users.push({ email: demoEmail, name, role, orgId: DEMO_ORG_ID });
-      }
-    });
-    
-    // Handle Marcus Rivera (demo-gp2) separately — he gets his own unique org for data isolation testing
-    const marcusEmail = 'demo-gp2@deeltrack.com';
-    const marcusExisting = users.find(u => u.email === marcusEmail);
-    const marcusOrgId = 'marcus_rivera_org';
-    if (!marcusExisting) {
-      users.push({ email: marcusEmail, name: 'Marcus Rivera', role: 'General Partner', orgId: marcusOrgId });
-    } else if (marcusExisting.orgId !== marcusOrgId) {
-      // Ensure Marcus always has his unique orgId
-      marcusExisting.orgId = marcusOrgId;
+    const emailLc = (email || '').toLowerCase();
+
+    // ONLY demo accounts can use local auth — reject everything else
+    if (!DEMO_ACCOUNTS[emailLc]) {
+      // Not a demo account — must use Firebase Auth (handled by login.html)
+      return null;
     }
-    
-    localStorage.setItem('sp_users', JSON.stringify(users));
-    // Legacy fallback auth — ONLY for demo accounts when Firebase is unavailable.
-    // Demo password is checked here; real accounts MUST authenticate via Firebase Auth.
-    const DEMO_PASSWORD = 'Demo1234!';
-    const isDemoAccount = [...demoEmails, marcusEmail].includes(email.toLowerCase());
-    if (!isDemoAccount || password !== DEMO_PASSWORD) return null;
-    const user = getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (!user) return null;
-    // Ensure orgId
-    if (!user.orgId) {
-      user.orgId = simpleHash(user.email.toLowerCase());
-      saveUsers(getUsers().map(u => u.email === user.email ? user : u));
-    }
+
+    if (password !== DEMO_PASSWORD) return null;
+
+    const demo = DEMO_ACCOUNTS[emailLc];
     const session = {
-      email: user.email, name: user.name, role: user.role,
-      orgId: user.orgId, loggedIn: true, loginTime: Date.now()
+      email: emailLc, name: demo.name, role: demo.role,
+      orgId: demo.orgId, loggedIn: true, loginTime: Date.now(),
+      isDemo: true, // Flag for UI to show demo indicators
     };
     setSession(session);
 
@@ -943,7 +932,7 @@ window.SP = (function () {
     // Activity
     logActivity, getActivity,
     // Users / auth
-    getUsers, saveUsers, getUserByEmail, createUser, authenticate, logout,
+    getUsers, saveUsers, getUserByEmail, createUser, authenticate, logout, isDemoEmail,
     // Invites
     createInviteToken, decodeInviteToken,
     // Capital Calls
