@@ -856,13 +856,18 @@ function render() {
       const STATUS_BADGE = {operating:'badge-operating',closed:'badge-closed',dd:'badge-active',loi:'badge-committed'};
       const STATUS_LABEL = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',operating:'Operating',closed:'Closed'};
       const gpTag = gpName ? `<span style="color:var(--accent);font-weight:600;">${gpName}</span> · ` : '';
-      return `<div class="deal-item">
-        <div>
+      const img = deal.imageUrl ? `<img src="${deal.imageUrl}" alt="${deal.name}" style="width:64px;height:48px;border-radius:6px;object-fit:cover;flex-shrink:0;">` : `<div style="width:64px;height:48px;border-radius:6px;background:var(--border-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-muted);"><i class="fas fa-building"></i></div>`;
+      const raisePct = deal.status === 'raising' && deal.raise > 0 ? Math.min(100, Math.round(((deal.investors||[]).reduce((s,i)=>s+(i.committed||0),0) / deal.raise) * 100)) : 0;
+      const raiseBar = deal.status === 'raising' ? `<div style="margin-top:6px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${raisePct}%;background:var(--accent);border-radius:2px;"></div></div><div style="font-size:.68rem;color:var(--text-muted);margin-top:2px;">${raisePct}% funded</div>` : '';
+      return `<div class="deal-item" style="gap:14px;">
+        ${img}
+        <div style="flex:1;min-width:0;">
           <div class="deal-name">${deal.name}</div>
           <div class="deal-meta">
             ${gpTag}${deal.location || '—'} · <span class="badge ${STATUS_BADGE[deal.status]||'badge-committed'}">${STATUS_LABEL[deal.status]||deal.status||'—'}</span>
             · ${entry.ownership ? entry.ownership.toFixed(2)+'% ownership' : '—'}
           </div>
+          ${raiseBar}
         </div>
         <div class="deal-nums">
           <div class="invested">${fmtFull$(entry.committed||0)}</div>
@@ -898,11 +903,13 @@ function render() {
       const dealDists = myDists.filter(({ dist }) => dist.dealId === deal.id && (!deal._orgId || dist._orgId === deal._orgId));
       const dealDistTotal = dealDists.reduce((s, { r }) => s + (r.amount||r.totalThisDist||0), 0);
       const gpLine = gpName ? `<span style="color:var(--accent);font-weight:600;font-size:.72rem;">${gpName}</span> · ` : '';
-      return `<div class="card" style="margin-bottom:16px;">
+      const heroImg = deal.imageUrl ? `<div style="height:160px;overflow:hidden;border-radius:var(--radius-md) var(--radius-md) 0 0;"><img src="${deal.imageUrl}" alt="${deal.name}" style="width:100%;height:100%;object-fit:cover;"></div>` : '';
+      return `<div class="card" style="margin-bottom:16px;overflow:hidden;">
+        ${heroImg}
         <div class="card-header">
           <div>
             <div style="font-weight:700;">${deal.name}</div>
-            <div style="font-size:.78rem;color:var(--text-muted);font-weight:400;margin-top:2px;">${gpLine}${deal.location||'—'} · ${deal.type||'—'}</div>
+            <div style="font-size:.78rem;color:var(--text-muted);font-weight:400;margin-top:2px;">${gpLine}${deal.location||'—'} · ${deal.type||'—'}${deal.units ? ' · '+deal.units+' units' : ''}</div>
           </div>
           <span class="badge ${deal.status==='operating'?'badge-operating':deal.status==='closed'?'badge-closed':'badge-committed'}">${deal.status||'—'}</span>
         </div>

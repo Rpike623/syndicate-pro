@@ -549,6 +549,7 @@ window.SP = (function () {
     const deals = [
       {
         id:'live_d1', name:'Pecan Hollow Apartments', type:'multifamily', raise:5500000, irr:19.4, equity:2.1,
+        imageUrl:'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop',
         status:'raising', location:'Fort Worth, TX', added:new Date().toISOString().split('T')[0], units:128, state:'TX',
         companyName:'Pecan Hollow Partners LLC', purchasePrice:24500000, loanAmount:19000000,
         totalEquity:5500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
@@ -560,6 +561,7 @@ window.SP = (function () {
       },
       {
         id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9,
+        imageUrl:'https://images.unsplash.com/photo-1460317442991-0ec209397118?w=600&h=400&fit=crop',
         status:'operating', location:'Austin, TX', added:'2025-11-10', closeDate:'2025-11-15', units:96, state:'TX',
         companyName:'Riverside Flats Capital LLC', purchasePrice:21000000, loanAmount:16800000,
         totalEquity:4200000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
@@ -574,6 +576,7 @@ window.SP = (function () {
       },
       {
         id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1,
+        imageUrl:'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&h=400&fit=crop',
         status:'closed', location:'Dallas, TX', added:'2025-12-01', closeDate:'2025-12-01', units:0, state:'TX',
         companyName:'Meridian Industrial Capital LLC', purchasePrice:37500000, loanAmount:30000000,
         totalEquity:7500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
@@ -585,6 +588,7 @@ window.SP = (function () {
       },
       {
         id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7,
+        imageUrl:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop',
         status:'operating', location:'Houston, TX', added:'2026-01-15', closeDate:'2026-01-20', units:248, state:'TX',
         companyName:'Hudson Portfolio Capital LLC', purchasePrice:60000000, loanAmount:48000000,
         totalEquity:12000000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
@@ -598,6 +602,7 @@ window.SP = (function () {
       },
       {
         id:'d4', name:'Parkview Commons', type:'multifamily', raise:3100000, irr:19.0, equity:1.95,
+        imageUrl:'https://images.unsplash.com/photo-1567496898669-ee935f5f647a?w=600&h=400&fit=crop',
         status:'dd', location:'San Antonio, TX', added:'2026-02-01', units:72, state:'TX',
         companyName:'Parkview Commons Capital LLC', purchasePrice:15500000, loanAmount:12400000,
         totalEquity:3100000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
@@ -606,6 +611,7 @@ window.SP = (function () {
       },
       {
         id:'d5', name:'Westgate Retail Center', type:'retail', raise:5800000, irr:14.5, equity:1.6,
+        imageUrl:'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&h=400&fit=crop',
         status:'loi', location:'Fort Worth, TX', added:'2026-02-10', units:0, state:'TX',
         companyName:'Westgate Retail Capital LLC', purchasePrice:29000000, loanAmount:23200000,
         totalEquity:5800000, gpEquity:10, lpEquity:90, prefReturn:7, gpPromote:20, acqFee:2.5, assetMgmtFee:2,
