@@ -4473,8 +4473,13 @@ body {
 .card-subtitle { color: #6B6560 !important; }
 
 /* ── Typography throughout ───────────────────────────────────────────────── */
-h1, h2, h3, h4, h5, h6 { color: #1B1A19 !important; }
-p { color: #1B1A19 !important; }
+h1, h2, h3, h4, h5, h6 { color: #1B1A19; }
+p { color: #1B1A19; }
+/* Allow dark-background containers to set their own text colors */
+.contact-card h3, .contact-card p,
+[style*="background:#1B1A19"] h3, [style*="background:#1B1A19"] p,
+[style*="background:#2D2A27"] h3, [style*="background:#2D2A27"] p,
+.dark-card h3, .dark-card p { color: inherit !important; }
 label { color: #3D3A37 !important; }
 
 /* Muted text — readable warm gray */

@@ -39,6 +39,9 @@ html body .main { background: #F3F3F3; color: #1B1A19; }
 /* ── Headings & titles ───────────────────────────────────────────────── */
 html body .main h1, html body .main h2, html body .main h3,
 html body .main h4, html body .main h5, html body .main h6 { color: #1B1A19 !important; }
+/* Exempt dark-background containers from heading color override */
+html body .contact-card h3, html body .contact-card p,
+html body .dark-card h3, html body .dark-card p { color: white !important; }
 html body .page-title, html body .card-title,
 html body .modal-title, html body .section-title:not(.sidebar .section-title) { color: #1B1A19 !important; }
 
