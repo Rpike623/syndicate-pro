@@ -1,46 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Rehab Estimator </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Rehab%20Estimator">
+  <title>deeltrack | Rehab Estimator</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-tools"></i> Rehab Estimator</h1>
-    </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>Renovation Costs</h2></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label>Kitchen ($/unit)</label><input type="number" id="reKitchen" class="form-input" value="8500"></div>
-            <div class="form-group"><label>Bath ($/unit)</label><input type="number" id="reBath" class="form-input" value="4500"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Flooring ($/sqft)</label><input type="number" id="reFloor" class="form-input" value="3.5"></div>
-            <div class="form-group"><label>Paint ($/sqft)</label><input type="number" id="rePaint" class="form-input" value="1.5"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Units</label><input type="number" id="reUnits" class="form-input" value="10"></div>
-            <div class="form-group"><label>Avg Sqft/Unit</label><input type="number" id="reSqft" class="form-input" value="950"></div>
-          </div>
-          <button class="btn btn-primary" onclick="Rehab.calc()">Calculate Total</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Estimate Summary</h2></div>
-        <div class="card-body" id="reSummary"></div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Rehab.init();}</script>
-  <script src="js/sp-rehab.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Rehab%20Estimator');</script>
+  <p>Redirecting…</p>
 </body>
 </html>

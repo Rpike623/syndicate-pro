@@ -1,45 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | LOI Generator </title>
-  <script src="js/sp-core.js?v9"></script>
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=LOI%20Generator">
+  <title>deeltrack | LOI Generator</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-envelope"></i> LOI Generator</h1>
-    </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>Letter of Intent Details</h2></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label>Buyer Name</label><input type="text" id="loiBuyer" class="form-input" value="Sunset Ventures LLC"></div>
-            <div class="form-group"><label>Seller Name</label><input type="text" id="loiSeller" class="form-input" value="ABC Property LLC"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Property</label><input type="text" id="loiProperty" class="form-input" value="Sunset Apartments"></div>
-            <div class="form-group"><label>Purchase Price</label><input type="number" id="loiPrice" class="form-input" value="16500000"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Due Diligence Days</label><input type="number" id="loiDue" class="form-input" value="30"></div>
-            <div class="form-group"><label>Closing Days</label><input type="number" id="loiClose" class="form-input" value="45"></div>
-          </div>
-          <div class="form-group"><label>Earnest Money</label><input type="number" id="loiEarnest" class="form-input" value="250000"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Preview</h2></div>
-        <div class="card-body"><pre id="loiPreview" style="white-space:pre-wrap;font-size:13px;background: #F3F3F3;padding:20px;border-radius:8px;"></pre></div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}LOI.generate();['loiBuyer','loiSeller','loiProperty','loiPrice','loiDue','loiClose','loiEarnest'].forEach(id=>document.getElementById(id).addEventListener('input',()=>LOI.generate()));}</script>
-  <script src="js/sp-loi.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=LOI%20Generator');</script>
+  <p>Redirecting…</p>
 </body>
 </html>

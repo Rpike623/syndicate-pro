@@ -1,48 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Yield Converter </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Yield%20Converter">
+  <title>deeltrack | Yield Converter</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-arrow-right-arrow-left"></i> Yield Converter</h1>
-    </div>
-    <div class="content">
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><h2>Input</h2></div>
-          <div class="card-body">
-            <div class="form-group"><label>Property Value</label><input type="number" id="yValue" class="form-input" value="15000000" oninput="YC.calc()"></div>
-            <div class="form-group"><label>NOI</label><input type="number" id="yNoi" class="form-input" value="975000" oninput="YC.calc()"></div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h2>Output</h2></div>
-          <div class="card-body">
-            <div class="result-row"><span>Cap Rate</span><strong id="yCap">0%</strong></div>
-            <div class="result-row"><span>Cash-on-Cash</span><strong id="yCoc">0%</strong></div>
-            <div class="result-row"><span>GRM</span><strong id="yGrm">0x</strong></div>
-            <div class="result-row"><span>EGIM</span><strong id="yEgim">0x</strong></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Conversion Table</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>If Cap Rate is...</th><th>Value is...</th><th>If Price is...</th><th>Cap Rate is...</th></tr></thead><tbody id="yTable"></tbody></table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}YC.init();}</script>
-  <script src="js/sp-yc.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Yield%20Converter');</script>
+  <p>Redirecting…</p>
 </body>
 </html>

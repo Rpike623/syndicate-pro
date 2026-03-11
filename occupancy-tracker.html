@@ -1,34 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Occupancy Tracker </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Occupancy%20Tracker">
+  <title>deeltrack | Occupancy Tracker</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-th-large"></i> Occupancy Tracker</h1>
-    </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>Unit Heatmap</h2></div>
-        <div class="card-body">
-          <div id="occGrid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(60px, 1fr));gap:10px;"></div>
-        </div>
-      </div>
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Physical Occupancy</span><span class="stat-value text-success" id="physOcc">0%</span></div>
-        <div class="stat-card"><span class="stat-label">Economic Occupancy</span><span class="stat-value text-primary" id="econOcc">0%</span></div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}Occ.init();}</script>
-  <script src="js/sp-occ.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Occupancy%20Tracker');</script>
+  <p>Redirecting…</p>
 </body>
 </html>

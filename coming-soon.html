@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Coming Soon</title>
+  <script src="js/sp-core.js?v9"></script>
+  <link rel="stylesheet" href="contrast-fix.css">
+  <style>
+    .coming-soon-wrap {
+      display: flex; align-items: center; justify-content: center;
+      min-height: calc(100vh - 60px); padding: 40px 24px;
+    }
+    .coming-soon-card {
+      text-align: center; max-width: 480px;
+      background: var(--bg-card, #fff); border: 1px solid var(--border, #E2DDD8);
+      border-radius: 16px; padding: 48px 40px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.06);
+    }
+    .cs-icon {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(243,121,37,.12), rgba(243,121,37,.04));
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px; font-size: 2rem;
+    }
+    .cs-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; color: #1B1A19; }
+    .cs-sub { color: #6B6560; font-size: .95rem; line-height: 1.6; margin-bottom: 28px; }
+    .cs-feature {
+      display: inline-block; font-size: .78rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .06em;
+      background: rgba(243,121,37,.1); color: #c85a00;
+      padding: 6px 14px; border-radius: 20px; margin-bottom: 24px;
+    }
+    .cs-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; font-size: .95rem; font-weight: 600;
+      border-radius: 8px; border: 1.5px solid #D8D4CE;
+      background: #fff; color: #1B1A19; cursor: pointer;
+      text-decoration: none; transition: all .15s;
+    }
+    .cs-back:hover { background: #F7F4F0; border-color: #9C9590; }
+  </style>
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="coming-soon-wrap">
+      <div class="coming-soon-card">
+        <div class="cs-icon">🚧</div>
+        <div class="cs-feature" id="featureName">Coming Soon</div>
+        <h1 class="cs-title">We're building this</h1>
+        <p class="cs-sub">This feature is on our roadmap and actively in development. Check back soon — or let us know if it's a priority for your workflow.</p>
+        <a class="cs-back" href="dashboard.html"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+      </div>
+    </div>
+  </main>
+  <script>
+    // Extract feature name from referrer or page title
+    const params = new URLSearchParams(window.location.search);
+    const feature = params.get('feature');
+    if (feature) {
+      document.getElementById('featureName').textContent = feature;
+      document.title = 'deeltrack | ' + feature + ' — Coming Soon';
+    }
+  </script>
+</body>
+</html>

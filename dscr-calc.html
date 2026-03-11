@@ -1,44 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | DSCR Calculator </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=DSCR%20Calculator">
+  <title>deeltrack | DSCR Calculator</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-balance-scale"></i> DSCR Calculator</h1>
-    </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>Debt Coverage</h2></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label>Annual NOI</label><input type="number" id="dsNOI" class="form-input" value="250000"></div>
-            <div class="form-group"><label>Annual Debt Service</label><input type="number" id="dsDebt" class="form-input" value="180000"></div>
-          </div>
-          <button class="btn btn-primary" onclick="DSCR.calc()">Calculate DSCR</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Ratio Results</h2></div>
-        <div class="card-body">
-          <div class="stats-row">
-            <div class="stat-card"><span class="stat-label">DSCR</span><span class="stat-value text-primary" id="dsRatio">0.00x</span></div>
-            <div class="stat-card"><span class="stat-label">Max Debt Service (1.25x)</span><span class="stat-value" id="dsMax">$0</span></div>
-            <div class="stat-card"><span class="stat-label">Required NOI (1.25x)</span><span class="stat-value" id="dsReq">$0</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}DSCR.init();}</script>
-  <script src="js/sp-dscr.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=DSCR%20Calculator');</script>
+  <p>Redirecting…</p>
 </body>
 </html>

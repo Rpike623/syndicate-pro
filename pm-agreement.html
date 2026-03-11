@@ -1,44 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | PM Agreement </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=PM%20Agreement">
+  <title>deeltrack | PM Agreement</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-file-signature"></i> PM Agreement</h1>
-    </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>Property Management Agreement Generator</h2></div>
-        <div class="card-body">
-          <div class="form-row">
-            <div class="form-group"><label>Property Name</label><input type="text" id="pmProperty" class="form-input" value="Sunset Apartments"></div>
-            <div class="form-group"><label>PM Company</label><input type="text" id="pmCompany" class="form-input" value="ABC Property Management"></div>
-          </div>
-          <div class="form-row">
-            <div class="form-group"><label>Management Fee %</label><input type="number" id="pmFee" class="form-input" value="3" step="0.5"></div>
-            <div class="form-group"><label>Leasing Fee %</label><input type="number" id="pmLeasing" class="form-input" value="50"></div>
-          </div>
-          <div class="form-group"><label>Term (months)</label><input type="number" id="pmTerm" class="form-input" value="24"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Agreement Preview</h2></div>
-        <div class="card-body">
-          <pre id="pmPreview" style="white-space:pre-wrap;font-size:13px;background: #F3F3F3;padding:20px;border-radius:8px;"></pre>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}PM.generate();['pmProperty','pmCompany','pmFee','pmLeasing','pmTerm'].forEach(id=>document.getElementById(id).addEventListener('input',()=>PM.generate()));}</script>
-  <script src="js/sp-pm-agreement.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=PM%20Agreement');</script>
+  <p>Redirecting…</p>
 </body>
 </html>

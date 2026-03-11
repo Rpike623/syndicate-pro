@@ -1,47 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Operating Expense Benchmark </title>
-  <script src="js/sp-core.js?v9"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Operating%20Expense%20Benchmark">
+  <title>deeltrack | Operating Expense Benchmark</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-balance-scale"></i> OpEx Benchmark</h1>
-    </div>
-    <div class="content">
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Portfolio OpEx</span><span class="stat-value" id="statOpex">$0</span></div>
-        <div class="stat-card"><span class="stat-label">OpEx Ratio</span><span class="stat-value" id="statRatio">38%</span></div>
-        <div class="stat-card"><span class="stat-label">vs Market</span><span class="stat-value text-success" id="statVs">-2%</span></div>
-        <div class="stat-card"><span class="stat-label">$/Unit</span><span class="stat-value" id="statUnit">$0</span></div>
-      </div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><h2>OpEx Breakdown</h2></div>
-          <div class="card-body"><canvas id="opexChart" height="180"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h2>vs Market Average</h2></div>
-          <div class="card-body"><canvas id="vsChart" height="180"></canvas></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Expense Details</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Category</th><th>Actual</th><th>Budget</th><th>Variance</th><th>Market</th><th>vs Market</th></tr></thead><tbody id="opexTable"></tbody></table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}OpEx.init();}</script>
-  <script src="js/sp-opex.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Operating%20Expense%20Benchmark');</script>
+  <p>Redirecting…</p>
 </body>
 </html>

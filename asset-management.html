@@ -1,47 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Asset Management </title>
-  <script src="js/sp-core.js?v9"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Asset%20Management">
+  <title>deeltrack | Asset Management</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-building"></i> Asset Management</h1>
-    </div>
-    <div class="content">
-      <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Properties</span><span class="stat-value">4</span></div>
-        <div class="stat-card"><span class="stat-label">Total SF</span><span class="stat-value">285K</span></div>
-        <div class="stat-card"><span class="stat-label">Occupancy</span><span class="stat-value text-success">94%</span></div>
-        <div class="stat-card"><span class="stat-label">NOI</span><span class="stat-value">$2.4M</span></div>
-      </div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-header"><h2>Asset Allocation</h2></div>
-          <div class="card-body"><canvas id="assetChart"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h2>Performance by Property</h2></div>
-          <div class="card-body" id="perfList"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Key Metrics</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Property</th><th>Type</th><th>Occupancy</th><th>NOI</th><th>Cap Rate</th><th>Value</th></tr></thead><tbody id="metricsTable"></tbody></table>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}AssetMgmt.init();}</script>
-  <script src="js/sp-asset-mgmt.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=Asset%20Management');</script>
+  <p>Redirecting…</p>
 </body>
 </html>

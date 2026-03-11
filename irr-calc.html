@@ -1,39 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | IRR Calculator </title>
-  <script src="js/sp-core.js?v9"></script>
-  <link rel="stylesheet" href="contrast-fix.css">
+  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=IRR%20Calculator">
+  <title>deeltrack | IRR Calculator</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 </head>
 <body>
-  <div id="sidebar"></div>
-  <main class="main" id="main">
-    <div class="dt-header">
-      <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-calculator"></i> IRR Calculator</h1>
-    </div>
-    <div class="content">
-      <div class="card">
-        <div class="card-header"><h2>Cash Flows</h2></div>
-        <div class="card-body">
-          <table class="data-table"><thead><tr><th>Year</th><th>Cash Flow</th></tr></thead><tbody id="cfTable"></tbody></table>
-          <button class="btn btn-secondary" onclick="IRR.addYear()" style="margin-top:12px">+ Add Year</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>Result</h2></div>
-        <div class="card-body">
-          <div class="result-row"><span>IRR</span><strong id="irrResult">0%</strong></div>
-          <div class="result-row"><span>NPV</span><strong id="npvResult">$0</strong></div>
-          <div class="result-row"><span>Multiple</span><strong id="moicResult">0x</strong></div>
-        </div>
-      </div>
-    </div>
-  </main>
-  <script>document.addEventListener('DOMContentLoaded',function(){if(window.SP&&SP.isLoggedIn)initPage();else document.addEventListener('sp-ready',initPage);});function initPage(){if(!SP.isLoggedIn()){window.location.href='login.html';return;}IRR.init();}</script>
-  <script src="js/sp-irr.js"></script>
+  <script>window.location.replace('coming-soon.html?feature=IRR%20Calculator');</script>
+  <p>Redirecting…</p>
 </body>
 </html>
