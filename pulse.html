@@ -15,6 +15,7 @@
   <script src="js/sp-data.js?v9"></script>
   <script src="js/sp-firebase.js?v9"></script>
   <script src="js/sp-billing.js"></script>
+  <script src="js/sp-validate.js?v1"></script>
   <style>
     :root{--accent:#F37925;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--info:#3B82F6;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -72,6 +73,9 @@
     .all-clear p{color:var(--muted);font-size:.85rem;}
 
     .timestamp{font-size:.75rem;color:var(--muted);margin-top:24px;text-align:center;}
+    .live-indicator{display:inline-flex;align-items:center;gap:6px;font-size:.75rem;font-weight:700;color:#0F5C35;background:rgba(45,154,107,.12);padding:6px 10px;border-radius:999px;}
+    .live-indicator .dot{width:7px;height:7px;border-radius:50%;background:#2D9A6B;box-shadow:0 0 0 4px rgba(45,154,107,.18);animation:pulse 1.6s infinite;}
+    @keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.2);}100%{transform:scale(1);}}
   </style>
 </head>
 <body>
@@ -80,7 +84,8 @@
     <div class="dt-header">
       <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
       <h1><i class="fas fa-heartbeat" style="color:var(--accent);margin-right:8px;"></i> Pulse</h1>
-      <div class="header-actions">
+      <div class="header-actions" style="display:flex;align-items:center;gap:10px;">
+        <span class="live-indicator" id="liveIndicator"><span class="dot"></span> Live</span>
         <button class="btn" onclick="runPulse()"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
     </div>
@@ -98,12 +103,27 @@
     const fmt$ = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n||0);
     const daysBetween = (a,b) => Math.round((new Date(b) - new Date(a)) / 86400000);
     const today = new Date().toISOString().split('T')[0];
+    const nowYear = new Date().getFullYear();
+    const currentTaxYear = nowYear - 1;
+
+    let lastRunTs = null;
+    let liveInterval = null;
+    let tickInterval = null;
+
+    function updateTimestamp() {
+      const el = document.getElementById('timestamp');
+      if (!el) return;
+      if (!lastRunTs) { el.textContent = 'Last checked: —'; return; }
+      const secs = Math.floor((Date.now() - lastRunTs) / 1000);
+      el.textContent = `Last checked: ${new Date(lastRunTs).toLocaleString()} · ${secs}s ago`;
+    }
 
     function runPulse() {
       const deals = SP.getDeals();
       const investors = SP.getInvestors();
       const distributions = SP.getDistributions();
       const settings = SP.load('settings', {});
+      const k1Vault = SP.load('k1_vault', []);
 
       const findings = [];
 
@@ -193,24 +213,64 @@
             desc: `GP promote above 50% is unusual. Verify this is intentional.`,
             link: `deal-detail.html?id=${d.id}`, linkText: 'Review Terms' });
         }
+
+        // K-1 delivery completeness (current tax year)
+        const distsThisYear = distributions.filter(x => x.dealId === d.id && x.status === 'posted' && x.date && new Date(x.date).getFullYear() === currentTaxYear);
+        if (distsThisYear.length > 0) {
+          const hasK1 = k1Vault.some(k => k.dealId === d.id && Number(k.taxYear) === currentTaxYear);
+          if (!hasK1) {
+            findings.push({ cat: 'docs', sev: 'warning', title: `${d.name} — no K-1s for tax year ${currentTaxYear}`,
+              desc: `Distributions were posted in ${currentTaxYear}, but no K-1s are on file. Upload or generate K-1s before delivery season.`,
+              link: `k1-vault.html`, linkText: 'K-1 Vault' });
+          }
+        }
+
+        // Subscription docs in deal room
+        const docs = SP.load(`dealroom_docs_${d.id}`, []);
+        const hasSub = (docs || []).some(doc => (doc.id === 'd_sub') || (doc.name || '').toLowerCase().includes('subscription'));
+        if (invCount > 0 && !hasSub) {
+          findings.push({ cat: 'docs', sev: 'warning', title: `${d.name} — no subscription docs in deal room`,
+            desc: `This deal has investors but no subscription documents uploaded. Add them to the deal room.`,
+            link: `deal-room.html?deal=${d.id}`, linkText: 'Deal Room' });
+        }
       });
 
       // ════════════ INVESTOR CHECKS ════════════
       investors.forEach(inv => {
         const name = `${inv.firstName} ${inv.lastName}`;
 
-        // Accreditation expired
-        if (inv.accreditationExpiry) {
-          const daysLeft = daysBetween(today, inv.accreditationExpiry);
+        const accredExpiry = inv.accredExpiry || inv.accreditationExpiry;
+        const accredStatus = (inv.accredStatus || '').toLowerCase();
+        const accredDate = inv.accredDate || inv.accreditationDate;
+
+        // Accreditation status
+        if (accredStatus && accredStatus !== 'verified') {
+          findings.push({ cat: 'investors', sev: 'warning', title: `${name} — accreditation not verified`,
+            desc: `Status is "${inv.accredStatus}". Verify accreditation before accepting new capital.`,
+            link: `investor-detail.html?id=${inv.id}`, linkText: 'Review' });
+        }
+
+        // Accreditation expired/expiring
+        if (accredExpiry) {
+          const daysLeft = daysBetween(today, accredExpiry);
           if (daysLeft < 0) {
             findings.push({ cat: 'investors', sev: 'critical', title: `${name} — accreditation expired`,
-              desc: `Expired ${Math.abs(daysLeft)} days ago (${inv.accreditationExpiry}). Re-verify before accepting new capital.`,
+              desc: `Expired ${Math.abs(daysLeft)} days ago (${accredExpiry}). Re-verify before accepting new capital.`,
               link: `investor-detail.html?id=${inv.id}`, linkText: 'View Investor' });
           } else if (daysLeft <= 30) {
             findings.push({ cat: 'investors', sev: 'warning', title: `${name} — accreditation expiring in ${daysLeft} days`,
-              desc: `Expires ${inv.accreditationExpiry}. Reach out to re-verify before it lapses.`,
+              desc: `Expires ${accredExpiry}. Reach out to re-verify before it lapses.`,
               link: `investor-detail.html?id=${inv.id}`, linkText: 'View Investor' });
           }
+        } else if (accredStatus === 'verified') {
+          findings.push({ cat: 'investors', sev: 'info', title: `${name} — accreditation has no expiry date`,
+            desc: `Accreditation is marked verified but no expiry date is stored. Add an expiry to stay compliant.`,
+            link: `investor-detail.html?id=${inv.id}`, linkText: 'Update' });
+        }
+        if (accredStatus && !accredDate) {
+          findings.push({ cat: 'investors', sev: 'info', title: `${name} — accreditation date missing`,
+            desc: `Accreditation status is set but the verification date is missing. Add it for audit trail.`,
+            link: `investor-detail.html?id=${inv.id}`, linkText: 'Update' });
         }
 
         // No email
@@ -237,6 +297,25 @@
               link: `deal-detail.html?id=${d.id}`, linkText: 'Fix Commitment' });
           }
         });
+
+        // TIN validation
+        if (inv.tin && window.SPValidate) {
+          const tin = SPValidate.tin(inv.tin);
+          if (!tin.valid) {
+            findings.push({ cat: 'investors', sev: 'warning', title: `${name} — invalid TIN on file`,
+              desc: `TIN failed validation: ${tin.error}. Update the investor tax profile.`,
+              link: `investor-detail.html?id=${inv.id}`, linkText: 'Fix TIN' });
+          }
+        }
+
+        // Wire readiness (investor)
+        if ((inv.distMethod || '').toLowerCase() === 'wire') {
+          if (!inv.bankRouting || !inv.bankAccount) {
+            findings.push({ cat: 'finance', sev: 'warning', title: `${name} — wire method missing bank details`,
+              desc: `Distribution method is set to Wire but routing/account number is missing.`,
+              link: `investor-detail.html?id=${inv.id}`, linkText: 'Add Banking' });
+          }
+        }
       });
 
       // Duplicate emails
@@ -248,6 +327,7 @@
           emailMap[e].push(`${inv.firstName} ${inv.lastName}`);
         }
       });
+
       Object.entries(emailMap).forEach(([email, names]) => {
         if (names.length > 1) {
           findings.push({ cat: 'investors', sev: 'warning', title: `Duplicate email: ${email}`,
@@ -295,8 +375,64 @@
           link: 'settings.html', linkText: 'Settings' });
       }
 
+      // EIN validation
+      if (settings.firmEIN && window.SPValidate) {
+        const ein = SPValidate.ein(settings.firmEIN);
+        if (!ein.valid) {
+          findings.push({ cat: 'setup', sev: 'warning', title: 'Firm EIN looks invalid',
+            desc: `EIN validation failed: ${ein.error}. Update the firm EIN in settings.`,
+            link: 'settings.html#firmEIN', linkText: 'Fix EIN' });
+        }
+      }
+
+      // Email configuration check
+      if (!settings.firmEmail) {
+        findings.push({ cat: 'setup', sev: 'warning', title: 'Firm email not set',
+          desc: 'Investor communications and templates rely on a firm email. Add it in Settings.',
+          link: 'settings.html', linkText: 'Add Email' });
+      } else if (settings.firmEmail.includes('demo') || settings.firmEmail.includes('example.com') || settings.firmEmail.includes('test')) {
+        findings.push({ cat: 'setup', sev: 'info', title: 'Firm email looks like a placeholder',
+          desc: `Current firm email is ${settings.firmEmail}. Replace with your real sending address.`,
+          link: 'settings.html', linkText: 'Update Email' });
+      }
+
+      // GP wire settings
+      const missingWire = [];
+      if (!settings.wireBankName) missingWire.push('bank name');
+      if (!settings.wireAcctName) missingWire.push('account name');
+      if (!settings.wireAcctNum) missingWire.push('account number');
+      if (!settings.wireRouting) missingWire.push('routing number');
+      if (missingWire.length > 0) {
+        findings.push({ cat: 'finance', sev: 'warning', title: 'Wire instructions incomplete',
+          desc: `Missing ${missingWire.join(', ')} in Settings. Investors won’t receive complete wire instructions.`,
+          link: 'settings.html#wire', linkText: 'Complete Wire Info' });
+      } else if (settings.wireRouting && window.SPValidate) {
+        const rt = SPValidate.routing(settings.wireRouting);
+        if (!rt.valid) {
+          findings.push({ cat: 'finance', sev: 'warning', title: 'Wire routing number failed validation',
+            desc: `Routing checksum failed: ${rt.error}. Verify the routing number in Settings.`,
+            link: 'settings.html#wire', linkText: 'Fix Routing' });
+        }
+      }
+
+      // Billing / subscription
+      if (window.SPBilling && SPBilling.isExpired && SPBilling.isExpired()) {
+        findings.push({ cat: 'setup', sev: 'critical', title: 'Billing expired — account locked',
+          desc: 'Subscription is expired. Upgrade to regain full access.',
+          link: 'settings.html#billing', linkText: 'Upgrade' });
+      } else if (window.SPBilling && SPBilling.isTrial && SPBilling.isTrial()) {
+        const daysLeft = SPBilling.trialDaysLeft ? SPBilling.trialDaysLeft() : null;
+        if (daysLeft !== null && daysLeft <= 7) {
+          findings.push({ cat: 'setup', sev: 'warning', title: `Trial ending in ${daysLeft} day${daysLeft===1?'':'s'}`,
+            desc: 'Add billing details to avoid service interruption at trial end.',
+            link: 'settings.html#billing', linkText: 'Add Billing' });
+        }
+      }
+
       // ════════════ RENDER ════════════
       renderPulse(findings);
+      lastRunTs = Date.now();
+      updateTimestamp();
     }
 
     function renderPulse(findings) {
@@ -372,10 +508,14 @@
       });
 
       document.getElementById('pulseBody').innerHTML = html;
-      document.getElementById('timestamp').textContent = `Last checked: ${new Date().toLocaleString()}`;
+      updateTimestamp();
     }
 
-    SP.onDataReady(runPulse);
+    SP.onDataReady(() => {
+      runPulse();
+      if (!liveInterval) liveInterval = setInterval(runPulse, 30000);
+      if (!tickInterval) tickInterval = setInterval(updateTimestamp, 1000);
+    });
   </script>
 </body>
 </html>
