@@ -1672,9 +1672,16 @@ window.SP = (function () {
         // ── Documents ────────────────────────────────────────────
         { id:'docs', title:'DOCUMENTS', items:[
           { href:'documents.html',   icon:'fa-file-contract',  label:'Documents' },
-          { href:'k1-vault.html',    icon:'fa-vault',               label:'K-1 Vault' },
-          { href:'k1-generator.html',icon:'fa-calculator',          label:'K-1 Estimator' },
+          { href:'k1-vault.html',    icon:'fa-vault',          label:'K-1 Vault' },
+          { href:'k1-generator.html',icon:'fa-calculator',     label:'K-1 Estimator' },
           { href:'om-builder.html',  icon:'fa-file-pdf',       label:'OM Builder' },
+        ]},
+        // ── Compliance ───────────────────────────────────────────
+        { id:'compliance', title:'COMPLIANCE', items:[
+          { href:'kyc.html',            icon:'fa-shield-alt',    label:'KYC / AML' },
+          { href:'accreditation.html',  icon:'fa-certificate',   label:'Accreditation' },
+          { href:'compliance-hub.html', icon:'fa-balance-scale', label:'Compliance Hub' },
+          { href:'pulse.html',          icon:'fa-heartbeat',     label:'Pulse' },
         ]},
         // ── Tools ────────────────────────────────────────────────
         { id:'tools', title:'TOOLS', items:[
@@ -1702,6 +1709,9 @@ window.SP = (function () {
         'new-deal.html':'deals',
         // Investors section
         'investor-detail.html':'investors', 'investor-portal.html':'investors',
+        // Compliance section
+        'accreditation.html':'compliance', 'compliance-hub.html':'compliance',
+        'compliance-hud.html':'compliance', 'compliance-calendar.html':'compliance',
         // Finance section
         'distribution-calc.html':'finance', 'capital-call-calc.html':'finance',
         'capital-account-statement.html':'finance', 'distribution-reconciliation.html':'finance',
