@@ -14,6 +14,7 @@
   <script src="js/sp-core.js?v9"></script>
   <script src="js/sp-data.js?v9"></script>
   <script src="js/sp-firebase.js?v9"></script>
+  <script src="js/sp-validate.js?v1"></script>
   <script src="js/sp-billing.js"></script>
   <style>
     :root{--accent:#F37925;--accent-hover:#D96515;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--info:#3B82F6;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
@@ -209,9 +210,17 @@
       const compId = document.getElementById('companyId').value.replace(/\D/g, '');
       const bankName = document.getElementById('bankName').value.trim();
 
-      if (!routing || routing.length !== 9) { alert('Enter a valid 9-digit routing number.'); return; }
-      if (!account) { alert('Enter your bank account number.'); return; }
       if (!compName) { alert('Enter your company name.'); return; }
+      // Validate financial fields
+      if (window.SPValidate) {
+        const rCheck = SPValidate.routing(routing);
+        if (!rCheck.valid) { alert(rCheck.error); document.getElementById('bankRouting').focus(); return; }
+        const aCheck = SPValidate.accountNumber(account);
+        if (!aCheck.valid) { alert(aCheck.error); document.getElementById('bankAccount').focus(); return; }
+      } else {
+        if (!routing || routing.length !== 9) { alert('Enter a valid 9-digit routing number.'); return; }
+        if (!account) { alert('Enter your bank account number.'); return; }
+      }
 
       // Save bank info to settings for next time
       const settings = SP.load('settings', {});
@@ -410,7 +419,14 @@ For questions: admin@deeltrack.com
       URL.revokeObjectURL(url);
     }
 
-    SP.onDataReady(init);
+    SP.onDataReady(() => {
+      init();
+      if (window.SPValidate) {
+        SPValidate.bind('#bankRouting', 'routing');
+        SPValidate.bind('#bankAccount', 'accountNumber');
+        SPValidate.bind('#companyId', 'ein');
+      }
+    });
   </script>
 </body>
 </html>

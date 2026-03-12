@@ -16,6 +16,7 @@
   <script src="js/sp-core.js?v9"></script>
   <script src="js/sp-data.js?v9"></script>
   <script src="js/sp-firebase.js?v9"></script>
+  <script src="js/sp-validate.js?v1"></script>
   <script src="js/sp-billing.js?v3"></script>
   <style>
     :root {
@@ -590,6 +591,20 @@ function saveAll() {
     wireMemo: v('wireMemo'),
   };
 
+  // Validate financial fields
+  if (window.SPValidate) {
+    const ok = SPValidate.validateAll([
+      { el: '#firmEIN', type: 'ein' },
+      { el: '#firmEmail', type: 'email' },
+      { el: '#firmPhone', type: 'phone' },
+      { el: '#gpEmail', type: 'email' },
+      { el: '#gpPhone', type: 'phone' },
+      { el: '#wireRouting', type: 'routing' },
+      { el: '#wireAcctNum', type: 'accountNumber' },
+    ]);
+    if (!ok) { showToast('Please fix the highlighted fields.', 'error'); return; }
+  }
+
   // Validate required fields
   if (!settings.firmName) {
     showToast('Firm Legal Name is required.', 'error');
@@ -628,7 +643,19 @@ function v(id) {
   return el ? el.value.trim() : '';
 }
 
-SP.onDataReady(loadSettings);
+SP.onDataReady(() => {
+  loadSettings();
+  // Bind validation to financial fields
+  if (window.SPValidate) {
+    SPValidate.bind('#firmEIN', 'ein');
+    SPValidate.bind('#firmEmail', 'email');
+    SPValidate.bind('#firmPhone', 'phone');
+    SPValidate.bind('#gpEmail', 'email');
+    SPValidate.bind('#gpPhone', 'phone');
+    SPValidate.bind('#wireRouting', 'routing');
+    SPValidate.bind('#wireAcctNum', 'accountNumber');
+  }
+});
 
 // ── Team Management ─────────────────────────────────────────────────────────
 function showInviteModal() {

@@ -16,6 +16,7 @@
   <script src="js/sp-core.js?v9"></script>
   <script src="js/sp-data.js?v9"></script>
   <script src="js/sp-firebase.js?v9"></script>
+  <script src="js/sp-validate.js?v1"></script>
   <script src="js/sp-billing.js"></script>
   <style>
     :root {
@@ -363,7 +364,12 @@ function init() {
   if (urlDeal) { sel.value = urlDeal; onDealChange(); }
 }
 
-SP.onDataReady(init);
+SP.onDataReady(() => {
+  init();
+  if (window.SPValidate) {
+    SPValidate.bind('#partnershipEIN', 'ein');
+  }
+});
 
 function onDealChange() {
   const id = document.getElementById('dealSelect').value;

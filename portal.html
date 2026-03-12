@@ -18,6 +18,7 @@
   <script src="js/sp-core.js?v9"></script>
   <script src="js/sp-data.js?v9"></script>
   <script src="js/sp-firebase.js?v9"></script>
+  <script src="js/sp-validate.js?v1"></script>
   <script src="js/sp-multi-org.js"></script>
   <style>
     :root {
@@ -626,6 +627,17 @@ function exportDistCSV() {
 function saveProfile() {
   const inv = SP.getCurrentInvestorRecord();
   if (!inv) return;
+  // Validate before saving
+  if (window.SPValidate) {
+    const ok = SPValidate.validateAll([
+      { el: '#profTin', type: 'tin' },
+      { el: '#profRouting', type: 'routing' },
+      { el: '#profAcctNum', type: 'accountNumber' },
+      { el: '#profPhone', type: 'phone' },
+      { el: '#profEmail', type: 'email' },
+    ]);
+    if (!ok) return;
+  }
   const investors = SP.getInvestors();
   const idx = investors.findIndex(i => i.id === inv.id);
   if (idx < 0) return;
@@ -1211,6 +1223,15 @@ function _toggleEntityName() {
 document.addEventListener('DOMContentLoaded', () => {
   const sel = document.getElementById('profEntityType');
   if (sel) sel.addEventListener('change', _toggleEntityName);
+
+  // ── Validation bindings ──────────────────────────────────────────────
+  if (window.SPValidate) {
+    SPValidate.bind('#profTin', 'tin');
+    SPValidate.bind('#profRouting', 'routing');
+    SPValidate.bind('#profAcctNum', 'accountNumber');
+    SPValidate.bind('#profPhone', 'phone');
+    SPValidate.bind('#profEmail', 'email');
+  }
 });
 
 // ── Multi-org support: after primary data loads, also load from other GPs ──
