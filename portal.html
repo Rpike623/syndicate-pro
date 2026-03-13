@@ -127,7 +127,10 @@
   <nav class="portal-nav">
     <a href="#" class="active" onclick="showPage('dashboard',this)">Dashboard</a>
     <a href="#" onclick="showPage('investments',this)">My Investments</a>
+    <a href="#" onclick="showPage('capitalcalls',this)">Capital Calls</a>
     <a href="#" onclick="showPage('distributions',this)">Distributions</a>
+    <a href="#" onclick="showPage('capitalaccount',this)">Capital Account</a>
+    <a href="#" onclick="showPage('tax',this)">Tax Center</a>
     <a href="#" onclick="showPage('documents',this)">Documents</a>
     <a href="#" onclick="showPage('profile',this)">Profile</a>
   </nav>
@@ -455,15 +458,66 @@
     </div>
   </div>
 
+  <!-- Capital Calls -->
+  <div class="portal-page" id="page-capitalcalls">
+    <h2 style="margin-bottom:8px;font-size:1.25rem;"><i class="fas fa-hand-holding-usd" style="color:var(--accent);margin-right:8px;"></i>Capital Calls</h2>
+    <p style="color:var(--text-secondary);font-size:.875rem;margin-bottom:20px;">Outstanding and completed capital calls for your investments</p>
+    <div id="ccKpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+      <div class="kpi-card"><span class="kpi-label">Total Called</span><span class="kpi-value" id="ccTotalCalled">$0</span></div>
+      <div class="kpi-card"><span class="kpi-label">Funded</span><span class="kpi-value green" id="ccFunded">$0</span></div>
+      <div class="kpi-card"><span class="kpi-label">Outstanding</span><span class="kpi-value" style="color:var(--warning);" id="ccOutstanding">$0</span></div>
+    </div>
+    <div class="card">
+      <div class="card-body" id="ccContent">
+        <div class="empty-state"><i class="fas fa-hand-holding-usd"></i><p>No capital calls recorded.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Capital Account -->
+  <div class="portal-page" id="page-capitalaccount">
+    <h2 style="margin-bottom:8px;font-size:1.25rem;"><i class="fas fa-balance-scale" style="color:var(--accent);margin-right:8px;"></i>Capital Account Statement</h2>
+    <p style="color:var(--text-secondary);font-size:.875rem;margin-bottom:20px;">Your running capital balance across all investments</p>
+    <div id="caContent">
+      <div class="empty-state"><i class="fas fa-balance-scale"></i><p>Loading capital account data...</p></div>
+    </div>
+  </div>
+
+  <!-- Tax Center -->
+  <div class="portal-page" id="page-tax">
+    <h2 style="margin-bottom:8px;font-size:1.25rem;"><i class="fas fa-file-invoice-dollar" style="color:var(--purple,#7C3AED);margin-right:8px;"></i>Tax Center</h2>
+    <p style="color:var(--text-secondary);font-size:.875rem;margin-bottom:20px;">K-1 documents, tax estimates, and withholding information</p>
+    <div id="taxKpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+      <div class="kpi-card"><span class="kpi-label">K-1s Available</span><span class="kpi-value" id="taxK1Count">0</span></div>
+      <div class="kpi-card"><span class="kpi-label">YTD Distributions</span><span class="kpi-value green" id="taxYtdDist">$0</span></div>
+      <div class="kpi-card"><span class="kpi-label">Est. Tax Impact</span><span class="kpi-value" style="color:var(--warning);" id="taxEstImpact">—</span></div>
+    </div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><span><i class="fas fa-file-invoice-dollar" style="color:var(--purple,#7C3AED);margin-right:8px;"></i>K-1 Documents</span></div>
+      <div class="card-body" id="taxK1List">
+        <div class="empty-state"><i class="fas fa-file-invoice-dollar"></i><p>No K-1 documents available yet.</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span><i class="fas fa-calculator" style="color:var(--accent);margin-right:8px;"></i>Tax Estimates</span></div>
+      <div class="card-body" id="taxEstimates">
+        <div style="padding:16px;background:var(--border-light);border-radius:var(--radius);font-size:.875rem;color:var(--text-secondary);">
+          <i class="fas fa-info-circle" style="color:var(--accent);margin-right:6px;"></i>
+          Tax estimates are based on your YTD distributions and standard federal rates. Consult your CPA for actual tax liability.
+        </div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <!-- Mobile bottom nav -->
 <nav class="mobile-nav">
   <a href="#" class="active" onclick="showPage('dashboard',this)"><i class="fas fa-home"></i>Home</a>
   <a href="#" onclick="showPage('investments',this)"><i class="fas fa-building"></i>Deals</a>
-  <a href="#" onclick="showPage('distributions',this)"><i class="fas fa-wallet"></i>Distributions</a>
-  <a href="#" onclick="showPage('documents',this)"><i class="fas fa-file"></i>Docs</a>
-  <a href="#" onclick="showPage('profile',this)"><i class="fas fa-user"></i>Profile</a>
+  <a href="#" onclick="showPage('capitalcalls',this)"><i class="fas fa-hand-holding-usd"></i>Calls</a>
+  <a href="#" onclick="showPage('distributions',this)"><i class="fas fa-wallet"></i>Dist</a>
+  <a href="#" onclick="showPage('profile',this)"><i class="fas fa-user"></i>More</a>
 </nav>
 
 <script>
@@ -1081,6 +1135,11 @@ function render() {
     }
   }
 
+  // ── New tabs ──
+  renderCapitalCalls(linkedEntries, session);
+  renderCapitalAccount(linkedEntries, myDists);
+  renderTaxCenter(linkedEntries, myDists);
+
   // Profile
   if (inv) {
     const v = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
@@ -1296,6 +1355,213 @@ SP.onDataReady(async function() {
     }
   }
 });
+
+// ── Capital Calls render ──────────────────────────────────────────────────
+function renderCapitalCalls(linkedEntries, session) {
+  const ccContent = document.getElementById('ccContent');
+  if (!ccContent) return;
+
+  // Get capital calls from SP
+  const allCalls = typeof SP.getCapitalCalls === 'function' ? SP.getCapitalCalls() : [];
+  const dealIds = linkedEntries.map(({deal}) => deal.id);
+
+  // Filter to LP's deals
+  const myCalls = allCalls.filter(cc => dealIds.includes(cc.dealId));
+
+  // Calculate pro-rata amounts for each call
+  const myCallDetails = myCalls.map(cc => {
+    const entry = linkedEntries.find(({deal}) => deal.id === cc.dealId);
+    const ownership = entry?.entry?.ownership || 0;
+    const proRata = (cc.amount || 0) * (ownership / 100);
+    const status = cc.status || 'sent';
+    return { ...cc, proRata, ownership, dealName: entry?.deal?.name || cc.dealName || 'Unknown', status };
+  });
+
+  const totalCalled = myCallDetails.reduce((s, c) => s + c.proRata, 0);
+  const funded = myCallDetails.filter(c => c.status === 'received').reduce((s, c) => s + c.proRata, 0);
+  const outstanding = totalCalled - funded;
+
+  document.getElementById('ccTotalCalled').textContent = fmtFull$(Math.round(totalCalled));
+  document.getElementById('ccFunded').textContent = fmtFull$(Math.round(funded));
+  document.getElementById('ccOutstanding').textContent = fmtFull$(Math.round(outstanding));
+
+  if (myCallDetails.length === 0) {
+    ccContent.innerHTML = '<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><p>No capital calls for your investments yet.</p></div>';
+    return;
+  }
+
+  const statusBadge = (s) => {
+    const map = { received: ['Funded','background:rgba(45,154,107,.12);color:#1A7A50;'], sent: ['Pending','background:rgba(232,137,10,.12);color:#B06D08;'], overdue: ['Overdue','background:rgba(217,79,61,.12);color:#A13B2C;'] };
+    const [label, style] = map[s] || map.sent;
+    return `<span class="status-badge" style="${style}">${label}</span>`;
+  };
+
+  ccContent.innerHTML = myCallDetails.map(cc => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border-light);">
+      <div>
+        <div style="font-weight:600;">${cc.dealName}</div>
+        <div style="font-size:.78rem;color:var(--text-muted);">Call #${cc.callNumber || 'Initial'} · Due: ${cc.dueDate || '—'} · ${cc.ownership.toFixed(1)}% pro-rata</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1rem;">${fmtFull$(Math.round(cc.proRata))}</div>
+        ${statusBadge(cc.status)}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Capital Account render ────────────────────────────────────────────────
+function renderCapitalAccount(linkedEntries, myDists) {
+  const caContent = document.getElementById('caContent');
+  if (!caContent) return;
+
+  if (linkedEntries.length === 0) {
+    caContent.innerHTML = '<div class="empty-state"><i class="fas fa-balance-scale"></i><p>No investments to display.</p></div>';
+    return;
+  }
+
+  caContent.innerHTML = linkedEntries.map(({deal, entry}) => {
+    const contributed = entry.committed || 0;
+    const dealDists = myDists.filter(({dist}) => dist.dealId === deal.id);
+    const totalDistributed = dealDists.reduce((s, {r}) => s + (r.amount || r.totalThisDist || 0), 0);
+    const prefAccrued = dealDists.reduce((s, {r}) => s + (r.prefPaidThisDist || r.prefPaidToDate || 0), 0);
+    const unreturned = Math.max(0, contributed - totalDistributed);
+    const multiple = contributed > 0 ? (totalDistributed / contributed) : 0;
+    const tvpi = multiple.toFixed(2) + 'x';
+
+    // Build transaction ledger
+    const ledger = [];
+    ledger.push({ date: deal.closeDate || deal.added || '—', desc: 'Initial Contribution', amount: contributed, type: 'contribution' });
+    dealDists.forEach(({dist, r}) => {
+      const amt = r.amount || r.totalThisDist || 0;
+      ledger.push({ date: dist.date || '—', desc: `Distribution — ${_distPeriod(dist)}`, amount: -amt, type: 'distribution' });
+    });
+
+    return `<div class="card" style="margin-bottom:16px;">
+      <div class="card-header">
+        <div>
+          <div style="font-weight:700;">${deal.name}</div>
+          <div style="font-size:.78rem;color:var(--text-muted);font-weight:400;">${deal.location||''} · ${entry.ownership ? entry.ownership.toFixed(2)+'%' : '—'} ownership</div>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.1rem;">${tvpi} TVPI</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:16px;">
+          <div>
+            <div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Contributed</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-weight:700;">${fmtFull$(contributed)}</div>
+          </div>
+          <div>
+            <div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Distributed</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--success);">${fmtFull$(totalDistributed)}</div>
+          </div>
+          <div>
+            <div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Pref Received</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--warning);">${fmtFull$(prefAccrued)}</div>
+          </div>
+          <div>
+            <div style="font-size:.72rem;color:var(--text-muted);text-transform:uppercase;font-weight:700;margin-bottom:4px;">Unreturned Capital</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-weight:700;">${fmtFull$(unreturned)}</div>
+          </div>
+        </div>
+        <div style="font-size:.78rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;text-transform:uppercase;">Transaction Ledger</div>
+        <table style="width:100%;font-size:.82rem;">
+          <thead><tr style="background:var(--border-light);"><th style="padding:8px 12px;text-align:left;font-weight:600;">Date</th><th style="padding:8px 12px;text-align:left;font-weight:600;">Description</th><th style="padding:8px 12px;text-align:right;font-weight:600;">Amount</th><th style="padding:8px 12px;text-align:right;font-weight:600;">Balance</th></tr></thead>
+          <tbody>${(() => {
+            let balance = 0;
+            return ledger.map(tx => {
+              balance += tx.amount;
+              const color = tx.type === 'distribution' ? 'color:var(--success);' : '';
+              return `<tr><td style="padding:8px 12px;">${tx.date}</td><td style="padding:8px 12px;">${tx.desc}</td><td style="padding:8px 12px;text-align:right;font-family:'JetBrains Mono',monospace;${color}">${tx.amount < 0 ? '-' : ''}${fmtFull$(Math.abs(tx.amount))}</td><td style="padding:8px 12px;text-align:right;font-family:'JetBrains Mono',monospace;">${fmtFull$(balance)}</td></tr>`;
+            }).join('');
+          })()}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Tax Center render ─────────────────────────────────────────────────────
+function renderTaxCenter(linkedEntries, myDists) {
+  const k1List = document.getElementById('taxK1List');
+  const estimatesEl = document.getElementById('taxEstimates');
+  if (!k1List) return;
+
+  // K-1s from vault
+  const k1s = typeof SP.load === 'function' ? (SP.load('k1_vault', []) || []) : [];
+  const session = SP.getSession();
+  const myK1s = k1s.filter(k =>
+    k.investorEmail?.toLowerCase() === session?.email?.toLowerCase() ||
+    k.investorName?.toLowerCase() === session?.name?.toLowerCase()
+  );
+
+  document.getElementById('taxK1Count').textContent = myK1s.length;
+
+  // YTD distributions
+  const currentYear = new Date().getFullYear();
+  const ytdTotal = myDists.reduce((s, {dist, r}) => {
+    const yr = dist.year || (dist.date ? new Date(dist.date + 'T00:00:00').getFullYear() : 0);
+    return s + (yr === currentYear ? (r.amount || r.totalThisDist || 0) : 0);
+  }, 0);
+  document.getElementById('taxYtdDist').textContent = fmtFull$(ytdTotal);
+
+  // Estimated tax impact (simplified — ordinary income rate on distributions)
+  const estRate = 0.24; // 24% marginal rate assumption
+  const estTax = ytdTotal * estRate;
+  document.getElementById('taxEstImpact').textContent = ytdTotal > 0 ? '~' + fmtFull$(Math.round(estTax)) : '—';
+
+  // K-1 list
+  if (myK1s.length > 0) {
+    k1List.innerHTML = myK1s.map(k1 => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border-light);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;background:rgba(124,58,237,.12);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--purple,#7C3AED);flex-shrink:0;"><i class="fas fa-file-invoice-dollar"></i></div>
+          <div>
+            <div style="font-weight:600;font-size:.875rem;">${k1.dealName || 'K-1'} — TY ${k1.taxYear || k1.year || '—'}</div>
+            <div style="font-size:.75rem;color:var(--text-muted);">Sent ${k1.sentAt ? new Date(k1.sentAt).toLocaleDateString() : '—'} · ${k1.status === 'sent' ? '✅ Delivered' : '⏳ Pending'}</div>
+          </div>
+        </div>
+        <a href="#" class="btn btn-secondary" style="padding:6px 12px;font-size:.78rem;"><i class="fas fa-download"></i> Download</a>
+      </div>
+    `).join('');
+  } else {
+    k1List.innerHTML = '<div class="empty-state"><i class="fas fa-file-invoice-dollar"></i><p>No K-1 documents available yet. Your GP will upload them here after filing.</p></div>';
+  }
+
+  // Tax estimates breakdown
+  if (ytdTotal > 0 && estimatesEl) {
+    const totalInvested = linkedEntries.reduce((s, {entry}) => s + (entry.committed||0), 0);
+    estimatesEl.innerHTML = `
+      <div style="padding:16px;background:var(--border-light);border-radius:var(--radius);font-size:.875rem;color:var(--text-secondary);margin-bottom:16px;">
+        <i class="fas fa-info-circle" style="color:var(--accent);margin-right:6px;"></i>
+        These are rough estimates based on ${currentYear} YTD distributions. Actual K-1 allocations (including depreciation, interest, and other deductions) will differ. Consult your CPA.
+      </div>
+      <table style="width:100%;font-size:.875rem;">
+        <tr style="border-bottom:1px solid var(--border-light);">
+          <td style="padding:10px 0;color:var(--text-secondary);">YTD Gross Distributions</td>
+          <td style="padding:10px 0;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;">${fmtFull$(ytdTotal)}</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border-light);">
+          <td style="padding:10px 0;color:var(--text-secondary);">Estimated Ordinary Income (before K-1 adjustments)</td>
+          <td style="padding:10px 0;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600;">${fmtFull$(ytdTotal)}</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border-light);">
+          <td style="padding:10px 0;color:var(--text-secondary);">Est. Depreciation Offset (typical for multifamily)</td>
+          <td style="padding:10px 0;text-align:right;font-family:'JetBrains Mono',monospace;color:var(--success);">-${fmtFull$(Math.round(ytdTotal * 0.4))}</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border-light);">
+          <td style="padding:10px 0;color:var(--text-secondary);">Est. Taxable Income</td>
+          <td style="padding:10px 0;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;">${fmtFull$(Math.round(ytdTotal * 0.6))}</td>
+        </tr>
+        <tr>
+          <td style="padding:10px 0;font-weight:700;color:var(--text);">Est. Federal Tax (24% marginal rate)</td>
+          <td style="padding:10px 0;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--warning);">~${fmtFull$(Math.round(ytdTotal * 0.6 * estRate))}</td>
+        </tr>
+      </table>
+      <div style="margin-top:12px;font-size:.75rem;color:var(--text-muted);">* Depreciation offset assumes ~40% of distributions are sheltered by depreciation (common for value-add multifamily). Actual amounts depend on your K-1 allocation.</div>
+    `;
+  }
+}
 </script>
 </body>
 </html>
