@@ -188,5 +188,12 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow write: if false; // Cloud Functions only
     }
+
+    // ── Landing page leads (demo requests + email captures) ─────────────────
+    match /leads/{leadId} {
+      allow read: if false;                        // Admin only — read via Console/Functions
+      allow create: if true;                       // Anonymous create allowed (landing page forms)
+      allow update, delete: if false;              // Immutable once written
+    }
   }
 }

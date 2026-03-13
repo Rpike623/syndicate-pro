@@ -212,7 +212,7 @@
         <a href="#how-it-works">How It Works</a>
         <a href="#portal">Investor Portal</a>
         <a href="#pricing">Pricing</a>
-        <a href="portal.html">Investor Login</a>
+        <a href="#book-demo">Book a Demo</a>
         <a href="login.html">GP Login</a>
         <a href="signup.html" class="btn btn-primary">Get Started <i class="fas fa-arrow-right" style="font-size:11px;"></i></a>
       </div>
@@ -226,19 +226,19 @@
     <a href="#how-it-works" onclick="document.getElementById('mobileMenu').classList.remove('open')">How It Works</a>
     <a href="#portal" onclick="document.getElementById('mobileMenu').classList.remove('open')">Investor Portal</a>
     <a href="#pricing" onclick="document.getElementById('mobileMenu').classList.remove('open')">Pricing</a>
-    <a href="portal.html">Investor Login</a>
+    <a href="#book-demo" onclick="document.getElementById('mobileMenu').classList.remove('open')">Book a Demo</a>
     <a href="login.html">GP Login</a>
     <a href="signup.html" class="btn btn-primary">Get Started</a>
   </div>
 
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-badge">Flat-rate investor management</div>
+    <div class="hero-badge">Built by a CPA who works with syndicators</div>
     <h1>Run every syndication from one platform — <em>without AUM fees.</em></h1>
-    <p>Manage your investors, generate documents, calculate waterfalls, send capital calls, distribute K-1s through a secure vault, and deliver a branded investor portal — all in one place. Predictable pricing, no hidden fees.</p>
+    <p>Manage your investors, generate documents, calculate waterfalls, send capital calls, distribute K-1s through a secure vault, and deliver a branded investor portal — all in one place. Built by someone who's done the back-office work. Priced so you can actually use it.</p>
     <div class="hero-buttons">
       <a href="signup.html" class="btn btn-primary btn-lg">Start Free — 3 Months On Us</a>
-      <a href="#pricing" class="btn btn-outline btn-lg smooth-scroll">See Pricing</a>
+      <a href="#book-demo" class="btn btn-outline btn-lg smooth-scroll">Book a Demo</a>
     </div>
   </section>
 
@@ -452,7 +452,7 @@
           <li><i class="fas fa-check"></i> Waterfall calculations</li>
           <li><i class="fas fa-check"></i> Distribution engine</li>
           <li><i class="fas fa-check"></i> Capital call notices</li>
-          <li><i class="fas fa-check"></i> Secure K-1 vault K-1 generation &amp; vaultamp; distribution</li>
+          <li><i class="fas fa-check"></i> Secure K-1 vault &amp; distribution</li>
           <li><i class="fas fa-check"></i> OM builder</li>
           <li><i class="fas fa-check"></i> Investor portal</li>
           <li><i class="fas fa-check"></i> QuickBooks export</li>
@@ -508,6 +508,91 @@
     </div>
   </section>
 
+  <!-- Built By Section -->
+  <section class="section" id="built-by" style="background:var(--surface);border-top:1px solid var(--border);">
+    <div style="max-width:800px;margin:0 auto;">
+      <div class="section-tag" style="text-align:center;">Why We Built This</div>
+      <h2 style="font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;text-align:center;margin-bottom:32px;color:var(--text);">Built by a CPA who got tired of spreadsheets.</h2>
+      <div style="font-size:1.05rem;color:var(--text-secondary);line-height:1.8;max-width:680px;margin:0 auto;">
+        <p style="margin-bottom:20px;">Deeltrack was built by a CPA who works directly with real estate syndicators — preparing K-1s, reviewing waterfall structures, reconciling capital accounts, and fielding investor questions at 11 PM on a Friday.</p>
+        <p style="margin-bottom:20px;">The existing tools were either priced for institutional funds ($2K+/month with AUM fees), cobbled together from spreadsheets and DocuSign, or built by engineers who'd never touched a partnership tax return.</p>
+        <p style="margin-bottom:20px;">So we built the platform we wished existed: one that <strong>actually understands pref structures</strong>, generates documents a CPA would sign off on, handles K-1 distribution without a 45-minute email chain, and costs <strong>$49/deal/month</strong> — whether that deal is $500K or $50M.</p>
+        <p>This isn't a venture-backed startup chasing enterprise contracts. It's a tool built by someone who does the work, for the people who do the deals.</p>
+      </div>
+      <div style="display:flex;justify-content:center;gap:40px;margin-top:48px;flex-wrap:wrap;">
+        <div style="text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:var(--accent);">CPA</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Built by</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:var(--text);">$49</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Per deal / month</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:var(--text);">$0</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">AUM fees</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:var(--text);">3 mo</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Free trial</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Book a Demo -->
+  <section class="section" id="book-demo">
+    <div style="max-width:600px;margin:0 auto;text-align:center;">
+      <div class="section-tag">See It Live</div>
+      <h2 style="font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:16px;color:var(--text);">Book a 15-minute demo</h2>
+      <p style="font-size:1.05rem;color:var(--text-secondary);line-height:1.7;margin-bottom:36px;">We'll walk you through your specific deal structure — pref splits, investor onboarding, K-1 distribution — using your actual numbers. No sales pitch.</p>
+      <form id="demoForm" style="text-align:left;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Your Name</label>
+            <input type="text" id="demoName" placeholder="e.g., Sarah Chen" required style="width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.9rem;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Email</label>
+            <input type="email" id="demoEmail" placeholder="sarah@example.com" required style="width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.9rem;">
+          </div>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">How many active deals?</label>
+          <select id="demoDeals" style="width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.9rem;background:#fff;">
+            <option value="1-3">1–3 deals</option>
+            <option value="4-10">4–10 deals</option>
+            <option value="10+">10+ deals</option>
+            <option value="just-starting">Just getting started</option>
+          </select>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Anything specific you want to see?</label>
+          <textarea id="demoNotes" rows="2" placeholder="e.g., waterfall splits for an 8% pref deal, K-1 distribution flow, LP portal..." style="width:100%;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.9rem;resize:vertical;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">Request Demo <i class="fas fa-arrow-right" style="font-size:12px;"></i></button>
+        <div id="demoSuccess" style="display:none;margin-top:16px;padding:16px;background:rgba(45,154,107,0.08);border:1px solid rgba(45,154,107,0.2);border-radius:8px;text-align:center;color:#1A7A50;font-weight:600;">
+          <i class="fas fa-check-circle"></i> Demo request sent! We'll reach out within 24 hours.
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Email Capture / Stay in the Loop -->
+  <section class="section section-alt" id="stay-updated" style="padding:60px 24px;">
+    <div style="max-width:560px;margin:0 auto;text-align:center;">
+      <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:8px;color:var(--text);">Not ready yet? Stay in the loop.</h3>
+      <p style="font-size:0.95rem;color:var(--text-secondary);margin-bottom:24px;line-height:1.6;">We'll send you product updates and syndication tips. No spam — we're too busy building features.</p>
+      <form id="emailCapture" style="display:flex;gap:10px;max-width:440px;margin:0 auto;">
+        <input type="email" id="captureEmail" placeholder="you@example.com" required style="flex:1;padding:12px 16px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.9rem;">
+        <button type="submit" class="btn btn-primary" style="flex-shrink:0;">Subscribe</button>
+      </form>
+      <div id="captureSuccess" style="display:none;margin-top:12px;color:#1A7A50;font-size:0.875rem;font-weight:600;">
+        <i class="fas fa-check-circle"></i> You're in! We'll keep you posted.
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="cta">
     <h2>Everything you need to run your syndication — in one platform.</h2>
@@ -530,6 +615,9 @@
     </div>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script>
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(a => {
@@ -547,6 +635,54 @@
         nav.style.boxShadow = '0 1px 12px rgba(0,0,0,0.06)';
       } else {
         nav.style.boxShadow = 'none';
+      }
+    });
+
+    // Demo form → Firestore leads collection
+    document.getElementById('demoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+      try {
+        const db = firebase.firestore();
+        await db.collection('leads').add({
+          type: 'demo_request',
+          name: document.getElementById('demoName').value.trim(),
+          email: document.getElementById('demoEmail').value.trim(),
+          deals: document.getElementById('demoDeals').value,
+          notes: document.getElementById('demoNotes').value.trim(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          source: 'landing_page',
+        });
+        e.target.style.display = 'none';
+        document.getElementById('demoSuccess').style.display = 'block';
+      } catch (err) {
+        // Fallback: mailto
+        const email = document.getElementById('demoEmail').value.trim();
+        const name = document.getElementById('demoName').value.trim();
+        window.location.href = `mailto:admin@deeltrack.com?subject=Demo Request from ${encodeURIComponent(name)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\nDeals: ${document.getElementById('demoDeals').value}\nNotes: ${document.getElementById('demoNotes').value}`)}`;
+        btn.disabled = false; btn.innerHTML = 'Request Demo <i class="fas fa-arrow-right" style="font-size:12px;"></i>';
+      }
+    });
+
+    // Email capture → Firestore leads collection
+    document.getElementById('emailCapture').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type=submit]');
+      btn.disabled = true; btn.textContent = '...';
+      try {
+        const db = firebase.firestore();
+        await db.collection('leads').add({
+          type: 'email_capture',
+          email: document.getElementById('captureEmail').value.trim(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          source: 'landing_page',
+        });
+        e.target.style.display = 'none';
+        document.getElementById('captureSuccess').style.display = 'block';
+      } catch (err) {
+        // Silent fail — at least we tried
+        btn.disabled = false; btn.textContent = 'Subscribe';
       }
     });
   </script>
