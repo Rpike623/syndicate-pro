@@ -5,6 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>deeltrack | Coming Soon</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
   <script src="js/sp-core.js?v9"></script>
   <link rel="stylesheet" href="contrast-fix.css">
   <style>
@@ -32,6 +35,7 @@
       background: rgba(243,121,37,.1); color: #c85a00;
       padding: 6px 14px; border-radius: 20px; margin-bottom: 24px;
     }
+    .cs-actions { display: flex; flex-direction: column; gap: 12px; align-items: center; }
     .cs-back {
       display: inline-flex; align-items: center; gap: 8px;
       padding: 12px 24px; font-size: .95rem; font-weight: 600;
@@ -40,6 +44,30 @@
       text-decoration: none; transition: all .15s;
     }
     .cs-back:hover { background: #F7F4F0; border-color: #9C9590; }
+    .cs-request {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; font-size: .95rem; font-weight: 600;
+      border-radius: 8px; border: none;
+      background: #F37925; color: white; cursor: pointer;
+      text-decoration: none; transition: all .15s;
+      font-family: inherit;
+    }
+    .cs-request:hover { background: #D96515; }
+    .cs-request:disabled { opacity: 0.6; cursor: not-allowed; }
+    .cs-voted {
+      display: none; margin-top: 8px;
+      font-size: .85rem; color: #2D9A6B; font-weight: 600;
+    }
+    .cs-voted.show { display: block; }
+    .cs-explore { margin-top: 20px; padding-top: 20px; border-top: 1px solid #E2DDD8; }
+    .cs-explore-title { font-size: .78rem; font-weight: 600; color: #6B6560; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+    .cs-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .cs-links a {
+      font-size: .82rem; padding: 6px 14px; border-radius: 6px;
+      background: #F7F4F0; color: #3D3A37; text-decoration: none;
+      border: 1px solid #E2DDD8; transition: all .15s;
+    }
+    .cs-links a:hover { background: #EDE9E4; border-color: #F37925; color: #F37925; }
   </style>
 </head>
 <body>
@@ -50,18 +78,61 @@
         <div class="cs-icon">🚧</div>
         <div class="cs-feature" id="featureName">Coming Soon</div>
         <h1 class="cs-title">We're building this</h1>
-        <p class="cs-sub">This feature is on our roadmap and actively in development. Check back soon — or let us know if it's a priority for your workflow.</p>
-        <a class="cs-back" href="dashboard.html"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        <p class="cs-sub">This feature is on our roadmap. Vote for it so we know what to prioritize — or explore what's already live.</p>
+        <div class="cs-actions">
+          <button class="cs-request" id="voteBtn" onclick="voteForFeature()">
+            <i class="fas fa-thumbs-up"></i> I need this — prioritize it
+          </button>
+          <div class="cs-voted" id="votedMsg"><i class="fas fa-check-circle"></i> Noted! We'll bump this up.</div>
+          <a class="cs-back" href="dashboard.html"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+        </div>
+        <div class="cs-explore">
+          <div class="cs-explore-title">Explore what's live</div>
+          <div class="cs-links">
+            <a href="deals.html">Deals</a>
+            <a href="investors.html">Investors</a>
+            <a href="distributions.html">Distributions</a>
+            <a href="capital-calls.html">Capital Calls</a>
+            <a href="documents.html">Documents</a>
+            <a href="k1-vault.html">K-1 Vault</a>
+            <a href="om-builder.html">OM Builder</a>
+            <a href="kyc.html">KYC / AML</a>
+          </div>
+        </div>
       </div>
     </div>
   </main>
   <script>
-    // Extract feature name from referrer or page title
+    // Extract feature name from the referring page path
     const params = new URLSearchParams(window.location.search);
-    const feature = params.get('feature');
+    const ref = document.referrer;
+    let feature = params.get('feature');
+    if (!feature && ref) {
+      const match = ref.match(/\/([^\/]+)\.html/);
+      if (match) feature = match[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
     if (feature) {
       document.getElementById('featureName').textContent = feature;
       document.title = 'deeltrack | ' + feature + ' — Coming Soon';
+    }
+
+    async function voteForFeature() {
+      const btn = document.getElementById('voteBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+      try {
+        const db = firebase.firestore();
+        const session = (typeof SP !== 'undefined' && SP.getSession()) || {};
+        await db.collection('feature_votes').add({
+          feature: document.getElementById('featureName').textContent,
+          url: document.referrer || window.location.href,
+          user: session.email || 'anonymous',
+          org: session.orgId || '',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+      } catch (e) { /* silent — still show confirmation */ }
+      btn.style.display = 'none';
+      document.getElementById('votedMsg').classList.add('show');
     }
   </script>
 </body>
