@@ -195,5 +195,12 @@ service cloud.firestore {
       allow create: if true;                       // Anonymous create allowed (landing page forms)
       allow update, delete: if false;              // Immutable once written
     }
+
+    // ── Feature votes (coming-soon page) ────────────────────────────────────
+    match /feature_votes/{voteId} {
+      allow read: if false;                        // Admin only
+      allow create: if true;                       // Any user can vote (signed in or not)
+      allow update, delete: if false;              // Immutable
+    }
   }
 }
