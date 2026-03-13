@@ -210,7 +210,7 @@
     // Not logged in via localStorage — but Firebase Auth may auto-resolve from IndexedDB.
     // Listen for spdata-ready which fires AFTER Firebase auth + Firestore user profile load.
     let _loginAutoRedirected = false;
-    window.addEventListener('spdata-ready', () => {
+    function _tryAutoRedirect() {
       if (_loginAutoRedirected) return;
       const s = SP.getSession();
       if (s && s.loggedIn) {
@@ -218,7 +218,10 @@
         document.getElementById('successAlert')?.classList.add('show');
         setTimeout(() => _loginRedirect(s), 600);
       }
-    });
+    }
+    window.addEventListener('spdata-ready', _tryAutoRedirect);
+    // If spdata-ready already fired before we registered, check immediately
+    if (typeof SP !== 'undefined' && SP.getSession()?.loggedIn) _tryAutoRedirect();
   }
 
   function togglePw() {

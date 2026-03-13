@@ -232,6 +232,12 @@
       .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .quick-actions { grid-template-columns: repeat(2, 1fr); }
       .kpi-value { font-size: 1.4rem; }
+      /* Dashboard table: horizontal scroll + hide less important columns */
+      .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      table { min-width: 480px; }
+      th, td { padding: 10px 10px; font-size: 0.8rem; white-space: nowrap; }
+      /* Hide Type column on mobile */
+      th:nth-child(2), td:nth-child(2) { display: none; }
     }
     @media (max-width: 480px) {
       .kpi-grid { grid-template-columns: 1fr; }
