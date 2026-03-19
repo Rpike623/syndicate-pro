@@ -194,11 +194,37 @@
 
         function renderComparison() {
             const body = document.getElementById('comparisonBody');
+            const selectedId = document.getElementById('dealSelect').value;
+            const deal = SP.getDealById(selectedId) || { purchasePrice: 20000000, loanAmount: 14000000 };
+            const totalEquity = deal.purchasePrice - (deal.loanAmount || 0);
+            const gpPct = (deal.gpEquity || 10) / 100;
+            const promotePct = (deal.gpPromote || 20) / 100;
+            const prefRate = (deal.prefReturn || 8) / 100;
+            const holdYears = deal.holdPeriod || 5;
+            const fmt = n => n >= 1e6 ? '$' + (n/1e6).toFixed(2) + 'M' : '$' + (n/1e3).toFixed(0) + 'K';
+
+            const scenarios = ['bear', 'base', 'bull'];
+            const results = scenarios.map(s => {
+              const cap = parseFloat(document.getElementById(s + 'Cap').value) / 100;
+              const noi = parseFloat(document.getElementById(s + 'NOI').value);
+              const salePrice = noi / cap;
+              const netProceeds = salePrice - (deal.loanAmount || 0) - (salePrice * 0.02);
+              const profit = Math.max(0, netProceeds - totalEquity);
+              const prefOwed = totalEquity * (1 - gpPct) * prefRate * holdYears;
+              const prefPaid = Math.min(profit, prefOwed);
+              const afterPref = Math.max(0, profit - prefPaid);
+              const gpCatchup = Math.min(afterPref, prefPaid * (promotePct / (1 - promotePct)));
+              const remaining = Math.max(0, afterPref - gpCatchup);
+              const gpCarry = remaining * promotePct;
+              const lpDist = netProceeds - gpCatchup - gpCarry;
+              return { lpDist, gpCatchup, gpCarry, gpTotal: gpCatchup + gpCarry };
+            });
+
             const rows = [
-                ['LP Distribution', '$1.2M', '$1.8M', '$2.4M'],
-                ['GP Catch-up', '$80K', '$120K', '$200K'],
-                ['Carried Interest', '$120K', '$450K', '$840K'],
-                ['GP Total Profit', '$200K', '$570K', '$1.04M']
+                ['LP Distribution', ...results.map(r => fmt(r.lpDist))],
+                ['GP Catch-up', ...results.map(r => fmt(r.gpCatchup))],
+                ['Carried Interest', ...results.map(r => fmt(r.gpCarry))],
+                ['GP Total Profit', ...results.map(r => fmt(r.gpTotal))]
             ];
 
             body.innerHTML = rows.map(r => `

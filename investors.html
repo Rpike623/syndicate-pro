@@ -566,7 +566,7 @@ function renderTable(list) {
   const tbody = document.getElementById('investorTableBody');
   document.getElementById('tableInfo').textContent = `Showing ${list.length} of ${investors.length} investor${investors.length!==1?'s':''}`;
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
       <div style="width:72px;height:72px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;"><i class="fas fa-users" style="font-size:1.8rem;color:var(--accent);"></i></div>
       <h3>No investors yet</h3>
       <p style="max-width:300px;margin:8px auto 20px;line-height:1.6;">Add your first investor to start tracking commitments and accreditation.</p>
@@ -617,6 +617,7 @@ function renderTable(list) {
           </div>
         </div>
       </td>
+      <td data-label="Phone" style="font-size:.82rem;color:var(--text-secondary);white-space:nowrap;">${inv.phone||'—'}</td>
       <td data-label="Accreditation">${(accBadge[inv.accredStatus]||accBadge.pending)(inv)}</td>
       <td data-label="Invested" style="font-family:'JetBrains Mono',monospace;font-weight:700;">${fmt$(totalCommitted||inv.totalInvested||0)}</td>
       <td data-label="Deals">

@@ -97,16 +97,79 @@
             const deal = SP.getDealById(id);
             if(!deal) return;
 
-            // Mock institutional cap table
+            const settings = SP.load('settings', {});
+            const gpName = settings.firmName || settings.gpFullName || 'General Partner';
+            const gpPct = deal.gpEquity || 10;
+            const totalEquity = deal.totalEquity || deal.raise || 0;
+            const gpContrib = Math.round(totalEquity * (gpPct / 100));
+            const linked = deal.investors || [];
+            const allInvestors = SP.getInvestors();
+            const fmt$ = n => new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(n||0);
+
+            // Build table body
+            const tbody = document.getElementById('capBody');
+            let rows = `<tr>
+              <td><strong>${gpName}</strong><br><span style="font-size:.7rem;color:#6B6560;">Managing Member</span></td>
+              <td><span class="member-type type-gp">GP Equity</span></td>
+              <td style="font-family:'JetBrains Mono';">${fmt$(gpContrib)}</td>
+              <td style="text-align:right;font-weight:700;">${gpPct.toFixed(2)}%</td>
+            </tr>`;
+
+            let lpTotal = 0;
+            const chartLabels = [gpName];
+            const chartData = [gpPct];
+            const chartColors = ['#0ea5e9'];
+            const lpColors = ['#F37925','#2D9A6B','#8B5CF6','#EC4899','#06B6D4','#EAB308','#6366F1','#94a3b8'];
+
+            linked.forEach((entry, i) => {
+              const inv = allInvestors.find(x => x.id === entry.investorId);
+              const name = inv ? `${inv.firstName} ${inv.lastName}` : (entry.name || 'Investor');
+              const committed = entry.committed || 0;
+              const pct = totalEquity > 0 ? (committed / totalEquity * 100) : 0;
+              lpTotal += committed;
+              chartLabels.push(name);
+              chartData.push(parseFloat(pct.toFixed(2)));
+              chartColors.push(lpColors[i % lpColors.length]);
+
+              rows += `<tr>
+                <td><strong>${name}</strong><br><span style="font-size:.7rem;color:#6B6560;">${inv?.email || ''}</span></td>
+                <td><span class="member-type type-lp">LP</span></td>
+                <td style="font-family:'JetBrains Mono';">${fmt$(committed)}</td>
+                <td style="text-align:right;font-weight:700;">${pct.toFixed(2)}%</td>
+              </tr>`;
+            });
+
+            if (!linked.length) {
+              rows += `<tr><td colspan="4" style="text-align:center;color:#6B6560;padding:24px;">No LP investors linked to this deal</td></tr>`;
+            }
+
+            tbody.innerHTML = rows;
+
+            // Update summary stats
+            const summaryEl = document.querySelector('.card:last-child div[style*="border-top"]');
+            if (summaryEl) {
+              summaryEl.innerHTML = `
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:.8rem;">
+                  <span style="color:#6B6560;">GP / Manager Contribution:</span>
+                  <span style="font-weight:700;">${fmt$(gpContrib)}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:.8rem;">
+                  <span style="color:#6B6560;">LP / Passive Contribution:</span>
+                  <span style="font-weight:700;">${fmt$(lpTotal)}</span>
+                </div>
+              `;
+            }
+
+            // Render chart from actual data
             const ctx = document.getElementById('capChart').getContext('2d');
             if(capChart) capChart.destroy();
             capChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['GP Equity', 'Institutional LP', 'Individual LP'],
+                    labels: chartLabels,
                     datasets: [{
-                        data: [10, 45, 45],
-                        backgroundColor: ['#0ea5e9', '#0f172a', '#94a3b8'],
+                        data: chartData,
+                        backgroundColor: chartColors,
                         borderWidth: 0
                     }]
                 },

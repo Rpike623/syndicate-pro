@@ -240,7 +240,7 @@
             <div class="ts"><div class="tv">${invCount}</div><div class="tl">Investors</div></div>
             <div class="ts"><div class="tv">${d.units||d.sf||'—'}</div><div class="tl">${d.units?'Units':'Size'}</div></div>
           </div>
-          <div class="tile-docs"><i class="fas fa-file-alt"></i> ${docCount||'—'} documents</div>
+          <div class="tile-docs"><i class="fas fa-file-alt"></i> ${docCount} document${docCount!==1?'s':''}</div>
         </div>`;
       }).join('');
     }

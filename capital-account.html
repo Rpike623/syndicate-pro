@@ -225,7 +225,9 @@
         });
 
         // Pref accrued: committed * prefRate * years held - pref already paid
-        const investDate = new Date(entry.linkedAt || deal.added || deal.closeDate || now.toISOString());
+        // Use investor link date, deal close date, or deal creation date — fall back to 6 months ago for demo data
+        const fallbackDate = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000).toISOString();
+        const investDate = new Date(entry.linkedAt || entry.date || deal.added || deal.closeDate || fallbackDate);
         const yearsHeld = Math.max(0, (now - investDate) / (365.25 * 24 * 60 * 60 * 1000));
         const totalPrefOwed = committed * prefRate * yearsHeld;
         const prefAccrued = Math.max(0, totalPrefOwed - prefPaidTotal);

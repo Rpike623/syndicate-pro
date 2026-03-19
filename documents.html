@@ -430,7 +430,7 @@
               </div>
               <div class="card-body">
                 <div class="form-group" style="margin-bottom: 16px;">
-                  <select id="dealSelect" style="width: 100%;">
+                  <select id="dealSelect" style="width: 100%;" onchange="if(this.value){importDealData();setTimeout(()=>{if(typeof generatePreview==='function')generatePreview();},150);}">
                     <option value="">Select a deal...</option>
                   </select>
                 </div>

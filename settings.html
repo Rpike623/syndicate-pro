@@ -540,7 +540,12 @@ function loadSettings() {
   set('wireBankName', s.wireBankName || '');
   set('wireAcctName', s.wireAcctName || '');
   set('wireAcctNum', s.wireAcctNum || '');
-  set('wireRouting', s.wireRouting || '');
+  // Auto-fix known bad routing numbers (10-digit 0210000021 → 021000021)
+  let routingVal = s.wireRouting || '';
+  if (routingVal.replace(/\D/g,'').length === 10 && routingVal.startsWith('0')) {
+    routingVal = routingVal.replace(/\D/g,'').substring(1); // strip leading zero
+  }
+  set('wireRouting', routingVal);
   set('wireSwift', s.wireSwift || '');
   set('wireReference', s.wireReference || '');
   set('wireMemo', s.wireMemo || '');
@@ -591,18 +596,20 @@ function saveAll() {
     wireMemo: v('wireMemo'),
   };
 
-  // Validate financial fields
+  // Validate financial fields — only validate non-empty fields to avoid blocking saves
   if (window.SPValidate) {
-    const ok = SPValidate.validateAll([
-      { el: '#firmEIN', type: 'ein' },
-      { el: '#firmEmail', type: 'email' },
-      { el: '#firmPhone', type: 'phone' },
-      { el: '#gpEmail', type: 'email' },
-      { el: '#gpPhone', type: 'phone' },
-      { el: '#wireRouting', type: 'routing' },
-      { el: '#wireAcctNum', type: 'accountNumber' },
-    ]);
-    if (!ok) { showToast('Please fix the highlighted fields.', 'error'); return; }
+    const fieldsToValidate = [];
+    if (v('firmEIN')) fieldsToValidate.push({ el: '#firmEIN', type: 'ein' });
+    if (v('firmEmail')) fieldsToValidate.push({ el: '#firmEmail', type: 'email' });
+    if (v('firmPhone')) fieldsToValidate.push({ el: '#firmPhone', type: 'phone' });
+    if (v('gpEmail')) fieldsToValidate.push({ el: '#gpEmail', type: 'email' });
+    if (v('gpPhone')) fieldsToValidate.push({ el: '#gpPhone', type: 'phone' });
+    if (v('wireRouting')) fieldsToValidate.push({ el: '#wireRouting', type: 'routing' });
+    if (v('wireAcctNum')) fieldsToValidate.push({ el: '#wireAcctNum', type: 'accountNumber' });
+    if (fieldsToValidate.length) {
+      const ok = SPValidate.validateAll(fieldsToValidate);
+      if (!ok) { showToast('Please fix the highlighted fields before saving.', 'error'); return; }
+    }
   }
 
   // Validate required fields

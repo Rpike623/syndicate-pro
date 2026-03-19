@@ -773,7 +773,7 @@
                   <label class="required">Purchase Price</label>
                   <div class="input-prefix">
                     <span class="prefix">$</span>
-                    <input type="number" id="purchasePrice" placeholder="5,000,000" onchange="calculateCapital()">
+                    <input type="text" inputmode="numeric" id="purchasePrice" placeholder="5,000,000" onchange="calculateCapital()" oninput="this.value=this.value.replace(/[^\d.]/g,'')" onblur="if(this.value)this.value=parseFloat(this.value).toLocaleString('en-US');" onfocus="this.value=this.value.replace(/,/g,'');">
                   </div>
                 </div>
                 

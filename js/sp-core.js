@@ -184,17 +184,25 @@ window.SP = (function () {
 
   // ─── Auth guards ────────────────────────────────────────────────────────────
 
+  function _showAccessDenied(redirectUrl) {
+    // Show a brief access-denied toast before redirecting
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:99999;padding:14px 24px;border-radius:10px;font-size:.9rem;font-weight:600;background:#1B1A19;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:10px;font-family:Inter,sans-serif;';
+    toast.innerHTML = '<i class="fas fa-lock" style="color:#F37925;"></i> This page is for General Partners only. Redirecting to your portal…';
+    document.body.appendChild(toast);
+    setTimeout(() => { window.location.href = redirectUrl; }, 1500);
+  }
   function requireGP() {
     // If already have a local session, check immediately
     if (isLoggedIn()) {
-      if (isInvestor()) { window.location.href = 'investor-portal.html'; return false; }
+      if (isInvestor()) { _showAccessDenied('investor-portal.html'); return false; }
       return true;
     }
     // No local session — wait up to 3s for Firebase to authenticate
     const start = Date.now();
     function check() {
       if (isLoggedIn()) {
-        if (isInvestor()) { window.location.href = 'investor-portal.html'; return false; }
+        if (isInvestor()) { _showAccessDenied('investor-portal.html'); return false; }
         return true;
       }
       if (Date.now() - start > 3000) { window.location.href = 'login.html'; return false; }

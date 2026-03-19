@@ -217,7 +217,13 @@
       const dealSelect = document.getElementById('callDeal');
       const dealId = dealSelect.value;
       const dealOption = dealSelect.options[dealSelect.selectedIndex];
-      const dealName = dealOption?.dataset?.name || '[DEAL NAME]';
+      const dealName = dealOption?.dataset?.name || '';
+      // If no deal selected, show a placeholder message instead of brackets
+      if (!dealId) {
+        const previewEl = document.getElementById('previewPanel') || document.getElementById('noticePreview');
+        if (previewEl) previewEl.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-muted);"><i class="fas fa-file-alt" style="font-size:2rem;opacity:.3;display:block;margin-bottom:12px;"></i><p>Select a deal and fill in the details to preview the capital call notice</p></div>';
+        return;
+      }
       const totalEquity = parseFloat(dealOption?.dataset?.equity) || 0;
       const totalRaise  = parseFloat(dealOption?.dataset?.raise)  || 0;
       const callAmount  = parseFloat(document.getElementById('callAmount').value) || 0;

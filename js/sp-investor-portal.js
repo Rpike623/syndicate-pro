@@ -7,6 +7,11 @@ window.Portal = {
   chart: null,
 
   init: function() {
+    // Auth check — require login for LP portal
+    if (typeof SP !== 'undefined' && SP.isLoggedIn && !SP.isLoggedIn()) {
+      window.location.href = 'login.html';
+      return;
+    }
     this.investments = [
       { id: 1, name: 'Sunset Apartments', location: 'Phoenix, AZ', type: 'Multifamily', invested: 500000, currentValue: 620000, irr: 18.5, distributions: 45000, status: 'active' },
       { id: 2, name: 'Downtown Office', location: 'Austin, TX', type: 'Office', invested: 350000, currentValue: 398000, irr: 14.2, distributions: 28000, status: 'active' },
@@ -85,7 +90,7 @@ window.Portal = {
       { month: 'November 2025', date: '2025-12-15' },
       { month: 'October 2025', date: '2025-11-15' },
       { month: 'Q3 2025', date: '2025-10-15' }
-    ].map(s => `<div class="statement-item"><div><strong>${s.month}</strong><span>Generated ${new Date(s.date).toLocaleDateString()}</span></div><button class="btn btn-secondary btn-sm"><i class="fas fa-download"></i> PDF</button></div>`).join('');
+    ].map(s => `<div class="statement-item"><div><strong>${s.month} Statement</strong><span>Generated ${new Date(s.date).toLocaleDateString()}</span></div><button class="btn btn-secondary btn-sm"><i class="fas fa-download"></i> PDF</button></div>`).join('');
 
     // Profile
     document.getElementById('profName').value = this.investor.name;
