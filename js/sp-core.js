@@ -5,16 +5,11 @@
 
 // ─── Inject Google Analytics ──────────────────────────────────────────────
 (function injectGA() {
-  if (document.getElementById('dt-ga') || window.gtag) return;
+  if (document.querySelector('script[src*="js/dt-analytics.js"]')) return;
   const s = document.createElement('script');
-  s.id = 'dt-ga';
   s.async = true;
-  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-T5QKV9PQQC';
+  s.src = 'js/dt-analytics.js';
   document.head.appendChild(s);
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function(){ dataLayer.push(arguments); };
-  gtag('js', new Date());
-  gtag('config', 'G-T5QKV9PQQC');
 })();
 
 // ─── Inject Global Design System CSS immediately ──────────────────────────
@@ -1681,7 +1676,6 @@ window.SP = (function () {
           { href:'kyc.html',            icon:'fa-shield-alt',    label:'KYC / AML' },
           { href:'accreditation.html',  icon:'fa-certificate',   label:'Accreditation' },
           { href:'compliance-hub.html', icon:'fa-balance-scale', label:'Compliance Hub' },
-          { href:'pulse.html',          icon:'fa-heartbeat',     label:'Pulse' },
         ]},
         // ── Tools ────────────────────────────────────────────────
         { id:'tools', title:'TOOLS', items:[

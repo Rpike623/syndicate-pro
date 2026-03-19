@@ -64,18 +64,18 @@ window.Compliance = {
       }
     }
     
-    // Fallback to localStorage
-    const formdStored = JSON.stringify(SP.load('formd_filings', null));
-    const stateStored = JSON.stringify(SP.load('state_filings', null));
+    // Fallback to SP.load
+    const formdStored = SP.load('formd_filings', null);
+    const stateStored = SP.load('state_filings', null);
     
-    if (formdStored) {
-      this.formDFilings = JSON.parse(formdStored);
+    if (formdStored && Array.isArray(formdStored) && formdStored.length) {
+      this.formDFilings = formdStored;
     } else {
       this.formDFilings = this.generateDemoFormD();
     }
     
-    if (stateStored) {
-      this.stateFilings = JSON.parse(stateStored);
+    if (stateStored && Array.isArray(stateStored) && stateStored.length) {
+      this.stateFilings = stateStored;
     } else {
       this.stateFilings = this.generateDemoState();
     }
@@ -104,10 +104,11 @@ window.Compliance = {
   },
 
   loadInvestors: async function() {
-    this.investors = SP.getInvestors ? SP.getInvestors() : [];
-    if (!this.investors.length) {
-      this.investors = this.generateDemoInvestors();
+    let investors = SP.getInvestors ? SP.getInvestors() : [];
+    if (!investors.length && window.SPFB && SPFB.isReady && SPFB.isReady()) {
+      try { investors = await SPFB.getInvestors(); } catch(e) {}
     }
+    this.investors = investors.length ? investors : this.generateDemoInvestors();
   },
 
   generateDemoInvestors: function() {

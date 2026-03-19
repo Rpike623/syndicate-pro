@@ -206,6 +206,7 @@ const SPBilling = (function () {
       const createCheckout = firebase.functions().httpsCallable('createCheckoutSession');
       const result = await createCheckout({ plan: planId, quantity });
 
+      if (window.dtTrack) window.dtTrack('begin_checkout', { plan: planId, quantity, page_location: window.location.href });
       if (result.data?.url) {
         window.location.href = result.data.url;
       } else {
@@ -232,6 +233,7 @@ const SPBilling = (function () {
     _sub.status = 'active';
     _sub.currentPeriodEnd = new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString();
     _saveSub();
+    if (window.dtTrack) window.dtTrack('purchase', { plan: plan, page_location: window.location.href, value: plan === 'enterprise' ? 499 : 49, currency: 'USD' });
 
     // Show success banner immediately
     setTimeout(() => {

@@ -176,9 +176,17 @@
       </button>
 
       <div class="divider"><span>or</span></div>
-      <button type="button" class="fill-demo" onclick="fillDemo()" style="width:100%;padding:12px;border-radius:var(--radius);border:1px solid var(--border);background:#FFFFFF;font-family:inherit;font-size:0.9rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text);transition:all 0.15s;">
-        <i class="fas fa-play-circle" style="color:var(--accent);"></i> Try the Demo — No signup needed
-      </button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button type="button" class="fill-demo" onclick="fillDemo('gp@deeltrack.com')" style="width:100%;padding:12px;border-radius:var(--radius);border:1px solid var(--border);background:#FFFFFF;font-family:inherit;font-size:0.9rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text);transition:all 0.15s;">
+          <i class="fas fa-building" style="color:var(--accent);"></i> GP Demo
+        </button>
+        <button type="button" class="fill-demo" onclick="fillDemo('philip@jchapmancpa.com')" style="width:100%;padding:12px;border-radius:var(--radius);border:1px solid var(--border);background:#FFFFFF;font-family:inherit;font-size:0.9rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text);transition:all 0.15s;">
+          <i class="fas fa-user" style="color:var(--success);"></i> LP Demo
+        </button>
+      </div>
+      <div style="margin-top:10px;font-size:0.78rem;color:var(--text-muted);text-align:center;line-height:1.45;">
+        LP demo uses <strong>philip@jchapmancpa.com</strong> / <strong>Demo1234!</strong>
+      </div>
       <div class="card-footer">Don't have an account? <a href="signup.html">Sign up free</a></div>
     </div>
   </div>
@@ -192,20 +200,8 @@
   // Show switch account if already logged in (from localStorage)
   if (SP.isLoggedIn()) {
       const session = SP.getSession();
-      document.body.classList.add('authenticating');
-      document.getElementById('loginCard').innerHTML = `
-        <div style="text-align:center;padding:40px 20px;">
-          <div style="width:64px;height:64px;background:linear-gradient(135deg,#0ea5e9,#0369a1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
-            <i class="fas fa-user-circle" style="font-size:32px;color:white;"></i>
-          </div>
-          <h2 style="color:#fff;margin-bottom:8px;">Signed in as</h2>
-          <p style="color:#94a3b8;font-size:1.1rem;margin-bottom:24px;">${session?.name || session?.email || 'User'}</p>
-          <p style="color:#64748b;font-size:0.875rem;margin-bottom:24px;">Role: ${session?.role || 'General Partner'}</p>
-          <a href="dashboard.html" class="btn btn-primary" style="display:inline-block;padding:12px 24px;background:#0ea5e9;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;margin-bottom:12px;">Go to Dashboard</a>
-          <br>
-          <button onclick="SP.logout();window.location.reload();" style="display:inline-block;padding:10px 20px;background:transparent;border:1px solid #475569;color:#94a3b8;border-radius:8px;cursor:pointer;font-weight:500;font-size:0.9rem;">Sign Out & Switch</button>
-        </div>
-      `;
+      // Auto-redirect to appropriate page instead of showing stale banner
+      _loginRedirect(session);
   } else {
     // Not logged in via localStorage — but Firebase Auth may auto-resolve from IndexedDB.
     // Listen for spdata-ready which fires AFTER Firebase auth + Firestore user profile load.
@@ -231,8 +227,8 @@
     icon.className = inp.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
   }
 
-  function fillDemo() {
-    document.getElementById('email').value = 'gp@deeltrack.com';
+  function fillDemo(email) {
+    document.getElementById('email').value = email || 'gp@deeltrack.com';
     document.getElementById('password').value = 'Demo1234!';
     // Auto-submit after a brief moment so user sees the fields fill
     setTimeout(() => { document.getElementById('loginForm').dispatchEvent(new Event('submit', {cancelable:true})); }, 300);
@@ -274,6 +270,8 @@
         SP.setSession({ email: fbUser.email, name: fbUser.displayName || fbUser.email, role: 'General Partner', orgId: SP.generateOrgId(), loggedIn: true, loginTime: Date.now() });
       }
 
+      const googleSession = SP.getSession();
+      if (window.dtTrack) window.dtTrack('login', { method: 'google', user_role: googleSession?.role || 'General Partner', page_location: window.location.href });
       document.getElementById('successAlert').classList.add('show');
       const session = SP.getSession();
       setTimeout(() => _loginRedirect(session), 600);
@@ -335,9 +333,10 @@
 
       if (signedIn) {
         if (document.getElementById('remember').checked) localStorage.setItem('sp_remember', email);
+        const session = SP.getSession();
+        if (window.dtTrack) window.dtTrack('login', { method: 'email', user_role: session?.role || 'unknown', page_location: window.location.href });
         document.getElementById('successAlert').classList.add('show');
         btn.innerHTML = '<i class="fas fa-check"></i> Success!';
-        const session = SP.getSession();
         setTimeout(() => _loginRedirect(session), 700);
       } else {
         document.getElementById('errorAlert').classList.add('show');

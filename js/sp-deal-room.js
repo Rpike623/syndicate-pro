@@ -34,25 +34,29 @@ window.DealRoom = {
     const dealId = document.getElementById('dealSelect').value;
     if (!dealId) {
       document.getElementById('dealContent').style.display = 'none';
-      document.getElementById('emptyState').style.display = 'block';
+      const picker = document.getElementById('dealPicker');
+      if (picker) picker.style.display = '';
       return;
     }
 
     this.currentDeal = this.deals.find(d => d.id === dealId);
+    if (!this.currentDeal) return;
     this.loadDocuments(dealId);
     this.loadInvestors(dealId);
     this.loadActivity(dealId);
     
     // Show content
     document.getElementById('dealContent').style.display = 'block';
-    document.getElementById('emptyState').style.display = 'none';
+    const picker = document.getElementById('dealPicker');
+    if (picker) picker.style.display = 'none';
 
     // Update header
-    document.getElementById('dealName').textContent = this.currentDeal.name;
-    document.getElementById('dealAddress').textContent = this.currentDeal.address;
-    document.getElementById('dealInvestors').textContent = this.currentDeal.investors;
-    document.getElementById('dealEquity').textContent = this.formatCurrency(this.currentDeal.equity);
-    document.getElementById('dealType').textContent = this.currentDeal.type;
+    document.getElementById('dealName').textContent = this.currentDeal.name || 'Unnamed Deal';
+    document.getElementById('dealAddress').textContent = this.currentDeal.address || this.currentDeal.location || '';
+    const invCount = Array.isArray(this.currentDeal.investors) ? this.currentDeal.investors.length : (this.currentDeal.investors || 0);
+    document.getElementById('dealInvestors').textContent = invCount;
+    document.getElementById('dealEquity').textContent = this.formatCurrency(this.currentDeal.equity || this.currentDeal.totalEquity || this.currentDeal.raise || 0);
+    document.getElementById('dealType').textContent = this.currentDeal.type || 'Real Estate';
   },
 
   loadDocuments: function(dealId) {

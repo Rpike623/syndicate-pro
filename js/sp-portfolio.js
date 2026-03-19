@@ -19,8 +19,28 @@ window.Portfolio = {
   },
 
   loadData: async function() {
-    // Load deals
-    this.deals = SP.getDeals ? SP.getDeals() : [];
+    // Load real deals from Firestore/SP
+    let rawDeals = SP.getDeals ? SP.getDeals() : [];
+
+    // Normalize deal fields — real deals use 'raise'/'totalEquity', demo uses 'currentValue'/'purchasePrice'
+    this.deals = rawDeals.map(d => ({
+      ...d,
+      currentValue: d.currentValue || d.raise || d.totalEquity || 0,
+      purchasePrice: d.purchasePrice || d.raise || 0,
+      equity: d.equity || d.totalEquity || d.raise || 0,
+      noi: d.noi || 0,
+      expenses: d.expenses || 0,
+      debtService: d.debtService || 0,
+      irr: d.irr || 0,
+      moic: d.moic || (d.equity && d.equity > 0 ? d.equity : 0),
+      occupancy: d.occupancy || 0,
+      investorCount: (d.investors || []).length,
+      name: d.name || 'Unnamed Deal',
+      address: d.address || d.location || '',
+      type: d.type || 'Real Estate',
+      status: d.status || 'operating'
+    }));
+
     if (!this.deals.length) {
       this.deals = this.generateDemoDeals();
     }
@@ -31,8 +51,32 @@ window.Portfolio = {
       this.investors = this.generateDemoInvestors();
     }
 
-    // Load distributions
-    this.distributions = this.generateDemoDistributions();
+    // Load distributions from Firestore/SP or generate demo
+    let rawDists = SP.getDistributions ? SP.getDistributions() : [];
+    if (rawDists.length) {
+      // Normalize real distributions
+      this.distributions = [];
+      rawDists.forEach(d => {
+        const amt = d.totalAmount || 0;
+        if (amt > 0) {
+          this.distributions.push({
+            dealId: d.dealId,
+            dealName: d.dealName || this.getDealName(d.dealId),
+            date: d.date,
+            amount: amt,
+            type: 'distribution'
+          });
+        }
+      });
+    }
+    if (!this.distributions.length) {
+      this.distributions = this.generateDemoDistributions();
+    }
+  },
+
+  getDealName: function(dealId) {
+    const d = this.deals.find(x => x.id === dealId);
+    return d ? d.name : 'Unknown Deal';
   },
 
   generateDemoDeals: function() {
@@ -43,7 +87,7 @@ window.Portfolio = {
         purchasePrice: 12000000, currentValue: 14500000,
         noi: 850000, expenses: 320000, debtService: 480000,
         irr: 18.5, moic: 1.42, occupancy: 95,
-        investors: 12, equity: 4500000, debt: 7500000,
+        investorCount: 12, equity: 4500000, debt: 7500000,
         status: 'operating'
       },
       { 
@@ -52,7 +96,7 @@ window.Portfolio = {
         purchasePrice: 8500000, currentValue: 9200000,
         noi: 620000, expenses: 280000, debtService: 380000,
         irr: 14.2, moic: 1.28, occupancy: 88,
-        investors: 8, equity: 3500000, debt: 5000000,
+        investorCount: 8, equity: 3500000, debt: 5000000,
         status: 'operating'
       },
       { 
@@ -61,7 +105,7 @@ window.Portfolio = {
         purchasePrice: 18000000, currentValue: 21000000,
         noi: 1400000, expenses: 420000, debtService: 720000,
         irr: 16.8, moic: 1.35, occupancy: 100,
-        investors: 15, equity: 7200000, debt: 10800000,
+        investorCount: 15, equity: 7200000, debt: 10800000,
         status: 'operating'
       },
       { 
@@ -70,7 +114,7 @@ window.Portfolio = {
         purchasePrice: 6500000, currentValue: 7100000,
         noi: 480000, expenses: 195000, debtService: 290000,
         irr: 12.1, moic: 1.18, occupancy: 92,
-        investors: 6, equity: 2600000, debt: 3900000,
+        investorCount: 6, equity: 2600000, debt: 3900000,
         status: 'value-add'
       }
     ];
@@ -104,34 +148,40 @@ window.Portfolio = {
 
   renderKPIs: function() {
     const totalAUM = this.deals.reduce((sum, d) => sum + (d.currentValue || 0), 0);
-    const totalInvestors = new Set(this.deals.flatMap(d => d.investors || [])).size || this.investors.length;
-    const avgIrr = this.deals.reduce((sum, d) => sum + (d.irr || 0), 0) / this.deals.length;
-    const totalDistributions = this.distributions.reduce((sum, d) => sum + d.amount, 0);
+    const totalInvestors = this.deals.reduce((sum, d) => sum + (d.investorCount || 0), 0) || this.investors.length;
+    const validIrr = this.deals.filter(d => d.irr > 0);
+    const avgIrr = validIrr.length ? validIrr.reduce((sum, d) => sum + d.irr, 0) / validIrr.length : 0;
+    const totalDistributions = this.distributions.reduce((sum, d) => sum + (d.amount || 0), 0);
     const totalEquity = this.deals.reduce((sum, d) => sum + (d.equity || 0), 0);
-    const avgMoic = totalAUM / totalEquity;
+    const avgMoic = totalEquity > 0 ? totalAUM / totalEquity : 0;
 
     document.getElementById('kpiAum').textContent = this.formatCurrency(totalAUM);
     document.getElementById('kpiInvestors').textContent = totalInvestors;
     document.getElementById('kpiIrr').textContent = avgIrr.toFixed(1) + '%';
     document.getElementById('kpiDistributions').textContent = this.formatCurrency(totalDistributions);
-    document.getElementById('kpiMoic').textContent = avgMoic.toFixed(2) + 'x';
+    document.getElementById('kpiMoic').textContent = (avgMoic > 0 ? avgMoic.toFixed(2) : '0.00') + 'x';
   },
 
   renderCharts: function() {
     // AUM Over Time Chart
-    const aumCtx = document.getElementById('aumChart').getContext('2d');
+    const aumCtx = document.getElementById('aumChart');
+    if (!aumCtx) return;
+    const ctx = aumCtx.getContext('2d');
+    const totalAUM = this.deals.reduce((sum, d) => sum + (d.currentValue || 0), 0);
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    const aumData = [38000000, 39500000, 42000000, 43200000, 45800000, 51800000];
+    // Generate reasonable curve based on actual AUM
+    const base = Math.round(totalAUM * 0.75);
+    const aumData = months.map((_, i) => Math.round(base + (totalAUM - base) * (i / (months.length - 1))));
     
-    this.aumChart = new Chart(aumCtx, {
+    this.aumChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: months,
         datasets: [{
           label: 'AUM',
           data: aumData,
-          borderColor: '#6366f1',
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          borderColor: '#F37925',
+          backgroundColor: 'rgba(243,121,37,0.1)',
           fill: true,
           tension: 0.4
         }]
@@ -141,37 +191,42 @@ window.Portfolio = {
         plugins: { legend: { display: false } },
         scales: {
           y: { 
-            ticks: { callback: v => '$' + (v/1000000).toFixed(0) + 'M' }
+            ticks: { callback: v => '$' + (v >= 1e6 ? (v/1e6).toFixed(1) + 'M' : (v/1e3).toFixed(0) + 'K') }
           }
         }
       }
     });
 
     // Allocation Chart
-    const allocCtx = document.getElementById('allocationChart').getContext('2d');
+    const allocCtx = document.getElementById('allocationChart');
+    if (!allocCtx) return;
     const dealNames = this.deals.map(d => d.name);
     const dealValues = this.deals.map(d => d.currentValue || 0);
     
-    this.allocationChart = new Chart(allocCtx, {
-      type: 'doughnut',
-      data: {
-        labels: dealNames,
-        datasets: [{
-          data: dealValues,
-          backgroundColor: ['#6366f1', '#22c55e', '#f59e0b', '#ef4444']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'right' }
+    // Only render if there's data
+    if (dealValues.some(v => v > 0)) {
+      this.allocationChart = new Chart(allocCtx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: dealNames,
+          datasets: [{
+            data: dealValues,
+            backgroundColor: ['#F37925', '#2D9A6B', '#3B82F6', '#8B5CF6', '#EC4899', '#06B6D4']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: 'right' }
+          }
         }
-      }
-    });
+      });
+    }
   },
 
   renderPL: function() {
     const tbody = document.getElementById('plTableBody');
+    if (!tbody) return;
     
     tbody.innerHTML = this.deals.map(deal => {
       const noi = deal.noi || 0;
@@ -179,7 +234,7 @@ window.Portfolio = {
       const debtService = deal.debtService || 0;
       const distributions = this.distributions
         .filter(d => d.dealId === deal.id)
-        .reduce((sum, d) => sum + d.amount, 0);
+        .reduce((sum, d) => sum + (d.amount || 0), 0);
       const netCashFlow = noi - expenses - debtService;
       const value = deal.currentValue || 0;
 
@@ -187,7 +242,7 @@ window.Portfolio = {
         <tr>
           <td>
             <strong>${deal.name}</strong><br>
-            <small class="text-muted">${deal.address}</small>
+            <small class="text-muted">${deal.address || deal.location || ''}</small>
           </td>
           <td class="text-success">${this.formatCurrency(noi)}</td>
           <td>${this.formatCurrency(expenses)}</td>
@@ -203,34 +258,42 @@ window.Portfolio = {
     const totalNoi = this.deals.reduce((s, d) => s + (d.noi || 0), 0);
     const totalExpenses = this.deals.reduce((s, d) => s + (d.expenses || 0), 0);
     const totalDebt = this.deals.reduce((s, d) => s + (d.debtService || 0), 0);
-    const totalDist = this.distributions.reduce((s, d) => s + d.amount, 0);
+    const totalDist = this.distributions.reduce((s, d) => s + (d.amount || 0), 0);
     const totalCashFlow = totalNoi - totalExpenses - totalDebt;
     const totalValue = this.deals.reduce((s, d) => s + (d.currentValue || 0), 0);
 
-    document.getElementById('totalNoi').textContent = this.formatCurrency(totalNoi);
-    document.getElementById('totalExpenses').textContent = this.formatCurrency(totalExpenses);
-    document.getElementById('totalDebt').textContent = this.formatCurrency(totalDebt);
-    document.getElementById('totalDist').textContent = this.formatCurrency(totalDist);
-    document.getElementById('totalCashFlow').textContent = this.formatCurrency(totalCashFlow);
-    document.getElementById('totalValue').textContent = this.formatCurrency(totalValue);
+    const el = id => document.getElementById(id);
+    if (el('totalNoi')) el('totalNoi').textContent = this.formatCurrency(totalNoi);
+    if (el('totalExpenses')) el('totalExpenses').textContent = this.formatCurrency(totalExpenses);
+    if (el('totalDebt')) el('totalDebt').textContent = this.formatCurrency(totalDebt);
+    if (el('totalDist')) el('totalDist').textContent = this.formatCurrency(totalDist);
+    if (el('totalCashFlow')) el('totalCashFlow').textContent = this.formatCurrency(totalCashFlow);
+    if (el('totalValue')) el('totalValue').textContent = this.formatCurrency(totalValue);
   },
 
   renderPerformance: function() {
     const grid = document.getElementById('performanceGrid');
+    if (!grid) return;
     
     grid.innerHTML = this.deals.map(deal => {
-      const gain = ((deal.currentValue || 0) - (deal.purchasePrice || 0)) / (deal.purchasePrice || 1) * 100;
+      const purchasePrice = deal.purchasePrice || 0;
+      const currentValue = deal.currentValue || 0;
+      const gain = purchasePrice > 0 ? ((currentValue - purchasePrice) / purchasePrice * 100) : 0;
+      const irr = deal.irr || 0;
+      const moic = deal.moic || 0;
+      // For real deals that use equity multiple field
+      const moicDisplay = typeof moic === 'number' && moic > 0 ? moic.toFixed(2) : '0.00';
       
       return `
         <div class="performance-card">
           <div class="perf-header">
             <h4>${deal.name}</h4>
-            <span class="badge badge-${deal.status === 'operating' ? 'success' : 'warning'}">${deal.status}</span>
+            <span class="badge badge-${deal.status === 'operating' ? 'success' : deal.status === 'closed' ? 'info' : 'warning'}">${deal.status || '—'}</span>
           </div>
           <div class="perf-stats">
             <div class="perf-stat">
               <span class="perf-label">Value</span>
-              <span class="perf-value">${this.formatCurrency(deal.currentValue)}</span>
+              <span class="perf-value">${this.formatCurrency(currentValue)}</span>
             </div>
             <div class="perf-stat">
               <span class="perf-label">Gain</span>
@@ -238,15 +301,15 @@ window.Portfolio = {
             </div>
             <div class="perf-stat">
               <span class="perf-label">IRR</span>
-              <span class="perf-value">${(deal.irr || 0).toFixed(1)}%</span>
+              <span class="perf-value">${irr > 0 ? irr.toFixed(1) + '%' : '—'}</span>
             </div>
             <div class="perf-stat">
               <span class="perf-label">MOIC</span>
-              <span class="perf-value">${(deal.moic || 0).toFixed(2)}x</span>
+              <span class="perf-value">${moicDisplay}x</span>
             </div>
           </div>
           <div class="perf-bar">
-            <div class="perf-bar-fill" style="width: ${Math.min(gain / 2, 100)}%"></div>
+            <div class="perf-bar-fill" style="width: ${Math.min(Math.max(gain, 0) / 2, 100)}%"></div>
           </div>
         </div>
       `;
@@ -266,7 +329,7 @@ window.Portfolio = {
       `Avg MOIC: ${document.getElementById('kpiMoic').textContent}`,
       '',
       '=== DEAL PERFORMANCE ===',
-      ...this.deals.map(d => `${d.name}: ${d.currentValue} | IRR: ${d.irr}% | MOIC: ${d.moic}x`)
+      ...this.deals.map(d => `${d.name}: ${this.formatCurrency(d.currentValue)} | IRR: ${d.irr}% | MOIC: ${(d.moic||0).toFixed(2)}x`)
     ].join('\n');
 
     const blob = new Blob([report], { type: 'text/plain' });
@@ -279,6 +342,7 @@ window.Portfolio = {
   },
 
   formatCurrency: function(amt) {
+    if (amt === undefined || amt === null || isNaN(amt)) return '$0';
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amt);
   }
 };

@@ -656,6 +656,7 @@ async function submitCommitment() {
     };
 
     const docRef = await _db.collection('orgs').doc(_orgId).collection('commitments').add(commitment);
+    if (window.dtTrack) window.dtTrack('generate_lead', { lead_type: 'investment_commitment', deal_id: _deal.id, deal_name: _deal.name, value: amount, currency: 'USD', page_location: window.location.href });
 
     // Add this org to the LP's orgIds array (multi-GP support)
     if (typeof SPMultiOrg !== 'undefined' && user?.uid) {

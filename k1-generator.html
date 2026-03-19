@@ -259,6 +259,10 @@
               <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f13_otherdep" placeholder="0" oninput="recalc()"></div>
             </div>
             <div class="form-group">
+              <label class="form-label">Section 199A / QBI</label>
+              <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f20_qbi" placeholder="0" oninput="recalc()"></div>
+            </div>
+            <div class="form-group">
               <label class="form-label">Total Distributions (Year)</label>
               <div class="input-prefix"><span>$</span><input class="form-input" type="number" id="f19_dist" placeholder="0" oninput="recalc()"></div>
               <span style="font-size:0.7rem;color:var(--text-muted);">Auto-filled from Distributions if 0</span>
@@ -430,6 +434,7 @@ function recalc() {
     const line10  = round2(f10  * ratio);
     const line12  = round2(f12  * ratio);
     const line13  = round2(f13  * ratio);
+    const line20qbi = round2(f20_qbi * ratio);
     const line19  = round2(f19_total * ratio);
 
     // Capital account
@@ -773,9 +778,9 @@ function closeModal() {
 function exportCSV() {
   if (!allocations.length) { showToast('Select a deal and calculate first.', 'error'); return; }
   const year = document.getElementById('taxYear').value;
-  const headers = ['Investor','Email','Ownership%','OrdinaryIncome','RentalIncome','LT_CapGain','ST_CapGain','Sec1231','Sec179','OtherDeductions','Distributions','EndingCapital'];
+  const headers = ['Investor','Email','Ownership%','OrdinaryIncome','RentalIncome','LT_CapGain','ST_CapGain','Sec1231','Sec179','OtherDeductions','QBI_199A','Distributions','EndingCapital'];
   const rows = allocations.map(r => [
-    r.name, r.email, r.pct, r.line1, r.line2, r.line9a, r.line8, r.line10, r.line12, r.line13, r.line19, r.capEnd
+    r.name, r.email, r.pct, r.line1, r.line2, r.line9a, r.line8, r.line10, r.line12, r.line13, r.line20qbi || 0, r.line19, r.capEnd
   ]);
   const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -860,5 +865,18 @@ function saveK1Data() {
 }
 </script>
 <script>SP.requireGP();</script>
+</body>
+</html>
+quireGP();</script>
+</body>
+</html>
+   console.error('[saveK1Data]', err);
+  }
+}
+</script>
+<script>SP.requireGP();</script>
+</body>
+</html>
+quireGP();</script>
 </body>
 </html>

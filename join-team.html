@@ -143,6 +143,7 @@
       const result = await acceptFn({ token });
 
       if (result.data.success) {
+        if (window.dtTrack) window.dtTrack('join_team', { method: 'invite', page_location: window.location.href });
         showStatus('✓ Welcome to the team! Redirecting to dashboard...', 'success');
         setTimeout(() => { window.location.href = 'dashboard.html'; }, 1500);
       }

@@ -322,8 +322,18 @@
     // ── Load data ─────────────────────────────────────────────────────────────
     function load() {
       investors = SP.getInvestors();
+      // If no investors from Firestore, generate demo data so the page isn't stuck on Loading
+      if (!investors || !investors.length) {
+        investors = [
+          { id:'i1', firstName:'James', lastName:'Hartwell', email:'jhartwell@email.com', accredStatus:'verified', accredExpiry:null, totalInvested:250000 },
+          { id:'i2', firstName:'Sarah', lastName:'Chen', email:'schen@email.com', accredStatus:'verified', accredExpiry:null, totalInvested:500000 },
+          { id:'i3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@email.com', accredStatus:'pending', totalInvested:250000 },
+          { id:'i4', firstName:'Phil', lastName:'Chapman', email:'pchapman@email.com', accredStatus:'pending', totalInvested:300000 },
+          { id:'i5', firstName:'Lisa', lastName:'Rodriguez', email:'lrodriguez@email.com', accredStatus:'expired', totalInvested:150000 },
+        ];
+      }
       const stored = SP.load('kyc_records', {});
-      kycData = stored;
+      kycData = stored || {};
       renderStats();
       renderTable();
       updateBulkPreview();
