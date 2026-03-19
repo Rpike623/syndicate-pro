@@ -241,7 +241,8 @@
         });
       });
 
-      // Deal header
+      // Deal header — use actual partner contributions total (not deal equity which may differ)
+      const actualTotalContributed = partners.reduce((s, p) => s + (p.committed || 0), 0);
       document.getElementById('dealHeader').innerHTML = `
         <div>
           <h2>${deal.name}</h2>
@@ -249,7 +250,7 @@
         </div>
         <div class="deal-meta">
           <div class="m"><div class="v">${fmt$(totalEquity)}</div><div class="l">Total Equity</div></div>
-          <div class="m"><div class="v">${fmt$(totalContributed)}</div><div class="l">Contributed</div></div>
+          <div class="m"><div class="v">${fmt$(actualTotalContributed)}</div><div class="l">Contributed</div></div>
           <div class="m"><div class="v">${fmt$(totalDistAll)}</div><div class="l">Distributed</div></div>
           <div class="m"><div class="v pref-color">${fmt$(totalPrefAccruedAll)}</div><div class="l">Pref Accrued</div></div>
           <div class="m"><div class="v">${partners.length}</div><div class="l">Partners</div></div>

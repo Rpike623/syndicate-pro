@@ -349,7 +349,13 @@
               const pct = total > 0 ? (amount / total * 100) : 0;
               const pref = r.prefPaidThisDist || 0;
               const excess = r.excessThisDist || amount;
-              const ownership = r.ownership || 0;
+              // Normalize ownership - if total exceeds 100%, recalculate from committed amounts
+              let ownership = r.ownership || 0;
+              const totalOwnership = recipients.reduce((s, x) => s + (x.ownership || 0), 0);
+              if (totalOwnership > 100.1 && r.invested && total > 0) {
+                // Ownership values are wrong; show proportion of distribution instead
+                ownership = pct;
+              }
               const barWidth = Math.min(100, Math.max(2, pct));
               return `
                 <div class="investor-split-row" style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
