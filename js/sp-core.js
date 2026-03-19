@@ -192,10 +192,27 @@ window.SP = (function () {
     document.body.appendChild(toast);
     setTimeout(() => { window.location.href = redirectUrl; }, 1500);
   }
+  function _cloakPage() {
+    // Hide main content until auth is confirmed — prevents pre-auth content flash
+    if (!document.getElementById('sp-auth-cloak')) {
+      const style = document.createElement('style');
+      style.id = 'sp-auth-cloak';
+      style.textContent = 'main,.main,#main,.content,.app>main{visibility:hidden!important;} .sidebar,#sidebar,aside{visibility:hidden!important;}';
+      document.head.appendChild(style);
+    }
+  }
+  function _uncloakPage() {
+    const cloak = document.getElementById('sp-auth-cloak');
+    if (cloak) cloak.remove();
+  }
+
   function requireGP() {
+    // Immediately cloak page content to prevent pre-auth flash
+    _cloakPage();
     // If already have a local session, check immediately
     if (isLoggedIn()) {
       if (isInvestor()) { _showAccessDenied('investor-portal.html'); return false; }
+      _uncloakPage();
       return true;
     }
     // No local session — wait up to 3s for Firebase to authenticate
@@ -203,24 +220,28 @@ window.SP = (function () {
     function check() {
       if (isLoggedIn()) {
         if (isInvestor()) { _showAccessDenied('investor-portal.html'); return false; }
+        _uncloakPage();
         return true;
       }
       if (Date.now() - start > 3000) { window.location.href = 'login.html'; return false; }
       setTimeout(check, 100);
     }
     setTimeout(check, 100);
-    return true; // optimistic — let page load, redirect if check fails
+    return true; // let JS continue, but content is cloaked until auth resolves
   }
 
   function requireInvestor() {
+    _cloakPage();
     if (isLoggedIn()) {
       if (isGP()) { window.location.href = 'dashboard.html'; return false; }
+      _uncloakPage();
       return true;
     }
     const start = Date.now();
     function check() {
       if (isLoggedIn()) {
         if (isGP()) { window.location.href = 'dashboard.html'; return false; }
+        _uncloakPage();
         return true;
       }
       // If Firebase is still loading (SPFB exists but not ready), wait longer
