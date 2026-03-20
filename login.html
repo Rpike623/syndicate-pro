@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Kill any service worker immediately before anything else loads -->
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if(window.caches)caches.keys().then(k=>k.forEach(c=>caches.delete(c)));}</script>
-  <title>deeltrack | Login</title>
+  <title>Deeltrack | Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="js/sp-theme.js"></script>
   <!-- Firebase SDKs -->
@@ -19,7 +19,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="js/sp-core.js?v15"></script>
+  <script src="js/sp-core.js?v16"></script>
   <script src="js/sp-data.js?v15"></script>
   <script src="js/sp-firebase.js?v15"></script>
   <style>
@@ -427,5 +427,10 @@
     document.getElementById('errorMsg').textContent = 'Your reset link expired. Enter your email and click "Forgot password?" to get a new one.';
   }
 </script>
+<footer style="position:fixed;bottom:0;left:0;right:0;padding:12px 24px;display:flex;justify-content:center;gap:20px;background:transparent;">
+  <a href="privacy.html" style="font-size:0.75rem;color:#8A8580;text-decoration:none;">Privacy</a>
+  <a href="terms.html" style="font-size:0.75rem;color:#8A8580;text-decoration:none;">Terms</a>
+  <a href="mailto:admin@deeltrack.com" style="font-size:0.75rem;color:#8A8580;text-decoration:none;">Contact</a>
+</footer>
 </body>
 </html>

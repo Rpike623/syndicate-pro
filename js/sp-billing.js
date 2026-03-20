@@ -218,9 +218,29 @@ const SPBilling = (function () {
     }
   }
 
-  function openCustomerPortal() {
-    // TODO: Create Stripe billing portal session via Cloud Function
-    alert('Customer portal coming soon. Contact admin@deeltrack.com to manage your subscription.');
+  async function openCustomerPortal() {
+    const btn = document.querySelector('[onclick*="openCustomerPortal"]');
+    const origHTML = btn ? btn.innerHTML : '';
+    try {
+      if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Opening...';
+      if (btn) btn.disabled = true;
+
+      const callable = firebase.functions().httpsCallable('createBillingPortalSession');
+      const result = await callable();
+
+      if (result.data?.url) {
+        window.location.href = result.data.url;
+      } else {
+        throw new Error('No portal URL returned');
+      }
+    } catch (err) {
+      console.error('[Billing] Portal error:', err);
+      const msg = err.code === 'functions/failed-precondition'
+        ? 'No active subscription found. Please subscribe to a plan first.'
+        : 'Could not open billing portal. Please contact admin@deeltrack.com.';
+      alert(msg);
+      if (btn) { btn.innerHTML = origHTML; btn.disabled = false; }
+    }
   }
 
   // ── Checkout callbacks ────────────────────────────────────────────────────────

@@ -1,0 +1,43 @@
+# robots.txt — deeltrack.com
+User-agent: *
+Allow: /
+
+# Public pages
+Allow: /index.html
+Allow: /pricing.html
+Allow: /login.html
+Allow: /signup.html
+Allow: /privacy.html
+Allow: /terms.html
+Allow: /security.html
+Allow: /disclaimer.html
+
+# Block app pages from indexing
+Disallow: /dashboard.html
+Disallow: /deals.html
+Disallow: /investors.html
+Disallow: /portfolio.html
+Disallow: /settings.html
+Disallow: /new-deal.html
+Disallow: /distributions.html
+Disallow: /capital-calls.html
+Disallow: /documents.html
+Disallow: /k1-generator.html
+Disallow: /coming-soon.html
+Disallow: /onboarding.html
+Disallow: /invest.html
+Disallow: /investor-portal*.html
+Disallow: /deal-detail.html
+Disallow: /deal-room.html
+Disallow: /investor-detail.html
+Disallow: /compliance-hub.html
+Disallow: /cap-table.html
+Disallow: /scenario-planner.html
+Disallow: /exit-calc.html
+Disallow: /distribution-calc.html
+Disallow: /debt-tracker.html
+Disallow: /om-builder.html
+Disallow: /wire-instructions.html
+Disallow: /reset-password.html
+
+Sitemap: https://deeltrack.com/sitemap.xml

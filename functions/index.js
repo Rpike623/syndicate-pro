@@ -329,6 +329,38 @@ exports.createCheckoutSession = onCall(
   }
 );
 
+// ── Stripe Customer Portal ─────────────────────────────────────────────────────
+/**
+ * createBillingPortalSession — callable function to open Stripe Customer Portal
+ * Lets users manage subscription, update payment, view invoices, cancel.
+ */
+exports.createBillingPortalSession = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'portal', 5, 10 * 60 * 1000);
+
+    const userDoc = await db.collection('users').doc(uid).get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const customerId = userData.subscription?.stripeCustomerId;
+
+    if (!customerId) {
+      throw new HttpsError('failed-precondition', 'No active subscription found. Please subscribe first.');
+    }
+
+    const stripeConfig = await getStripeConfig();
+    const stripe = Stripe(stripeConfig.secretKey);
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: 'https://deeltrack.com/settings.html',
+    });
+
+    return { url: session.url };
+  }
+);
+
 // ── Stripe Webhook ─────────────────────────────────────────────────────────────
 /**
  * stripeWebhook — HTTP endpoint for Stripe webhook events

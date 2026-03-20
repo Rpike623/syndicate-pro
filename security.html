@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Security & Compliance</title>
+  <title>Deeltrack | Security & Compliance</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/dt-global.css?v=14">
+  <link rel="stylesheet" href="css/dt-global.css?v=15">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v15"></script>
+  <script src="js/sp-core.js?v16"></script>
   <script src="js/sp-data.js?v15"></script>
   <script src="js/sp-firebase.js?v15"></script>
   <style>
@@ -276,6 +276,14 @@
 
   </div>
 </div>
-<script>SP.requireGP();</script>
+<script>
+  // Public page — show sidebar only if logged in, otherwise hide it
+  if (typeof SP !== 'undefined' && SP.isLoggedIn && SP.isLoggedIn()) {
+    SP.init && SP.init();
+  } else {
+    document.querySelectorAll('.sidebar,.dt-sidebar').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.main-content,.dt-main,main').forEach(el => el.style.marginLeft = '0');
+  }
+</script>
 </body>
 </html>

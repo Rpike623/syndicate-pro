@@ -97,6 +97,78 @@ if (typeof window !== 'undefined') {
   }
 })();
 
+// ─── Favicon Fallbacks ───────────────────────────────────────────────────
+(function injectFaviconFallbacks() {
+  if (typeof document === 'undefined') return;
+  const head = document.head;
+  if (!head.querySelector('link[rel="icon"][sizes="32x32"]')) {
+    const f32 = document.createElement('link'); f32.rel = 'icon'; f32.type = 'image/png'; f32.sizes = '32x32'; f32.href = 'assets/favicon-32.png'; head.appendChild(f32);
+  }
+  if (!head.querySelector('link[rel="icon"][sizes="16x16"]')) {
+    const f16 = document.createElement('link'); f16.rel = 'icon'; f16.type = 'image/png'; f16.sizes = '16x16'; f16.href = 'assets/favicon-16.png'; head.appendChild(f16);
+  }
+  if (!head.querySelector('link[rel="apple-touch-icon"]')) {
+    const atc = document.createElement('link'); atc.rel = 'apple-touch-icon'; atc.sizes = '180x180'; atc.href = 'assets/apple-touch-icon.png'; head.appendChild(atc);
+  }
+  if (!head.querySelector('link[rel="shortcut icon"]')) {
+    const ico = document.createElement('link'); ico.rel = 'shortcut icon'; ico.href = 'favicon.ico'; head.appendChild(ico);
+  }
+})();
+
+// ─── Canonical URL + Meta Description Injection ──────────────────────────
+(function injectSEOMeta() {
+  if (typeof document === 'undefined') return;
+  // Canonical URL
+  if (!document.querySelector('link[rel="canonical"]')) {
+    const canon = document.createElement('link');
+    canon.rel = 'canonical';
+    canon.href = 'https://deeltrack.com/' + (window.location.pathname.split('/').pop() || '');
+    document.head.appendChild(canon);
+  }
+})();
+
+// ─── Global Loading Skeleton ──────────────────────────────────────────────
+// Shows a subtle loading overlay while Firebase + data initialize.
+// Automatically dismissed when SP.onDataReady fires or after 6s failsafe.
+(function injectLoadingSkeleton() {
+  if (typeof document === 'undefined') return;
+  const page = (window.location.pathname.split('/').pop() || '').toLowerCase();
+  const skipPages = ['login.html','signup.html','reset-password.html','index.html','404.html','coming-soon.html','invest.html','pricing.html','privacy.html','terms.html','disclaimer.html','security.html','integrations.html','waterfall-explainer.html','waterfall-guide.html',''];
+  if (skipPages.includes(page)) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'dt-loading-overlay';
+  overlay.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div style="width:36px;height:36px;border:3px solid #E2DDD8;border-top-color:#E86A00;border-radius:50%;animation:dt-spin .8s linear infinite;"></div>
+      <div style="font-family:Inter,system-ui,sans-serif;font-size:13px;color:#8A8580;font-weight:500;">Loading...</div>
+    </div>
+  `;
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(250,250,248,0.92);display:flex;align-items:center;justify-content:center;z-index:99999;transition:opacity .3s;';
+
+  const style = document.createElement('style');
+  style.textContent = '@keyframes dt-spin{to{transform:rotate(360deg)}}';
+  document.head.appendChild(style);
+
+  // Insert after DOM is ready
+  if (document.body) {
+    document.body.appendChild(overlay);
+  } else {
+    document.addEventListener('DOMContentLoaded', () => document.body.appendChild(overlay));
+  }
+
+  // Dismiss function
+  window._dtDismissLoading = function() {
+    const el = document.getElementById('dt-loading-overlay');
+    if (!el) return;
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 300);
+  };
+
+  // Failsafe: always dismiss after 6s
+  setTimeout(() => window._dtDismissLoading && window._dtDismissLoading(), 6000);
+})();
+
 // Use window.SP so all inline scripts and other modules can reliably access it
 // (const/let in <script src> tags create script-scoped bindings that can fail
 //  to propagate across script boundaries in some browser configurations)
@@ -969,6 +1041,8 @@ window.SP = (function () {
   function _flushDataReady() {
     if (_dataReady) return;
     _dataReady = true;
+    // Dismiss loading overlay
+    if (window._dtDismissLoading) window._dtDismissLoading();
     while (_dataReadyQueue.length) {
       try { _dataReadyQueue.shift()(); } catch(e) { console.error('SP.onDataReady callback error:', e); }
     }

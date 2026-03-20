@@ -6358,3 +6358,89 @@ textarea:focus-visible {
   outline-offset: 0 !important;
 }
 /* ── END WCAG Focus ───────────────────────────────────────────────────── */
+
+/* ── Print Stylesheet ─────────────────────────────────────────────────── */
+@media print {
+  /* Hide sidebar, topbar, nav, and non-content elements */
+  .sidebar,
+  .dt-sidebar,
+  .top-bar,
+  .dt-topbar,
+  .dt-top-bar,
+  nav,
+  .nav-mobile,
+  .hamburger,
+  .mobile-nav,
+  .btn,
+  button:not(.print-keep),
+  .toast,
+  .modal-overlay,
+  .modal-backdrop,
+  footer,
+  .footer,
+  .chat-widget,
+  .floating-btn,
+  .fab,
+  [data-no-print] {
+    display: none !important;
+  }
+
+  /* Reset main content to fill page */
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+  }
+
+  .main-content,
+  .dt-main,
+  .content,
+  main,
+  [role="main"] {
+    margin-left: 0 !important;
+    padding: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Ensure cards/tables print cleanly */
+  .card, .dt-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    border: 1px solid #999 !important;
+    padding: 4px 8px !important;
+  }
+
+  /* Links: show URL after text */
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #666;
+  }
+
+  /* Page break helpers */
+  h1, h2, h3 {
+    break-after: avoid;
+  }
+
+  .page-break {
+    break-before: always;
+  }
+
+  /* Charts won't print well — show a note */
+  canvas {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+/* ── END Print ────────────────────────────────────────────────────────── */
