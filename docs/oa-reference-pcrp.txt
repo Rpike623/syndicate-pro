@@ -1,0 +1,953 @@
+LIMITED LIABILITY COMPANY AGREEMENT
+
+OF
+
+PCRP GROUP, LLC
+
+a Texas limited liability company
+
+This Limited Liability Company Agreement of PCRP Group, LLC, is executed
+as of March 18, 2026 (the “Effective Date”), by the persons who sign and
+are identified as “Members” in this Agreement.
+
+RECITALS
+
+WHEREAS, PCRP Group, LLC, was formed with the Secretary of State of the
+State of Texas on March 18, 2026, under File Number 806499674;
+
+WHEREAS, the Members of PCRP Group, LLC, desire to enter into this
+Agreement to establish the terms and conditions under which PCRP Group,
+LLC, will be governed;
+
+NOW, THEREFORE, for the mutual covenants and obligations as set forth
+herein, and other good and valuable consideration, the receipt and
+sufficiency of which is hereby acknowledged, the undersigned Members
+agree as follows:
+
+ARTICLE I
+
+DEFINITIONS
+
+1.01 Definitions. As used in this Agreement, the following terms have
+the following meanings:
+
+“Agreement” means this Company Agreement, as amended from time to time.
+
+“Bankrupt Member” means any Member (a) that (i) makes an assignment for
+the benefit of creditors; (ii) files a voluntary bankruptcy petition;
+(iii) becomes the subject of an order for relief or is declared
+insolvent in any federal or state bankruptcy or insolvency proceedings;
+(iv) files a petition or answer seeking for the Member a reorganization,
+arrangement, composition, readjustment, liquidation, dissolution,
+termination, or similar relief under any law; (v) files an answer or
+other pleading admitting or failing to contest the material allegations
+of a petition filed against the Member in a Proceeding of the type
+described in subclauses (i) through (iv) of this clause (a); or (vi)
+seeks, consents to, or acquiesces in the appointment of a trustee,
+receiver, or liquidator of the Member’s or of all or any substantial
+part of the Member’s properties; or (b) against which a Proceeding
+seeking reorganization, arrangement, composition, readjustment,
+liquidation, dissolution, or similar relief under any law has been
+commenced and one hundred twenty (120) days have expired without
+dismissal thereof or with respect to which, without the Member’s consent
+or acquiescence, a trustee, receiver, or liquidator of the Member or of
+all or any substantial part of the Member’s properties has been
+appointed and ninety (90) days have expired without the appointment’s
+having been vacated or stayed, or ninety (90) days have expired after
+the date of expiration of a stay, if the appointment has not previously
+been vacated.
+
+“Capital Account” means a capital account maintained for a Member as
+provided by Treasury Regulation 1.704-1(b)(2)(iv) of the Regulations of
+the Internal Revenue Service.
+
+“Capital Contribution” means the amount of money, value of services
+(subject to those services being pre-approved by the Members), and the
+Net Value of property other than money contributed to the Company by a
+Member.
+
+“Capital Commitment” of a Member represents the aggregate amount of
+capital that such Member has agreed to contribute to the Company.
+
+“Certificate of Formation” means the initial, amended, and restated
+certificate of formation of the Company.
+
+“Company” means PCRP Group, LLC, a Texas limited liability company.
+
+“Former Member” means any person who had executed this Agreement, as of
+the date of this Agreement as a Member, or hereafter admitted to the
+Company as a Member, as provided in the Agreement, but who is no longer
+a Member of the Company; however, this term does not include a person
+who ceases to be a Member as a result of bankruptcy, default, or
+expulsion.
+
+“Fundamental Business Transaction” includes (a) a merger, (b) an
+interest exchange, (c) a conversion, or (d) a sale of all or
+substantially all of an entity’s assets (with or without goodwill),
+other than in the usual and regular course of the Company’s business.
+
+“General Interest Rate” means a rate per annum equal to the lesser of
+(a) the prime rate published in The Wall Street Journal on the day the
+rate is determined (or the most recent day on which The Wall Street
+Journal was published if the paper is not published on the day the rate
+is determined), or (b) the maximum rate permitted by applicable law.
+
+“Internal Revenue Code” means the Internal Revenue Code of 1986 and any
+successor statute, as amended from time to time.
+
+“Member” means any person executing this Agreement as of the date of
+this Agreement as a Member or hereafter admitted to the Company as a
+Member as provided in this Agreement, but does not include any person
+who has ceased to be a Member of the Company.
+
+“Membership Interest” means the interest of a Member in the Company,
+including, without limitation, rights to distributions (liquidating or
+otherwise), allocations, information, and to consent or approve.
+
+“Net Value” means, in connection with a Capital Contribution of
+property, the fair market value of the asset less any indebtedness to
+which the asset is subject when contributed.
+
+“Percentage Interest” means the ratio in which the Members shall share
+profits and losses, as provided in this Agreement. The sum of the
+Members’ Percentage Interests shall be one hundred percent (100%).
+
+“Person” means any business entity, trust, estate, executor,
+administrator, or individual.
+
+“Proceeding” means any threatened, pending, or completed action, suit,
+or proceeding, whether civil, criminal, administrative, arbitrative, or
+investigative.
+
+“Super Majority” means one or more Members having among them at least
+sixty-six percent (66%) of the Percentage Interests of all Members.
+
+“Transfer” means any sale, transfer, encumbrance, gift, donation,
+assignment, pledge, hypothecation, or other form of transfer of a
+Membership Interest or any portion of a Membership Interest, whether
+voluntary or involuntary, whether attempted or completed, and whether
+during the transferor’s lifetime or upon or after the transferor’s
+death, including by operation of law, court order, judicial process,
+foreclosure, levy, or attachment.
+
+Other terms defined herein have the meaning so given them.
+
+ARTICLE II
+
+ORGANIZATION
+
+2.01 Formation. The Company has been organized as a Texas limited
+liability company by filing a Certificate of Formation with the
+Secretary of State of Texas on March 18, 2026, under File Number
+806499674, which may be amended or restated from time to time.
+
+2.02 Name. The name of the Company is “PCRP Group, LLC” and all Company
+business must be conducted in that name or such other names that comply
+with applicable law as the Members may select from time to time.
+
+2.03 Registered Office and Registered Agent. The registered office of
+the Company shall be located at 6115 Locke Ave, Fort Worth, Texas 76116,
+or such other office (which need not be a place of business of the
+Company) as the Members may designate from time to time in the manner
+provided by law. The registered agent of the Company in the State of
+Texas shall be Robert Pike, or such other person or persons as the
+Members may designate from time to time in the manner provided by law.
+
+2.04 Principal Office and Other Offices. The principal office of the
+Company in the United States shall be at 6115 Locke Ave, Fort Worth,
+Texas 76116, or at such other place as the Members may designate from
+time to time, which need not be in the State of Texas. The Company may
+have such other offices as the Members may designate from time to time.
+
+2.05 Purposes. The purpose for which the Company is organized is for the
+transaction of any and all lawful business for which limited liability
+companies may be organized under the Texas Business Organizations Code.
+
+2.06 Powers. The Company shall have all powers necessary, suitable, or
+convenient for the accomplishment of the purposes of the Company,
+including without limitation (a) to make and perform all contracts; (b)
+to borrow or lend money and secure payment thereof; (c) to engage in all
+activities and transactions; and (d) to have all powers available to a
+limited liability company under the laws of any other jurisdiction where
+the Company conducts business.
+
+2.07 Foreign Qualification. Prior to the Company’s conducting business
+in any jurisdiction other than Texas, the Members shall cause the
+Company to comply, to the extent procedures are available and those
+matters are reasonably within the control of the Members, with all
+requirements necessary to qualify the Company as a foreign limited
+liability company in that jurisdiction.
+
+2.08 Term. The Company will commence as provided in the Certificate of
+Formation for the Company filed with the Secretary of the State of Texas
+and will continue until the Company terminates under the terms of this
+Agreement.
+
+2.09 No State-Law Partnership. The Members intend that the Company not
+be a partnership, a limited partnership, or a joint venture, and that no
+Member be a partner or joint venturer of any other Member, for any
+purposes other than federal and state tax purposes, and this Agreement
+may not be construed to suggest otherwise.
+
+ARTICLE III
+
+MEMBERSHIP
+
+3.01 Initial Members, Capital Commitments, and Percentage Interests.
+Members, their respective addresses, their initial Capital Contributions
+to the Company, and their respective Percentage Interest in the Company
+are set forth on Exhibit “A”, attached and made part of this Agreement.
+Each Member agrees to make the initial contribution set out in Exhibit
+“A” upon execution of this Agreement. The Members will not transfer such
+interest in contravention of applicable state or federal securities
+laws.
+
+3.02 Units and Certificates. The Membership Interest of the Company
+shall be divided into one thousand (1,000) Units, each Unit to represent
+the proportionate share of capital contributed by the respective Members
+as is reflected in Exhibit “A” as amended from time to time. The
+Member’s Interest in the Company may be represented by a Certificate of
+Membership.
+
+3.03 Additional Members. Additional persons or entities may be admitted
+to the Company as Additional Members on such terms and conditions as
+shall be determined by unanimous consent of the Members. The terms of
+admission must specify the Percentage Interests or number of Units and
+the Capital Commitments for any additional members to be admitted to the
+Company.
+
+3.04 Member Rights Specified in Agreement. Except as otherwise
+specifically provided in this Agreement, no Member shall have the right
+(a) to sell, transfer, or assign its interest in the Company; (b) to
+require partition of the property of the Company; (c) to compel the sale
+of Company assets; or (d) to cause the winding up of the Company.
+
+3.05 Liability to Third Parties. No Member shall be liable for the
+debts, obligations, or liabilities of the Company, including under a
+judgment, decree, or order of a court, unless such liability arises out
+of a personal guarantee entered into by the Members on behalf of the
+Company. If determined by the Members, all Members shall be required to
+execute such a personal guarantee in equal amounts relative to their
+respective Percentage Interests.
+
+ARTICLE IV
+
+CAPITAL CONTRIBUTIONS
+
+4.01 Initial Contributions. Contemporaneously with or prior to the
+execution of this Agreement, each Member shall make the initial Capital
+Contribution described for that Member on Exhibit “A.” The initial
+Capital Contribution of each Member is zero dollars ($0.00).
+
+4.02 Subsequent Contributions. Subsequent contributions must be in the
+amounts and may be in any type of property as agreed on by all of the
+Members. No Member is required to make a subsequent Contribution to the
+Company in excess of the Total Capital Commitment required to be made by
+that Member pursuant to Exhibit “A” without the Member’s prior express
+consent.
+
+4.03 Failure to Make Subsequent Contributions. If a Member does not
+contribute all of its subsequent Capital Contribution within ten (10)
+days of receiving notice of a subsequent Capital Contribution under
+Section 4.02 of this Agreement (then a “Non-Contributing Member”), that
+Non-Contributing Member’s Percentage Interest shall be subject to a pro
+rata dilution. Dilution of the Percentage Interest of a Non-Contributing
+Member shall be the sole remedy of the Company or the other Members
+against the Non-Contributing Member, and the Non-Contributing Member
+shall have no other liability for electing not to contribute.
+
+4.04 Return of Contributions. No Member is entitled to the return of any
+part of its Capital Contributions or to be paid interest in respect of
+either its Capital Account or its Capital Contributions. An unrepaid
+Capital Contribution is not a liability of the Company or of any Member.
+
+4.05 Loans by Members. If the Company does not have sufficient cash to
+pay its obligations, any Member that may agree to do so with the consent
+of the other Members may advance all or part of the needed funds to or
+on behalf of the Company. An advance described in this paragraph
+constitutes a loan from the Member to the Company, bears interest at the
+General Interest Rate from the date of the advance until the date of
+payment, and is not a Capital Contribution.
+
+4.06 Capital Accounts. A Capital Account shall be established and
+maintained for each Member. The Capital Account of each Member:
+
+  (a) shall consist of (i) the amount of money contributed by that
+  Member to the Company, (ii) the value of the services (subject to
+  those services being pre-approved by the Members) contributed by that
+  Member to the Company, and (iii) the Net Value of the property
+  contributed by that Member to the Company;
+
+  (b) shall be increased by allocations to that Member of Company income
+  and gain (or items thereof), including income and gain exempt from tax
+  and income and gain described in Treasury Regulation §
+  1.704-1(b)(2)(iv)(g), but excluding income and gain described in
+  Treasury Regulation § 1.704-1(b)(4)(i); and
+
+  (c) shall be decreased by (i) the amount of money distributed to that
+  Member by the Company, (ii) the fair market value of property
+  distributed to that Member by the Company (net of liabilities secured
+  by the distributed property that the Member is considered to assume or
+  take subject to under Section 752 of the Internal Revenue Code), (iii)
+  allocations to that Member of expenditures of the Company described in
+  Section 705(a)(2)(B) of the Internal Revenue Code, and (iv)
+  allocations of Company loss and deduction (or items thereof),
+  including loss and deduction described in Treasury Regulation §
+  1.704-1(b)(2)(iv)(g), but excluding items described in clause (c)(iii)
+  above and loss or deduction described in Treasury Regulation §
+  1.704-1(b)(4)(i) or § 1.704-1(b)(4)(iii).
+
+The Capital Account of each Member also shall be maintained and adjusted
+as permitted by the provisions of Treasury Regulation §
+1.704-1(b)(2)(iv)(f) and as required by the other provisions of Treasury
+Regulation § 1.704-1(b)(2)(iv) and 1.704-1(b)(4), including adjustments
+to reflect the allocations to the Members of depreciation, depletion,
+amortization, and gain or loss as computed for tax purposes, as required
+by Treasury Regulation § 1.704-1(b)(2)(iv)(g). A Member that has more
+than one Membership Interest shall have a single Capital Account that
+reflects all its Membership Interests, regardless of the class of
+Membership Interests owned by that Member and regardless of the time or
+manner in which those Membership Interests were acquired. On the
+transfer of all or part of a Membership Interest, the Capital Account of
+the transferor that is attributable to the transferred Membership
+Interest or part thereof shall carry over to the transferee Member in
+accordance with the provisions of Treasury Regulation §
+1.704-1(b)(2)(iv)(l).
+
+ARTICLE V
+
+ALLOCATIONS AND DISTRIBUTIONS
+
+5.01 Allocation of Net Income, Net Loss, or Capital Gains. Except as may
+be expressly provided otherwise in this Article and subject to the
+provisions of Section 704(c) of the Internal Revenue Code, the net
+income, net loss, or capital gains of the Company for each fiscal year
+of the Company is allocated to the Members, pro rata in accordance with
+their Percentage Interest.
+
+5.02 Distributions of Available Cash. The Members may, in their sole
+discretion, from time to time determine that Available Cash of the
+Company shall be distributed to the Members. Any such distributions
+shall be made to the Members pro rata in accordance with their
+Percentage Interest. The Members shall determine the amount and timing
+of any such distributions, taking into account the Company’s need for
+reasonable working capital reserves, anticipated capital expenditures,
+debt service obligations, and such other factors as the Members may deem
+relevant.
+
+5.03 Tax Distributions. Notwithstanding any other provision of this
+Agreement, the Company shall, to the extent of Available Cash,
+distribute to each Member, no later than fifteen (15) days prior to each
+estimated tax payment date and the due date for filing the Member’s
+annual income tax return (including extensions), an amount equal to such
+Member’s allocable share of the Company’s net taxable income for the
+applicable period multiplied by the highest combined marginal federal
+and state income tax rate applicable to individuals residing in the
+State of Texas. Tax distributions shall be treated as advances against
+the distributions otherwise to be made to such Member pursuant to
+Section 5.02.
+
+5.04 Limitations on Distributions. No distribution shall be made if,
+after giving effect to the distribution, the Company would not be able
+to pay its debts as they become due in the usual course of business or
+the Company’s total assets would be less than the sum of its total
+liabilities.
+
+ARTICLE VI
+
+MANAGEMENT
+
+6.01 Management by Members. The Company shall be member-managed. The
+Members shall have the sole and exclusive control of the management,
+business, and affairs of the Company. All decisions and actions for the
+Company not otherwise provided for in this Agreement shall be made by
+the unanimous consent of the Members, including, without limitation, the
+following:
+
+  (a) entering into, making, and performing contracts, agreements, and
+  other undertakings binding the Company that may be necessary,
+  appropriate, or advisable in furtherance of the purposes of the
+  Company and making all decisions and waivers thereunder, including a
+  Fundamental Business Transaction;
+
+  (b) opening and maintaining bank and investment accounts and
+  arrangements, drawing checks and other orders for the payment of
+  money, and designating individuals with authority to sign or give
+  instructions with respect to those accounts and arrangements;
+
+  (c) maintaining the assets of the Company in good order;
+
+  (d) to the extent that funds of the Company are available therefor,
+  paying debts and obligations of the Company;
+
+  (e) acquiring, utilizing for Company purposes, and disposing of any
+  asset of the Company;
+
+  (f) selecting, removing, and changing the authority and responsibility
+  of lawyers, accountants, and other advisers and consultants;
+
+  (g) obtaining insurance for the Company;
+
+  (h) determining distributions of Company cash and other property as
+  provided in Section 5.02 of this Agreement;
+
+  (i) incurring indebtedness on behalf of the Company;
+
+  (j) pledging, hypothecating, or otherwise collateralizing the assets
+  or Membership Interests of the Company;
+
+  (k) issuing or selling new equity interests in the Company;
+
+  (l) amending the entity’s governing documents (e.g., Certificate of
+  Formation, Company Agreement);
+
+  (m) approving the annual plan and budget;
+
+  (n) approving or removing an officer of the Company; and
+
+  (o) approving any expenditure or series of related expenditures in
+  excess of ten thousand dollars ($10,000.00) outside the ordinary
+  course of the Company’s business.
+
+6.02 Officers. The Members may, from time to time, designate one or more
+persons to be officers of the Company. Any officers so designated shall
+have such authority and perform such duties as the Members may, from
+time to time, delegate to them. The Members may assign titles to
+particular officers. Unless the Members decide otherwise, if the title
+is one commonly used for officers of a business corporation, the
+assignment of such title shall constitute the delegation to such officer
+of the authority and duties that are normally associated with that
+office. Any delegation pursuant to this Section may be revoked at any
+time by the Members.
+
+6.03 Compensation. For their services in the management of the Company
+and its operations, the Members may receive such compensation, if any,
+as may be designated from time to time by the unanimous consent of the
+Members.
+
+6.04 Reimbursement. The Members are not required to advance any funds to
+pay costs and expenses of the Company. However, in the event a Member
+advances such funds, the Member shall be entitled to be reimbursed for
+out-of-pocket costs and expenses incurred in the course of their service
+hereunder, including the portion of their overhead reasonably allocable
+to Company activities.
+
+6.05 Deadlock. In the event the Members are unable to agree on a
+material matter requiring the consent of the Members and the deadlock
+has continued for a period of thirty (30) days after written notice from
+either Member to the other Member identifying the matter in dispute (a
+“Deadlock”), either Member may invoke the buy-sell procedures set forth
+in Section 10.07 of this Agreement.
+
+6.06 Action Without Meeting. Any action permitted or required by
+applicable law, the Certificate of Formation, or this Agreement to be
+taken at a meeting of the Members may be taken without a meeting if a
+consent in writing, setting forth the action to be taken, is signed by
+all the Members.
+
+ARTICLE VII
+
+INDEMNIFICATION
+
+7.01 Right to Indemnification. Subject to the limitations and conditions
+as provided in this Article, each person or entity who was or is made a
+party or is threatened to be made a party to or is involved in any
+Proceeding, or any appeal in such a Proceeding, or any inquiry or
+investigation that could lead to such a Proceeding, by reason of the
+fact that he or she, or a person of whom he or she is the legal
+representative, is or was a Member of the Company or while a Member of
+the Company is or was serving at the request of the Company as a
+director, officer, partner, venturer, proprietor, trustee, employee,
+agent, or similar functionary of another foreign or domestic limited
+liability company, corporation, partnership, joint venture, sole
+proprietorship, trust, employee benefit plan, or other enterprise shall
+be indemnified by the Company to the fullest extent permitted by
+applicable law, as the same exist or may hereafter be amended (but, in
+the case of any such amendment, only to the extent that such amendment
+permits the Company to provide broader indemnification rights than said
+law permitted the Company to provide prior to such amendment), against
+judgments, penalties (including excise and similar taxes and punitive
+damages), fines, settlements, and reasonable expenses (including,
+without limitation, attorney’s fees) actually incurred by such person in
+connection with such Proceeding, and indemnification under this Article
+shall continue as to a person who has ceased to serve in the capacity
+which initially entitled such person to indemnity hereunder. The rights
+granted pursuant to this Article shall be deemed contract rights, and no
+amendment, modification, or repeal of this Article shall have the effect
+of limiting or denying any such rights with respect to actions taken or
+Proceedings arising prior to any such amendment, modification, or
+repeal. It is expressly acknowledged that the indemnification provided
+in this Article could involve indemnification for negligence or under
+theories of strict liability.
+
+7.02 Limitation of Liability. No Member shall be liable to the Company
+or to any other Member for any loss, damage, or claim incurred by reason
+of any act or omission performed or omitted by such Member in good faith
+on behalf of the Company and in a manner reasonably believed to be
+within the scope of the authority conferred on such Member by this
+Agreement, except that a Member shall be liable for any such loss,
+damage, or claim incurred by reason of such Member’s willful misconduct,
+gross negligence, or breach of this Agreement.
+
+7.03 Advancement of Expenses. The Company shall pay the expenses
+(including attorney’s fees) incurred by a Member in defending any
+Proceeding in advance of its final disposition; provided, however, that
+the payment of expenses incurred by a Member in advance of the final
+disposition of the Proceeding shall be made only upon receipt of an
+undertaking by the Member to repay all amounts advanced if it should be
+ultimately determined that the Member is not entitled to be indemnified
+under this Article or otherwise.
+
+ARTICLE VIII
+
+TAXES
+
+8.01 Tax Classification. The Members intend that the Company shall be
+classified as a partnership for federal and state income tax purposes.
+Neither the Company nor any Member shall take any action inconsistent
+with such classification, and each Member shall file all tax returns
+consistent with such classification, unless the Members unanimously
+agree otherwise.
+
+8.02 Tax Matters Partner. Philip C Chapman is hereby designated as the
+“Partnership Representative” (as defined in Section 6223 of the Internal
+Revenue Code, as amended by the Bipartisan Budget Act of 2015) for the
+Company. The Partnership Representative shall have the authority to take
+any actions required or permitted to be taken by the Partnership
+Representative under the Internal Revenue Code and shall keep the other
+Member reasonably informed of all significant tax matters affecting the
+Company. The Partnership Representative may be changed by unanimous
+consent of the Members.
+
+8.03 BBA Partnership Audit Rules. The Company shall be subject to the
+partnership audit rules enacted under the Bipartisan Budget Act of 2015,
+as codified in Sections 6221 through 6241 of the Internal Revenue Code
+(the “BBA Rules”). If the Company receives a notice of final partnership
+adjustment (or analogous notice) under the BBA Rules, the Partnership
+Representative shall, to the fullest extent permitted by law, elect the
+alternative procedure under Section 6226 of the Internal Revenue Code
+(the “push-out election”) so that any tax liability resulting from an
+adjustment is borne by the Members (or former Members) to whom the
+adjustment relates for the applicable reviewed year, rather than by the
+Company. Each Member (and each Former Member, to the extent applicable)
+agrees to cooperate fully with the Partnership Representative in
+connection with any partnership-level audit or proceeding and agrees to
+bear its allocable share of any resulting tax liability, interest, and
+penalties.
+
+8.04 Records and Accounting. The books and records of the Company must
+be kept, and the financial position and the results of its operations
+recorded, in accordance with the generally accepted accounting practices
+elected to be followed by the Company for federal and state tax
+purposes. The books and records of the Company must reflect all Company
+transactions and must be appropriate and adequate for the Company’s
+business. The fiscal year of the Company for financial reporting and for
+federal income tax purposes is the calendar year.
+
+8.05 Access to Accounting Records. All books and records of the Company
+must be maintained at any office of the Company or at the Company’s
+principal place of business, and each Member, and his or her duly
+authorized representative, must have access to them at the office of the
+Company and the right to inspect and copy them at reasonable times.
+
+8.06 Annual and Tax Information. The Members must use their best efforts
+to cause the Company to deliver to each Member, within a reasonable time
+after the end of each fiscal year (and in any event prior to March 15 of
+the following year), all information necessary for the preparation of
+the Member’s federal income tax return, including Schedule K-1 (Form
+1065). The Members must also use their best efforts to cause the Company
+to prepare, within a reasonable time after the end of each fiscal year,
+a financial report of the Company for the fiscal year, which contains a
+balance sheet as of the last day of the year then ended, an income
+statement for the year then ended, a statement of sources and
+applications of funds, and a statement of reconciliation of the Capital
+Accounts of the Members.
+
+8.07 Accounting Decisions. All decisions regarding accounting matters,
+except as otherwise specifically set forth in this Agreement, must be
+made by the Members. The Members may rely on the advice of their
+accountants as to whether the decisions are in accordance with
+accounting methods followed for federal and state tax purposes.
+
+8.08 Income Tax Elections. The Company may make all elections for
+federal income tax purposes, including, but not limited to, the
+following:
+
+  (a) To the extent permitted by applicable law and regulations, elect
+  to use an accelerated depreciation method on any depreciable unit of
+  the assets of the Company; and
+
+  (b) In case of a transfer of all or part of the Company Interest of
+  any Member, the Company may elect, pursuant to Sections 734, 743, and
+  754 of the Internal Revenue Code, as amended (or corresponding
+  provisions of future law), to adjust the basis of the assets of the
+  Company.
+
+ARTICLE IX
+
+TRANSFERS OF MEMBERSHIP INTEREST
+
+9.01 Transfer and Assignment of Member’s Interest. No Member may assign,
+convey, sell, encumber, or in any way alienate all or any part of its
+Membership Interest in the Company without the prior written unanimous
+consent of all the other Members, which consent may be given or
+withheld, conditioned or delayed (as allowed by this Agreement or the
+Code), as the remaining Members may determine in their sole discretion.
+
+9.02 Further Restrictions on Transfer. No Member may assign, convey,
+sell, encumber, or in any way alienate all or any part of its Membership
+Interest in the Company (i) without registration under applicable
+securities laws, or unless he or she delivers an opinion of counsel
+satisfactory to the Company that registration is not required; or (ii)
+if the Interest to be sold or exchanged, when added to the total of all
+other interests sold or exchanged in the preceding twelve (12)
+consecutive months prior thereto, would result in the termination of the
+Company under Section 708 of the Internal Revenue Code (to the extent
+applicable).
+
+9.03 Permitted Transfers. Notwithstanding Sections 9.01 and 9.02, a
+Member may Transfer all or any portion of such Member’s Membership
+Interest to (a) a revocable trust established by such Member for estate
+planning purposes of which such Member is the trustee, (b) any entity
+wholly owned by such Member, or (c) a member of such Member’s immediate
+family (spouse, children, or grandchildren), provided that (i) the
+transferee executes an instrument satisfactory to the non-transferring
+Member accepting and adopting the terms and provisions of this
+Agreement, and (ii) the transferor Member notifies the non-transferring
+Member in writing at least ten (10) days prior to the proposed Transfer.
+
+9.04 Substitute Members. A transferee may become a substitute Member if
+(i) the requirements of Sections 9.01, 9.02, and 9.03 of this Agreement
+are met, (ii) the substituted Member executes an instrument satisfactory
+to the remaining Members accepting and adopting the terms and provisions
+of this Agreement, and (iii) the person pays all reasonable expenses in
+connection with the admission as a remaining Member.
+
+9.05 Effect of Transfer. Any permitted transfer of all or any portion of
+a Member’s Interest in the Company takes effect on the first day of the
+month following receipt by the Members of written notice of transfer.
+Any transferee of an Interest in the Company takes subject to the
+restrictions on transfer imposed by this Agreement and the Code.
+
+ARTICLE X
+
+BUYOUT OF MEMBERSHIP INTEREST
+
+10.01 Death or Disability of a Member. Upon the death or permanent
+disability (as determined by a licensed physician) of a Member, the
+surviving or non-disabled Member shall for a period of sixty (60) days
+have the option to purchase all or any portion of the deceased or
+disabled Member’s Membership Interest at Fair Value (determined as of
+the date of the death or disability, as applicable, of the Member). Upon
+the expiration of sixty (60) days, the Company shall be obligated to
+purchase all, and not less than all, of the deceased or disabled
+Member’s Membership Interest at Fair Value which the surviving or
+non-disabled Member does not elect to purchase pursuant to the option
+granted in the preceding sentence.
+
+10.02 Bankruptcy of Member. If any Member becomes a Bankrupt Member, the
+Company shall have the option, exercisable by notice from the
+non-bankrupt Member to the Bankrupt Member (or its representative) at
+any time prior to the sixtieth (60th) day after receipt of notice of the
+occurrence of the event causing it to become a Bankrupt Member, to
+purchase all or any portion of the Bankrupt Member’s Membership Interest
+at Fair Value (determined as of the date that notice of the exercise of
+such option is given). In the event that such notice is given, the
+Bankrupt Member shall sell its interest to the Company as provided by
+this Article.
+
+10.03 Option by Other Members. If the Company fails or declines to
+exercise an option to purchase a Membership Interest of a Member as
+provided by this Agreement within the period of time specified for such
+option, then the other Members shall have the option for a period of
+ninety (90) days thereafter to purchase such Membership Interest in such
+proportions as they mutually agree or in proportion to their respective
+Percentage Interests for the same price and upon the same terms
+available to the Company.
+
+10.04 Exercise of Option. Any option to purchase a Membership Interest
+as provided by this Agreement shall be deemed exercised at the time the
+purchasing party delivers to the selling party written notice of intent
+to exercise such option along with an initial payment in the form of a
+certified or cashier’s check in the amount of ten percent (10%) of the
+estimated purchase price anticipated by the purchaser, in person or by
+United States registered mail, properly stamped and addressed to the
+last known address of the selling party.
+
+10.05 Determination of Fair Value. The “Fair Value” of a Membership
+Interest shall be the amount that would be distributable to the Member
+holding such interest in the event that the assets of the Company were
+sold for cash and the proceeds, net of liabilities, were distributed to
+the holders of all Membership Interests pursuant to this Agreement. If
+the Members (or the Member and the estate, representative, or successor
+of the departing Member) cannot agree on Fair Value within thirty (30)
+days, then Fair Value shall be determined by an independent appraiser
+mutually agreed upon by the parties, whose determination shall be final
+and binding. If the parties cannot agree on an appraiser within fifteen
+(15) days, each party shall select one appraiser, and the two appraisers
+so selected shall select a third appraiser, whose determination shall be
+final and binding. The cost of any appraisal shall be borne equally by
+the parties.
+
+10.06 Payment Terms. Unless otherwise agreed by the parties, the
+purchase price for any Membership Interest acquired under this Article X
+shall be paid as follows: (a) ten percent (10%) of the purchase price
+shall be paid at closing in cash or certified funds; and (b) the
+remaining ninety percent (90%) shall be paid pursuant to a promissory
+note bearing interest at the General Interest Rate, payable in
+thirty-six (36) equal monthly installments of principal and interest,
+commencing thirty (30) days after closing, secured by a pledge of the
+Membership Interest acquired.
+
+10.07 Right to Withdraw Option. In the event that a Member has exercised
+an election to purchase a Membership Interest under this Agreement, such
+Member may elect to terminate its right to purchase within fifteen (15)
+days following its exercise of any such purchase option.
+
+10.08 Forced Buy-Sell Provision.
+
+  (a) At any time after the Effective Date of this Agreement, either
+  Member (the “Initiating Member”) may by delivery of a written notice
+  (the “Buy-Sell Notice”) to the other Member (the “Responding Member”)
+  initiate the buy-sell procedures set forth in this Section 10.08.
+
+  (b) The Buy-Sell Notice shall contain the following terms: (i) a
+  statement that the notice is the Buy-Sell Notice referred to in this
+  Section 10.08, (ii) the price per Unit (the “Unit Price”) at which the
+  Initiating Member is willing to purchase all, but not less than all,
+  of the Units owned by the Responding Member, (iii) an irrevocable
+  offer of the Initiating Member to the Responding Member to, at the
+  sole election of the Responding Member exercised pursuant to Section
+  10.08(c), either (1) purchase from the Responding Member all of the
+  Units owned by the Responding Member for a purchase price per Unit
+  equal to the Unit Price, or (2) sell to the Responding Member all, but
+  not less than all, of the Units owned by the Initiating Member for a
+  purchase price per Unit equal to the Unit Price.
+
+  (c) Within thirty (30) days after its receipt of the Buy-Sell Notice
+  (the “Response Period”), the Responding Member shall by delivery of a
+  written notice to the Initiating Member (the “Response Notice”) elect
+  to either (1) sell to the Initiating Member all, but not less than
+  all, of the Units owned by the Responding Member for a purchase price
+  per Unit equal to the Unit Price, or (2) purchase from the Initiating
+  Member all, but not less than all, of the Units owned by the
+  Initiating Member for a purchase price per Unit equal to the Unit
+  Price.
+
+  (d) If the Responding Member does not deliver to the Initiating Member
+  the required Response Notice during the Response Period, then,
+  effective as of the first day following expiration of the Response
+  Period, such failure shall be deemed to be an irrevocable acceptance
+  and agreement of the Responding Member to sell to the Initiating
+  Member all of the Units owned by the Responding Member for a purchase
+  price per Unit equal to the Unit Price. Any election or deemed
+  election of the Responding Member with respect to the Buy-Sell Notice
+  shall be irrevocable and shall be binding on both the Responding
+  Member and the Initiating Member.
+
+  (e) The closing of any purchase and sale under this Section 10.08
+  shall occur within sixty (60) days following the election or deemed
+  election by the Responding Member. At the closing, the purchasing
+  party shall pay the full purchase price in cash or certified funds.
+
+ARTICLE XI
+
+EXPULSION OF A MEMBER
+
+11.01 Expulsion. A Member may be expelled from the Company by unanimous
+vote of all other Members (not including the Member to be expelled) if
+it is reasonably determined that such Member (a) has willfully violated
+any provision of this Agreement; (b) committed fraud, theft, or gross
+negligence against the Company or one or more Members of the Company; or
+(c) engaged in wrongful conduct that adversely and materially affects
+the business or operation of the Company. The Company may offset any
+damages to the Company or its Members occasioned by the misconduct of
+the expelled Member against any amounts distributable or otherwise
+payable by the Company to the expelled Member. An expelled Member shall
+be entitled to receive the Fair Value of such Member’s Membership
+Interest as determined under Section 10.05, less any offset for damages,
+paid in accordance with the terms set forth in Section 10.06.
+
+ARTICLE XII
+
+WINDING UP AND TERMINATION
+
+12.01 Winding Up and Termination of the Company.
+
+  (a) The Company is terminated, its assets are disposed of, and its
+  affairs wound up on the first of the following to occur:
+
+  (i) A determination by Members owning more than fifty percent (50%) of
+  the interests in the Company that the Company should be wound up and
+  terminated;
+
+  (ii) A Termination Event, and the Company’s or remaining Members’
+  failure to purchase the Interest of the Former Member as provided in
+  this Agreement;
+
+  (iii) The expiration of the Company term as stated in its Certificate
+  of Formation; or
+
+  (iv) At any earlier time as provided by applicable law.
+
+  (b) In settling accounts of the Company after winding up and
+  termination, the liabilities of the Company must be paid in the
+  following order:
+
+  (i) Liabilities to creditors, in the order of priority as provided by
+  law, except those to Members of the Company on account of their
+  contributions;
+
+  (ii) Liabilities to Members of the Company in respect of their share
+  of the profits and other compensation by way of income on their
+  contributions; and
+
+  (iii) Liabilities to Members of the Company in respect of their
+  contribution to capital.
+
+  (c) Upon the completion of the winding up and the distribution of all
+  Company assets, the Company shall be terminated and the Members shall
+  cause the cancellation of the Certificate of Formation and any other
+  filings as may be required by applicable law.
+
+ARTICLE XIII
+
+GENERAL PROVISIONS
+
+13.01 Construction. Whenever the context requires, the gender of all
+words used in this Agreement includes the masculine, feminine, and
+neuter. In the event there is only one Member, then references to
+Members in the plural should be construed as singular.
+
+13.02 Offset. Whenever the Company is to pay any sum to any Member, any
+amounts that Member owes the Company may be deducted from that sum
+before payment.
+
+13.03 Notices. Except as expressly set forth to the contrary in this
+Agreement, all notices, requests, or consents provided for or permitted
+to be given under this Agreement must be in writing and must be given
+either by depositing that writing in the United States mail, addressed
+to the recipient, postage paid, and registered or certified with return
+receipt requested, or by delivering that writing to the recipient in
+person, by courier, by facsimile transmission, or by electronic mail;
+and a notice, request, or consent given under this Agreement is
+effective on receipt by the person. All notices, requests, and consents
+to be sent to a Member must be sent to or made at the addresses given
+for that Member on Exhibit A or such other address as that Member may
+specify by notice to the other Members.
+
+13.04 Entire Agreement; Supersedes Other Agreements. This Agreement
+includes the entire agreement of the Members relating to the Company and
+supersedes all prior contracts or agreements with respect to the
+Company, whether oral or written.
+
+13.05 Effect of Waiver or Consent. A waiver or consent, express or
+implied, to or of any breach or default by any person in the performance
+by that person of its obligations with respect to the Company is not a
+consent or waiver to or of any other breach or default in the
+performance by that person of the same or any other obligations of that
+person with respect to the Company. Failure on the part of a person to
+complain of any act of any person or to declare any person in default
+with respect to the Company, irrespective of how long that failure
+continues, does not constitute a waiver by that person of its rights
+with respect to that default until the applicable statute-of-limitations
+period has run.
+
+13.06 Binding Effect. Subject to the restrictions on Transfers set forth
+in this Agreement, this Agreement is binding on and inures to the
+benefit of the Members and their respective heirs, legal
+representatives, successors, and assigns. However, unless and until
+properly admitted as a Member, no Assignee will have any rights of a
+Member beyond those expressly set forth in this Agreement or granted by
+the Texas Business Organizations Code to assignees.
+
+13.07 Governing Law. THIS AGREEMENT IS GOVERNED BY AND SHALL BE
+CONSTRUED IN ACCORDANCE WITH THE LAW OF THE STATE OF TEXAS, EXCLUDING
+ANY CONFLICT-OF-LAWS RULE OR PRINCIPLE THAT MIGHT REFER THE GOVERNANCE
+OR THE CONSTRUCTION OF THIS AGREEMENT TO THE LAW OF ANOTHER
+JURISDICTION.
+
+13.08 Dispute Resolution. Any dispute, controversy, or claim arising out
+of or relating to this Agreement, or the breach, termination, or
+invalidity thereof, shall first be submitted to non-binding mediation.
+If mediation does not resolve the dispute within thirty (30) days after
+the mediator is selected, then the dispute shall be resolved by binding
+arbitration administered by the American Arbitration Association in
+accordance with its Commercial Arbitration Rules, and judgment on the
+award rendered by the arbitrator(s) may be entered in any court having
+jurisdiction thereof. The arbitration shall take place in Tarrant
+County, Texas. The prevailing party in any arbitration or litigation
+shall be entitled to recover its reasonable attorney’s fees and costs
+from the non-prevailing party.
+
+13.09 Severability. If any provision of this Agreement or the
+application thereof to any person or circumstance is held invalid or
+unenforceable to any extent, the remainder of this Agreement and the
+application of that provision to other persons or circumstances is not
+affected thereby and that provision shall be enforced to the greatest
+extent permitted by law.
+
+13.10 Amendment or Modification. Neither this Agreement nor the
+Certificate of Formation of the Company may be amended or modified
+without a written instrument executed by all of the Members.
+
+13.11 Further Assurances. In connection with this Agreement and the
+transactions contemplated hereby, each Member shall execute and deliver
+any additional documents and instruments and perform any additional acts
+that may be necessary or appropriate to effectuate and perform the
+provisions of this Agreement and those transactions.
+
+13.12 Waiver of Certain Rights. Each Member irrevocably waives any right
+it may have to maintain any action for dissolution of the Company or for
+partition of the property of the Company.
+
+13.13 Confidentiality. Each Member acknowledges that during the course
+of the Company’s business, each Member may receive or have access to
+confidential or proprietary information of the Company. Each Member
+agrees not to disclose any such information to any third party (other
+than such Member’s legal, tax, or financial advisors who are bound by
+confidentiality obligations) without the prior written consent of the
+other Members, except as required by applicable law or regulation.
+
+13.14 Counterparts. This Agreement may be executed in any number of
+counterparts with the same effect as if all signing parties had signed
+the same instrument. Electronic signatures shall have the same force and
+effect as original signatures.
+
+[SIGNATURES APPEAR ON FOLLOWING PAGE]
+
+IN WITNESS WHEREOF, the Members have executed this Limited Liability
+Company Agreement, as of the Effective Date.
+
+MEMBERS:
+
+By: _________________________________
+
+  Philip C Chapman
+
+By: _________________________________
+
+  Robert Pike
+
+EXHIBIT “A”
+
+MEMBERS OF PCRP GROUP, LLC
+
++-----------------+-------------+-------------+----------+------------+
+| INITIAL MEMBERS | INITIAL     | CURRENT     | MEMBER   | C          |
+|                 | CAPITAL     | CAPITAL     | INTEREST | ERTIFICATE |
+|                 | C           | COMMITMENT  | / # OF   | NO.        |
+|                 | ONTRIBUTION |             | UNITS    |            |
++=================+=============+=============+==========+============+
+| Philip C        | $0.00       | $0.00       | 50.00%   | #1         |
+| Chapman         |             |             |          |            |
+|                 |             |             | 500 /    |            |
+|                 |             |             | 1,000    |            |
+|                 |             |             | Units    |            |
++-----------------+-------------+-------------+----------+------------+
+| Robert Pike     | $0.00       | $0.00       | 50.00%   | #2         |
+|                 |             |             |          |            |
+|                 |             |             | 500 /    |            |
+|                 |             |             | 1,000    |            |
+|                 |             |             | Units    |            |
++-----------------+-------------+-------------+----------+------------+
