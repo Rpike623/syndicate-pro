@@ -1851,7 +1851,50 @@ input::placeholder, textarea::placeholder {
 /* Extra small screens */
 @media (max-width: 480px) {
   .stats-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .stat-card {
+    padding: 10px 8px;
+    min-width: 0; /* allow shrinking */
+  }
+  
+  .stat-card .val,
+  .stat-card .stat-value,
+  .stat-body .val {
+    font-size: 18px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .stat-card .lbl,
+  .stat-card .stat-label {
+    font-size: 10px !important;
+  }
+  
+  .stat-icon {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 14px !important;
+  }
+  
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .kpi-card {
+    padding: 12px 8px;
+    min-width: 0;
+  }
+  
+  .kpi-value {
+    font-size: 18px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .header-actions .btn span {
@@ -1860,6 +1903,14 @@ input::placeholder, textarea::placeholder {
   
   .header-actions .btn i {
     margin: 0;
+  }
+  
+  /* Page title + header actions: prevent word break */
+  .main-content > h1:first-of-type,
+  .dt-main > h1:first-of-type,
+  main > h1:first-of-type {
+    font-size: 1.25rem !important;
+    white-space: nowrap;
   }
 }
 
