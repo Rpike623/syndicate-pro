@@ -121,7 +121,7 @@
     // Demo data for demo accounts (same as dashboard)
     const DEMO_DEALS_PULSE = [
       { id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9, status:'operating', location:'Austin, TX', state:'TX', companyName:'Riverside Flats Capital LLC', totalEquity:4200000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[{investorId:'i1',committed:250000,status:'funded'},{investorId:'i2',committed:500000,status:'funded'},{investorId:'i4',committed:300000,status:'funded'},{investorId:'i7',committed:100000,status:'funded'}] },
-      { id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1, status:'closed', location:'Dallas, TX', state:'TX', companyName:'Meridian Industrial Capital LLC', totalEquity:7500000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[{investorId:'i2',committed:750000,status:'funded'},{investorId:'i3',committed:250000,status:'funded'},{investorId:'i4',committed:1000000,status:'funded'}] },
+      { id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1, status:'closed', location:'Dallas, TX', state:'TX', companyName:'Meridian Industrial Capital LLC', totalEquity:7500000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[{investorId:'i2',committed:2250000,status:'funded'},{investorId:'i4',committed:2500000,status:'funded'},{investorId:'i1',committed:1500000,status:'funded'},{investorId:'i6',committed:1000000,status:'funded'}] },
       { id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7, status:'operating', location:'Houston, TX', state:'TX', companyName:'Hudson Portfolio Capital LLC', totalEquity:12000000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[{investorId:'i1',committed:400000,status:'funded'},{investorId:'i2',committed:500000,status:'funded'},{investorId:'i4',committed:700000,status:'funded'},{investorId:'i6',committed:350000,status:'funded'}] },
       { id:'d4', name:'Parkview Commons', type:'multifamily', raise:3100000, irr:19.0, equity:1.95, status:'dd', location:'San Antonio, TX', state:'TX', totalEquity:3100000, prefReturn:8, gpPromote:20, investors:[{investorId:'i5',committed:150000,status:'committed'},{investorId:'i6',committed:200000,status:'committed'}] },
       { id:'d5', name:'Westgate Retail Center', type:'retail', raise:5800000, irr:14.5, equity:1.6, status:'loi', location:'Fort Worth, TX', state:'TX', companyName:'Westgate Retail Capital LLC', totalEquity:5800000, prefReturn:7, gpPromote:20, investors:[] },
@@ -139,14 +139,38 @@
       { id:'i7', firstName:'Phil', lastName:'Chapman', email:'philip@jchapmancpa.com', accredStatus:'verified', accredMethod:'cpa', accredDate:'2025-01-01', accredExpiry:'2027-01-01' },
     ];
 
+    // Demo distributions so operating/closed deals don't all flag "no distributions"
+    const DEMO_DISTRIBUTIONS_PULSE = [
+      { id:'dd1', dealId:'d1', dealName:'Riverside Flats', period:'Q4 2025', status:'posted', date:'2026-01-05', totalAmount:100800, recipients:[
+        {investorId:'i1',amount:21000,totalThisDist:21000},{investorId:'i2',amount:42000,totalThisDist:42000},{investorId:'i4',amount:21000,totalThisDist:21000},{investorId:'i7',amount:16800,totalThisDist:16800}
+      ]},
+      { id:'dd2', dealId:'d3', dealName:'The Hudson Portfolio', period:'Q1 2026', status:'posted', date:'2026-03-15', totalAmount:180000, recipients:[
+        {investorId:'i1',amount:45000,totalThisDist:45000},{investorId:'i2',amount:45000,totalThisDist:45000},{investorId:'i4',amount:60000,totalThisDist:60000},{investorId:'i6',amount:30000,totalThisDist:30000}
+      ]},
+      { id:'dd3', dealId:'d2', dealName:'Meridian Industrial', period:'Q4 2025', status:'posted', date:'2026-01-10', totalAmount:150000, recipients:[
+        {investorId:'i2',amount:45000,totalThisDist:45000},{investorId:'i4',amount:50000,totalThisDist:50000},{investorId:'i1',amount:40000,totalThisDist:40000},{investorId:'i6',amount:15000,totalThisDist:15000}
+      ]},
+    ];
+
+    // Demo settings so platform-setup checks don't fire on demo
+    const DEMO_SETTINGS_PULSE = {
+      firmName:'Pike Capital Management LLC', firmDBA:'Pike Capital', firmEntityType:'LLC',
+      firmEIN:'47-1234567', firmState:'TX', firmAddress:'500 Throckmorton St, Suite 800, Fort Worth, TX 76102',
+      firmEmail:'robert@pikecapital.com', firmPhone:'(817) 555-0100',
+      gpFullName:'Robert Pike', gpTitle:'Managing Member', gpEmail:'robert@pikecapital.com',
+      wireBankName:'Frost Bank', wireAcctName:'Pike Capital Management LLC',
+      wireAcctNum:'****1234', wireRouting:'114000093',
+    };
+
     function runPulse() {
       const session = SP.getSession();
       const isDemoAccount = ['gp@deeltrack.com','demo@deeltrack.com'].includes(session?.email?.toLowerCase());
-      const deals = (isDemoAccount && !SP.getDeals().length) ? DEMO_DEALS_PULSE : SP.getDeals();
-      const investors = (isDemoAccount && !SP.getInvestors().length) ? DEMO_INVESTORS_PULSE : SP.getInvestors();
-      const distributions = SP.getDistributions();
-      const settings = SP.load('settings', {});
-      const k1Vault = SP.load('k1_vault', []);
+      const usingInlineDemo = isDemoAccount && !SP.getDeals().length;
+      const deals = usingInlineDemo ? DEMO_DEALS_PULSE : SP.getDeals();
+      const investors = usingInlineDemo ? DEMO_INVESTORS_PULSE : (isDemoAccount && !SP.getInvestors().length ? DEMO_INVESTORS_PULSE : SP.getInvestors());
+      const distributions = usingInlineDemo ? DEMO_DISTRIBUTIONS_PULSE : SP.getDistributions();
+      const settings = usingInlineDemo ? DEMO_SETTINGS_PULSE : SP.load('settings', {});
+      const k1Vault = usingInlineDemo ? [] : SP.load('k1_vault', []);
 
       const findings = [];
 
@@ -248,13 +272,15 @@
           }
         }
 
-        // Subscription docs in deal room
-        const docs = SP.load(`dealroom_docs_${d.id}`, []);
-        const hasSub = (docs || []).some(doc => (doc.id === 'd_sub') || (doc.name || '').toLowerCase().includes('subscription'));
-        if (invCount > 0 && !hasSub) {
-          findings.push({ cat: 'docs', sev: 'warning', title: `${d.name} — no subscription docs in deal room`,
-            desc: `This deal has investors but no subscription documents uploaded. Add them to the deal room.`,
-            link: `deal-room.html?deal=${d.id}`, linkText: 'Deal Room' });
+        // Subscription docs in deal room (skip on inline demo — deal room data not available)
+        if (!usingInlineDemo) {
+          const docs = SP.load(`dealroom_docs_${d.id}`, []);
+          const hasSub = (docs || []).some(doc => (doc.id === 'd_sub') || (doc.name || '').toLowerCase().includes('subscription'));
+          if (invCount > 0 && !hasSub) {
+            findings.push({ cat: 'docs', sev: 'warning', title: `${d.name} — no subscription docs in deal room`,
+              desc: `This deal has investors but no subscription documents uploaded. Add them to the deal room.`,
+              link: `deal-room.html?deal=${d.id}`, linkText: 'Deal Room' });
+          }
         }
       });
 
