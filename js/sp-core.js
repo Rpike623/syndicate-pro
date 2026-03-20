@@ -556,7 +556,7 @@ window.SP = (function () {
   function seedDemoData(session) {
     // Always seed under the shared demo org key
     // Bump SEED_VERSION to force re-seed when demo data changes
-    const SEED_VERSION = 3;
+    const SEED_VERSION = 4;
     const demoOrgKey = `sp_org_${DEMO_ORG_ID}_deals`;
     const seedVersionKey = `sp_org_${DEMO_ORG_ID}_seed_v`;
     const currentVersion = parseInt(localStorage.getItem(seedVersionKey) || '0', 10);
@@ -585,6 +585,12 @@ window.SP = (function () {
         if (k1s.length) SP.save('k1_vault', k1s);
         const updates = SP.load('published_updates', []);
         if (updates.length) SP.save('published_updates', updates);
+        const seededDeals = SP.getDeals();
+        seededDeals.forEach(deal => {
+          const key = `dealroom_docs_${deal.id}`;
+          const docs = SP.load(key, []);
+          if (docs && docs.length) SP.save(key, docs);
+        });
         localStorage.setItem(FS_SEED_KEY, '1'); // mark as pushed
         console.log('[seed] Firestore seed complete');
       } catch(e) { console.warn('[seed] Firestore push failed (will retry):', e.message); }
@@ -803,23 +809,25 @@ window.SP = (function () {
       {
         id:'dd2', dealId:'d2', dealName:'Meridian Industrial',
         period:'Q4 2025', quarter:'Q4', year:2025,
-        totalAmount:300000, amount:300000,
+        totalAmount:5250000, amount:5250000,
         date:'2026-01-08', method:'Wire',
         status:'posted', prefAware:true,
         investorCount:4,
+        gpAmount: 400000,
+        distributionType: 'Sale Proceeds',
         recipients:[
           { investorId:'di2', ownership:30, invested:2250000,
-            prefPaidThisDist:45000, excessThisDist:48103, totalThisDist:93103,
-            amount:93103, prefPaidToDate:45000, prefRemainingAfterDist:0 },
+            returnOfCapital:2250000, prefPaidThisDist:45000, excessThisDist:636207, totalThisDist:2931207,
+            amount:2931207, prefPaidToDate:45000, prefRemainingAfterDist:0 },
           { investorId:'di4', ownership:33.33, invested:2500000,
-            prefPaidThisDist:50000, excessThisDist:53448, totalThisDist:103448,
-            amount:103448, prefPaidToDate:50000, prefRemainingAfterDist:0 },
+            returnOfCapital:2500000, prefPaidThisDist:50000, excessThisDist:707861, totalThisDist:3257861,
+            amount:3257861, prefPaidToDate:50000, prefRemainingAfterDist:0 },
           { investorId:'di1', ownership:20, invested:1500000,
-            prefPaidThisDist:30000, excessThisDist:32069, totalThisDist:62069,
-            amount:62069, prefPaidToDate:30000, prefRemainingAfterDist:0 },
+            returnOfCapital:1500000, prefPaidThisDist:30000, excessThisDist:424138, totalThisDist:1954138,
+            amount:1954138, prefPaidToDate:30000, prefRemainingAfterDist:0 },
           { investorId:'di6', ownership:13.33, invested:1000000,
-            prefPaidThisDist:20000, excessThisDist:21380, totalThisDist:41380,
-            amount:41380, prefPaidToDate:20000, prefRemainingAfterDist:0 },
+            returnOfCapital:1000000, prefPaidThisDist:20000, excessThisDist:282794, totalThisDist:1302794,
+            amount:1302794, prefPaidToDate:20000, prefRemainingAfterDist:0 },
         ]
       },
     ]);

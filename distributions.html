@@ -341,6 +341,7 @@
         const dateStr = dist.date ? new Date(dist.date + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
 
         // Build per-investor rows with bar charts — this is the value prop
+        const gpAmount = dist.gpAmount || 0;
         const recipientRows = recipients.length
           ? recipients.map(r => {
               const investor = SP.getInvestorById ? SP.getInvestorById(r.investorId) : null;
@@ -349,13 +350,9 @@
               const pct = total > 0 ? (amount / total * 100) : 0;
               const pref = r.prefPaidThisDist || 0;
               const excess = r.excessThisDist || amount;
-              // Normalize ownership - if total exceeds 100%, recalculate from committed amounts
               let ownership = r.ownership || 0;
               const totalOwnership = recipients.reduce((s, x) => s + (x.ownership || 0), 0);
-              if (totalOwnership > 100.1 && r.invested && total > 0) {
-                // Ownership values are wrong; show proportion of distribution instead
-                ownership = pct;
-              }
+              if (totalOwnership > 100.1 && r.invested && total > 0) ownership = pct;
               const barWidth = Math.min(100, Math.max(2, pct));
               return `
                 <div class="investor-split-row" style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
@@ -374,7 +371,6 @@
                       <div style="font-size:11px;color:#94A3B8;">${pct.toFixed(1)}% of total</div>
                     </div>
                   </div>
-                  <!-- Animated progress bar -->
                   <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;margin-bottom:${hasPref?'6px':'0'};">
                     <div class="split-bar" data-width="${barWidth}" style="height:100%;width:0%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:6px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);"></div>
                   </div>
@@ -384,9 +380,27 @@
                     <span><i class="fas fa-chart-pie" style="color:#0369A1;margin-right:3px;"></i>Excess: <strong style="color:#0369A1;">${fmt$(excess)}</strong></span>
                   </div>` : ''}
                 </div>`;
-            }).join('') + `
+            }).join('') + `${gpAmount > 0 ? `
+            <div class="investor-split-row" style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#f97316);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:white;flex-shrink:0;">GP</div>
+                  <div>
+                    <div style="font-weight:600;font-size:14px;color:#1B1A19;">${(SP.load('settings', {}).firmName || 'General Partner')}</div>
+                    <div style="font-size:11px;color:#94A3B8;">GP promote / carried interest</div>
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:16px;color:#f59e0b;">${fmt$(gpAmount)}</div>
+                  <div style="font-size:11px;color:#94A3B8;">${total > 0 ? ((gpAmount / total) * 100).toFixed(1) : '0.0'}% of total</div>
+                </div>
+              </div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;">
+                <div class="split-bar" data-width="${Math.min(100, Math.max(2, total > 0 ? (gpAmount / total * 100) : 2))}" style="height:100%;width:0%;background:linear-gradient(90deg,#f59e0b,#f97316);border-radius:6px;transition:width 0.8s cubic-bezier(0.4,0,0.2,1);"></div>
+              </div>
+            </div>` : ''}
             <div style="padding:14px 0;display:flex;justify-content:space-between;font-weight:700;border-top:2px solid rgba(255,255,255,0.1);margin-top:4px;">
-              <span style="color:#94A3B8;font-size:13px;">${recipients.length} investor${recipients.length!==1?'s':''}</span>
+              <span style="color:#94A3B8;font-size:13px;">${recipients.length} investor${recipients.length!==1?'s':''}${gpAmount>0?' + GP':''}</span>
               <span style="font-family:'JetBrains Mono',monospace;color:#34d399;font-size:15px;">${fmt$(total)}</span>
             </div>`
           : `<div style="padding:20px;text-align:center;color:#94A3B8;font-size:13px;">No per-investor data recorded for this distribution.</div>`;
