@@ -556,7 +556,7 @@ window.SP = (function () {
   function seedDemoData(session) {
     // Always seed under the shared demo org key
     // Bump SEED_VERSION to force re-seed when demo data changes
-    const SEED_VERSION = 5;
+    const SEED_VERSION = 6;
     const demoOrgKey = `sp_org_${DEMO_ORG_ID}_deals`;
     const seedVersionKey = `sp_org_${DEMO_ORG_ID}_seed_v`;
     const currentVersion = parseInt(localStorage.getItem(seedVersionKey) || '0', 10);
@@ -618,6 +618,10 @@ window.SP = (function () {
       defHold: '5',
       defState: 'TX',
       defSEC: '506b',
+      wireBankName: 'Frost Bank',
+      wireAcctName: 'Pike Capital Management LLC',
+      wireAcctNum: '****4567',
+      wireRouting: '114000093',
     });
 
     // Investors — accredExpiry dates must be well in the future to avoid Pulse criticals
