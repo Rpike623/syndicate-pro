@@ -556,7 +556,7 @@ window.SP = (function () {
   function seedDemoData(session) {
     // Always seed under the shared demo org key
     // Bump SEED_VERSION to force re-seed when demo data changes
-    const SEED_VERSION = 2;
+    const SEED_VERSION = 3;
     const demoOrgKey = `sp_org_${DEMO_ORG_ID}_deals`;
     const seedVersionKey = `sp_org_${DEMO_ORG_ID}_seed_v`;
     const currentVersion = parseInt(localStorage.getItem(seedVersionKey) || '0', 10);
@@ -882,6 +882,18 @@ window.SP = (function () {
       { icon:'fa-user-plus', color:'green', text:'<strong>Priya Patel</strong> linked to Meridian Industrial — $1M commitment', time:'Dec 10, 2025', ts:1733788800000 },
       { icon:'fa-file-contract', color:'amber', text:'Operating Agreement auto-generated for <strong>Riverside Flats</strong>', time:'Nov 10, 2025', ts:1731196800000 },
     ]);
+
+    // Seed deal room docs for deals with investors (Pulse checks these via SP.load)
+    const _subDocs = [
+      { id:'d_sub', name:'Subscription Agreement', type:'subscription', uploadedAt: new Date().toISOString() },
+      { id:'d_ppm', name:'Private Placement Memorandum', type:'ppm', uploadedAt: new Date().toISOString() },
+      { id:'d_oa', name:'Operating Agreement', type:'oa', uploadedAt: new Date().toISOString() },
+    ];
+    deals.forEach(d => {
+      if ((d.investors || []).length > 0) {
+        save(`dealroom_docs_${d.id}`, _subDocs);
+      }
+    });
 
     // Mark seed version so we don't re-seed unless SEED_VERSION bumps
     localStorage.setItem(seedVersionKey, String(SEED_VERSION));
