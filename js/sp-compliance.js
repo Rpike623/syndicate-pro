@@ -145,7 +145,7 @@ window.Compliance = {
       const d = new Date(f.filingDate);
       return d.getFullYear() === new Date().getFullYear();
     }).length;
-    const accredited = this.investors.filter(i => i.accreditation?.status === 'verified').length;
+    const accredited = this.investors.filter(i => (i.accreditation?.status || i.accredStatus) === 'verified').length;
     const exemptions = [...new Set(this.formDFilings.map(f => f.exemption))].length;
 
     document.getElementById('statDeals').textContent = activeDeals;

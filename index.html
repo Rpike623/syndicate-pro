@@ -656,8 +656,11 @@
           source: 'landing_page',
         });
         if (window.dtTrack) window.dtTrack('generate_lead', { lead_type: 'demo_request', page_location: window.location.href });
-        e.target.style.display = 'none';
-        document.getElementById('demoSuccess').style.display = 'block';
+        e.target.reset();
+        btn.disabled = false; btn.innerHTML = 'Request Demo <i class="fas fa-arrow-right" style="font-size:12px;"></i>';
+        const successEl = document.getElementById('demoSuccess');
+        successEl.style.display = 'block';
+        successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } catch (err) {
         // Fallback: mailto
         const email = document.getElementById('demoEmail').value.trim();

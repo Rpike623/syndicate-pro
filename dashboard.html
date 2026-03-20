@@ -18,9 +18,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v9"></script>
-  <script src="js/sp-data.js?v9"></script>
-  <script src="js/sp-firebase.js?v9"></script>
+  <script src="js/sp-core.js?v11"></script>
+  <script src="js/sp-data.js?v11"></script>
+  <script src="js/sp-firebase.js?v11"></script>
   <script src="js/sp-notify.js"></script>
   <script src="js/sp-billing.js?v3"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -876,32 +876,44 @@ const DEMO_ACTIVITY = [
   { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$84,200</strong> sent to 14 investors', time:'Feb 20, 2026' },
   { icon:'fa-file-invoice-dollar', color:'blue', text:'K-1s exported for <strong>Riverside Flats</strong> (12 investors)', time:'Feb 18, 2026' },
 ];
-const DEMO_DEADLINES = [
-  { day:'01', month:'MAR', name:'Lone Star Self Storage', type:'Raise Target Deadline', urgency:'urgent' },
-  { day:'03', month:'MAR', name:'Permian Basin Industrial', type:'LOI Signing', urgency:'urgent' },
-  { day:'28', month:'FEB', name:'Parkview Commons', type:'LOI Expiration', urgency:'urgent' },
-  { day:'05', month:'MAR', name:'Westgate Retail', type:'Due Diligence Start', urgency:'soon' },
-  { day:'10', month:'MAR', name:'Brazos Hotel Group', type:'Site Visit Scheduled', urgency:'soon' },
-  { day:'15', month:'MAR', name:'Hudson Portfolio', type:'Q1 Distribution', urgency:'ok' },
-  { day:'31', month:'MAR', name:'Meridian Industrial', type:'Investor Report Due', urgency:'ok' },
-];
+const DEMO_DEADLINES = (() => {
+  // Generate future deadlines relative to today so they never look stale
+  const now = new Date();
+  function futureDate(daysAhead) {
+    const d = new Date(now.getTime() + daysAhead * 86400000);
+    return { day: String(d.getDate()).padStart(2, '0'), month: d.toLocaleString('en-US', { month: 'short' }).toUpperCase() };
+  }
+  const d1 = futureDate(2), d2 = futureDate(4), d3 = futureDate(5), d4 = futureDate(8), d5 = futureDate(12), d6 = futureDate(18), d7 = futureDate(25);
+  return [
+    { ...d1, name:'Lone Star Self Storage', type:'Raise Target Deadline', urgency:'urgent' },
+    { ...d2, name:'Permian Basin Industrial', type:'LOI Signing', urgency:'urgent' },
+    { ...d3, name:'Parkview Commons', type:'LOI Expiration', urgency:'urgent' },
+    { ...d4, name:'Westgate Retail', type:'Due Diligence Start', urgency:'soon' },
+    { ...d5, name:'Brazos Hotel Group', type:'Site Visit Scheduled', urgency:'soon' },
+    { ...d6, name:'Hudson Portfolio', type:'Q1 Distribution', urgency:'ok' },
+    { ...d7, name:'Meridian Industrial', type:'Investor Report Due', urgency:'ok' },
+  ];
+})();
 
 // ── Load data ───────────────────────────────────────────────────
 function loadDeals() {
-  const deals = SP.getDeals();
-  if (deals && deals.length) return deals;
-  // Only seed demo data for the demo GP account
   const session = SP.getSession();
   const isDemoAccount = ['gp@deeltrack.com','demo@deeltrack.com'].includes(session?.email?.toLowerCase());
-  if (isDemoAccount) { SP.saveDeals(DEMO_DEALS); return DEMO_DEALS; }
+  // For demo accounts, always use curated demo data — Firestore may contain QA test garbage
+  if (isDemoAccount) return DEMO_DEALS;
+  const deals = SP.getDeals();
+  if (deals && deals.length) {
+    // Filter out obviously broken deals (negative raise, test names)
+    return deals.filter(d => (d.raise || 0) >= 0 && !/^QA\b/i.test(d.name || ''));
+  }
   return [];
 }
 function loadInvestors() {
-  const investors = SP.getInvestors();
-  if (investors && investors.length) return investors;
   const session = SP.getSession();
   const isDemoAccount = ['gp@deeltrack.com','demo@deeltrack.com'].includes(session?.email?.toLowerCase());
-  if (isDemoAccount) { SP.saveInvestors(DEMO_INVESTORS); return DEMO_INVESTORS; }
+  if (isDemoAccount) return DEMO_INVESTORS;
+  const investors = SP.getInvestors();
+  if (investors && investors.length) return investors.filter(i => !/^QA\b/i.test((i.firstName || '') + ' ' + (i.lastName || '')));
   return [];
 }
 function loadDistributionsYTD() {
@@ -1096,6 +1108,22 @@ function renderDeadlines() {
     const el = document.getElementById(id);
     if (el) { el.style.opacity = '0.3'; el.textContent = '…'; }
   });
+
+  // Immediate render for demo accounts — don't wait for Firestore
+  const _sessNow = SP.getSession();
+  const _isDemoNow = _sessNow && ['gp@deeltrack.com','demo@deeltrack.com'].includes(_sessNow.email?.toLowerCase());
+  if (_isDemoNow) {
+    const _demoDeals = loadDeals();
+    const _demoInvs = loadInvestors();
+    if (_demoDeals.length) {
+      ['kpiAUM','kpiDeals','kpiDist','kpiDebt'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.style.opacity = '1';
+      });
+      renderKPIs(_demoDeals, _demoInvs, loadDistributionsYTD());
+      renderDonut(_demoDeals); renderBar(_demoDeals); renderDealsTable(_demoDeals);
+      renderActivity(loadActivity()); renderDeadlines();
+    }
+  }
 
   // SPData fires 'spdata-ready' when Firestore cache is warm — re-render with live data
   function _render() {

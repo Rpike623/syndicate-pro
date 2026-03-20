@@ -109,7 +109,8 @@
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="password" placeholder="Min 8 characters" minlength="8" required oninput="checkPwMatch()">
+        <input type="password" id="password" placeholder="Min 8 characters" minlength="8" required oninput="checkPwMatch(); checkPwStrength();">
+        <div id="pwStrength" style="margin-top:6px;font-size:0.75rem;display:none;"></div>
       </div>
       <div class="form-group">
         <label>Confirm Password</label>
@@ -188,9 +189,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v9"></script>
-  <script src="js/sp-data.js?v9"></script>
-  <script src="js/sp-firebase.js?v9"></script>
+  <script src="js/sp-core.js?v11"></script>
+  <script src="js/sp-data.js?v11"></script>
+  <script src="js/sp-firebase.js?v11"></script>
   <script>
     // Parse URL params
     const urlParams = new URLSearchParams(window.location.search);
@@ -261,6 +262,21 @@
         msg.style.color = '#2D9A6B';
         cInput.classList.remove('pw-mismatch');
       }
+    }
+
+    function checkPwStrength() {
+      const p = document.getElementById('password').value;
+      const el = document.getElementById('pwStrength');
+      if (p.length < 8) { el.style.display = 'none'; return; }
+      el.style.display = 'block';
+      let score = 0;
+      if (p.length >= 12) score++;
+      if (/[A-Z]/.test(p)) score++;
+      if (/[0-9]/.test(p)) score++;
+      if (/[^A-Za-z0-9]/.test(p)) score++;
+      const colors = ['#ef4444','#f59e0b','#0ea5e9','#10b981','#059669'];
+      const labels = ['Weak','Fair','Good','Strong','Excellent'];
+      el.innerHTML = '<span style="color:' + colors[score] + '">' + labels[score] + '</span> — Use 12+ chars, mix of upper/lower/numbers/symbols';
     }
 
     function handleSignup(e) {

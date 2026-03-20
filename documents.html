@@ -12,9 +12,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v9"></script>
-  <script src="js/sp-data.js?v9"></script>
-  <script src="js/sp-firebase.js?v9"></script>
+  <script src="js/sp-core.js?v11"></script>
+  <script src="js/sp-data.js?v11"></script>
+  <script src="js/sp-firebase.js?v11"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-documents.js"></script>
   <script src="js/sp-esign.js?v10"></script>
@@ -296,16 +296,7 @@
     .tab-content.active { display: block; }
     
     .variable-tag {
-      display: inline-flex;
-      align-items: center;
-      background: var(--accent-light);
-      color: var(--accent);
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 500;
-      margin-left: 8px;
+      display: none;
     }
     
     .preview-panel {
@@ -1136,8 +1127,10 @@
       const _sett = SP.load('settings', {});
       const _gpN = data.gpName || _sett.firmName || data.companyName || '[GP NAME]';
       const _gpR = data.gpRep || _sett.gpFullName || SP.getSession()?.name || 'Managing Member';
-      const _st = data.state || _sett.defState || 'DE';
-      const _addr = _sett.firmAddress || data.address || '';
+      const _stAbbr = data.state || _sett.defState || 'DE';
+      const _stateNames = {AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',DC:'District of Columbia'};
+      const _st = _stateNames[_stAbbr] || _stAbbr;
+      const _addr = _sett.firmAddress || data.address || data.gpAddress || '';
       const _min = data.minInvestment || 50000;
 
       // Build a deal-like object from form data for SPDocs

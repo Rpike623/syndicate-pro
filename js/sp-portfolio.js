@@ -19,8 +19,9 @@ window.Portfolio = {
   },
 
   loadData: async function() {
-    // Load real deals from Firestore/SP
+    // Load real deals from Firestore/SP — filter out QA garbage
     let rawDeals = SP.getDeals ? SP.getDeals() : [];
+    rawDeals = rawDeals.filter(d => (d.raise || d.currentValue || 0) >= 0 && !/^QA\b/i.test(d.name || ''));
 
     // Normalize deal fields — real deals use 'raise'/'totalEquity', demo uses 'currentValue'/'purchasePrice'
     this.deals = rawDeals.map(d => ({
@@ -121,13 +122,16 @@ window.Portfolio = {
   },
 
   generateDemoInvestors: function() {
-    return Array.from({ length: 41 }, (_, i) => ({
-      id: `inv_${i + 1}`,
-      firstName: ['John', 'Sarah', 'Mike', 'Lisa', 'David', 'Jennifer', 'Robert'][i % 7],
-      lastName: ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller'][i % 7],
-      email: `investor${i + 1}@email.com`,
-      totalInvested: 50000 + Math.floor(Math.random() * 450000)
-    }));
+    // Match dashboard DEMO_INVESTORS (7 investors)
+    return [
+      { id:'i1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@demo.deeltrack.com', totalInvested:500000 },
+      { id:'i2', firstName:'Sarah', lastName:'Chen', email:'s.chen@demo.deeltrack.com', totalInvested:750000 },
+      { id:'i3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@demo.deeltrack.com', totalInvested:250000 },
+      { id:'i4', firstName:'Priya', lastName:'Patel', email:'ppatel@demo.deeltrack.com', totalInvested:1000000 },
+      { id:'i5', firstName:'Robert', lastName:'Thompson', email:'r.thompson@gmail.com', totalInvested:150000 },
+      { id:'i6', firstName:'Elena', lastName:'Vasquez', email:'evasquez@invest.net', totalInvested:350000 },
+      { id:'i7', firstName:'Phil', lastName:'Chapman', email:'philip@jchapmancpa.com', totalInvested:1075000 },
+    ];
   },
 
   generateDemoDistributions: function() {
