@@ -146,7 +146,7 @@
       <h1 class="card-title">Welcome back</h1>
       <p class="card-sub">Sign in to your account to continue</p>
       <div class="alert alert-error" id="errorAlert"><i class="fas fa-exclamation-circle"></i><span id="errorMsg">Invalid email or password.</span></div>
-      <div class="alert alert-success" id="successAlert" style="display:none;"></div>
+      <div class="alert alert-success" id="successAlert" style="display:none !important;" hidden></div>
       <form id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label>Email Address</label>
@@ -396,7 +396,7 @@
       document.getElementById('errorAlert').classList.remove('show');
       const sa = document.getElementById('successAlert');
       sa.innerHTML = `<i class="fas fa-check-circle"></i> Password reset email sent to <strong>${email}</strong>. Check your inbox.`;
-      sa.classList.add('show');
+      sa.removeAttribute('hidden'); sa.style.display = ''; sa.classList.add('show');
     } catch (err) {
       document.getElementById('successAlert').classList.remove('show');
       document.getElementById('errorAlert').classList.add('show');
@@ -415,7 +415,7 @@
   if (verifiedParam === '1') {
     const sa = document.getElementById('successAlert');
     sa.innerHTML = '<i class="fas fa-check-circle"></i><span>Email verified! Sign in to continue.</span>';
-    sa.classList.add('show');
+    sa.removeAttribute('hidden'); sa.style.display = ''; sa.classList.add('show');
     window.history.replaceState({}, '', window.location.pathname);
   }
 
