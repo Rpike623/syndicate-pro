@@ -582,8 +582,10 @@ function previewDistribution() {
   const distType    = (document.getElementById('distType')?.value || 'periodic').toLowerCase();
   const isExit      = distType === 'exit' || distType === 'disposition' || distType === 'refinance';
 
-  // Total LP capital invested (for return of capital tier)
-  const totalLPInvested = (currentDeal.investors || []).reduce((s, i) => s + (i.committed || 0), 0);
+  // Capital stack assumption: investor rows in currentDeal.investors represent ALL equity,
+  // including sponsor/GP capital invested alongside LPs. GP promote is separate and only
+  // applies after return of capital + pref hurdles are satisfied.
+  const totalInvestedCapital = (currentDeal.investors || []).reduce((s, i) => s + (i.committed || 0), 0);
 
   // How much pref is outstanding?
   const totalPrefOutstanding = prefSplits.reduce((s, p) => s + (p.prefRemainingBeforeDist || 0), 0);
@@ -602,13 +604,13 @@ function previewDistribution() {
   // ── Tier 1: Return of Capital ────────────────────────────────────────────
   // Applies to ALL distributions — LPs get invested capital back first.
   // Tracks unreturned capital across prior posted distributions.
-  if (totalLPInvested > 0) {
+  if (totalInvestedCapital > 0) {
     // How much capital has already been returned via prior distributions?
     const postedDists = SP.getDistributions().filter(d => d.dealId === currentDeal.id && d.status === 'posted');
     const priorReturned = postedDists.reduce((s, d) => {
       return s + (d.recipients || []).reduce((ss, r) => ss + (r.returnOfCapital || 0), 0);
     }, 0);
-    const capitalStillOwed = Math.max(0, totalLPInvested - priorReturned);
+    const capitalStillOwed = Math.max(0, totalInvestedCapital - priorReturned);
     const rocThisDist = Math.min(remaining, capitalStillOwed);
 
     if (rocThisDist > 0) {
@@ -667,9 +669,9 @@ function previewDistribution() {
       }
 
       // Tier 2: Split at t2GPSplit% until t2Hurdle% IRR equivalent is reached
-      // Compound: pool = equity × ((1+hurdle)^years - (1+pref)^years)
+      // Compound: pool = invested capital × ((1+hurdle)^years - (1+pref)^years)
       const avgYears = prefSplits.length ? prefSplits.reduce((s,p) => s + p.yearsHeld, 0) / prefSplits.length : 1;
-      const tier2Pool = Math.max(0, totalLPInvested * (Math.pow(1 + t2Hurdle/100, avgYears) - Math.pow(1 + prefRate/100, avgYears)));
+      const tier2Pool = Math.max(0, totalInvestedCapital * (Math.pow(1 + t2Hurdle/100, avgYears) - Math.pow(1 + prefRate/100, avgYears)));
       const tier2Actual = Math.min(remaining, tier2Pool);
       if (tier2Actual > 0) {
         const t2GP = parseFloat((tier2Actual * t2GPSplit / 100).toFixed(2));
@@ -722,16 +724,18 @@ function previewDistribution() {
     remaining = 0;
   }
 
-  // ── Recalculate per-investor LP splits ─────────────────────────────────
-  // prefSplits.totalThisDist was calculated assuming LPs get everything.
-  // Now adjust for GP take — redistribute LP share pro-rata.
+  // ── Recalculate per-investor equity splits ─────────────────────────────
+  // Investor rows represent all invested equity (including GP capital invested alongside LPs).
+  // GP promote/carry is tracked separately in gpTotal and should not be blended into investor rows.
   if (prefSplits.length) {
     const totalOwnership = prefSplits.reduce((s, p) => s + (p.ownership || 0), 0) || 100;
-    const lpExcess = Math.max(0, lpTotal - totalPrefThisDist); // LP share above pref
+    const totalROCThisDist = tierData.filter(t => t.type === 'tier-roc').reduce((s, t) => s + (t.amount || 0), 0);
+    const equityExcess = Math.max(0, lpTotal - totalPrefThisDist - totalROCThisDist);
     prefSplits.forEach(p => {
       const ownerFrac = totalOwnership > 0 ? (p.ownership || 0) / totalOwnership : 0;
-      p.excessThisDist = parseFloat((lpExcess * ownerFrac).toFixed(2));
-      p.totalThisDist  = parseFloat((p.prefPaidThisDist + p.excessThisDist).toFixed(2));
+      p.returnOfCapital = parseFloat((totalROCThisDist * ownerFrac).toFixed(2));
+      p.excessThisDist = parseFloat((equityExcess * ownerFrac).toFixed(2));
+      p.totalThisDist  = parseFloat((p.returnOfCapital + p.prefPaidThisDist + p.excessThisDist).toFixed(2));
     });
     // Penny reconciliation
     const lpDistSum = prefSplits.reduce((s, p) => s + p.totalThisDist, 0);
@@ -739,7 +743,7 @@ function previewDistribution() {
     if (lpDiff !== 0 && prefSplits.length > 0) {
       const largest = prefSplits.reduce((a, b) => b.totalThisDist > a.totalThisDist ? b : a);
       largest.excessThisDist = parseFloat((largest.excessThisDist + lpDiff).toFixed(2));
-      largest.totalThisDist = parseFloat((largest.prefPaidThisDist + largest.excessThisDist).toFixed(2));
+      largest.totalThisDist = parseFloat((largest.returnOfCapital + largest.prefPaidThisDist + largest.excessThisDist).toFixed(2));
     }
   }
 
@@ -779,8 +783,8 @@ function previewDistribution() {
   // Update header for pref columns
   const thead = document.querySelector('#ledgerTable thead tr');
   thead.innerHTML = prefSplits.length
-    ? `<th>Investor</th><th class="right">Ownership</th><th class="right" title="Amount satisfying pref return hurdle">Pref Paid</th><th class="right" title="Above-pref excess split by ownership">Excess</th><th class="right">Total Payout</th>`
-    : `<th>Investor</th><th class="right">Ownership</th><th class="right" colspan="2">Pro-Rata Share</th><th class="right">Total Payout</th>`;
+    ? `<th>Investor</th><th class="right">Ownership</th><th class="right" title="Return of contributed capital">Return of Capital</th><th class="right" title="Amount satisfying pref return hurdle">Pref Paid</th><th class="right" title="Above-pref excess split by ownership">Excess</th><th class="right">Total Payout</th>`
+    : `<th>Investor</th><th class="right">Ownership</th><th class="right" colspan="3">Pro-Rata Share</th><th class="right">Total Payout</th>`;
 
   let totalCheck = 0;
   tbody.innerHTML = currentLPs.map((inv, idx) => {
@@ -789,6 +793,7 @@ function previewDistribution() {
     const email = investor?.email || '';
     const ps = prefSplits.find(s => s.investorId === inv.investorId);
     const payout = ps ? ps.totalThisDist : lpTotal * ((inv.ownership || 0) / 100);
+    const returnOfCapital = ps ? (ps.returnOfCapital || 0) : 0;
     const prefPaid = ps ? ps.prefPaidThisDist : 0;
     const excess = ps ? ps.excessThisDist : payout;
     totalCheck += payout;
@@ -799,14 +804,18 @@ function previewDistribution() {
         ${email ? `<div style="font-size:11px;color:var(--text-muted);">${email}</div>` : ''}
       </td>
       <td class="right mono">${fmtPct(inv.ownership)}</td>
+      <td class="right mono" style="color:#0f766e;">${fmt$(returnOfCapital)}</td>
       <td class="right mono" style="color:#b45309;">${fmt$(prefPaid)}</td>
       <td class="right mono" style="color:var(--text-muted);">${fmt$(excess)}</td>
       <td class="right mono" style="color:var(--success);font-size:15px;">${fmt$(payout)}</td>
     </tr>`;
   }).join('') + `<tr style="background:rgba(255,255,255,0.02);">
-    <td colspan="4" style="font-weight:700;font-size:13px;padding:13px 16px;">Total LP Distributions</td>
+    <td colspan="5" style="font-weight:700;font-size:13px;padding:13px 16px;">Total Investor Distributions</td>
     <td class="right mono" style="color:var(--success);font-weight:800;font-size:15px;">${fmt$(totalCheck)}</td>
-  </tr>`;
+  </tr>` + `${gpTotal > 0 ? `<tr style="background:rgba(243,121,37,0.08);">
+    <td colspan="5" style="font-weight:700;font-size:13px;padding:13px 16px;color:#f59e0b;">GP Promote / Carried Interest</td>
+    <td class="right mono" style="color:#f59e0b;font-weight:800;font-size:15px;">${fmt$(gpTotal)}</td>
+  </tr>` : ''}`;
 
   // Show pref callout if pref is active
   const prefCallout = document.getElementById('prefCallout');
