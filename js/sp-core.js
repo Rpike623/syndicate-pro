@@ -501,7 +501,9 @@ window.SP = (function () {
 
   function logout() {
     clearSession();
-    // Also sign out of Firebase Auth to prevent auto-re-login
+    // Set a flag so login.html knows not to auto-redirect from stale Firebase auth
+    try { sessionStorage.setItem('sp_just_logged_out', '1'); } catch(e) {}
+    // Also sign out of Firebase Auth to prevent auto-re-login from IndexedDB
     if (typeof firebase !== 'undefined' && firebase.auth) {
       firebase.auth().signOut().catch(() => {}).finally(() => {
         window.location.href = 'login.html';

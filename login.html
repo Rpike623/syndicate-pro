@@ -19,9 +19,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="js/sp-core.js?v9"></script>
-  <script src="js/sp-data.js?v9"></script>
-  <script src="js/sp-firebase.js?v9"></script>
+  <script src="js/sp-core.js?v10"></script>
+  <script src="js/sp-data.js?v10"></script>
+  <script src="js/sp-firebase.js?v10"></script>
   <style>
     :root {
       --accent: #F37925; --accent-hover: #D96515;
@@ -197,11 +197,22 @@
     window.location.href = dest;
   }
 
-  // Auto-redirect if already logged in — NO banner, just redirect immediately
-  if (SP.isLoggedIn()) {
-      const session = SP.getSession();
-      _loginRedirect(session);
-  } else {
+  // Check if user just logged out — if so, don't auto-redirect even if Firebase re-resolves
+  const _justLoggedOut = (() => {
+    try {
+      if (sessionStorage.getItem('sp_just_logged_out')) {
+        sessionStorage.removeItem('sp_just_logged_out');
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  })();
+
+  if (!_justLoggedOut && SP.isLoggedIn()) {
+    // Auto-redirect if already logged in — NO banner, just redirect immediately
+    const session = SP.getSession();
+    _loginRedirect(session);
+  } else if (!_justLoggedOut) {
     // Not logged in via localStorage — but Firebase Auth may auto-resolve from IndexedDB.
     // Listen for spdata-ready which fires AFTER Firebase auth + Firestore user profile load.
     let _loginAutoRedirected = false;
@@ -218,6 +229,7 @@
     // If spdata-ready already fired before we registered, check immediately
     if (typeof SP !== 'undefined' && SP.getSession()?.loggedIn) _tryAutoRedirect();
   }
+  // else: _justLoggedOut — show clean login form, no auto-redirect
 
   function togglePw() {
     const inp = document.getElementById('password');

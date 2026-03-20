@@ -5,3 +5,4 @@ package-lock.json
 .inbox-state.json
 .login-state.json
 firebase-debug.log
+.firebase/

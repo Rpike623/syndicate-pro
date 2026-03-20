@@ -12,9 +12,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v9"></script>
-  <script src="js/sp-data.js?v9"></script>
-  <script src="js/sp-firebase.js?v9"></script>
+  <script src="js/sp-core.js?v10"></script>
+  <script src="js/sp-data.js?v10"></script>
+  <script src="js/sp-firebase.js?v10"></script>
   <script src="js/sp-email.js?v3"></script>
   <style>
     :root{--accent:#F37925;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--info:#3B82F6;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
@@ -788,6 +788,13 @@
 
     // ── Init ──────────────────────────────────────────────────────────────────
     SP.onDataReady(load);
+    // Fallback: if onDataReady never fires (race condition), force-load after 5s
+    setTimeout(() => {
+      if (!investors || !investors.length) {
+        console.warn('KYC: onDataReady may not have fired, forcing load()');
+        load();
+      }
+    }, 5000);
     document.getElementById('bulkTarget')?.addEventListener('change', updateBulkPreview);
   </script>
 </body>
