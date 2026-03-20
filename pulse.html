@@ -11,9 +11,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v14"></script>
-  <script src="js/sp-data.js?v14"></script>
-  <script src="js/sp-firebase.js?v14"></script>
+  <script src="js/sp-core.js?v15"></script>
+  <script src="js/sp-data.js?v15"></script>
+  <script src="js/sp-firebase.js?v15"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-validate.js?v1"></script>
   <style>
@@ -120,19 +120,23 @@
 
     // Demo data for demo accounts (same as dashboard)
     const DEMO_DEALS_PULSE = [
-      { id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9, status:'operating', location:'Austin, TX', investors:[{investorId:'i1',committed:250000},{investorId:'i2',committed:500000},{investorId:'i4',committed:300000},{investorId:'i7',committed:100000}] },
-      { id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7, status:'operating', location:'Houston, TX', investors:[{investorId:'i1',committed:250000},{investorId:'i2',committed:1000000},{investorId:'i4',committed:700000},{investorId:'i6',committed:350000},{investorId:'i7',committed:200000}] },
-      { id:'d4', name:'Parkview Commons', type:'multifamily', raise:3100000, irr:19.0, equity:1.95, status:'dd', location:'San Antonio, TX', investors:[{investorId:'i5',committed:150000},{investorId:'i6',committed:200000},{investorId:'i7',committed:75000}] },
-      { id:'d6', name:'Lone Star Self Storage', type:'self-storage', raise:2800000, irr:22.5, equity:2.4, status:'raising', location:'Corpus Christi, TX', investors:[{investorId:'i2',committed:400000},{investorId:'i7',committed:125000}] },
+      { id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9, status:'operating', location:'Austin, TX', state:'TX', companyName:'Riverside Flats Capital LLC', totalEquity:4200000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[{investorId:'i1',committed:250000,status:'funded'},{investorId:'i2',committed:500000,status:'funded'},{investorId:'i4',committed:300000,status:'funded'},{investorId:'i7',committed:100000,status:'funded'}] },
+      { id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1, status:'closed', location:'Dallas, TX', state:'TX', companyName:'Meridian Industrial Capital LLC', totalEquity:7500000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[{investorId:'i2',committed:750000,status:'funded'},{investorId:'i3',committed:250000,status:'funded'},{investorId:'i4',committed:1000000,status:'funded'}] },
+      { id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7, status:'operating', location:'Houston, TX', state:'TX', companyName:'Hudson Portfolio Capital LLC', totalEquity:12000000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[{investorId:'i1',committed:400000,status:'funded'},{investorId:'i2',committed:500000,status:'funded'},{investorId:'i4',committed:700000,status:'funded'},{investorId:'i6',committed:350000,status:'funded'}] },
+      { id:'d4', name:'Parkview Commons', type:'multifamily', raise:3100000, irr:19.0, equity:1.95, status:'dd', location:'San Antonio, TX', state:'TX', totalEquity:3100000, prefReturn:8, gpPromote:20, investors:[{investorId:'i5',committed:150000,status:'committed'},{investorId:'i6',committed:200000,status:'committed'}] },
+      { id:'d5', name:'Westgate Retail Center', type:'retail', raise:5800000, irr:14.5, equity:1.6, status:'loi', location:'Fort Worth, TX', state:'TX', companyName:'Westgate Retail Capital LLC', totalEquity:5800000, prefReturn:7, gpPromote:20, investors:[] },
+      { id:'d6', name:'Lone Star Self Storage', type:'self-storage', raise:2800000, irr:22.5, equity:2.4, status:'raising', location:'Corpus Christi, TX', state:'TX', companyName:'Lone Star Storage Capital LLC', totalEquity:2800000, prefReturn:8, gpPromote:20, investors:[{investorId:'i2',committed:400000,status:'committed'},{investorId:'i1',committed:200000,status:'committed'}] },
+      { id:'d7', name:'Brazos Hotel Group', type:'hospitality', raise:8500000, irr:17.2, equity:1.85, status:'loi', location:'Waco, TX', state:'TX', companyName:'Brazos Hospitality Capital LLC', totalEquity:8500000, prefReturn:8, gpPromote:20, investors:[{investorId:'i3',committed:300000,status:'committed'},{investorId:'i4',committed:600000,status:'committed'}] },
+      { id:'d8', name:'Permian Basin Flex Industrial', type:'industrial', raise:5200000, irr:20.8, equity:2.0, status:'raising', location:'Midland, TX', state:'TX', companyName:'Permian Flex Industrial LLC', totalEquity:5200000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[{investorId:'i1',committed:350000,status:'committed'},{investorId:'i6',committed:275000,status:'committed'}] },
     ];
     const DEMO_INVESTORS_PULSE = [
-      { id:'i1', firstName:'James', lastName:'Hartwell', accredStatus:'verified' },
-      { id:'i2', firstName:'Sarah', lastName:'Chen', accredStatus:'verified' },
-      { id:'i3', firstName:'Marcus', lastName:'Williams', accredStatus:'verified' },
-      { id:'i4', firstName:'Priya', lastName:'Patel', accredStatus:'verified' },
-      { id:'i5', firstName:'Robert', lastName:'Thompson', accredStatus:'pending' },
-      { id:'i6', firstName:'Elena', lastName:'Vasquez', accredStatus:'verified' },
-      { id:'i7', firstName:'Phil', lastName:'Chapman', accredStatus:'verified' },
+      { id:'i1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@demo.deeltrack.com', accredStatus:'verified', accredMethod:'cpa', accredDate:'2025-06-15', accredExpiry:'2027-06-15' },
+      { id:'i2', firstName:'Sarah', lastName:'Chen', email:'s.chen@demo.deeltrack.com', accredStatus:'verified', accredMethod:'entity', accredDate:'2025-01-10', accredExpiry:'2027-01-10' },
+      { id:'i3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@demo.deeltrack.com', accredStatus:'verified', accredMethod:'attorney', accredDate:'2025-08-01', accredExpiry:'2027-08-01' },
+      { id:'i4', firstName:'Priya', lastName:'Patel', email:'ppatel@demo.deeltrack.com', accredStatus:'verified', accredMethod:'cpa', accredDate:'2025-03-15', accredExpiry:'2027-03-15' },
+      { id:'i5', firstName:'Robert', lastName:'Thompson', email:'r.thompson@gmail.com', accredStatus:'pending', accredMethod:'self' },
+      { id:'i6', firstName:'Elena', lastName:'Vasquez', email:'evasquez@invest.net', accredStatus:'verified', accredMethod:'broker', accredDate:'2025-04-20', accredExpiry:'2027-04-20' },
+      { id:'i7', firstName:'Phil', lastName:'Chapman', email:'philip@jchapmancpa.com', accredStatus:'verified', accredMethod:'cpa', accredDate:'2025-01-01', accredExpiry:'2027-01-01' },
     ];
 
     function runPulse() {

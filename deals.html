@@ -15,9 +15,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v14"></script>
-  <script src="js/sp-data.js?v14"></script>
-  <script src="js/sp-firebase.js?v14"></script>
+  <script src="js/sp-core.js?v15"></script>
+  <script src="js/sp-data.js?v15"></script>
+  <script src="js/sp-firebase.js?v15"></script>
   <script src="js/sp-billing.js"></script>
   <style>
     :root {
@@ -310,45 +310,39 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
 function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('visible'); }
 
 const DEMO_DEALS = [
-  { id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9, status:'operating', location:'Austin, TX', added:'2025-11-10', units:96, investors:[
+  { id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9, status:'operating', location:'Austin, TX', added:'2025-11-10', closeDate:'2025-11-15', units:96, state:'TX', companyName:'Riverside Flats Capital LLC', purchasePrice:21000000, loanAmount:16800000, totalEquity:4200000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, generatedOA:true, investors:[
     {investorId:'i1',committed:250000,status:'funded',ownership:5.95,date:'2025-11-15'},
     {investorId:'i2',committed:500000,status:'funded',ownership:11.9,date:'2025-11-20'},
     {investorId:'i4',committed:300000,status:'funded',ownership:7.14,date:'2025-12-01'},
-    {investorId:'i7',committed:100000,status:'committed',ownership:0,date:'2026-02-25'}
+    {investorId:'i7',committed:100000,status:'funded',ownership:2.38,date:'2026-01-10'}
   ]},
-  { id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1, status:'closed', location:'Dallas, TX', added:'2025-12-01', units:0, investors:[
+  { id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1, status:'closed', location:'Dallas, TX', added:'2025-12-01', closeDate:'2025-12-01', units:0, state:'TX', companyName:'Meridian Industrial Capital LLC', purchasePrice:37500000, loanAmount:30000000, totalEquity:7500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, generatedOA:true, investors:[
     {investorId:'i2',committed:750000,status:'funded',ownership:10,date:'2025-12-10'},
     {investorId:'i3',committed:250000,status:'funded',ownership:3.33,date:'2025-12-15'},
-    {investorId:'i7',committed:150000,status:'committed',ownership:0,date:'2026-02-25'}
+    {investorId:'i4',committed:1000000,status:'funded',ownership:13.33,date:'2025-12-10'}
   ]},
-  { id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7, status:'operating', location:'Houston, TX', added:'2026-01-15', units:248, investors:[
-    {investorId:'i1',committed:250000,status:'funded',ownership:2.08,date:'2026-01-20'},
-    {investorId:'i2',committed:1000000,status:'funded',ownership:8.33,date:'2026-01-25'},
+  { id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7, status:'operating', location:'Houston, TX', added:'2026-01-15', closeDate:'2026-01-20', units:248, state:'TX', companyName:'Hudson Portfolio Capital LLC', purchasePrice:60000000, loanAmount:48000000, totalEquity:12000000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, generatedOA:true, investors:[
+    {investorId:'i1',committed:400000,status:'funded',ownership:3.33,date:'2026-01-20'},
+    {investorId:'i2',committed:500000,status:'funded',ownership:4.17,date:'2026-01-25'},
     {investorId:'i4',committed:700000,status:'funded',ownership:5.83,date:'2026-02-01'},
-    {investorId:'i6',committed:350000,status:'funded',ownership:2.92,date:'2026-02-05'},
-    {investorId:'i7',committed:200000,status:'committed',ownership:0,date:'2026-02-25'}
+    {investorId:'i6',committed:350000,status:'funded',ownership:2.92,date:'2026-02-05'}
   ]},
-  { id:'d4', name:'Parkview Commons', type:'multifamily', raise:3100000, irr:19.0, equity:1.95, status:'dd', location:'San Antonio, TX', added:'2026-02-01', units:72, investors:[
+  { id:'d4', name:'Parkview Commons', type:'multifamily', raise:3100000, irr:19.0, equity:1.95, status:'dd', location:'San Antonio, TX', added:'2026-02-01', units:72, state:'TX', purchasePrice:15500000, loanAmount:12400000, totalEquity:3100000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, investors:[
     {investorId:'i5',committed:150000,status:'committed',ownership:4.84,date:'2026-02-10'},
-    {investorId:'i6',committed:200000,status:'committed',ownership:6.45,date:'2026-02-15'},
-    {investorId:'i7',committed:75000,status:'committed',ownership:0,date:'2026-02-25'}
+    {investorId:'i6',committed:200000,status:'committed',ownership:6.45,date:'2026-02-15'}
   ]},
-  { id:'d5', name:'Westgate Retail Center', type:'retail', raise:5800000, irr:14.5, equity:1.6, status:'loi', location:'Fort Worth, TX', added:'2026-02-10', units:0, investors:[
-    {investorId:'i7',committed:50000,status:'committed',ownership:0,date:'2026-02-25'}
-  ]},
-  { id:'d6', name:'Lone Star Self Storage', type:'self-storage', raise:2800000, irr:22.5, equity:2.4, status:'raising', location:'Corpus Christi, TX', added:'2026-02-20', units:450, investors:[
+  { id:'d5', name:'Westgate Retail Center', type:'retail', raise:5800000, irr:14.5, equity:1.6, status:'loi', location:'Fort Worth, TX', added:'2026-02-10', units:0, state:'TX', companyName:'Westgate Retail Capital LLC', purchasePrice:29000000, loanAmount:23200000, totalEquity:5800000, gpEquity:10, lpEquity:90, prefReturn:7, gpPromote:20, investors:[]},
+  { id:'d6', name:'Lone Star Self Storage', type:'self-storage', raise:2800000, irr:22.5, equity:2.4, status:'raising', location:'Corpus Christi, TX', added:'2026-02-20', units:450, state:'TX', companyName:'Lone Star Storage Capital LLC', purchasePrice:14000000, loanAmount:11200000, totalEquity:2800000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, investors:[
     {investorId:'i2',committed:400000,status:'committed',ownership:14.29,date:'2026-02-22'},
-    {investorId:'i7',committed:125000,status:'committed',ownership:0,date:'2026-02-25'}
+    {investorId:'i1',committed:200000,status:'committed',ownership:7.14,date:'2026-02-24'}
   ]},
-  { id:'d7', name:'Brazos Hotel Group', type:'hospitality', raise:8500000, irr:17.2, equity:1.85, status:'loi', location:'Waco, TX', added:'2026-02-22', units:124, investors:[
+  { id:'d7', name:'Brazos Hotel Group', type:'hospitality', raise:8500000, irr:17.2, equity:1.85, status:'loi', location:'Waco, TX', added:'2026-02-22', units:124, state:'TX', companyName:'Brazos Hospitality Capital LLC', purchasePrice:42500000, loanAmount:34000000, totalEquity:8500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, investors:[
     {investorId:'i3',committed:300000,status:'committed',ownership:3.53,date:'2026-02-24'},
-    {investorId:'i4',committed:600000,status:'committed',ownership:7.06,date:'2026-02-24'},
-    {investorId:'i7',committed:175000,status:'committed',ownership:0,date:'2026-02-25'}
+    {investorId:'i4',committed:600000,status:'committed',ownership:7.06,date:'2026-02-24'}
   ]},
-  { id:'d8', name:'Permian Basin Flex Industrial', type:'industrial', raise:5200000, irr:20.8, equity:2.0, status:'raising', location:'Midland, TX', added:'2026-02-24', units:0, investors:[
+  { id:'d8', name:'Permian Basin Flex Industrial', type:'industrial', raise:5200000, irr:20.8, equity:2.0, status:'raising', location:'Midland, TX', added:'2026-02-24', units:0, state:'TX', companyName:'Permian Flex Industrial LLC', purchasePrice:26000000, loanAmount:20800000, totalEquity:5200000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, generatedOA:true, investors:[
     {investorId:'i1',committed:350000,status:'committed',ownership:6.73,date:'2026-02-24'},
-    {investorId:'i6',committed:275000,status:'committed',ownership:5.29,date:'2026-02-25'},
-    {investorId:'i7',committed:200000,status:'committed',ownership:0,date:'2026-02-25'}
+    {investorId:'i6',committed:275000,status:'committed',ownership:5.29,date:'2026-02-25'}
   ]},
 ];
 
