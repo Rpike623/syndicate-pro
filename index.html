@@ -79,6 +79,7 @@
     /* ── Stats ── */
     .stats { background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
     .stats-inner { max-width:1200px; margin:0 auto; padding:40px 24px; display:grid; grid-template-columns:repeat(4,1fr); gap:32px; text-align:center; }
+    .caps-grid { grid-template-columns:repeat(5,1fr); }
     .stat-value { font-size:2.5rem; font-weight:800; color:var(--text); letter-spacing:-0.02em; margin-bottom:4px; }
     .stat-label { font-size:0.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; }
     
@@ -188,7 +189,8 @@
       .features-grid { grid-template-columns:1fr; }
       .steps { grid-template-columns:1fr; gap:32px; }
       .portal-grid { grid-template-columns:1fr; }
-      .stats-inner { grid-template-columns:repeat(2,1fr); gap:16px; }
+      .stats-inner, .stats-inner.caps-grid { grid-template-columns:repeat(2,1fr); gap:16px; }
+      .stat-label { font-size:0.7rem; }
       .hero { padding:120px 20px 60px; }
       .hero h1 { font-size:2.2rem; }
       .hero p { font-size:1rem; }
@@ -196,6 +198,8 @@
       .section-header h2 { font-size:1.75rem; }
       .cta h2 { font-size:1.75rem; }
       .footer-inner { flex-direction:column; text-align:center; }
+      .footer-links { flex-wrap:wrap; justify-content:center; gap:16px; }
+      .footer-links a { font-size:0.75rem; }
     }
     @media(max-width:1024px) {
       .features-grid { grid-template-columns:repeat(2,1fr); }
@@ -246,7 +250,7 @@
 
   <!-- Capabilities Bar -->
   <section class="stats">
-    <div class="stats-inner" style="grid-template-columns:repeat(5,1fr);">
+    <div class="stats-inner caps-grid">
       <div>
         <div class="stat-value"><i class="fas fa-file-contract" style="font-size:1.5rem;color:var(--accent);"></i></div>
         <div class="stat-label">Generates Documents</div>
