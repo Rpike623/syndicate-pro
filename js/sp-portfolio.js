@@ -122,16 +122,8 @@ window.Portfolio = {
   },
 
   generateDemoInvestors: function() {
-    // Match dashboard DEMO_INVESTORS (7 investors)
-    return [
-      { id:'i1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@demo.deeltrack.com', totalInvested:1200000, accredStatus:'verified' },
-      { id:'i2', firstName:'Sarah', lastName:'Chen', email:'s.chen@demo.deeltrack.com', totalInvested:2150000, accredStatus:'verified' },
-      { id:'i3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@demo.deeltrack.com', totalInvested:550000, accredStatus:'verified' },
-      { id:'i4', firstName:'Priya', lastName:'Patel', email:'ppatel@demo.deeltrack.com', totalInvested:2600000, accredStatus:'verified' },
-      { id:'i5', firstName:'Robert', lastName:'Thompson', email:'r.thompson@gmail.com', totalInvested:150000, accredStatus:'pending' },
-      { id:'i6', firstName:'Elena', lastName:'Vasquez', email:'evasquez@invest.net', totalInvested:825000, accredStatus:'verified' },
-      { id:'i7', firstName:'Phil', lastName:'Chapman', email:'philip@jchapmancpa.com', totalInvested:1075000, accredStatus:'verified' },
-    ];
+    // Read from Firestore via SP — no hardcoded demo data
+    return SP.getInvestors();
   },
 
   generateDemoDistributions: function() {

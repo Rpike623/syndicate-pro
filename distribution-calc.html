@@ -363,35 +363,9 @@ function setStep(n) {
 }
 
 // ── Demo deals fallback (same as deals.html) ────────────────────────────────
-const _DIST_DEMO_DEALS = [
-  { id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9, status:'operating', location:'Austin, TX', companyName:'Riverside Flats Capital LLC', totalEquity:4200000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[
-    {investorId:'i1',committed:250000,status:'funded',ownership:5.95,date:'2025-11-15'},
-    {investorId:'i2',committed:500000,status:'funded',ownership:11.9,date:'2025-11-20'},
-    {investorId:'i4',committed:300000,status:'funded',ownership:7.14,date:'2025-12-01'},
-    {investorId:'i7',committed:100000,status:'funded',ownership:2.38,date:'2026-01-10'}
-  ]},
-  { id:'d2', name:'Meridian Industrial', type:'industrial', raise:7500000, irr:21.2, equity:2.1, status:'closed', location:'Dallas, TX', companyName:'Meridian Industrial Capital LLC', totalEquity:7500000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[
-    {investorId:'i2',committed:2000000,status:'funded',ownership:26.67,date:'2025-12-10'},
-    {investorId:'i4',committed:2500000,status:'funded',ownership:33.33,date:'2025-12-10'},
-    {investorId:'i1',committed:1500000,status:'funded',ownership:20,date:'2025-12-12'},
-    {investorId:'i6',committed:750000,status:'funded',ownership:10,date:'2025-12-15'}
-  ]},
-  { id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7, status:'operating', location:'Houston, TX', companyName:'Hudson Portfolio Capital LLC', totalEquity:12000000, prefReturn:8, gpPromote:20, generatedOA:true, investors:[
-    {investorId:'i1',committed:400000,status:'funded',ownership:3.33,date:'2026-01-20'},
-    {investorId:'i2',committed:500000,status:'funded',ownership:4.17,date:'2026-01-25'},
-    {investorId:'i4',committed:700000,status:'funded',ownership:5.83,date:'2026-02-01'}
-  ]},
-];
-
 // ── Init ────────────────────────────────────────────────────────────────────
 function init() {
-  const session = SP.getSession();
-  const isDemoAccount = ['gp@deeltrack.com','demo@deeltrack.com'].includes(session?.email?.toLowerCase());
-  let deals = SP.getDeals();
-  // Demo accounts: if getDeals returns empty (Firestore not loaded), use DEMO_DEALS from deals.html pattern
-  if (isDemoAccount && (!deals || !deals.length)) {
-    deals = _DIST_DEMO_DEALS;
-  }
+  // deals already loaded above
 
   const sel = document.getElementById('dealSelect');
   if (!sel) return;
