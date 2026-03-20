@@ -71,8 +71,11 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif; 
   background: var(--dt-bg) !important;
   color: var(--dt-text) !important;
-  display: block !important;
   min-height: 100vh;
+}
+/* Auth pages (login, signup, reset-password) use flex centering — don't override */
+html:not([data-page="auth"]) body {
+  display: block !important;
 }
 
 /* ── SIDEBAR — dark warm rail (matches mubasic's dark nav) ───────────────── */
