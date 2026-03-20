@@ -556,7 +556,7 @@ window.SP = (function () {
   function seedDemoData(session) {
     // Always seed under the shared demo org key
     // Bump SEED_VERSION to force re-seed when demo data changes
-    const SEED_VERSION = 4;
+    const SEED_VERSION = 5;
     const demoOrgKey = `sp_org_${DEMO_ORG_ID}_deals`;
     const seedVersionKey = `sp_org_${DEMO_ORG_ID}_seed_v`;
     const currentVersion = parseInt(localStorage.getItem(seedVersionKey) || '0', 10);
