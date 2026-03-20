@@ -1705,7 +1705,7 @@ window.SP = (function () {
         ]},
         // ── Compliance ───────────────────────────────────────────
         { id:'compliance', title:'COMPLIANCE', items:[
-          { href:'kyc.html',            icon:'fa-shield-alt',    label:'KYC / AML' },
+
           { href:'accreditation.html',  icon:'fa-certificate',   label:'Accreditation' },
           { href:'compliance-hub.html', icon:'fa-balance-scale', label:'Compliance Hub' },
         ]},
