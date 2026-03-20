@@ -513,6 +513,8 @@
 
     SP.onDataReady(() => {
       runPulse();
+      // Re-run after short delay to catch async custom_data hydration (dealroom docs, settings push)
+      setTimeout(runPulse, 3000);
       if (!liveInterval) liveInterval = setInterval(runPulse, 30000);
       if (!tickInterval) tickInterval = setInterval(updateTimestamp, 1000);
     });
