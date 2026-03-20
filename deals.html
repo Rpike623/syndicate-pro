@@ -15,9 +15,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v11"></script>
-  <script src="js/sp-data.js?v11"></script>
-  <script src="js/sp-firebase.js?v11"></script>
+  <script src="js/sp-core.js?v12"></script>
+  <script src="js/sp-data.js?v12"></script>
+  <script src="js/sp-firebase.js?v12"></script>
   <script src="js/sp-billing.js"></script>
   <style>
     :root {
@@ -379,7 +379,7 @@ function fmt$(n) {
 }
 
 function updateStats() {
-  const active = deals.filter(d=>['sourcing','loi','dd','operating'].includes(d.status));
+  const active = deals.filter(d=>['sourcing','loi','dd','operating','raising'].includes(d.status));
   const totalRaise = deals.reduce((s,d)=>s+(d.raise||0),0);
   const avgIRR = deals.length ? (deals.reduce((s,d)=>s+(d.irr||0),0)/deals.length).toFixed(1) : '0';
   document.getElementById('statTotal').textContent = deals.length;
@@ -556,12 +556,46 @@ function showToast(msg, type) {
 function deleteDeal(id) {
   const d = deals.find(x=>x.id===id);
   if (!d) return;
-  if (!confirm(`Delete "${d.name}"? This cannot be undone.`)) return;
-  if (typeof SPData !== 'undefined' && SPData.isReady() && SPData.deleteDeal) {
-    SPData.deleteDeal(id);
+  showConfirmModal(
+    'Delete Deal',
+    `Are you sure you want to permanently delete <strong>${d.name}</strong>? This will remove all linked investor data, distributions, and documents for this deal. This action cannot be undone.`,
+    'Delete',
+    () => {
+      if (typeof SPData !== 'undefined' && SPData.isReady() && SPData.deleteDeal) {
+        SPData.deleteDeal(id);
+      }
+      deals = deals.filter(x=>x.id!==id);
+      save(); updateStats(); filterDeals();
+      showToast('Deal deleted');
+    }
+  );
+}
+
+/* ── Confirmation Modal ─────────────────────────────────────────── */
+function showConfirmModal(title, message, confirmText, onConfirm) {
+  let overlay = document.getElementById('confirmOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'confirmOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;';
+    overlay.innerHTML = `<div id="confirmBox" style="background:var(--surface,#fff);border-radius:12px;padding:28px 24px 20px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:'Inter',sans-serif;">
+      <h3 id="confirmTitle" style="margin:0 0 12px;font-size:1.1rem;color:var(--text,#1B1A19);display:flex;align-items:center;gap:8px;"><i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i> <span></span></h3>
+      <p id="confirmMsg" style="font-size:.9rem;color:var(--text-muted,#6B6560);line-height:1.5;margin:0 0 20px;"></p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="confirmCancel" style="padding:9px 18px;border-radius:8px;border:1px solid var(--border,#ddd);background:var(--surface,#fff);color:var(--text,#333);font-size:.875rem;cursor:pointer;font-weight:600;">Cancel</button>
+        <button id="confirmOk" style="padding:9px 18px;border-radius:8px;border:none;background:#ef4444;color:white;font-size:.875rem;cursor:pointer;font-weight:600;"></button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
   }
-  deals = deals.filter(x=>x.id!==id);
-  save(); updateStats(); filterDeals();
+  overlay.querySelector('#confirmTitle span').textContent = title;
+  overlay.querySelector('#confirmMsg').innerHTML = message;
+  overlay.querySelector('#confirmOk').textContent = confirmText;
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.style.opacity = '1');
+  overlay.querySelector('#confirmCancel').onclick = () => { overlay.style.opacity='0'; setTimeout(()=>overlay.style.display='none',200); };
+  overlay.querySelector('#confirmOk').onclick = () => { overlay.style.opacity='0'; setTimeout(()=>overlay.style.display='none',200); onConfirm(); };
+  overlay.onclick = (e) => { if(e.target===overlay){ overlay.style.opacity='0'; setTimeout(()=>overlay.style.display='none',200); } };
 }
 
 function exportCSV() {

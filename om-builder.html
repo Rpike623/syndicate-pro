@@ -11,9 +11,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v11"></script>
-  <script src="js/sp-data.js?v11"></script>
-  <script src="js/sp-firebase.js?v11"></script>
+  <script src="js/sp-core.js?v12"></script>
+  <script src="js/sp-data.js?v12"></script>
+  <script src="js/sp-firebase.js?v12"></script>
   <script src="js/sp-billing.js"></script>
   <style>
     :root {
@@ -190,6 +190,15 @@
               <button class="snav-item" onclick="goSection(5,this)"><span class="snav-num">6</span> Sponsor Team</button>
               <button class="snav-item" onclick="goSection(6,this)"><span class="snav-num">7</span> Risk Factors</button>
             </div>
+          </div>
+
+          <!-- Import from existing deal -->
+          <div style="margin-bottom:16px;padding:14px 18px;background:var(--surface-alt,#F8F6F4);border:1px dashed var(--border,#ddd);border-radius:8px;display:flex;align-items:center;gap:10px;">
+            <i class="fas fa-file-import" style="color:var(--accent);"></i>
+            <label style="font-size:.85rem;font-weight:600;white-space:nowrap;">Import from Deal:</label>
+            <select id="importDealSelect" onchange="importFromDeal()" style="flex:1;padding:8px 12px;border-radius:6px;border:1px solid var(--border,#ddd);font-size:.85rem;">
+              <option value="">— Select a deal to auto-fill —</option>
+            </select>
           </div>
 
           <!-- Section 0: Cover -->
@@ -409,7 +418,61 @@ This investment is suitable only for accredited investors under Reg D 506(b)</te
       }
       loadOM();
       updatePreview();
+      // Populate deal import dropdown
+      populateDealDropdown();
     });
+
+    function populateDealDropdown() {
+      const sel = document.getElementById('importDealSelect');
+      if (!sel) return;
+      const deals = (typeof SP !== 'undefined' && SP.getDeals) ? SP.getDeals() : [];
+      deals.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = `${d.name || 'Untitled'} — ${d.type || ''} — ${d.location || ''}`;
+        sel.appendChild(opt);
+      });
+      if (typeof SP !== 'undefined' && SP.onDataReady) {
+        SP.onDataReady(() => {
+          const deals2 = SP.getDeals();
+          if (deals2.length > deals.length) {
+            sel.innerHTML = '<option value="">— Select a deal to auto-fill —</option>';
+            deals2.forEach(d => {
+              const opt = document.createElement('option');
+              opt.value = d.id;
+              opt.textContent = `${d.name || 'Untitled'} — ${d.type || ''} — ${d.location || ''}`;
+              sel.appendChild(opt);
+            });
+          }
+        });
+      }
+    }
+
+    const TYPE_MAP = {multifamily:'Multifamily',industrial:'Industrial',retail:'Retail',office:'Office','self-storage':'Self-Storage',hospitality:'Hospitality','mixed-use':'Mixed-Use',land:'Land'};
+
+    function importFromDeal() {
+      const sel = document.getElementById('importDealSelect');
+      const dealId = sel.value;
+      if (!dealId) return;
+      const deal = SP.getDealById ? SP.getDealById(dealId) : SP.getDeals().find(d=>d.id===dealId);
+      if (!deal) return;
+      const s = (id, val) => { const el=document.getElementById(id); if(el&&val) el.value=val; };
+      s('omName', deal.name);
+      s('omTagline', `${TYPE_MAP[deal.type]||deal.type||''} investment in ${deal.location||''}`);
+      const acSel = document.getElementById('omAssetClass');
+      if (acSel) { const mapped = TYPE_MAP[deal.type]; if(mapped) acSel.value = mapped; }
+      s('omLocation', deal.location);
+      if (deal.units) s('omSize', deal.units + (deal.type==='industrial'?' SF':' units'));
+      s('omRaise', '$' + Number(deal.raise||0).toLocaleString());
+      if (deal.irr) s('omIRR', deal.irr + '%');
+      if (deal.equity) s('omEquity', deal.equity + 'x');
+      updatePreview();
+      const t = document.createElement('div');
+      t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:.875rem;font-weight:600;background:#10b981;color:white;box-shadow:0 8px 24px rgba(0,0,0,.15);display:flex;align-items:center;gap:8px;font-family:Inter,sans-serif;';
+      t.innerHTML = '<i class="fas fa-check-circle"></i>Imported from ' + deal.name;
+      document.body.appendChild(t);
+      setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2500);
+    }
 
     // Section nav
     function goSection(idx, btn) {

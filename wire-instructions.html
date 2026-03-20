@@ -4,16 +4,16 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>deeltrack | Payment File Generator</title>
+  <title>deeltrack | Wire Instructions &amp; Payment Files</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v11"></script>
-  <script src="js/sp-data.js?v11"></script>
-  <script src="js/sp-firebase.js?v11"></script>
+  <script src="js/sp-core.js?v12"></script>
+  <script src="js/sp-data.js?v12"></script>
+  <script src="js/sp-firebase.js?v12"></script>
   <script src="js/sp-validate.js?v1"></script>
   <script src="js/sp-billing.js"></script>
   <style>
@@ -64,11 +64,11 @@
   <main class="main">
     <div class="dt-header">
       <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-      <h1><i class="fas fa-university" style="color:var(--accent);margin-right:8px;"></i> Payment File Generator</h1>
+      <h1><i class="fas fa-university" style="color:var(--accent);margin-right:8px;"></i> Wire Instructions &amp; Payment Files</h1>
       <div class="header-actions"></div>
     </div>
     <div class="content">
-      <p class="desc">Generate NACHA (ACH) files or wire instruction sheets for distribution payments. Upload the file to your bank to execute payments.</p>
+      <p class="desc">Generate NACHA (ACH) files or wire instruction sheets from posted distributions. Upload the file to your bank to execute payments. Wire account details are managed in <a href="settings.html" style="color:var(--accent);">Settings → Wire/ACH</a>.</p>
 
       <!-- Step 1: Select distribution -->
       <div class="step-card">

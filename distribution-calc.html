@@ -11,9 +11,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v11"></script>
-  <script src="js/sp-data.js?v11"></script>
-  <script src="js/sp-firebase.js?v11"></script>
+  <script src="js/sp-core.js?v12"></script>
+  <script src="js/sp-data.js?v12"></script>
+  <script src="js/sp-firebase.js?v12"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-notify.js"></script>
   <script src="js/sp-math.js"></script>
@@ -841,12 +841,25 @@ async function executeDistribution() {
   const period = document.getElementById('distPeriod').value;
   const method = document.getElementById('distMethod').value;
 
-  if (!dealId || !currentDeal || amount <= 0) { alert('Please select a deal and enter an amount.'); return; }
+  if (!dealId || !currentDeal) { alert('Please select a deal first.'); return; }
+  if (amount < 0) { alert('Distribution amount cannot be negative.'); return; }
+  if (amount === 0) { alert('Distribution amount must be greater than $0.'); return; }
   if (!currentLPs.length) { alert('No investors linked to this deal. Add investors first.'); return; }
   if (!date) { alert('Please select a distribution date.'); return; }
 
   const invCount = currentLPs.length;
-  if (!confirm(`Post distribution of ${fmt$(amount)} to ${invCount} investor${invCount !== 1 ? 's' : ''} for ${currentDeal.name}?\n\nThis will lock the distribution into the ledger and update all capital accounts.`)) return;
+  // Use styled confirmation modal instead of browser confirm()
+  return new Promise(resolve => {
+    showConfirmModal(
+      'Post Distribution',
+      `Post <strong>${fmt$(amount)}</strong> distribution to <strong>${invCount} investor${invCount !== 1 ? 's' : ''}</strong> for <strong>${currentDeal.name}</strong>?<br><br><span style="color:#ef4444;font-weight:600;">⚠ This will lock the distribution into the ledger and update all capital accounts. This action cannot be reversed.</span>`,
+      'Post to Ledger',
+      () => { _doPostDistribution(amount, dealId, date, period, method); resolve(); }
+    );
+  });
+}
+
+function _doPostDistribution(amount, dealId, date, period, method) {
 
   const btn = document.getElementById('execBtn');
   btn.disabled = true;
@@ -983,6 +996,35 @@ async function executeDistribution() {
     btn.innerHTML = '<i class="fas fa-bolt"></i> Post Distribution to Ledger';
     btn.disabled = false;
   }, 3000);
+}
+
+/* ── Confirmation Modal ─────────────────────────────────────────── */
+function showConfirmModal(title, message, confirmText, onConfirm) {
+  let overlay = document.getElementById('confirmOverlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'confirmOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;';
+    overlay.innerHTML = `<div style="background:var(--surface,#fff);border-radius:12px;padding:28px 24px 20px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:'Inter',sans-serif;">
+      <h3 id="confirmTitle" style="margin:0 0 12px;font-size:1.1rem;color:var(--text,#1B1A19);display:flex;align-items:center;gap:8px;"><i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i> <span></span></h3>
+      <p id="confirmMsg" style="font-size:.9rem;color:var(--text-muted,#6B6560);line-height:1.5;margin:0 0 20px;"></p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="confirmCancel" style="padding:9px 18px;border-radius:8px;border:1px solid var(--border,#ddd);background:var(--surface,#fff);color:var(--text,#333);font-size:.875rem;cursor:pointer;font-weight:600;">Cancel</button>
+        <button id="confirmOk" style="padding:9px 18px;border-radius:8px;border:none;background:#ef4444;color:white;font-size:.875rem;cursor:pointer;font-weight:600;"></button>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+  }
+  overlay.querySelector('#confirmTitle span').textContent = title;
+  overlay.querySelector('#confirmMsg').innerHTML = message;
+  const okBtn = overlay.querySelector('#confirmOk');
+  okBtn.textContent = confirmText;
+  okBtn.style.background = confirmText === 'Post to Ledger' ? '#F37925' : '#ef4444';
+  overlay.style.display = 'flex';
+  requestAnimationFrame(() => overlay.style.opacity = '1');
+  overlay.querySelector('#confirmCancel').onclick = () => { overlay.style.opacity='0'; setTimeout(()=>overlay.style.display='none',200); };
+  okBtn.onclick = () => { overlay.style.opacity='0'; setTimeout(()=>overlay.style.display='none',200); onConfirm(); };
+  overlay.onclick = (e) => { if(e.target===overlay){ overlay.style.opacity='0'; setTimeout(()=>overlay.style.display='none',200); } };
 }
 
 function resetForm() {

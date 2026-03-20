@@ -11,9 +11,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v11"></script>
-  <script src="js/sp-data.js?v11"></script>
-  <script src="js/sp-firebase.js?v11"></script>
+  <script src="js/sp-core.js?v12"></script>
+  <script src="js/sp-data.js?v12"></script>
+  <script src="js/sp-firebase.js?v12"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-validate.js?v1"></script>
   <style>
@@ -118,9 +118,28 @@
       el.textContent = `Last checked: ${new Date(lastRunTs).toLocaleString()} · ${secs}s ago`;
     }
 
+    // Demo data for demo accounts (same as dashboard)
+    const DEMO_DEALS_PULSE = [
+      { id:'d1', name:'Riverside Flats', type:'multifamily', raise:4200000, irr:18.5, equity:1.9, status:'operating', location:'Austin, TX', investors:[{investorId:'i1',committed:250000},{investorId:'i2',committed:500000},{investorId:'i4',committed:300000},{investorId:'i7',committed:100000}] },
+      { id:'d3', name:'The Hudson Portfolio', type:'multifamily', raise:12000000, irr:16.8, equity:1.7, status:'operating', location:'Houston, TX', investors:[{investorId:'i1',committed:250000},{investorId:'i2',committed:1000000},{investorId:'i4',committed:700000},{investorId:'i6',committed:350000},{investorId:'i7',committed:200000}] },
+      { id:'d4', name:'Parkview Commons', type:'multifamily', raise:3100000, irr:19.0, equity:1.95, status:'dd', location:'San Antonio, TX', investors:[{investorId:'i5',committed:150000},{investorId:'i6',committed:200000},{investorId:'i7',committed:75000}] },
+      { id:'d6', name:'Lone Star Self Storage', type:'self-storage', raise:2800000, irr:22.5, equity:2.4, status:'raising', location:'Corpus Christi, TX', investors:[{investorId:'i2',committed:400000},{investorId:'i7',committed:125000}] },
+    ];
+    const DEMO_INVESTORS_PULSE = [
+      { id:'i1', firstName:'James', lastName:'Hartwell', accredStatus:'verified' },
+      { id:'i2', firstName:'Sarah', lastName:'Chen', accredStatus:'verified' },
+      { id:'i3', firstName:'Marcus', lastName:'Williams', accredStatus:'verified' },
+      { id:'i4', firstName:'Priya', lastName:'Patel', accredStatus:'verified' },
+      { id:'i5', firstName:'Robert', lastName:'Thompson', accredStatus:'pending' },
+      { id:'i6', firstName:'Elena', lastName:'Vasquez', accredStatus:'verified' },
+      { id:'i7', firstName:'Phil', lastName:'Chapman', accredStatus:'verified' },
+    ];
+
     function runPulse() {
-      const deals = SP.getDeals();
-      const investors = SP.getInvestors();
+      const session = SP.getSession();
+      const isDemoAccount = ['gp@deeltrack.com','demo@deeltrack.com'].includes(session?.email?.toLowerCase());
+      const deals = (isDemoAccount && !SP.getDeals().length) ? DEMO_DEALS_PULSE : SP.getDeals();
+      const investors = (isDemoAccount && !SP.getInvestors().length) ? DEMO_INVESTORS_PULSE : SP.getInvestors();
       const distributions = SP.getDistributions();
       const settings = SP.load('settings', {});
       const k1Vault = SP.load('k1_vault', []);

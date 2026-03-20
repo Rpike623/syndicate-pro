@@ -13,9 +13,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v11"></script>
-  <script src="js/sp-data.js?v11"></script>
-  <script src="js/sp-firebase.js?v11"></script>
+  <script src="js/sp-core.js?v12"></script>
+  <script src="js/sp-data.js?v12"></script>
+  <script src="js/sp-firebase.js?v12"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-notify.js"></script>
   <script src="js/sp-multi-org.js"></script>
@@ -162,15 +162,26 @@ function render() {
     const actions = _getActions(c);
     return `
       <div class="commit-card" data-status="${c.status}">
-        <div class="commit-header">
+        <div class="commit-header" onclick="toggleCommitDetail(this)" style="cursor:pointer;">
           <div>
-            <div class="commit-deal">${c.dealName || c.dealId}</div>
+            <div class="commit-deal">${c.dealName || c.dealId} <i class="fas fa-chevron-down" style="font-size:.65rem;color:#9C9590;margin-left:4px;transition:transform .2s;"></i></div>
             <div class="commit-investor"><i class="fas fa-user" style="margin-right:4px;"></i>${c.investorName || c.investorEmail}</div>
           </div>
           <div style="text-align:right;">
             <div class="commit-amount">$${Number(c.amount || 0).toLocaleString()}</div>
             <span class="status-badge status-${c.status}">${statusLabels[c.status] || c.status}</span>
           </div>
+        </div>
+        <div class="commit-detail" style="display:none;padding:12px 16px;background:var(--surface-alt,#F8F6F4);border-top:1px solid var(--border,#eee);font-size:.82rem;line-height:1.7;">
+          <div><strong>Investor:</strong> ${c.investorName || '—'} (${c.investorEmail || '—'})</div>
+          <div><strong>Entity:</strong> ${c.entity || 'Individual'}</div>
+          <div><strong>Amount:</strong> $${Number(c.amount || 0).toLocaleString()}</div>
+          <div><strong>Date:</strong> ${date}</div>
+          <div><strong>Status:</strong> ${statusLabels[c.status] || c.status}</div>
+          ${c.notes ? `<div><strong>Notes:</strong> ${c.notes}</div>` : ''}
+          ${c.signedAt ? `<div><strong>Signed:</strong> ${new Date(c.signedAt).toLocaleDateString()}</div>` : ''}
+          ${c.fundedAt ? `<div><strong>Funded:</strong> ${new Date(c.fundedAt).toLocaleDateString()}</div>` : ''}
+          ${c.wireRef ? `<div><strong>Wire Ref:</strong> ${c.wireRef}</div>` : ''}
         </div>
         <div class="commit-meta">
           <span><i class="fas fa-calendar"></i> ${date}</span>
@@ -230,6 +241,19 @@ async function _updateStatus(id, status, extra = {}) {
   const c = _commitments.find(c => c.id === id);
   if (c) { c.status = status; Object.assign(c, extra); }
   render();
+}
+
+function toggleCommitDetail(headerEl) {
+  const card = headerEl.closest('.commit-card');
+  const detail = card.querySelector('.commit-detail');
+  const chevron = headerEl.querySelector('.fa-chevron-down');
+  if (detail.style.display === 'none') {
+    detail.style.display = 'block';
+    if (chevron) chevron.style.transform = 'rotate(180deg)';
+  } else {
+    detail.style.display = 'none';
+    if (chevron) chevron.style.transform = '';
+  }
 }
 
 async function approveCommitment(id) {
