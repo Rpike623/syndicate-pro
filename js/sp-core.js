@@ -555,8 +555,17 @@ window.SP = (function () {
   // ─── Demo data seeding ──────────────────────────────────────────────────────
   function seedDemoData(session) {
     // Always seed under the shared demo org key
+    // Bump SEED_VERSION to force re-seed when demo data changes
+    const SEED_VERSION = 2;
     const demoOrgKey = `sp_org_${DEMO_ORG_ID}_deals`;
-    if (localStorage.getItem(demoOrgKey)) return; // already seeded locally
+    const seedVersionKey = `sp_org_${DEMO_ORG_ID}_seed_v`;
+    const currentVersion = parseInt(localStorage.getItem(seedVersionKey) || '0', 10);
+    if (localStorage.getItem(demoOrgKey) && currentVersion >= SEED_VERSION) return; // already seeded at current version
+
+    // Version changed — clear Firestore push flag so data gets re-pushed
+    if (currentVersion < SEED_VERSION) {
+      localStorage.removeItem(`sp_org_${DEMO_ORG_ID}_fs_seeded`);
+    }
 
     // After SPData initializes, push all seed data to Firestore.
     // Also re-push on every subsequent spdata-ready in case prior push was interrupted.
@@ -605,13 +614,15 @@ window.SP = (function () {
       defSEC: '506b',
     });
 
-    // Investors
+    // Investors — accredExpiry dates must be well in the future to avoid Pulse criticals
     const investors = [
-      { id:'di1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@demo.deeltrack.com', phone:'(214) 555-0101', address:'4521 Oak Blvd, Dallas, TX 75201', accredMethod:'cpa', accredStatus:'verified', accredDate:'2024-03-15', accredExpiry:'2026-03-15', minInvest:100000, maxInvest:500000, totalInvested:650000, deals:2, status:'active', notes:'High net worth individual. Prefers multifamily.' },
-      { id:'di2', firstName:'Sarah', lastName:'Chen', email:'s.chen@demo.deeltrack.com', phone:'(713) 555-0202', address:'1800 Post Oak Blvd, Houston, TX 77056', accredMethod:'entity', accredStatus:'verified', accredDate:'2024-01-10', accredExpiry:'2026-01-10', minInvest:250000, maxInvest:1000000, totalInvested:1000000, deals:2, status:'active', notes:'Family office rep. Very responsive.' },
-      { id:'di3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@demo.deeltrack.com', phone:'(512) 555-0303', address:'200 W Cesar Chavez, Austin, TX 78701', accredMethod:'attorney', accredStatus:'verified', accredDate:'2024-06-01', accredExpiry:'2026-06-01', minInvest:50000, maxInvest:250000, totalInvested:250000, deals:1, status:'active', notes:'First-time syndication investor.' },
-      { id:'di4', firstName:'Priya', lastName:'Patel', email:'ppatel@demo.deeltrack.com', phone:'(469) 555-0404', address:'5000 Granite Pkwy, Plano, TX 75024', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-01-15', accredExpiry:'2027-01-15', minInvest:500000, maxInvest:2000000, totalInvested:1000000, deals:1, status:'active', notes:'Prefers industrial. Long-term hold.' },
-      { id:'i7', firstName:'Phil', lastName:'Chapman', email:'philip@jchapmancpa.com', phone:'(817) 555-9000', address:'Fort Worth, TX', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-01-01', accredExpiry:'2027-01-01', minInvest:50000, maxInvest:500000, totalInvested:1075000, deals:8, status:'active', notes:'High-level CPA investor.' },
+      { id:'di1', firstName:'James', lastName:'Hartwell', email:'j.hartwell@demo.deeltrack.com', phone:'(214) 555-0101', address:'4521 Oak Blvd, Dallas, TX 75201', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-06-15', accredExpiry:'2027-06-15', minInvest:100000, maxInvest:500000, totalInvested:950000, deals:3, status:'active', notes:'High net worth individual. Prefers multifamily.' },
+      { id:'di2', firstName:'Sarah', lastName:'Chen', email:'s.chen@demo.deeltrack.com', phone:'(713) 555-0202', address:'1800 Post Oak Blvd, Houston, TX 77056', accredMethod:'entity', accredStatus:'verified', accredDate:'2025-01-10', accredExpiry:'2027-01-10', minInvest:250000, maxInvest:1000000, totalInvested:2250000, deals:3, status:'active', notes:'Family office rep. Very responsive.' },
+      { id:'di3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@demo.deeltrack.com', phone:'(512) 555-0303', address:'200 W Cesar Chavez, Austin, TX 78701', accredMethod:'attorney', accredStatus:'verified', accredDate:'2025-08-01', accredExpiry:'2027-08-01', minInvest:50000, maxInvest:250000, totalInvested:250000, deals:1, status:'active', notes:'First-time syndication investor.' },
+      { id:'di4', firstName:'Priya', lastName:'Patel', email:'ppatel@demo.deeltrack.com', phone:'(469) 555-0404', address:'5000 Granite Pkwy, Plano, TX 75024', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-03-15', accredExpiry:'2027-03-15', minInvest:500000, maxInvest:2000000, totalInvested:3500000, deals:2, status:'active', notes:'Prefers industrial. Long-term hold.' },
+      { id:'di5', firstName:'Robert', lastName:'Thompson', email:'r.thompson@gmail.com', phone:'(817) 555-0505', address:'3500 Camp Bowie, Fort Worth, TX 76107', accredMethod:'self', accredStatus:'pending', minInvest:25000, maxInvest:150000, totalInvested:150000, deals:1, status:'active', notes:'Accreditation verification pending. Self-certified — follow up for CPA letter.' },
+      { id:'di6', firstName:'Elena', lastName:'Vasquez', email:'evasquez@invest.net', phone:'(210) 555-0606', address:'115 E Travis, San Antonio, TX 78205', accredMethod:'broker', accredStatus:'verified', accredDate:'2025-04-20', accredExpiry:'2027-04-20', minInvest:100000, maxInvest:500000, totalInvested:1000000, deals:2, status:'active', notes:'Interested in deals near San Antonio.' },
+      { id:'i7', firstName:'Phil', lastName:'Chapman', email:'philip@jchapmancpa.com', phone:'(817) 555-9000', address:'2100 W Berry St, Fort Worth, TX 76110', accredMethod:'cpa', accredStatus:'verified', accredDate:'2025-01-01', accredExpiry:'2027-01-01', minInvest:50000, maxInvest:500000, totalInvested:750000, deals:3, status:'active', notes:'CPA. Invested across multifamily, industrial, and hospitality.' },
     ];
     save('investors', investors);
 
@@ -666,8 +677,10 @@ window.SP = (function () {
         companyName:'Meridian Industrial Capital LLC', purchasePrice:37500000, loanAmount:30000000,
         totalEquity:7500000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
         investors:[
-          {investorId:'di2',committed:500000,ownership:6.67,status:'active',linkedAt:'2025-12-10T10:00:00.000Z',subStatus:'funded'},
-          {investorId:'di4',committed:1000000,ownership:13.33,status:'active',linkedAt:'2025-12-10T10:00:00.000Z',subStatus:'funded'},
+          {investorId:'di2',committed:2250000,ownership:30,status:'active',linkedAt:'2025-12-10T10:00:00.000Z',subStatus:'funded'},
+          {investorId:'di4',committed:2500000,ownership:33.33,status:'active',linkedAt:'2025-12-10T10:00:00.000Z',subStatus:'funded'},
+          {investorId:'di1',committed:1500000,ownership:20,status:'active',linkedAt:'2025-12-12T10:00:00.000Z',subStatus:'funded'},
+          {investorId:'di6',committed:1000000,ownership:13.33,status:'active',linkedAt:'2025-12-15T10:00:00.000Z',subStatus:'funded'},
         ],
         documents:[], notes:'750k SF industrial park. NNN leases in place.'
       },
@@ -691,7 +704,10 @@ window.SP = (function () {
         status:'dd', location:'San Antonio, TX', added:'2026-02-01', units:72, state:'TX',
         companyName:'Parkview Commons Capital LLC', purchasePrice:15500000, loanAmount:12400000,
         totalEquity:3100000, gpEquity:10, lpEquity:90, prefReturn:8, gpPromote:20, acqFee:3, assetMgmtFee:2,
-        investors:[], documents:[], notes:'72-unit Class C value-add in San Antonio.',
+        investors:[
+          {investorId:'di5',committed:150000,ownership:4.84,status:'committed',linkedAt:'2026-02-10T10:00:00.000Z',subStatus:'pending'},
+          {investorId:'di6',committed:200000,ownership:6.45,status:'committed',linkedAt:'2026-02-15T10:00:00.000Z',subStatus:'pending'},
+        ], documents:[], notes:'72-unit Class C value-add in San Antonio.',
         due: new Date(Date.now() + 5*86400000).toISOString().split('T')[0]
       },
       {
@@ -780,24 +796,30 @@ window.SP = (function () {
       },
       // Meridian Industrial (d2): 8% pref, closeDate 2025-12-01
       //   di2: $500k×8%/4=$10k Q pref; di4: $1M×8%/4=$20k Q pref = $30k total
-      //   Q4 2025 dist=$150,000 → $30k pref + $120k excess
-      //   LP ownership: di2 6.67%, di4 13.33% (total 20%)
-      //   di2 excess: 120000*(6.67/20)=40,020; di4 excess: 80,016 ≈ rounding to 120000
-      //   di2 total: 10000+40020=50020, di4: 20000+79980=99980
+      // Meridian Industrial (d2): 8% pref, 4 investors, closeDate 2025-12-01
+      // di2: $2.25M, di4: $2.5M, di1: $1.5M, di6: $1M = $7.25M LP total
+      // Q4 2025 pref: di2 $45k, di4 $50k, di1 $30k, di6 $20k = $145k total
+      // Dist $300k → $145k pref + $155k excess split by ownership
       {
         id:'dd2', dealId:'d2', dealName:'Meridian Industrial',
         period:'Q4 2025', quarter:'Q4', year:2025,
-        totalAmount:150000, amount:150000,
+        totalAmount:300000, amount:300000,
         date:'2026-01-08', method:'Wire',
         status:'posted', prefAware:true,
-        investorCount:2,
+        investorCount:4,
         recipients:[
-          { investorId:'di2', ownership:6.67, invested:500000,
-            prefPaidThisDist:10000, excessThisDist:40020, totalThisDist:50020,
-            amount:50020, prefPaidToDate:10000, prefRemainingAfterDist:0 },
-          { investorId:'di4', ownership:13.33, invested:1000000,
-            prefPaidThisDist:20000, excessThisDist:79980, totalThisDist:99980,
-            amount:99980, prefPaidToDate:20000, prefRemainingAfterDist:0 },
+          { investorId:'di2', ownership:30, invested:2250000,
+            prefPaidThisDist:45000, excessThisDist:48103, totalThisDist:93103,
+            amount:93103, prefPaidToDate:45000, prefRemainingAfterDist:0 },
+          { investorId:'di4', ownership:33.33, invested:2500000,
+            prefPaidThisDist:50000, excessThisDist:53448, totalThisDist:103448,
+            amount:103448, prefPaidToDate:50000, prefRemainingAfterDist:0 },
+          { investorId:'di1', ownership:20, invested:1500000,
+            prefPaidThisDist:30000, excessThisDist:32069, totalThisDist:62069,
+            amount:62069, prefPaidToDate:30000, prefRemainingAfterDist:0 },
+          { investorId:'di6', ownership:13.33, invested:1000000,
+            prefPaidThisDist:20000, excessThisDist:21380, totalThisDist:41380,
+            amount:41380, prefPaidToDate:20000, prefRemainingAfterDist:0 },
         ]
       },
     ]);
@@ -853,13 +875,16 @@ window.SP = (function () {
       { icon:'fa-hand-holding-usd', color:'amber', text:'Capital call of <strong>$5,500,000</strong> issued for <strong>Pecan Hollow Apartments</strong>', time:'Mar 6, 2026', ts:1741219200000 },
       { icon:'fa-wallet', color:'purple', text:'Q1 2026 distribution of <strong>$90,000</strong> posted for <strong>Riverside Flats</strong> — 4 investors', time:'Apr 5, 2026', ts:1743811200000 },
       { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$84,000</strong> sent to 4 investors from Riverside Flats', time:'Jan 5, 2026', ts:1736035200000 },
-      { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$150,000</strong> sent to 2 investors from Meridian Industrial', time:'Jan 8, 2026', ts:1736294400000 },
+      { icon:'fa-wallet', color:'purple', text:'Q4 distribution of <strong>$300,000</strong> sent to 4 investors from Meridian Industrial', time:'Jan 8, 2026', ts:1736294400000 },
       { icon:'fa-bullhorn', color:'blue', text:'Investor update posted: <strong>Acquisition Complete — The Hudson Portfolio</strong>', time:'Jan 22, 2026', ts:1737504000000 },
       { icon:'fa-building', color:'blue', text:'<strong>The Hudson Portfolio</strong> added — 248 units in Houston', time:'Jan 15, 2026', ts:1736899200000 },
       { icon:'fa-user-plus', color:'green', text:'<strong>Phil Chapman</strong> added to The Hudson Portfolio — $300K commitment', time:'Jan 22, 2026', ts:1737504000000 },
       { icon:'fa-user-plus', color:'green', text:'<strong>Priya Patel</strong> linked to Meridian Industrial — $1M commitment', time:'Dec 10, 2025', ts:1733788800000 },
       { icon:'fa-file-contract', color:'amber', text:'Operating Agreement auto-generated for <strong>Riverside Flats</strong>', time:'Nov 10, 2025', ts:1731196800000 },
     ]);
+
+    // Mark seed version so we don't re-seed unless SEED_VERSION bumps
+    localStorage.setItem(seedVersionKey, String(SEED_VERSION));
   }
 
   // ─── Invite token helpers ────────────────────────────────────────────────────
