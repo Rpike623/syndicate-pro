@@ -15,9 +15,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v12"></script>
-  <script src="js/sp-data.js?v12"></script>
-  <script src="js/sp-firebase.js?v12"></script>
+  <script src="js/sp-core.js?v13"></script>
+  <script src="js/sp-data.js?v13"></script>
+  <script src="js/sp-firebase.js?v13"></script>
   <script src="js/sp-billing.js"></script>
   <style>
     :root {
@@ -599,9 +599,12 @@ function showConfirmModal(title, message, confirmText, onConfirm) {
 }
 
 function exportCSV() {
+  const STATUS_LABELS = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',closed:'Closed',operating:'Operating',raising:'Raising',fundraising:'Fundraising'};
+  const TYPE_LABELS = {multifamily:'Multifamily',industrial:'Industrial',retail:'Retail',office:'Office','self-storage':'Self-Storage',hospitality:'Hospitality'};
   const headers = ['Name','Type','Location','Raise','IRR','Equity Multiple','Status','Added'];
-  const rows = deals.map(d=>[d.name,d.type,d.location||'',d.raise||0,d.irr||0,d.equity||0,d.status,d.added||'']);
-  const csv = [headers,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const sanitize = v => String(v||'').replace(/[\r\n]+/g,' ').replace(/^[=+\-@\t\r]/,'');
+  const rows = deals.map(d=>[sanitize(d.name),TYPE_LABELS[d.type]||d.type||'',sanitize(d.location||''),d.raise||0,d.irr||0,d.equity||0,STATUS_LABELS[d.status]||d.status||'',d.added||'']);
+  const csv = [headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   a.download = 'deals.csv';

@@ -13,9 +13,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v12"></script>
-  <script src="js/sp-data.js?v12"></script>
-  <script src="js/sp-firebase.js?v12"></script>
+  <script src="js/sp-core.js?v13"></script>
+  <script src="js/sp-data.js?v13"></script>
+  <script src="js/sp-firebase.js?v13"></script>
   <script src="js/sp-billing.js"></script>
   <!-- SheetJS for Excel parsing -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -53,9 +53,9 @@
 
     <div class="dt-content" style="max-width:1000px;">
       <div class="import-steps">
-        <div class="imp-step active" id="impStep1">1. Upload</div>
-        <div class="imp-step" id="impStep2">2. Preview</div>
-        <div class="imp-step" id="impStep3">3. Import</div>
+        <div class="imp-step active" id="impStep1" onclick="showStep(1);" style="cursor:pointer;">1. Upload</div>
+        <div class="imp-step" id="impStep2" onclick="if(document.getElementById('step2').dataset.ready==='true') showStep(2); else alert('Complete Step 1 first — upload a file.');" style="cursor:pointer;">2. Preview</div>
+        <div class="imp-step" id="impStep3" style="cursor:not-allowed;opacity:.6;">3. Import</div>
       </div>
 
       <!-- Step 1: Upload -->
@@ -249,6 +249,7 @@ function processFile(file) {
       })).filter(d => d.dealName && d.investorEmail);
     }
 
+    document.getElementById('step2').dataset.ready = 'true';
     showStep(2);
     showPreview('deals');
   };

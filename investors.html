@@ -15,9 +15,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v12"></script>
-  <script src="js/sp-data.js?v12"></script>
-  <script src="js/sp-firebase.js?v12"></script>
+  <script src="js/sp-core.js?v13"></script>
+  <script src="js/sp-data.js?v13"></script>
+  <script src="js/sp-firebase.js?v13"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-email.js"></script>
   <style>
@@ -513,7 +513,9 @@ async function load() {
   }
   
   investors = SP.getInvestors();
-  console.log('load(): SP.getInvestors() returned', investors.length, 'investors');
+  // Filter out QA test accounts from display
+  investors = investors.filter(i => !/^QA\b|^XSS/i.test((i.firstName||'')+' '+(i.lastName||'')) && !/\bTest$/i.test(i.lastName||''));
+  console.log('load(): SP.getInvestors() returned', investors.length, 'investors (after QA filter)');
   
   if (!investors.length) {
     console.log('load(): seeding demo investors');
@@ -912,8 +914,19 @@ ${gpName}`;
 
 function exportCSV() {
   const headers = ['First Name','Last Name','Email','Phone','Accreditation','Total Invested','Deals','Status'];
-  const rows = investors.map(i => [i.firstName,i.lastName,i.email,i.phone||'',i.accredStatus,i.totalInvested||0,i.deals||0,i.status]);
-  const csv = [headers,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const allDeals = SP.getDeals();
+  const rows = investors.map(i => {
+    // Calculate real committed from deal links, fall back to totalInvested
+    const linkedDeals = allDeals.filter(d => Array.isArray(d.investors) && d.investors.some(x => x.investorId === i.id));
+    const totalCommitted = linkedDeals.reduce((s,d) => {
+      const e = d.investors.find(x => x.investorId === i.id); return s + (e?.committed || 0);
+    }, 0);
+    const invested = totalCommitted || i.totalInvested || 0;
+    // Sanitize values to prevent XSS/injection in CSV
+    const sanitize = v => String(v||'').replace(/[\r\n]+/g,' ').replace(/^[=+\-@\t\r]/,'');
+    return [sanitize(i.firstName),sanitize(i.lastName),sanitize(i.email),sanitize(i.phone||''),sanitize(i.accredStatus),invested,linkedDeals.length || i.deals || 0,sanitize(i.status)];
+  });
+  const csv = [headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   a.download = 'investors.csv';

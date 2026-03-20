@@ -13,9 +13,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v12"></script>
-  <script src="js/sp-data.js?v12"></script>
-  <script src="js/sp-firebase.js?v12"></script>
+  <script src="js/sp-core.js?v13"></script>
+  <script src="js/sp-data.js?v13"></script>
+  <script src="js/sp-firebase.js?v13"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-email.js"></script>
   <style>
@@ -637,8 +637,17 @@
         .replace('{{year}}', '2024')
         .replace('{{milestoneName}}', 'Refinancing Complete');
       
+      // Use first selected recipient's name for preview, fallback to placeholder
+      let previewName = '[Investor Name]';
+      const selectedRecips = typeof getSelectedRecipients === 'function' ? getSelectedRecipients() : [];
+      if (selectedRecips.length === 1) {
+        previewName = selectedRecips[0].name || previewName;
+      } else if (selectedRecips.length > 1) {
+        previewName = selectedRecips[0].name + ' (+ ' + (selectedRecips.length - 1) + ' more)';
+      }
+
       let body = template.body
-        .replace(/{{investorName}}/g, 'John Investor')
+        .replace(/{{investorName}}/g, previewName)
         .replace(/{{dealName}}/g, dealName)
         .replace(/{{period}}/g, period)
         .replace(/{{customNotes}}/g, notes ? `<p><strong>Note:</strong> ${notes}</p>` : '')

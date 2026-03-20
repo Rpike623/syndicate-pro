@@ -18,9 +18,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v12"></script>
-  <script src="js/sp-data.js?v12"></script>
-  <script src="js/sp-firebase.js?v12"></script>
+  <script src="js/sp-core.js?v13"></script>
+  <script src="js/sp-data.js?v13"></script>
+  <script src="js/sp-firebase.js?v13"></script>
   <script src="js/sp-notify.js"></script>
   <script src="js/sp-billing.js?v3"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -782,7 +782,7 @@ function renderAlerts() {
           return `<div style="display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid rgba(0,0,0,.04);font-size:.82rem;">
             <i class="fas ${a.icon}" style="color:${iconColor};flex-shrink:0;font-size:.9rem;"></i>
             <span style="color:#1B1A19;flex:1;">${a.msg}</span>
-            <a href="${a.link}" style="color:#F37925;font-weight:600;text-decoration:none;white-space:nowrap;font-size:.78rem;">${a.linkText} →</a>
+            <a href="${a.link}" style="color:#F37925;font-weight:600;text-decoration:none;white-space:nowrap;font-size:.78rem;">${a.linkText.endsWith('→') ? a.linkText : a.linkText + ' →'}</a>
           </div>`;
         }).join('')}
       </div>
@@ -913,7 +913,7 @@ function loadInvestors() {
   const isDemoAccount = ['gp@deeltrack.com','demo@deeltrack.com'].includes(session?.email?.toLowerCase());
   if (isDemoAccount) return DEMO_INVESTORS;
   const investors = SP.getInvestors();
-  if (investors && investors.length) return investors.filter(i => !/^QA\b/i.test((i.firstName || '') + ' ' + (i.lastName || '')));
+  if (investors && investors.length) return investors.filter(i => !/^QA\b|^XSS/i.test((i.firstName||'')+' '+(i.lastName||'')) && !/\bTest$/i.test(i.lastName||''));
   return [];
 }
 function loadDistributionsYTD() {
@@ -948,8 +948,11 @@ function renderKPIs(deals, investors, distYTD) {
   document.getElementById('kpiDist').textContent = fmt$(distYTD);
   document.getElementById('kpiDistChange').innerHTML = '<i class="fas fa-arrow-up"></i> YTD 2026';
 
-  // Render Investors KPI
-  const invCount = investors.length;
+  // Render Investors KPI — use investor list but cross-check with unique investors from deals
+  // Unique investor IDs from deal linkages
+  const uniqueDealInvIds = new Set();
+  deals.forEach(d => (d.investors||[]).forEach(i => { if(i.investorId) uniqueDealInvIds.add(i.investorId); }));
+  const invCount = Math.max(investors.length, uniqueDealInvIds.size);
   const accredited = investors.filter(i => i.accredStatus === 'verified').length;
   document.getElementById('kpiInvestors').textContent = invCount;
   const invChangeEl = document.getElementById('kpiInvestorsChange');

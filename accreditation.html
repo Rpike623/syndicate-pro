@@ -8,9 +8,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/dt-global.css">
-  <script src="js/sp-core.js?v12"></script>
-  <script src="js/sp-data.js?v12"></script>
-  <script src="js/sp-firebase.js?v12"></script>
+  <script src="js/sp-core.js?v13"></script>
+  <script src="js/sp-data.js?v13"></script>
+  <script src="js/sp-firebase.js?v13"></script>
   <link rel="stylesheet" href="contrast-fix.css">
   <style>
     .top-bar { background: #FFFFFF; border-bottom: 1px solid #E2DDD8; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
@@ -124,7 +124,7 @@
     let investors = [];
 
     function load() {
-      investors = SP.getInvestors() || [];
+      investors = (SP.getInvestors() || []).filter(i => !/^QA\b|^XSS/i.test((i.firstName||'')+' '+(i.lastName||'')) && !/Test$/i.test((i.lastName||'')));
       render();
     }
 
@@ -189,25 +189,61 @@
         return;
       }
 
-      let html = '<table><thead><tr><th>Investor</th><th>Method</th><th>Status</th><th>Verified Date</th><th>Expiry</th></tr></thead><tbody>';
+      const METHOD_LABELS = {cpa:'CPA Letter',attorney:'Attorney Letter',entity:'Entity Verification',self:'Self-Certification',broker:'Broker-Dealer'};
+      function fmtDateUTC(d) { if (!d) return '—'; try { const dt = new Date(d); return dt.toLocaleDateString('en-US',{timeZone:'UTC'}); } catch(e) { return d; } }
+      let html = '<table><thead><tr><th>Investor</th><th>Method</th><th>Status</th><th>Verified Date</th><th>Expiry</th><th>Actions</th></tr></thead><tbody>';
       filtered.forEach(inv => {
         const name = (inv.firstName || '') + ' ' + (inv.lastName || '');
-        const method = inv.accredMethod || '—';
+        const method = METHOD_LABELS[(inv.accredMethod||'').toLowerCase()] || inv.accredMethod || '—';
         const status = inv._status;
         const badgeClass = status === 'verified' ? 'status-verified' : status === 'expired' ? 'status-expired' : 'status-pending';
         const label = status.charAt(0).toUpperCase() + status.slice(1);
-        const date = inv.accredDate || '—';
-        const expiry = inv.accredExpiry || '—';
+        const date = fmtDateUTC(inv.accredDate);
+        const expiry = fmtDateUTC(inv.accredExpiry);
         html += `<tr>
           <td><strong>${name}</strong><br><span style="color:#6B6560;font-size:0.8rem;">${inv.email || ''}</span></td>
-          <td style="text-transform:capitalize;">${method}</td>
+          <td>${method}</td>
           <td><span class="status-badge ${badgeClass}">${label}</span></td>
           <td>${date}</td>
           <td>${expiry}</td>
+          <td><button onclick="openAccredModal('${inv.id}')" style="background:var(--accent);color:white;border:none;border-radius:6px;padding:6px 12px;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit;">Verify / Edit</button></td>
         </tr>`;
       });
       html += '</tbody></table>';
       table.innerHTML = html;
+    }
+
+    // ── Verify / Edit Modal ──────────────────────────────────
+    let _editInvId = null;
+    function openAccredModal(id) {
+      _editInvId = id;
+      const inv = investors.find(i => i.id === id);
+      if (!inv) return;
+      document.getElementById('accredModalName').textContent = (inv.firstName||'')+' '+(inv.lastName||'');
+      document.getElementById('accredModalMethod').value = inv.accredMethod || '';
+      document.getElementById('accredModalStatus').value = inv.accredStatus || 'pending';
+      document.getElementById('accredModalDate').value = inv.accredDate || new Date().toISOString().slice(0,10);
+      document.getElementById('accredModalExpiry').value = inv.accredExpiry || '';
+      document.getElementById('accredModal').style.display = 'flex';
+    }
+    function closeAccredModal() { document.getElementById('accredModal').style.display = 'none'; _editInvId = null; }
+    function saveAccred() {
+      if (!_editInvId) return;
+      const inv = investors.find(i => i.id === _editInvId);
+      if (!inv) return;
+      inv.accredMethod = document.getElementById('accredModalMethod').value;
+      inv.accredStatus = document.getElementById('accredModalStatus').value;
+      inv.accredDate = document.getElementById('accredModalDate').value;
+      inv.accredExpiry = document.getElementById('accredModalExpiry').value;
+      SP.save('investors', investors);
+      closeAccredModal();
+      render();
+      // Show saved toast
+      const t = document.createElement('div');
+      t.style.cssText='position:fixed;bottom:24px;right:24px;background:#2D9A6B;color:white;padding:12px 20px;border-radius:8px;font-weight:600;font-size:.85rem;z-index:9999;';
+      t.textContent='✓ Accreditation updated';
+      document.body.appendChild(t);
+      setTimeout(()=>t.remove(),3000);
     }
 
     // Wait for data
@@ -216,5 +252,47 @@
       try { const inv = SP.getInvestors(); if (inv && inv.length) load(); } catch(e) {}
     }
   </script>
+
+  <!-- Accreditation Edit Modal -->
+  <div id="accredModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:12px;padding:28px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="font-size:1rem;font-weight:700;" id="accredModalName">Investor</h3>
+        <button onclick="closeAccredModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6B6560;">&times;</button>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6B6560;margin-bottom:6px;">Verification Method</label>
+        <select id="accredModalMethod" style="width:100%;padding:10px;border:1px solid #E2DDD8;border-radius:8px;font-family:inherit;font-size:.875rem;">
+          <option value="">— Select —</option>
+          <option value="cpa">CPA Letter</option>
+          <option value="attorney">Attorney Letter</option>
+          <option value="entity">Entity Verification</option>
+          <option value="self">Self-Certification</option>
+          <option value="broker">Broker-Dealer</option>
+        </select>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6B6560;margin-bottom:6px;">Status</label>
+        <select id="accredModalStatus" style="width:100%;padding:10px;border:1px solid #E2DDD8;border-radius:8px;font-family:inherit;font-size:.875rem;">
+          <option value="pending">Pending</option>
+          <option value="verified">Verified</option>
+          <option value="expired">Expired</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6B6560;margin-bottom:6px;">Verified Date</label>
+        <input type="date" id="accredModalDate" style="width:100%;padding:10px;border:1px solid #E2DDD8;border-radius:8px;font-family:inherit;font-size:.875rem;">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6B6560;margin-bottom:6px;">Expiry Date</label>
+        <input type="date" id="accredModalExpiry" style="width:100%;padding:10px;border:1px solid #E2DDD8;border-radius:8px;font-family:inherit;font-size:.875rem;">
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button onclick="closeAccredModal()" style="padding:10px 18px;border:1px solid #E2DDD8;border-radius:8px;background:white;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+        <button onclick="saveAccred()" style="padding:10px 18px;background:#2D9A6B;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-family:inherit;">Save Verification</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

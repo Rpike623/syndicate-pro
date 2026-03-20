@@ -13,9 +13,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v12"></script>
-  <script src="js/sp-data.js?v12"></script>
-  <script src="js/sp-firebase.js?v12"></script>
+  <script src="js/sp-core.js?v13"></script>
+  <script src="js/sp-data.js?v13"></script>
+  <script src="js/sp-firebase.js?v13"></script>
   <style>
     .help-grid{display:grid;grid-template-columns:260px 1fr;gap:24px;max-width:1100px;}
     @media(max-width:768px){.help-grid{grid-template-columns:1fr;}}
@@ -359,6 +359,8 @@ function showSection(id, el) {
 
 function searchHelp(query) {
   const q = query.toLowerCase().trim();
+  // Remove any prior no-results message
+  document.getElementById('searchNoResults')?.remove();
   if (!q) {
     document.querySelectorAll('.help-section').forEach(s => s.classList.remove('active'));
     document.getElementById('sec-getting-started')?.classList.add('active');
@@ -367,10 +369,22 @@ function searchHelp(query) {
   }
   // Show all sections but filter content
   document.querySelectorAll('.help-section').forEach(s => s.classList.add('active'));
+  let matchCount = 0;
   document.querySelectorAll('.guide-card, .faq-item').forEach(el => {
     const text = el.textContent.toLowerCase();
-    el.style.display = text.includes(q) ? '' : 'none';
+    const match = text.includes(q);
+    el.style.display = match ? '' : 'none';
+    if (match) matchCount++;
   });
+  // Show no-results feedback
+  if (matchCount === 0) {
+    const msg = document.createElement('div');
+    msg.id = 'searchNoResults';
+    msg.style.cssText = 'text-align:center;padding:40px 24px;color:#6B6560;';
+    msg.innerHTML = '<i class="fas fa-search" style="font-size:1.5rem;opacity:.3;display:block;margin-bottom:8px;"></i><p>No results for "<strong>' + q.replace(/</g,'&lt;') + '</strong>". Try different keywords or <a href="mailto:admin@deeltrack.com" style="color:#F37925;">contact support</a>.</p>';
+    const parent = document.querySelector('.help-grid > div:last-child') || document.querySelector('.content');
+    parent.appendChild(msg);
+  }
 }
 </script>
 </body>

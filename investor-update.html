@@ -11,9 +11,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v12"></script>
-  <script src="js/sp-data.js?v12"></script>
-  <script src="js/sp-firebase.js?v12"></script>
+  <script src="js/sp-core.js?v13"></script>
+  <script src="js/sp-data.js?v13"></script>
+  <script src="js/sp-firebase.js?v13"></script>
   <script src="js/sp-billing.js"></script>
   <style>
     :root {--accent: #F37925;--accent-hover:#D96515;--success: #2D9A6B;--warning: #E8890A;--danger: #D94F3D;--purple: #7B5CC4;--bg: #F3F3F3;--bg-card: #FFFFFF;--bg-sidebar: #050811;--text: #1B1A19;--text-secondary: #6B6560;--border: #E2DDD8;--border-light: rgba(27,26,25,0.08);--radius:8px;--radius-md:12px;}
@@ -153,7 +153,7 @@
           <!-- Header info -->
           <div class="card">
             <div class="card-title"><i class="fas fa-building" style="color:var(--accent)"></i> Deal &amp; Period</div>
-            <div class="fg"><label class="fl">Deal / Property Name</label><input type="text" id="upDeal" value="Oakwood Multifamily Portfolio" oninput="render()"></div>
+            <div class="fg"><label class="fl">Deal / Property Name</label><input type="text" id="upDeal" value="" placeholder="Select or type deal name" oninput="render()"></div>
             <div class="row2">
               <div class="fg"><label class="fl">Reporting Period</label><input type="text" id="upPeriod" value="Q4 2025" oninput="render()"></div>
               <div class="fg"><label class="fl">Update Type</label>
@@ -167,7 +167,7 @@
               </div>
             </div>
             <div class="fg"><label class="fl">Greeting / Opening</label>
-              <textarea id="upGreeting" rows="3" oninput="render()">We are pleased to share the Q4 2025 update for Oakwood Multifamily Portfolio. The quarter delivered strong operational results, and we remain on track with our value-add business plan.</textarea>
+              <textarea id="upGreeting" rows="3" oninput="render()">We are pleased to share this update. The period delivered strong operational results, and we remain on track with our business plan.</textarea>
             </div>
           </div>
 
@@ -299,7 +299,7 @@ Target stabilized occupancy (96%) — Q3 2026</textarea>
               <span class="preview-label"><i class="fas fa-eye"></i> Live Email Preview</span>
               <div style="display:flex;gap:8px;">
                 <button class="btn btn-secondary btn-sm" onclick="copyHTML()"><i class="fas fa-copy"></i> Copy HTML</button>
-                <button class="btn btn-success btn-sm" onclick="window.print()"><i class="fas fa-print"></i> PDF</button>
+                <!-- Print handled by top-bar button -->
               </div>
             </div>
             <div class="email-preview" id="emailPreview"></div>
@@ -330,6 +330,15 @@ Target stabilized occupancy (96%) — Q3 2026</textarea>
         if (nameEl) nameEl.textContent = sess.name || sess.email || 'GP';
       }
       loadUpdate();
+      // Pre-fill deal name from SP data if available
+      SP.onDataReady(function() {
+        const deals = SP.getDeals().filter(d => (d.raise||0)>=0 && !/^QA\b/i.test(d.name||''));
+        const dealInput = document.getElementById('upDeal');
+        if (dealInput && !dealInput.value && deals.length) {
+          dealInput.value = deals[0].name;
+          render();
+        }
+      });
       render();
     });
 

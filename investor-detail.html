@@ -12,9 +12,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v12"></script>
-  <script src="js/sp-data.js?v12"></script>
-  <script src="js/sp-firebase.js?v12"></script>
+  <script src="js/sp-core.js?v13"></script>
+  <script src="js/sp-data.js?v13"></script>
+  <script src="js/sp-firebase.js?v13"></script>
   <script src="js/sp-billing.js"></script>
   <style>
     :root {
@@ -304,7 +304,7 @@ function render() {
                   <div style="font-size:.75rem;color:var(--text-muted);margin-top:2px;">
                     ${entry.ownership ? entry.ownership.toFixed(2) + '% ownership' : '—'}
                   </div>
-                  <span class="badge ${STATUS_BADGE[entry.status] || 'badge-committed'}" style="margin-top:4px;">${entry.status || 'committed'}</span>
+                  <span class="badge ${d.status === 'closed' ? '' : (STATUS_BADGE[entry.status] || 'badge-committed')}" style="margin-top:4px;${d.status === 'closed' ? 'background:rgba(107,101,96,.12);color:#6B6560;' : ''}">${d.status === 'closed' ? 'Closed' : (entry.status || 'committed')}</span>
                 </div>
               </div>`;
             }).join('')}
@@ -362,11 +362,11 @@ function render() {
             </div>
             <div>
               ${infoRow('Accreditation', accredBadge[inv.accredStatus || 'pending'] || '—')}
-              ${infoRow('Method', inv.accredMethod || '—')}
-              ${infoRow('Verified Date', inv.accredDate ? new Date(inv.accredDate).toLocaleDateString() : '—')}
-              ${infoRow('Expiry Date', inv.accredExpiry ? new Date(inv.accredExpiry).toLocaleDateString() : '—')}
-              ${infoRow('Min Investment', inv.minInvest ? fmtFull$(inv.minInvest) : '—')}
-              ${infoRow('Max Investment', inv.maxInvest ? fmtFull$(inv.maxInvest) : '—')}
+              ${infoRow('Method', ({cpa:'CPA Letter',attorney:'Attorney Letter',entity:'Entity Verification',self:'Self-Certification',broker:'Broker-Dealer'})[inv.accredMethod] || inv.accredMethod || '—')}
+              ${infoRow('Verified Date', inv.accredDate ? new Date(inv.accredDate).toLocaleDateString('en-US',{timeZone:'UTC'}) : '—')}
+              ${infoRow('Expiry Date', inv.accredExpiry ? new Date(inv.accredExpiry).toLocaleDateString('en-US',{timeZone:'UTC'}) : '—')}
+              ${infoRow('Min Investment', inv.minInvest ? fmtFull$(inv.minInvest) : 'Not set')}
+              ${infoRow('Max Investment', inv.maxInvest ? fmtFull$(inv.maxInvest) : 'No limit')}
             </div>
           </div>
           ${(inv.bankName || inv.bankAccount) ? `
