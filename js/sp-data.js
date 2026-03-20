@@ -192,6 +192,24 @@ const SPData = (() => {
     _ready = true;
     _patchSP();
 
+    // Pre-hydrate custom_data keys that pages need immediately (dealroom_docs_*, k1_vault, etc.)
+    // This prevents Pulse and other pages from seeing empty data on first render
+    try {
+      const customSnap = await _col('custom_data').get();
+      customSnap.docs.forEach(doc => {
+        const data = doc.data();
+        if (data && data.key && data.value !== undefined) {
+          _customCache[data.key] = data.value;
+          _customLoaded.add(data.key);
+          // Also sync to localStorage cache
+          try { _origSave(data.key, data.value); } catch(e) {}
+        }
+      });
+      if (customSnap.size) console.log(`SPData: pre-hydrated ${customSnap.size} custom_data docs`);
+    } catch(e) {
+      console.warn('SPData: custom_data pre-hydrate failed:', e.message);
+    }
+
     // Fire ready callbacks
     _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
     _readyCallbacks.length = 0;
