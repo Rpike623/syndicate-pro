@@ -48,6 +48,16 @@ async function getGraphToken() {
 }
 
 async function graphSendMail(to, subject, html, token, options = {}) {
+  // Suppress emails to demo/fake addresses to prevent bouncebacks
+  const demoPatterns = ['@demo.deeltrack.com', '@invest.net', '@example.com', '@test.com'];
+  const allAddrs = Array.isArray(to) ? to : [to];
+  const realRecipients = allAddrs.filter(addr => !demoPatterns.some(p => addr.toLowerCase().endsWith(p)));
+  if (realRecipients.length === 0) {
+    console.log('[Email] Suppressed — all recipients are demo/fake:', recipients.join(', '));
+    return;
+  }
+  to = realRecipients.length === 1 ? realRecipients[0] : realRecipients;
+
   const cfg = await getEmailConfig();
   const fromEmail = cfg.fromEmail || 'admin@deeltrack.com';
   // Use GP firm name if provided, format as "Firm Name via deeltrack"

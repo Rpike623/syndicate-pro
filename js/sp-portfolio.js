@@ -24,11 +24,20 @@ window.Portfolio = {
     rawDeals = rawDeals.filter(d => (d.raise || d.currentValue || 0) >= 0 && !/^QA\b/i.test(d.name || ''));
 
     // Normalize deal fields — real deals use 'raise'/'totalEquity', demo uses 'currentValue'/'purchasePrice'
-    this.deals = rawDeals.map(d => ({
+    // CRITICAL: Firestore deals have 'equity' as an equity MULTIPLE (e.g. 1.9x), NOT a dollar amount.
+    //   'purchasePrice' is the total property price, NOT the LP investment cost.
+    //   For portfolio math, 'raise' is the amount investors put in (= LP equity).
+    //   Only use explicit 'currentValue' if it differs from 'raise' (means GP entered an updated valuation).
+    this.deals = rawDeals.map(d => {
+      // If deal has explicit currentValue that's different from raise, use it. Otherwise, raise IS the current value.
+      const hasExplicitValuation = d.currentValue && d.currentValue !== d.raise && d.currentValue !== d.totalEquity;
+      // 'equity' field < 100 means it's a multiple, not dollars — ignore it for dollar math
+      const equityIsDollars = (d.equity || 0) > 100;
+      return {
       ...d,
-      currentValue: d.currentValue || d.raise || d.totalEquity || 0,
-      purchasePrice: d.purchasePrice || d.raise || d.totalEquity || 0,
-      equity: d.equity || d.totalEquity || d.raise || 0,
+      currentValue: hasExplicitValuation ? d.currentValue : (d.raise || d.totalEquity || 0),
+      purchasePrice: d.raise || d.totalEquity || 0,  // LP equity invested, not property price
+      equity: equityIsDollars ? d.equity : (d.totalEquity || d.raise || 0),
       noi: d.noi || 0,
       expenses: d.expenses || 0,
       debtService: d.debtService || 0,
@@ -40,7 +49,7 @@ window.Portfolio = {
       address: d.address || d.location || '',
       type: d.type || d.propertyType || 'Real Estate',
       status: d.status || 'operating'
-    }));
+    };});
 
     if (!this.deals.length) {
       this.deals = this.generateDemoDeals();
