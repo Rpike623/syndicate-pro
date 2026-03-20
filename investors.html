@@ -15,9 +15,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v13"></script>
-  <script src="js/sp-data.js?v13"></script>
-  <script src="js/sp-firebase.js?v13"></script>
+  <script src="js/sp-core.js?v14"></script>
+  <script src="js/sp-data.js?v14"></script>
+  <script src="js/sp-firebase.js?v14"></script>
   <script src="js/sp-billing.js"></script>
   <script src="js/sp-email.js"></script>
   <style>
@@ -93,7 +93,7 @@
     td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); font-size: 0.875rem; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: rgba(59,130,246,0.02); }
-    .investor-name { font-weight: 600; }
+    .investor-name { font-weight: 600; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .investor-email { font-size: 0.8rem; color: var(--text-secondary); }
     .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
     .badge-verified { background: var(--success-light); color: var(--success); }
@@ -629,12 +629,12 @@ function renderTable(list) {
       <td data-label="Status">${statusBadge[inv.status]||'—'}</td>
       <td data-label="Actions" onclick="event.stopPropagation();">
         <div class="action-btns">
-          <button class="btn-xs" onclick="editInvestor('${inv.id}')" title="Edit"><i class="fas fa-edit"></i></button>
-          <button class="btn-xs" onclick="openDealLinkModal('${inv.id}')" title="Link to Deal" style="color:var(--accent);"><i class="fas fa-link"></i></button>
+          <button class="btn-xs" onclick="editInvestor('${inv.id}')" title="Edit" aria-label="Edit ${SP.esc(inv.firstName)} ${SP.esc(inv.lastName)}"><i class="fas fa-edit"></i></button>
+          <button class="btn-xs" onclick="openDealLinkModal('${inv.id}')" title="Link to Deal" aria-label="Link ${SP.esc(inv.firstName)} ${SP.esc(inv.lastName)} to Deal" style="color:var(--accent);"><i class="fas fa-link"></i></button>
           ${inv.accredDoc?`<button class="btn-xs" onclick="viewAccredDoc('${inv.id}')" title="View Accred Doc" style="color:var(--success);"><i class="fas fa-file-shield"></i></button>`:''}
-          ${(inv.accredStatus==='expired'||daysUntilExpiry(inv)<=30)?`<button class="btn-xs" onclick="sendRenewalReminder('${inv.id}')" title="Send Renewal Reminder" style="color:var(--warning);"><i class="fas fa-bell"></i></button>`:''}
-          <button class="btn-xs" onclick="emailInvestor('${inv.id}')" title="Email"><i class="fas fa-envelope"></i></button>
-          <button class="btn-xs danger" onclick="deleteInvestor('${inv.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+          ${(inv.accredStatus==='expired'||daysUntilExpiry(inv)<=30)?`<button class="btn-xs" onclick="sendRenewalReminder('${inv.id}')" title="Send Renewal Reminder" aria-label="Send Renewal Reminder to ${SP.esc(inv.firstName)} ${SP.esc(inv.lastName)}" style="color:var(--warning);"><i class="fas fa-bell"></i></button>`:''}
+          <button class="btn-xs" onclick="emailInvestor('${inv.id}')" title="Email" aria-label="Email ${SP.esc(inv.firstName)} ${SP.esc(inv.lastName)}"><i class="fas fa-envelope"></i></button>
+          <button class="btn-xs danger" onclick="deleteInvestor('${inv.id}')" title="Delete" aria-label="Delete ${SP.esc(inv.firstName)} ${SP.esc(inv.lastName)}"><i class="fas fa-trash"></i></button>
         </div>
       </td>
     </tr>`;
@@ -733,8 +733,35 @@ function openModal(id) {
     if(dz){dz.style.borderColor='';dz.style.background='';}
     if(dl) dl.innerHTML='<i class="fas fa-cloud-upload-alt" style="margin-right:6px;"></i>Click to upload CPA letter, attorney letter, or verification doc (PDF/JPG, max 5MB)';
   }
-  document.getElementById('modalOverlay').classList.add('open');
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.add('open');
+  // Focus trap: keep Tab within modal
+  const modal = document.getElementById('modal');
+  if (modal) {
+    setTimeout(() => {
+      const firstInput = modal.querySelector('input,select,textarea,button');
+      if (firstInput) firstInput.focus();
+    }, 100);
+    modal._trapHandler = function(e) {
+      if (e.key !== 'Tab') return;
+      const focusable = modal.querySelectorAll('input:not([type="hidden"]),select,textarea,button,[tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', modal._trapHandler);
+  }
 }
+// Double-click guard: debounce modal open
+let _modalOpenLock = false;
+const _origOpenModal = openModal;
+openModal = function(id) {
+  if (_modalOpenLock) return;
+  _modalOpenLock = true;
+  _origOpenModal(id);
+  setTimeout(() => { _modalOpenLock = false; }, 400);
+};
 function updateAccredWorkflow() {
   const status = document.getElementById('fAccredStatus')?.value;
   const note = document.getElementById('accredWorkflowNote');
@@ -755,6 +782,9 @@ function updateAccredWorkflow() {
 
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('open');
+  // Remove focus trap handler
+  const modal = document.getElementById('modal');
+  if (modal && modal._trapHandler) { document.removeEventListener('keydown', modal._trapHandler); modal._trapHandler = null; }
   // Reset form state so stale data doesn't appear on next open
   editingId = null;
   document.getElementById('modalTitle').textContent = 'Add Investor';

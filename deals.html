@@ -15,9 +15,9 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v13"></script>
-  <script src="js/sp-data.js?v13"></script>
-  <script src="js/sp-firebase.js?v13"></script>
+  <script src="js/sp-core.js?v14"></script>
+  <script src="js/sp-data.js?v14"></script>
+  <script src="js/sp-firebase.js?v14"></script>
   <script src="js/sp-billing.js"></script>
   <style>
     :root {
@@ -363,7 +363,12 @@ let currentView = 'table';
   async function load() {
   const session = SP.getSession();
   const isDemoAccount = ['gp@deeltrack.com','demo@deeltrack.com'].includes(session?.email?.toLowerCase());
-  if (isDemoAccount) { deals = [...DEMO_DEALS]; return; }
+  if (isDemoAccount) {
+    // Prefer seeded data from SP.getDeals() so IDs match deal-detail.html lookups
+    const seeded = SP.getDeals().filter(d => (d.raise || 0) >= 0 && !/^QA\b/i.test(d.name || ''));
+    deals = seeded.length ? seeded : [...DEMO_DEALS];
+    return;
+  }
   deals = SP.getDeals().filter(d => (d.raise || 0) >= 0 && !/^QA\b/i.test(d.name || ''));
   if (!deals.length) { deals = [...DEMO_DEALS]; SP.saveDeals(deals); }
 }
@@ -407,7 +412,29 @@ const TYPE_LABEL = { multifamily:'Multifamily', industrial:'Industrial', retail:
 const STATUS_BADGE = { sourcing:'badge-sourcing', loi:'badge-loi', dd:'badge-dd', closed:'badge-closed', operating:'badge-operating' };
 const STATUS_LABEL = { sourcing:'Sourcing', loi:'LOI', dd:'Due Diligence', closed:'Closed', operating:'Operating' };
 
+function _syncFiltersToURL() {
+  const params = new URLSearchParams();
+  const q = document.getElementById('searchInput').value.trim();
+  const t = document.getElementById('filterType').value;
+  const s = document.getElementById('filterStatus').value;
+  if (q) params.set('q', q);
+  if (t) params.set('type', t);
+  if (s) params.set('status', s);
+  const qs = params.toString();
+  const newUrl = window.location.pathname + (qs ? '?' + qs : '');
+  if (newUrl !== window.location.pathname + window.location.search) {
+    window.history.replaceState(null, '', newUrl);
+  }
+}
+function _loadFiltersFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('q')) document.getElementById('searchInput').value = params.get('q');
+  if (params.has('type')) document.getElementById('filterType').value = params.get('type');
+  if (params.has('status')) document.getElementById('filterStatus').value = params.get('status');
+}
+
 function filterDeals() {
+  _syncFiltersToURL();
   const q = document.getElementById('searchInput').value.toLowerCase();
   const typeF = document.getElementById('filterType').value;
   const statusF = document.getElementById('filterStatus').value;
@@ -611,6 +638,7 @@ function exportCSV() {
   a.click();
 }
 
+_loadFiltersFromURL();
 load().then(() => { updateStats(); filterDeals(); });
     SP.onDataReady(function() {
       load().then(() => { updateStats(); filterDeals(); });

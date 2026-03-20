@@ -3,6 +3,46 @@
  * Include this on every page: <script src="js/sp-core.js"></script>
  */
 
+// ─── Inject Cache-Control meta tags to prevent back-button caching ────────
+(function injectCacheControl() {
+  if (typeof document === 'undefined') return;
+  const metas = [
+    { 'http-equiv': 'Cache-Control', content: 'no-store, no-cache, must-revalidate' },
+    { 'http-equiv': 'Pragma', content: 'no-cache' },
+    { 'http-equiv': 'Expires', content: '0' },
+  ];
+  metas.forEach(attrs => {
+    if (document.querySelector('meta[http-equiv="' + attrs['http-equiv'] + '"]')) return;
+    const m = document.createElement('meta');
+    m.httpEquiv = attrs['http-equiv'];
+    m.content = attrs.content;
+    document.head.appendChild(m);
+  });
+})();
+
+// ─── On page show (back-button navigation), re-check auth ────────────────
+// Prevents cached pages from being visible after logout
+if (typeof window !== 'undefined') {
+  window.addEventListener('pageshow', function(event) {
+    if (event.persisted || (window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType('navigation').some(n => n.type === 'back_forward'))) {
+      // Page was served from bfcache — re-check session
+      const page = window.location.pathname.split('/').pop() || '';
+      const authPages = ['login.html','signup.html','reset-password.html','index.html','404.html','coming-soon.html','invest.html',''];
+      if (!authPages.includes(page)) {
+        try {
+          const s = JSON.parse(localStorage.getItem('sp_session') || 'null');
+          if (!s || !s.loggedIn) {
+            window.location.replace('login.html');
+            return;
+          }
+        } catch(e) {
+          window.location.replace('login.html');
+        }
+      }
+    }
+  });
+}
+
 // ─── Inject Google Analytics ──────────────────────────────────────────────
 (function injectGA() {
   if (document.querySelector('script[src*="js/dt-analytics.js"]')) return;
@@ -503,13 +543,12 @@ window.SP = (function () {
     clearSession();
     // Set a flag so login.html knows not to auto-redirect from stale Firebase auth
     try { sessionStorage.setItem('sp_just_logged_out', '1'); } catch(e) {}
+    // Immediately redirect — don't wait for Firebase signOut to complete
+    // (signOut happens async in background; session is already cleared from localStorage)
+    window.location.replace('login.html');
     // Also sign out of Firebase Auth to prevent auto-re-login from IndexedDB
     if (typeof firebase !== 'undefined' && firebase.auth) {
-      firebase.auth().signOut().catch(() => {}).finally(() => {
-        window.location.href = 'login.html';
-      });
-    } else {
-      window.location.href = 'login.html';
+      firebase.auth().signOut().catch(() => {});
     }
   }
 
