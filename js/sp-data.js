@@ -189,26 +189,23 @@ const SPData = (() => {
       } catch(e2) { _cache.settings = {}; }
     }
 
-    _ready = true;
-    _patchSP();
-
-    // Pre-hydrate custom_data keys that pages need immediately (dealroom_docs_*, k1_vault, etc.)
-    // This prevents Pulse and other pages from seeing empty data on first render
+    // Pre-load custom_data from Firestore BEFORE patching SP, so we can pass it into _patchSP
+    let _preloadedCustomData = {};
     try {
       const customSnap = await _col('custom_data').get();
       customSnap.docs.forEach(doc => {
         const data = doc.data();
         if (data && data.key && data.value !== undefined) {
-          _customCache[data.key] = data.value;
-          _customLoaded.add(data.key);
-          // Also sync to localStorage cache
-          try { _origSave(data.key, data.value); } catch(e) {}
+          _preloadedCustomData[data.key] = data.value;
         }
       });
-      if (customSnap.size) console.log(`SPData: pre-hydrated ${customSnap.size} custom_data docs`);
+      if (customSnap.size) console.log(`SPData: pre-loaded ${customSnap.size} custom_data docs from Firestore`);
     } catch(e) {
-      console.warn('SPData: custom_data pre-hydrate failed:', e.message);
+      console.warn('SPData: custom_data pre-load failed:', e.message);
     }
+
+    _ready = true;
+    _patchSP(_preloadedCustomData);
 
     // Fire ready callbacks
     _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
@@ -398,7 +395,7 @@ const SPData = (() => {
   function getActivity() { return _cache.activity || []; }
 
   // ── Patch SP.* so existing page code works unchanged ───────────────────────
-  function _patchSP() {
+  function _patchSP(preloadedCustomData) {
     if (!window.SP) return;
 
     // Reads
@@ -451,8 +448,9 @@ const SPData = (() => {
 
     // ── Firestore-backed custom data (k1_vault, dealroom_docs_*, etc.) ────────
     // Every SP.load/SP.save key goes through Firestore. localStorage is ONLY a cache.
-    const _customCache = {};
-    const _customLoaded = new Set();
+    // Pre-seed cache with data loaded during init (before spdata-ready fires)
+    const _customCache = Object.assign({}, preloadedCustomData || {});
+    const _customLoaded = new Set(Object.keys(preloadedCustomData || {}));
     const _origLoad = SP.load.bind(SP);
     const _origSave = SP.save.bind(SP);
 
