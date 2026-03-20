@@ -328,16 +328,18 @@
     }
     
     .input-prefix input {
-      padding-left: 36px;
+      padding-left: 28px;
+      font-variant-numeric: tabular-nums;
     }
     
     .input-prefix .prefix {
       position: absolute;
-      left: 14px;
+      left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: var(--text-muted);
-      font-weight: 500;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
     }
     
     .help-text {
@@ -774,7 +776,7 @@
                   <label class="required">Purchase Price</label>
                   <div class="input-prefix">
                     <span class="prefix">$</span>
-                    <input type="text" inputmode="numeric" id="purchasePrice" placeholder="5,000,000" onchange="calculateCapital()" oninput="this.value=this.value.replace(/[^\d.]/g,'')" onblur="if(this.value)this.value=parseFloat(this.value).toLocaleString('en-US');" onfocus="this.value=this.value.replace(/,/g,'');">
+                    <input type="text" inputmode="numeric" id="purchasePrice" placeholder="5,000,000" onchange="calculateCapital()">
                   </div>
                 </div>
                 
@@ -1302,6 +1304,31 @@
     SP.requireGP();
     let currentStep = 1;
 
+    // ── Live currency formatting (adds commas as you type) ──────────────────
+    function fmtCurrencyInput(el) {
+      const raw = el.value.replace(/[^\d]/g, '');
+      if (!raw) { el.value = ''; return; }
+      el.value = parseInt(raw, 10).toLocaleString('en-US');
+    }
+    function parseCurrencyInput(id) {
+      const el = document.getElementById(id);
+      return el ? parseFloat((el.value || '').replace(/[^\d.]/g, '')) || 0 : 0;
+    }
+    // Apply live formatting to all currency inputs on load
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.input-prefix input[inputmode="numeric"], .input-prefix input[type="number"]').forEach(el => {
+        if (el.readOnly) return;
+        // Convert type="number" to type="text" with inputmode for mobile keyboard
+        if (el.type === 'number') {
+          el.type = 'text';
+          el.inputMode = 'numeric';
+        }
+        el.addEventListener('input', function() { fmtCurrencyInput(this); });
+        el.addEventListener('focus', function() { this.value = this.value.replace(/,/g, ''); });
+        el.addEventListener('blur', function() { if (this.value) fmtCurrencyInput(this); });
+      });
+    });
+
     // On page load: pre-fill from settings, then restore any draft
     document.addEventListener('DOMContentLoaded', function() {
       // Pre-fill from GP settings (Sprint 1 item 5)
@@ -1511,10 +1538,10 @@
     }
     
     function calculateCapital() {
-      const price = parseFloat(document.getElementById('purchasePrice').value) || 0;
-      const closing = parseFloat(document.getElementById('closingCosts').value) || 0;
-      const capex = parseFloat(document.getElementById('capexReserve').value) || 0;
-      const loan = parseFloat(document.getElementById('loanAmount').value) || 0;
+      const price = parseCurrencyInput('purchasePrice');
+      const closing = parseCurrencyInput('closingCosts');
+      const capex = parseCurrencyInput('capexReserve');
+      const loan = parseCurrencyInput('loanAmount');
       
       const total = price + closing + capex;
       const equity = total - loan;
@@ -1667,8 +1694,8 @@
       document.getElementById('reviewType').textContent = document.getElementById('propertyType').value || '-';
       document.getElementById('reviewEntity').textContent = document.getElementById('companyName').value || '-';
       
-      const price = parseFloat(document.getElementById('purchasePrice').value) || 0;
-      const loan = parseFloat(document.getElementById('loanAmount').value) || 0;
+      const price = parseCurrencyInput('purchasePrice') || 0;
+      const loan = parseCurrencyInput('loanAmount') || 0;
       const equity = parseFloat(document.getElementById('totalEquity').value.replace(/,/g, '')) || 0;
       const gp = document.getElementById('gpEquity').value;
       const lp = document.getElementById('lpEquity').value;
@@ -1693,8 +1720,8 @@
         propertyType: document.getElementById('propertyType').value,
         companyName: document.getElementById('companyName').value,
         state: document.getElementById('state').value,
-        purchasePrice: parseFloat(document.getElementById('purchasePrice').value) || 0,
-        loanAmount: parseFloat(document.getElementById('loanAmount').value) || 0,
+        purchasePrice: parseCurrencyInput('purchasePrice') || 0,
+        loanAmount: parseCurrencyInput('loanAmount') || 0,
         totalEquity: parseFloat(document.getElementById('totalEquity').value.replace(/,/g, '')) || 0,
         gpEquity: parseFloat(document.getElementById('gpEquity').value) || 10,
         lpEquity: parseFloat(document.getElementById('lpEquity').value) || 90,
