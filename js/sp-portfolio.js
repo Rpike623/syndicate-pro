@@ -26,18 +26,18 @@ window.Portfolio = {
     this.deals = rawDeals.map(d => ({
       ...d,
       currentValue: d.currentValue || d.raise || d.totalEquity || 0,
-      purchasePrice: d.purchasePrice || d.raise || 0,
+      purchasePrice: d.purchasePrice || d.raise || d.totalEquity || 0,
       equity: d.equity || d.totalEquity || d.raise || 0,
       noi: d.noi || 0,
       expenses: d.expenses || 0,
       debtService: d.debtService || 0,
       irr: d.irr || 0,
-      moic: d.moic || (d.equity && d.equity > 0 ? d.equity : 0),
+      moic: d.moic || 0,
       occupancy: d.occupancy || 0,
       investorCount: (d.investors || []).length,
       name: d.name || 'Unnamed Deal',
       address: d.address || d.location || '',
-      type: d.type || 'Real Estate',
+      type: d.type || d.propertyType || 'Real Estate',
       status: d.status || 'operating'
     }));
 
@@ -152,8 +152,15 @@ window.Portfolio = {
     const validIrr = this.deals.filter(d => d.irr > 0);
     const avgIrr = validIrr.length ? validIrr.reduce((sum, d) => sum + d.irr, 0) / validIrr.length : 0;
     const totalDistributions = this.distributions.reduce((sum, d) => sum + (d.amount || 0), 0);
-    const totalEquity = this.deals.reduce((sum, d) => sum + (d.equity || 0), 0);
-    const avgMoic = totalEquity > 0 ? totalAUM / totalEquity : 0;
+    // Compute avg MOIC: for deals with an explicit moic field use it; otherwise derive from value/equity
+    const moicValues = this.deals.map(d => {
+      if (d.moic > 0 && d.moic < 100) return d.moic; // Use explicit MOIC if reasonable
+      const equity = d.equity || d.purchasePrice || 0;
+      const value = d.currentValue || 0;
+      if (equity > 0 && value > 0) return value / equity;
+      return 0;
+    }).filter(m => m > 0);
+    const avgMoic = moicValues.length > 0 ? moicValues.reduce((a, b) => a + b, 0) / moicValues.length : 0;
 
     document.getElementById('kpiAum').textContent = this.formatCurrency(totalAUM);
     document.getElementById('kpiInvestors').textContent = totalInvestors;
@@ -278,11 +285,21 @@ window.Portfolio = {
     grid.innerHTML = this.deals.map(deal => {
       const purchasePrice = deal.purchasePrice || 0;
       const currentValue = deal.currentValue || 0;
-      const gain = purchasePrice > 0 ? ((currentValue - purchasePrice) / purchasePrice * 100) : 0;
+      // Gain: if purchase price and current value are equal (Firestore deals using raise for both), gain is 0 not -80%
+      let gain = 0;
+      if (purchasePrice > 0 && currentValue > 0 && currentValue !== purchasePrice) {
+        gain = ((currentValue - purchasePrice) / purchasePrice * 100);
+      }
       const irr = deal.irr || 0;
-      const moic = deal.moic || 0;
-      // For real deals that use equity multiple field
-      const moicDisplay = typeof moic === 'number' && moic > 0 ? moic.toFixed(2) : '0.00';
+      // MOIC: use explicit value if reasonable, else derive from currentValue/equity
+      let moicVal = 0;
+      if (deal.moic > 0 && deal.moic < 100) {
+        moicVal = deal.moic;
+      } else {
+        const equity = deal.equity || purchasePrice || 0;
+        if (equity > 0 && currentValue > 0) moicVal = currentValue / equity;
+      }
+      const moicDisplay = moicVal > 0 ? moicVal.toFixed(2) : '—';
       
       return `
         <div class="performance-card">
@@ -290,6 +307,7 @@ window.Portfolio = {
             <h4>${deal.name}</h4>
             <span class="badge badge-${deal.status === 'operating' ? 'success' : deal.status === 'closed' ? 'info' : 'warning'}">${deal.status || '—'}</span>
           </div>
+          ${deal.type ? `<div style="font-size:.78rem;color:#6B6560;margin-top:-4px;margin-bottom:8px;">${deal.type}</div>` : ''}
           <div class="perf-stats">
             <div class="perf-stat">
               <span class="perf-label">Value</span>
@@ -297,7 +315,7 @@ window.Portfolio = {
             </div>
             <div class="perf-stat">
               <span class="perf-label">Gain</span>
-              <span class="perf-value ${gain >= 0 ? 'text-success' : 'text-danger'}">${gain >= 0 ? '+' : ''}${gain.toFixed(1)}%</span>
+              <span class="perf-value ${gain >= 0 ? 'text-success' : 'text-danger'}">${gain !== 0 ? (gain >= 0 ? '+' : '') + gain.toFixed(1) + '%' : '—'}</span>
             </div>
             <div class="perf-stat">
               <span class="perf-label">IRR</span>
@@ -305,7 +323,7 @@ window.Portfolio = {
             </div>
             <div class="perf-stat">
               <span class="perf-label">MOIC</span>
-              <span class="perf-value">${moicDisplay}x</span>
+              <span class="perf-value">${moicDisplay}${moicVal > 0 ? 'x' : ''}</span>
             </div>
           </div>
           <div class="perf-bar">

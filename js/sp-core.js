@@ -244,11 +244,12 @@ window.SP = (function () {
         _uncloakPage();
         return true;
       }
-      // If Firebase is still loading (SPFB exists but not ready), wait longer
+      // If Firebase is still loading (SPFB exists but not ready), wait a bit longer
+      // but cap at 4s to avoid long blank screens for unauthenticated visitors
       const spfbLoading = typeof SPFB !== 'undefined' && !SPFB.isReady();
-      const timeout = spfbLoading ? 12000 : 8000;
+      const timeout = spfbLoading ? 4000 : 3000;
       if (Date.now() - start > timeout) { window.location.href = 'login.html'; return false; }
-      setTimeout(check, 150);
+      setTimeout(check, 100);
     }
     setTimeout(check, 150);
     return true;

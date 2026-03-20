@@ -271,7 +271,7 @@
           <td class="right mono">${pct(p.ownershipPct,100)}</td>
           <td class="right mono">${fmt$(p.committed)}</td>
           <td class="right mono" style="color:var(--accent);">${fmt$(p.distributed)}</td>
-          <td class="right mono pref">${p.prefAccrued > 0 ? fmt$(p.prefAccrued) : '—'}</td>
+          <td class="right mono pref">${fmt$(p.prefAccrued)}</td>
           <td class="right mono ${p.balance>=0?'positive':'negative'}">${fmt$(p.balance)}</td>
           <td class="right"><span class="ledger-toggle" onclick="toggleLedger(${i})"><i class="fas fa-chevron-down"></i></span></td>
         </tr>

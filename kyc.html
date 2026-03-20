@@ -319,20 +319,41 @@
       return 'review';
     }
 
+    // ── Demo investor fallback ──────────────────────────────────────────────
+    const DEMO_INVESTORS = [
+      { id:'i1', firstName:'James', lastName:'Hartwell', email:'jhartwell@email.com', accredStatus:'verified', accredExpiry:null, totalInvested:250000 },
+      { id:'i2', firstName:'Sarah', lastName:'Chen', email:'schen@email.com', accredStatus:'verified', accredExpiry:null, totalInvested:500000 },
+      { id:'i3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@email.com', accredStatus:'pending', totalInvested:250000 },
+      { id:'i4', firstName:'Phil', lastName:'Chapman', email:'pchapman@email.com', accredStatus:'pending', totalInvested:300000 },
+      { id:'i5', firstName:'Lisa', lastName:'Rodriguez', email:'lrodriguez@email.com', accredStatus:'expired', totalInvested:150000 },
+    ];
+
     // ── Load data ─────────────────────────────────────────────────────────────
+    let _loadAttempts = 0;
     function load() {
-      investors = SP.getInvestors();
+      _loadAttempts++;
+      try {
+        investors = SP.getInvestors ? SP.getInvestors() : [];
+      } catch (e) {
+        console.warn('KYC: SP.getInvestors() error:', e);
+        investors = [];
+      }
       // If no investors from Firestore, generate demo data so the page isn't stuck on Loading
       if (!investors || !investors.length) {
-        investors = [
-          { id:'i1', firstName:'James', lastName:'Hartwell', email:'jhartwell@email.com', accredStatus:'verified', accredExpiry:null, totalInvested:250000 },
-          { id:'i2', firstName:'Sarah', lastName:'Chen', email:'schen@email.com', accredStatus:'verified', accredExpiry:null, totalInvested:500000 },
-          { id:'i3', firstName:'Marcus', lastName:'Williams', email:'mwilliams@email.com', accredStatus:'pending', totalInvested:250000 },
-          { id:'i4', firstName:'Phil', lastName:'Chapman', email:'pchapman@email.com', accredStatus:'pending', totalInvested:300000 },
-          { id:'i5', firstName:'Lisa', lastName:'Rodriguez', email:'lrodriguez@email.com', accredStatus:'expired', totalInvested:150000 },
-        ];
+        // Retry up to 3 times with 1s delay in case data is still loading
+        if (_loadAttempts <= 3) {
+          setTimeout(load, 1000);
+          return;
+        }
+        investors = DEMO_INVESTORS;
       }
-      const stored = SP.load('kyc_records', {});
+      let stored;
+      try {
+        stored = SP.load('kyc_records', {});
+      } catch (e) {
+        console.warn('KYC: SP.load kyc_records error:', e);
+        stored = {};
+      }
       kycData = stored || {};
       renderStats();
       renderTable();

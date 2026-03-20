@@ -572,6 +572,10 @@ function exportCSV() {
 }
 
 load().then(() => { updateStats(); filterDeals(); });
-    SP.onDataReady(function() { load().then(() => { updateStats(); filterDeals(); }); });</script>
+    SP.onDataReady(function() {
+      load().then(() => { updateStats(); filterDeals(); });
+      // Re-check after a short delay to catch any pending Firestore writes (e.g., after creating a new deal)
+      setTimeout(() => { load().then(() => { updateStats(); filterDeals(); }); }, 2000);
+    });</script>
 </body>
 </html>

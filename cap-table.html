@@ -161,20 +161,41 @@
             }
 
             // Render chart from actual data
-            const ctx = document.getElementById('capChart').getContext('2d');
-            if(capChart) capChart.destroy();
-            capChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: chartLabels,
-                    datasets: [{
-                        data: chartData,
-                        backgroundColor: chartColors,
-                        borderWidth: 0
-                    }]
-                },
-                options: { cutout: '70%', plugins: { legend: { display: false } } }
-            });
+            const ctx = document.getElementById('capChart');
+            if(capChart) { capChart.destroy(); capChart = null; }
+            // Ensure we have valid data for the chart
+            const validData = chartData.filter(v => v > 0);
+            if (validData.length > 0 && ctx) {
+              // If only GP and no LPs, add remainder as "Unallocated"
+              const totalPct = chartData.reduce((a, b) => a + b, 0);
+              if (totalPct < 99.5 && linked.length === 0) {
+                chartLabels.push('Unallocated');
+                chartData.push(parseFloat((100 - totalPct).toFixed(2)));
+                chartColors.push('#E2DDD8');
+              }
+              capChart = new Chart(ctx.getContext('2d'), {
+                  type: 'doughnut',
+                  data: {
+                      labels: chartLabels,
+                      datasets: [{
+                          data: chartData,
+                          backgroundColor: chartColors,
+                          borderWidth: 0
+                      }]
+                  },
+                  options: { cutout: '70%', plugins: { legend: { display: false } } }
+              });
+            } else if (ctx) {
+              // No data — show placeholder
+              capChart = new Chart(ctx.getContext('2d'), {
+                  type: 'doughnut',
+                  data: {
+                      labels: ['No Data'],
+                      datasets: [{ data: [1], backgroundColor: ['#E2DDD8'], borderWidth: 0 }]
+                  },
+                  options: { cutout: '70%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+              });
+            }
         }
 
         SP.onDataReady(init);

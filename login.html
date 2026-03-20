@@ -197,10 +197,9 @@
     window.location.href = dest;
   }
 
-  // Show switch account if already logged in (from localStorage)
+  // Auto-redirect if already logged in — NO banner, just redirect immediately
   if (SP.isLoggedIn()) {
       const session = SP.getSession();
-      // Auto-redirect to appropriate page instead of showing stale banner
       _loginRedirect(session);
   } else {
     // Not logged in via localStorage — but Firebase Auth may auto-resolve from IndexedDB.
@@ -211,8 +210,8 @@
       const s = SP.getSession();
       if (s && s.loggedIn) {
         _loginAutoRedirected = true;
-        document.getElementById('successAlert')?.classList.add('show');
-        setTimeout(() => _loginRedirect(s), 600);
+        // Redirect silently — no "Login successful" banner on auto-redirect
+        _loginRedirect(s);
       }
     }
     window.addEventListener('spdata-ready', _tryAutoRedirect);
