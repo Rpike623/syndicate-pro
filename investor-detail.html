@@ -428,16 +428,16 @@ function copyInvLink() {
   navigator.clipboard.writeText(url).then(() => showToast('Portal link copied!')).catch(() => prompt('Copy this link:', url));
 }
 
-// Initialize
+// Initialize — render immediately with available data, re-render when SPData hydrates
 function init() {
-  if (typeof SPData !== 'undefined' && SPData.onReady) {
+  render();
+  if (typeof SPData !== 'undefined' && SPData.onReady && !SPData.isReady()) {
     SPData.onReady(render);
-  } else {
-    render();
   }
 }
 
 SP.onDataReady(init);
+window.addEventListener('spdata-ready', render);
 </script>
 </body>
 </html>

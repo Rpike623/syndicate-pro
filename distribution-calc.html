@@ -365,7 +365,7 @@ function setStep(n) {
 // ── Demo deals fallback (same as deals.html) ────────────────────────────────
 // ── Init ────────────────────────────────────────────────────────────────────
 function init() {
-  // deals already loaded above
+  const deals = SP.getDeals();
 
   const sel = document.getElementById('dealSelect');
   if (!sel) return;
@@ -1058,8 +1058,9 @@ function resetForm() {
 }
 
 // Single clean init: wait for Firestore data, then populate everything.
-// No retries, no localStorage scanning, no race conditions.
 SP.onDataReady(init);
+// Re-init when SPData hydrates (may fire after SP.onDataReady)
+window.addEventListener('spdata-ready', init);
 
 // Close wire report modal on Escape
 document.addEventListener('keydown', e => {
