@@ -17,13 +17,13 @@
     :root { --accent: #F37925; --accent-hover: #E8650A; --bg: #FAFAF8; --surface: #FFF; --text: #1B1A19; --text-secondary: #6B6560; --border: #E8E4E0; --radius: 12px; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
-    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
-    .nav-logo { font-weight: 800; font-size: 1.3rem; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
-    .nav-logo img { height: 28px; }
+    nav { position: sticky; top: 0; width: 100%; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; height: 72px; } .nav-logo { text-decoration: none; display: flex; align-items: center; }
+    .nav-logo img { height: 36px; }
     .nav-links { display: flex; gap: 28px; align-items: center; }
-    .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: .88rem; font-weight: 500; }
-    .nav-links a:hover { color: var(--accent); }
-    .nav-links .btn-nav { background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 600; }
+    .nav-links a { font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.875rem; font-weight: 600; text-decoration: none; transition: all .2s; } .btn-primary { background: var(--accent); color: #fff; } .btn-primary:hover { background: var(--accent-hover); }
     .article { max-width: 740px; margin: 0 auto; padding: 60px 24px 80px; }
     .breadcrumb { font-size: .82rem; color: var(--text-secondary); margin-bottom: 24px; }
     .breadcrumb a { color: var(--accent); text-decoration: none; }
@@ -63,14 +63,10 @@
 </head>
 <body>
 
-  <nav>
-    <a href="../index.html" class="nav-logo"><img src="../assets/favicon.svg" alt="">deeltrack</a>
-    <div class="nav-links">
-      <a href="../index.html">Home</a>
-      <a href="../blog.html" style="color:var(--accent);">Blog</a>
-      <a href="../signup.html" class="btn-nav">Get Started</a>
-    </div>
-  </nav>
+  <nav><div class="nav-inner">
+    <a href="../index.html" class="nav-logo"><img src="../assets/logo-full-light.svg" alt="deeltrack" height="36"></a>
+    <div class="nav-links"><a href="../index.html#features">Features</a><a href="../index.html#pricing">Pricing</a><a href="../blog.html" style="color:var(--text);">Blog</a><a href="../login.html">GP Login</a><a href="../signup.html" class="btn btn-primary">Get Started</a></div>
+  </div></nav>
 
   <article class="article">
     <div class="breadcrumb"><a href="../blog.html">Blog</a> → AI Tools</div>
