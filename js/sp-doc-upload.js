@@ -13,9 +13,9 @@ const SPDocUpload = (function() {
 
   // ── Known variable patterns for real estate OAs ──────────────────────────
   const VARIABLE_PATTERNS = [
-    // Entity / Company names — look for LLC, LP, Inc patterns
+    // Entity / Company names — look for LLC, LP, Inc patterns (tight match, max 60 chars)
     { name: 'COMPANY_NAME', label: 'Company / Entity Name', patterns: [
-      /([A-Z][A-Za-z\s&'.,-]+(?:LLC|L\.L\.C\.|Limited Liability Company|LP|L\.P\.|Limited Partnership|Inc\.|Corporation))/g,
+      /([A-Z][A-Za-z\s&'.,-]{2,55}(?:LLC|L\.L\.C\.|LP|L\.P\.|Inc\.|Corporation))/g,
     ], category: 'entity' },
 
     // State of formation
