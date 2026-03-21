@@ -512,11 +512,14 @@
     }
 
     SP.onDataReady(() => {
-      runPulse();
-      // Re-run after short delay to catch async custom_data hydration (dealroom docs, settings push)
-      setTimeout(runPulse, 3000);
-      if (!liveInterval) liveInterval = setInterval(runPulse, 30000);
-      if (!tickInterval) tickInterval = setInterval(updateTimestamp, 1000);
+      // Show loading state while Firestore hydrates custom_data (dealroom docs, settings, etc.)
+      document.getElementById('scoreBar').innerHTML = '<div class="score-card" style="flex:1;text-align:center;padding:32px;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:var(--muted);"></i><div class="sc-label" style="margin-top:8px;">Scanning your portfolio...</div></div>';
+      // Single delayed run — wait for async hydration before first render to avoid flash of changing counts
+      setTimeout(() => {
+        runPulse();
+        if (!liveInterval) liveInterval = setInterval(runPulse, 30000);
+        if (!tickInterval) tickInterval = setInterval(updateTimestamp, 1000);
+      }, 2500);
     });
   </script>
 </body>
