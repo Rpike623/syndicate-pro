@@ -138,7 +138,9 @@
 <script>
 let parsedData = { deals: [], investors: [], distributions: [] };
 
-SP.onDataReady(() => { SP.requireGP(); });
+function _onDataLoaded_dealimport() { SP.requireGP(); }
+SP.onDataReady(_onDataLoaded_dealimport);
+window.addEventListener("spdata-ready", _onDataLoaded_dealimport);
 
 // ── Template generation ───────────────────────────────────────────────────
 function downloadTemplate() {

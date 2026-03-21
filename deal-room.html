@@ -267,12 +267,12 @@
       renderDealTiles();
     }
 
-    SP.onDataReady(function() {
-      DealRoom.init();
+    function _onDataLoaded_dealroomht() { DealRoom.init();
       renderDealTiles();
       const urlDeal = new URLSearchParams(window.location.search).get('deal');
-      if (urlDeal) { selectDeal(urlDeal); }
-    });
+      if (urlDeal) { selectDeal(urlDeal); } }
+SP.onDataReady(_onDataLoaded_dealroomht);
+window.addEventListener("spdata-ready", _onDataLoaded_dealroomht);
   </script>
   <script src="js/sp-deal-room.js"></script>
 </div><!-- end .app -->

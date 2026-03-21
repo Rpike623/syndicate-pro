@@ -155,6 +155,7 @@ function init() {
 }
 
 SP.onDataReady(init);
+window.addEventListener("spdata-ready", init);
 
 function onDealChange() {
   currentDeal = SP.getDealById(document.getElementById('dealSelect').value);

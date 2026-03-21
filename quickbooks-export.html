@@ -230,6 +230,7 @@ function init() {
 }
 
 SP.onDataReady(init);
+window.addEventListener("spdata-ready", init);
 
 function onDealChange() {
   const id = document.getElementById('qbDeal').value;

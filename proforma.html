@@ -241,6 +241,7 @@
         sel.innerHTML = '<option value="">— Select deal —</option>' + deals.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
       }
       SP.onDataReady(_updatePfDealSelect);
+window.addEventListener("spdata-ready", _updatePfDealSelect);
       const firstInput = document.querySelector('input, select');
       if (firstInput && !document.getElementById('pfDealSelect')) {
         const deals = SP.getDeals();

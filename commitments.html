@@ -95,11 +95,11 @@
 let _commitments = [];
 let _filter = 'all';
 
-SP.onDataReady(async () => {
-  SP.requireGP();
+async function _onDataLoaded_commitment() { SP.requireGP();
   await loadCommitments();
-  render();
-});
+  render(); }
+SP.onDataReady(_onDataLoaded_commitment);
+window.addEventListener("spdata-ready", _onDataLoaded_commitment);
 
 async function loadCommitments() {
   const db = firebase.firestore();

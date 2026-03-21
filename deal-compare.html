@@ -239,6 +239,7 @@ function exportComparison() {
 }
 
 SP.onDataReady(init);
+window.addEventListener("spdata-ready", init);
 
 async function runAICompare() {
   const selected = Array.from(document.querySelectorAll('.deal-check:checked')).map(c => c.value);

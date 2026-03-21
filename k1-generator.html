@@ -368,12 +368,12 @@ function init() {
   if (urlDeal) { sel.value = urlDeal; onDealChange(); }
 }
 
-SP.onDataReady(() => {
-  init();
+function _onDataLoaded_kgenerator() { init();
   if (window.SPValidate) {
     SPValidate.bind('#partnershipEIN', 'ein');
-  }
-});
+  } }
+SP.onDataReady(_onDataLoaded_kgenerator);
+window.addEventListener("spdata-ready", _onDataLoaded_kgenerator);
 
 function onDealChange() {
   const id = document.getElementById('dealSelect').value;

@@ -345,14 +345,14 @@ Target stabilized occupancy (96%) — Q3 2026</textarea>
       }
       loadUpdate();
       // Pre-fill deal name from SP data if available
-      SP.onDataReady(function() {
-        const deals = SP.getDeals().filter(d => (d.raise||0)>=0 && !/^QA\b/i.test(d.name||''));
+      function _onDataLoaded_investorup() { const deals = SP.getDeals().filter(d => (d.raise||0)>=0 && !/^QA\b/i.test(d.name||''));
         const dealInput = document.getElementById('upDeal');
         if (dealInput && !dealInput.value && deals.length) {
           dealInput.value = deals[0].name;
           render();
-        }
-      });
+        } }
+SP.onDataReady(_onDataLoaded_investorup);
+window.addEventListener("spdata-ready", _onDataLoaded_investorup);
       render();
     });
 

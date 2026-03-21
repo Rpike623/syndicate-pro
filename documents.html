@@ -1554,6 +1554,7 @@
     }
 
     SP.onDataReady(loadSavedDeals);
+window.addEventListener("spdata-ready", loadSavedDeals);
 
     // ─── Clean Export (remove branding/draft notices) ─────────────────────
     var cleanExportAccepted = false;

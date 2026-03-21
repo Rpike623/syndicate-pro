@@ -590,10 +590,10 @@ function exportCSV() {
 
 _loadFiltersFromURL();
 load().then(() => { updateStats(); filterDeals(); });
-    SP.onDataReady(function() {
-      load().then(() => { updateStats(); filterDeals(); });
+    function _onDataLoaded_dealshtml() { load().then(() => { updateStats(); filterDeals(); });
       // Re-check after a short delay to catch any pending Firestore writes (e.g., after creating a new deal)
-      setTimeout(() => { load().then(() => { updateStats(); filterDeals(); }); }, 2000);
-    });</script>
+      setTimeout(() => { load().then(() => { updateStats(); filterDeals(); }); }, 2000); }
+SP.onDataReady(_onDataLoaded_dealshtml);
+window.addEventListener("spdata-ready", _onDataLoaded_dealshtml);</script>
 </body>
 </html>

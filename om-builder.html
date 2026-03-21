@@ -433,8 +433,7 @@ This investment is suitable only for accredited investors under Reg D 506(b)</te
         sel.appendChild(opt);
       });
       if (typeof SP !== 'undefined' && SP.onDataReady) {
-        SP.onDataReady(() => {
-          const deals2 = SP.getDeals();
+        function _onDataLoaded_ombuilderh() { const deals2 = SP.getDeals();
           if (deals2.length > deals.length) {
             sel.innerHTML = '<option value="">— Select a deal to auto-fill —</option>';
             deals2.forEach(d => {
@@ -443,8 +442,9 @@ This investment is suitable only for accredited investors under Reg D 506(b)</te
               opt.textContent = `${d.name || 'Untitled'} — ${d.type || ''} — ${d.location || ''}`;
               sel.appendChild(opt);
             });
-          }
-        });
+          } }
+SP.onDataReady(_onDataLoaded_ombuilderh);
+window.addEventListener("spdata-ready", _onDataLoaded_ombuilderh);
       }
     }
 

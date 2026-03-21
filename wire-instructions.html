@@ -419,14 +419,14 @@ For questions: admin@deeltrack.com
       URL.revokeObjectURL(url);
     }
 
-    SP.onDataReady(() => {
-      init();
+    function _onDataLoaded_wireinstru() { init();
       if (window.SPValidate) {
         SPValidate.bind('#bankRouting', 'routing');
         SPValidate.bind('#bankAccount', 'accountNumber');
         SPValidate.bind('#companyId', 'ein');
-      }
-    });
+      } }
+SP.onDataReady(_onDataLoaded_wireinstru);
+window.addEventListener("spdata-ready", _onDataLoaded_wireinstru);
   </script>
 </body>
 </html>

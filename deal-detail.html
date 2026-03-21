@@ -278,6 +278,7 @@ if (!dealId) {
 
 // Wait for Firestore data before rendering
 SP.onDataReady(render);
+window.addEventListener("spdata-ready", render);
 
 // Timeout: if data never loads, show error after 8s
 setTimeout(() => {

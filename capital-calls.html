@@ -481,14 +481,14 @@
       setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2000);
     }
 
-        SP.onDataReady(function() {
-      loadDeals();
+        function _onDataLoaded_capitalcal() { loadDeals();
       const urlDeal = new URLSearchParams(window.location.search).get('deal');
       if (urlDeal) {
         const sel = document.getElementById('callDeal');
         if (sel) { sel.value = urlDeal; updatePreview(); }
-      }
-    });    document.getElementById('dueDate').valueAsDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+      } }
+SP.onDataReady(_onDataLoaded_capitalcal);
+window.addEventListener("spdata-ready", _onDataLoaded_capitalcal);    document.getElementById('dueDate').valueAsDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
 
     // Add Save & Send button next to Generate
     const genBtn = document.querySelector('button[onclick="generateNotice()"]');

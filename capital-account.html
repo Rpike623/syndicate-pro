@@ -343,11 +343,11 @@
       icon.className = row.classList.contains('open') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
     }
 
-    SP.onDataReady(function() {
-      renderPicker();
+    function _onDataLoaded_capitalacc() { renderPicker();
       const params = new URLSearchParams(window.location.search);
-      if (params.get('dealId')) selectDeal(params.get('dealId'));
-    });
+      if (params.get('dealId')) selectDeal(params.get('dealId')); }
+SP.onDataReady(_onDataLoaded_capitalacc);
+window.addEventListener("spdata-ready", _onDataLoaded_capitalacc);
   </script>
 </body>
 </html>

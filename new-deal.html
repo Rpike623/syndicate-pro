@@ -1405,9 +1405,9 @@
           if (bc) bc.textContent = `Edit: ${d.name}`;
           document.title = `deeltrack | Edit ${d.name}`;
         }
-        SP.onDataReady(() => {
-          _prefillFromDeal(SP.getDealById(urlId));
-        });
+        function _onDataLoaded_newdealhtm() { _prefillFromDeal(SP.getDealById(urlId)); }
+SP.onDataReady(_onDataLoaded_newdealhtm);
+window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
       } else {
         loadDraft(); // Restore draft only for new deals
       }

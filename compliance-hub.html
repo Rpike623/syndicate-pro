@@ -291,10 +291,10 @@
 
   <script>
     SP.requireGP();
-    SP.onDataReady(() => {
-      if (!SP.isLoggedIn()) { window.location.href = 'login.html'; return; }
-      Compliance.init();
-    });
+    function _onDataLoaded_compliance() { if (!SP.isLoggedIn()) { window.location.href = 'login.html'; return; }
+      Compliance.init(); }
+SP.onDataReady(_onDataLoaded_compliance);
+window.addEventListener("spdata-ready", _onDataLoaded_compliance);
   </script>
   <script src="js/sp-compliance.js"></script>
 </body>

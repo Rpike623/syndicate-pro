@@ -925,7 +925,9 @@
       renderPipeline();
     }
 
-    SP.onDataReady(function() { loadDeals(); renderPipeline(); wireDropZones(); });
+    function _onDataLoaded_pipelineht() { loadDeals(); renderPipeline(); wireDropZones(); }
+SP.onDataReady(_onDataLoaded_pipelineht);
+window.addEventListener("spdata-ready", _onDataLoaded_pipelineht);
   </script>
 
   <!-- Task Panel Modal -->

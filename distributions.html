@@ -630,7 +630,9 @@
       setTimeout(() => { toggleSplit(id); }, 300);
     }
 
-    SP.onDataReady(() => { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); });
+    function _onDataLoaded_distributi() { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); }
+SP.onDataReady(_onDataLoaded_distributi);
+window.addEventListener("spdata-ready", _onDataLoaded_distributi);
 
     function showToast(msg, type) {
       const bg = type === 'error' ? '#ef4444' : '#10b981';

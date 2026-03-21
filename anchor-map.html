@@ -76,6 +76,7 @@
         }
 
         SP.onDataReady(init);
+window.addEventListener("spdata-ready", init);
         if(typeof SPData !== 'undefined' && SPData.isReady()) init();
     </script>
 </body>

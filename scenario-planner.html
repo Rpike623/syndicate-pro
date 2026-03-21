@@ -252,6 +252,7 @@
         }
 
         SP.onDataReady(init);
+window.addEventListener("spdata-ready", init);
 
         async function runUnderwritingCheck() {
           const btn = document.getElementById('uwCheckBtn');
