@@ -102,5 +102,6 @@ jobs:
               --region=us-central1 \
               --member="allUsers" \
               --project=deeltrack \
+              --gen2 \
               --quiet 2>/dev/null || echo "  ⚠ $fn: skipped (may not exist yet)"
           done
