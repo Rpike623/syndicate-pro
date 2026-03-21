@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deal Room: Secure Document Sharing With Your Investors | deeltrack Blog</title>
+  <meta name="description" content="Upload documents, organize by category, and share with your LP base — with access controls and upload tracking per deal.">
+  <meta property="og:title" content="Deal Room: Secure Document Sharing">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@deeltrack">
+  <script src="../js/dt-analytics.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{--accent:#F37925;--bg:#FAFAF8;--surface:#FFF;--text:#1B1A19;--text-secondary:#6B6560;--border:#E8E4E0;--radius:12px}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text)}nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between}.nav-logo{font-weight:800;font-size:1.3rem;color:var(--accent);text-decoration:none;display:flex;align-items:center;gap:8px}.nav-logo img{height:28px}.nav-links{display:flex;gap:28px;align-items:center}.nav-links a{text-decoration:none;color:var(--text-secondary);font-size:.88rem;font-weight:500}.nav-links a:hover{color:var(--accent)}.nav-links .btn-nav{background:var(--accent);color:#fff;padding:8px 20px;border-radius:8px;font-weight:600}.article{max-width:740px;margin:0 auto;padding:60px 24px 80px}.breadcrumb{font-size:.82rem;color:var(--text-secondary);margin-bottom:24px}.breadcrumb a{color:var(--accent);text-decoration:none}.tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);background:rgba(243,121,37,.08);padding:4px 12px;border-radius:6px;margin-bottom:16px}.article h1{font-size:2rem;font-weight:800;line-height:1.25;margin-bottom:16px}.meta{font-size:.85rem;color:var(--text-secondary);margin-bottom:32px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}.meta .dot{width:4px;height:4px;border-radius:50%;background:var(--border)}.article h2{font-size:1.3rem;font-weight:700;margin:40px 0 16px}.article p{font-size:.95rem;line-height:1.75;color:#333;margin-bottom:16px}.article ul{margin:0 0 16px 24px}.article li{font-size:.95rem;line-height:1.75;margin-bottom:6px}.callout{background:#FFF8F3;border:1px solid #F3D5BC;border-radius:var(--radius);padding:20px 24px;margin:24px 0}.callout strong{color:var(--accent)}.callout p{margin-bottom:0}.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:20px 0}.cat-pill{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;text-align:center;font-size:.82rem;font-weight:600}.cta-box{background:linear-gradient(135deg,#1B1A19,#2D2926);color:#fff;border-radius:var(--radius);padding:40px;text-align:center;margin:48px 0}.cta-box h3{color:#fff;font-size:1.3rem;margin-bottom:8px}.cta-box p{color:rgba(255,255,255,.7);margin-bottom:20px}.cta-box .btn{background:var(--accent);color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:.92rem;display:inline-block}footer{text-align:center;padding:32px 40px;color:var(--text-secondary);font-size:.8rem;border-top:1px solid var(--border)}footer a{color:var(--accent);text-decoration:none}@media(max-width:768px){nav{padding:0 16px}.article{padding:32px 16px 60px}.article h1{font-size:1.5rem}}
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="../index.html" class="nav-logo"><img src="../assets/favicon.svg" alt="">deeltrack</a>
+    <div class="nav-links"><a href="../index.html">Home</a><a href="../blog.html" style="color:var(--accent);">Blog</a><a href="../signup.html" class="btn-nav">Get Started</a></div>
+  </nav>
+
+  <article class="article">
+    <div class="breadcrumb"><a href="../blog.html">Blog</a> → Feature Walkthrough</div>
+    <span class="tag">Feature Walkthrough</span>
+    <h1>Deal Room: Secure Document Sharing With Your Investors</h1>
+    <div class="meta"><span>5 min read</span><span class="dot"></span><span>March 2026</span><span class="dot"></span><span>Feature Walkthrough</span></div>
+
+    <p>Every deal accumulates documents: the OA, subscription agreements, property inspections, appraisals, insurance certificates, environmental reports, financial statements. They start in your email inbox, move to a shared Google Drive, and eventually scatter across three different folders with names like "Final_v3_SIGNED_updated."</p>
+
+    <p>deeltrack's Deal Room is a per-deal document repository — organized, categorized, and accessible to your investors through the LP portal.</p>
+
+    <h2>How It Works</h2>
+
+    <p>Each deal has its own deal room. Upload documents by dragging and dropping files, and they're automatically stored in Firebase Storage with the deal as the organizing principle.</p>
+
+    <h3>Document Categories</h3>
+    <p>Every document is categorized for easy retrieval:</p>
+
+    <div class="cat-grid">
+      <div class="cat-pill">📜 Legal</div>
+      <div class="cat-pill">💰 Financial</div>
+      <div class="cat-pill">🌿 Environmental</div>
+      <div class="cat-pill">🛡️ Insurance</div>
+      <div class="cat-pill">📊 Tax</div>
+      <div class="cat-pill">🔍 Inspection</div>
+      <div class="cat-pill">📋 Subscription</div>
+      <div class="cat-pill">📝 Updates</div>
+    </div>
+
+    <p>You can categorize documents manually, or let the AI auto-categorize them on upload. Upload an environmental site assessment and deeltrack tags it as "Environmental" with 99% confidence — no manual filing needed.</p>
+
+    <h2>LP Access</h2>
+
+    <p>Documents in the deal room are accessible to investors through the LP portal. When an LP logs in and navigates to a deal they're invested in, they see the documents organized by category.</p>
+
+    <p>This means your investors can access their subscription documents, quarterly reports, and property inspection reports without emailing you. Self-service — the same principle as the K-1 Vault and distribution history.</p>
+
+    <div class="callout">
+      <strong>Access control:</strong>
+      <p>LPs can only see documents for deals they're invested in. An investor in Deal A cannot see Deal B's documents — even if they're in the same portal. Access is deal-scoped by default.</p>
+    </div>
+
+    <h2>Subscription Document Tracking</h2>
+
+    <p>Pulse flags deals that have investors but no subscription documents in the deal room. This is a compliance signal — if you have commitments, you should have signed sub docs. The reminder ensures nothing falls through the cracks during a busy closing.</p>
+
+    <h2>Document History</h2>
+
+    <p>Every upload is timestamped and attributed. You can see who uploaded what, when, and to which deal. This creates an audit trail for document management — useful when you need to prove when a document was made available to investors.</p>
+
+    <h2>Integration With AI Tools</h2>
+
+    <p>Documents in the deal room can be fed into deeltrack's AI tools:</p>
+    <ul>
+      <li><strong>Document Review</strong> — compare a legal doc against the deal terms</li>
+      <li><strong>Variable Extraction</strong> — pull structured data from an OA</li>
+      <li><strong>Auto-Categorization</strong> — let AI tag and name the document</li>
+    </ul>
+
+    <p>Upload a document, let AI categorize it, review it against your deal data, and make it available to LPs — all from the same page.</p>
+
+    <h2>Why Not Just Use Google Drive?</h2>
+
+    <p>You can. Many sponsors do. But Google Drive doesn't know anything about your deals, investors, or compliance requirements. It's a generic file store.</p>
+
+    <p>deeltrack's deal room is deal-aware: documents are linked to a specific deal, visible to the right investors, flagged by compliance checks, and parseable by AI. It's not just storage — it's structured document management designed for syndication.</p>
+
+    <div class="cta-box">
+      <h3>Stop sending documents over email.</h3>
+      <p>$49/deal/month. Deal Room included with every plan.</p>
+      <a href="../signup.html" class="btn">Get Started Free →</a>
+    </div>
+  </article>
+
+  <footer><p>© 2026 deeltrack. <a href="../terms.html">Terms</a> · <a href="../privacy.html">Privacy</a> · <a href="https://x.com/deeltrack">@deeltrack</a></p></footer>
+</body>
+</html>
