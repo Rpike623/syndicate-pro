@@ -62,6 +62,11 @@ const SPAI = (function() {
     return await callAI('aiInvestorQA', { question, dealContext, documentExcerpts });
   }
 
+  // 10. Investor document intelligence
+  async function parseInvestorDocument(fileName, textPreview, investorName, existingProfile) {
+    return await callAI('aiParseInvestorDocument', { fileName, textPreview, investorName, existingProfile });
+  }
+
   return {
     callAI,
     draftInvestorUpdate,
@@ -73,5 +78,6 @@ const SPAI = (function() {
     categorizeDocument,
     checkUnderwriting,
     askInvestorQuestion,
+    parseInvestorDocument,
   };
 })();

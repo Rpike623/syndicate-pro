@@ -11,11 +11,13 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js?v16"></script>
   <script src="js/sp-data.js?v15"></script>
   <script src="js/sp-firebase.js?v15"></script>
   <script src="js/sp-multi-org.js"></script>
+  <script src="js/sp-esign.js"></script>
   <style>
     :root {
       --accent:#F37925;--accent-hover:#D96515;--accent-light:rgba(243,121,37,0.12);
@@ -649,17 +651,67 @@ async function submitCommitment() {
       investorEmail: _session?.email || user?.email,
       investorName: _session?.name || user?.displayName || user?.email,
       investorUid: user?.uid,
+      investorId: _invite?.investorId || null,
       amount,
       entity,
       notes,
       status: 'pending',       // pending → approved → docs_signed → funded
       inviteToken: _invite?.token || new URLSearchParams(window.location.search).get('t'),
+      onboardingId: _invite?.onboardingId || null,
+      requiredDocs: _invite?.requiredDocs || [],
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     };
 
     const docRef = await _db.collection('orgs').doc(_orgId).collection('commitments').add(commitment);
+
+    const investors = (typeof SP !== 'undefined' && SP.getInvestors) ? SP.getInvestors() : [];
+    let signerId = _invite?.investorId || null;
+    if (!signerId) {
+      const match = investors.find(i => (i.email || '').toLowerCase() === ((_session?.email || user?.email || '').toLowerCase()));
+      signerId = match?.id || null;
+    }
+
+    let signingSent = false;
+    try {
+      if (typeof SPEsign !== 'undefined' && signerId) {
+        const signRes = await SPEsign.sendForSignature(_deal.id, signerId);
+        signingSent = !!signRes?.success;
+      }
+    } catch (err) {
+      console.warn('E-sign request failed:', err);
+    }
+
+    if (_invite?.onboardingId) {
+      try {
+        const onboardingDoc = await _db.collection('orgs').doc(_orgId).collection('custom_data').doc('onboarding_v2').get();
+        if (onboardingDoc.exists) {
+          const records = Array.isArray(onboardingDoc.data()?.value) ? onboardingDoc.data().value : [];
+          const idx = records.findIndex(r => r.id === _invite.onboardingId);
+          if (idx >= 0) {
+            records[idx] = {
+              ...records[idx],
+              stage: signingSent ? 'docs' : 'verify',
+              progress: signingSent ? 60 : 45,
+              commitmentId: docRef.id,
+              commitmentAmount: amount,
+              lastUpdate: new Date().toISOString().split('T')[0],
+              docsReceived: Array.from(new Set([...(records[idx].docsReceived || []), 'subscription_agreement']))
+            };
+            await _db.collection('orgs').doc(_orgId).collection('custom_data').doc('onboarding_v2').set({
+              value: records,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              accessLevel: 'gp_only'
+            }, { merge: true });
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to advance onboarding state:', e);
+      }
+    }
+
     if (window.dtTrack) window.dtTrack('generate_lead', { lead_type: 'investment_commitment', deal_id: _deal.id, deal_name: _deal.name, value: amount, currency: 'USD', page_location: window.location.href });
+    if (window.dtTrack) window.dtTrack('begin_checkout', { deal_id: _deal.id, deal_name: _deal.name, value: amount, currency: 'USD' });
 
     // Add this org to the LP's orgIds array (multi-GP support)
     if (typeof SPMultiOrg !== 'undefined' && user?.uid) {

@@ -816,6 +816,62 @@ Return ONLY the JSON.`;
   }
 );
 
+// ── AI: Investor Document Intelligence ─────────────────────────────────────────
+exports.aiParseInvestorDocument = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-investor-doc-parse', 20, 60 * 60 * 1000);
+
+    const { fileName, textPreview, investorName, existingProfile } = request.data;
+    if (!fileName && !textPreview) throw new HttpsError('invalid-argument', 'Need file name or text preview.');
+
+    const prompt = `You extract structured investor onboarding data from real estate syndication documents.
+
+Investor name (if known): ${investorName || 'unknown'}
+Filename: ${fileName || 'unknown'}
+Existing profile: ${JSON.stringify(existingProfile || {})}
+Document preview (first 4000 chars): ${(textPreview || '').substring(0, 4000)}
+
+Infer the document type and extract only fields supported by the text. Never invent values.
+
+Return JSON only in this exact shape:
+{
+  "documentType": "subscription_agreement|accreditation_letter|w9|wire_instructions|entity_document|id_document|bank_letter|other",
+  "confidence": 0.0,
+  "summary": "short human summary",
+  "extracted": {
+    "investorName": "",
+    "entityName": "",
+    "entityType": "individual|llc|lp|corp|trust|ira|joint|other|null",
+    "email": "",
+    "phone": "",
+    "address": "",
+    "taxId": "",
+    "bankName": "",
+    "routing": "",
+    "accountNumberLast4": "",
+    "investmentAmount": null,
+    "accreditationStatus": "verified|pending|null",
+    "accreditationMethod": "income|net_worth|professional|entity|self_certified|null"
+  },
+  "missing": ["list of still-missing fields"],
+  "suggestedUpdates": [
+    {"field":"entityName","value":"Example LLC","reason":"Found in signature block"}
+  ]
+}`;
+
+    try {
+      const result = await _callGemini(prompt, 2048);
+      return _parseGeminiJSON(result, 'AI Investor Doc Parse');
+    } catch (err) {
+      console.error('[AI Investor Doc Parse] Failed:', err.message);
+      throw new HttpsError('internal', 'Investor document parsing failed: ' + err.message);
+    }
+  }
+);
+
 // ── AI: Underwriting Sanity Check ───────────────────────────────────────────────
 exports.aiUnderwritingCheck = onCall(
   { region: 'us-central1' },

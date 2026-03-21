@@ -14,11 +14,13 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="js/sp-core.js?v16"></script>
   <script src="js/sp-data.js?v15"></script>
   <script src="js/sp-firebase.js?v15"></script>
   <script src="js/sp-multi-org.js"></script>
+  <script src="js/sp-ai.js"></script>
   <style>
     :root {
       --accent:#F37925;--accent-hover:#D96515;--accent-light:rgba(243,121,37,0.12);
@@ -294,7 +296,10 @@
       <div class="card" style="grid-column:1/-1;">
         <div class="card-header">
           <span><i class="fas fa-building" style="color:var(--accent);margin-right:8px;"></i>My Properties</span>
-          <a href="#" onclick="showPage('investments',document.querySelector('.portal-nav a:nth-child(2)'))" style="font-size:.78rem;color:var(--accent);text-decoration:none;font-weight:600;">View all →</a>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span class="badge badge-funded">Portfolio view</span>
+            <a href="#" onclick="showPage('investments',document.querySelector('.portal-nav a:nth-child(2)'))" style="font-size:.78rem;color:var(--accent);text-decoration:none;font-weight:600;">View all →</a>
+          </div>
         </div>
         <div class="card-body" id="dashDeals">
           <div class="empty-state"><i class="fas fa-building"></i><p>No deals linked yet.</p></div>
@@ -586,8 +591,8 @@ function distPeriod(d) {
   return '—';
 }
 function statusBadge(status) {
-  const map = {operating:'badge-operating',closed:'badge-closed',dd:'badge-active',loi:'badge-committed',sourcing:'badge-committed',funded:'badge-funded'};
-  const labels = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',operating:'Operating',closed:'Closed',funded:'Funded'};
+  const map = {operating:'badge-operating',closed:'badge-closed',dd:'badge-active',loi:'badge-committed',sourcing:'badge-committed',funded:'badge-funded',raising:'badge-active'};
+  const labels = {sourcing:'Sourcing',loi:'LOI',dd:'Due Diligence',operating:'Operating',closed:'Closed',funded:'Funded',raising:'Raising'};
   return `<span class="badge ${map[status]||'badge-committed'}">${labels[status]||status||'—'}</span>`;
 }
 
@@ -656,6 +661,24 @@ function loadPortalData() {
   _inv = SP.getCurrentInvestorRecord();
   _allDeals = SP.getDeals();
 
+  const profileName = (_inv && ((_inv.firstName || '') + ' ' + (_inv.lastName || '')).trim()) || _session.name || _session.email || 'Investor';
+  const profileEmail = _session.email || _inv?.email || '';
+
+  try {
+    const db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+    if (db && _session.orgId) {
+      db.collection('orgs').doc(_session.orgId).collection('activity').add({
+        type: 'investor_portal_view',
+        investorId: _inv?.id || null,
+        investorEmail: profileEmail,
+        investorName: profileName,
+        page: 'investor-portal',
+        viewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userAgent: navigator.userAgent || ''
+      }).catch(() => {});
+    }
+  } catch (_) {}
+
   // ── Linked deals ──
   _linked = [];
   _allDeals.forEach(d => {
@@ -710,6 +733,8 @@ function renderDashboard() {
   const totalDist = _myDists.reduce((s, {recipient}) => s + (recipient.amount || recipient.totalThisDist || 0), 0);
   const irrs = _linked.map(({deal}) => deal.irr).filter(Boolean);
   const avgIrr = irrs.length ? (irrs.reduce((a,b)=>a+b,0)/irrs.length).toFixed(1) + '%' : '—';
+  const totalValue = totalInvested + totalDist;
+  const blendedMoic = totalInvested > 0 ? (totalValue / totalInvested).toFixed(2) + 'x' : '—';
 
   document.getElementById('kpiInvested').textContent = fmt$(totalInvested);
   document.getElementById('kpiDeals').textContent = _linked.length;
@@ -718,7 +743,7 @@ function renderDashboard() {
 
   if (totalInvested > 0) {
     document.getElementById('welcomeSub').textContent =
-      `${_linked.length} active investment${_linked.length!==1?'s':''} · ${fmtFull$(totalInvested)} committed · ${fmtFull$(totalDist)} distributed`;
+      `${_linked.length} active investment${_linked.length!==1?'s':''} · ${fmtFull$(totalInvested)} committed · ${fmtFull$(totalDist)} distributed · ${blendedMoic} blended MOIC`;
   }
 
   // Pending capital calls alert
@@ -823,7 +848,7 @@ function renderInvestments() {
         </div>
         <div class="invest-stat">
           <div class="invest-stat-label">Ownership</div>
-          <div class="invest-stat-value">${entry.ownership ? entry.ownership.toFixed(4)+'%' : '—'}</div>
+          <div class="invest-stat-value">${entry.ownership ? entry.ownership.toFixed(2)+'%' : '—'}</div>
         </div>
         <div class="invest-stat">
           <div class="invest-stat-label">Target IRR</div>
@@ -1214,6 +1239,16 @@ function loadInvestorUpdates() {
   return updates;
 }
 
+function collectInvestorDocContext() {
+  const docs = [];
+  _linked.forEach(({deal}) => {
+    if (deal.generatedOA) docs.push({ title: `${deal.name} Operating Agreement`, text: String(deal.generatedOA).replace(/<[^>]+>/g, ' ').slice(0, 3000) });
+    if (deal.generatedOM) docs.push({ title: `${deal.name} Offering Memorandum`, text: String(deal.generatedOM).replace(/<[^>]+>/g, ' ').slice(0, 3000) });
+    if (deal.subAgreement) docs.push({ title: `${deal.name} Subscription Agreement`, text: String(deal.subAgreement).replace(/<[^>]+>/g, ' ').slice(0, 3000) });
+  });
+  return docs.slice(0, 6);
+}
+
 function renderCommunications() {
   const el = document.getElementById('commsContent');
   const updates = loadInvestorUpdates();
@@ -1223,7 +1258,21 @@ function renderCommunications() {
     return;
   }
 
-  el.innerHTML = updates.map(u => `
+  el.innerHTML = `
+    <div class="card" style="margin-bottom:20px;border-left:3px solid var(--accent);">
+      <div class="card-body" style="display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;">
+        <div>
+          <div style="font-weight:700;font-size:.95rem;">Ask AI about your portfolio</div>
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-top:4px;">Questions about distributions, documents, commitments, or deal details across all your investments.</div>
+        </div>
+        <div style="display:flex;gap:8px;flex:1;min-width:280px;justify-content:flex-end;flex-wrap:wrap;">
+          <input id="lpAiQuestion" type="text" placeholder="Ask about distributions, deal docs, next capital call..." style="flex:1;min-width:260px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:.85rem;">
+          <button class="btn btn-primary" onclick="askPortalAI()"><i class="fas fa-robot"></i> Ask AI</button>
+        </div>
+      </div>
+      <div id="lpAiAnswer" style="display:none;padding:0 20px 18px;"></div>
+    </div>
+  ` + updates.map(u => `
     <div class="update-card">
       <div class="update-header">
         <div>
@@ -1243,6 +1292,61 @@ function renderCommunications() {
         ${u.capex ? `<div class="update-metric"><span class="val">${u.capex}</span>CapEx</div>` : ''}
       </div>` : ''}
     </div>`).join('');
+}
+
+async function askPortalAI() {
+  const input = document.getElementById('lpAiQuestion');
+  const answer = document.getElementById('lpAiAnswer');
+  const question = input?.value?.trim();
+  if (!question) { showToast('Ask a question first', 'warning'); return; }
+  if (!window.SPAI) { showToast('AI is not available right now', 'warning'); return; }
+
+  answer.style.display = 'block';
+  answer.innerHTML = '<div style="padding:14px 0;color:var(--text-secondary);"><i class="fas fa-spinner fa-spin" style="margin-right:8px;"></i>Thinking...</div>';
+
+  try {
+    const dealContext = _linked.map(({deal, entry}) => ({
+      dealId: deal.id,
+      dealName: deal.name,
+      location: deal.location,
+      type: deal.type,
+      committed: entry.committed || 0,
+      ownership: entry.ownership || 0,
+      irr: deal.irr || null,
+      holdPeriod: deal.holdPeriod || null,
+      distributions: _myDists.filter(({dist}) => dist.dealId === deal.id).map(({dist, recipient}) => ({
+        period: distPeriod(dist),
+        amount: recipient.amount || recipient.totalThisDist || 0,
+        date: dist.date || dist.postedAt || null
+      })),
+      capitalCalls: _myCalls.filter(({call}) => call.dealId === deal.id).map(({call}) => ({
+        amount: call.amount || 0,
+        dueDate: call.dueDate || null,
+        status: call.status || 'pending',
+        purpose: call.purpose || ''
+      }))
+    }));
+
+    const docContext = collectInvestorDocContext();
+    const res = await SPAI.askInvestorQuestion(question, dealContext, docContext);
+    const text = res?.answer || res?.response || res?.summary || JSON.stringify(res, null, 2);
+    answer.innerHTML = `<div style="padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);white-space:pre-wrap;line-height:1.6;">${text}</div>`;
+
+    try {
+      const db = (typeof firebase !== 'undefined' && firebase.firestore) ? firebase.firestore() : null;
+      if (db && _session?.orgId) {
+        db.collection('orgs').doc(_session.orgId).collection('activity').add({
+          type: 'investor_ai_question',
+          investorId: _inv?.id || null,
+          investorEmail: _session.email || _inv?.email || '',
+          question,
+          askedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(() => {});
+      }
+    } catch (_) {}
+  } catch (err) {
+    answer.innerHTML = `<div style="padding:14px 16px;background:var(--danger-light);color:var(--danger);border-radius:var(--radius);">AI couldn't answer that right now. ${err.message || err}</div>`;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1346,6 +1450,7 @@ function renderProfile() {
   const summaryEl = document.getElementById('profileSummary');
   const totalInvested = _linked.reduce((s, {entry}) => s + (entry.committed || 0), 0);
   const totalDist = _myDists.reduce((s, {recipient}) => s + (recipient.amount || recipient.totalThisDist || 0), 0);
+  const blendedMoic = totalInvested > 0 ? ((totalInvested + totalDist) / totalInvested).toFixed(2) + 'x' : '—';
 
   if (_linked.length) {
     summaryEl.innerHTML = `
@@ -1385,6 +1490,12 @@ function renderProfile() {
                 <td style="padding:10px 0;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;">${moic}</td>
               </tr>`;
             }).join('')}
+            <tr>
+              <td style="padding:14px 0 6px;font-weight:800;">Portfolio Total</td>
+              <td style="padding:14px 0 6px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:800;">${fmtFull$(totalInvested)}</td>
+              <td style="padding:14px 0 6px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--success);">${fmtFull$(totalDist)}</td>
+              <td style="padding:14px 0 6px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:800;">${blendedMoic}</td>
+            </tr>
           </tbody>
         </table>
       </div>`;

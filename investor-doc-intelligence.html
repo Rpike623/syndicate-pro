@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>deeltrack | Investor Document Intelligence</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v16"></script>
+  <script src="js/sp-data.js?v15"></script>
+  <script src="js/sp-firebase.js?v15"></script>
+  <script src="js/sp-ai.js"></script>
+  <link rel="stylesheet" href="contrast-fix.css">
+</head>
+<body>
+  <div id="sidebar"></div>
+  <main class="main" id="main">
+    <div class="dt-header">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu"><i class="fas fa-bars"></i></button>
+      <h1><i class="fas fa-id-card"></i> Investor Document Intelligence</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="location.href='investor-onboarding.html'"><i class="fas fa-arrow-left"></i> Back to Onboarding</button>
+      </div>
+    </div>
+
+    <div class="content" style="max-width:1200px;">
+      <div class="card" style="margin-bottom:20px;">
+        <div class="card-header"><h2><i class="fas fa-wand-magic-sparkles"></i> Extract investor data from documents</h2></div>
+        <div class="card-body">
+          <p style="color:var(--dt-text-muted);margin-bottom:18px;">Paste text from a subscription agreement, accreditation letter, W-9, wire instructions, or entity document. AI will extract fields you can push straight into the investor profile.</p>
+          <div class="grid grid-2" style="gap:16px;align-items:end;">
+            <div class="form-group">
+              <label>Investor</label>
+              <select id="investorSelect" class="form-select"></select>
+            </div>
+            <div class="form-group">
+              <label>Filename</label>
+              <input id="fileName" class="form-input" placeholder="chapman-subscription-agreement.pdf">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top:14px;">
+            <label>Document text</label>
+            <textarea id="docText" class="form-input" rows="14" placeholder="Paste OCR text, copied PDF text, email body, or document contents here..."></textarea>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
+            <button class="btn btn-primary" onclick="runParse()"><i class="fas fa-robot"></i> Extract Data</button>
+            <button class="btn btn-secondary" onclick="applySuggestedUpdates()"><i class="fas fa-bolt"></i> Apply Suggested Updates</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="gap:20px;">
+        <div class="card">
+          <div class="card-header"><h2><i class="fas fa-user"></i> Current Investor Profile</h2></div>
+          <div class="card-body" id="currentProfile">Select an investor to view profile data.</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h2><i class="fas fa-brain"></i> AI Extraction</h2></div>
+          <div class="card-body" id="parseResult"><div class="empty-state"><i class="fas fa-file-lines"></i><p>No extraction yet.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+let _investors = [];
+let _parsed = null;
+
+function renderInvestorOptions() {
+  const select = document.getElementById('investorSelect');
+  _investors = (SP.getInvestors ? SP.getInvestors() : []).slice().sort((a,b) => ((a.lastName||'') + (a.firstName||'')).localeCompare((b.lastName||'') + (b.firstName||'')));
+  select.innerHTML = '<option value="">Select investor</option>' + _investors.map(i => `<option value="${i.id}">${(i.firstName||'') + ' ' + (i.lastName||'')} · ${i.email||'no email'}</option>`).join('');
+}
+
+function getSelectedInvestor() {
+  const id = document.getElementById('investorSelect').value;
+  return _investors.find(i => i.id === id) || null;
+}
+
+function renderCurrentProfile() {
+  const inv = getSelectedInvestor();
+  const el = document.getElementById('currentProfile');
+  if (!inv) {
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-user"></i><p>Select an investor.</p></div>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.88rem;">
+      <div><strong>Name</strong><div>${inv.firstName||''} ${inv.lastName||''}</div></div>
+      <div><strong>Email</strong><div>${inv.email||'—'}</div></div>
+      <div><strong>Phone</strong><div>${inv.phone||'—'}</div></div>
+      <div><strong>Address</strong><div>${inv.address||'—'}</div></div>
+      <div><strong>Entity</strong><div>${inv.entityName||'—'}</div></div>
+      <div><strong>Entity Type</strong><div>${inv.entityType||'—'}</div></div>
+      <div><strong>TIN</strong><div>${inv.tin||'—'}</div></div>
+      <div><strong>Bank</strong><div>${inv.bankName||'—'}</div></div>
+      <div><strong>Routing</strong><div>${inv.routing||'—'}</div></div>
+      <div><strong>Acct #</strong><div>${inv.acctNum||'—'}</div></div>
+      <div><strong>Accreditation</strong><div>${inv.accredStatus||'—'}</div></div>
+      <div><strong>Method</strong><div>${inv.accredMethod||'—'}</div></div>
+    </div>`;
+}
+
+async function runParse() {
+  const inv = getSelectedInvestor();
+  const text = document.getElementById('docText').value.trim();
+  const fileName = document.getElementById('fileName').value.trim();
+  if (!inv) return alert('Select an investor first.');
+  if (!text) return alert('Paste document text first.');
+  const resultEl = document.getElementById('parseResult');
+  resultEl.innerHTML = '<div style="color:var(--dt-text-muted);"><i class="fas fa-spinner fa-spin"></i> Extracting...</div>';
+  try {
+    _parsed = await SPAI.parseInvestorDocument(fileName, text, `${inv.firstName||''} ${inv.lastName||''}`.trim(), inv);
+    const updates = Array.isArray(_parsed.suggestedUpdates) ? _parsed.suggestedUpdates : [];
+    resultEl.innerHTML = `
+      <div style="margin-bottom:12px;"><strong>Type:</strong> ${_parsed.documentType || '—'} · <strong>Confidence:</strong> ${Math.round((_parsed.confidence || 0) * 100)}%</div>
+      <div style="margin-bottom:12px;color:var(--dt-text-muted);">${_parsed.summary || 'No summary.'}</div>
+      <div style="margin-bottom:12px;"><strong>Extracted fields</strong></div>
+      <pre style="white-space:pre-wrap;background:#f8f7f5;padding:12px;border-radius:10px;border:1px solid #e2ddd8;font-size:.8rem;">${JSON.stringify(_parsed.extracted || {}, null, 2)}</pre>
+      <div style="margin:12px 0 6px;"><strong>Suggested updates</strong></div>
+      ${updates.length ? updates.map((u, idx) => `<label style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #eee;"><input type="checkbox" class="suggested-update" data-idx="${idx}" checked><span><strong>${u.field}</strong>: ${u.value} <span style="color:var(--dt-text-muted);">— ${u.reason || ''}</span></span></label>`).join('') : '<div style="color:var(--dt-text-muted);">No suggested updates.</div>'}
+      ${Array.isArray(_parsed.missing) && _parsed.missing.length ? `<div style="margin-top:12px;color:#a16207;"><strong>Still missing:</strong> ${_parsed.missing.join(', ')}</div>` : ''}
+    `;
+  } catch (err) {
+    resultEl.innerHTML = `<div style="color:#b42318;">Parsing failed: ${err.message || err}</div>`;
+  }
+}
+
+async function applySuggestedUpdates() {
+  const inv = getSelectedInvestor();
+  if (!inv || !_parsed) return alert('Run extraction first.');
+  const selected = Array.from(document.querySelectorAll('.suggested-update:checked')).map(el => Number(el.dataset.idx));
+  const updates = (Array.isArray(_parsed.suggestedUpdates) ? _parsed.suggestedUpdates : []).filter((_, idx) => selected.includes(idx));
+  if (!updates.length) return alert('No suggested updates selected.');
+
+  const investors = SP.getInvestors ? SP.getInvestors() : [];
+  const idx = investors.findIndex(i => i.id === inv.id);
+  if (idx < 0) return alert('Investor not found.');
+
+  const fieldMap = {
+    investorName: null,
+    entityName: 'entityName',
+    entityType: 'entityType',
+    email: 'email',
+    phone: 'phone',
+    address: 'address',
+    taxId: 'tin',
+    bankName: 'bankName',
+    routing: 'routing',
+    accountNumberLast4: 'acctNum',
+    investmentAmount: null,
+    accreditationStatus: 'accredStatus',
+    accreditationMethod: 'accredMethod'
+  };
+
+  updates.forEach(u => {
+    const key = fieldMap[u.field] || u.field;
+    if (!key) return;
+    investors[idx][key] = u.value;
+  });
+
+  if (_parsed.extracted?.investorName) {
+    const parts = String(_parsed.extracted.investorName).trim().split(/\s+/);
+    if (parts.length) {
+      investors[idx].firstName = parts[0];
+      investors[idx].lastName = parts.slice(1).join(' ');
+    }
+  }
+
+  await SP.saveInvestors(investors);
+  renderInvestorOptions();
+  document.getElementById('investorSelect').value = inv.id;
+  renderCurrentProfile();
+  alert('Investor profile updated from document extraction.');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  function init() {
+    if (!SP.isLoggedIn || !SP.isLoggedIn()) {
+      window.location.href = 'login.html';
+      return;
+    }
+    renderInvestorOptions();
+    renderCurrentProfile();
+    document.getElementById('investorSelect').addEventListener('change', renderCurrentProfile);
+  }
+  if (window.SP && SP.isLoggedIn && SP.isLoggedIn()) init();
+  else document.addEventListener('sp-ready', init);
+  window.addEventListener('spdata-ready', function() { renderInvestorOptions(); renderCurrentProfile(); });
+});
+</script>
+</body>
+</html>

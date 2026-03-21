@@ -89,8 +89,8 @@
     .view-btn.active { background: var(--accent); color: white; }
     /* Card */
     .card { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: var(--radius-md); overflow: visible; }
-    .table-scroll { overflow-x: auto; border-radius: var(--radius-md); }
-    .table-scroll { overflow-x: auto; }
+    .table-scroll { overflow-x: auto; border-radius: var(--radius-md); -webkit-overflow-scrolling: touch; }
+    .table-scroll table { min-width: 780px; }
     table { width: 100%; border-collapse: collapse; min-width: 700px; }
     td:first-child, th:first-child { min-width: 180px; }
     thead { background: var(--border-light); }

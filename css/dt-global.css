@@ -3660,9 +3660,10 @@ td.irr {
   letter-spacing: -0.02em !important;
   flex: 1 !important;
   min-width: 0 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: break-word !important;
 }
 .dt-header h1 i {
   color: var(--dt-accent) !important;
