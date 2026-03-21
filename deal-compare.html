@@ -83,6 +83,19 @@
         <div class="chart-card"><div class="chart-title">IRR Comparison</div><canvas id="irrCompare" height="200"></canvas></div>
         <div class="chart-card"><div class="chart-title">Capital Raise vs Committed</div><canvas id="raiseCompare" height="200"></canvas></div>
       </div>
+
+      <!-- AI Deep Analysis -->
+      <div style="background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;padding:20px;margin-top:20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <i class="fas fa-robot" style="color:#F37925;"></i>
+          <span style="font-weight:700;font-size:.9rem;">AI Deal Analysis</span>
+          <span style="font-size:0.65rem;background:rgba(243,121,37,0.12);color:#F37925;padding:2px 8px;border-radius:10px;font-weight:600;">✨ AI</span>
+        </div>
+        <p style="font-size:.78rem;color:#6B6560;margin-bottom:12px;">Select 2 deals above, then click to get an AI-powered investment analysis with scoring, risk assessment, and recommendation.</p>
+        <button class="btn btn-primary" onclick="runAICompare()" id="aiCompareBtn" style="width:100%;"><i class="fas fa-magic"></i> AI Compare Selected Deals</button>
+        <div id="aiCompareStatus" style="display:none;margin-top:8px;font-size:.75rem;text-align:center;"></div>
+        <div id="aiCompareResults" style="display:none;margin-top:16px;"></div>
+      </div>
     </div>
   </main>
 </div>
@@ -219,6 +232,61 @@ function exportComparison() {
 }
 
 SP.onDataReady(init);
+
+async function runAICompare() {
+  const selected = Array.from(document.querySelectorAll('.deal-check:checked')).map(c => c.value);
+  if (selected.length < 2) { alert('Select at least 2 deals to compare.'); return; }
+  const deals = SP.getDeals();
+  const dealA = deals.find(d => d.id === selected[0]);
+  const dealB = deals.find(d => d.id === selected[1]);
+  if (!dealA || !dealB) { alert('Could not find selected deals.'); return; }
+
+  const btn = document.getElementById('aiCompareBtn');
+  const status = document.getElementById('aiCompareStatus');
+  const results = document.getElementById('aiCompareResults');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+  status.style.display = 'block'; status.style.color = '#6B6560'; status.textContent = 'AI is comparing the deals...';
+
+  try {
+    const r = await SPAI.compareDeals(dealA, dealB);
+    let html = '';
+
+    // Scores
+    if (r.scores) {
+      html += `<div style="display:flex;gap:16px;margin-bottom:16px;">
+        <div style="flex:1;text-align:center;padding:16px;background:#F0FDF4;border-radius:8px;border:1px solid #A7F3D0;">
+          <div style="font-size:2rem;font-weight:800;color:#059669;">${r.scores.dealA}</div>
+          <div style="font-size:.8rem;color:#065F46;font-weight:600;">${SP.escapeHtml(dealA.name)}</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:16px;background:#EFF6FF;border-radius:8px;border:1px solid #BFDBFE;">
+          <div style="font-size:2rem;font-weight:800;color:#2563EB;">${r.scores.dealB}</div>
+          <div style="font-size:.8rem;color:#1E40AF;font-weight:600;">${SP.escapeHtml(dealB.name)}</div>
+        </div>
+      </div>`;
+    }
+
+    // Recommendation
+    if (r.recommendation) html += `<div style="padding:14px;background:#FAFAF8;border:1px solid #E2DDD8;border-radius:8px;margin-bottom:16px;font-size:.85rem;line-height:1.6;">${SP.escapeHtml(r.recommendation)}</div>`;
+
+    // Comparison table
+    if (r.comparison?.length) {
+      html += '<table style="width:100%;border-collapse:collapse;font-size:.82rem;border:1px solid #E2DDD8;border-radius:8px;overflow:hidden;"><thead><tr style="background:#F5F3F0;"><th style="padding:8px 12px;text-align:left;">Metric</th><th style="padding:8px 12px;">' + SP.escapeHtml(dealA.name) + '</th><th style="padding:8px 12px;">' + SP.escapeHtml(dealB.name) + '</th></tr></thead><tbody>';
+      r.comparison.forEach(c => {
+        const aWin = c.advantage === 'A' ? 'font-weight:700;color:#059669;' : '';
+        const bWin = c.advantage === 'B' ? 'font-weight:700;color:#2563EB;' : '';
+        html += `<tr><td style="padding:8px 12px;border-top:1px solid #F0EFED;">${SP.escapeHtml(c.metric)}</td><td style="padding:8px 12px;border-top:1px solid #F0EFED;text-align:center;${aWin}">${SP.escapeHtml(c.dealA||'—')}</td><td style="padding:8px 12px;border-top:1px solid #F0EFED;text-align:center;${bWin}">${SP.escapeHtml(c.dealB||'—')}</td></tr>`;
+      });
+      html += '</tbody></table>';
+    }
+
+    results.innerHTML = html;
+    results.style.display = 'block';
+    status.style.color = '#2D9A6B'; status.textContent = '✅ Analysis complete!';
+  } catch (err) {
+    status.style.color = '#D94F3D'; status.textContent = '❌ ' + (err.message || 'Failed');
+  } finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-magic"></i> AI Compare Selected Deals'; }
+}
 </script>
+<script src="js/sp-ai.js?v1"></script>
 </body>
 </html>

@@ -1,19 +1,13 @@
 /**
  * sp-ai.js — Gemini AI utilities for deeltrack
  * 
- * Shared module for AI-powered features:
- * 1. Investor Update Drafting — bullet points → polished quarterly update
- * 2. Deal Import from Broker OMs — paste OM text → structured deal data
- * 3. Document Review — compare OA terms against deal data
- * 
- * All AI calls go through Cloud Functions (parseDocumentVariables pattern)
- * to keep API keys server-side and rate-limit per user.
+ * All AI calls go through Cloud Functions to keep keys server-side.
+ * Gemini 2.5 Flash via Firebase service account — zero additional cost.
  */
 
 const SPAI = (function() {
   'use strict';
 
-  // ── Call a Gemini Cloud Function ──────────────────────────────────────────
   async function callAI(functionName, data) {
     if (typeof firebase === 'undefined' || !firebase.functions) {
       throw new Error('Firebase not available');
@@ -23,40 +17,49 @@ const SPAI = (function() {
     return result.data;
   }
 
-  // ── 1. Investor Update Drafting ───────────────────────────────────────────
-  /**
-   * Takes rough bullet points / notes and generates polished investor update copy.
-   * @param {object} params
-   * @param {string} params.dealName - Property name
-   * @param {string} params.period - "Q4 2025" etc.
-   * @param {string} params.updateType - quarterly|monthly|annual|construction|lease-up
-   * @param {string} params.bullets - Raw notes/bullet points from GP
-   * @param {object} params.metrics - Optional KPI data (occupancy, NOI, etc.)
-   * @returns {object} { greeting, operations, outlook, capex }
-   */
+  // 1. Investor Update Drafting
   async function draftInvestorUpdate(params) {
     return await callAI('aiDraftInvestorUpdate', params);
   }
 
-  // ── 2. Deal Import from Broker OM ─────────────────────────────────────────
-  /**
-   * Extracts structured deal data from a pasted broker's offering memorandum.
-   * @param {string} omText - Raw text from a broker's OM
-   * @returns {object} Structured deal fields (name, location, type, raise, etc.)
-   */
+  // 2. Deal Import from Broker OM
   async function parseBrokerOM(omText) {
     return await callAI('aiParseBrokerOM', { text: omText });
   }
 
-  // ── 3. Document Review ────────────────────────────────────────────────────
-  /**
-   * Compares a generated document against deal data to find mismatches.
-   * @param {string} documentText - The generated document content
-   * @param {object} dealData - The deal's stored data
-   * @returns {object} { matches: [], mismatches: [], warnings: [] }
-   */
+  // 3. Document Review
   async function reviewDocument(documentText, dealData) {
     return await callAI('aiReviewDocument', { documentText, dealData });
+  }
+
+  // 4. Capital Call / Distribution Notice Drafter
+  async function draftNotice(params) {
+    return await callAI('aiDraftNotice', params);
+  }
+
+  // 5. Due Diligence Checklist Generator
+  async function generateDDChecklist(params) {
+    return await callAI('aiDueDiligenceChecklist', params);
+  }
+
+  // 6. Deal Comparison
+  async function compareDeals(dealA, dealB) {
+    return await callAI('aiCompareDeal', { dealA, dealB });
+  }
+
+  // 7. Document Auto-Categorizer
+  async function categorizeDocument(fileName, textPreview) {
+    return await callAI('aiCategorizeDocument', { fileName, textPreview });
+  }
+
+  // 8. Underwriting Sanity Check
+  async function checkUnderwriting(assumptions) {
+    return await callAI('aiUnderwritingCheck', { assumptions });
+  }
+
+  // 9. LP Portal Q&A
+  async function askInvestorQuestion(question, dealContext, documentExcerpts) {
+    return await callAI('aiInvestorQA', { question, dealContext, documentExcerpts });
   }
 
   return {
@@ -64,5 +67,11 @@ const SPAI = (function() {
     draftInvestorUpdate,
     parseBrokerOM,
     reviewDocument,
+    draftNotice,
+    generateDDChecklist,
+    compareDeals,
+    categorizeDocument,
+    checkUnderwriting,
+    askInvestorQuestion,
   };
 })();

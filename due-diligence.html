@@ -1,12 +1,217 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-page="auth">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0;url=coming-soon.html?feature=Due%20Diligence">
-  <title>Deeltrack | Due Diligence</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deeltrack | Due Diligence Checklist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dt-global.css?v=15">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="js/sp-core.js?v16"></script>
+  <script src="js/sp-data.js?v15"></script>
+  <script src="js/sp-firebase.js?v15"></script>
+  <style>
+    .dd-config { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px; }
+    .dd-config .fg { margin: 0; }
+    .dd-config label { font-size: .75rem; font-weight: 600; color: #6B6560; display: block; margin-bottom: 4px; }
+    .dd-config input, .dd-config select { width: 100%; padding: 8px 10px; border: 1px solid #E2DDD8; border-radius: 8px; font-size: .84rem; font-family: inherit; }
+    .dd-category { background: #FFFFFF; border: 1px solid #E2DDD8; border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+    .dd-cat-header { padding: 14px 18px; display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+    .dd-cat-header:hover { background: #FAFAF8; }
+    .dd-cat-header i.cat-icon { color: #F37925; font-size: 1rem; width: 20px; text-align: center; }
+    .dd-cat-header .cat-name { font-weight: 700; font-size: .9rem; flex: 1; }
+    .dd-cat-header .cat-count { font-size: .75rem; color: #8A8580; background: #F5F3F0; padding: 2px 10px; border-radius: 12px; }
+    .dd-cat-header .cat-progress { font-size: .75rem; font-weight: 600; color: #2D9A6B; }
+    .dd-items { border-top: 1px solid #E2DDD8; }
+    .dd-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 18px; border-bottom: 1px solid rgba(0,0,0,0.04); }
+    .dd-item:last-child { border-bottom: none; }
+    .dd-item input[type="checkbox"] { margin-top: 3px; width: 16px; height: 16px; accent-color: #F37925; cursor: pointer; flex-shrink: 0; }
+    .dd-item .dd-task { font-size: .84rem; flex: 1; }
+    .dd-item .dd-task.checked { text-decoration: line-through; color: #9C9590; }
+    .dd-item .dd-critical { font-size: .65rem; background: #FEE2E2; color: #991B1B; padding: 1px 6px; border-radius: 4px; font-weight: 600; flex-shrink: 0; }
+    .dd-item .dd-notes { font-size: .72rem; color: #8A8580; margin-top: 2px; }
+    .dd-empty { text-align: center; padding: 60px 20px; color: #8A8580; }
+    .dd-empty i { font-size: 3rem; opacity: .2; display: block; margin-bottom: 16px; }
+    .dd-summary { background: linear-gradient(135deg, #F0FDF4, #ECFDF5); border: 1px solid #A7F3D0; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
+    .dd-summary .dd-score { font-size: 2rem; font-weight: 800; color: #059669; }
+    .dd-summary .dd-meta { font-size: .82rem; color: #065F46; }
+    @media (max-width: 768px) { .dd-config { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .dd-config { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-  <script>window.location.replace('coming-soon.html?feature=Due%20Diligence');</script>
+  <div class="app">
+    <aside id="sidebar" class="sidebar"></aside>
+    <main class="main-content" style="padding: 24px 32px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h1 style="font-size:1.4rem;font-weight:800;margin-bottom:4px;">Due Diligence Checklist</h1>
+          <p style="font-size:.85rem;color:#6B6560;">AI-generated checklist customized for your deal</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-secondary" onclick="exportChecklist()"><i class="fas fa-download"></i> Export</button>
+          <button class="btn btn-secondary" onclick="printChecklist()"><i class="fas fa-print"></i> Print</button>
+        </div>
+      </div>
+
+      <!-- Config -->
+      <div style="background:#FFFFFF;border:1px solid #E2DDD8;border-radius:12px;padding:20px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <i class="fas fa-magic" style="color:#F37925;"></i>
+          <span style="font-weight:700;font-size:.9rem;">Generate Checklist</span>
+          <span style="font-size:0.65rem;background:rgba(243,121,37,0.12);color:#F37925;padding:2px 8px;border-radius:10px;font-weight:600;">✨ AI</span>
+        </div>
+        <div class="dd-config">
+          <div class="fg"><label>Property Type</label>
+            <select id="ddType"><option value="multifamily">Multifamily</option><option value="industrial">Industrial</option><option value="retail">Retail</option><option value="office">Office</option><option value="self-storage">Self Storage</option><option value="mixed-use">Mixed Use</option></select>
+          </div>
+          <div class="fg"><label>Deal Size ($)</label><input type="text" id="ddSize" placeholder="e.g. 5000000"></div>
+          <div class="fg"><label>Units</label><input type="number" id="ddUnits" placeholder="e.g. 120"></div>
+          <div class="fg"><label>State</label>
+            <select id="ddState"><option value="Texas">Texas</option><option value="Delaware">Delaware</option><option value="California">California</option><option value="Florida">Florida</option><option value="New York">New York</option><option value="Georgia">Georgia</option><option value="Arizona">Arizona</option><option value="Colorado">Colorado</option></select>
+          </div>
+          <div class="fg"><label>Strategy</label>
+            <select id="ddStrategy"><option value="value-add">Value-Add</option><option value="core">Core</option><option value="core-plus">Core-Plus</option><option value="opportunistic">Opportunistic</option><option value="development">Development</option></select>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="ddGenBtn" onclick="generateChecklist()" style="width:100%;"><i class="fas fa-magic"></i> Generate Checklist</button>
+        <div id="ddStatus" style="display:none;margin-top:8px;font-size:.75rem;text-align:center;"></div>
+      </div>
+
+      <!-- Summary bar -->
+      <div id="ddSummaryBar" style="display:none;"></div>
+
+      <!-- Checklist -->
+      <div id="ddChecklist">
+        <div class="dd-empty">
+          <i class="fas fa-clipboard-list"></i>
+          <p style="font-weight:600;margin-bottom:4px;">No checklist generated yet</p>
+          <p style="font-size:.82rem;">Configure your deal parameters above and click Generate</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/sp-ai.js?v1"></script>
+  <script>
+    SP.requireGP();
+    let _checklist = null;
+
+    async function generateChecklist() {
+      const btn = document.getElementById('ddGenBtn');
+      const status = document.getElementById('ddStatus');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+      status.style.display = 'block'; status.style.color = '#6B6560'; status.textContent = 'AI is building your checklist...';
+
+      try {
+        _checklist = await SPAI.generateDDChecklist({
+          propertyType: document.getElementById('ddType').value,
+          dealSize: document.getElementById('ddSize').value,
+          units: document.getElementById('ddUnits').value,
+          state: document.getElementById('ddState').value,
+          strategy: document.getElementById('ddStrategy').value,
+        });
+        renderChecklist();
+        status.style.color = '#2D9A6B';
+        status.textContent = '✅ Checklist generated! ' + (_checklist.categories?.reduce((s,c) => s + c.items.length, 0) || 0) + ' items across ' + (_checklist.categories?.length || 0) + ' categories.';
+      } catch (err) {
+        status.style.color = '#D94F3D'; status.textContent = '❌ ' + (err.message || 'Generation failed');
+      } finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-magic"></i> Generate Checklist'; }
+    }
+
+    function renderChecklist() {
+      if (!_checklist?.categories) return;
+      const el = document.getElementById('ddChecklist');
+
+      // Summary
+      const total = _checklist.categories.reduce((s,c) => s + c.items.length, 0);
+      const critical = _checklist.categories.reduce((s,c) => s + c.items.filter(i => i.critical).length, 0);
+      document.getElementById('ddSummaryBar').style.display = 'flex';
+      document.getElementById('ddSummaryBar').innerHTML = `
+        <div class="dd-summary">
+          <div class="dd-score">0/${total}</div>
+          <div class="dd-meta">
+            <strong>${total} items</strong> across ${_checklist.categories.length} categories · ${critical} critical items<br>
+            ${_checklist.estimatedDays ? 'Estimated timeline: ' + _checklist.estimatedDays + ' days' : ''}
+            ${_checklist.summary ? '<br><em>' + SP.escapeHtml(_checklist.summary) + '</em>' : ''}
+          </div>
+        </div>`;
+
+      el.innerHTML = _checklist.categories.map((cat, ci) => `
+        <div class="dd-category">
+          <div class="dd-cat-header" onclick="toggleCat(${ci})">
+            <i class="cat-icon fas ${cat.icon || 'fa-check-circle'}"></i>
+            <span class="cat-name">${SP.escapeHtml(cat.name)}</span>
+            <span class="cat-count">${cat.items.length} items</span>
+            <span class="cat-progress" id="catProg${ci}">0/${cat.items.length}</span>
+            <i class="fas fa-chevron-down" id="catChev${ci}" style="color:#9C9590;transition:transform .2s;"></i>
+          </div>
+          <div class="dd-items" id="catItems${ci}">
+            ${cat.items.map((item, ii) => `
+              <div class="dd-item">
+                <input type="checkbox" onchange="tickItem(${ci},${ii},this.checked)" id="chk${ci}_${ii}">
+                <div style="flex:1;">
+                  <div class="dd-task" id="task${ci}_${ii}">${SP.escapeHtml(item.task)}</div>
+                  ${item.notes ? '<div class="dd-notes">' + SP.escapeHtml(item.notes) + '</div>' : ''}
+                </div>
+                ${item.critical ? '<span class="dd-critical">CRITICAL</span>' : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleCat(ci) {
+      const items = document.getElementById('catItems' + ci);
+      const chev = document.getElementById('catChev' + ci);
+      if (items.style.display === 'none') { items.style.display = ''; chev.style.transform = ''; }
+      else { items.style.display = 'none'; chev.style.transform = 'rotate(-90deg)'; }
+    }
+
+    function tickItem(ci, ii, checked) {
+      const task = document.getElementById('task' + ci + '_' + ii);
+      if (task) task.classList.toggle('checked', checked);
+      updateProgress();
+    }
+
+    function updateProgress() {
+      if (!_checklist?.categories) return;
+      let totalChecked = 0, totalItems = 0;
+      _checklist.categories.forEach((cat, ci) => {
+        let catChecked = 0;
+        cat.items.forEach((_, ii) => {
+          const chk = document.getElementById('chk' + ci + '_' + ii);
+          if (chk?.checked) catChecked++;
+        });
+        totalChecked += catChecked; totalItems += cat.items.length;
+        const prog = document.getElementById('catProg' + ci);
+        if (prog) { prog.textContent = catChecked + '/' + cat.items.length; prog.style.color = catChecked === cat.items.length ? '#059669' : '#8A8580'; }
+      });
+      const scoreEl = document.querySelector('.dd-score');
+      if (scoreEl) scoreEl.textContent = totalChecked + '/' + totalItems;
+    }
+
+    function exportChecklist() {
+      if (!_checklist?.categories) { alert('Generate a checklist first.'); return; }
+      let csv = 'Category,Task,Critical,Notes,Completed\n';
+      _checklist.categories.forEach((cat, ci) => {
+        cat.items.forEach((item, ii) => {
+          const chk = document.getElementById('chk' + ci + '_' + ii);
+          csv += '"' + cat.name + '","' + item.task.replace(/"/g,'""') + '",' + (item.critical ? 'Yes' : 'No') + ',"' + (item.notes||'').replace(/"/g,'""') + '",' + (chk?.checked ? 'Yes' : 'No') + '\n';
+        });
+      });
+      const a = document.createElement('a');
+      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+      a.download = 'due-diligence-checklist.csv'; a.click();
+    }
+
+    function printChecklist() { window.print(); }
+  </script>
 </body>
 </html>

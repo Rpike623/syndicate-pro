@@ -160,7 +160,16 @@
                     <div><strong>Wire Fraud Prevention:</strong> Capital call notices will include a disclaimer: "Always verify wire instructions by calling your sponsor directly before sending funds. Do not rely solely on email."</div>
                   </div>
                 </div>
-                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <!-- AI Draft -->
+                <div style="margin-top:16px;padding:12px;border:1px dashed var(--accent,#F37925);border-radius:8px;background:rgba(243,121,37,0.03);">
+                  <div style="font-size:0.78rem;color:var(--text-secondary,#6B6560);margin-bottom:8px;">
+                    <i class="fas fa-magic" style="color:var(--accent,#F37925);margin-right:4px;"></i> <strong>AI Draft:</strong> Add any notes and AI will write the notice copy
+                  </div>
+                  <textarea id="aiNoticeNotes" rows="2" placeholder="e.g. acquisition closing in 10 days, first tranche, property under contract..." style="width:100%;padding:8px;border:1px solid #E2DDD8;border-radius:6px;font-size:0.8rem;font-family:inherit;resize:vertical;margin-bottom:8px;"></textarea>
+                  <button class="btn btn-secondary btn-sm" onclick="aiDraftCapitalCall()" id="aiCapCallBtn" style="width:100%;"><i class="fas fa-magic"></i> AI Draft Notice</button>
+                  <div id="aiCapCallStatus" style="display:none;margin-top:6px;font-size:0.72rem;text-align:center;"></div>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 16px;">
                   <button class="btn btn-primary" onclick="generateNotice()" style="flex: 1;"><i class="fas fa-file-alt"></i> Generate Notice</button>
                   <button class="btn btn-success" onclick="exportPDF()"><i class="fas fa-download"></i> PDF</button>
                 </div>
@@ -509,6 +518,43 @@
 
     renderStats();
     renderHistory();
+
+    async function aiDraftCapitalCall() {
+      const btn = document.getElementById('aiCapCallBtn');
+      const status = document.getElementById('aiCapCallStatus');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Drafting...';
+      status.style.display = 'block'; status.style.color = '#6B6560'; status.textContent = 'AI is writing the notice...';
+      try {
+        if (typeof SPAI === 'undefined') throw new Error('AI module not loaded');
+        const dealEl = document.getElementById('dealSelect') || document.getElementById('ccDeal');
+        const amtEl = document.getElementById('callAmount') || document.getElementById('ccAmount');
+        const dateEl = document.getElementById('dueDate') || document.getElementById('ccDueDate');
+        const result = await SPAI.draftNotice({
+          noticeType: 'capital_call',
+          dealName: dealEl?.options?.[dealEl.selectedIndex]?.text || dealEl?.value || '',
+          amount: amtEl?.value || '',
+          dueDate: dateEl?.value || '',
+          notes: document.getElementById('aiNoticeNotes').value,
+        });
+        // Fill preview with AI-drafted content
+        const preview = document.getElementById('previewPanel') || document.getElementById('noticePreview');
+        if (preview && result) {
+          let html = '<div class="notice-preview">';
+          html += '<h2>' + (result.subject || 'Capital Call Notice') + '</h2>';
+          html += '<div class="section"><p>' + (result.greeting || '') + '</p></div>';
+          html += '<div class="section"><p>' + (result.body || '').replace(/\n/g, '<br>') + '</p></div>';
+          if (result.wireNote) html += '<div class="section" style="background:#FEF3C7;padding:12px;border-radius:6px;font-size:0.85rem;"><strong>Wire Instructions:</strong> ' + result.wireNote + '</div>';
+          html += '<div class="section"><p>' + (result.closing || '') + '</p></div>';
+          html += '</div>';
+          preview.innerHTML = html;
+        }
+        status.style.color = '#2D9A6B'; status.textContent = '✅ Draft generated! Review the preview.';
+      } catch (err) {
+        status.style.color = '#D94F3D'; status.textContent = '❌ ' + (err.message || 'Failed');
+      } finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-magic"></i> AI Draft Notice'; }
+    }
+    window.aiDraftCapitalCall = aiDraftCapitalCall;
   </script>
+  <script src="js/sp-ai.js?v1"></script>
 </body>
 </html>

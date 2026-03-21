@@ -89,6 +89,12 @@ jobs:
             aiDraftInvestorUpdate
             aiParseBrokerOM
             aiReviewDocument
+            aiDraftNotice
+            aiDueDiligenceChecklist
+            aiCompareDeal
+            aiCategorizeDocument
+            aiUnderwritingCheck
+            aiInvestorQA
           )
           for fn in "${CALLABLE_FUNCTIONS[@]}"; do
             echo "Setting allUsers invoker on $fn..."

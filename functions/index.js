@@ -584,6 +584,265 @@ Return ONLY the JSON, no explanation.`;
   }
 );
 
+// ── AI: Capital Call / Distribution Notice Drafter ──────────────────────────────
+exports.aiDraftNotice = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-notice', 10, 60 * 60 * 1000);
+
+    const { noticeType, dealName, amount, dueDate, notes, investors } = request.data;
+    if (!noticeType || !dealName) throw new HttpsError('invalid-argument', 'Missing required fields.');
+
+    const prompt = `You are writing a professional ${noticeType === 'capital_call' ? 'capital call notice' : 'distribution notice'} for a real estate syndication.
+
+Deal: ${dealName}
+Amount: ${amount || 'TBD'}
+${dueDate ? 'Due Date: ' + dueDate : ''}
+${investors ? 'Number of investors: ' + investors : ''}
+${notes ? 'Additional notes from GP: ' + notes : ''}
+
+Write a formal but warm investor notice. Return JSON:
+{
+  "subject": "Email subject line",
+  "greeting": "Opening paragraph",
+  "body": "Main body — explain the ${noticeType === 'capital_call' ? 'capital call amount, purpose, due date, wire instructions reference' : 'distribution amount, period, breakdown if applicable'}",
+  "closing": "Closing paragraph with contact info placeholder",
+  "wireNote": "${noticeType === 'capital_call' ? 'Wire instructions reminder (reference deal docs)' : ''}"
+}
+
+Return ONLY the JSON.`;
+
+    try {
+      const result = await _callGemini(prompt, 2048);
+      return JSON.parse(result);
+    } catch (err) {
+      console.error('[AI Notice] Failed:', err.message);
+      throw new HttpsError('internal', 'Notice drafting failed');
+    }
+  }
+);
+
+// ── AI: Due Diligence Checklist Generator ───────────────────────────────────────
+exports.aiDueDiligenceChecklist = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-dd', 5, 60 * 60 * 1000);
+
+    const { propertyType, dealSize, units, state, strategy } = request.data;
+
+    const prompt = `Generate a comprehensive due diligence checklist for acquiring a ${propertyType || 'multifamily'} property.
+
+Deal details:
+- Property type: ${propertyType || 'multifamily'}
+- Approximate size: ${dealSize ? '$' + dealSize : 'not specified'}
+- Units: ${units || 'not specified'}
+- State: ${state || 'Texas'}
+- Strategy: ${strategy || 'value-add'}
+
+Return JSON with categories, each containing checklist items:
+{
+  "categories": [
+    {
+      "name": "Category name",
+      "icon": "FontAwesome icon class (e.g. fa-building)",
+      "items": [
+        {"task": "Description", "critical": true/false, "notes": "Brief guidance"}
+      ]
+    }
+  ],
+  "estimatedDays": number,
+  "summary": "One sentence overview"
+}
+
+Include categories: Financial/Underwriting, Physical/Property Condition, Legal/Title, Environmental, Market/Comps, Tenant/Lease Audit, Insurance, Tax/Assessment, Zoning/Entitlements, Operations. 8-12 items per category. Flag critical items.
+
+Return ONLY the JSON.`;
+
+    try {
+      const result = await _callGemini(prompt, 8192);
+      return JSON.parse(result);
+    } catch (err) {
+      console.error('[AI DD] Failed:', err.message);
+      throw new HttpsError('internal', 'Checklist generation failed');
+    }
+  }
+);
+
+// ── AI: Deal Comparison ─────────────────────────────────────────────────────────
+exports.aiCompareDeal = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-compare', 5, 60 * 60 * 1000);
+
+    const { dealA, dealB } = request.data;
+    if (!dealA || !dealB) throw new HttpsError('invalid-argument', 'Need two deals to compare.');
+
+    const prompt = `Compare these two real estate investment opportunities for a syndicator evaluating which to pursue.
+
+DEAL A:
+${typeof dealA === 'string' ? dealA.substring(0, 10000) : JSON.stringify(dealA)}
+
+DEAL B:
+${typeof dealB === 'string' ? dealB.substring(0, 10000) : JSON.stringify(dealB)}
+
+Return JSON:
+{
+  "comparison": [
+    {"metric": "metric name", "dealA": "value", "dealB": "value", "advantage": "A" or "B" or "tie", "note": "brief analysis"}
+  ],
+  "scores": {"dealA": number 1-100, "dealB": number 1-100},
+  "recommendation": "2-3 sentence recommendation",
+  "risks": {"dealA": ["risk 1", "risk 2"], "dealB": ["risk 1", "risk 2"]},
+  "summary": "One paragraph executive summary"
+}
+
+Compare on: price/unit, cap rate, NOI, location/market, age/condition, upside potential, risk profile, exit strategy.
+Return ONLY the JSON.`;
+
+    try {
+      const result = await _callGemini(prompt, 4096);
+      return JSON.parse(result);
+    } catch (err) {
+      console.error('[AI Compare] Failed:', err.message);
+      throw new HttpsError('internal', 'Deal comparison failed');
+    }
+  }
+);
+
+// ── AI: Document Auto-Categorizer ───────────────────────────────────────────────
+exports.aiCategorizeDocument = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-categorize', 20, 60 * 60 * 1000);
+
+    const { fileName, textPreview } = request.data;
+    if (!fileName && !textPreview) throw new HttpsError('invalid-argument', 'Need file name or text preview.');
+
+    const prompt = `Categorize this real estate syndication document based on its filename and/or content preview.
+
+Filename: ${fileName || 'unknown'}
+Content preview (first 2000 chars): ${(textPreview || '').substring(0, 2000)}
+
+Return JSON:
+{
+  "category": one of: "operating-agreement" | "ppm" | "subscription" | "side-letter" | "k1" | "appraisal" | "environmental" | "title-report" | "insurance" | "inspection" | "lease" | "rent-roll" | "financial-statement" | "tax-return" | "bank-statement" | "wire-instructions" | "correspondence" | "amendment" | "investor-update" | "distribution-notice" | "capital-call-notice" | "closing-docs" | "other",
+  "confidence": number 0-1,
+  "suggestedName": "Clean display name for the document",
+  "tags": ["tag1", "tag2"],
+  "dealRelevance": "brief note on what deal stage this relates to"
+}
+
+Return ONLY the JSON.`;
+
+    try {
+      const result = await _callGemini(prompt, 1024);
+      return JSON.parse(result);
+    } catch (err) {
+      console.error('[AI Categorize] Failed:', err.message);
+      throw new HttpsError('internal', 'Categorization failed');
+    }
+  }
+);
+
+// ── AI: Underwriting Sanity Check ───────────────────────────────────────────────
+exports.aiUnderwritingCheck = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-underwrite', 5, 60 * 60 * 1000);
+
+    const { assumptions } = request.data;
+    if (!assumptions) throw new HttpsError('invalid-argument', 'Missing underwriting assumptions.');
+
+    const prompt = `You are a senior real estate underwriter reviewing proforma assumptions for a syndication deal. Flag anything that looks aggressive, conservative, or unusual.
+
+UNDERWRITING ASSUMPTIONS:
+${JSON.stringify(assumptions, null, 2)}
+
+Return JSON:
+{
+  "overall": "green" | "yellow" | "red",
+  "overallNote": "One sentence overall assessment",
+  "checks": [
+    {
+      "field": "field name",
+      "value": "the value being checked",
+      "status": "green" | "yellow" | "red",
+      "marketRange": "typical market range for this metric",
+      "note": "specific feedback"
+    }
+  ],
+  "suggestions": ["improvement suggestion 1", "suggestion 2"],
+  "risks": ["key risk 1", "key risk 2"]
+}
+
+Check: exit cap rate, going-in cap rate, rent growth %, expense ratio, vacancy, renovation cost/unit, hold period, pref return, promote structure, debt terms (LTV, rate, IO period), management fee. Compare against typical 2025-2026 market norms for the property type and location if provided.
+
+Return ONLY the JSON.`;
+
+    try {
+      const result = await _callGemini(prompt, 4096);
+      return JSON.parse(result);
+    } catch (err) {
+      console.error('[AI Underwrite] Failed:', err.message);
+      throw new HttpsError('internal', 'Underwriting check failed');
+    }
+  }
+);
+
+// ── AI: LP Portal Q&A (grounded in deal documents) ─────────────────────────────
+exports.aiInvestorQA = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-qa', 20, 60 * 60 * 1000);
+
+    const { question, dealContext, documentExcerpts } = request.data;
+    if (!question) throw new HttpsError('invalid-argument', 'Missing question.');
+
+    const prompt = `You are a helpful investor relations assistant for a real estate syndication platform. Answer the investor's question ONLY using the provided deal context and document excerpts. If the answer is not in the provided context, say "I don't have that information in your deal documents. Please contact your GP directly."
+
+DEAL CONTEXT:
+${JSON.stringify(dealContext || {}, null, 2)}
+
+DOCUMENT EXCERPTS:
+${(documentExcerpts || 'No documents provided').substring(0, 10000)}
+
+INVESTOR QUESTION:
+${question}
+
+Return JSON:
+{
+  "answer": "Clear, helpful answer grounded in the documents",
+  "source": "Which document or data point the answer came from",
+  "confidence": "high" | "medium" | "low",
+  "followUp": "Optional suggested follow-up question or action"
+}
+
+CRITICAL: Never make up financial figures, dates, or terms. Only state what is explicitly in the context. If unsure, direct them to the GP.
+
+Return ONLY the JSON.`;
+
+    try {
+      const result = await _callGemini(prompt, 2048);
+      return JSON.parse(result);
+    } catch (err) {
+      console.error('[AI QA] Failed:', err.message);
+      throw new HttpsError('internal', 'Q&A failed');
+    }
+  }
+);
+
 // ── Stripe Customer Portal ─────────────────────────────────────────────────────
 /**
  * createBillingPortalSession — callable function to open Stripe Customer Portal
