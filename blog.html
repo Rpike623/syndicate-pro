@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deeltrack Blog — Feature Deep Dives & Investor Management Insights</title>
+  <meta name="description" content="Deep dives into Deeltrack's investor management features — waterfall distributions, LP portal, AI tools, document generation, and more.">
+  <meta property="og:title" content="Deeltrack Blog — Feature Deep Dives">
+  <meta property="og:description" content="Explore how Deeltrack helps sponsors manage investors, distributions, documents, and compliance — with detailed feature walkthroughs.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://deeltrack.com/blog.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@deeltrack">
+  <script src="js/dt-analytics.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --accent: #F37925;
+      --accent-hover: #E8650A;
+      --bg: #FAFAF8;
+      --surface: #FFF;
+      --text: #1B1A19;
+      --text-secondary: #6B6560;
+      --border: #E8E4E0;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* ─── NAV ─── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 100%;
+    }
+    .nav-logo { font-weight: 800; font-size: 1.3rem; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo img { height: 28px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: .88rem; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links .btn-nav { background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 600; }
+    .nav-links .btn-nav:hover { background: var(--accent-hover); color: #fff; }
+
+    /* ─── HERO ─── */
+    .hero {
+      text-align: center; padding: 80px 40px 60px;
+      background: linear-gradient(180deg, #FFF8F3 0%, var(--bg) 100%);
+    }
+    .hero h1 { font-size: 2.4rem; font-weight: 800; line-height: 1.2; max-width: 700px; margin: 0 auto 16px; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+    /* ─── FILTERS ─── */
+    .filters {
+      display: flex; justify-content: center; gap: 8px; padding: 0 40px 40px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-secondary); font-size: .82rem;
+      font-weight: 600; cursor: pointer; transition: all .15s;
+    }
+    .filter-btn:hover, .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* ─── GRID ─── */
+    .posts-grid {
+      max-width: 1100px; margin: 0 auto; padding: 0 40px 80px;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;
+    }
+    .post-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; transition: all .2s; cursor: pointer; text-decoration: none; color: inherit;
+    }
+    .post-card:hover { border-color: var(--accent); box-shadow: 0 8px 32px rgba(0,0,0,.06); transform: translateY(-2px); }
+    .post-thumb {
+      height: 200px; background: linear-gradient(135deg, #FFF3EB, #FFE8D6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; color: var(--accent);
+    }
+    .post-body { padding: 20px 24px 24px; }
+    .post-tag { display: inline-block; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); background: rgba(243,121,37,.08); padding: 4px 10px; border-radius: 6px; margin-bottom: 10px; }
+    .post-title { font-size: 1.05rem; font-weight: 700; line-height: 1.4; margin-bottom: 8px; }
+    .post-excerpt { font-size: .85rem; color: var(--text-secondary); line-height: 1.6; }
+    .post-meta { margin-top: 12px; font-size: .75rem; color: #A09890; }
+
+    /* ─── CTA ─── */
+    .blog-cta {
+      text-align: center; padding: 60px 40px;
+      background: linear-gradient(135deg, #1B1A19, #2D2926);
+      color: #fff;
+    }
+    .blog-cta h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 12px; }
+    .blog-cta p { color: rgba(255,255,255,.7); margin-bottom: 24px; font-size: .95rem; }
+    .blog-cta .btn { background: var(--accent); color: #fff; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: .95rem; display: inline-block; }
+    .blog-cta .btn:hover { background: var(--accent-hover); }
+
+    /* ─── FOOTER ─── */
+    footer { text-align: center; padding: 32px 40px; color: var(--text-secondary); font-size: .8rem; }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; }
+      .hero { padding: 48px 20px 32px; }
+      .hero h1 { font-size: 1.6rem; }
+      .posts-grid { padding: 0 16px 60px; grid-template-columns: 1fr; }
+      .filters { padding: 0 16px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo"><img src="assets/favicon.svg" alt="">deeltrack</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#features">Features</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="blog.html" style="color:var(--accent);">Blog</a>
+      <a href="signup.html" class="btn-nav">Get Started</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <h1>Feature deep dives & investor management insights</h1>
+    <p>See exactly how Deeltrack works — with walkthroughs, screenshots, and the thinking behind every feature.</p>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterPosts('all')">All</button>
+    <button class="filter-btn" onclick="filterPosts('feature')">Feature Walkthroughs</button>
+    <button class="filter-btn" onclick="filterPosts('workflow')">Workflows</button>
+    <button class="filter-btn" onclick="filterPosts('ai')">AI Tools</button>
+    <button class="filter-btn" onclick="filterPosts('compliance')">Compliance</button>
+    <button class="filter-btn" onclick="filterPosts('insight')">Industry Insights</button>
+  </div>
+
+  <div class="posts-grid" id="postsGrid">
+
+    <a class="post-card" data-cat="feature" href="blog/waterfall-distributions.html">
+      <div class="post-thumb"><i class="fas fa-water"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Feature Walkthrough</span>
+        <div class="post-title">Waterfall Distributions: Automated Pref Tracking & One-Click Posting</div>
+        <div class="post-excerpt">How Deeltrack calculates preferred returns, GP catch-up, and residual splits — then lets you preview and post distributions with a single click.</div>
+        <div class="post-meta">10 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="feature" href="blog/lp-portal.html">
+      <div class="post-thumb"><i class="fas fa-user-shield"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Feature Walkthrough</span>
+        <div class="post-title">The LP Portal: Self-Service Investor Experience</div>
+        <div class="post-excerpt">Your investors can view capital accounts, download K-1s, track distributions, and access deal documents — without emailing you.</div>
+        <div class="post-meta">8 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="ai" href="blog/ai-underwriting.html">
+      <div class="post-thumb"><i class="fas fa-brain"></i></div>
+      <div class="post-body">
+        <span class="post-tag">AI Tools</span>
+        <div class="post-title">AI Underwriting Checks: Instant Red/Yellow/Green Flags on Any Proforma</div>
+        <div class="post-excerpt">Upload a proforma and get instant analysis — aggressive rent growth, DSCR concerns, cap rate assumptions, and debt coverage all flagged automatically.</div>
+        <div class="post-meta">7 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="feature" href="blog/deal-management.html">
+      <div class="post-thumb"><i class="fas fa-building"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Feature Walkthrough</span>
+        <div class="post-title">Deal Management: From LOI to Exit in One Dashboard</div>
+        <div class="post-excerpt">Track every deal through your pipeline — investors, commitments, documents, distributions, and capital accounts all linked from a single deal profile.</div>
+        <div class="post-meta">9 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="feature" href="blog/document-generation.html">
+      <div class="post-thumb"><i class="fas fa-file-contract"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Feature Walkthrough</span>
+        <div class="post-title">Document Generation: OAs, PPMs, and Sub Docs in 30 Seconds</div>
+        <div class="post-excerpt">Generate operating agreements from your deal terms. Parse broker OMs into structured data. Review documents against your deal with AI — all built in.</div>
+        <div class="post-meta">8 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="workflow" href="blog/capital-calls.html">
+      <div class="post-thumb"><i class="fas fa-hand-holding-usd"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Workflow</span>
+        <div class="post-title">Capital Calls: Draft, Preview, Send — With Wire Instructions Built In</div>
+        <div class="post-excerpt">Walk through the full capital call workflow — from drafting the notice to tracking who's wired, with automatic pro-rata calculations.</div>
+        <div class="post-meta">6 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="ai" href="blog/ai-deal-comparison.html">
+      <div class="post-thumb"><i class="fas fa-balance-scale"></i></div>
+      <div class="post-body">
+        <span class="post-tag">AI Tools</span>
+        <div class="post-title">AI Deal Comparison: Side-by-Side Analysis of Any Two Deals</div>
+        <div class="post-excerpt">Compare price per unit, cap rates, returns, risk profiles, and market positioning — with AI scoring which deal has the edge and why.</div>
+        <div class="post-meta">6 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="compliance" href="blog/k1-management.html">
+      <div class="post-thumb"><i class="fas fa-file-invoice-dollar"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Compliance</span>
+        <div class="post-title">K-1 Generation & Delivery: End the Tax Season Scramble</div>
+        <div class="post-excerpt">Generate K-1s from deal data, track delivery status per investor, and let LPs download directly from their portal. No more email attachments.</div>
+        <div class="post-meta">7 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="ai" href="blog/ai-investor-updates.html">
+      <div class="post-thumb"><i class="fas fa-robot"></i></div>
+      <div class="post-body">
+        <span class="post-tag">AI Tools</span>
+        <div class="post-title">AI-Drafted Investor Updates: From Bullet Points to Polished Quarterly Reports</div>
+        <div class="post-excerpt">Type 3 bullet points about your deal. Get a professional quarterly update draft in 30 seconds — with real numbers, honest tone, and no sugarcoating.</div>
+        <div class="post-meta">5 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="feature" href="blog/investor-crm.html">
+      <div class="post-thumb"><i class="fas fa-users"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Feature Walkthrough</span>
+        <div class="post-title">Investor CRM: Manage Your LP Relationships in One Place</div>
+        <div class="post-excerpt">Track accreditation status, commitments across deals, communication history, tax profiles, and banking details — with compliance alerts built in.</div>
+        <div class="post-meta">8 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="feature" href="blog/deal-room.html">
+      <div class="post-thumb"><i class="fas fa-folder-open"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Feature Walkthrough</span>
+        <div class="post-title">Deal Room: Secure Document Sharing With Your Investors</div>
+        <div class="post-excerpt">Upload documents, organize by category, and share with your LP base — with access controls and upload tracking per deal.</div>
+        <div class="post-meta">5 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="workflow" href="blog/pulse-dashboard.html">
+      <div class="post-thumb"><i class="fas fa-heartbeat"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Workflow</span>
+        <div class="post-title">Pulse: Your Portfolio Health Dashboard</div>
+        <div class="post-excerpt">A live health check across every deal, investor, distribution, and document — with critical alerts, warnings, and suggestions to keep your portfolio clean.</div>
+        <div class="post-meta">6 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="ai" href="blog/ai-due-diligence.html">
+      <div class="post-thumb"><i class="fas fa-clipboard-check"></i></div>
+      <div class="post-body">
+        <span class="post-tag">AI Tools</span>
+        <div class="post-title">AI Due Diligence Checklists: Auto-Generated for Any Deal Type</div>
+        <div class="post-excerpt">Enter a deal profile — get a comprehensive DD checklist across 10 categories with critical items flagged, estimated timeline, and priority order.</div>
+        <div class="post-meta">5 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="compliance" href="blog/accreditation-tracking.html">
+      <div class="post-thumb"><i class="fas fa-shield-alt"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Compliance</span>
+        <div class="post-title">Accreditation Tracking & Verification: Stay SEC Compliant</div>
+        <div class="post-excerpt">Track accreditation status, expiry dates, and verification methods per investor. Get alerts before credentials expire so you never fall out of compliance.</div>
+        <div class="post-meta">6 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="insight" href="blog/flat-pricing.html">
+      <div class="post-thumb"><i class="fas fa-tag"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Industry Insight</span>
+        <div class="post-title">Why We Charge Per Deal, Not Per Dollar: The Case Against AUM Pricing</div>
+        <div class="post-excerpt">A deep dive into why AUM-based pricing is misaligned — and why flat per-deal pricing makes more sense for sponsors at every stage.</div>
+        <div class="post-meta">7 min read · Coming Soon</div>
+      </div>
+    </a>
+
+    <a class="post-card" data-cat="insight" href="blog/built-by-cpa.html">
+      <div class="post-thumb"><i class="fas fa-calculator"></i></div>
+      <div class="post-body">
+        <span class="post-tag">Industry Insight</span>
+        <div class="post-title">Built by a CPA: Why That Matters for Your Syndication Software</div>
+        <div class="post-excerpt">Most platforms are built by developers who've never touched a K-1. We built Deeltrack from the CPA's chair — where the real problems live.</div>
+        <div class="post-meta">6 min read · Coming Soon</div>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="blog-cta">
+    <h2>Ready to see it in action?</h2>
+    <p>$49/deal/month. All features included. No AUM fees. No setup fees. No surprises.</p>
+    <a href="signup.html" class="btn">Get Started Free →</a>
+  </div>
+
+  <footer>
+    <p>© 2026 Deeltrack. <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="https://x.com/deeltrack">@deeltrack</a></p>
+  </footer>
+
+  <script>
+    function filterPosts(cat) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      document.querySelectorAll('.post-card').forEach(card => {
+        if (cat === 'all' || card.dataset.cat === cat) {
+          card.style.display = '';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>
