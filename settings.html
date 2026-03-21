@@ -4,7 +4,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Deeltrack | Settings</title>
+  <title>deeltrack | Settings</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -256,8 +256,8 @@
                 <input type="text" id="brandTagline" placeholder="Investing in the future of real estate">
               </div>
               <div class="form-group" style="display:flex;align-items:center;gap:8px;">
-                <input type="checkbox" id="brandHideDeeltrack">
-                <label for="brandHideDeeltrack" style="margin:0;">Hide deeltrack branding on LP portal</label>
+                <input type="checkbox" id="brandHidedeeltrack">
+                <label for="brandHidedeeltrack" style="margin:0;">Hide deeltrack branding on LP portal</label>
               </div>
             </div>
 
@@ -547,8 +547,8 @@ function loadSettings() {
   set('brandAccentColor', s.brandAccentColor || '#F37925');
   set('brandFavicon', s.brandFavicon || '');
   set('brandTagline', s.brandTagline || '');
-  const hideCheck = document.getElementById('brandHideDeeltrack');
-  if (hideCheck) hideCheck.checked = s.brandHideDeeltrack || false;
+  const hideCheck = document.getElementById('brandHidedeeltrack');
+  if (hideCheck) hideCheck.checked = s.brandHidedeeltrack || false;
   set('wireBankName', s.wireBankName || '');
   set('wireAcctName', s.wireAcctName || '');
   set('wireAcctNum', s.wireAcctNum || '');
@@ -598,7 +598,7 @@ function saveAll() {
     brandAccentColor: v('brandAccentColor'),
     brandFavicon: v('brandFavicon'),
     brandTagline: v('brandTagline'),
-    brandHideDeeltrack: document.getElementById('brandHideDeeltrack')?.checked || false,
+    brandHidedeeltrack: document.getElementById('brandHidedeeltrack')?.checked || false,
     wireBankName: v('wireBankName'),
     wireAcctName: v('wireAcctName'),
     wireAcctNum: v('wireAcctNum'),

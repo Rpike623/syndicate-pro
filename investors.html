@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Kill any service worker immediately before anything else loads -->
   <script>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if(window.caches)caches.keys().then(k=>k.forEach(c=>caches.delete(c)));}</script>
-  <title>Deeltrack | Investors</title>
+  <title>deeltrack | Investors</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -428,7 +428,7 @@
       <button class="btn btn-secondary" onclick="closeInviteModal()">Skip for Now</button>
       <button class="btn btn-secondary" onclick="copyEmailText()" style="gap:6px;"><i class="fas fa-copy"></i> Copy Email</button>
       <button class="btn btn-secondary" onclick="sendInviteEmail()" style="gap:6px;"><i class="fas fa-envelope-open"></i> Open in Email Client</button>
-      <button class="btn btn-primary" onclick="sendInviteViaDeeltrack()" style="gap:6px;background:linear-gradient(135deg,#6366f1,#818cf8);"><i class="fas fa-paper-plane"></i> Send via deeltrack</button>
+      <button class="btn btn-primary" onclick="sendInviteViadeeltrack()" style="gap:6px;background:linear-gradient(135deg,#6366f1,#818cf8);"><i class="fas fa-paper-plane"></i> Send via deeltrack</button>
     </div>
   </div>
 </div>
@@ -1190,7 +1190,7 @@ async function sendInviteEmail() {
   closeInviteModal();
 }
 
-async function sendInviteViaDeeltrack() {
+async function sendInviteViadeeltrack() {
   const btn = document.querySelector('#inviteOverlay .btn-primary');
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…'; }
 
@@ -1203,7 +1203,7 @@ async function sendInviteViaDeeltrack() {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Kill any service worker immediately before anything else loads -->
   <scr'+'ipt>if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister()));if(window.caches)caches.keys().then(k=>k.forEach(c=>caches.delete(c)));}</scr'+'ipt>
-  <ti` + `tle>You're invited to Deeltrack</ti` + `tle>
+  <ti` + `tle>You're invited to deeltrack</ti` + `tle>
   <link rel="stylesheet" href="contrast-fix.css">
 </head>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
