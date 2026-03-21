@@ -114,7 +114,7 @@
 
     <p>The tricky part isn't understanding the tiers — it's calculating them correctly when you have:</p>
     <ul>
-      <li>Multiple investors with different commitment dates (pref clock starts at each capital call)</li>
+      <li>Multiple investors with different join dates (pref clock starts when each investor is linked to the deal)</li>
       <li>Accrued but unpaid preferred returns from prior periods</li>
       <li>Different ownership percentages per investor</li>
       <li>A mix of periodic distributions and special distributions</li>
@@ -130,14 +130,14 @@
 
     <div class="callout">
       <strong>Why pref history matters:</strong>
-      <p>If Investor A committed $500K on January 1 and Investor B committed $300K on March 15, their preferred return accrual is different even at the same pref rate. deeltrack tracks this per-investor, per-period, automatically.</p>
+      <p>If Investor A joined the deal on January 1 and Investor B joined on March 15, their preferred return accrual is different even at the same pref rate. deeltrack tracks this per-investor, from their linked date, automatically.</p>
     </div>
 
     <h3>Step 2: Review the Per-Investor Breakdown</h3>
 
     <p>Before any money moves, deeltrack generates a complete pro-forma distribution ledger showing:</p>
     <ul>
-      <li><strong>Each investor's preferred return owed</strong> — calculated from their capital call date, not the deal close date</li>
+      <li><strong>Each investor's preferred return owed</strong> — calculated from when they were linked to the deal, not a fixed start date</li>
       <li><strong>Pref satisfied vs. remaining</strong> — how much of the pref has been paid in prior distributions</li>
       <li><strong>Excess allocation</strong> — their share of profits above the pref hurdle</li>
       <li><strong>Total payout</strong> — the exact dollar amount each investor receives</li>

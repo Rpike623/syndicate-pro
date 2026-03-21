@@ -76,7 +76,7 @@
     <p>When a developer builds investor management software, they think about data models, user interfaces, and system architecture. Good stuff. Necessary stuff. But they don't know about:</p>
 
     <ul>
-      <li><strong>The pref accrual edge case</strong> where an investor's capital call date is mid-period, and their preferred return should only accrue from the call date, not from the period start</li>
+      <li><strong>The pref accrual edge case</strong> where an investor joins the deal mid-period, and their preferred return should only accrue from when they were linked, not from the deal start date</li>
       <li><strong>The K-1 delivery compliance requirement</strong> (IRS Notice 2004-10) that requires written LP consent for electronic delivery — not just "we emailed it"</li>
       <li><strong>The common LP question</strong> about why their distribution seems low, when the answer is that their pref was partially satisfied in a prior period and they're now in the excess split tier</li>
       <li><strong>The operating agreement clause</strong> that treats refinance proceeds differently from operating cash flow in the waterfall, and how that affects the GP promote calculation</li>
@@ -99,7 +99,7 @@
     <h2>Where the CPA Background Shows Up</h2>
 
     <h3>Waterfall Math</h3>
-    <p>deeltrack's waterfall engine handles time-weighted pref accruals, multi-tier promote structures, and catch-up provisions. It knows that pref accrues from the capital call date, not the deal close date. It tracks cumulative pref satisfaction across distributions. This isn't math a developer would get right on the first pass — it's math that took years of K-1 prep to understand.</p>
+    <p>deeltrack's waterfall engine handles time-weighted pref accruals, multi-tier promote structures, and catch-up provisions. It knows that pref accrues from each investor's linked date, not a fixed deal start. It tracks cumulative pref satisfaction across distributions. This isn't math a developer would get right on the first pass — it's math that took years of K-1 prep to understand.</p>
 
     <h3>Capital Account Tracking</h3>
     <p>Every investor's capital account shows contributions, distributions, unreturned capital, and pref accrual history. This is the same data structure a CPA would maintain in their workpapers — because it was designed by one.</p>
