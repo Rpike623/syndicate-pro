@@ -405,15 +405,21 @@ ${truncatedText}`;
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: { temperature: 0.1, maxOutputTokens: 4096 },
+          safetySettings: [
+            { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+          ],
         }),
       });
 
       const body = await res.json();
       const responseText = body.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-      // Parse JSON from response (handle markdown fences if present)
-      const jsonMatch = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const variables = JSON.parse(jsonMatch);
+      // Parse JSON from response using resilient parser
+      const cleaned = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const variables = _parseGeminiJSON(cleaned, 'DocParse');
 
       if (!Array.isArray(variables)) {
         throw new Error('Expected JSON array from AI');
@@ -444,13 +450,67 @@ async function _callGemini(prompt, maxTokens = 4096) {
     body: JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: { temperature: 0.3, maxOutputTokens: maxTokens },
+      safetySettings: [
+        { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
+        { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
+      ],
     }),
   });
 
   const body = await res.json();
-  const text = body.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+  // Check for blocked/empty responses
+  const candidate = body.candidates?.[0];
+  if (!candidate || candidate.finishReason === 'SAFETY') {
+    const blockReason = body.promptFeedback?.blockReason || candidate?.finishReason || 'unknown';
+    console.error('[Gemini] Response blocked:', blockReason, JSON.stringify(body).substring(0, 500));
+    throw new Error(`Gemini response blocked: ${blockReason}`);
+  }
+
+  const text = candidate.content?.parts?.[0]?.text || '';
+  if (!text) {
+    console.error('[Gemini] Empty response:', JSON.stringify(body).substring(0, 500));
+    throw new Error('Gemini returned empty response');
+  }
+
   // Strip markdown fences if present
-  return text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  let cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+  // If the response starts with non-JSON (thinking text), try to extract the JSON object/array
+  if (cleaned && !cleaned.startsWith('{') && !cleaned.startsWith('[')) {
+    const jsonStart = cleaned.indexOf('{');
+    const arrStart = cleaned.indexOf('[');
+    const start = jsonStart === -1 ? arrStart : (arrStart === -1 ? jsonStart : Math.min(jsonStart, arrStart));
+    if (start > 0) {
+      cleaned = cleaned.substring(start);
+    }
+  }
+
+  return cleaned;
+}
+
+/**
+ * Parse JSON from Gemini response with fallback extraction.
+ * Handles cases where Gemini wraps JSON in thinking text or markdown.
+ */
+function _parseGeminiJSON(text, label = 'Gemini') {
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error(`[${label}] JSON parse failed. Raw (first 500 chars):`, text.substring(0, 500));
+    // Try extracting the outermost JSON object or array
+    const objMatch = text.match(/\{[\s\S]*\}/);
+    const arrMatch = text.match(/\[[\s\S]*\]/);
+    if (objMatch) {
+      try { return JSON.parse(objMatch[0]); } catch {}
+    }
+    if (arrMatch) {
+      try { return JSON.parse(arrMatch[0]); } catch {}
+    }
+    throw new Error(`Failed to parse AI response as JSON: ${text.substring(0, 200)}`);
+  }
 }
 
 // ── AI: Draft Investor Update ───────────────────────────────────────────────────
@@ -464,34 +524,38 @@ exports.aiDraftInvestorUpdate = onCall(
     const { dealName, period, updateType, bullets, metrics } = request.data;
     if (!bullets || bullets.length < 10) throw new HttpsError('invalid-argument', 'Please provide some notes or bullet points.');
 
-    const metricsText = metrics ? `\nAvailable metrics: ${JSON.stringify(metrics)}` : '';
-    const prompt = `You are writing a professional quarterly investor update for a real estate syndication. The tone should be confident, transparent, and data-driven — like a GP who respects their investors' intelligence.
+    const metricsText = metrics ? `\nForm metrics (may be placeholder defaults — the GP's notes below are MORE AUTHORITATIVE): ${JSON.stringify(metrics)}` : '';
+    const prompt = `You are writing a professional quarterly investor update for a real estate syndication.
+
+CRITICAL: The GP's rough notes below are the PRIMARY source of truth. They reflect what actually happened. Any form metrics provided may be stale placeholder defaults — if the notes contradict the metrics, ALWAYS use the numbers and tone from the notes.
+
+Tone: Professional but honest. If the GP says things are tough, reflect that transparently (investors respect honesty). Don't sugarcoat bad news into good news. A GP who says "occupancy is 74%" should NOT get a letter claiming "strong performance." Frame challenges constructively but never fabricate optimism.
 
 Property: ${dealName || 'the property'}
 Period: ${period || 'this quarter'}
 Update type: ${updateType || 'quarterly'}
 ${metricsText}
 
-The GP provided these rough notes:
+THE GP'S ACTUAL NOTES (this is what really happened — base your draft on THIS):
 ${bullets}
 
 Write the following sections as polished prose (2-4 sentences each). Return JSON:
 {
-  "greeting": "Opening paragraph — warm but professional, reference the period and property",
-  "operations": "Operational highlights — what happened this quarter, key wins",
-  "capex": "Renovation/CapEx update — progress, what was completed, what's next",
-  "outlook": "Forward-looking outlook — what to expect next quarter, any risks or opportunities",
-  "distributionNote": "One sentence about the distribution if applicable"
+  "greeting": "Opening paragraph — reference the period and property, set the right tone based on the GP's notes",
+  "operations": "Operational highlights — what happened this quarter, based on the GP's notes",
+  "capex": "Renovation/CapEx update — progress, completions, upcoming work (skip if notes don't mention capex)",
+  "outlook": "Forward-looking outlook — honest about challenges, concrete about next steps",
+  "distributionNote": "One sentence about distributions if the notes mention them, otherwise null"
 }
 
 Return ONLY the JSON, no explanation.`;
 
     try {
       const result = await _callGemini(prompt, 2048);
-      return JSON.parse(result);
+      return _parseGeminiJSON(result, 'AI Draft');
     } catch (err) {
       console.error('[AI Draft] Failed:', err.message);
-      throw new HttpsError('internal', 'AI drafting failed');
+      throw new HttpsError('internal', 'AI drafting failed: ' + err.message);
     }
   }
 );
@@ -537,10 +601,10 @@ ${text.substring(0, 20000)}`;
 
     try {
       const result = await _callGemini(prompt, 2048);
-      return { deal: JSON.parse(result) };
+      return { deal: _parseGeminiJSON(result, 'AI OM') };
     } catch (err) {
       console.error('[AI OM] Failed:', err.message);
-      throw new HttpsError('internal', 'OM parsing failed');
+      throw new HttpsError('internal', 'OM parsing failed: ' + err.message);
     }
   }
 );
@@ -575,11 +639,11 @@ Return JSON:
 Return ONLY the JSON, no explanation.`;
 
     try {
-      const result = await _callGemini(prompt, 4096);
-      return JSON.parse(result);
+      const result = await _callGemini(prompt, 8192);
+      return _parseGeminiJSON(result, 'AI Review');
     } catch (err) {
       console.error('[AI Review] Failed:', err.message);
-      throw new HttpsError('internal', 'Document review failed');
+      throw new HttpsError('internal', 'Document review failed: ' + err.message);
     }
   }
 );
@@ -616,10 +680,10 @@ Return ONLY the JSON.`;
 
     try {
       const result = await _callGemini(prompt, 2048);
-      return JSON.parse(result);
+      return _parseGeminiJSON(result, 'AI Notice');
     } catch (err) {
       console.error('[AI Notice] Failed:', err.message);
-      throw new HttpsError('internal', 'Notice drafting failed');
+      throw new HttpsError('internal', 'Notice drafting failed: ' + err.message);
     }
   }
 );
@@ -658,16 +722,16 @@ Return JSON with categories, each containing checklist items:
   "summary": "One sentence overview"
 }
 
-Include categories: Financial/Underwriting, Physical/Property Condition, Legal/Title, Environmental, Market/Comps, Tenant/Lease Audit, Insurance, Tax/Assessment, Zoning/Entitlements, Operations. 8-12 items per category. Flag critical items.
+Include categories: Financial/Underwriting, Physical/Property Condition, Legal/Title, Environmental, Market/Comps, Tenant/Lease Audit, Insurance, Tax/Assessment, Zoning/Entitlements, Operations. 5-8 items per category. Flag critical items. Keep notes very brief (under 15 words each).
 
-Return ONLY the JSON.`;
+Return ONLY the JSON. Be concise — no verbose explanations in notes.`;
 
     try {
-      const result = await _callGemini(prompt, 8192);
-      return JSON.parse(result);
+      const result = await _callGemini(prompt, 16384);
+      return _parseGeminiJSON(result, 'AI DD');
     } catch (err) {
       console.error('[AI DD] Failed:', err.message);
-      throw new HttpsError('internal', 'Checklist generation failed');
+      throw new HttpsError('internal', 'Checklist generation failed: ' + err.message);
     }
   }
 );
@@ -706,11 +770,11 @@ Compare on: price/unit, cap rate, NOI, location/market, age/condition, upside po
 Return ONLY the JSON.`;
 
     try {
-      const result = await _callGemini(prompt, 4096);
-      return JSON.parse(result);
+      const result = await _callGemini(prompt, 8192);
+      return _parseGeminiJSON(result, 'AI Compare');
     } catch (err) {
       console.error('[AI Compare] Failed:', err.message);
-      throw new HttpsError('internal', 'Deal comparison failed');
+      throw new HttpsError('internal', 'Deal comparison failed: ' + err.message);
     }
   }
 );
@@ -744,10 +808,10 @@ Return ONLY the JSON.`;
 
     try {
       const result = await _callGemini(prompt, 1024);
-      return JSON.parse(result);
+      return _parseGeminiJSON(result, 'AI Categorize');
     } catch (err) {
       console.error('[AI Categorize] Failed:', err.message);
-      throw new HttpsError('internal', 'Categorization failed');
+      throw new HttpsError('internal', 'Categorization failed: ' + err.message);
     }
   }
 );
@@ -790,11 +854,11 @@ Check: exit cap rate, going-in cap rate, rent growth %, expense ratio, vacancy, 
 Return ONLY the JSON.`;
 
     try {
-      const result = await _callGemini(prompt, 4096);
-      return JSON.parse(result);
+      const result = await _callGemini(prompt, 8192);
+      return _parseGeminiJSON(result, 'AI Underwrite');
     } catch (err) {
       console.error('[AI Underwrite] Failed:', err.message);
-      throw new HttpsError('internal', 'Underwriting check failed');
+      throw new HttpsError('internal', 'Underwriting check failed: ' + err.message);
     }
   }
 );
@@ -835,10 +899,10 @@ Return ONLY the JSON.`;
 
     try {
       const result = await _callGemini(prompt, 2048);
-      return JSON.parse(result);
+      return _parseGeminiJSON(result, 'AI QA');
     } catch (err) {
       console.error('[AI QA] Failed:', err.message);
-      throw new HttpsError('internal', 'Q&A failed');
+      throw new HttpsError('internal', 'Q&A failed: ' + err.message);
     }
   }
 );
