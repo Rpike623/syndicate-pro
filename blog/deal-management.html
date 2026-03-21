@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deal Management: From LOI to Exit in One Dashboard | deeltrack Blog</title>
+  <meta name="description" content="Track every deal through your pipeline — investors, commitments, documents, distributions, and capital accounts all linked from a single deal profile.">
+  <meta property="og:title" content="Deal Management: From LOI to Exit in One Dashboard">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@deeltrack">
+  <script src="../js/dt-analytics.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --accent: #F37925; --accent-hover: #E8650A; --bg: #FAFAF8; --surface: #FFF; --text: #1B1A19; --text-secondary: #6B6560; --border: #E8E4E0; --radius: 12px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-weight: 800; font-size: 1.3rem; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo img { height: 28px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: .88rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links .btn-nav { background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 600; }
+    .article { max-width: 740px; margin: 0 auto; padding: 60px 24px 80px; }
+    .breadcrumb { font-size: .82rem; color: var(--text-secondary); margin-bottom: 24px; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .tag { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); background: rgba(243,121,37,.08); padding: 4px 12px; border-radius: 6px; margin-bottom: 16px; }
+    .article h1 { font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; }
+    .meta { font-size: .85rem; color: var(--text-secondary); margin-bottom: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+    .hero-img { width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px; }
+    .caption { text-align: center; font-size: .78rem; color: var(--text-secondary); margin-top: -32px; margin-bottom: 40px; }
+    .article h2 { font-size: 1.3rem; font-weight: 700; margin: 40px 0 16px; }
+    .article h3 { font-size: 1.05rem; font-weight: 700; margin: 28px 0 12px; }
+    .article p { font-size: .95rem; line-height: 1.75; color: #333; margin-bottom: 16px; }
+    .article ul, .article ol { margin: 0 0 16px 24px; }
+    .article li { font-size: .95rem; line-height: 1.75; margin-bottom: 6px; }
+    .article img { max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin: 24px 0; }
+    .article img + em { display: block; text-align: center; font-size: .78rem; color: var(--text-secondary); margin-top: -16px; margin-bottom: 24px; font-style: normal; }
+    .callout { background: #FFF8F3; border: 1px solid #F3D5BC; border-radius: var(--radius); padding: 20px 24px; margin: 24px 0; }
+    .callout strong { color: var(--accent); }
+    .callout p { margin-bottom: 0; }
+    .status-flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0 24px; }
+    .status-pill { padding: 6px 14px; border-radius: 999px; font-size: .78rem; font-weight: 700; }
+    .status-arrow { color: var(--text-secondary); font-size: .7rem; }
+    .cta-box { background: linear-gradient(135deg, #1B1A19, #2D2926); color: #fff; border-radius: var(--radius); padding: 40px; text-align: center; margin: 48px 0; }
+    .cta-box h3 { color: #fff; font-size: 1.3rem; margin-bottom: 8px; }
+    .cta-box p { color: rgba(255,255,255,.7); margin-bottom: 20px; }
+    .cta-box .btn { background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: .92rem; display: inline-block; }
+    footer { text-align: center; padding: 32px 40px; color: var(--text-secondary); font-size: .8rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+    @media (max-width: 768px) { nav { padding: 0 16px; } .article { padding: 32px 16px 60px; } .article h1 { font-size: 1.5rem; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo"><img src="../assets/favicon.svg" alt="">deeltrack</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="../blog.html" style="color:var(--accent);">Blog</a>
+      <a href="../signup.html" class="btn-nav">Get Started</a>
+    </div>
+  </nav>
+
+  <article class="article">
+    <div class="breadcrumb"><a href="../blog.html">Blog</a> → Feature Walkthrough</div>
+    <span class="tag">Feature Walkthrough</span>
+    <h1>Deal Management: From LOI to Exit in One Dashboard</h1>
+    <div class="meta">
+      <span>9 min read</span>
+      <span class="dot"></span>
+      <span>March 2026</span>
+      <span class="dot"></span>
+      <span>Feature Walkthrough</span>
+    </div>
+
+    <img src="images/deals.png" class="hero-img" alt="deeltrack deals page showing portfolio of properties with status, raise progress, and IRR">
+    <div class="caption">Your entire portfolio at a glance — status, raise progress, investors, and projected returns.</div>
+
+    <p>A syndication deal is a living thing. It starts as an LOI, moves through due diligence, enters fundraising, closes, operates for years, and eventually exits. At every stage, there's data to track: investors, commitments, documents, distributions, capital accounts, compliance requirements.</p>
+
+    <p>Most sponsors track this across a constellation of tools — a CRM here, spreadsheets there, a shared Drive folder, a separate investor portal. deeltrack consolidates all of it into a single deal profile.</p>
+
+    <h2>The Deal Lifecycle</h2>
+
+    <p>Every deal in deeltrack follows a natural progression through status stages:</p>
+
+    <div class="status-flow">
+      <span class="status-pill" style="background:#E8F4FD;color:#1E6B9E;">LOI</span>
+      <span class="status-arrow">→</span>
+      <span class="status-pill" style="background:#FFF3E0;color:#E8890A;">Due Diligence</span>
+      <span class="status-arrow">→</span>
+      <span class="status-pill" style="background:#F3E8FF;color:#7C3AED;">Raising</span>
+      <span class="status-arrow">→</span>
+      <span class="status-pill" style="background:#E8F5E9;color:#2D7A3A;">Closed</span>
+      <span class="status-arrow">→</span>
+      <span class="status-pill" style="background:#E8F5E9;color:#2D7A3A;">Operating</span>
+      <span class="status-arrow">→</span>
+      <span class="status-pill" style="background:#F5F5F5;color:#666;">Exited</span>
+    </div>
+
+    <p>You can move deals between stages at any time. Each status change is visible on the deals dashboard, and Pulse will flag deals that seem stuck (like an LOI sitting for 90+ days).</p>
+
+    <h2>The Deal Profile</h2>
+
+    <p>Click into any deal and you see everything about it in one place:</p>
+
+    <img src="images/deal-detail.png" alt="Deal detail page showing property info, investor table, financials, and action buttons">
+    <em>Deal detail for a multifamily property — investors, commitments, financials, and actions all in one view.</em>
+
+    <h3>Property Details</h3>
+    <ul>
+      <li>Property name, location, and type (multifamily, industrial, retail, etc.)</li>
+      <li>Total equity/raise target and current committed amount</li>
+      <li>Projected IRR and equity multiple</li>
+      <li>Preferred return rate and GP promote structure</li>
+      <li>Entity name and deal status</li>
+    </ul>
+
+    <h3>Investor Table</h3>
+    <p>Every investor linked to the deal, with their commitment amount, ownership percentage, and status. You can add or remove investors directly from the deal profile — no need to navigate elsewhere.</p>
+
+    <h3>Financial Summary</h3>
+    <ul>
+      <li>Total raised vs. target (with progress bar)</li>
+      <li>Total distributions posted</li>
+      <li>Capital account balances per investor</li>
+      <li>Pref return accrual status</li>
+    </ul>
+
+    <h3>Quick Actions</h3>
+    <p>From the deal detail page, you can:</p>
+    <ul>
+      <li>Generate an Operating Agreement from the deal terms</li>
+      <li>Calculate and post a distribution</li>
+      <li>Issue a capital call</li>
+      <li>Upload documents to the deal room</li>
+      <li>Send an investor update</li>
+      <li>Run AI analysis (underwriting check, deal comparison, DD checklist)</li>
+    </ul>
+
+    <p>Everything is one click away from the deal profile — no hunting through menus or separate modules.</p>
+
+    <h2>The Deals Dashboard</h2>
+
+    <p>The main deals page shows your entire portfolio in a table view:</p>
+
+    <ul>
+      <li><strong>Deal name and location</strong></li>
+      <li><strong>Property type</strong> — filterable</li>
+      <li><strong>Raise progress</strong> — amount raised, percentage, and LP count</li>
+      <li><strong>Projected IRR</strong></li>
+      <li><strong>Status</strong> — color-coded pipeline stage</li>
+    </ul>
+
+    <p>You can search, filter by type or status, and the filters sync to the URL — so you can bookmark a filtered view or share it with a colleague.</p>
+
+    <div class="callout">
+      <strong>Portfolio mix at a glance:</strong>
+      <p>The dashboard also shows your portfolio composition — how many deals by property type, total AUM, and aggregate investor count. This is the view you pull up when an LP asks "What does your portfolio look like?"</p>
+    </div>
+
+    <h2>Creating a New Deal</h2>
+
+    <p>The new deal wizard walks you through entering the essential information:</p>
+
+    <ol>
+      <li><strong>Property details</strong> — name, location, type, units/sq ft</li>
+      <li><strong>Financial terms</strong> — equity target, pref rate, promote structure, projected IRR</li>
+      <li><strong>Entity information</strong> — LLC name, formation state</li>
+      <li><strong>Investors</strong> — link existing investors with commitment amounts</li>
+    </ol>
+
+    <p>You don't need to fill in everything upfront. Start with the basics at the LOI stage and add details as the deal progresses. deeltrack doesn't force you into a rigid workflow — it adapts to how deals actually move.</p>
+
+    <h2>Deal Import</h2>
+
+    <p>Already have deals in spreadsheets? The deal import tool lets you upload a CSV and map columns to deeltrack fields. This is particularly useful when migrating from another platform — you don't have to re-enter everything manually.</p>
+
+    <h2>Pipeline View</h2>
+
+    <p>For sponsors actively sourcing deals, the pipeline view shows your acquisition pipeline as a Kanban board — deals organized by stage with deal scoring to help prioritize.</p>
+
+    <p>The pipeline is separate from your active portfolio. Think of it as your sourcing CRM: track leads, score opportunities, and move winners into your deal portfolio when they close.</p>
+
+    <h2>What Connects to What</h2>
+
+    <p>The power of deal management in deeltrack isn't any single feature — it's how everything connects:</p>
+
+    <ul>
+      <li>Link an investor to a deal → they appear in the deal's investor table AND in the investor CRM's deal history</li>
+      <li>Post a distribution for a deal → it updates every linked investor's capital account automatically</li>
+      <li>Upload a document to the deal room → it's visible to LPs in their portal</li>
+      <li>Generate a K-1 for a deal → it's automatically sortable and downloadable by the right investors</li>
+    </ul>
+
+    <p>No manual syncing. No copying data between tools. Change it in one place, it's updated everywhere.</p>
+
+    <div class="cta-box">
+      <h3>One deal. One profile. Everything connected.</h3>
+      <p>$49/deal/month. All features included. No AUM fees.</p>
+      <a href="../signup.html" class="btn">Get Started Free →</a>
+    </div>
+  </article>
+
+  <footer>
+    <p>© 2026 deeltrack. <a href="../terms.html">Terms</a> · <a href="../privacy.html">Privacy</a> · <a href="https://x.com/deeltrack">@deeltrack</a></p>
+  </footer>
+
+</body>
+</html>

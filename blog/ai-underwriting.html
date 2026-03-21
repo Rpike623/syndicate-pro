@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Underwriting Checks: Instant Red/Yellow/Green Flags on Any Proforma | deeltrack Blog</title>
+  <meta name="description" content="Upload a proforma and get instant analysis — aggressive rent growth, DSCR concerns, cap rate assumptions, and debt coverage all flagged automatically.">
+  <meta property="og:title" content="AI Underwriting Checks: Instant Red/Yellow/Green Flags">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@deeltrack">
+  <script src="../js/dt-analytics.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --accent: #F37925; --accent-hover: #E8650A; --bg: #FAFAF8; --surface: #FFF; --text: #1B1A19; --text-secondary: #6B6560; --border: #E8E4E0; --radius: 12px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-weight: 800; font-size: 1.3rem; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo img { height: 28px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: .88rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links .btn-nav { background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 600; }
+    .article { max-width: 740px; margin: 0 auto; padding: 60px 24px 80px; }
+    .breadcrumb { font-size: .82rem; color: var(--text-secondary); margin-bottom: 24px; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .tag { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); background: rgba(243,121,37,.08); padding: 4px 12px; border-radius: 6px; margin-bottom: 16px; }
+    .article h1 { font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; }
+    .meta { font-size: .85rem; color: var(--text-secondary); margin-bottom: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+    .article h2 { font-size: 1.3rem; font-weight: 700; margin: 40px 0 16px; }
+    .article h3 { font-size: 1.05rem; font-weight: 700; margin: 28px 0 12px; }
+    .article p { font-size: .95rem; line-height: 1.75; color: #333; margin-bottom: 16px; }
+    .article ul, .article ol { margin: 0 0 16px 24px; }
+    .article li { font-size: .95rem; line-height: 1.75; margin-bottom: 6px; }
+    .article img { max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin: 24px 0; }
+    .callout { background: #FFF8F3; border: 1px solid #F3D5BC; border-radius: var(--radius); padding: 20px 24px; margin: 24px 0; }
+    .callout strong { color: var(--accent); }
+    .callout p { margin-bottom: 0; }
+    .flag-card { display: flex; gap: 14px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; align-items: flex-start; }
+    .flag-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .flag-red { background: #D94F3D; }
+    .flag-yellow { background: #E8890A; }
+    .flag-green { background: #2D9A6B; }
+    .flag-body strong { display: block; font-size: .9rem; margin-bottom: 2px; }
+    .flag-body span { font-size: .82rem; color: var(--text-secondary); line-height: 1.5; }
+    .ai-suite { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin: 24px 0; }
+    .ai-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+    .ai-card i { font-size: 1.3rem; color: var(--accent); margin-bottom: 8px; display: block; }
+    .ai-card strong { display: block; font-size: .82rem; margin-bottom: 2px; }
+    .ai-card span { font-size: .72rem; color: var(--text-secondary); }
+    .cta-box { background: linear-gradient(135deg, #1B1A19, #2D2926); color: #fff; border-radius: var(--radius); padding: 40px; text-align: center; margin: 48px 0; }
+    .cta-box h3 { color: #fff; font-size: 1.3rem; margin-bottom: 8px; }
+    .cta-box p { color: rgba(255,255,255,.7); margin-bottom: 20px; }
+    .cta-box .btn { background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: .92rem; display: inline-block; }
+    footer { text-align: center; padding: 32px 40px; color: var(--text-secondary); font-size: .8rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+    @media (max-width: 768px) { nav { padding: 0 16px; } .article { padding: 32px 16px 60px; } .article h1 { font-size: 1.5rem; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo"><img src="../assets/favicon.svg" alt="">deeltrack</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="../blog.html" style="color:var(--accent);">Blog</a>
+      <a href="../signup.html" class="btn-nav">Get Started</a>
+    </div>
+  </nav>
+
+  <article class="article">
+    <div class="breadcrumb"><a href="../blog.html">Blog</a> → AI Tools</div>
+    <span class="tag">AI Tools</span>
+    <h1>AI Underwriting Checks: Instant Red/Yellow/Green Flags on Any Proforma</h1>
+    <div class="meta">
+      <span>7 min read</span>
+      <span class="dot"></span>
+      <span>March 2026</span>
+      <span class="dot"></span>
+      <span>AI Tools</span>
+    </div>
+
+    <p>Every syndicator has looked at a broker's proforma and thought: "These numbers feel aggressive, but <em>which</em> ones?" Rent growth projections? Exit cap rate? Operating expense ratios? LTV? It takes experience to spot the red flags — and even experienced operators miss things when they're reviewing dozens of deals.</p>
+
+    <p>deeltrack's AI Underwriting Check analyzes a deal's financial assumptions and returns an instant color-coded assessment: red flags, yellow caution items, and green confirmations — with specific notes on why each assumption matters.</p>
+
+    <h2>How It Works</h2>
+
+    <ol>
+      <li><strong>Enter your deal data</strong> — or let AI parse it from a broker OM (that's another tool)</li>
+      <li><strong>Click "Run Underwriting Check"</strong></li>
+      <li><strong>Get results in ~20 seconds</strong> — a full analysis across 10+ financial dimensions</li>
+    </ol>
+
+    <p>The AI doesn't just compare numbers to static thresholds. It considers the property type, market, deal size, and how the assumptions relate to each other. A 3% rent growth might be fine in a DFW multifamily but aggressive in a rural secondary market.</p>
+
+    <h2>What Gets Flagged</h2>
+
+    <p>Here's what a typical underwriting check looks like:</p>
+
+    <div class="flag-card">
+      <div class="flag-dot flag-red"></div>
+      <div class="flag-body">
+        <strong>Exit Cap Rate Below Entry Cap</strong>
+        <span>Entering at 5.2% and exiting at 4.8% assumes cap rate compression over the hold period. In a rising rate environment, this is a speculative bet — not a conservative assumption. Stress-test with a flat or expanding exit cap.</span>
+      </div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-dot flag-red"></div>
+      <div class="flag-body">
+        <strong>Equity Raise Insufficient</strong>
+        <span>Total equity raise of $2.8M on a $12M acquisition leaves $9.2M in debt (76.7% LTV). With closing costs and reserves, the actual equity need may exceed the raise target. Buffer by 10-15%.</span>
+      </div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-dot flag-yellow"></div>
+      <div class="flag-body">
+        <strong>Rent Growth Projections</strong>
+        <span>Projecting 4.5% annual rent growth for 5 years is above the 10-year metro average of 3.1%. Achievable with value-add execution, but should be supported by comparable lease-up data.</span>
+      </div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-dot flag-yellow"></div>
+      <div class="flag-body">
+        <strong>Operating Expense Ratio</strong>
+        <span>Projected OpEx ratio of 38% is below the multifamily average of 42-48%. Verify that insurance, property tax reassessment, and management fees are fully loaded.</span>
+      </div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-dot flag-green"></div>
+      <div class="flag-body">
+        <strong>Debt Service Coverage</strong>
+        <span>DSCR of 1.35x in Year 1 provides adequate cushion above most lender minimums (1.20-1.25x). Remains above 1.25x through the hold period under base case.</span>
+      </div>
+    </div>
+
+    <div class="flag-card">
+      <div class="flag-dot flag-green"></div>
+      <div class="flag-body">
+        <strong>Price Per Unit</strong>
+        <span>$131K/unit is in line with the DFW multifamily market for a 1998-vintage property. Not a discount, but not a premium either.</span>
+      </div>
+    </div>
+
+    <h2>The Overall Assessment</h2>
+
+    <p>Beyond individual flags, the AI provides an overall red/yellow/green rating for the deal with a summary note. This isn't a recommendation to invest or pass — it's a CPA's first-pass sanity check, automated.</p>
+
+    <div class="callout">
+      <strong>Not a replacement for human judgment:</strong>
+      <p>AI underwriting checks are a screening tool, not a decision engine. They catch the obvious issues (aggressive assumptions, mathematical inconsistencies, missing data) so you can focus your manual analysis on the nuanced questions. Think of it as a CPA glancing at the proforma before the detailed review.</p>
+    </div>
+
+    <h2>What It Checks</h2>
+
+    <p>The underwriting check evaluates these dimensions (among others):</p>
+
+    <ul>
+      <li><strong>Entry vs. exit cap rate</strong> — compression vs. expansion assumptions</li>
+      <li><strong>Rent growth trajectory</strong> — compared to market averages and historical trends</li>
+      <li><strong>Operating expense ratio</strong> — are costs realistically loaded?</li>
+      <li><strong>Debt service coverage (DSCR)</strong> — cushion above lender minimums</li>
+      <li><strong>Loan-to-value (LTV)</strong> — leverage level and risk</li>
+      <li><strong>Equity raise sufficiency</strong> — does the raise cover acquisition + costs + reserves?</li>
+      <li><strong>Price per unit/sq ft</strong> — compared to market comps</li>
+      <li><strong>Vacancy assumptions</strong> — are they realistic for the submarket?</li>
+      <li><strong>Capital expenditure budget</strong> — is the value-add scope properly budgeted?</li>
+      <li><strong>Reversion/exit assumptions</strong> — is the projected sale price supported?</li>
+    </ul>
+
+    <h2>The Full AI Suite</h2>
+
+    <p>Underwriting checks are one of 10 AI tools built into deeltrack — all powered by Gemini 2.5 Flash, all included at no extra cost:</p>
+
+    <div class="ai-suite">
+      <div class="ai-card"><i class="fas fa-traffic-light"></i><strong>Underwriting Check</strong><span>Flag aggressive assumptions</span></div>
+      <div class="ai-card"><i class="fas fa-balance-scale"></i><strong>Deal Comparison</strong><span>Side-by-side analysis</span></div>
+      <div class="ai-card"><i class="fas fa-clipboard-check"></i><strong>DD Checklist</strong><span>Auto-generated by deal type</span></div>
+      <div class="ai-card"><i class="fas fa-pen-fancy"></i><strong>Draft Updates</strong><span>Quarterly reports from bullets</span></div>
+      <div class="ai-card"><i class="fas fa-file-import"></i><strong>Parse Broker OMs</strong><span>Extract structured data</span></div>
+      <div class="ai-card"><i class="fas fa-file-search"></i><strong>Review Documents</strong><span>Compare docs to deal terms</span></div>
+      <div class="ai-card"><i class="fas fa-envelope"></i><strong>Draft Notices</strong><span>Capital call notices</span></div>
+      <div class="ai-card"><i class="fas fa-tags"></i><strong>Categorize Docs</strong><span>Auto-tag uploaded files</span></div>
+      <div class="ai-card"><i class="fas fa-question-circle"></i><strong>Investor Q&A</strong><span>Answer LP questions from data</span></div>
+      <div class="ai-card"><i class="fas fa-file-code"></i><strong>Parse Variables</strong><span>Extract OA terms</span></div>
+    </div>
+
+    <h2>Why We Built This</h2>
+
+    <p>We watched sponsors spend hours reviewing proformas that had obvious red flags buried in optimistic assumptions. A CPA who works with syndicators sees these patterns immediately — but most sponsors aren't CPAs, and most CPAs charge $300+/hour for this analysis.</p>
+
+    <p>The AI underwriting check gives every sponsor access to that first-pass CPA analysis — instantly, on every deal, at no additional cost. It won't replace deep due diligence, but it'll save you from wasting time on deals that don't pencil before you even start.</p>
+
+    <div class="cta-box">
+      <h3>10 AI tools. Zero additional cost.</h3>
+      <p>$49/deal/month. Every AI feature included. No per-use fees.</p>
+      <a href="../signup.html" class="btn">Get Started Free →</a>
+    </div>
+  </article>
+
+  <footer>
+    <p>© 2026 deeltrack. <a href="../terms.html">Terms</a> · <a href="../privacy.html">Privacy</a> · <a href="https://x.com/deeltrack">@deeltrack</a></p>
+  </footer>
+
+</body>
+</html>

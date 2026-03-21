@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why We Charge Per Deal, Not Per Dollar: The Case Against AUM Pricing | deeltrack Blog</title>
+  <meta name="description" content="AUM-based pricing is a misaligned incentive. Here's why flat per-deal pricing makes more sense for sponsors at every stage.">
+  <meta property="og:title" content="Why We Charge Per Deal, Not Per Dollar">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@deeltrack">
+  <script src="../js/dt-analytics.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --accent: #F37925; --accent-hover: #E8650A; --bg: #FAFAF8; --surface: #FFF; --text: #1B1A19; --text-secondary: #6B6560; --border: #E8E4E0; --radius: 12px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-weight: 800; font-size: 1.3rem; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo img { height: 28px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: .88rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links .btn-nav { background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 600; }
+    .article { max-width: 740px; margin: 0 auto; padding: 60px 24px 80px; }
+    .breadcrumb { font-size: .82rem; color: var(--text-secondary); margin-bottom: 24px; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .tag { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); background: rgba(243,121,37,.08); padding: 4px 12px; border-radius: 6px; margin-bottom: 16px; }
+    .article h1 { font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; }
+    .meta { font-size: .85rem; color: var(--text-secondary); margin-bottom: 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+    .article h2 { font-size: 1.3rem; font-weight: 700; margin: 40px 0 16px; }
+    .article h3 { font-size: 1.05rem; font-weight: 700; margin: 28px 0 12px; }
+    .article p { font-size: .95rem; line-height: 1.75; color: #333; margin-bottom: 16px; }
+    .article ul, .article ol { margin: 0 0 16px 24px; }
+    .article li { font-size: .95rem; line-height: 1.75; margin-bottom: 6px; }
+    .callout { background: #FFF8F3; border: 1px solid #F3D5BC; border-radius: var(--radius); padding: 20px 24px; margin: 24px 0; }
+    .callout strong { color: var(--accent); }
+    .callout p { margin-bottom: 0; }
+    .compare-table { width: 100%; border-collapse: collapse; margin: 20px 0 28px; font-size: .88rem; }
+    .compare-table th { background: #F8F6F4; padding: 12px 16px; text-align: left; font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); border-bottom: 2px solid var(--border); }
+    .compare-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .highlight { background: rgba(243,121,37,.04); font-weight: 600; }
+    .cta-box { background: linear-gradient(135deg, #1B1A19, #2D2926); color: #fff; border-radius: var(--radius); padding: 40px; text-align: center; margin: 48px 0; }
+    .cta-box h3 { color: #fff; font-size: 1.3rem; margin-bottom: 8px; }
+    .cta-box p { color: rgba(255,255,255,.7); margin-bottom: 20px; }
+    .cta-box .btn { background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: .92rem; display: inline-block; }
+    footer { text-align: center; padding: 32px 40px; color: var(--text-secondary); font-size: .8rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+    @media (max-width: 768px) { nav { padding: 0 16px; } .article { padding: 32px 16px 60px; } .article h1 { font-size: 1.5rem; } .compare-table { font-size: .8rem; } .compare-table td, .compare-table th { padding: 10px 10px; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo"><img src="../assets/favicon.svg" alt="">deeltrack</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="../blog.html" style="color:var(--accent);">Blog</a>
+      <a href="../signup.html" class="btn-nav">Get Started</a>
+    </div>
+  </nav>
+
+  <article class="article">
+    <div class="breadcrumb"><a href="../blog.html">Blog</a> → Industry Insight</div>
+    <span class="tag">Industry Insight</span>
+    <h1>Why We Charge Per Deal, Not Per Dollar: The Case Against AUM Pricing</h1>
+    <div class="meta">
+      <span>7 min read</span>
+      <span class="dot"></span>
+      <span>March 2026</span>
+      <span class="dot"></span>
+      <span>Industry Insight</span>
+    </div>
+
+    <p>Here's a question nobody in investor management software wants to answer: <strong>why does your bill go up when you raise more capital?</strong></p>
+
+    <p>Most platforms in this space charge based on assets under management (AUM). The more money you manage, the more you pay — for the same login, the same dashboard, the same features. It's the industry default, and nobody questions it because that's just how it's always been.</p>
+
+    <p>We questioned it. And we couldn't justify it. So we built deeltrack with flat per-deal pricing instead.</p>
+
+    <h2>How AUM Pricing Actually Works</h2>
+
+    <p>Most investor management platforms don't publish their pricing (that's a whole separate rant). But from what sponsors report, AUM-based pricing typically runs 0.02% to 0.05% of assets under management, with minimums starting around $500/month.</p>
+
+    <p>That sounds reasonable until you do the math at scale:</p>
+
+    <table class="compare-table">
+      <thead>
+        <tr><th>AUM</th><th>Deals</th><th>AUM-Based (0.03%)</th><th>deeltrack ($49/deal)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>$5M</td><td>2</td><td>$1,500/yr</td><td class="highlight">$1,176/yr</td></tr>
+        <tr><td>$15M</td><td>4</td><td>$4,500/yr</td><td class="highlight">$2,352/yr</td></tr>
+        <tr><td>$30M</td><td>6</td><td>$9,000/yr</td><td class="highlight">$3,528/yr</td></tr>
+        <tr><td>$50M</td><td>8</td><td>$15,000/yr</td><td class="highlight">$4,704/yr</td></tr>
+        <tr><td>$100M</td><td>12</td><td>$30,000/yr</td><td class="highlight">$7,056/yr</td></tr>
+      </tbody>
+    </table>
+
+    <p>At $100M AUM, the difference is <strong>$23,000 per year</strong> — for the same type of software doing the same job. The only difference is the number on your balance sheet.</p>
+
+    <h2>The Misalignment</h2>
+
+    <p>AUM-based pricing creates a perverse incentive: <strong>your software vendor profits when your fund grows, even if they do nothing differently.</strong></p>
+
+    <p>Think about what actually drives the cost of operating investor management software:</p>
+
+    <ul>
+      <li><strong>Number of deals</strong> — more deals = more data, more distributions, more documents</li>
+      <li><strong>Number of investors</strong> — more users, more portal access, more K-1s</li>
+      <li><strong>Feature usage</strong> — AI tools, document generation, email notifications</li>
+    </ul>
+
+    <p>Notice what's NOT on that list? The dollar amount of your investors' commitments. Whether an LP committed $50K or $5M, the software does the same work: store the record, calculate the pref, generate the K-1, show the portal.</p>
+
+    <p>AUM pricing charges you for something that has zero correlation with the cost of serving you.</p>
+
+    <div class="callout">
+      <strong>The barber analogy:</strong>
+      <p>Your barber doesn't charge more because you got a raise. Your gym doesn't cost more because you got stronger. Why does your investor management platform cost more because you raised more capital?</p>
+    </div>
+
+    <h2>Why Per-Deal Makes Sense</h2>
+
+    <p>A deal is the natural unit of work in syndication. Each deal has:</p>
+
+    <ul>
+      <li>Its own entity and legal structure</li>
+      <li>Its own investor table and commitment ledger</li>
+      <li>Its own distribution history and capital accounts</li>
+      <li>Its own documents, deal room, and compliance requirements</li>
+    </ul>
+
+    <p>When you add a deal, deeltrack does more work. When you close a deal and it exits, deeltrack does less work. Per-deal pricing aligns your cost with the actual operational load.</p>
+
+    <h3>And when a deal exits, it stops billing.</h3>
+
+    <p>This is the part that really matters. With AUM pricing, you're paying a percentage of assets <em>currently under management</em>. As deals exit and return capital, your AUM (and your bill) should go down — but many platforms have minimums or annual contracts that lock you in regardless.</p>
+
+    <p>With deeltrack: deal exits → remove the deal → your monthly bill drops by $49. No negotiations. No contract amendments.</p>
+
+    <h2>The "But It Scales" Argument</h2>
+
+    <p>AUM pricing advocates argue that larger sponsors get more value from the platform, so they should pay more. There's a kernel of truth here — a $100M shop needs more reliability, more support, and more features than a $5M operator.</p>
+
+    <p>But that value scales with <strong>deals and complexity</strong>, not dollars. A sponsor managing 12 deals at $100M AUM should pay more than a sponsor managing 2 deals at $5M AUM — and they do, because they have 12 deals at $49 each instead of 2.</p>
+
+    <p>The pricing scales naturally with the work. No need to peg it to a dollar figure.</p>
+
+    <h2>What You Get for $49/Deal/Month</h2>
+
+    <p>Every feature. No tiers. No add-ons. No "contact us for enterprise."</p>
+
+    <ul>
+      <li>Waterfall distribution calculations and one-click posting</li>
+      <li>Branded LP portal with self-service K-1 downloads</li>
+      <li>Capital account tracking per investor per deal</li>
+      <li>Document generation (OAs, notices, reports)</li>
+      <li>10 AI-powered tools (underwriting, deal comparison, DD checklists, etc.)</li>
+      <li>Investor CRM with accreditation tracking</li>
+      <li>Deal room with document management</li>
+      <li>Pulse portfolio health dashboard</li>
+      <li>Email notifications and investor communications</li>
+      <li>KMS encryption for sensitive data</li>
+    </ul>
+
+    <p>That's the list. All of it. For every deal. Whether you manage $1M or $100M.</p>
+
+    <h2>The Transparency Principle</h2>
+
+    <p>Here's our actual pricing page in its entirety: <strong>$49/deal/month. 3-month free trial.</strong></p>
+
+    <p>No "book a demo to learn more." No "let's schedule a call to discuss your needs." No custom quotes. No NDAs. No surprises.</p>
+
+    <p>We believe the price should be on the website — like a normal product sold by normal people. If you need to talk to a salesperson before you know what something costs, the price is too high or too confusing. Ours is neither.</p>
+
+    <div class="cta-box">
+      <h3>$49/deal/month. That's the whole pricing page.</h3>
+      <p>3-month free trial. All features included. No AUM fees. No surprises.</p>
+      <a href="../signup.html" class="btn">Start Free →</a>
+    </div>
+  </article>
+
+  <footer>
+    <p>© 2026 deeltrack. <a href="../terms.html">Terms</a> · <a href="../privacy.html">Privacy</a> · <a href="https://x.com/deeltrack">@deeltrack</a></p>
+  </footer>
+
+</body>
+</html>
