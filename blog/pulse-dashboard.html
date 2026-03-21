@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulse: Your Portfolio Health Dashboard | deeltrack Blog</title>
+  <meta name="description" content="A live health check across every deal, investor, distribution, and document — with critical alerts, warnings, and suggestions to keep your portfolio clean.">
+  <meta property="og:title" content="Pulse: Your Portfolio Health Dashboard">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@deeltrack">
+  <script src="../js/dt-analytics.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --accent: #F37925; --accent-hover: #E8650A; --bg: #FAFAF8; --surface: #FFF; --text: #1B1A19; --text-secondary: #6B6560; --border: #E8E4E0; --radius: 12px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-weight: 800; font-size: 1.3rem; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo img { height: 28px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: .88rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links .btn-nav { background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 600; }
+    .article { max-width: 740px; margin: 0 auto; padding: 60px 24px 80px; }
+    .breadcrumb { font-size: .82rem; color: var(--text-secondary); margin-bottom: 24px; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .tag { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); background: rgba(243,121,37,.08); padding: 4px 12px; border-radius: 6px; margin-bottom: 16px; }
+    .article h1 { font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; }
+    .meta { font-size: .85rem; color: var(--text-secondary); margin-bottom: 32px; display: flex; align-items: center; gap: 16px; }
+    .meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+    .hero-img { width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px; }
+    .caption { text-align: center; font-size: .78rem; color: var(--text-secondary); margin-top: -32px; margin-bottom: 40px; }
+    .article h2 { font-size: 1.3rem; font-weight: 700; margin: 40px 0 16px; }
+    .article h3 { font-size: 1.05rem; font-weight: 700; margin: 28px 0 12px; }
+    .article p { font-size: .95rem; line-height: 1.75; color: #333; margin-bottom: 16px; }
+    .article ul, .article ol { margin: 0 0 16px 24px; }
+    .article li { font-size: .95rem; line-height: 1.75; margin-bottom: 6px; }
+    .article img { max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin: 24px 0; }
+    .article img + em { display: block; text-align: center; font-size: .78rem; color: var(--text-secondary); margin-top: -16px; margin-bottom: 24px; font-style: normal; }
+    .callout { background: #FFF8F3; border: 1px solid #F3D5BC; border-radius: var(--radius); padding: 20px 24px; margin: 24px 0; }
+    .callout strong { color: var(--accent); }
+    .callout p { margin-bottom: 0; }
+    .sev-list { list-style: none; margin-left: 0; }
+    .sev-list li { padding: 8px 0; display: flex; align-items: center; gap: 10px; }
+    .sev-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .sev-critical { background: #D94F3D; }
+    .sev-warning { background: #E8890A; }
+    .sev-info { background: #3B82F6; }
+    .cta-box { background: linear-gradient(135deg, #1B1A19, #2D2926); color: #fff; border-radius: var(--radius); padding: 40px; text-align: center; margin: 48px 0; }
+    .cta-box h3 { color: #fff; font-size: 1.3rem; margin-bottom: 8px; }
+    .cta-box p { color: rgba(255,255,255,.7); margin-bottom: 20px; }
+    .cta-box .btn { background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: .92rem; display: inline-block; }
+    footer { text-align: center; padding: 32px 40px; color: var(--text-secondary); font-size: .8rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+    @media (max-width: 768px) { nav { padding: 0 16px; } .article { padding: 32px 16px 60px; } .article h1 { font-size: 1.5rem; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo"><img src="../assets/favicon.svg" alt="">deeltrack</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="../blog.html" style="color:var(--accent);">Blog</a>
+      <a href="../signup.html" class="btn-nav">Get Started</a>
+    </div>
+  </nav>
+
+  <article class="article">
+    <div class="breadcrumb"><a href="../blog.html">Blog</a> → Workflow</div>
+    <span class="tag">Workflow</span>
+    <h1>Pulse: Your Portfolio Health Dashboard</h1>
+    <div class="meta">
+      <span>6 min read</span>
+      <span class="dot"></span>
+      <span>March 2026</span>
+      <span class="dot"></span>
+      <span>Workflow</span>
+    </div>
+
+    <img src="images/pulse.png" class="hero-img" alt="deeltrack Pulse dashboard showing health score, critical issues, and portfolio-wide findings">
+    <div class="caption">Pulse scans your entire portfolio and surfaces issues before they become problems.</div>
+
+    <p>Managing a syndication portfolio means keeping track of hundreds of details across multiple deals, investors, and compliance deadlines. Accreditation expiring? K-1s not delivered? A deal sitting in LOI for 90 days? A draft distribution from two months ago that never got posted?</p>
+
+    <p>These things slip through the cracks. Not because you're careless — because you're busy closing deals. Pulse is your automated second set of eyes.</p>
+
+    <h2>How It Works</h2>
+
+    <p>Pulse scans your entire portfolio in real time and generates a health report across five categories:</p>
+
+    <ul>
+      <li><strong>Deals</strong> — Missing fields, stale pipeline, under-raised closes, past-due dates</li>
+      <li><strong>Investors</strong> — Expired accreditation, missing emails, $0 commitments, duplicate contacts</li>
+      <li><strong>Distributions & Finance</strong> — Draft distributions sitting too long, over-distribution warnings, incomplete wire details</li>
+      <li><strong>Documents</strong> — Missing OAs, no subscription docs in deal rooms, K-1s not filed</li>
+      <li><strong>Platform Setup</strong> — Missing firm name, incomplete wire instructions, billing warnings</li>
+    </ul>
+
+    <h2>Severity Levels</h2>
+
+    <p>Not every issue is equally urgent. Pulse categorizes findings by severity so you can triage:</p>
+
+    <ul class="sev-list">
+      <li><span class="sev-dot sev-critical"></span><strong>Critical</strong> — Requires immediate action. Expired accreditation, distributions exceeding equity, billing expired.</li>
+      <li><span class="sev-dot sev-warning"></span><strong>Warning</strong> — Should be addressed soon. Missing banking details, deals past close date, incomplete settings.</li>
+      <li><span class="sev-dot sev-info"></span><strong>Suggestion</strong> — Nice to fix. Missing deal fields, investors not linked to deals, placeholder email addresses.</li>
+    </ul>
+
+    <h2>The Health Score</h2>
+
+    <p>Pulse calculates a portfolio health score from 0 to 100 based on the severity and count of findings:</p>
+
+    <ul>
+      <li>Each critical issue: -15 points</li>
+      <li>Each warning: -5 points</li>
+      <li>Each suggestion: -1 point</li>
+    </ul>
+
+    <p>A score of 100 means zero open findings — your portfolio is clean. A score below 50 means you have critical issues that need attention. The goal isn't perfection — it's awareness.</p>
+
+    <h2>What Pulse Actually Catches</h2>
+
+    <p>Here are real examples of issues Pulse flags:</p>
+
+    <h3>Deal Issues</h3>
+    <ul>
+      <li>Deal marked "Closed" but only 29% of equity raised — target raise needs updating</li>
+      <li>Operating deal with zero posted distributions — expected if pre-stabilization, but worth checking</li>
+      <li>Deal in DD/LOI status for 90+ days — update status or move to dead</li>
+      <li>Pref return above 15% — verify this is intentional</li>
+      <li>GP promote above 50% — flag for review</li>
+    </ul>
+
+    <h3>Investor Issues</h3>
+    <ul>
+      <li>Accreditation expired 45 days ago — re-verify before accepting new capital</li>
+      <li>Accreditation expiring in 12 days — proactive outreach</li>
+      <li>Investor has no email on file — can't send K-1s or notices</li>
+      <li>Investor linked to a deal with $0 committed — fix commitment or remove</li>
+      <li>Wire method selected but no banking details — will delay distributions</li>
+    </ul>
+
+    <h3>Financial Issues</h3>
+    <ul>
+      <li>Draft distribution sitting for 45 days — post it or delete it</li>
+      <li>Total distributions exceed 2x equity — verify records</li>
+      <li>Wire instructions incomplete — investors won't receive complete payment details</li>
+      <li>Routing number failed checksum validation — double check with your bank</li>
+    </ul>
+
+    <h3>Document Issues</h3>
+    <ul>
+      <li>Active deal with no operating agreement generated — generate from deal detail</li>
+      <li>No subscription docs in deal room — investors need these</li>
+      <li>Distributions posted in 2025 but no K-1s on file for tax year 2025</li>
+    </ul>
+
+    <div class="callout">
+      <strong>Every finding links to a fix:</strong>
+      <p>Click any finding and Pulse takes you directly to the page where you can resolve it — investor detail, deal settings, distributions, or wherever the fix lives. No hunting.</p>
+    </div>
+
+    <h2>Live Updates</h2>
+
+    <p>Pulse re-scans automatically every 30 seconds while you have the page open. Fix an issue, come back to Pulse, and it's already gone from the list. No manual refresh needed.</p>
+
+    <p>This makes Pulse perfect for a "morning check-in" workflow: open it, scan the findings, fix anything critical, and move on to your actual work knowing nothing is slipping through the cracks.</p>
+
+    <h2>Why This Exists</h2>
+
+    <p>We built Pulse because the alternative is checking everything manually. Open each deal — is the raise on track? Check each investor — is accreditation current? Review the distribution log — anything stuck in draft? Verify settings — are wire instructions complete?</p>
+
+    <p>That's a 30-minute task when you have 5 deals and 15 investors. When you have 15 deals and 50 investors, it's hours. And the longer it takes, the less often you do it, which is exactly when things slip.</p>
+
+    <p>Pulse does the check in under 3 seconds and tells you exactly what needs attention.</p>
+
+    <div class="cta-box">
+      <h3>Know what needs attention — before it becomes a problem.</h3>
+      <p>$49/deal/month. Pulse included. No add-on fees.</p>
+      <a href="../signup.html" class="btn">Get Started Free →</a>
+    </div>
+  </article>
+
+  <footer>
+    <p>© 2026 deeltrack. <a href="../terms.html">Terms</a> · <a href="../privacy.html">Privacy</a> · <a href="https://x.com/deeltrack">@deeltrack</a></p>
+  </footer>
+
+</body>
+</html>

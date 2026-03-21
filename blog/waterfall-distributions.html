@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waterfall Distributions: Automated Pref Tracking & One-Click Posting | deeltrack Blog</title>
+  <meta name="description" content="How deeltrack calculates preferred returns, GP catch-up, and residual splits — then lets you preview and post distributions with a single click.">
+  <meta property="og:title" content="Waterfall Distributions: Automated Pref Tracking & One-Click Posting">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@deeltrack">
+  <script src="../js/dt-analytics.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --accent: #F37925; --accent-hover: #E8650A; --bg: #FAFAF8; --surface: #FFF; --text: #1B1A19; --text-secondary: #6B6560; --border: #E8E4E0; --radius: 12px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-weight: 800; font-size: 1.3rem; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo img { height: 28px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: .88rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links .btn-nav { background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 600; }
+
+    .article { max-width: 740px; margin: 0 auto; padding: 60px 24px 80px; }
+    .breadcrumb { font-size: .82rem; color: var(--text-secondary); margin-bottom: 24px; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .tag { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); background: rgba(243,121,37,.08); padding: 4px 12px; border-radius: 6px; margin-bottom: 16px; }
+    .article h1 { font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; }
+    .meta { font-size: .85rem; color: var(--text-secondary); margin-bottom: 32px; display: flex; align-items: center; gap: 16px; }
+    .meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+
+    .hero-img { width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px; }
+    .caption { text-align: center; font-size: .78rem; color: var(--text-secondary); margin-top: -32px; margin-bottom: 40px; }
+
+    .article h2 { font-size: 1.3rem; font-weight: 700; margin: 40px 0 16px; }
+    .article h3 { font-size: 1.05rem; font-weight: 700; margin: 28px 0 12px; }
+    .article p { font-size: .95rem; line-height: 1.75; color: #333; margin-bottom: 16px; }
+    .article ul, .article ol { margin: 0 0 16px 24px; }
+    .article li { font-size: .95rem; line-height: 1.75; margin-bottom: 6px; }
+    .article img { max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin: 24px 0; }
+    .article img + em { display: block; text-align: center; font-size: .78rem; color: var(--text-secondary); margin-top: -16px; margin-bottom: 24px; font-style: normal; }
+
+    .callout { background: #FFF8F3; border: 1px solid #F3D5BC; border-radius: var(--radius); padding: 20px 24px; margin: 24px 0; }
+    .callout strong { color: var(--accent); }
+    .callout p { margin-bottom: 0; }
+
+    .tier-table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: .88rem; }
+    .tier-table th { background: #F8F6F4; padding: 10px 14px; text-align: left; font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); border-bottom: 2px solid var(--border); }
+    .tier-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+    .tier-table tr:last-child td { border-bottom: none; }
+
+    .cta-box { background: linear-gradient(135deg, #1B1A19, #2D2926); color: #fff; border-radius: var(--radius); padding: 40px; text-align: center; margin: 48px 0; }
+    .cta-box h3 { color: #fff; font-size: 1.3rem; margin-bottom: 8px; }
+    .cta-box p { color: rgba(255,255,255,.7); margin-bottom: 20px; }
+    .cta-box .btn { background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: .92rem; display: inline-block; }
+
+    footer { text-align: center; padding: 32px 40px; color: var(--text-secondary); font-size: .8rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; }
+      .article { padding: 32px 16px 60px; }
+      .article h1 { font-size: 1.5rem; }
+      .nav-links { gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo"><img src="../assets/favicon.svg" alt="">deeltrack</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="../blog.html" style="color:var(--accent);">Blog</a>
+      <a href="../signup.html" class="btn-nav">Get Started</a>
+    </div>
+  </nav>
+
+  <article class="article">
+    <div class="breadcrumb"><a href="../blog.html">Blog</a> → Feature Walkthrough</div>
+    <span class="tag">Feature Walkthrough</span>
+    <h1>Waterfall Distributions: Automated Pref Tracking & One-Click Posting</h1>
+    <div class="meta">
+      <span>10 min read</span>
+      <span class="dot"></span>
+      <span>March 2026</span>
+      <span class="dot"></span>
+      <span>Feature Walkthrough</span>
+    </div>
+
+    <img src="images/distributions.jpg" class="hero-img" alt="deeltrack Distribution Command Center showing waterfall calculations and investor breakdowns">
+    <div class="caption">The Distribution Command Center with real waterfall calculations and per-investor breakdowns.</div>
+
+    <p>If you've ever distributed cash to investors using a spreadsheet, you know the drill: calculate the preferred return for each LP based on their commitment date, figure out the GP catch-up, split the residual by ownership percentage, triple-check the math, email each investor individually, then pray you didn't make a mistake.</p>
+
+    <p>deeltrack's Distribution Command Center replaces that entire workflow with three steps: select a deal, enter the amount, and click "Post."</p>
+
+    <h2>How Waterfall Distributions Work</h2>
+
+    <p>A waterfall structure defines how cash flows from a deal get split between Limited Partners (LPs) and the General Partner (GP). The name comes from the way money "falls" through tiers — each tier must be satisfied before the next one gets funded.</p>
+
+    <table class="tier-table">
+      <thead>
+        <tr><th>Tier</th><th>What Happens</th><th>Who Gets Paid</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>1. Return of Capital</strong></td><td>Investors get their original investment back</td><td>LPs only</td></tr>
+        <tr><td><strong>2. Preferred Return</strong></td><td>LPs receive a guaranteed annual return (typically 6-10%) on unreturned capital</td><td>LPs only</td></tr>
+        <tr><td><strong>3. GP Catch-Up</strong></td><td>GP receives distributions until they've "caught up" to their promote percentage</td><td>GP only</td></tr>
+        <tr><td><strong>4. Residual Split</strong></td><td>Remaining profits split by agreed ratio (e.g., 70/30 or 80/20 LP/GP)</td><td>Both</td></tr>
+      </tbody>
+    </table>
+
+    <p>The tricky part isn't understanding the tiers — it's calculating them correctly when you have:</p>
+    <ul>
+      <li>Multiple investors with different commitment dates (pref clock starts at each capital call)</li>
+      <li>Accrued but unpaid preferred returns from prior periods</li>
+      <li>Different ownership percentages per investor</li>
+      <li>A mix of periodic distributions and special distributions</li>
+    </ul>
+
+    <p>This is where spreadsheets break — and where deeltrack's waterfall engine takes over.</p>
+
+    <h2>How deeltrack Handles It</h2>
+
+    <h3>Step 1: Select a Deal & Enter the Amount</h3>
+
+    <p>Choose the deal from your portfolio and enter the total amount you want to distribute. deeltrack pulls in every investor linked to that deal, their commitment amounts, ownership percentages, and — critically — their pref accrual history.</p>
+
+    <div class="callout">
+      <strong>Why pref history matters:</strong>
+      <p>If Investor A committed $500K on January 1 and Investor B committed $300K on March 15, their preferred return accrual is different even at the same pref rate. deeltrack tracks this per-investor, per-period, automatically.</p>
+    </div>
+
+    <h3>Step 2: Review the Per-Investor Breakdown</h3>
+
+    <p>Before any money moves, deeltrack generates a complete pro-forma distribution ledger showing:</p>
+    <ul>
+      <li><strong>Each investor's preferred return owed</strong> — calculated from their capital call date, not the deal close date</li>
+      <li><strong>Pref satisfied vs. remaining</strong> — how much of the pref has been paid in prior distributions</li>
+      <li><strong>Excess allocation</strong> — their share of profits above the pref hurdle</li>
+      <li><strong>Total payout</strong> — the exact dollar amount each investor receives</li>
+      <li><strong>GP promote</strong> — calculated after all LP prefs are satisfied</li>
+    </ul>
+
+    <img src="images/distributions.jpg" alt="Per-investor distribution breakdown showing pref tracking and waterfall tiers">
+    <em>The pro-forma ledger shows every investor's allocation before you commit.</em>
+
+    <p>You can review the entire breakdown, see the waterfall tier summary (how much went to pref, catch-up, and residual), and verify the GP promote — all before posting anything.</p>
+
+    <h3>Step 3: Post to Ledger</h3>
+
+    <p>When everything looks right, click "Post Distribution to Ledger." deeltrack:</p>
+    <ol>
+      <li>Locks the distribution record (no edits after posting)</li>
+      <li>Updates each investor's capital account</li>
+      <li>Records the pref accrual state for the next distribution</li>
+      <li>Generates distribution notices ready to send</li>
+      <li>Updates the distribution history timeline</li>
+    </ol>
+
+    <h2>Draft vs. Posted: The Safety Net</h2>
+
+    <p>Every distribution starts as a <strong>draft</strong>. You can preview, adjust, recalculate as many times as you need. Only when you explicitly click "Post" does it become permanent.</p>
+
+    <p>This matters because distribution errors are expensive — not just financially, but in investor trust. Once an LP sees the wrong number in their portal, the damage is done even if you correct it immediately.</p>
+
+    <h2>Distribution Types</h2>
+
+    <p>deeltrack handles three types of distributions, each with different waterfall implications:</p>
+
+    <ul>
+      <li><strong>Periodic (Cash Flow)</strong> — Regular quarterly or monthly distributions from operating income. Typically goes to pref first.</li>
+      <li><strong>Exit / Disposition</strong> — Proceeds from selling the property. Triggers return of capital + full waterfall.</li>
+      <li><strong>Refinance Proceeds</strong> — Cash-out from a refinance. Treated differently depending on your OA terms.</li>
+    </ul>
+
+    <h2>Wire Report & Payment Tracking</h2>
+
+    <p>After posting, deeltrack generates a wire report with each investor's bank details (routing, account number, bank name) alongside their distribution amount. This is the document you hand to your bank or ACH processor to execute the payments.</p>
+
+    <p>If an investor hasn't provided banking details yet, deeltrack flags them — so you don't discover the problem after you've already announced the distribution.</p>
+
+    <h2>What Makes This Different</h2>
+
+    <p>Most investor management platforms handle distributions as a simple "enter amounts per investor" table. You're doing the math yourself and just recording the result.</p>
+
+    <p>deeltrack actually <em>calculates</em> the waterfall. It knows the pref rate, the promote structure, each investor's basis, and the accrual history. You enter a single dollar amount and the engine splits it correctly across every tier for every investor.</p>
+
+    <div class="callout">
+      <strong>Built by a CPA:</strong>
+      <p>The waterfall math in deeltrack was built by someone who's actually prepared distribution calculations for real syndications — not a developer who read a blog post about preferred returns. The edge cases (partial pref satisfaction, mid-period capital calls, multi-tier promote structures) are all handled.</p>
+    </div>
+
+    <h2>Frequently Asked Questions</h2>
+
+    <h3>What if my OA has a non-standard waterfall?</h3>
+    <p>deeltrack supports the most common structures: simple pref + promote, multi-tier waterfalls, and catch-up provisions. If you have a unique structure, the default split can be manually adjusted per distribution.</p>
+
+    <h3>Can I modify a posted distribution?</h3>
+    <p>No — and that's by design. Posted distributions are immutable for audit trail purposes. If you need to make a correction, you'd post an adjustment distribution (just like you would in real accounting).</p>
+
+    <h3>Does it handle multiple deals simultaneously?</h3>
+    <p>Each distribution is per-deal. If you're distributing from multiple properties, you'd post each one separately. This keeps the capital accounts clean and the audit trail deal-specific.</p>
+
+    <div class="cta-box">
+      <h3>Stop doing waterfall math in spreadsheets.</h3>
+      <p>$49/deal/month. All features included. No AUM fees.</p>
+      <a href="../signup.html" class="btn">Get Started Free →</a>
+    </div>
+  </article>
+
+  <footer>
+    <p>© 2026 deeltrack. <a href="../terms.html">Terms</a> · <a href="../privacy.html">Privacy</a> · <a href="https://x.com/deeltrack">@deeltrack</a></p>
+  </footer>
+
+</body>
+</html>

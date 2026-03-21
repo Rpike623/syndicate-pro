@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The LP Portal: Self-Service Investor Experience | deeltrack Blog</title>
+  <meta name="description" content="Your investors can view capital accounts, download K-1s, track distributions, and access deal documents — without emailing you.">
+  <meta property="og:title" content="The LP Portal: Self-Service Investor Experience">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@deeltrack">
+  <script src="../js/dt-analytics.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --accent: #F37925; --accent-hover: #E8650A; --bg: #FAFAF8; --surface: #FFF; --text: #1B1A19; --text-secondary: #6B6560; --border: #E8E4E0; --radius: 12px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 40px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-weight: 800; font-size: 1.3rem; color: var(--accent); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .nav-logo img { height: 28px; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { text-decoration: none; color: var(--text-secondary); font-size: .88rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-links .btn-nav { background: var(--accent); color: #fff; padding: 8px 20px; border-radius: 8px; font-weight: 600; }
+    .article { max-width: 740px; margin: 0 auto; padding: 60px 24px 80px; }
+    .breadcrumb { font-size: .82rem; color: var(--text-secondary); margin-bottom: 24px; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .tag { display: inline-block; font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); background: rgba(243,121,37,.08); padding: 4px 12px; border-radius: 6px; margin-bottom: 16px; }
+    .article h1 { font-size: 2rem; font-weight: 800; line-height: 1.25; margin-bottom: 16px; }
+    .meta { font-size: .85rem; color: var(--text-secondary); margin-bottom: 32px; display: flex; align-items: center; gap: 16px; }
+    .meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+    .article h2 { font-size: 1.3rem; font-weight: 700; margin: 40px 0 16px; }
+    .article h3 { font-size: 1.05rem; font-weight: 700; margin: 28px 0 12px; }
+    .article p { font-size: .95rem; line-height: 1.75; color: #333; margin-bottom: 16px; }
+    .article ul, .article ol { margin: 0 0 16px 24px; }
+    .article li { font-size: .95rem; line-height: 1.75; margin-bottom: 6px; }
+    .article img { max-width: 100%; border-radius: var(--radius); border: 1px solid var(--border); margin: 24px 0; }
+    .article img + em { display: block; text-align: center; font-size: .78rem; color: var(--text-secondary); margin-top: -16px; margin-bottom: 24px; font-style: normal; }
+    .callout { background: #FFF8F3; border: 1px solid #F3D5BC; border-radius: var(--radius); padding: 20px 24px; margin: 24px 0; }
+    .callout strong { color: var(--accent); }
+    .callout p { margin-bottom: 0; }
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin: 24px 0; }
+    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+    .feature-card i { font-size: 1.5rem; color: var(--accent); margin-bottom: 10px; display: block; }
+    .feature-card strong { display: block; font-size: .88rem; margin-bottom: 4px; }
+    .feature-card span { font-size: .78rem; color: var(--text-secondary); }
+    .cta-box { background: linear-gradient(135deg, #1B1A19, #2D2926); color: #fff; border-radius: var(--radius); padding: 40px; text-align: center; margin: 48px 0; }
+    .cta-box h3 { color: #fff; font-size: 1.3rem; margin-bottom: 8px; }
+    .cta-box p { color: rgba(255,255,255,.7); margin-bottom: 20px; }
+    .cta-box .btn { background: var(--accent); color: #fff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: .92rem; display: inline-block; }
+    footer { text-align: center; padding: 32px 40px; color: var(--text-secondary); font-size: .8rem; border-top: 1px solid var(--border); }
+    footer a { color: var(--accent); text-decoration: none; }
+    @media (max-width: 768px) { nav { padding: 0 16px; } .article { padding: 32px 16px 60px; } .article h1 { font-size: 1.5rem; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="../index.html" class="nav-logo"><img src="../assets/favicon.svg" alt="">deeltrack</a>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="../blog.html" style="color:var(--accent);">Blog</a>
+      <a href="../signup.html" class="btn-nav">Get Started</a>
+    </div>
+  </nav>
+
+  <article class="article">
+    <div class="breadcrumb"><a href="../blog.html">Blog</a> → Feature Walkthrough</div>
+    <span class="tag">Feature Walkthrough</span>
+    <h1>The LP Portal: Self-Service Investor Experience</h1>
+    <div class="meta">
+      <span>8 min read</span>
+      <span class="dot"></span>
+      <span>March 2026</span>
+      <span class="dot"></span>
+      <span>Feature Walkthrough</span>
+    </div>
+
+    <p>Every GP knows the cycle: you post a distribution, and within 24 hours your inbox fills up. "When will I receive my wire?" "What was my Q3 return?" "Can you resend my K-1?" "What's my current capital account balance?"</p>
+
+    <p>These aren't unreasonable questions. Your investors <em>should</em> have easy access to this information. The problem is that you're the bottleneck — and every email you answer is time you're not spending on deals.</p>
+
+    <p>deeltrack's LP Portal gives your investors a branded, self-service dashboard where they can find everything they need without emailing you.</p>
+
+    <h2>What Your Investors See</h2>
+
+    <p>When an LP logs into the portal, they get a personalized dashboard tailored to their investments. No GP tools, no admin clutter — just what matters to them.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <i class="fas fa-chart-line"></i>
+        <strong>Portfolio Overview</strong>
+        <span>Total invested, current value, overall returns</span>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-money-bill-wave"></i>
+        <strong>Distribution History</strong>
+        <span>Every distribution, with waterfall tier breakdown</span>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-file-invoice-dollar"></i>
+        <strong>K-1 Downloads</strong>
+        <span>Pull their own K-1s by tax year — no email needed</span>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-landmark"></i>
+        <strong>Capital Account</strong>
+        <span>Real-time balance: contributions, distributions, unreturned capital</span>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-folder-open"></i>
+        <strong>Deal Documents</strong>
+        <span>OA, PPM, subscription docs — organized by deal</span>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-bullhorn"></i>
+        <strong>Investor Updates</strong>
+        <span>Quarterly reports and GP communications in one place</span>
+      </div>
+    </div>
+
+    <h2>Why Self-Service Matters</h2>
+
+    <p>Let's be honest about the economics. If you have 30 investors across 4 deals, and each investor emails you even once a quarter with a basic question, that's 120 emails a year you're handling manually. At 10 minutes per email (find the data, compose the response, double-check the numbers), that's 20 hours a year spent answering questions that a portal handles automatically.</p>
+
+    <p>But the time savings isn't even the biggest win. The biggest win is <strong>investor confidence</strong>.</p>
+
+    <p>When your LPs can log in at 11 PM and see exactly where their money is, how much they've received, and when the next distribution is expected — they feel informed. Informed investors are calm investors. Calm investors re-up for your next deal.</p>
+
+    <div class="callout">
+      <strong>The investor experience gap:</strong>
+      <p>Most LPs invest with multiple sponsors. The one who provides the best transparency and communication wins their next allocation — even if returns are comparable. The LP Portal is a competitive advantage, not just a feature.</p>
+    </div>
+
+    <h2>Capital Account — Real-Time, Always Accurate</h2>
+
+    <p>The capital account view is the heart of the LP Portal. For each deal an investor participates in, they see:</p>
+
+    <ul>
+      <li><strong>Total contributions</strong> — every capital call they've funded</li>
+      <li><strong>Total distributions received</strong> — broken down by period</li>
+      <li><strong>Unreturned capital</strong> — how much of their original investment is still deployed</li>
+      <li><strong>Preferred return accrued</strong> — what they're owed vs. what's been paid</li>
+      <li><strong>Equity multiple (MOIC)</strong> — total value / total invested</li>
+    </ul>
+
+    <img src="images/capital-accounts.png" alt="Capital account view showing contributions, distributions, and unreturned capital per investor">
+    <em>GP-side capital account view. LPs see their own data in the same format.</em>
+
+    <p>This data updates automatically when you post distributions or record capital calls. There's no manual sync step — the portal always reflects the current state of the ledger.</p>
+
+    <h2>K-1 Vault — Self-Service Tax Season</h2>
+
+    <p>K-1 season is stressful enough without fielding "Where's my K-1?" emails from every investor. With deeltrack:</p>
+
+    <ol>
+      <li>Upload K-1s from your CPA (individually or in bulk)</li>
+      <li>deeltrack auto-sorts them by investor and tax year</li>
+      <li>Each LP downloads their own K-1 from the portal</li>
+      <li>You track delivery status — who's downloaded, who hasn't</li>
+    </ol>
+
+    <p>No more emailing password-protected PDFs one at a time. No more "I didn't get mine" follow-ups. The K-1 is in their portal. They can access it whenever their CPA needs it.</p>
+
+    <h2>Distribution History With Context</h2>
+
+    <p>LPs don't just want to know <em>how much</em> they received — they want to understand the waterfall math. The portal shows each distribution with:</p>
+
+    <ul>
+      <li>Date and period (Q1 2026, Annual 2025, etc.)</li>
+      <li>Total distribution amount and their personal allocation</li>
+      <li>Waterfall tier breakdown (how much was pref vs. residual)</li>
+      <li>Payment method and status</li>
+    </ul>
+
+    <p>This level of transparency builds trust. When an investor can see that their pref was fully satisfied before the GP took promote, they understand the alignment.</p>
+
+    <h2>Branded Experience</h2>
+
+    <p>The LP Portal isn't a generic deeltrack page — it's branded with your firm's identity. Your logo, your firm name, your contact information. From the investor's perspective, it's <em>your</em> portal.</p>
+
+    <p>This matters because your LP experience is a reflection of your professionalism. A branded, polished portal signals that you take operations seriously — which is exactly what sophisticated LPs look for.</p>
+
+    <h2>Security</h2>
+
+    <p>Investor data is sensitive. SSNs, bank accounts, tax documents — this isn't data you want floating in email attachments. The LP Portal provides:</p>
+
+    <ul>
+      <li><strong>Firebase Authentication</strong> — secure login with email/password</li>
+      <li><strong>Role-based access</strong> — LPs only see their own data, never other investors'</li>
+      <li><strong>KMS encryption</strong> — sensitive fields (TIN, banking) encrypted with Cloud KMS</li>
+      <li><strong>HTTPS everywhere</strong> — all data in transit is encrypted</li>
+      <li><strong>No email attachments</strong> — K-1s and documents live in the portal, not in inboxes</li>
+    </ul>
+
+    <h2>Getting Investors Set Up</h2>
+
+    <p>Adding an investor to the portal takes about 30 seconds:</p>
+
+    <ol>
+      <li>Add the investor to your CRM with their email</li>
+      <li>Link them to the relevant deal(s)</li>
+      <li>They receive a signup link and create their account</li>
+      <li>Once logged in, they immediately see their portfolio</li>
+    </ol>
+
+    <p>No onboarding calls. No training sessions. The portal is intuitive enough that investors figure it out on their own — which is the whole point.</p>
+
+    <div class="callout">
+      <strong>The real test:</strong>
+      <p>If an investor's CPA can log in, download the K-1, and get what they need without calling anyone — the portal works. That's the bar we built to.</p>
+    </div>
+
+    <h2>What Makes This Different</h2>
+
+    <p>Most investor management platforms treat the LP portal as an afterthought — a read-only view of a PDF report. deeltrack's portal is a living dashboard:</p>
+
+    <ul>
+      <li>Data updates in real time (no manual sync or "refresh reports")</li>
+      <li>K-1s are self-service (not emailed as attachments)</li>
+      <li>Capital accounts show accrual-level detail (not just totals)</li>
+      <li>Distribution history includes waterfall context (not just dollar amounts)</li>
+      <li>Branded with your firm's identity (not generic platform branding)</li>
+    </ul>
+
+    <p>The best investor experience is one that eliminates the need for investor emails. That's what we built.</p>
+
+    <div class="cta-box">
+      <h3>Give your investors the experience they deserve.</h3>
+      <p>$49/deal/month. LP Portal included. No per-investor fees.</p>
+      <a href="../signup.html" class="btn">Get Started Free →</a>
+    </div>
+  </article>
+
+  <footer>
+    <p>© 2026 deeltrack. <a href="../terms.html">Terms</a> · <a href="../privacy.html">Privacy</a> · <a href="https://x.com/deeltrack">@deeltrack</a></p>
+  </footer>
+
+</body>
+</html>
