@@ -706,14 +706,18 @@
                   </div>
                 </div>
                 
-                <div style="margin-top: 24px; display: flex; gap: 12px;">
+                <div style="margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap;">
                   <button class="btn btn-primary" onclick="generatePreview()" id="previewBtn">
                     <i class="fas fa-eye"></i> Generate Preview
                   </button>
                   <button class="btn btn-secondary" onclick="saveDraft()">
                     <i class="fas fa-save"></i> Save Draft
                   </button>
+                  <button class="btn btn-secondary" onclick="runDocReview()" id="docReviewBtn" style="display:none;" title="AI compares the generated document against your deal data">
+                    <i class="fas fa-search-plus"></i> AI Review
+                  </button>
                 </div>
+                <div id="docReviewResults" style="display:none;margin-top:16px;"></div>
               </div>
             </div>
           </div>
@@ -1226,8 +1230,80 @@
       document.querySelector('[data-tab="preview"]').classList.add('active');
       document.getElementById('tab-preview').classList.add('active');
       if (typeof updateSendForSigVisibility === 'function') updateSendForSigVisibility();
+      // Show AI Review button after preview
+      const reviewBtn = document.getElementById('docReviewBtn');
+      if (reviewBtn) reviewBtn.style.display = '';
     }
     
+    async function runDocReview() {
+      const docEl = document.getElementById('documentPreview');
+      if (!docEl || !docEl.textContent.trim()) { alert('Generate a preview first.'); return; }
+      
+      const btn = document.getElementById('docReviewBtn');
+      const resultsEl = document.getElementById('docReviewResults');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Reviewing...';
+
+      try {
+        if (typeof SPAI === 'undefined') throw new Error('AI module not loaded');
+        const dealData = {
+          companyName: document.getElementById('companyName')?.value,
+          state: document.getElementById('state')?.value,
+          gpName: document.getElementById('gpName')?.value,
+          prefReturn: document.getElementById('prefReturn')?.value,
+          gpPromote: document.getElementById('promote')?.value,
+          minInvestment: document.getElementById('minInvestment')?.value,
+        };
+
+        const result = await SPAI.reviewDocument(docEl.textContent.substring(0, 15000), dealData);
+
+        let html = '<div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">';
+        html += '<div style="background:var(--primary);color:white;padding:12px 16px;font-size:0.85rem;font-weight:600;"><i class="fas fa-search-plus" style="margin-right:8px;color:var(--accent);"></i>AI Document Review</div>';
+        
+        if (result.summary) {
+          html += '<div style="padding:12px 16px;font-size:0.8rem;color:var(--text);border-bottom:1px solid var(--border);background:#FAFAF8;">' + SP.escapeHtml(result.summary) + '</div>';
+        }
+
+        if (result.mismatches?.length) {
+          html += '<div style="padding:8px 16px;font-size:0.72rem;font-weight:700;color:var(--danger);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border);">⚠ Mismatches (' + result.mismatches.length + ')</div>';
+          result.mismatches.forEach(m => {
+            html += '<div style="padding:8px 16px;font-size:0.78rem;border-bottom:1px solid var(--border-light);display:flex;gap:8px;">';
+            html += '<span style="background:' + (m.severity === 'high' ? 'var(--danger-light)' : 'var(--warning-light)') + ';color:' + (m.severity === 'high' ? 'var(--danger)' : 'var(--warning)') + ';padding:1px 6px;border-radius:4px;font-size:0.7rem;font-weight:600;flex-shrink:0;">' + m.severity + '</span>';
+            html += '<span>' + SP.escapeHtml(m.field) + ': ' + SP.escapeHtml(m.note) + '</span></div>';
+          });
+        }
+
+        if (result.warnings?.length) {
+          html += '<div style="padding:8px 16px;font-size:0.72rem;font-weight:700;color:var(--warning);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border);">Warnings (' + result.warnings.length + ')</div>';
+          result.warnings.forEach(w => {
+            html += '<div style="padding:8px 16px;font-size:0.78rem;border-bottom:1px solid var(--border-light);">';
+            html += '<span style="color:var(--warning);margin-right:6px;">⚠</span>' + SP.escapeHtml(w.note) + '</div>';
+          });
+        }
+
+        if (result.matches?.length) {
+          html += '<div style="padding:8px 16px;font-size:0.72rem;font-weight:700;color:var(--success);text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid var(--border);">✓ Verified (' + result.matches.length + ')</div>';
+          result.matches.forEach(m => {
+            html += '<div style="padding:6px 16px;font-size:0.75rem;color:var(--text-secondary);border-bottom:1px solid var(--border-light);">';
+            html += '<span style="color:var(--success);margin-right:6px;">✓</span>' + SP.escapeHtml(m.field) + '</div>';
+          });
+        }
+
+        html += '</div>';
+        resultsEl.innerHTML = html;
+        resultsEl.style.display = 'block';
+
+      } catch (err) {
+        console.error('[Doc Review]', err);
+        resultsEl.innerHTML = '<div style="padding:12px;background:var(--danger-light);color:var(--danger);border-radius:var(--radius);font-size:0.8rem;">❌ ' + SP.escapeHtml(err.message || 'Review failed') + '</div>';
+        resultsEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-search-plus"></i> AI Review';
+      }
+    }
+    window.runDocReview = runDocReview;
+
     function exportPDF() {
       const preview = document.getElementById('documentPreview');
       if (!preview || !preview.innerHTML.trim()) {
@@ -1562,6 +1638,7 @@
 <!-- mammoth.js for DOCX parsing -->
 <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 <script src="js/sp-doc-upload.js?v1"></script>
+<script src="js/sp-ai.js?v1"></script>
 
 <script>
 // ── BYOD (Bring Your Own Document) Logic ────────────────────────────────────

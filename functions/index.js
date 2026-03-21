@@ -428,6 +428,162 @@ ${truncatedText}`;
   }
 );
 
+// ── Shared Gemini helper ────────────────────────────────────────────────────────
+async function _callGemini(prompt, maxTokens = 4096) {
+  const { GoogleAuth } = require('google-auth-library');
+  const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/generative-language'] });
+  const client = await auth.getClient();
+  const token = await client.getAccessToken();
+
+  const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token.token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.3, maxOutputTokens: maxTokens },
+    }),
+  });
+
+  const body = await res.json();
+  const text = body.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  // Strip markdown fences if present
+  return text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+}
+
+// ── AI: Draft Investor Update ───────────────────────────────────────────────────
+exports.aiDraftInvestorUpdate = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-draft', 10, 60 * 60 * 1000);
+
+    const { dealName, period, updateType, bullets, metrics } = request.data;
+    if (!bullets || bullets.length < 10) throw new HttpsError('invalid-argument', 'Please provide some notes or bullet points.');
+
+    const metricsText = metrics ? `\nAvailable metrics: ${JSON.stringify(metrics)}` : '';
+    const prompt = `You are writing a professional quarterly investor update for a real estate syndication. The tone should be confident, transparent, and data-driven — like a GP who respects their investors' intelligence.
+
+Property: ${dealName || 'the property'}
+Period: ${period || 'this quarter'}
+Update type: ${updateType || 'quarterly'}
+${metricsText}
+
+The GP provided these rough notes:
+${bullets}
+
+Write the following sections as polished prose (2-4 sentences each). Return JSON:
+{
+  "greeting": "Opening paragraph — warm but professional, reference the period and property",
+  "operations": "Operational highlights — what happened this quarter, key wins",
+  "capex": "Renovation/CapEx update — progress, what was completed, what's next",
+  "outlook": "Forward-looking outlook — what to expect next quarter, any risks or opportunities",
+  "distributionNote": "One sentence about the distribution if applicable"
+}
+
+Return ONLY the JSON, no explanation.`;
+
+    try {
+      const result = await _callGemini(prompt, 2048);
+      return JSON.parse(result);
+    } catch (err) {
+      console.error('[AI Draft] Failed:', err.message);
+      throw new HttpsError('internal', 'AI drafting failed');
+    }
+  }
+);
+
+// ── AI: Parse Broker OM ─────────────────────────────────────────────────────────
+exports.aiParseBrokerOM = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-om', 5, 60 * 60 * 1000);
+
+    const { text } = request.data;
+    if (!text || text.length < 50) throw new HttpsError('invalid-argument', 'OM text too short.');
+
+    const prompt = `You are a real estate deal analyzer for a syndication platform. Extract structured deal data from this broker's offering memorandum.
+
+Return JSON with these fields (use null for anything not found):
+{
+  "name": "Property name",
+  "location": "Full address or city, state",
+  "propertyType": "multifamily|industrial|retail|office|mixed-use|self-storage|hospitality",
+  "units": number or null,
+  "yearBuilt": number or null,
+  "sqft": number or null,
+  "askingPrice": number or null,
+  "pricePerUnit": number or null,
+  "pricePerSqft": number or null,
+  "capRate": number (as percentage, e.g. 6.5) or null,
+  "noi": number or null,
+  "occupancy": number (as percentage) or null,
+  "totalRaise": number or null,
+  "irr": number or null,
+  "highlights": ["key selling point 1", "key selling point 2", "..."],
+  "risks": ["risk factor 1", "risk factor 2"],
+  "market": "Brief market summary (1-2 sentences)"
+}
+
+Return ONLY the JSON, no explanation.
+
+OM TEXT:
+${text.substring(0, 20000)}`;
+
+    try {
+      const result = await _callGemini(prompt, 2048);
+      return { deal: JSON.parse(result) };
+    } catch (err) {
+      console.error('[AI OM] Failed:', err.message);
+      throw new HttpsError('internal', 'OM parsing failed');
+    }
+  }
+);
+
+// ── AI: Document Review ─────────────────────────────────────────────────────────
+exports.aiReviewDocument = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'ai-review', 10, 60 * 60 * 1000);
+
+    const { documentText, dealData } = request.data;
+    if (!documentText || documentText.length < 100) throw new HttpsError('invalid-argument', 'Document text too short.');
+
+    const prompt = `You are a legal document reviewer for a real estate syndication platform. Compare the generated operating agreement against the deal data to find mismatches, inconsistencies, or potential issues.
+
+DEAL DATA:
+${JSON.stringify(dealData, null, 2)}
+
+DOCUMENT (first 15000 chars):
+${documentText.substring(0, 15000)}
+
+Return JSON:
+{
+  "matches": [{"field": "field name", "dealValue": "from deal", "docValue": "from document", "note": "brief note"}],
+  "mismatches": [{"field": "field name", "dealValue": "from deal", "docValue": "from document", "severity": "high|medium|low", "note": "what's wrong"}],
+  "warnings": [{"note": "potential issue or missing clause", "severity": "high|medium|low"}],
+  "summary": "One-paragraph overall assessment"
+}
+
+Return ONLY the JSON, no explanation.`;
+
+    try {
+      const result = await _callGemini(prompt, 4096);
+      return JSON.parse(result);
+    } catch (err) {
+      console.error('[AI Review] Failed:', err.message);
+      throw new HttpsError('internal', 'Document review failed');
+    }
+  }
+);
+
 // ── Stripe Customer Portal ─────────────────────────────────────────────────────
 /**
  * createBillingPortalSession — callable function to open Stripe Customer Portal

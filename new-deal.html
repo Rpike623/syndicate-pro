@@ -706,6 +706,21 @@
               <p class="step-subtitle">Let's start with the fundamental information about your investment opportunity.</p>
             </div>
             
+            <!-- AI: Import from Broker OM -->
+            <div style="margin-bottom:24px;padding:20px;border:1px dashed var(--accent, #F37925);border-radius:12px;background:linear-gradient(135deg,rgba(243,121,37,0.04),rgba(243,121,37,0.01));">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <i class="fas fa-file-import" style="color:var(--accent, #F37925);font-size:1.1rem;"></i>
+                <span style="font-weight:700;font-size:0.9rem;">Import from Broker OM</span>
+                <span style="font-size:0.65rem;background:rgba(243,121,37,0.12);color:var(--accent, #F37925);padding:2px 8px;border-radius:10px;font-weight:600;">✨ AI</span>
+              </div>
+              <p style="font-size:0.78rem;color:#6B6560;margin-bottom:12px;line-height:1.5;">Have a broker's offering memorandum? Paste it below and we'll extract the deal details automatically.</p>
+              <textarea id="omPasteArea" rows="4" style="width:100%;padding:10px;border:1px solid #E2DDD8;border-radius:8px;font-size:0.82rem;font-family:inherit;resize:vertical;" placeholder="Paste the broker's OM text here (property description, financials, location, etc.)..."></textarea>
+              <button class="btn btn-primary" id="omParseBtn" onclick="parseOMText()" style="margin-top:10px;width:100%;padding:10px;font-size:0.85rem;">
+                <i class="fas fa-magic"></i> Extract Deal Data
+              </button>
+              <div id="omParseStatus" style="display:none;margin-top:8px;font-size:0.75rem;text-align:center;"></div>
+            </div>
+
             <div class="form-section">
               <h3 class="section-title"><i class="fas fa-building"></i> Property Information</h3>
               <div class="form-grid">
@@ -2100,6 +2115,69 @@
 
     // Initialize
     updateWaterfallPreview();
+
+    // AI: Parse Broker OM
+    async function parseOMText() {
+      const text = document.getElementById('omPasteArea').value.trim();
+      if (!text || text.length < 50) { alert('Please paste the broker OM text first (at least a few sentences).'); return; }
+
+      const btn = document.getElementById('omParseBtn');
+      const status = document.getElementById('omParseStatus');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting...';
+      status.style.display = 'block';
+      status.style.color = '#6B6560';
+      status.textContent = 'AI is reading the offering memorandum...';
+
+      try {
+        if (typeof SPAI === 'undefined') throw new Error('AI module not loaded');
+        const result = await SPAI.parseBrokerOM(text);
+        const d = result.deal;
+
+        // Fill form fields
+        if (d.name) { const el = document.getElementById('dealName'); if (el) { el.value = d.name; el.dispatchEvent(new Event('input')); } }
+        if (d.location) { const el = document.getElementById('propertyAddress'); if (el) el.value = d.location; }
+        if (d.propertyType) {
+          const el = document.getElementById('propertyType');
+          if (el) {
+            const typeMap = { multifamily: 'multifamily', industrial: 'industrial', retail: 'retail', office: 'office', 'mixed-use': 'mixed-use', 'self-storage': 'self-storage', hospitality: 'hospitality' };
+            const val = typeMap[d.propertyType.toLowerCase()] || '';
+            if (val) el.value = val;
+          }
+        }
+        if (d.units) { const el = document.getElementById('totalUnits'); if (el) el.value = d.units; }
+        if (d.yearBuilt) { const el = document.getElementById('yearBuilt'); if (el) el.value = d.yearBuilt; }
+        if (d.sqft) { const el = document.getElementById('totalSF'); if (el) el.value = d.sqft.toLocaleString(); }
+        if (d.askingPrice) { const el = document.getElementById('purchasePrice'); if (el) el.value = d.askingPrice; }
+        if (d.totalRaise) { const el = document.getElementById('equityRaise'); if (el) el.value = d.totalRaise; }
+        if (d.capRate) { const el = document.getElementById('capRate'); if (el) el.value = d.capRate; }
+        if (d.irr) { const el = document.getElementById('targetIRR'); if (el) el.value = d.irr; }
+        if (d.occupancy) { const el = document.getElementById('occupancy'); if (el) el.value = d.occupancy; }
+
+        // Market/highlights into description
+        let desc = '';
+        if (d.market) desc += d.market + '\n\n';
+        if (d.highlights?.length) desc += 'Highlights:\n' + d.highlights.map(h => '• ' + h).join('\n') + '\n\n';
+        if (d.risks?.length) desc += 'Risk Factors:\n' + d.risks.map(r => '• ' + r).join('\n');
+        if (desc) { const el = document.getElementById('investmentThesis') || document.getElementById('dealDescription'); if (el) el.value = desc.trim(); }
+
+        if (typeof updatePreview === 'function') updatePreview();
+
+        status.style.color = '#2D9A6B';
+        const fieldCount = Object.values(d).filter(v => v !== null && v !== undefined).length;
+        status.textContent = '✅ Extracted ' + fieldCount + ' fields from the OM. Review and adjust below.';
+
+      } catch (err) {
+        console.error('[OM Parse]', err);
+        status.style.color = '#D94F3D';
+        status.textContent = '❌ ' + (err.message || 'Failed to parse OM. Try again.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-magic"></i> Extract Deal Data';
+      }
+    }
+    window.parseOMText = parseOMText;
   </script>
+  <script src="js/sp-ai.js?v1"></script>
 </body>
 </html>
