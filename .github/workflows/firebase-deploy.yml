@@ -85,6 +85,7 @@ jobs:
             stripeWebhook
             firmaWebhook
             createBillingPortalSession
+            parseDocumentVariables
           )
           for fn in "${CALLABLE_FUNCTIONS[@]}"; do
             echo "Setting allUsers invoker on $fn..."

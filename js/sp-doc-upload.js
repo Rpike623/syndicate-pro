@@ -280,11 +280,67 @@ const SPDocUpload = (function() {
     return output;
   }
 
+  // ── AI-powered variable extraction via Cloud Function ───────────────────
+  async function extractVariablesAI(text, docType) {
+    try {
+      if (typeof firebase === 'undefined' || !firebase.functions) {
+        console.warn('[DocUpload] Firebase functions not available, falling back to regex');
+        return null;
+      }
+
+      const callable = firebase.functions().httpsCallable('parseDocumentVariables');
+      const result = await callable({ text, docType: docType || 'operating agreement' });
+
+      if (result.data?.variables?.length) {
+        // Map AI response to our internal format
+        return result.data.variables.map((v, i) => ({
+          id: 'var_' + Date.now() + '_' + i,
+          name: v.name || 'UNKNOWN',
+          label: v.label || v.name,
+          category: v.category || 'entity',
+          value: v.value || '',
+          context: v.context || '',
+          position: i * 100, // Approximate ordering
+          enabled: true,
+          placeholder: `{{${v.name || 'UNKNOWN'}}}`,
+          occurrences: 1, // Will be counted below
+          source: 'ai',
+        })).map(v => {
+          // Count actual occurrences in text
+          if (v.value) {
+            const escaped = v.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            try {
+              v.occurrences = (text.match(new RegExp(escaped, 'g')) || []).length;
+            } catch(e) { /* skip */ }
+          }
+          return v;
+        });
+      }
+      return null;
+    } catch (err) {
+      console.warn('[DocUpload] AI extraction failed, falling back to regex:', err.message);
+      return null;
+    }
+  }
+
+  // ── Smart extraction: try AI first, fall back to regex ────────────────────
+  async function extractVariablesSmart(text, docType) {
+    // Try AI first
+    const aiVars = await extractVariablesAI(text, docType);
+    if (aiVars && aiVars.length > 0) {
+      return { variables: aiVars, method: 'ai' };
+    }
+    // Fall back to regex
+    return { variables: extractVariables(text), method: 'regex' };
+  }
+
   // ── Public API ────────────────────────────────────────────────────────────
   return {
     parseDocx,
     parsePdf,
     extractVariables,
+    extractVariablesAI,
+    extractVariablesSmart,
     buildTemplate,
     saveTemplate,
     getTemplates,

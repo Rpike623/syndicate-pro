@@ -1604,7 +1604,10 @@
       }
 
       // Extract variables
-      _extractedVars = SPDocUpload.extractVariables(_originalText);
+      // Try AI extraction first (Gemini 2.5 Flash), fall back to regex
+      const extraction = await SPDocUpload.extractVariablesSmart(_originalText, currentDocType);
+      _extractedVars = extraction.variables;
+      window._extractionMethod = extraction.method;
 
       // Render results
       renderVariableReview();
@@ -1650,7 +1653,7 @@
     const catIcons = { entity: 'fa-building', financial: 'fa-dollar-sign', parties: 'fa-users', dates: 'fa-calendar' };
 
     let html = `<div style="margin-bottom:16px;padding:12px 16px;background:var(--accent-light);border-radius:var(--radius);font-size:0.82rem;color:var(--text);">
-      <strong>${_extractedVars.length} variables</strong> found in <strong>${_fileName}</strong>.
+      <strong>${_extractedVars.length} variables</strong> found in <strong>${_fileName}</strong>${window._extractionMethod === 'ai' ? ' <span style="background:var(--success-light);color:var(--success);padding:2px 8px;border-radius:10px;font-size:0.7rem;font-weight:600;margin-left:6px;">✨ AI-powered</span>' : ''}.
       Each will become a fillable field in your template. Toggle off any that should stay as fixed text.
     </div>`;
 

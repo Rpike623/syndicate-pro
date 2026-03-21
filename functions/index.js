@@ -339,6 +339,95 @@ exports.createCheckoutSession = onCall(
   }
 );
 
+// ── AI Document Variable Extraction (Gemini 2.5 Flash) ─────────────────────────
+/**
+ * parseDocumentVariables — extract template variables from uploaded legal document text
+ * Uses Gemini 2.5 Flash via Google Generative Language API (free tier via service account)
+ * Called from sp-doc-upload.js after DOCX text extraction
+ */
+exports.parseDocumentVariables = onCall(
+  { region: 'us-central1' },
+  async (request) => {
+    const uid = request.auth?.uid;
+    if (!uid) throw new HttpsError('unauthenticated', 'Must be logged in.');
+    rateLimit(uid, 'docparse', 5, 60 * 60 * 1000); // 5 parses per hour
+
+    const { text, docType } = request.data;
+    if (!text || text.length < 100) {
+      throw new HttpsError('invalid-argument', 'Document text too short.');
+    }
+
+    // Truncate to ~30K chars to stay within token limits
+    const truncatedText = text.substring(0, 30000);
+
+    const prompt = `You are a legal document parser for a real estate syndication platform. Given this ${docType || 'operating agreement'}, extract ALL variable fields that would change between deals.
+
+Return a JSON array where each item has:
+- "name": short variable name (SCREAMING_SNAKE_CASE, e.g. COMPANY_NAME, PREF_RETURN_PCT)
+- "label": human-readable label (e.g. "Company Name", "Preferred Return %")
+- "category": one of entity|financial|parties|dates|legal
+- "value": the exact text found in the document
+- "context": a short phrase showing where it appears (max 80 chars)
+
+Focus on fields that would change between deals:
+- Entity names (LLC, LP names)
+- State of formation, filing numbers
+- Addresses
+- Member/partner names
+- Dollar amounts (capital contributions, minimum investments)
+- Percentages (preferred return, promote/carry, ownership splits, GP equity)
+- Dates (effective date, formation date)
+- Hold periods, distribution frequency
+- Fee percentages (management, acquisition, disposition)
+
+Do NOT extract:
+- Standard legal boilerplate (Treasury Regulations, IRS references, generic legal terms)
+- Section/article numbers
+- Generic terms like "Members" or "Manager" without specific names
+
+Return ONLY the JSON array, no markdown fences, no explanation.
+
+DOCUMENT:
+${truncatedText}`;
+
+    try {
+      const { GoogleAuth } = require('google-auth-library');
+      const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/generative-language'] });
+      const client = await auth.getClient();
+      const token = await client.getAccessToken();
+
+      const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 4096 },
+        }),
+      });
+
+      const body = await res.json();
+      const responseText = body.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+      // Parse JSON from response (handle markdown fences if present)
+      const jsonMatch = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const variables = JSON.parse(jsonMatch);
+
+      if (!Array.isArray(variables)) {
+        throw new Error('Expected JSON array from AI');
+      }
+
+      return { variables, model: 'gemini-2.5-flash', charsParsed: truncatedText.length };
+
+    } catch (err) {
+      console.error('[DocParse] AI extraction failed:', err.message);
+      throw new HttpsError('internal', 'AI parsing failed: ' + err.message);
+    }
+  }
+);
+
 // ── Stripe Customer Portal ─────────────────────────────────────────────────────
 /**
  * createBillingPortalSession — callable function to open Stripe Customer Portal
