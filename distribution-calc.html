@@ -363,7 +363,6 @@ function setStep(n) {
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────
-let _initRetries = 0;
 function init() {
   const deals = SP.getDeals();
 
@@ -385,18 +384,10 @@ function init() {
   });
 
   if (!activeDeals.length) {
-    // Retry: SPData may not have hydrated yet (race between SPFB.onReady and SPData.init)
-    if (_initRetries < 10 && SP.isLoggedIn()) {
-      _initRetries++;
-      setTimeout(init, 500);
-      return; // don't show "no deals" placeholder while retrying
-    }
     const opt = document.createElement('option');
     opt.disabled = true;
     opt.textContent = 'No deals found — add a deal first';
     sel.appendChild(opt);
-  } else {
-    _initRetries = 0; // reset on success
   }
 
   if (currentVal) sel.value = currentVal;
@@ -1069,6 +1060,27 @@ function resetForm() {
 SP.onDataReady(init);
 // Re-init when SPData hydrates (may fire after SP.onDataReady)
 window.addEventListener('spdata-ready', init);
+// Failsafe: poll for deals if dropdown is still empty after initial load
+// Covers race condition where SPFB.onReady fires before SPData patches SP.getDeals
+(function _dealPollFailsafe() {
+  let checks = 0;
+  const iv = setInterval(() => {
+    checks++;
+    if (checks > 30) { clearInterval(iv); return; } // give up after 15s
+    const sel = document.getElementById('dealSelect');
+    if (!sel) { clearInterval(iv); return; }
+    // If dropdown has more than just the placeholder, we're good
+    if (sel.options.length > 1 && sel.options[1] && !sel.options[1].disabled) {
+      clearInterval(iv); return;
+    }
+    // If SP.getDeals returns data but dropdown is empty, re-run init
+    const deals = SP.getDeals();
+    if (deals && deals.length > 0) {
+      init();
+      clearInterval(iv);
+    }
+  }, 500);
+})();
 
 // Close wire report modal on Escape
 document.addEventListener('keydown', e => {
