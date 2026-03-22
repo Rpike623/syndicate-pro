@@ -709,7 +709,9 @@ function loadPortalData() {
   allCalls.forEach(c => {
     if (myDealIds.has(c.dealId)) {
       const deal = _allDeals.find(d => d.id === c.dealId);
-      _myCalls.push({ call: c, deal });
+      const link = _linked.find(l => l.deal.id === c.dealId);
+      const myOwnership = link ? (link.entry.ownership || 0) / 100 : 0;
+      _myCalls.push({ call: c, deal, myOwnership });
     }
   });
 
@@ -925,9 +927,9 @@ function renderCapitalCalls() {
     return;
   }
 
-  const totalCalled = _myCalls.reduce((s,{call}) => s + (call.amount||0), 0);
+  const totalCalled = _myCalls.reduce((s,{call, myOwnership}) => s + Math.round((call.amount||0) * myOwnership), 0);
   const funded = _myCalls.filter(({call}) => call.status === 'received');
-  const totalFunded = funded.reduce((s,{call}) => s + (call.amount||0), 0);
+  const totalFunded = funded.reduce((s,{call, myOwnership}) => s + Math.round((call.amount||0) * myOwnership), 0);
   const pending = _myCalls.filter(({call}) => call.status !== 'received');
   const overdue = pending.filter(({call}) => call.dueDate && new Date(call.dueDate) < new Date());
 
@@ -958,7 +960,8 @@ function renderCapitalCalls() {
     return aPri - bPri;
   });
 
-  el.innerHTML = sorted.map(({call, deal}) => {
+  el.innerHTML = sorted.map(({call, deal, myOwnership}) => {
+    const myAmount = Math.round((call.amount||0) * (myOwnership||0));
     const isOverdue = call.dueDate && new Date(call.dueDate) < new Date() && call.status !== 'received';
     const isPaid = call.status === 'received';
     const days = daysUntil(call.dueDate);
@@ -972,8 +975,9 @@ function renderCapitalCalls() {
           <span class="badge ${isOverdue?'badge-overdue':isPaid?'badge-paid':'badge-pending'}">${isOverdue?'Overdue':isPaid?'Paid':call.status==='sent'?'Sent':'Pending'}</span>
         </div>
         <div class="call-amount">
-          <div class="amount" style="color:${isOverdue?'var(--danger)':isPaid?'var(--success)':'var(--text)'};">${fmtFull$(call.amount)}</div>
+          <div class="amount" style="color:${isOverdue?'var(--danger)':isPaid?'var(--success)':'var(--text)'};">${fmtFull$(myAmount)}</div>
           <div class="due">${dueLabel}</div>
+          <div style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">Your share (${(myOwnership*100).toFixed(2)}%)</div>
           ${call.dueDate ? '<div style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">Due: '+fmtDate(call.dueDate)+'</div>' : ''}
         </div>
       </div>
@@ -1093,7 +1097,7 @@ function renderDocuments() {
           <div style="font-weight:600;font-size:.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${doc.name}</div>
           <div style="font-size:.75rem;color:var(--text-muted);">${doc.type}${doc.date ? ' · ' + fmtDate(doc.date) : ''}</div>
         </div>
-        ${ref ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDocByRef('${ref}')"><i class="fas fa-eye"></i> View</button>` : '<span style="font-size:.72rem;color:var(--text-muted);">No file</span>'}
+        ${ref ? `<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openDocByRef('${ref}')"><i class="fas fa-eye"></i> View</button>` : '<span style="font-size:.72rem;color:var(--text-muted);">Preview unavailable</span>'}
       </div>`;
     }).join('');
 
