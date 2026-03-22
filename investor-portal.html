@@ -998,13 +998,23 @@ function renderDocuments() {
     if (!dealDocMap[deal.id]) dealDocMap[deal.id] = { dealName: deal.name, location: deal.location, docs: [] };
 
     if (deal.generatedOA) {
-      dealDocMap[deal.id].docs.push({ name: 'Operating Agreement', icon: 'fa-file-contract', iconClass: 'legal', type: 'Legal', date: deal.oaGeneratedAt, fileUrl: deal.generatedOA.startsWith && deal.generatedOA.startsWith('data:') ? deal.generatedOA : null, dealId: deal.id });
+      // OA can be data: URL or raw HTML — both are viewable
+      const oaUrl = deal.generatedOA.startsWith && deal.generatedOA.startsWith('data:')
+        ? deal.generatedOA
+        : 'data:text/html;charset=utf-8,' + encodeURIComponent(deal.generatedOA);
+      dealDocMap[deal.id].docs.push({ name: 'Operating Agreement', icon: 'fa-file-contract', iconClass: 'legal', type: 'Legal', date: deal.oaGeneratedAt, fileUrl: oaUrl, dealId: deal.id, _dedupKey: 'oa' });
     }
     if (deal.generatedOM || deal.omGeneratedAt) {
-      dealDocMap[deal.id].docs.push({ name: 'Offering Memorandum', icon: 'fa-book', iconClass: 'legal', type: 'Legal', date: deal.omGeneratedAt, dealId: deal.id });
+      const omUrl = deal.generatedOM && typeof deal.generatedOM === 'string' && !deal.generatedOM.startsWith('data:')
+        ? 'data:text/html;charset=utf-8,' + encodeURIComponent(deal.generatedOM)
+        : deal.generatedOM || null;
+      dealDocMap[deal.id].docs.push({ name: 'Offering Memorandum', icon: 'fa-book', iconClass: 'legal', type: 'Legal', date: deal.omGeneratedAt, fileUrl: omUrl, dealId: deal.id, _dedupKey: 'om' });
     }
     if (deal.subAgreement) {
-      dealDocMap[deal.id].docs.push({ name: 'Subscription Agreement', icon: 'fa-file-signature', iconClass: 'legal', type: 'Legal', date: deal.subAgreementDate });
+      const subUrl = deal.subAgreement && typeof deal.subAgreement === 'string' && !deal.subAgreement.startsWith('data:')
+        ? 'data:text/html;charset=utf-8,' + encodeURIComponent(deal.subAgreement)
+        : deal.subAgreement || null;
+      dealDocMap[deal.id].docs.push({ name: 'Subscription Agreement', icon: 'fa-file-signature', iconClass: 'legal', type: 'Legal', date: deal.subAgreementDate, fileUrl: subUrl, _dedupKey: 'sub' });
     }
 
     // Deal room files — respect access controls
@@ -1064,15 +1074,14 @@ function renderDocuments() {
 
   let entries = Object.entries(dealDocMap).filter(([_, v]) => v.docs.length > 0);
 
-  // If no real docs found (demo account), seed demo documents
+  // If no real docs found (demo account), seed demo documents — only add what's missing
   if (!entries.length && _linked.length) {
     _linked.forEach(({deal}) => {
       if (!dealDocMap[deal.id]) dealDocMap[deal.id] = { dealName: deal.name, location: deal.location, docs: [] };
-      dealDocMap[deal.id].docs.push(
-        { name: 'Operating Agreement', icon: 'fa-file-contract', iconClass: 'legal', type: 'Legal', date: deal.added || '2026-01-15' },
-        { name: 'Private Placement Memorandum', icon: 'fa-book', iconClass: 'legal', type: 'Legal', date: deal.added || '2026-01-15' },
-        { name: 'Subscription Agreement', icon: 'fa-file-signature', iconClass: 'legal', type: 'Legal', date: deal.added || '2026-01-20' }
-      );
+      const existing = new Set(dealDocMap[deal.id].docs.map(d => d._dedupKey).filter(Boolean));
+      if (!existing.has('oa')) dealDocMap[deal.id].docs.push({ name: 'Operating Agreement', icon: 'fa-file-contract', iconClass: 'legal', type: 'Legal', date: deal.closingDate || '2025-11-15' });
+      if (!existing.has('om')) dealDocMap[deal.id].docs.push({ name: 'Private Placement Memorandum', icon: 'fa-book', iconClass: 'legal', type: 'Legal', date: deal.closingDate || '2025-10-20' });
+      if (!existing.has('sub')) dealDocMap[deal.id].docs.push({ name: 'Subscription Agreement', icon: 'fa-file-signature', iconClass: 'legal', type: 'Legal', date: deal.closingDate || '2025-11-01' });
     });
     entries = Object.entries(dealDocMap).filter(([_, v]) => v.docs.length > 0);
   }
