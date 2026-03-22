@@ -1066,7 +1066,7 @@ window.addEventListener('spdata-ready', init);
   let checks = 0;
   const iv = setInterval(() => {
     checks++;
-    if (checks > 30) { clearInterval(iv); return; } // give up after 15s
+    if (checks > 60) { clearInterval(iv); return; } // give up after 30s
     const sel = document.getElementById('dealSelect');
     if (!sel) { clearInterval(iv); return; }
     // If dropdown has more than just the placeholder, we're good
