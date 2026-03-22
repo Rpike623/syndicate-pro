@@ -1074,12 +1074,18 @@ function renderDocuments() {
 
   let entries = Object.entries(dealDocMap).filter(([_, v]) => v.docs.length > 0);
 
-  // Deduplicate docs per deal by name — keep the entry with fileUrl if one exists
+  // Deduplicate docs per deal by name — keep best: fileUrl wins, then type 'Legal' wins over 'File'
   Object.values(dealDocMap).forEach(dm => {
     const seen = {};
     dm.docs.forEach(doc => {
       const key = (doc.name || '').toLowerCase().trim();
-      if (!seen[key] || (doc.fileUrl && !seen[key].fileUrl)) seen[key] = doc;
+      const prev = seen[key];
+      if (!prev) { seen[key] = doc; return; }
+      // Prefer entry with a real fileUrl
+      if (doc.fileUrl && !prev.fileUrl) { seen[key] = doc; return; }
+      if (prev.fileUrl && !doc.fileUrl) return;
+      // Prefer Legal type over File (generated > dealroom placeholder)
+      if (doc.type === 'Legal' && prev.type !== 'Legal') { seen[key] = doc; return; }
     });
     dm.docs = Object.values(seen);
   });

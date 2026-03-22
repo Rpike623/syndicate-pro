@@ -628,7 +628,7 @@ window.SP = (function () {
   function seedDemoData(session) {
     // Always seed under the shared demo org key
     // Bump SEED_VERSION to force re-seed when demo data changes
-    const SEED_VERSION = 6;
+    const SEED_VERSION = 7;
     const demoOrgKey = `sp_org_${DEMO_ORG_ID}_deals`;
     const seedVersionKey = `sp_org_${DEMO_ORG_ID}_seed_v`;
     const currentVersion = parseInt(localStorage.getItem(seedVersionKey) || '0', 10);
@@ -970,9 +970,9 @@ window.SP = (function () {
 
     // Seed deal room docs for deals with investors (Pulse checks these via SP.load)
     const _subDocs = [
-      { id:'d_sub', name:'Subscription Agreement', type:'subscription', uploadedAt: new Date().toISOString() },
-      { id:'d_ppm', name:'Private Placement Memorandum', type:'ppm', uploadedAt: new Date().toISOString() },
-      { id:'d_oa', name:'Operating Agreement', type:'oa', uploadedAt: new Date().toISOString() },
+      { id:'d_sub', name:'Subscription Agreement', type:'subscription', uploadedAt: '2025-10-15T14:00:00.000Z' },
+      { id:'d_ppm', name:'Private Placement Memorandum', type:'ppm', uploadedAt: '2025-10-01T09:00:00.000Z' },
+      { id:'d_oa', name:'Operating Agreement', type:'oa', uploadedAt: '2025-11-01T10:00:00.000Z' },
     ];
     deals.forEach(d => {
       if ((d.investors || []).length > 0) {
