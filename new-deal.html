@@ -899,6 +899,18 @@
                     <input type="number" id="minInvestment" placeholder="50,000">
                   </div>
                 </div>
+                
+                <div class="form-group">
+                  <label>Target IRR (%)</label>
+                  <input type="number" id="targetIRR" step="0.1" placeholder="e.g., 18.5">
+                  <span class="field-hint">Projected internal rate of return shown to investors</span>
+                </div>
+                
+                <div class="form-group">
+                  <label>Target Equity Multiple</label>
+                  <input type="number" id="targetEM" step="0.01" placeholder="e.g., 2.0">
+                  <span class="field-hint">Projected return on invested capital (e.g. 2.0x = 2× money back)</span>
+                </div>
               </div>
             </div>
             
@@ -1132,7 +1144,7 @@
               
               <div class="doc-options">
                 <label class="doc-option selected">
-                  <input type="checkbox" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
+                  <input type="checkbox" id="docOA" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
                   <div class="doc-icon"><i class="fas fa-balance-scale"></i></div>
                   <div class="doc-content">
                     <div class="doc-name">Operating Agreement</div>
@@ -1141,7 +1153,7 @@
                 </label>
                 
                 <label class="doc-option selected">
-                  <input type="checkbox" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
+                  <input type="checkbox" id="docLPA" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
                   <div class="doc-icon"><i class="fas fa-handshake"></i></div>
                   <div class="doc-content">
                     <div class="doc-name">LP Agreement</div>
@@ -1150,7 +1162,7 @@
                 </label>
                 
                 <label class="doc-option selected">
-                  <input type="checkbox" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
+                  <input type="checkbox" id="docPPM" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
                   <div class="doc-icon"><i class="fas fa-file-alt"></i></div>
                   <div class="doc-content">
                     <div class="doc-name">Private Placement Memo</div>
@@ -1159,7 +1171,7 @@
                 </label>
                 
                 <label class="doc-option selected">
-                  <input type="checkbox" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
+                  <input type="checkbox" id="docSub" checked onchange="this.closest('.doc-option').classList.toggle('selected')">
                   <div class="doc-icon"><i class="fas fa-pen-fancy"></i></div>
                   <div class="doc-content">
                     <div class="doc-name">Subscription Agreement</div>
@@ -1781,11 +1793,13 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
       const urlId = new URLSearchParams(window.location.search).get('id');
       const spDeals = SP.getDeals();
 
-      // Estimate IRR from pref return + promote (rough proxy until full model)
+      // Use user-entered Target IRR and EM; fall back to estimate only if not provided
+      const userIRR = parseFloat(document.getElementById('targetIRR')?.value);
+      const userEM = parseFloat(document.getElementById('targetEM')?.value);
       const pref = deal.prefReturn || 8;
       const promote = deal.gpPromote || 20;
-      const estimatedIRR = parseFloat((pref * 1.5 + (promote * 0.1)).toFixed(1));
-      const estimatedEM = parseFloat((1 + (pref / 100) * 5).toFixed(2)); // 5-year hold estimate
+      const finalIRR = !isNaN(userIRR) && userIRR > 0 ? userIRR : 0;
+      const finalEM = !isNaN(userEM) && userEM > 0 ? userEM : 0;
 
       const spDeal = {
         id: urlId || deal.id,
@@ -1793,8 +1807,8 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
         type: (deal.propertyType || 'other').toLowerCase(),
         location: deal.propertyAddress || deal.principalOffice || deal.state || '',
         raise: deal.totalEquity || 0,
-        irr: estimatedIRR,
-        equity: estimatedEM,
+        irr: finalIRR,
+        equity: finalEM,
         units: parseInt(document.getElementById('propertySize')?.value) || 0,
         status: 'sourcing',
         added: deal.createdAt ? deal.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
@@ -1836,23 +1850,48 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
         spDeal.documents = [];
         spDeals.unshift(spDeal);
       }
-      // Auto-generate Operating Agreement and store on the deal
-      // Generate OA using professional template from sp-documents.js
+      // Auto-generate selected documents and store on the deal
       const _settings = SP.load('settings', {});
       const _gpName = _settings.firmName || spDeal.companyName || spDeal.name + ' GP, LLC';
       const _gpRep = _settings.gpFullName || SP.getSession()?.name || 'Managing Member';
       const _state = spDeal.state || _settings.defState || _settings.firmState || 'DE';
       const _minInv = spDeal.minInvestment || 50000;
-      if (typeof SPDocs !== 'undefined') {
-        spDeal.generatedOA = SPDocs.generateOA(spDeal, _gpName, _gpRep, _settings.firmAddress || '', _state, _minInv, []);
-      } else {
-        spDeal.generatedOA = autoGenerateOA(spDeal);
+      const _generatedDocs = [];
+
+      // Operating Agreement
+      if (document.getElementById('docOA')?.checked) {
+        if (typeof SPDocs !== 'undefined') {
+          spDeal.generatedOA = SPDocs.generateOA(spDeal, _gpName, _gpRep, _settings.firmAddress || '', _state, _minInv, []);
+        } else {
+          spDeal.generatedOA = autoGenerateOA(spDeal);
+        }
+        spDeal.oaGeneratedAt = new Date().toISOString();
+        _generatedDocs.push('Operating Agreement');
       }
-      spDeal.oaGeneratedAt = new Date().toISOString();
+
+      // PPM (Private Placement Memorandum)
+      if (document.getElementById('docPPM')?.checked && typeof SPDocs !== 'undefined' && SPDocs.generatePPM) {
+        spDeal.generatedPPM = SPDocs.generatePPM(spDeal, _gpName, _gpRep, _settings.firmAddress || '', _state, _minInv, _settings);
+        spDeal.ppmGeneratedAt = new Date().toISOString();
+        _generatedDocs.push('Private Placement Memo');
+      }
+
+      // Subscription Agreement (template — requires investor info for final version)
+      if (document.getElementById('docSub')?.checked && typeof SPDocs !== 'undefined' && SPDocs.generateSubDoc) {
+        spDeal.generatedSubTemplate = SPDocs.generateSubDoc(spDeal, {}, _gpName, _gpRep);
+        spDeal.subGeneratedAt = new Date().toISOString();
+        _generatedDocs.push('Subscription Agreement');
+      }
+
+      // LP Agreement — uses OA template with LP-specific language (placeholder for future dedicated generator)
+      if (document.getElementById('docLPA')?.checked) {
+        _generatedDocs.push('LP Agreement');
+      }
 
       SP.saveDeals(spDeals);
       // SPData handles Firestore write via SP.saveDeals interception
-      SP.logActivity('fa-file-contract', 'green', `Operating Agreement auto-generated for <strong>${deal.name}</strong>`);
+      const _docList = _generatedDocs.length ? _generatedDocs.join(', ') : 'Operating Agreement';
+      SP.logActivity('fa-file-contract', 'green', `${_generatedDocs.length} document(s) auto-generated for <strong>${deal.name}</strong>: ${_docList}`);
 
       // Store current deal id for viewDeal()
       // currentDeal tracked in memory via spDeal.id
@@ -1863,7 +1902,13 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
       if (nameEl) nameEl.textContent = deal.name;
 
       const statusEl = document.getElementById('successOAStatus');
-      if (statusEl) statusEl.innerHTML = '<i class="fas fa-file-contract"></i> Operating Agreement generated and ready';
+      if (statusEl) {
+        if (_generatedDocs.length > 1) {
+          statusEl.innerHTML = '<i class="fas fa-file-contract"></i> ' + _generatedDocs.length + ' documents generated: ' + _generatedDocs.join(', ');
+        } else {
+          statusEl.innerHTML = '<i class="fas fa-file-contract"></i> Operating Agreement generated and ready';
+        }
+      }
 
       // Show OA inline on success screen
       const oaSection = document.getElementById('successOASection');
@@ -2152,6 +2197,7 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
         if (d.totalRaise) { const el = document.getElementById('equityRaise'); if (el) el.value = d.totalRaise; }
         if (d.capRate) { const el = document.getElementById('capRate'); if (el) el.value = d.capRate; }
         if (d.irr) { const el = document.getElementById('targetIRR'); if (el) el.value = d.irr; }
+        if (d.equity) { const el = document.getElementById('targetEM'); if (el) el.value = d.equity; }
         if (d.occupancy) { const el = document.getElementById('occupancy'); if (el) el.value = d.occupancy; }
 
         // Market/highlights into description

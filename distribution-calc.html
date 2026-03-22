@@ -362,8 +362,8 @@ function setStep(n) {
   }
 }
 
-// ── Demo deals fallback (same as deals.html) ────────────────────────────────
 // ── Init ────────────────────────────────────────────────────────────────────
+let _initRetries = 0;
 function init() {
   const deals = SP.getDeals();
 
@@ -385,10 +385,18 @@ function init() {
   });
 
   if (!activeDeals.length) {
+    // Retry: SPData may not have hydrated yet (race between SPFB.onReady and SPData.init)
+    if (_initRetries < 10 && SP.isLoggedIn()) {
+      _initRetries++;
+      setTimeout(init, 500);
+      return; // don't show "no deals" placeholder while retrying
+    }
     const opt = document.createElement('option');
     opt.disabled = true;
     opt.textContent = 'No deals found — add a deal first';
     sel.appendChild(opt);
+  } else {
+    _initRetries = 0; // reset on success
   }
 
   if (currentVal) sel.value = currentVal;
