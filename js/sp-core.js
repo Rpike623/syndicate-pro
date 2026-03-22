@@ -817,7 +817,7 @@ window.SP = (function () {
     const _gpRep = 'Robert Pike';
     deals.forEach(d => {
       d.generatedOA = makeOA(d, _gpName, _gpRep);
-      d.oaGeneratedAt = new Date().toISOString();
+      d.oaGeneratedAt = d.closingDate || '2025-11-01T10:00:00.000Z';
     });
 
     save('deals', deals);
