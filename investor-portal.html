@@ -1074,13 +1074,14 @@ function renderDocuments() {
 
   let entries = Object.entries(dealDocMap).filter(([_, v]) => v.docs.length > 0);
 
-  // Ensure standard doc set exists per deal — dedup by _dedupKey so generatedOA won't show twice
-  _linked.forEach(({deal}) => {
-    if (!dealDocMap[deal.id]) dealDocMap[deal.id] = { dealName: deal.name, location: deal.location, docs: [] };
-    const existing = new Set(dealDocMap[deal.id].docs.map(d => d._dedupKey).filter(Boolean));
-    if (!existing.has('oa')) dealDocMap[deal.id].docs.push({ name: 'Operating Agreement', icon: 'fa-file-contract', iconClass: 'legal', type: 'Legal', date: deal.closingDate || '2025-11-15' });
-    if (!existing.has('om')) dealDocMap[deal.id].docs.push({ name: 'Private Placement Memorandum', icon: 'fa-book', iconClass: 'legal', type: 'Legal', date: deal.closingDate || '2025-10-20' });
-    if (!existing.has('sub')) dealDocMap[deal.id].docs.push({ name: 'Subscription Agreement', icon: 'fa-file-signature', iconClass: 'legal', type: 'Legal', date: deal.closingDate || '2025-11-01' });
+  // Deduplicate docs per deal by name — keep the entry with fileUrl if one exists
+  Object.values(dealDocMap).forEach(dm => {
+    const seen = {};
+    dm.docs.forEach(doc => {
+      const key = (doc.name || '').toLowerCase().trim();
+      if (!seen[key] || (doc.fileUrl && !seen[key].fileUrl)) seen[key] = doc;
+    });
+    dm.docs = Object.values(seen);
   });
   entries = Object.entries(dealDocMap).filter(([_, v]) => v.docs.length > 0);
 
