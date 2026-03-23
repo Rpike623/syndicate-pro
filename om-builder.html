@@ -492,12 +492,14 @@ window.addEventListener("spdata-ready", _onDataLoaded_ombuilderh);
     function saveOM() {
       const data = {};
       document.querySelectorAll('[id^="om"]').forEach(el => { data[el.id] = el.value; });
-      SP.save('om_builder', data);
+      const dealKey = (document.getElementById('importDealSelect')?.value || 'default').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_');
+      SP.save('om_builder_' + dealKey, data);
       showToast('OM saved!');
     }
     function loadOM() {
       try {
-        const data = SP.load('om_builder', {});
+        const dealKey = (document.getElementById('importDealSelect')?.value || 'default').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_');
+        const data = SP.load('om_builder_' + dealKey, {});
         Object.entries(data).forEach(([k, v]) => {
           const el = document.getElementById(k);
           if (el) el.value = v;

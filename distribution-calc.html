@@ -372,7 +372,7 @@ function init() {
   const currentVal = sel.value;
   sel.innerHTML = '<option value="">— Select a deal —</option>';
 
-  const activeDeals = (deals || []).filter(d => d.status !== 'archived');
+  const activeDeals = (deals || []).filter(d => (d.status || '').toLowerCase() !== 'archived');
   activeDeals.forEach(d => {
     const invCount = (d.investors || []).length;
     const opt = document.createElement('option');
@@ -1069,14 +1069,25 @@ window.addEventListener('spdata-ready', init);
     if (checks > 60) { clearInterval(iv); return; } // give up after 30s
     const sel = document.getElementById('dealSelect');
     if (!sel) { clearInterval(iv); return; }
-    // If dropdown has more than just the placeholder, we're good
-    if (sel.options.length > 1 && sel.options[1] && !sel.options[1].disabled) {
-      clearInterval(iv); return;
-    }
-    // If SP.getDeals returns data but dropdown is empty, re-run init
+    // If dropdown already has a real (non-disabled) deal option, we're good
+    const hasRealOption = Array.from(sel.options).some(o => o.value && !o.disabled);
+    if (hasRealOption) { clearInterval(iv); return; }
+    // If SP.getDeals returns data but dropdown is empty, force-populate
     const deals = SP.getDeals();
     if (deals && deals.length > 0) {
-      init();
+      const currentVal = sel.value;
+      sel.innerHTML = '<option value="">— Select a deal —</option>';
+      deals.filter(d => (d.status||'').toLowerCase() !== 'archived').forEach(d => {
+        const invCount = (d.investors || []).length;
+        const opt = document.createElement('option');
+        opt.value = d.id;
+        opt.textContent = d.name + (invCount ? ' (' + invCount + ' investor' + (invCount !== 1 ? 's' : '') + ')' : ' — no investors yet');
+        sel.appendChild(opt);
+      });
+      if (currentVal) sel.value = currentVal;
+      // Auto-select from URL param
+      const urlDeal = new URLSearchParams(window.location.search).get('deal');
+      if (urlDeal && sel.value !== urlDeal) { sel.value = urlDeal; if (typeof onDealChange === 'function') onDealChange(); }
       clearInterval(iv);
     }
   }, 500);

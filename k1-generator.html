@@ -206,8 +206,9 @@
             <div class="form-group">
               <label class="form-label">Tax Year</label>
               <select class="form-select" id="taxYear" onchange="recalc()">
-                <option value="2025">2025</option>
-                <option value="2024" selected>2024</option>
+                <option value="2026">2026</option>
+                <option value="2025" selected>2025</option>
+                <option value="2024">2024</option>
                 <option value="2023">2023</option>
                 <option value="2022">2022</option>
               </select>
@@ -383,8 +384,15 @@ function onDealChange() {
   loadK1Deliveries();
 
   // Auto-fill distributions total from sp-core
+  const selectedYear = parseInt(document.getElementById('taxYear').value, 10);
   const dists = (SP.getDistributions ? SP.getDistributions() : (SP.get('distributions')||[]))
-    .filter(d => d.dealId === id);
+    .filter(d => d.dealId === id)
+    .filter(d => {
+      const raw = d.date || d.distributionDate || d.createdAt || d.timestamp;
+      if (!raw) return false;
+      const dt = new Date(raw);
+      return !Number.isNaN(dt.getTime()) && dt.getFullYear() === selectedYear;
+    });
   const totalDist = dists.reduce((s, d) => {
     const rs = d.recipients || d.amounts || [];
     return s + rs.reduce((ss, r) => ss + (r.amount || r.value || 0), 0);

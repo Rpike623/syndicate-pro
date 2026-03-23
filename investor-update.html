@@ -388,12 +388,14 @@ window.addEventListener("spdata-ready", _onDataLoaded_investorup);
       const data = {};
       document.querySelectorAll('[id^="up"]').forEach(el => { data[el.id] = el.value; });
       data._trends = trends;
-      SP.save('investor_updates', data);
+      const dealKey = (document.getElementById('upDeal')?.value || 'default').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_');
+      SP.save('investor_updates_' + dealKey, data);
       toast('Draft saved!');
     }
     function loadUpdate() {
       try {
-        const d = SP.load('investor_updates', {});
+        const dealKey = (document.getElementById('upDeal')?.value || 'default').trim().toLowerCase().replace(/[^a-z0-9]+/g,'_');
+        const d = SP.load('investor_updates_' + dealKey, {});
         Object.entries(d).forEach(([k, v]) => {
           if (k === '_trends') return;
           const el = document.getElementById(k);
