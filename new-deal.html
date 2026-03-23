@@ -1516,6 +1516,16 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
     }
     
     function goToStep(step) {
+      // Only allow jumping backward or to the current step freely.
+      // Jumping forward validates all intermediate steps.
+      if (step > currentStep) {
+        for (let s = currentStep; s < step; s++) {
+          if (!validateStep(s)) {
+            showStep(s);
+            return;
+          }
+        }
+      }
       showStep(step);
     }
 
@@ -2114,6 +2124,15 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
 
     // ── Async wrapper for createDeal — adds loading state + 15s timeout ──
     function createDealAsync() {
+      // Validate all steps before creating — prevents goToStep() bypass
+      for (let s = 1; s <= 2; s++) {
+        if (!validateStep(s)) {
+          showStep(s);
+          showToast('Please complete all required fields', 'error');
+          return;
+        }
+      }
+
       const btn = document.getElementById('createDealBtn');
       if (!btn) { createDeal(); return; }
 

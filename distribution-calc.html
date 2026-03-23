@@ -852,6 +852,7 @@ async function executeDistribution() {
   if (!dealId || !currentDeal) { alert('Please select a deal first.'); return; }
   if (amount < 0) { alert('Distribution amount cannot be negative.'); return; }
   if (amount === 0) { alert('Distribution amount must be greater than $0.'); return; }
+  if (amount > 1e10) { alert('Distribution amount exceeds maximum ($10 billion). Please check the amount.'); return; }
   if (!currentLPs.length) { alert('No investors linked to this deal. Add investors first.'); return; }
   if (!date) { alert('Please select a distribution date.'); return; }
 
