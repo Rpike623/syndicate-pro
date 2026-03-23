@@ -488,7 +488,24 @@
         if (sel) { sel.value = urlDeal; updatePreview(); }
       } }
 SP.onDataReady(_onDataLoaded_capitalcal);
-window.addEventListener("spdata-ready", _onDataLoaded_capitalcal);    document.getElementById('dueDate').valueAsDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+window.addEventListener("spdata-ready", _onDataLoaded_capitalcal);
+document.getElementById('dueDate').valueAsDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+// Poll failsafe: ensures deals render even if spdata-ready fires before SP.getDeals() is patched
+(function _capitalCallsPollFailsafe() {
+  let _polls = 0;
+  const _t = setInterval(() => {
+    if (++_polls > 60) { clearInterval(_t); return; }
+    const sel = document.getElementById('callDeal');
+    if (!sel) { clearInterval(_t); return; }
+    const hasRealOption = Array.from(sel.options).some(o => o.value && !o.disabled);
+    if (hasRealOption) { clearInterval(_t); return; }
+    const spDataReady = typeof SPData !== 'undefined' && SPData.isReady && SPData.isReady();
+    if (spDataReady || SP.getDeals().length > 0) {
+      clearInterval(_t);
+      _onDataLoaded_capitalcal();
+    }
+  }, 500);
+})();
 
     // Add Save & Send button next to Generate
     const genBtn = document.querySelector('button[onclick="generateNotice()"]');
