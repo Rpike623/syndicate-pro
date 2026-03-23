@@ -191,8 +191,8 @@
 
             <div class="sec-label">Occupancy</div>
             <div class="row2">
-              <div class="fg"><label class="fl">Current Occupancy</label><input type="text" id="upOcc" value="94.6%" oninput="render()"></div>
-              <div class="fg"><label class="fl">vs Prior Period</label><input type="text" id="upOccVs" value="↑ from 91.2%" oninput="render()"></div>
+              <div class="fg"><label class="fl">Current Occupancy</label><input type="text" id="upOcc" value="" placeholder="e.g., 94.6%" oninput="render()"></div>
+              <div class="fg"><label class="fl">vs Prior Period</label><input type="text" id="upOccVs" value="" placeholder="e.g., ↑ from 91.2%" oninput="render()"></div>
             </div>
             <div class="fg"><label class="fl">Occupancy Trend</label>
               <div class="trend-select" id="trendOcc">
@@ -205,11 +205,11 @@
             <hr class="divider">
             <div class="sec-label">Revenue &amp; NOI</div>
             <div class="row2">
-              <div class="fg"><label class="fl">Gross Revenue (Period)</label><input type="text" id="upRevenue" value="$548,200" oninput="render()"></div>
+              <div class="fg"><label class="fl">Gross Revenue (Period)</label><input type="text" id="upRevenue" value="" placeholder="e.g., $548,200" oninput="render()"></div>
               <div class="fg"><label class="fl">vs Budget</label><input type="text" id="upRevVsBudget" value="+3.1% above budget" oninput="render()"></div>
             </div>
             <div class="row2">
-              <div class="fg"><label class="fl">Net Operating Income</label><input type="text" id="upNOI" value="$241,500" oninput="render()"></div>
+              <div class="fg"><label class="fl">Net Operating Income</label><input type="text" id="upNOI" value="" placeholder="e.g., $241,500" oninput="render()"></div>
               <div class="fg"><label class="fl">NOI Trend</label>
                 <div class="trend-select" id="trendNOI">
                   <button class="trend-btn active-up" onclick="setTrend('trendNOI','up',this)">▲ Up</button>
@@ -219,12 +219,12 @@
               </div>
             </div>
             <div class="row2">
-              <div class="fg"><label class="fl">Average Effective Rent</label><input type="text" id="upAvgRent" value="$1,318/mo" oninput="render()"></div>
-              <div class="fg"><label class="fl">vs Prior Period</label><input type="text" id="upRentVs" value="↑ $42/mo" oninput="render()"></div>
+              <div class="fg"><label class="fl">Average Effective Rent</label><input type="text" id="upAvgRent" value="" placeholder="e.g., $1,318/mo" oninput="render()"></div>
+              <div class="fg"><label class="fl">vs Prior Period</label><input type="text" id="upRentVs" value="" placeholder="e.g., ↑ $42/mo" oninput="render()"></div>
             </div>
             <div class="row2">
-              <div class="fg"><label class="fl">DSCR</label><input type="text" id="upDSCR" value="1.38×" oninput="render()"></div>
-              <div class="fg"><label class="fl">Cash-on-Cash Return</label><input type="text" id="upCoC" value="7.8%" oninput="render()"></div>
+              <div class="fg"><label class="fl">DSCR</label><input type="text" id="upDSCR" value="" placeholder="e.g., 1.38×" oninput="render()"></div>
+              <div class="fg"><label class="fl">Cash-on-Cash Return</label><input type="text" id="upCoC" value="" placeholder="e.g., 7.8%" oninput="render()"></div>
             </div>
           </div>
 
@@ -239,12 +239,12 @@
                   <option value="no">No Distribution</option>
                   <option value="defer">Deferred</option>
                 </select>
-                <input type="text" id="upDistAmt" value="$162,000 total ($1,080/unit)" oninput="render()" placeholder="Amount">
+                <input type="text" id="upDistAmt" value="" oninput="render()" placeholder="Amount">
               </div>
             </div>
             <div class="row2">
-              <div class="fg"><label class="fl">Distribution Date</label><input type="text" id="upDistDate" value="January 15, 2026" oninput="render()"></div>
-              <div class="fg"><label class="fl">Annualized Pref Rate</label><input type="text" id="upPrefRate" value="8.0%" oninput="render()"></div>
+              <div class="fg"><label class="fl">Distribution Date</label><input type="text" id="upDistDate" value="" placeholder="e.g., January 15, 2026" oninput="render()"></div>
+              <div class="fg"><label class="fl">Annualized Pref Rate</label><input type="text" id="upPrefRate" value="" placeholder="e.g., 8.0%" oninput="render()"></div>
             </div>
             <div class="fg"><label class="fl">Distribution Note</label><input type="text" id="upDistNote" value="Distributions remain consistent with our 8% preferred return target." oninput="render()"></div>
           </div>

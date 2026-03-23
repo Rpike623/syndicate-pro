@@ -348,23 +348,21 @@ Construction Management: 5% of renovation costs</textarea>
               <div class="card-title"><i class="fas fa-users" style="color:var(--success)"></i> Sponsor Team</div>
               <div class="sec-label">Team Member 1</div>
               <div class="row2">
-                <div class="fg"><label class="fl">Name</label><input type="text" id="omT1Name" value="Robert Pike" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Name</label><input type="text" id="omT1Name" value="" placeholder="Your name" oninput="updatePreview()"></div>
                 <div class="fg"><label class="fl">Title</label><input type="text" id="omT1Title" value="Managing Partner" oninput="updatePreview()"></div>
               </div>
-              <div class="fg"><label class="fl">Bio</label><textarea id="omT1Bio" rows="3" oninput="updatePreview()">10+ years in real estate private equity with $180M+ in transactions across multifamily and industrial assets in TX, FL, and AZ. Former acquisitions director at Greystar.</textarea></div>
+              <div class="fg"><label class="fl">Bio</label><textarea id="omT1Bio" rows="3" placeholder="Your professional background and experience..." oninput="updatePreview()"></textarea></div>
               <hr class="divider">
               <div class="sec-label">Team Member 2</div>
               <div class="row2">
-                <div class="fg"><label class="fl">Name</label><input type="text" id="omT2Name" value="Sarah Chen" oninput="updatePreview()"></div>
-                <div class="fg"><label class="fl">Title</label><input type="text" id="omT2Title" value="Director of Asset Management" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Name</label><input type="text" id="omT2Name" value="" placeholder="Team member name" oninput="updatePreview()"></div>
+                <div class="fg"><label class="fl">Title</label><input type="text" id="omT2Title" value="" placeholder="Title" oninput="updatePreview()"></div>
               </div>
-              <div class="fg"><label class="fl">Bio</label><textarea id="omT2Bio" rows="3" oninput="updatePreview()">Former portfolio manager at Cortland with oversight of 4,200 units. Expert in operational improvement, lease-up execution, and vendor management across Texas markets.</textarea></div>
+              <div class="fg"><label class="fl">Bio</label><textarea id="omT2Bio" rows="3" placeholder="Team member background..." oninput="updatePreview()"></textarea></div>
               <hr class="divider">
               <div class="sec-label">Track Record</div>
               <div class="fg">
-                <textarea id="omTrackRecord" rows="4" oninput="updatePreview()">12 assets acquired | $180M+ total capitalization | $42M investor equity deployed
-Average LP IRR: 18.4% | Average equity multiple: 1.92× | 4 full-cycle exits
-Current AUM: $136M across 8 active assets in TX, FL, and AZ</textarea>
+                <textarea id="omTrackRecord" rows="4" placeholder="e.g., 12 assets acquired | $50M+ total capitalization | 4 full-cycle exits" oninput="updatePreview()"></textarea>
               </div>
             </div>
           </div>
@@ -415,6 +413,13 @@ This investment is suitable only for accredited investors under Reg D 506(b)</te
         const initials = (sess.name || sess.email || 'G').charAt(0).toUpperCase();
         const avatarEl = document.getElementById('userAvatar'); if (avatarEl) avatarEl.textContent = initials;
         const nameEl = document.getElementById('userName'); if (nameEl) nameEl.textContent = sess.name || sess.email || 'GP';
+      }
+      // Pre-fill sponsor team member 1 from session/settings
+      {
+        const sess = typeof SP !== 'undefined' ? SP.getSession() : null;
+        const settings = typeof SP !== 'undefined' ? SP.load('settings', {}) : {};
+        const t1Name = document.getElementById('omT1Name');
+        if (t1Name && !t1Name.value) t1Name.value = settings.gpFullName || sess?.name || '';
       }
       loadOM();
       updatePreview();

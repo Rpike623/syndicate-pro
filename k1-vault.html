@@ -237,18 +237,25 @@
       ['filterYear','upYear'].forEach(id => {
         const sel = document.getElementById(id);
         const isFilter = id === 'filterYear';
-        if (!isFilter) sel.innerHTML = '';
+        // Preserve first option (e.g. "All Tax Years") for filter, clear all for upload
+        const firstOpt = isFilter ? sel.options[0] : null;
+        sel.innerHTML = '';
+        if (firstOpt) sel.add(firstOpt);
         years.forEach(y => sel.add(new Option(y, y)));
       });
 
       // Deal selects
       ['filterDeal','upDeal'].forEach(id => {
         const sel = document.getElementById(id);
+        const firstOpt = id === 'filterDeal' ? sel.options[0] : null;
+        sel.innerHTML = '';
+        if (firstOpt) sel.add(firstOpt);
         deals.forEach(d => sel.add(new Option(d.name, d.id)));
       });
 
       // Investor select (in upload modal)
       const invSel = document.getElementById('upInvestor');
+      invSel.innerHTML = '';
       investors.forEach(i => invSel.add(new Option(`${i.firstName} ${i.lastName} — ${i.email}`, i.id)));
 
       render();

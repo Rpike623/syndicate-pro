@@ -217,9 +217,10 @@
           <option value="">All Status</option>
           <option value="sourcing">Sourcing</option>
           <option value="loi">LOI</option>
+          <option value="raising">Raising</option>
           <option value="dd">Due Diligence</option>
-          <option value="closed">Closed</option>
           <option value="operating">Operating</option>
+          <option value="closed">Closed</option>
         </select>
         <div class="view-toggle">
           <button class="view-btn active" id="tableViewBtn" onclick="setView('table')"><i class="fas fa-list"></i></button>
@@ -334,7 +335,7 @@ function fmt$(n) {
 }
 
 function updateStats() {
-  const active = deals.filter(d=>['sourcing','loi','dd','operating','raising'].includes(d.status));
+  const active = deals.filter(d=>['sourcing','loi','dd','operating','raising'].includes((d.status||'').toLowerCase()));
   const totalRaise = deals.reduce((s,d)=>s+(d.raise||0),0);
   const avgIRR = deals.length ? (deals.reduce((s,d)=>s+(d.irr||0),0)/deals.length).toFixed(1) : '0';
   document.getElementById('statTotal').textContent = deals.length;
@@ -390,8 +391,8 @@ function filterDeals() {
   const statusF = document.getElementById('filterStatus').value;
   let filtered = deals.filter(d => {
     const matchQ = !q || d.name.toLowerCase().includes(q) || (d.location||'').toLowerCase().includes(q);
-    const matchType = !typeF || d.type===typeF;
-    const matchStatus = !statusF || d.status===statusF;
+    const matchType = !typeF || (d.type||'').toLowerCase()===typeF.toLowerCase();
+    const matchStatus = !statusF || (d.status||'').toLowerCase()===statusF;
     return matchQ && matchType && matchStatus;
   });
   // Sort
