@@ -261,10 +261,14 @@
 
       // Table
       let rows = '';
-      let totC = 0, totD = 0, totB = 0, totP = 0;
+      let totC = 0, totD = 0, totB = 0, totP = 0, totOwn = 0;
 
       partners.forEach((p, i) => {
-        totC += p.committed; totD += p.distributed; totB += p.balance; totP += p.prefAccrued;
+        totC += (p.committed || 0);
+        totD += (p.distributed || 0);
+        totB += (p.balance || 0);
+        totP += (p.prefAccrued || 0);
+        totOwn += (p.ownershipPct || 0);
         rows += `<tr>
           <td><div class="partner-name"><div class="avatar" style="background:${p.color};">${p.initials}</div><div><div class="nm">${p.name}</div><div class="em">${p.email}</div></div></div></td>
           <td><span class="pill ${p.role==='GP'?'pill-gp':'pill-lp'}">${p.role}</span></td>

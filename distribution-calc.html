@@ -866,7 +866,7 @@ async function executeDistribution() {
   });
 }
 
-function _doPostDistribution(amount, dealId, date, period, method) {
+async function _doPostDistribution(amount, dealId, date, period, method) {
 
   const btn = document.getElementById('execBtn');
   btn.disabled = true;
