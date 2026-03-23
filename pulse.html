@@ -11,10 +11,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v16"></script>
-  <script src="js/sp-data.js?v15"></script>
-  <script src="js/sp-firebase.js?v15"></script>
-  <script src="js/sp-billing.js?v16"></script>
+  <script src="js/sp-core.js?v=19"></script>
+  <script src="js/sp-data.js?v=19"></script>
+  <script src="js/sp-firebase.js?v=19"></script>
+  <script src="js/sp-billing.js?v=19"></script>
   <script src="js/sp-validate.js?v1"></script>
   <style>
     :root{--accent:#F37925;--success:#2D9A6B;--warning:#E8890A;--danger:#D94F3D;--info:#3B82F6;--bg:#F3F3F3;--surface:#FFF;--border:#E2DDD8;--text:#1B1A19;--muted:#6B6560;--radius:12px;}
@@ -513,12 +513,12 @@
 
     async function _onDataLoaded_pulsehtml() { // Show loading state while Firestore hydrates custom_data (dealroom docs, settings, etc.)
       document.getElementById('scoreBar').innerHTML = '<div class="score-card" style="flex:1;text-align:center;padding:32px;"><i class="fas fa-spinner fa-spin" style="font-size:1.5rem;color:var(--muted);"></i><div class="sc-label" style="margin-top:8px;">Scanning your portfolio...</div></div>';
-      // Single delayed run — wait for async hydration before first render to avoid flash of changing counts
+      // Short delay to allow Firestore hydration; pulse will re-run on spdata-ready if data arrives later
       setTimeout(() => {
         runPulse();
         if (!liveInterval) liveInterval = setInterval(runPulse, 30000);
         if (!tickInterval) tickInterval = setInterval(updateTimestamp, 1000);
-      }, 2500); }
+      }, 300); }
 SP.onDataReady(_onDataLoaded_pulsehtml);
 window.addEventListener("spdata-ready", _onDataLoaded_pulsehtml);
   </script>

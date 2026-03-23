@@ -15,10 +15,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="js/sp-math.js"></script>
-  <script src="js/sp-core.js?v16"></script>
-  <script src="js/sp-data.js?v15"></script>
-  <script src="js/sp-firebase.js?v15"></script>
-  <script src="js/sp-billing.js?v16"></script>
+  <script src="js/sp-core.js?v=19"></script>
+  <script src="js/sp-data.js?v=19"></script>
+  <script src="js/sp-firebase.js?v=19"></script>
+  <script src="js/sp-billing.js?v=19"></script>
   <script src="js/sp-email.js"></script>
   <style>
     :root {
@@ -512,6 +512,15 @@
       const all = posted.reduce((s,d)=>s+(d.totalAmount||d.amount||0),0);
       const avg = posted.length ? all/posted.length : 0;
       document.getElementById('avgDistribution').textContent = fmt$(avg);
+      // Next distribution: find the soonest draft with a future date
+      const upcoming = distributions.filter(d => d.status === 'draft' && d.date && new Date(d.date) > new Date());
+      upcoming.sort((a,b) => new Date(a.date) - new Date(b.date));
+      if (upcoming.length) {
+        const daysAway = Math.ceil((new Date(upcoming[0].date) - new Date()) / 86400000);
+        document.getElementById('nextDistribution').textContent = `In ${daysAway}d`;
+      } else {
+        document.getElementById('nextDistribution').textContent = 'None scheduled';
+      }
       renderDealStats();
     }
 
@@ -633,6 +642,17 @@
     function _onDataLoaded_distributi() { loadDeals(); renderDistributions(); updateStats(); autoExpandFirst(); }
 SP.onDataReady(_onDataLoaded_distributi);
 window.addEventListener("spdata-ready", _onDataLoaded_distributi);
+// Poll failsafe: covers race where spdata-ready fires before SP.getDeals() is populated
+(function _distPollFailsafe() {
+  let _polls = 0;
+  const _t = setInterval(() => {
+    if (++_polls > 60) { clearInterval(_t); return; }
+    if (SP.getDeals().length > 0 || SP.getDistributions().length > 0) {
+      clearInterval(_t);
+      _onDataLoaded_distributi();
+    }
+  }, 500);
+})();
 
     function showToast(msg, type) {
       const bg = type === 'error' ? '#ef4444' : '#10b981';

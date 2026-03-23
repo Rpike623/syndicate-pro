@@ -13,11 +13,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v16"></script>
-  <script src="js/sp-data.js?v15"></script>
-  <script src="js/sp-firebase.js?v15"></script>
+  <script src="js/sp-core.js?v=19"></script>
+  <script src="js/sp-data.js?v=19"></script>
+  <script src="js/sp-firebase.js?v=19"></script>
   <script src="js/sp-email.js?v8"></script>
-  <script src="js/sp-billing.js?v16"></script>
+  <script src="js/sp-billing.js?v=19"></script>
   <script src="js/sp-documents.js"></script>
   <script src="js/sp-esign.js?v8"></script>
   <style>
@@ -80,7 +80,7 @@
     .deal-metric .val{font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;}
     .deal-metric .lbl{font-size:.72rem;color:rgba(255,255,255,.65);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
     /* Tabs */
-    .tabs{display:flex;gap:0;border-bottom: 2px solid #E2DDD8;margin-bottom:24px;}
+    .tabs{display:flex;gap:0;border-bottom: 2px solid #E2DDD8;margin-bottom:24px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
     .tab{padding:12px 20px;font-size:.9rem;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;}
     .tab:hover{color: #1B1A19;}
     .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
@@ -946,7 +946,7 @@ function renderInvestorsTable(linked) {
   if(!linked.length) return `<div class="empty-state"><i class="fas fa-users"></i><p>No investors linked yet. <button onclick="openAddInvModal()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600;">Add one now</button></p></div>`;
   const BADGE = {committed:'badge-committed',funded:'badge-funded',active:'badge-active',exited:'badge-exited'};
   return `<div class="table-scroll"><table>
-    <thead><tr><th>Investor</th><th>Committed</th><th>Ownership</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th>Investor</th><th>Committed</th><th>Ownership</th><th style="min-width:100px;">Status</th><th></th></tr></thead>
     <tbody>${linked.map((entry,i)=>{
       const inv = SP.getInvestorById(entry.investorId) || {firstName:'Unknown',lastName:'',email:''};
       const initials = (inv.firstName[0]||'')+(inv.lastName[0]||'');

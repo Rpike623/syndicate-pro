@@ -15,10 +15,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v16"></script>
-  <script src="js/sp-data.js?v15"></script>
-  <script src="js/sp-firebase.js?v15"></script>
-  <script src="js/sp-billing.js?v16"></script>
+  <script src="js/sp-core.js?v=19"></script>
+  <script src="js/sp-data.js?v=19"></script>
+  <script src="js/sp-firebase.js?v=19"></script>
+  <script src="js/sp-billing.js?v=19"></script>
   <style>
     :root {
       --primary: #1B1A19; --accent: #F37925; --accent-hover: #D96515; --accent-light: rgba(243,121,37,0.12);
@@ -595,6 +595,17 @@ load().then(() => { updateStats(); filterDeals(); });
       // Re-check after a short delay to catch any pending Firestore writes (e.g., after creating a new deal)
       setTimeout(() => { load().then(() => { updateStats(); filterDeals(); }); }, 2000); }
 SP.onDataReady(_onDataLoaded_dealshtml);
-window.addEventListener("spdata-ready", _onDataLoaded_dealshtml);</script>
+window.addEventListener("spdata-ready", _onDataLoaded_dealshtml);
+// Poll failsafe: ensures deals render even if spdata-ready fires before SP.getDeals() is patched
+(function _dealsPollFailsafe() {
+  let _polls = 0;
+  const _t = setInterval(() => {
+    if (++_polls > 60) { clearInterval(_t); return; }
+    if (SP.getDeals().length > 0) {
+      clearInterval(_t);
+      _onDataLoaded_dealshtml();
+    }
+  }, 500);
+})();</script>
 </body>
 </html>
