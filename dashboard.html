@@ -872,20 +872,23 @@ function loadActivity() {
     ? SPData.getActivity()
     : SP.getActivity();
   if (stored && stored.length) return stored;
-  return DEMO_ACTIVITY;
+  // Only show demo activity for demo accounts — real accounts get empty state
+  const s = SP.getSession();
+  if (s && s.email && /^(gp|lp|demo)[@-]deeltrack\.com$/i.test(s.email)) return DEMO_ACTIVITY;
+  return [];
 }
 
 // ── Render KPIs ─────────────────────────────────────────────────
 function renderKPIs(deals, investors, distYTD) {
   const aum = deals.reduce((s, d) => s + (d.raise || 0), 0);
-  const activeDeals = deals.filter(d => ['sourcing','loi','dd','operating','raising'].includes(d.status)).length;
+  const activeDeals = deals.filter(d => ['sourcing','loi','dd','operating','raising'].includes((d.status||'').toLowerCase())).length;
   const totalCommitted = deals.reduce((s,d)=>(d.investors||[]).reduce((acc,i)=>acc+(i.committed||0),s),0);
   const raisePct = aum > 0 ? Math.round(totalCommitted/aum*100) : 0;
 
   document.getElementById('kpiAUM').textContent = fmt$(aum);
   document.getElementById('kpiAUMChange').innerHTML = `<i class="fas fa-chart-line"></i> ${fmt$(totalCommitted)} raised (${raisePct}%)`;
   document.getElementById('kpiDeals').textContent = activeDeals;
-  document.getElementById('kpiDealsChange').innerHTML = '<i class="fas fa-minus"></i> ' + deals.filter(d=>d.status==='closed').length + ' closed';
+  document.getElementById('kpiDealsChange').innerHTML = '<i class="fas fa-minus"></i> ' + deals.filter(d=>(d.status||'').toLowerCase()==='closed').length + ' closed';
   document.getElementById('kpiDist').textContent = fmt$(distYTD);
   document.getElementById('kpiDistChange').innerHTML = '<i class="fas fa-arrow-up"></i> YTD 2026';
 
@@ -1010,7 +1013,10 @@ function renderDealsTable(deals) {
 // ── Activity Feed ───────────────────────────────────────────────
 function renderActivity(activity) {
   const el = document.getElementById('activityFeed');
-  if (!activity.length) return;
+  if (!activity.length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px 16px;color:var(--dt-text-secondary,#888);font-size:.85rem;"><i class="fas fa-clock" style="font-size:1.2rem;margin-bottom:8px;display:block;opacity:.5;"></i>Activity will appear here as you manage deals, investors, and distributions.</div>';
+    return;
+  }
   el.innerHTML = activity.slice(0,5).map(a => `
     <div class="activity-item">
       <div class="activity-icon ${a.color}"><i class="fas ${a.icon}"></i></div>
@@ -1024,8 +1030,14 @@ function renderActivity(activity) {
 // ── Deadlines ───────────────────────────────────────────────────
 function renderDeadlines() {
   const el = document.getElementById('deadlineList');
-  const dl = DEMO_DEADLINES;
-  if (!dl.length) return;
+  // Only show demo deadlines for demo accounts
+  const s = SP.getSession();
+  const isDemo = s && s.email && /^(gp|lp|demo)[@-]deeltrack\.com$/i.test(s.email);
+  const dl = isDemo ? DEMO_DEADLINES : [];
+  if (!dl.length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px 16px;color:var(--dt-text-secondary,#888);font-size:.85rem;"><i class="fas fa-calendar-check" style="font-size:1.2rem;margin-bottom:8px;display:block;opacity:.5;"></i>No upcoming deadlines. Add deals to track milestones.</div>';
+    return;
+  }
   const badgeMap = { urgent:'badge-urgent', soon:'badge-soon', ok:'badge-ok' };
   const badgeLabel = { urgent:'Urgent', soon:'Coming up', ok:'Scheduled' };
   el.innerHTML = dl.map(d => `

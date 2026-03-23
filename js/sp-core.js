@@ -1394,6 +1394,7 @@ window.SP = (function () {
   window.addEventListener('spdata-ready', () => {
     if (typeof SPFB === 'undefined' || SPFB.isOffline()) return;
     if (SPFB.isEmailVerified()) return;
+    if (document.getElementById('email-verify-banner')) return; // prevent duplicates
     const s = SP.getSession();
     if (!s || !s.loggedIn) return;
     // Don't show on public pages
