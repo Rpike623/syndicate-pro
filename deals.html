@@ -15,10 +15,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v=19"></script>
-  <script src="js/sp-data.js?v=19"></script>
-  <script src="js/sp-firebase.js?v=19"></script>
-  <script src="js/sp-billing.js?v=19"></script>
+  <script src="js/sp-core.js?v=20"></script>
+  <script src="js/sp-data.js?v=20"></script>
+  <script src="js/sp-firebase.js?v=20"></script>
+  <script src="js/sp-billing.js?v=20"></script>
   <style>
     :root {
       --primary: #1B1A19; --accent: #F37925; --accent-hover: #D96515; --accent-light: rgba(243,121,37,0.12);
@@ -601,7 +601,8 @@ window.addEventListener("spdata-ready", _onDataLoaded_dealshtml);
   let _polls = 0;
   const _t = setInterval(() => {
     if (++_polls > 60) { clearInterval(_t); return; }
-    if (SP.getDeals().length > 0) {
+    const spDataReady = typeof SPData !== 'undefined' && SPData.isReady && SPData.isReady();
+    if (spDataReady || SP.getDeals().length > 0) {
       clearInterval(_t);
       _onDataLoaded_dealshtml();
     }

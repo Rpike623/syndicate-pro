@@ -807,7 +807,7 @@ input::placeholder, textarea::placeholder {
   border: 1px solid var(--dt-border);
 }
 
-.input-group span {
+.input-group span:not(.input-prefix) {
   background: #1E293B;
   padding: 0 12px;
   display: flex;

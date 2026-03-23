@@ -176,7 +176,9 @@ const SPFB = (function () {
 
   // ── Ready callback system ───────────────────────────────────────────────────
   function _markReady() {
-    _ready = true;
+    // NOTE: Do NOT set _ready = true here — it must wait until SPData finishes.
+    // Setting _ready early caused SPFB.onReady() to fire before data was loaded,
+    // resulting in empty dropdowns/tables on deals, distribution-calc, capital-account, etc.
 
     // Sync the session with Firebase user info if needed
     if (_spUser && typeof SP !== 'undefined') {
@@ -219,11 +221,13 @@ const SPFB = (function () {
     if (typeof SPData !== 'undefined' && _db && _orgId) {
       const _initFn = typeof SPData.reinit === 'function' ? SPData.reinit : SPData.init;
       _initFn(_db, _orgId, _spUser?.role || 'General Partner', _spUser?.email || '').then(() => {
+        _ready = true;
         _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
         _readyCallbacks = [];
         window.dispatchEvent(new CustomEvent('spdata-ready'));
       }).catch(err => {
         console.error('SPData init/reinit failed:', err);
+        _ready = true;
         _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
         _readyCallbacks = [];
         window.dispatchEvent(new CustomEvent('spdata-ready'));
@@ -254,11 +258,13 @@ const SPFB = (function () {
             }
           }).catch(() => {}),
         ]).finally(() => {
+          _ready = true;
           _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
           _readyCallbacks = [];
           window.dispatchEvent(new CustomEvent('spdata-ready'));
         });
       } else {
+        _ready = true;
         _readyCallbacks.forEach(cb => { try { cb(); } catch(e) {} });
         _readyCallbacks = [];
         window.dispatchEvent(new CustomEvent('spdata-ready'));

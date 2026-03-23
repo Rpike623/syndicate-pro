@@ -11,10 +11,10 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v=19"></script>
-  <script src="js/sp-data.js?v=19"></script>
-  <script src="js/sp-firebase.js?v=19"></script>
-  <script src="js/sp-billing.js?v=19"></script>
+  <script src="js/sp-core.js?v=20"></script>
+  <script src="js/sp-data.js?v=20"></script>
+  <script src="js/sp-firebase.js?v=20"></script>
+  <script src="js/sp-billing.js?v=20"></script>
   <script src="js/sp-notify.js"></script>
   <script src="js/sp-math.js"></script>
   <script src="js/database.js"></script>
@@ -1072,9 +1072,10 @@ window.addEventListener('spdata-ready', init);
     // If dropdown already has a real (non-disabled) deal option, we're good
     const hasRealOption = Array.from(sel.options).some(o => o.value && !o.disabled);
     if (hasRealOption) { clearInterval(iv); return; }
-    // If SP.getDeals returns data but dropdown is empty, force-populate
+    // If SPData is ready OR SP.getDeals returns data but dropdown is empty, force-populate
+    const spDataReady = typeof SPData !== 'undefined' && SPData.isReady && SPData.isReady();
     const deals = SP.getDeals();
-    if (deals && deals.length > 0) {
+    if (spDataReady || (deals && deals.length > 0)) {
       const currentVal = sel.value;
       sel.innerHTML = '<option value="">— Select a deal —</option>';
       deals.filter(d => (d.status||'').toLowerCase() !== 'archived').forEach(d => {
