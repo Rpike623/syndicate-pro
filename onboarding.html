@@ -161,9 +161,9 @@
     }
     updateDots(1);
 
-    function nextStep(n) {
-      // Save firm settings on step 1 → 2
-      if (n === 2) saveFirmSettings();
+    async function nextStep(n) {
+      // Save firm settings on step 1 → 2 (await to ensure Firestore write completes)
+      if (n === 2) await saveFirmSettings();
 
       document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
       document.getElementById('step' + n).classList.add('active');
@@ -193,9 +193,13 @@
       settings.firmPhone = document.getElementById('firmPhone').value.trim() || settings.firmPhone;
       settings.onboardingComplete = true;
       SP.save('settings', settings);
-      // Also save to Firestore explicitly
-      if (typeof SPFB !== 'undefined' && SPFB.isReady() && SPFB.saveSettings) {
-        SPFB.saveSettings(settings);
+      // Await Firestore write explicitly to ensure persistence
+      try {
+        if (typeof SPFB !== 'undefined' && SPFB.isReady() && SPFB.saveSettings) {
+          await SPFB.saveSettings(settings);
+        }
+      } catch(e) {
+        console.warn('Onboarding: Firestore settings save failed, localStorage fallback active', e);
       }
     }
 

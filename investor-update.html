@@ -299,10 +299,10 @@ Target stabilized occupancy (96%) — Q3 2026</textarea>
               <textarea id="upClosing" rows="3" oninput="render()">Thank you for your continued trust and partnership. Please don't hesitate to reach out with any questions — we are always available to discuss the portfolio.</textarea>
             </div>
             <div class="row2">
-              <div class="fg"><label class="fl">GP Name / Firm</label><input type="text" id="upGPName" value="Robert Pike" oninput="render()"></div>
+              <div class="fg"><label class="fl">GP Name / Firm</label><input type="text" id="upGPName" value="" placeholder="Your name" oninput="render()"></div>
               <div class="fg"><label class="fl">Title</label><input type="text" id="upGPTitle" value="Managing Partner" oninput="render()"></div>
             </div>
-            <div class="fg"><label class="fl">Contact Email</label><input type="text" id="upGPEmail" value="robert@deeltrack.com" oninput="render()"></div>
+            <div class="fg"><label class="fl">Contact Email</label><input type="text" id="upGPEmail" value="" placeholder="you@yourfirm.com" oninput="render()"></div>
           </div>
         </div>
 
@@ -342,6 +342,15 @@ Target stabilized occupancy (96%) — Q3 2026</textarea>
         const nameEl = document.getElementById('userName');
         if (avatarEl) avatarEl.textContent = initials;
         if (nameEl) nameEl.textContent = sess.name || sess.email || 'GP';
+      }
+      // Pre-fill sign-off from session/settings (not hardcoded "Robert Pike")
+      {
+        const sess = typeof SP !== 'undefined' ? SP.getSession() : null;
+        const settings = typeof SP !== 'undefined' ? SP.load('settings', {}) : {};
+        const gpNameEl = document.getElementById('upGPName');
+        const gpEmailEl = document.getElementById('upGPEmail');
+        if (gpNameEl && !gpNameEl.value) gpNameEl.value = settings.gpFullName || sess?.name || '';
+        if (gpEmailEl && !gpEmailEl.value) gpEmailEl.value = settings.firmEmail || sess?.email || '';
       }
       loadUpdate();
       // Pre-fill deal name from SP data if available
@@ -516,7 +525,7 @@ window.addEventListener("spdata-ready", _onDataLoaded_investorup);
   </div>
 
   <div class="ep-footer">
-    This update is intended solely for existing investors in ${esc(g('upDeal'))}. Past performance is not indicative of future results. All financial projections are estimates and subject to change. This communication does not constitute an offer to sell or solicitation of an offer to buy any security. Confidential — do not forward.
+    This update is intended solely for existing investors in ${esc(g('upDeal')) || 'this deal'}. Past performance is not indicative of future results. All financial projections are estimates and subject to change. This communication does not constitute an offer to sell or solicitation of an offer to buy any security. Confidential — do not forward.
   </div>
 </div>`;
 
