@@ -341,6 +341,7 @@ SP.requireGP();
 let currentDeal = null;
 let currentLPs = [];
 let prefSplits = [];
+let tierData = [];
 
 // ── Format helpers ──────────────────────────────────────────────────────────
 function fmt$(n) {
@@ -598,7 +599,7 @@ function previewDistribution() {
   let remaining = amount;
   let gpTotal = 0;
   let lpTotal = 0;
-  const tierData = [];
+  tierData = [];  // reset shared variable
 
   // ── Tier 1: Return of Capital ────────────────────────────────────────────
   // Applies to ALL distributions — LPs get invested capital back first.
