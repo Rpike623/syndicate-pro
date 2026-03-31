@@ -13,11 +13,11 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <script src="js/sp-core.js?v16"></script>
+  <script src="js/sp-core.js?v=20"></script>
   <script src="js/sp-data.js?v15"></script>
-  <script src="js/sp-firebase.js?v15"></script>
+  <script src="js/sp-firebase.js?v=20"></script>
   <script src="js/sp-validate.js?v1"></script>
-  <script src="js/sp-billing.js?v16?v3"></script>
+  <script src="js/sp-billing.js?v=20"></script>
   <style>
     :root {
       --accent:#F37925;--accent-hover:#D96515;--accent-light:rgba(243,121,37,0.12);
@@ -389,19 +389,16 @@
                 const statusEl = document.getElementById('billingStatus');
                 const actionsEl = document.getElementById('billingActions');
 
-                if (s.status === 'active' || s.status === 'trialing') {
-                  const planName = s.plan === 'per_deal' ? 'Per Deal' : s.plan === 'enterprise' ? 'Enterprise' : s.plan;
-                  const statusBadge = s.status === 'trialing'
-                    ? '<span style="background:rgba(243,121,37,.12);color:#F37925;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:8px;">TRIAL</span>'
-                    : '<span style="background:rgba(45,154,107,.12);color:#2D9A6B;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:8px;">ACTIVE</span>';
+                // A real Stripe subscription has stripeSubscriptionId; local-only "trialing" from sp-billing.js init() does not
+                const hasRealStripeSub = !!s.stripeSubscriptionId;
 
+                if (s.status === 'active' && hasRealStripeSub) {
+                  // Paid and active — hide upgrade cards, show manage button
+                  const planName = s.plan === 'per_deal' ? 'Per Deal' : s.plan === 'enterprise' ? 'Enterprise' : s.plan;
+                  const statusBadge = '<span style="background:rgba(45,154,107,.12);color:#2D9A6B;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:8px;">ACTIVE</span>';
                   planEl.innerHTML = planName + ' Plan ' + statusBadge;
 
                   let details = [];
-                  if (s.status === 'trialing' && s.trialEnd) {
-                    const daysLeft = Math.ceil((new Date(s.trialEnd) - new Date()) / 86400000);
-                    details.push('Trial ends in ' + daysLeft + ' days');
-                  }
                   if (s.plan === 'per_deal' && s.quantity) {
                     details.push(s.quantity + ' active deal' + (s.quantity !== 1 ? 's' : '') + ' · $' + (s.quantity * 49) + '/mo');
                   }
@@ -410,9 +407,34 @@
                   }
                   statusEl.textContent = details.join(' · ');
 
-                  // Hide plan cards if already subscribed
                   document.getElementById('billingCards').style.display = 'none';
                   actionsEl.innerHTML = '<button class="btn" onclick="SPBilling.openCustomerPortal()" style="font-size:.82rem;"><i class="fas fa-cog"></i> Manage Subscription</button>';
+
+                } else if (s.status === 'trialing' && hasRealStripeSub) {
+                  // Stripe trial (checkout completed with trial_period_days) — show manage + upgrade option
+                  const planName = s.plan === 'per_deal' ? 'Per Deal' : s.plan === 'enterprise' ? 'Enterprise' : s.plan;
+                  const statusBadge = '<span style="background:rgba(243,121,37,.12);color:#F37925;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:8px;">TRIAL</span>';
+                  planEl.innerHTML = planName + ' Plan ' + statusBadge;
+
+                  let details = [];
+                  if (s.trialEnd) {
+                    const daysLeft = Math.ceil((new Date(s.trialEnd) - new Date()) / 86400000);
+                    details.push('Trial ends in ' + daysLeft + ' days');
+                  }
+                  statusEl.textContent = details.join(' · ');
+                  actionsEl.innerHTML = '<button class="btn" onclick="SPBilling.openCustomerPortal()" style="font-size:.82rem;"><i class="fas fa-cog"></i> Manage Subscription</button>';
+
+                } else if (s.status === 'trialing' || s.status === 'none' || !s.status) {
+                  // Free trial (no Stripe subscription yet) — show upgrade cards
+                  let trialMsg = '';
+                  if (s.trialEnd) {
+                    const daysLeft = Math.ceil((new Date(s.trialEnd) - new Date()) / 86400000);
+                    trialMsg = daysLeft > 0 ? 'Free trial · ' + daysLeft + ' days remaining' : 'Trial expired';
+                  }
+                  planEl.innerHTML = 'Free Trial <span style="background:rgba(243,121,37,.12);color:#F37925;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;margin-left:8px;">TRIAL</span>';
+                  statusEl.textContent = trialMsg || 'Choose a plan below to get started';
+                  // Keep billingCards visible — user needs to upgrade
+
                 } else {
                   planEl.textContent = 'No active subscription';
                   statusEl.textContent = 'Choose a plan below to get started';
@@ -434,7 +456,7 @@
             </div>
             <div onclick="SPBilling.checkout('enterprise')" style="flex:1;min-width:220px;border:1px solid var(--border);border-radius:10px;padding:20px;cursor:pointer;transition:all .15s;background:var(--surface);" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">
               <div style="font-weight:700;margin-bottom:4px;">Enterprise</div>
-              <div style="font-size:1.5rem;font-weight:800;">$499<span style="font-size:.8rem;font-weight:500;color:var(--muted);">/mo</span></div>
+              <div style="font-size:1.5rem;font-weight:800;">$499<span style="font-size:.8rem;font-weight:500;color:var(--muted);">/yr</span></div>
               <div style="font-size:.78rem;color:var(--muted);margin-top:8px;">Billed annually · Unlimited deals</div>
               <div style="margin-top:12px;font-size:.82rem;color:var(--accent);font-weight:600;">First 3 months free →</div>
             </div>
@@ -514,8 +536,14 @@ function showToast(msg, type) {
   setTimeout(() => el.classList.remove('show'), 2500);
 }
 
-function loadSettings() {
-  const s = SP.load('settings', {});
+async function loadSettings() {
+  // Prefer Firestore (source of truth), fall back to localStorage cache
+  let s = {};
+  if (typeof SPFB !== 'undefined' && SPFB.isReady() && SPFB.getSettings) {
+    try { s = await SPFB.getSettings() || {}; } catch(e) { s = SP.load('settings', {}); }
+  } else {
+    s = SP.load('settings', {});
+  }
   const session = SP.getSession();
 
   // Firm
