@@ -121,17 +121,35 @@ const SPFB = (function () {
       } else {
         // New user (anonymous or first real signup) — create profile
         // Use derivedOrgId which handles Marcus's unique orgId
-        const safeRole = ROLE_CANON[emailLower] || localRole;
+        let safeRole = ROLE_CANON[emailLower] || localRole;
+        let resolvedOrgId = derivedOrgId;
+
+        // ── LP auto-detect: if this email exists in investorLookup,
+        //    adopt Investor role and that org's ID so LP lands in LP portal ──
+        if (safeRole !== 'Investor' && localEmail) {
+          try {
+            const lookupDoc = await _db.collection('investorLookup').doc(_emailToDocId(localEmail)).get();
+            if (lookupDoc.exists) {
+              const lookupData = lookupDoc.data();
+              if (lookupData.orgId) resolvedOrgId = lookupData.orgId;
+              safeRole = 'Investor';
+              console.log(`SPFB: Auto-detected investor role for ${localEmail} in org ${resolvedOrgId}`);
+            }
+          } catch (e) {
+            console.warn('SPFB: investorLookup query failed:', e.message);
+          }
+        }
+
         _spUser = {
           uid:         fbUser.uid,
           email:       localEmail,
           name:        localName,
           role:        safeRole,
-          orgId:       derivedOrgId,
+          orgId:       resolvedOrgId,
           isAnonymous: fbUser.isAnonymous,
           createdAt:   firebase.firestore.FieldValue.serverTimestamp(),
         };
-        _orgId = _spUser.orgId;
+        _orgId = resolvedOrgId;
         _db.collection('users').doc(fbUser.uid).set(_spUser);
       }
       _markReady();
@@ -151,6 +169,24 @@ const SPFB = (function () {
     // Firebase Auth auto-restores sessions from IndexedDB on page load.
     // onAuthStateChanged will fire automatically if a session exists.
     // No manual re-auth needed — and we never store passwords in session.
+  }
+
+  // Convert email to Firestore-safe doc ID for investorLookup collection
+  function _emailToDocId(email) {
+    return (email || '').toLowerCase().replace(/[.#$/\[\]]/g, '_');
+  }
+
+  // Write investor email → orgId mapping so LP auto-detect works on first login
+  function _writeInvestorLookup(email) {
+    if (!_db || !_orgId || !email) return;
+    const docId = _emailToDocId(email);
+    _db.collection('investorLookup').doc(docId).set({
+      email: email.toLowerCase(),
+      orgId: _orgId,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true }).catch(e => {
+      console.warn('SPFB: investorLookup write failed:', e.message);
+    });
   }
 
   // DEPRECATED: collision-prone hash. Used ONLY as fallback for existing users.
@@ -393,6 +429,8 @@ const SPFB = (function () {
       for (const inv of toSave) {
         const ref = _col('investors').doc(inv.id);
         batch.set(ref, { ...inv, orgId: _orgId, updatedAt: _ts() }, { merge: true });
+        // Populate investorLookup so LP auto-detect works on first login
+        if (inv.email) _writeInvestorLookup(inv.email);
       }
       await batch.commit();
     } catch(e) {

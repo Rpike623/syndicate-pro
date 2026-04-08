@@ -189,6 +189,12 @@ service cloud.firestore {
       allow write: if false; // Cloud Functions only
     }
 
+    // ── Investor email → org lookup (populated by GP when adding investor) ──
+    match /investorLookup/{emailHash} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
     // ── Landing page leads (demo requests + email captures) ─────────────────
     match /leads/{leadId} {
       allow read: if false;                        // Admin only — read via Console/Functions
@@ -201,6 +207,46 @@ service cloud.firestore {
       allow read: if false;                        // Admin only
       allow create: if true;                       // Any user can vote (signed in or not)
       allow update, delete: if false;              // Immutable
+    }
+
+    // ── Luminary global lantern counter ─────────────────────────────────────
+    match /luminary/{docId} {
+      allow read: if true;                         // Public read (title screen counter)
+      // Only allow updates where globalLanterns increments by exactly 1
+      allow update: if request.resource.data.globalLanterns is int
+        && request.resource.data.globalLanterns == resource.data.globalLanterns + 1;
+      // Allow initial creation (counter bootstrapping) — doc must have globalLanterns as int
+      allow create: if request.resource.data.globalLanterns is int
+        && request.resource.data.globalLanterns >= 0;
+    }
+
+    // ── MadiVerse cloud saves ───────────────────────────────────────────────
+    match /madiverse_saves/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── MadiVerse global user directory (everyone is friends) ──────────────
+    match /madiverse_users/{uid} {
+      // Anyone authenticated can read all users
+      allow read: if request.auth != null;
+      // Users can only write their own profile
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ── MadiVerse global chat ────────────────────────────────────────────────
+    match /madiverse_chat/{msgId} {
+      // Anyone authenticated can read chat messages
+      allow read: if request.auth != null;
+      // Authenticated users can create messages (not update/delete)
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasAll(['name', 'text', 'uid', 'ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 200
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 20;
+      // No one can update or delete messages (admin can via console)
+      allow update, delete: if false;
     }
   }
 }
