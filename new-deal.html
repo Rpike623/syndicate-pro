@@ -1765,6 +1765,8 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
     }
     
     function createDeal() {
+      // Force recalc to ensure totalCapital/totalEquity are current
+      calculateCapital();
       const deal = {
         id: Date.now().toString(),
         name: document.getElementById('dealName').value,
@@ -1772,9 +1774,11 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
         propertyType: document.getElementById('propertyType').value,
         companyName: document.getElementById('companyName').value,
         state: document.getElementById('state').value,
-        purchasePrice: parseCurrencyInput('purchasePrice') || 0,
-        loanAmount: parseCurrencyInput('loanAmount') || 0,
-        totalEquity: parseFloat(document.getElementById('totalEquity').value.replace(/,/g, '')) || 0,
+        purchasePrice: Number(parseCurrencyInput('purchasePrice')) || 0,
+        closingCosts: Number(parseCurrencyInput('closingCosts')) || 0,
+        capexReserve: Number(parseCurrencyInput('capexReserve')) || 0,
+        loanAmount: Number(parseCurrencyInput('loanAmount')) || 0,
+        totalEquity: Number(parseFloat(document.getElementById('totalEquity').value.replace(/,/g, ''))) || 0,
         gpEquity: parseFloat(document.getElementById('gpEquity').value) || 10,
         lpEquity: parseFloat(document.getElementById('lpEquity').value) || 90,
         prefReturn: parseFloat(document.getElementById('prefReturn').value) || 8,
@@ -1816,9 +1820,9 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
         name: deal.name,
         type: (deal.propertyType || 'other').toLowerCase(),
         location: deal.propertyAddress || deal.principalOffice || deal.state || '',
-        raise: deal.totalEquity || 0,
-        irr: finalIRR,
-        equity: finalEM,
+        raise: Number(deal.totalEquity) || 0,
+        irr: Number(finalIRR) || 0,
+        equity: Number(finalEM) || 0,
         units: parseInt(document.getElementById('propertySize')?.value) || 0,
         status: 'sourcing',
         added: deal.createdAt ? deal.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
@@ -1832,9 +1836,9 @@ window.addEventListener("spdata-ready", _onDataLoaded_newdealhtm);
         gpEquity: deal.gpEquity || 10,
         lpEquity: deal.lpEquity || 90,
         waterfallType: deal.waterfallType || 'simple',
-        purchasePrice: deal.purchasePrice || 0,
-        loanAmount: deal.loanAmount || 0,
-        totalEquity: deal.totalEquity || 0,
+        purchasePrice: Number(deal.purchasePrice) || 0,
+        loanAmount: Number(deal.loanAmount) || 0,
+        totalEquity: Number(deal.totalEquity) || 0,
         acqFee: deal.acqFee || 3,
         assetMgmtFee: deal.assetMgmtFee || 2,
         companyName: deal.companyName || '',
