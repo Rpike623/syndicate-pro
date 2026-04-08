@@ -177,6 +177,12 @@ let _requestId = null;
   await new Promise(r => { const i = setInterval(() => { if (typeof firebase !== 'undefined' && firebase.apps.length) { clearInterval(i); r(); } }, 100); setTimeout(r, 5000); });
   _db = firebase.firestore();
 
+  // Wait briefly for Firebase Auth to resolve (IndexedDB session restore)
+  await new Promise(r => {
+    const unsubscribe = firebase.auth().onAuthStateChanged(() => { unsubscribe(); r(); });
+    setTimeout(r, 3000); // max 3s wait
+  });
+
   try {
     // Load signing request from top-level esign_requests collection
     const doc = await _db.collection('esign_requests').doc(_requestId).get();
