@@ -53,7 +53,7 @@ async function graphSendMail(to, subject, html, token, options = {}) {
   const allAddrs = Array.isArray(to) ? to : [to];
   const realRecipients = allAddrs.filter(addr => !demoPatterns.some(p => addr.toLowerCase().endsWith(p)));
   if (realRecipients.length === 0) {
-    console.log('[Email] Suppressed — all recipients are demo/fake:', recipients.join(', '));
+    console.log('[Email] Suppressed — all recipients are demo/fake:', allAddrs.join(', '));
     return;
   }
   to = realRecipients.length === 1 ? realRecipients[0] : realRecipients;
@@ -227,8 +227,10 @@ exports.onCapitalCallCreated = onDocumentCreated(
 exports.onDistributionCreated = onDocumentCreated(
   { document: 'orgs/{orgId}/distributions/{distId}', region: 'us-central1' },
   async (event) => {
+    console.log('[onDistributionCreated] Triggered for', event.params.orgId, event.params.distId);
     const dist  = event.data.data();
     const orgId = event.params.orgId;
+    console.log('[onDistributionCreated] Recipients:', (dist.recipients || []).length, 'dealName:', dist.dealName);
 
     // Resolve deal name — dist may have dealName directly or only dealId
     let dealName = dist.dealName || null;

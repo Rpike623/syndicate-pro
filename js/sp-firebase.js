@@ -587,6 +587,25 @@ const SPFB = (function () {
     return false;
   }
 
+  // Periodically reload auth to pick up email verification status changes
+  // Firebase Auth doesn't auto-refresh emailVerified after the user clicks the link
+  (function _pollEmailVerified() {
+    setInterval(async () => {
+      if (!_user || _user.emailVerified) return;
+      try {
+        await _user.reload();
+        _user = firebase.auth().currentUser; // refresh reference
+        if (_user.emailVerified) {
+          const banner = document.getElementById('email-verify-banner');
+          if (banner) {
+            banner.remove();
+            document.body.style.paddingTop = '';
+          }
+        }
+      } catch (e) { /* ignore reload errors */ }
+    }, 30000); // check every 30 seconds
+  })();
+
   // Resend verification email
   async function resendVerification() {
     if (!_user) throw new Error('Not signed in');
