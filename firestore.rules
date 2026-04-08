@@ -164,11 +164,20 @@ service cloud.firestore {
 
     // ── E-Sign Requests (top-level, cross-org) ────────────────────────────
     match /esign_requests/{reqId} {
+      // GP can create, read and update their org's requests
       allow create: if isSignedIn() && !isInvestorRole();
       allow read, update: if isSignedIn() && !isInvestorRole()
         && resource.data.orgId == userOrgId();
+      // Investors can read/update requests addressed to them
       allow read, update: if isSignedIn() && isInvestorRole()
         && resource.data.investorEmail == request.auth.token.email;
+      // Anyone can read a signing request by ID (for sign.html links)
+      // Security: request IDs are random 20-char Firestore auto-IDs (unguessable)
+      allow read: if resource.data.status in ['pending', 'sent', 'viewed'];
+      // Allow signed-in users to update status (mark viewed / submit signature)
+      allow update: if isSignedIn()
+        && resource.data.status in ['pending', 'sent', 'viewed']
+        && request.resource.data.status in ['viewed', 'signed'];
     }
 
     // ── Audit logs — Cloud Functions only ───────────────────────────────────
