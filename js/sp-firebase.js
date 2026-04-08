@@ -101,7 +101,7 @@ const SPFB = (function () {
       'investor@deeltrack.com': 'Investor',
     };
 
-    _db.collection('users').doc(fbUser.uid).get().then(doc => {
+    _db.collection('users').doc(fbUser.uid).get().then(async doc => {
       if (doc.exists) {
         _spUser = doc.data();
         // If user upgraded from anonymous to real account, update email/name
