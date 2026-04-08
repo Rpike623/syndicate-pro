@@ -321,8 +321,8 @@ exports.createCheckoutSession = onCall(
         trial_period_days: trialDays,
         metadata: { firebaseUid: uid, plan },
       },
-      success_url: 'https://deeltrack.com/settings.html?billing=success&plan=' + plan,
-      cancel_url: 'https://deeltrack.com/settings.html?billing=cancel',
+      success_url: 'https://deeltrack.web.app/settings.html?billing=success&plan=' + plan,
+      cancel_url: 'https://deeltrack.web.app/settings.html?billing=cancel',
       metadata: { firebaseUid: uid, plan },
     };
 
@@ -988,7 +988,7 @@ exports.createBillingPortalSession = onCall(
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: 'https://deeltrack.com/settings.html',
+      return_url: 'https://deeltrack.web.app/settings.html',
     });
 
     return { url: session.url };
@@ -1535,6 +1535,7 @@ exports.getSubscriptionStatus = onCall(
           cancelAtPeriodEnd: stripeSub.cancel_at_period_end,
           quantity: stripeSub.items.data[0]?.quantity || 1,
           activeDealCount: sub.activeDealCount || null,
+          stripeSubscriptionId: sub.stripeSubscriptionId || null,
         };
       } catch (err) {
         console.error('[getSubscriptionStatus] Stripe error:', err.message);
@@ -1548,6 +1549,7 @@ exports.getSubscriptionStatus = onCall(
       trialEnd: sub.trialEnd || null,
       currentPeriodEnd: sub.currentPeriodEnd || null,
       activeDealCount: sub.activeDealCount || null,
+      stripeSubscriptionId: sub.stripeSubscriptionId || null,
     };
   }
 );

@@ -133,7 +133,6 @@ const SPFB = (function () {
               const lookupData = lookupDoc.data();
               if (lookupData.orgId) resolvedOrgId = lookupData.orgId;
               safeRole = 'Investor';
-              console.log(`SPFB: Auto-detected investor role for ${localEmail} in org ${resolvedOrgId}`);
             }
           } catch (e) {
             console.warn('SPFB: investorLookup query failed:', e.message);
