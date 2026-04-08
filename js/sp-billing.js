@@ -18,7 +18,8 @@
  *   OR use Stripe Customer Portal for upgrades/downgrades
  */
 
-const SPBilling = (function () {
+if (typeof window.SPBilling === 'undefined')
+window.SPBilling = (function () {
   'use strict';
 
   // ── Plans ────────────────────────────────────────────────────────────────────
@@ -149,10 +150,12 @@ const SPBilling = (function () {
   function getAllPlans() { return Object.values(PLANS); }
 
   function isTrialing() {
+    if (!_sub) return false;
     return _sub.status === 'trialing' && _sub.trialEnd && Date.now() < _sub.trialEnd;
   }
 
   function isTrialExpired() {
+    if (!_sub) return false;
     return _sub.plan === 'free' && _sub.trialEnd && Date.now() > _sub.trialEnd;
   }
 

@@ -16,7 +16,8 @@
  *   Investor signs → status updated to "signed" → GP notified
  */
 
-const SPEsign = (() => {
+if (typeof window.SPEsign === 'undefined')
+window.SPEsign = (() => {
   const FIRMA_BASE = 'https://api.firma.dev/functions/v1/signing-request-api';
   let _firmaKey = null;
   let _firmaEnabled = false;

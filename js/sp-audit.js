@@ -3,7 +3,8 @@
  * Tracks critical deal and investor actions for compliance and GP oversight.
  */
 
-const SPAudit = (() => {
+if (typeof window.SPAudit === 'undefined')
+window.SPAudit = (() => {
   const _id = (prefix) => prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
 
   async function log(action, entityType, entityId, entityName, detail) {

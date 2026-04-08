@@ -11,7 +11,8 @@
  * All notifications are idempotent — tracks sent notifications to avoid duplicates.
  */
 
-const SPNotify = (() => {
+if (typeof window.SPNotify === 'undefined')
+window.SPNotify = (() => {
   'use strict';
 
   let _initialized = false;

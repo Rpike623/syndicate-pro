@@ -10,7 +10,8 @@
  * Pages listen for 'spdata-ready' event to re-render with live data.
  */
 
-const SPData = (() => {
+if (typeof window.SPData === 'undefined')
+window.SPData = (() => {
 
   // ── In-memory cache ────────────────────────────────────────────────────────
   const _cache = {

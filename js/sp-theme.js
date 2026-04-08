@@ -3,7 +3,8 @@
  * Manages institutional branding, accessibility, and high-fidelity transitions.
  */
 
-const SPTheme = (() => {
+if (typeof window.SPTheme === 'undefined')
+window.SPTheme = (() => {
   const _brand = {
     primary: '#1B1A19',
     accent: '#F37925',
@@ -55,4 +56,4 @@ const SPTheme = (() => {
   return { init: applyInstitutionalDefaults };
 })();
 
-if (typeof document !== 'undefined') SPTheme.init();
+if (typeof document !== 'undefined' && !document.getElementById('sp-theme-institutional')) SPTheme.init();

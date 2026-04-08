@@ -123,6 +123,11 @@ service cloud.firestore {
         allow read, write: if ownsOrg(orgId);
       }
 
+      match /audit_logs/{logId} {
+        allow read: if ownsOrg(orgId) && !isInvestorRole();
+        allow create: if ownsOrg(orgId);
+      }
+
       match /settings/{settingId} {
         allow read, write: if ownsOrg(orgId) && !isInvestorRole();
       }
